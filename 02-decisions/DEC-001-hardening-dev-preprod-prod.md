@@ -300,7 +300,7 @@ Ces checks sont **requis** avant le deploy PREPROD.
 |---|--------|--------|--------|-------|--------|
 | P2.1 | Créer structure `tools/scripts/` | S | Low | Yes | ✅ DONE |
 | P2.2 | Créer `tools/README.md` avec inventaire (76 scripts) | S | Low | Yes | ✅ DONE |
-| P2.3 | Déplacer CSV vers stockage externe (S3) | L | Medium | Yes | TODO |
+| P2.3 | Déplacer CSV vers RAG Knowledge | S | Low | Yes | ✅ DONE |
 | P2.4 | Convertir top 10 scripts en migrations SQL | L | Medium | No | TODO |
 
 #### P2.1-P2.2 — Structure tools/ et inventaire
@@ -315,6 +315,21 @@ Inventaire complet des 76 scripts avec :
 
 **Note**: Les scripts restent dans `backend/` pour éviter un big bang.
 Migration progressive vers `tools/scripts/` planifiée.
+
+#### P2.3 — CSV vers RAG Knowledge
+
+**Destination**: `/opt/automecanik/rag/knowledge/seo-data/`
+
+Fichiers migrés depuis `backend/*.csv` :
+- `gammes_keywords.csv` - Mots-clés SEO par gamme
+- `gammes_seo_expert.csv` - Données SEO enrichies
+- `gammes_search_volumes.csv` - Volumes de recherche
+- `gammes_with_trends.csv` - Tendances Google
+- `gammes_editable.csv` - Gammes éditables
+
+Exports Google Ads dans `seo-data/google-ads/`.
+
+**Avantage RAG** : Données accessibles pour enrichissement des réponses Claude et génération de contenu SEO.
 
 ---
 
@@ -351,3 +366,5 @@ Migration progressive vers `tools/scripts/` planifiée.
 | 2026-02-02 | P2.2 - Créer tools/README.md (inventaire 76 scripts) | ✅ DONE |
 | 2026-02-02 | Commit P2.1-P2.2 (`a0ea773e`) | ✅ OK |
 | 2026-02-02 | **PHASE P2.1-P2.2 TERMINÉE** | ✅ VALIDÉE |
+| 2026-02-02 | P2.3 - Déplacer CSV vers RAG Knowledge | ✅ DONE |
+| 2026-02-02 | **PHASE P2.3 TERMINÉE** | ✅ VALIDÉE |
