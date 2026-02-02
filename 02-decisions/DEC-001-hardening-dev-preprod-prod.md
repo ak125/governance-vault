@@ -301,7 +301,42 @@ Ces checks sont **requis** avant le deploy PREPROD.
 | P2.1 | Créer structure `tools/scripts/` | S | Low | Yes | ✅ DONE |
 | P2.2 | Créer `tools/README.md` avec inventaire (76 scripts) | S | Low | Yes | ✅ DONE |
 | P2.3 | Déplacer CSV vers RAG Knowledge | S | Low | Yes | ✅ DONE |
-| P2.4 | Convertir top 10 scripts en migrations SQL | L | Medium | No | TODO |
+| P2.4 | Convertir top 10 scripts en migrations SQL | L | Medium | No | ⏸️ DEFERRED |
+
+### Phase 3 — Performance & Sécurité
+
+| Tâche | Description | Effort | Risque | Reversible | Status |
+|-------|-------------|--------|--------|------------|--------|
+| P3.1 | Rate Limiting endpoints sensibles | M | Low | Yes | ✅ DONE |
+| P3.2 | SEO Module Decomposition | L | Medium | Yes | TODO |
+| P3.3 | N+1 Query Optimization | M | Low | Yes | TODO |
+
+#### P3.1 — Rate Limiting endpoints
+
+**Commit**: `b381d95a`
+
+**Fichiers créés**:
+- `backend/src/common/decorators/rate-limit.decorator.ts` — 6 décorateurs
+- `backend/src/common/interceptors/rate-limit-headers.interceptor.ts` — Headers X-RateLimit-*
+- `backend/src/common/guards/custom-throttler.guard.ts` — Guard avec bypass admin
+
+**Décorateurs disponibles**:
+| Décorateur | Limite | Usage |
+|------------|--------|-------|
+| `@RateLimit(n, ttl)` | Custom | Personnalisé |
+| `@RateLimitStrict()` | 5/min | Opérations coûteuses |
+| `@RateLimitModerate()` | 30/min | API standard |
+| `@RateLimitSitemap()` | 3/min | Génération sitemaps |
+| `@RateLimitSearch()` | 20/min | Recherche full-text |
+
+**Controllers protégés (9)**:
+- Sitemap: `sitemap-v10`, `sitemap-unified`, `sitemap-streaming`, `sitemap-delta`
+- Search: `search.controller.ts`
+- Catalog: `catalog-gamme`, `vehicle-hierarchy`, `compatibility`, `family-gamme-hierarchy`
+
+**Bypass automatique**: Admin users (level >= 7) + Localhost/Docker
+
+---
 
 #### P2.1-P2.2 — Structure tools/ et inventaire
 
@@ -368,3 +403,6 @@ Exports Google Ads dans `seo-data/google-ads/`.
 | 2026-02-02 | **PHASE P2.1-P2.2 TERMINÉE** | ✅ VALIDÉE |
 | 2026-02-02 | P2.3 - Déplacer CSV vers RAG Knowledge | ✅ DONE |
 | 2026-02-02 | **PHASE P2.3 TERMINÉE** | ✅ VALIDÉE |
+| 2026-02-02 | P3.1 - Rate Limiting endpoints (9 controllers, 6 décorateurs) | ✅ DONE |
+| 2026-02-02 | Commit P3.1 (`b381d95a`) | ✅ OK |
+| 2026-02-02 | **PHASE P3.1 TERMINÉE** | ✅ VALIDÉE |
