@@ -25,6 +25,7 @@ Master Index du vault de gouvernance AutoMecanik.
 
 ## Meta
 
+- [[README]] - Documentation du vault
 - [[signing-policy]] - Politique de signature
 - [[key-registry]] - Registre des clés
 - [[sync-log]] - Log de synchronisation
