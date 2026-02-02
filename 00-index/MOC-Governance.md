@@ -19,7 +19,8 @@ Master Index du vault de gouvernance AutoMecanik.
 |-------|-------------|-------------|
 | R-Vault-01 | Canon fait foi | Sync one-way |
 | R-Vault-02 | Zéro orphelin | check-orphans.sh |
-| R-Vault-03 | Commits signés | GitHub branch protection |
+| R-Vault-03 | Commits signés | Hook pre-push + config git |
+| R-Vault-04 | CI read-only | Aucun write token |
 
 ---
 
@@ -29,6 +30,8 @@ Master Index du vault de gouvernance AutoMecanik.
 - [[signing-policy]] - Politique de signature
 - [[key-registry]] - Registre des clés
 - [[sync-log]] - Log de synchronisation
+- [[ci-policy]] - Politique CI/CD (read-only)
+- [[cron-setup]] - Configuration des crons
 
 ---
 
