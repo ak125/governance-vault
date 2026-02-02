@@ -9,7 +9,7 @@
 
 | ID | Propriétaire | Email | Fingerprint | Ajouté | Statut |
 |----|--------------|-------|-------------|--------|--------|
-| K001 | Admin VPS | vault-signing@automecanik.com | `À COMPLÉTER` | 2026-02-02 | Actif |
+| K001 | Deploy VPS | vault-signing@automecanik.com | `SHA256:qBBgd1ZloPXm0MkTd7L1fWe8OCAs8BjDfw6h7pxQCow` | 2026-02-02 | Actif |
 
 ---
 
@@ -33,7 +33,7 @@ Contenu du fichier `~/.ssh/allowed_signers`:
 # governance-vault allowed signers
 # Format: email key-type public-key comment
 
-vault-signing@automecanik.com ssh-ed25519 AAAA... K001-admin-vps
+vault-signing@automecanik.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICjDduq8ifx/Uesw0qemXsLjrgPNzZju+zEQnmGAX4wa K001-deploy-vps
 ```
 
 ---
