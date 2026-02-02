@@ -20,7 +20,7 @@ Index des ADR (Architecture Decision Records) et décisions opérationnelles.
 
 | ID | Titre | Status | Date |
 |----|-------|--------|------|
-| DEC-001 | [[2026-02-02-hardening-dev-preprod-prod\|Hardening DEV/PREPROD/PROD]] | Implemented | 2026-02-02 |
+| DEC-001 | [[DEC-001-hardening-dev-preprod-prod\|Hardening DEV/PREPROD/PROD]] | Implemented | 2026-02-02 |
 
 ---
 
@@ -30,13 +30,21 @@ Index des ADR (Architecture Decision Records) et décisions opérationnelles.
 - (à documenter)
 
 ### Sécurité
-- [[2026-02-02-hardening-dev-preprod-prod|Hardening DEV/PREPROD/PROD]] - Phases P0+P1
+- [[DEC-001-hardening-dev-preprod-prod|Hardening DEV/PREPROD/PROD]] - Phases P0+P1
 
 ### Performance
 - (à documenter)
 
 ### SEO
 - (à documenter)
+
+---
+
+## Liens Exécution
+
+| Décision | Plan | Checklist |
+|----------|------|-----------|
+| [[DEC-001-hardening-dev-preprod-prod]] | [[DEC-001-execution-plan]] | [[pre-deploy-hardening]] |
 
 ---
 

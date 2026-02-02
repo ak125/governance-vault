@@ -8,6 +8,7 @@ Master Index du vault de gouvernance AutoMecanik.
 
 - [[MOC-Incidents]] - Post-mortems et incidents
 - [[MOC-Decisions]] - ADR et décisions opérationnelles
+- [[MOC-Compliance]] - Plans d'exécution et checklists
 - [[MOC-Rules]] - Règles techniques et gouvernance
 - [[MOC-Knowledge]] - Base de connaissances
 
@@ -39,9 +40,10 @@ Master Index du vault de gouvernance AutoMecanik.
 
 | Métrique | Valeur |
 |----------|--------|
-| Documents | ~25 |
+| Documents | ~30 |
 | Incidents | 0 |
 | ADR | 0 |
+| Décisions | 1 |
 | Règles | 19 |
 
 *Dernière mise à jour: 2026-02-02*
