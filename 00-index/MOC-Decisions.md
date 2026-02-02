@@ -30,7 +30,7 @@ Index des ADR (Architecture Decision Records) et décisions opérationnelles.
 - (à documenter)
 
 ### Sécurité
-- [[DEC-001-hardening-dev-preprod-prod|Hardening DEV/PREPROD/PROD]] - Phases P0+P1
+- [[DEC-001-hardening-dev-preprod-prod|Hardening DEV/PREPROD/PROD]] - Phases P0+P1+P2.1-P2.2 ✅
 
 ### Performance
 - (à documenter)
