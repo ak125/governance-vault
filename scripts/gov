@@ -1,0 +1,172 @@
+#!/usr/bin/env bash
+# gov - Commande unifiée pour opérer le governance vault
+# Usage: gov [--dry-run] [--no-push] [--message "..."]
+#
+# Par défaut: dry-run + confirmation avant commit + push
+set -euo pipefail
+
+VAULT_PATH="${VAULT_PATH:-/opt/automecanik/governance-vault}"
+MONOREPO_PATH="${MONOREPO_PATH:-/opt/automecanik/app}"
+
+DRY_RUN=false
+NO_PUSH=false
+CUSTOM_MESSAGE=""
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --dry-run) DRY_RUN=true; shift ;;
+    --no-push) NO_PUSH=true; shift ;;
+    --message) CUSTOM_MESSAGE="$2"; shift 2 ;;
+    -m) CUSTOM_MESSAGE="$2"; shift 2 ;;
+    *) echo "Unknown option: $1"; exit 1 ;;
+  esac
+done
+
+cd "$VAULT_PATH"
+
+echo "╔════════════════════════════════════════════╗"
+echo "║       GOVERNANCE VAULT OPERATOR            ║"
+echo "╚════════════════════════════════════════════╝"
+echo ""
+
+# Step 1: Pre-flight checks
+echo "▶ Pre-flight checks..."
+
+# Check signing config
+if [[ "$(git config --get commit.gpgsign 2>/dev/null)" != "true" ]]; then
+  echo "❌ commit.gpgsign is not true"
+  echo "   Run: git config commit.gpgsign true"
+  exit 1
+fi
+
+if [[ "$(git config --get gpg.format 2>/dev/null)" != "ssh" ]]; then
+  echo "❌ gpg.format is not ssh"
+  echo "   Run: git config gpg.format ssh"
+  exit 1
+fi
+
+SIGNING_KEY=$(git config --get user.signingkey 2>/dev/null || echo "")
+if [[ -z "$SIGNING_KEY" ]]; then
+  echo "❌ user.signingkey not set"
+  exit 1
+fi
+
+# Check pre-push hook
+if [[ ! -x "$VAULT_PATH/.git/hooks/pre-push" ]]; then
+  echo "⚠️  pre-push hook missing or not executable"
+fi
+
+echo "✅ Signing config OK"
+echo ""
+
+# Step 2: Check for dirty state
+if [[ -n "$(git status --porcelain)" ]]; then
+  echo "⚠️  Uncommitted changes detected:"
+  git status --short
+  echo ""
+  read -p "Continue anyway? [y/N] " -n 1 -r
+  echo ""
+  if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    echo "Aborted."
+    exit 1
+  fi
+fi
+
+# Step 3: Sync canon (dry-run first)
+echo "▶ Checking canon sync..."
+SYNC_OUTPUT=$("$VAULT_PATH/scripts/sync-canon.sh" --dry-run 2>&1)
+echo "$SYNC_OUTPUT"
+echo ""
+
+if echo "$SYNC_OUTPUT" | grep -q "changes detected"; then
+  NEEDS_SYNC=true
+else
+  NEEDS_SYNC=false
+fi
+
+# Step 4: Check orphans
+echo "▶ Checking orphans..."
+ORPHAN_SCRIPT="$MONOREPO_PATH/.spec/governance/scripts/check-orphans.sh"
+if [[ -x "$ORPHAN_SCRIPT" ]]; then
+  if ! "$ORPHAN_SCRIPT" "$VAULT_PATH"; then
+    echo "❌ Orphans detected. Fix before continuing."
+    exit 1
+  fi
+else
+  echo "⚠️  check-orphans.sh not found at $ORPHAN_SCRIPT"
+fi
+echo ""
+
+# If dry-run mode, stop here
+if [[ "$DRY_RUN" == true ]]; then
+  echo "═══════════════════════════════════════════"
+  echo "DRY-RUN complete. No changes made."
+  echo "To apply: gov"
+  exit 0
+fi
+
+# Step 5: Apply sync if needed
+if [[ "$NEEDS_SYNC" == true ]]; then
+  echo "▶ Apply sync? [y/N]"
+  read -p "" -n 1 -r
+  echo ""
+  if [[ $REPLY =~ ^[Yy]$ ]]; then
+    "$VAULT_PATH/scripts/sync-canon.sh" --commit
+  else
+    echo "Skipped sync."
+  fi
+fi
+
+# Step 6: Check if there are changes to commit
+if [[ -n "$(git status --porcelain)" ]]; then
+  echo ""
+  echo "▶ Uncommitted changes:"
+  git status --short
+  echo ""
+
+  if [[ -z "$CUSTOM_MESSAGE" ]]; then
+    read -p "Commit message (or empty to skip): " CUSTOM_MESSAGE
+  fi
+
+  if [[ -n "$CUSTOM_MESSAGE" ]]; then
+    git add -A
+    git commit -S -m "$CUSTOM_MESSAGE"
+    echo "✅ Commit signé créé"
+  fi
+fi
+
+# Step 7: Verify signature
+echo ""
+echo "▶ Verifying signature..."
+if git log --show-signature -1 2>&1 | grep -q "Good \"git\" signature"; then
+  echo "✅ Good signature verified"
+else
+  echo "❌ Signature verification failed"
+  git log --show-signature -1
+  exit 1
+fi
+
+# Step 8: Push
+if [[ "$NO_PUSH" == true ]]; then
+  echo ""
+  echo "═══════════════════════════════════════════"
+  echo "Done. Push skipped (--no-push)."
+  echo "To push: git push origin main"
+  exit 0
+fi
+
+echo ""
+echo "▶ Push to origin? [y/N]"
+read -p "" -n 1 -r
+echo ""
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+  git push origin main
+  echo "✅ Push complete"
+else
+  echo "Push skipped."
+fi
+
+echo ""
+echo "═══════════════════════════════════════════"
+echo "✅ Governance vault operation complete"
