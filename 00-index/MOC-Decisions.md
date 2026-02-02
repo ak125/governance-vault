@@ -18,7 +18,9 @@ Index des ADR (Architecture Decision Records) et décisions opérationnelles.
 
 ## Décisions Opérationnelles Récentes
 
-*Aucune décision documentée pour le moment.*
+| ID | Titre | Status | Date |
+|----|-------|--------|------|
+| DEC-001 | [[2026-02-02-hardening-dev-preprod-prod\|Hardening DEV/PREPROD/PROD]] | Implemented | 2026-02-02 |
 
 ---
 
@@ -28,7 +30,7 @@ Index des ADR (Architecture Decision Records) et décisions opérationnelles.
 - (à documenter)
 
 ### Sécurité
-- (à documenter)
+- [[2026-02-02-hardening-dev-preprod-prod|Hardening DEV/PREPROD/PROD]] - Phases P0+P1
 
 ### Performance
 - (à documenter)
