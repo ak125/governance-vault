@@ -1,172 +1,170 @@
 #!/usr/bin/env bash
-# gov - Commande unifiée pour opérer le governance vault
-# Usage: gov [--dry-run] [--no-push] [--message "..."]
-#
-# Par défaut: dry-run + confirmation avant commit + push
 set -euo pipefail
 
-VAULT_PATH="${VAULT_PATH:-/opt/automecanik/governance-vault}"
-MONOREPO_PATH="${MONOREPO_PATH:-/opt/automecanik/app}"
+# ----------------------------
+# gov — Governance Vault runner
+# dry-run → confirmation → signed commit → check-orphans → push
+# ----------------------------
 
-DRY_RUN=false
-NO_PUSH=false
-CUSTOM_MESSAGE=""
+GOV_VAULT_DIR="${GOV_VAULT_DIR:-/opt/automecanik/governance-vault}"
+NO_PUSH=0
+FORCE_DRY_RUN=0
+CUSTOM_MSG=""
 
-# Parse arguments
+usage() {
+  cat <<'USAGE'
+Usage:
+  gov [--dry-run] [--no-push] [--message "commit message"] [--help]
+
+Environment:
+  GOV_VAULT_DIR=/path/to/governance-vault   (default: /opt/automecanik/governance-vault)
+
+Behavior:
+  - Default: run sync in dry-run, show changes, ask for confirmation.
+  - If confirmed: apply sync (--commit), run orphan check, ensure last commit is signed, push.
+
+Options:
+  --dry-run        Only show what would change (no commit, no push).
+  --no-push        Allow commit but do not push.
+  --message "..."  Custom commit message for the sync commit (best effort).
+  --help           Show help.
+
+USAGE
+}
+
+info()  { echo "ℹ️  $*"; }
+ok()    { echo "✅ $*"; }
+warn()  { echo "⚠️  $*"; }
+err()   { echo "❌ $*" 1>&2; }
+
+need_cmd() {
+  command -v "$1" >/dev/null 2>&1 || { err "Missing command: $1"; exit 1; }
+}
+
+# Parse args
 while [[ $# -gt 0 ]]; do
-  case $1 in
-    --dry-run) DRY_RUN=true; shift ;;
-    --no-push) NO_PUSH=true; shift ;;
-    --message) CUSTOM_MESSAGE="$2"; shift 2 ;;
-    -m) CUSTOM_MESSAGE="$2"; shift 2 ;;
-    *) echo "Unknown option: $1"; exit 1 ;;
+  case "$1" in
+    --dry-run) FORCE_DRY_RUN=1; shift ;;
+    --no-push) NO_PUSH=1; shift ;;
+    --message) CUSTOM_MSG="${2:-}"; shift 2 ;;
+    --help|-h) usage; exit 0 ;;
+    *) err "Unknown argument: $1"; usage; exit 2 ;;
   esac
 done
 
-cd "$VAULT_PATH"
+need_cmd git
 
-echo "╔════════════════════════════════════════════╗"
-echo "║       GOVERNANCE VAULT OPERATOR            ║"
-echo "╚════════════════════════════════════════════╝"
-echo ""
-
-# Step 1: Pre-flight checks
-echo "▶ Pre-flight checks..."
-
-# Check signing config
-if [[ "$(git config --get commit.gpgsign 2>/dev/null)" != "true" ]]; then
-  echo "❌ commit.gpgsign is not true"
-  echo "   Run: git config commit.gpgsign true"
+if [[ ! -d "$GOV_VAULT_DIR/.git" ]]; then
+  err "Vault directory not found or not a git repo: $GOV_VAULT_DIR"
   exit 1
 fi
 
-if [[ "$(git config --get gpg.format 2>/dev/null)" != "ssh" ]]; then
-  echo "❌ gpg.format is not ssh"
-  echo "   Run: git config gpg.format ssh"
+cd "$GOV_VAULT_DIR"
+
+# Basic sanity
+if [[ -z "$(git rev-parse --is-inside-work-tree 2>/dev/null || true)" ]]; then
+  err "Not inside a git work tree: $GOV_VAULT_DIR"
   exit 1
 fi
 
-SIGNING_KEY=$(git config --get user.signingkey 2>/dev/null || echo "")
-if [[ -z "$SIGNING_KEY" ]]; then
-  echo "❌ user.signingkey not set"
+SYNC_SCRIPT="./scripts/sync-canon.sh"
+ORPHANS_SCRIPT="./scripts/check-orphans.sh"
+
+if [[ ! -x "$SYNC_SCRIPT" ]]; then
+  err "Missing or non-executable: $SYNC_SCRIPT"
+  err "Fix: chmod +x $SYNC_SCRIPT"
   exit 1
 fi
 
-# Check pre-push hook
-if [[ ! -x "$VAULT_PATH/.git/hooks/pre-push" ]]; then
-  echo "⚠️  pre-push hook missing or not executable"
+if [[ ! -x "$ORPHANS_SCRIPT" ]]; then
+  err "Missing or non-executable: $ORPHANS_SCRIPT"
+  err "Fix: chmod +x $ORPHANS_SCRIPT"
+  exit 1
 fi
 
-echo "✅ Signing config OK"
-echo ""
+# Ensure signing is enabled in repo (we don't force global)
+SIGNING="$(git config --get commit.gpgsign || true)"
+FORMAT="$(git config --get gpg.format || true)"
+SIGNKEY="$(git config --get user.signingkey || true)"
 
-# Step 2: Check for dirty state
+if [[ "$SIGNING" != "true" || "$FORMAT" != "ssh" || -z "$SIGNKEY" ]]; then
+  warn "Git signing is not fully configured in this repo."
+  warn "Expected: commit.gpgsign=true, gpg.format=ssh, user.signingkey set"
+  warn "Current: commit.gpgsign=${SIGNING:-<unset>}, gpg.format=${FORMAT:-<unset>}, user.signingkey=${SIGNKEY:-<unset>}"
+  err "Refusing to proceed (ledger requires signed commits)."
+  exit 1
+fi
+
+# Show status
+info "Vault: $GOV_VAULT_DIR"
+info "Branch: $(git branch --show-current)"
+info "Remote: $(git remote get-url origin 2>/dev/null || echo '<no origin>')"
+
+# Ensure clean worktree before running (optional but safer)
 if [[ -n "$(git status --porcelain)" ]]; then
-  echo "⚠️  Uncommitted changes detected:"
-  git status --short
-  echo ""
-  read -p "Continue anyway? [y/N] " -n 1 -r
-  echo ""
-  if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    echo "Aborted."
-    exit 1
-  fi
+  warn "Working tree is not clean. Showing status:"
+  git status --porcelain
+  warn "Proceeding is risky because changes may mix with sync output."
+  read -r -p "Continue anyway? (y/N) " cont
+  [[ "$cont" == "y" || "$cont" == "Y" ]] || { info "Aborted."; exit 0; }
 fi
 
-# Step 3: Sync canon (dry-run first)
-echo "▶ Checking canon sync..."
-SYNC_OUTPUT=$("$VAULT_PATH/scripts/sync-canon.sh" --dry-run 2>&1)
-echo "$SYNC_OUTPUT"
-echo ""
+# Always start with dry-run
+info "Running canon → vault sync (dry-run)..."
+set +e
+"$SYNC_SCRIPT"
+SYNC_RC=$?
+set -e
 
-if echo "$SYNC_OUTPUT" | grep -q "changes detected"; then
-  NEEDS_SYNC=true
-else
-  NEEDS_SYNC=false
+if [[ $SYNC_RC -ne 0 ]]; then
+  err "sync-canon.sh failed in dry-run (exit=$SYNC_RC)."
+  exit $SYNC_RC
 fi
 
-# Step 4: Check orphans
-echo "▶ Checking orphans..."
-ORPHAN_SCRIPT="$MONOREPO_PATH/.spec/governance/scripts/check-orphans.sh"
-if [[ -x "$ORPHAN_SCRIPT" ]]; then
-  if ! "$ORPHAN_SCRIPT" "$VAULT_PATH"; then
-    echo "❌ Orphans detected. Fix before continuing."
-    exit 1
-  fi
-else
-  echo "⚠️  check-orphans.sh not found at $ORPHAN_SCRIPT"
-fi
-echo ""
-
-# If dry-run mode, stop here
-if [[ "$DRY_RUN" == true ]]; then
-  echo "═══════════════════════════════════════════"
-  echo "DRY-RUN complete. No changes made."
-  echo "To apply: gov"
+if [[ $FORCE_DRY_RUN -eq 1 ]]; then
+  ok "Dry-run completed. No changes applied."
   exit 0
 fi
 
-# Step 5: Apply sync if needed
-if [[ "$NEEDS_SYNC" == true ]]; then
-  echo "▶ Apply sync? [y/N]"
-  read -p "" -n 1 -r
-  echo ""
-  if [[ $REPLY =~ ^[Yy]$ ]]; then
-    "$VAULT_PATH/scripts/sync-canon.sh" --commit
-  else
-    echo "Skipped sync."
-  fi
-fi
-
-# Step 6: Check if there are changes to commit
-if [[ -n "$(git status --porcelain)" ]]; then
-  echo ""
-  echo "▶ Uncommitted changes:"
-  git status --short
-  echo ""
-
-  if [[ -z "$CUSTOM_MESSAGE" ]]; then
-    read -p "Commit message (or empty to skip): " CUSTOM_MESSAGE
-  fi
-
-  if [[ -n "$CUSTOM_MESSAGE" ]]; then
-    git add -A
-    git commit -S -m "$CUSTOM_MESSAGE"
-    echo "✅ Commit signé créé"
-  fi
-fi
-
-# Step 7: Verify signature
+# Ask confirmation
 echo ""
-echo "▶ Verifying signature..."
-if git log --show-signature -1 2>&1 | grep -q "Good \"git\" signature"; then
-  echo "✅ Good signature verified"
-else
-  echo "❌ Signature verification failed"
-  git log --show-signature -1
-  exit 1
-fi
-
-# Step 8: Push
-if [[ "$NO_PUSH" == true ]]; then
-  echo ""
-  echo "═══════════════════════════════════════════"
-  echo "Done. Push skipped (--no-push)."
-  echo "To push: git push origin main"
+read -r -p "Apply these changes to the vault and create a signed commit? (y/N) " ans
+if [[ "$ans" != "y" && "$ans" != "Y" ]]; then
+  ok "Nothing applied. Exiting."
   exit 0
 fi
 
-echo ""
-echo "▶ Push to origin? [y/N]"
-read -p "" -n 1 -r
-echo ""
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-  git push origin main
-  echo "✅ Push complete"
+# Apply changes + commit (script-owned)
+info "Applying sync (--commit)..."
+if [[ -n "$CUSTOM_MSG" ]]; then
+  # Best effort: if script supports message, pass it; otherwise ignore.
+  # If your sync script doesn't support it, it will just ignore/err.
+  "$SYNC_SCRIPT" --commit --message "$CUSTOM_MSG" 2>/dev/null || "$SYNC_SCRIPT" --commit
 else
-  echo "Push skipped."
+  "$SYNC_SCRIPT" --commit
 fi
 
-echo ""
-echo "═══════════════════════════════════════════"
-echo "✅ Governance vault operation complete"
+# Orphan check (hard block)
+info "Running orphan check..."
+"$ORPHANS_SCRIPT" .
+
+# Verify last commit is signed
+info "Verifying last commit signature..."
+LOG_OUT="$(git log --show-signature -1 || true)"
+echo "$LOG_OUT" | grep -q "Good \"git\" signature" || {
+  err "Last commit does not show a Good signature. Refusing to push."
+  err "Output was:"
+  echo "$LOG_OUT"
+  exit 1
+}
+ok "Signature OK."
+
+# Push (optional)
+if [[ $NO_PUSH -eq 1 ]]; then
+  ok "No-push mode: changes committed locally. Push manually when ready."
+  exit 0
+fi
+
+info "Pushing to origin..."
+git push origin "$(git branch --show-current)"
+ok "Done."
