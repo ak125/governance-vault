@@ -12,6 +12,7 @@ Index des ADR (Architecture Decision Records) et décisions opérationnelles.
 | ADR-002 | Airlock & Zero-Trust Agents | Accepted | 2026-02-03 | [[ADR-002-airlock-zero-trust]] |
 | ADR-003 | RPC Governance via RpcGateService | Accepted | 2026-02-03 | [[ADR-003-rpc-governance]] |
 | ADR-004 | rm/ Module Scope (DEV-only) | Accepted | 2026-02-03 | [[ADR-004-rm-module-scope]] |
+| ADR-005 | Airlock Observe Mode Activation | Accepted | 2026-02-03 | [[ADR-005-airlock-observe-activation]] |
 
 ---
 
@@ -32,6 +33,7 @@ Index des ADR (Architecture Decision Records) et décisions opérationnelles.
 ### Sécurité
 - [[ADR-002-airlock-zero-trust]] - Principe Zero-Trust pour agents IA
 - [[ADR-003-rpc-governance]] - Contrôle centralisé des appels RPC
+- [[ADR-005-airlock-observe-activation]] - Activation Airlock mode observe
 
 ### Performance
 - (aucune ADR active)
