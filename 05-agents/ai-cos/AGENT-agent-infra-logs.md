@@ -1,0 +1,60 @@
+---
+agent_id: agent.infra.logs
+agent_name: Log Aggregator Agent
+status: planned
+owner: Infrastructure Team
+governance_verdict: APPROVED_WITH_CONDITIONS
+last_audit: 2026-02-04
+zone: principal_vps
+---
+
+# Agent: Log Aggregator Agent
+
+## Identity
+
+| Field | Value |
+|-------|-------|
+| ID | `agent.infra.logs` |
+| Name | Log Aggregator Agent |
+| Status | **planned** (Phase 0) |
+| Owner | Infrastructure Team |
+| Description | Aggregates and analyzes system logs |
+
+## Execution Environment
+
+| Field | Value |
+|-------|-------|
+| Zone | principal_vps (when activated) |
+| Runtime | AI-COS Framework |
+| Output | report_only |
+
+## Trust & Risk
+
+| Field | Value |
+|-------|-------|
+| Trust Level | restricted |
+| Risk Class | low |
+| Risk Factors | Log access |
+
+## Access Rights
+
+- **Read**: application logs, system logs
+- **Write**: aggregated_logs (internal)
+- **Secrets**: none
+
+## Governance
+
+- **Verdict**: **APPROVED_WITH_CONDITIONS**
+- **Conditions**: Log aggregation only
+- **Related ADR**: ADR-009
+- **Airlock Required**: no (read operations)
+- **Audit Trail**: yes
+
+## Placement Decision
+
+**Phase 1 eligible** - AI-COS Level 3 Executor with log access.
+
+---
+
+_Last audit: 2026-02-04_
+_Auditor: Claude (Governance Analyst)_

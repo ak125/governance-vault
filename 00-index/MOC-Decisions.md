@@ -14,6 +14,9 @@ Index des ADR (Architecture Decision Records) et décisions opérationnelles.
 | ADR-004 | rm/ Module Scope (DEV-only) | Accepted | 2026-02-03 | [[ADR-004-rm-module-scope]] |
 | ADR-005 | Airlock Observe Mode Activation | Accepted | 2026-02-03 | [[ADR-005-airlock-observe-activation]] |
 | ADR-006 | AI Orchestrator Architecture (AI-COS) | Proposed | 2026-02-03 | [[ADR-006-ai-orchestrator-architecture]] |
+| ADR-007 | Location Independence Principle | Accepted | 2026-02-04 | [[ADR-007-location-independence]] |
+| ADR-008 | Agent Placement Rules (3 Zones) | Accepted | 2026-02-04 | [[ADR-008-agent-placement-rules]] |
+| ADR-009 | Phase 1 Agent Activation Framework | Accepted | 2026-02-04 | [[ADR-009-agents-phase1-activation]] |
 
 ---
 
@@ -36,6 +39,11 @@ Index des ADR (Architecture Decision Records) et décisions opérationnelles.
 - [[ADR-002-airlock-zero-trust]] - Principe Zero-Trust pour agents IA
 - [[ADR-003-rpc-governance]] - Contrôle centralisé des appels RPC
 - [[ADR-005-airlock-observe-activation]] - Activation Airlock mode observe
+- [[ADR-007-location-independence]] - Règle Maître: Location Independence
+- [[ADR-008-agent-placement-rules]] - 3 Zones: External, Principal VPS, Production
+
+### Agents
+- [[ADR-009-agents-phase1-activation]] - Framework d'activation Phase 1
 
 ### Performance
 - (aucune ADR active)
@@ -78,4 +86,4 @@ Voir `02-decisions/_templates/`
 
 ---
 
-_Dernière mise à jour: 2026-02-03_
+_Dernière mise à jour: 2026-02-04_
