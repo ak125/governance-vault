@@ -13,6 +13,7 @@ Index des ADR (Architecture Decision Records) et décisions opérationnelles.
 | ADR-003 | RPC Governance via RpcGateService | Accepted | 2026-02-03 | [[ADR-003-rpc-governance]] |
 | ADR-004 | rm/ Module Scope (DEV-only) | Accepted | 2026-02-03 | [[ADR-004-rm-module-scope]] |
 | ADR-005 | Airlock Observe Mode Activation | Accepted | 2026-02-03 | [[ADR-005-airlock-observe-activation]] |
+| ADR-006 | AI Orchestrator Architecture (AI-COS) | Proposed | 2026-02-03 | [[ADR-006-ai-orchestrator-architecture]] |
 
 ---
 
@@ -29,6 +30,7 @@ Index des ADR (Architecture Decision Records) et décisions opérationnelles.
 ### Architecture
 - [[ADR-001-environment-separation]] - Séparation des environnements DEV/PREPROD/PROD
 - [[ADR-004-rm-module-scope]] - Classification module rm/ comme DEV-only
+- [[ADR-006-ai-orchestrator-architecture]] - Architecture AI-COS (LangGraph, Skills, RAG)
 
 ### Sécurité
 - [[ADR-002-airlock-zero-trust]] - Principe Zero-Trust pour agents IA
@@ -39,7 +41,7 @@ Index des ADR (Architecture Decision Records) et décisions opérationnelles.
 - (aucune ADR active)
 
 ### SEO
-- (aucune ADR active)
+- [[ADR-006-ai-orchestrator-architecture]] - Inclut SEO Charter et PageRole validation
 
 ---
 
