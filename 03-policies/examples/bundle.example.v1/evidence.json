@@ -1,0 +1,9 @@
+{
+  "patch_apply_check": { "status": "pass", "proof": "git apply --check OK" },
+  "forbidden_patterns_scan": { "status": "pass", "matches": [] },
+  "scanned_for_secrets": { "tool": "gitleaks", "status": "skipped", "proof": "not available in agent env" },
+  "diff_stats": { "files_changed": 1, "lines_added": 1, "lines_deleted": 0 },
+  "checks": [
+    { "name": "schema", "status": "pass", "proof": "validated bundle.schema.v1.json" }
+  ]
+}

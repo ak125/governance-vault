@@ -1,0 +1,17 @@
+{
+  "spec_version": "1.0.0",
+  "bundle_id": "bundle-20260204-001",
+  "created_at": "2026-02-04T21:00:00Z",
+  "author": "openclaw",
+  "target_repo": "nestjs-remix-monorepo",
+  "title": "Fix: safe redirect on 401 session",
+  "summary": "Adds a defensive redirect on 401 session expiration in admin route.",
+  "files": [
+    { "name": "manifest.json", "sha256": "REPLACE_ME" },
+    { "name": "constraints.json", "sha256": "REPLACE_ME" },
+    { "name": "changes.patch", "sha256": "REPLACE_ME" },
+    { "name": "evidence.json", "sha256": "REPLACE_ME" },
+    { "name": "report.md", "sha256": "REPLACE_ME" }
+  ],
+  "patch": { "name": "changes.patch", "sha256": "REPLACE_ME" }
+}

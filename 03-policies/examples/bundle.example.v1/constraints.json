@@ -1,0 +1,8 @@
+{
+  "profile": "auto-automecanik",
+  "allowed_paths": ["frontend/app/routes/**"],
+  "forbidden_paths": [".spec/00-canon/**", "governance-vault/**", "**/*.env*"],
+  "forbidden_patterns": [".rpc(", "exec_sql(", "SUPABASE_SERVICE_ROLE_KEY", "process.env"],
+  "diff_budget": { "max_files": 5, "max_lines": 200, "max_additions": 150, "max_deletions": 50 },
+  "flags": { "no_canon_change": true, "no_vault_change": true, "no_exec_sql_change": true }
+}
