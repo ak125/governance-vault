@@ -17,6 +17,7 @@ Index des ADR (Architecture Decision Records) et décisions opérationnelles.
 | ADR-007 | Location Independence Principle | Accepted | 2026-02-04 | [[ADR-007-location-independence]] |
 | ADR-008 | Agent Placement Rules (3 Zones) | Accepted | 2026-02-04 | [[ADR-008-agent-placement-rules]] |
 | ADR-009 | Phase 1 Agent Activation Framework | Accepted | 2026-02-04 | [[ADR-009-agents-phase1-activation]] |
+| ADR-010 | Airlock Enforce Mode & CI Authority | Accepted | 2026-02-04 | [[ADR-010-airlock-enforce-activation]] |
 
 ---
 
@@ -38,9 +39,10 @@ Index des ADR (Architecture Decision Records) et décisions opérationnelles.
 ### Sécurité
 - [[ADR-002-airlock-zero-trust]] - Principe Zero-Trust pour agents IA
 - [[ADR-003-rpc-governance]] - Contrôle centralisé des appels RPC
-- [[ADR-005-airlock-observe-activation]] - Activation Airlock mode observe
+- [[ADR-005-airlock-observe-activation]] - Activation Airlock mode observe (superseded by ADR-010)
 - [[ADR-007-location-independence]] - Règle Maître: Location Independence
 - [[ADR-008-agent-placement-rules]] - 3 Zones: External, Principal VPS, Production
+- [[ADR-010-airlock-enforce-activation]] - Airlock Enforce Mode & CI Authority
 
 ### Agents
 - [[ADR-009-agents-phase1-activation]] - Framework d'activation Phase 1
