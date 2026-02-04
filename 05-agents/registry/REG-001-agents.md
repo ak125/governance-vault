@@ -2,7 +2,7 @@
 id: REG-001
 title: Agent Registry
 status: active
-version: 1.4.0
+version: 1.4.1
 last_audit: 2026-02-04
 total_agents: 140
 ---
@@ -18,7 +18,7 @@ Official source of truth for all agents in the AutoMecanik system.
 | APPROVED | 54 |
 | APPROVED_WITH_CONDITIONS | 15 |
 | NOT_APPROVED | 46 |
-| PENDING_FICHE | 25 |
+| PENDING_FICHE | 0 |
 | **TOTAL** | **140** |
 
 ## Related ADRs
@@ -143,6 +143,6 @@ For CI integration:
 
 ---
 
-_Registry Version: 1.4.0_
+_Registry Version: 1.4.1_
 _Last Updated: 2026-02-04_
 _Maintainer: Governance Team_
