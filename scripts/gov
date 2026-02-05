@@ -4,22 +4,76 @@ set -euo pipefail
 # ----------------------------
 # gov — Governance Vault runner
 # dry-run → confirmation → signed commit → check-orphans → push
+# + proxy for airlock/tail commands
 # ----------------------------
 
 GOV_VAULT_DIR="${GOV_VAULT_DIR:-/opt/automecanik/governance-vault}"
+APP_DIR="${APP_DIR:-/opt/automecanik/app}"
 NO_PUSH=0
 FORCE_DRY_RUN=0
 CUSTOM_MSG=""
+
+# ====== DEC-008: PROD READ-ONLY ENFORCEMENT ======
+check_prod_readonly() {
+  if [[ "${ENV:-}" == "PROD" ]]; then
+    echo "🛑 PROD is READ-ONLY — no governance operations allowed (DEC-008)"
+    echo "   This environment can only execute, never modify."
+    exit 1
+  fi
+}
+
+# ====== DEC-004: KILL-SWITCH CHECK ======
+KILL_SWITCH_FILE="/opt/automecanik/airlock/AIRLOCK_DISABLED"
+check_kill_switch() {
+  check_prod_readonly
+  if [[ -f "$KILL_SWITCH_FILE" ]]; then
+    echo "🛑 AIRLOCK DISABLED — operations halted by governance"
+    if [[ -s "$KILL_SWITCH_FILE" ]]; then
+      echo "   Reason: $(cat "$KILL_SWITCH_FILE")"
+    fi
+    echo "   Remove $KILL_SWITCH_FILE to re-enable (requires governance approval)"
+    exit 1
+  fi
+}
+
+# ====== PROXY COMMANDS (airlock/tail/evidence) ======
+case "${1:-}" in
+  airlock)
+    # Kill-switch check for non-status commands
+    if [[ "${2:-}" != "status" ]]; then
+      check_kill_switch
+    fi
+    shift
+    exec "$APP_DIR/scripts/airlock.sh" "$@"
+    ;;
+  tail)
+    check_kill_switch
+    shift
+    exec "$APP_DIR/scripts/tail-bundle.sh" "$@"
+    ;;
+  evidence)
+    # Evidence pack generation (DEC-013)
+    shift
+    exec "$GOV_VAULT_DIR/scripts/evidence-pack.sh" "$@"
+    ;;
+esac
 
 usage() {
   cat <<'USAGE'
 Usage:
   gov [--dry-run] [--no-push] [--message "commit message"] [--help]
+  gov airlock <status|validate|accept|reject> <bundle-id|latest> [options]
+  gov tail --bundle <id|latest> --decision <MERGED|REJECTED|...> --reason "text"
+
+Subcommands:
+  airlock    Manage agent bundles (validate, accept, reject)
+  tail       Write bundle decision to vault audit trail
 
 Environment:
   GOV_VAULT_DIR=/path/to/governance-vault   (default: /opt/automecanik/governance-vault)
+  APP_DIR=/path/to/app                      (default: /opt/automecanik/app)
 
-Behavior:
+Sync Behavior (no subcommand):
   - Default: run sync in dry-run, show changes, ask for confirmation.
   - If confirmed: apply sync (--commit), run orphan check, ensure last commit is signed, push.
 
@@ -96,9 +150,14 @@ if [[ "$SIGNING" != "true" || "$FORMAT" != "ssh" || -z "$SIGNKEY" ]]; then
 fi
 
 # Show status
+CURRENT_ENV="${ENV:-DEV}"
 info "Vault: $GOV_VAULT_DIR"
 info "Branch: $(git branch --show-current)"
 info "Remote: $(git remote get-url origin 2>/dev/null || echo '<no origin>')"
+info "Environment: $CURRENT_ENV"
+if [[ "$CURRENT_ENV" != "PREPROD" ]]; then
+  warn "GitHub push disabled (DEC-003: only PREPROD can push)"
+fi
 
 # Ensure clean worktree before running (optional but safer)
 if [[ -n "$(git status --porcelain)" ]]; then
@@ -162,6 +221,14 @@ ok "Signature OK."
 # Push (optional)
 if [[ $NO_PUSH -eq 1 ]]; then
   ok "No-push mode: changes committed locally. Push manually when ready."
+  exit 0
+fi
+
+# DEC-003: PREPROD Gate
+if [[ "$CURRENT_ENV" != "PREPROD" ]]; then
+  warn "PREPROD Gate: Push blocked (ENV=$CURRENT_ENV)"
+  warn "Changes committed locally. To push: ENV=PREPROD gov ..."
+  ok "Done (local only)."
   exit 0
 fi
 
