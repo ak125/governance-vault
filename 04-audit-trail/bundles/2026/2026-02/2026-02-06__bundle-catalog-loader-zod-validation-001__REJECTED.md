@@ -11,14 +11,14 @@ scope:
 repo_path: "/opt/automecanik/app"
 branch: ""
 pr: ""
-reason: "patch invalide - ne s'applique pas au code actuel"
+reason: "auto-reject: failed validation"
 ---
 
 # Airlock Bundle Tail — bundle-catalog-loader-zod-validation-001
 
 ## Decision
 - **REJECTED**
-- patch invalide - ne s'applique pas au code actuel
+- auto-reject: failed validation
 
 ## Scope
 - Files: **?**
