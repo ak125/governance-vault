@@ -9,15 +9,16 @@ Index des ADR (Architecture Decision Records) et décisions opérationnelles.
 | ID | Titre | Status | Date | Fichier |
 |----|-------|--------|------|---------|
 | ADR-001 | Environment Separation (DEV/PREPROD/PROD) | Accepted | 2026-02-03 | [[ADR-001-environment-separation]] |
-| ADR-002 | Airlock & Zero-Trust Agents | Accepted | 2026-02-03 | [[ADR-002-airlock-zero-trust]] |
+| ADR-002 | Airlock & Zero-Trust Agents | Accepted-Revised (v2.0) | 2026-03-07 | [[ADR-002-airlock-zero-trust]] |
 | ADR-003 | RPC Governance via RpcGateService | Accepted | 2026-02-03 | [[ADR-003-rpc-governance]] |
 | ADR-004 | rm/ Module Scope (DEV-only) | Accepted | 2026-02-03 | [[ADR-004-rm-module-scope]] |
-| ADR-005 | Airlock Observe Mode Activation | Accepted | 2026-02-03 | [[ADR-005-airlock-observe-activation]] |
+| ADR-005 | Airlock Observe Mode Activation | Accepted-Revised (v1.1) | 2026-03-07 | [[ADR-005-airlock-observe-activation]] |
 | ADR-006 | AI Orchestrator Architecture (AI-COS) | Proposed | 2026-02-03 | [[ADR-006-ai-orchestrator-architecture]] |
 | ADR-007 | Location Independence Principle | Accepted | 2026-02-04 | [[ADR-007-location-independence]] |
 | ADR-008 | Agent Placement Rules (3 Zones) | Accepted | 2026-02-04 | [[ADR-008-agent-placement-rules]] |
-| ADR-009 | Phase 1 Agent Activation Framework | Accepted | 2026-02-04 | [[ADR-009-agents-phase1-activation]] |
+| ADR-009 | Phase 1 Agent Activation Framework | Accepted-Revised (v2.0) | 2026-03-07 | [[ADR-009-agents-phase1-activation]] |
 | ADR-010 | Airlock Enforce Mode & CI Authority | Accepted | 2026-02-04 | [[ADR-010-airlock-enforce-activation]] |
+| ADR-011 | Remplacement OpenClaw par Claude API | Accepted | 2026-03-07 | [[ADR-011-openclaw-claude-api-replacement]] |
 
 ---
 
@@ -46,6 +47,7 @@ Index des ADR (Architecture Decision Records) et décisions opérationnelles.
 
 ### Agents
 - [[ADR-009-agents-phase1-activation]] - Framework d'activation Phase 1
+- [[ADR-011-openclaw-claude-api-replacement]] - Remplacement OpenClaw par Claude API
 
 ### Performance
 - (aucune ADR active)
@@ -88,4 +90,4 @@ Voir `02-decisions/_templates/`
 
 ---
 
-_Dernière mise à jour: 2026-02-04_
+_Derniere mise a jour: 2026-03-07_

@@ -90,7 +90,8 @@ Le registre des agents (REG-001) doit:
 ## Références
 
 - ADR-002: Airlock & Zero-Trust Agents
-- ADR-006: Phase 1 Agent Activation Framework
+- ADR-009: Phase 1 Agent Activation Framework
+- ADR-011: Remplacement OpenClaw par Claude API
 - REG-001: Agent Registry
 
 ---

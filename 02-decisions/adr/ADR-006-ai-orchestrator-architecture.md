@@ -1,15 +1,15 @@
+---
+id: ADR-006
+title: AI Orchestrator Architecture (AI-COS Evolution)
+status: proposed
+version: 1.0.0
+date: 2026-02-03
+decision_makers:
+  - "@ak125"
+tags: [architecture, ai-cos, langgraph, rag, seo]
+---
+
 # ADR-006: AI Orchestrator Architecture (AI-COS Evolution)
-
-## Metadata
-
-| Champ | Valeur |
-|-------|--------|
-| ID | ADR-006 |
-| Titre | AI Orchestrator Architecture |
-| Status | Proposed |
-| Date | 2026-02-03 |
-| Decision Makers | @ak125 |
-| Tags | architecture, ai-cos, langgraph, rag, seo |
 
 ---
 

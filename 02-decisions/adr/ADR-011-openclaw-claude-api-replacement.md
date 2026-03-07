@@ -102,7 +102,7 @@ Aucun changement de structure. Les 15 agents APPROVED_WITH_CONDITIONS doivent av
 |-----|--------|--------|
 | ADR-002 v1.0 | Revise → v2.0 (ce package) | DONE |
 | ADR-009 v1.0 | Revise → v2.0 (ce package) | DONE |
-| ADR-005 (Airlock Observe) | A reviser — reference OpenClaw | TODO |
+| ADR-005 (Airlock Observe) | Revise → v1.1 (commit 2eed215) | DONE |
 | ADR-003 (RPC Governance) | Verifier — RpcGateService reste valide | A verifier |
 | ADR-007 (Location Independence) | Inchange | OK |
 | ADR-008 (Agent Placement Rules) | Inchange | OK |
