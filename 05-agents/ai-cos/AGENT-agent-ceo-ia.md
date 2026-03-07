@@ -25,7 +25,7 @@ zone: principal_vps
 | Field | Value |
 |-------|-------|
 | Zone | principal_vps (when activated) |
-| Runtime | AI-COS Framework |
+| Runtime | Claude API (quand active) |
 | Output | report_only |
 
 ## Trust & Risk
@@ -45,7 +45,7 @@ zone: principal_vps
 ## Governance
 
 - **Verdict**: **NOT_APPROVED**
-- **Related ADR**: ADR-002, ADR-003, ADR-009
+- **Related ADR**: ADR-002, ADR-003, ADR-009, ADR-011
 - **Airlock Required**: yes
 - **Audit Trail**: yes
 
