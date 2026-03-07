@@ -50,7 +50,7 @@ Declares bundle identity, intent, and exact included artefacts.
 Required fields:
 - bundle_id (string, unique)
 - created_at (ISO8601 string)
-- author (string) e.g. "openclaw"
+- author (string) e.g. "claude-api"
 - target_repo (string) e.g. "nestjs-remix-monorepo"
 - title (string)
 - summary (string)

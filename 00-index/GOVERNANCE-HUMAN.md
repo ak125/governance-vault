@@ -5,7 +5,7 @@
 **Status:** ACTIVE – SOURCE OF TRUTH  
 **Author:** Human (Owner / Operator)  
 **Scope:** Global – applies to ALL systems, agents, repositories, and environments  
-**Last update:** 2026-02-04  
+**Last update:** 2026-03-07  
 
 ---
 
@@ -43,7 +43,7 @@ No AI agent, automation, or tool may override, reinterpret, or weaken this autho
 ### RULE-H1 — Agent ≠ Authority
 
 All agents are considered **NON-TRUSTED by default**, regardless of:
-- Their location (local, VPS, cloud, OpenClaw, CI)
+- Their location (local, VPS, cloud, CI)
 - Their purpose (analysis, code, governance, security)
 - Their perceived intelligence or reliability
 - Their access level or configuration
@@ -77,7 +77,7 @@ The system is strictly divided into zones:
 
 | Zone | Description | Agent Rights |
 |----|----|----|
-| **External** | OpenClaw, local machines, external VPS | Read-only + bundle generation |
+| **External** | Claude API, local machines, external VPS | Read-only + bundle generation |
 | **Principal VPS** | Governance & Airlock authority | Validation only |
 | **Production** | Runtime execution | ❌ NO AGENTS ALLOWED |
 

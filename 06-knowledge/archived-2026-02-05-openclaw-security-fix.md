@@ -1,3 +1,5 @@
+> **[ARCHIVED — ADR-011, 2026-03-07]** OpenClaw supprime. Voir ADR-011 pour details.
+
 # Security Audit Report: OpenClaw VPS Hardening
 
 **Date:** 2026-02-05

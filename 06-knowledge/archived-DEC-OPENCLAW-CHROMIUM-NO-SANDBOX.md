@@ -1,3 +1,5 @@
+> **[ARCHIVED — ADR-011, 2026-03-07]** OpenClaw supprime. Voir ADR-011 pour details.
+
 # ADR: DEC-OPENCLAW-CHROMIUM-NO-SANDBOX
 
 ## Architecture Decision Record
