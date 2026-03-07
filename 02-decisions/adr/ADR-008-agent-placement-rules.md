@@ -6,6 +6,7 @@ date: 2026-02-04
 decision_makers:
   - Architecture
   - Governance
+version: 1.0.0
 supersedes: null
 ---
 

@@ -6,6 +6,7 @@ date: 2026-02-04
 decision_makers:
   - Architecture Team
   - Security Team
+version: 1.0.0
 supersedes: ADR-005 (observe mode)
 ---
 

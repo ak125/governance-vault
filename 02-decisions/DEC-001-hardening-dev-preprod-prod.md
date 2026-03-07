@@ -308,8 +308,8 @@ Ces checks sont **requis** avant le deploy PREPROD.
 | Tâche | Description | Effort | Risque | Reversible | Status |
 |-------|-------------|--------|--------|------------|--------|
 | P3.1 | Rate Limiting endpoints sensibles | M | Low | Yes | ✅ DONE |
-| P3.2 | SEO Module Decomposition | L | Medium | Yes | TODO |
-| P3.3 | N+1 Query Optimization | M | Low | Yes | TODO |
+| P3.2 | SEO Module Decomposition | L | Medium | Yes | DEFERRED (ADR-006) |
+| P3.3 | N+1 Query Optimization | M | Low | Yes | DEFERRED |
 
 #### P3.1 — Rate Limiting endpoints
 

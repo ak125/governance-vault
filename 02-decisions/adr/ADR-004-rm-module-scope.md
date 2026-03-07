@@ -4,6 +4,7 @@ title: rm/ Module Scope (DEV-only)
 status: accepted
 date: 2026-02-03
 decision_makers: [Architecture Team]
+version: 1.0.0
 supersedes: null
 related_incident: INC-2026-01-11
 ---

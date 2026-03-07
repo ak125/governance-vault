@@ -4,6 +4,7 @@ title: Environment Separation (DEV / PREPROD / PROD)
 status: accepted
 date: 2026-02-03
 decision_makers: [Architecture Team]
+version: 1.0.0
 supersedes: null
 ---
 

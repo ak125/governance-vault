@@ -4,6 +4,7 @@ title: RPC Governance via RpcGateService
 status: accepted
 date: 2026-02-03
 decision_makers: [Architecture Team]
+version: 1.0.0
 supersedes: null
 ---
 

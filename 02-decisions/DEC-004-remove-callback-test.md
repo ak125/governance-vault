@@ -1,8 +1,12 @@
-# ADR : Suppression de l'endpoint /api/paybox/callback-test
+---
+id: DEC-004
+title: Suppression endpoint /api/paybox/callback-test
+status: accepted
+date: 2026-02-03
+decision_makers: [Equipe developpement]
+---
 
-**Date :** 2026-02-03
-**Statut :** Accepté
-**Décideurs :** Équipe développement
+# DEC-004: Suppression de l'endpoint /api/paybox/callback-test
 
 ---
 
