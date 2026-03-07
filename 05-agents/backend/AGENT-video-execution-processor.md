@@ -1,6 +1,6 @@
 ---
-agent_id: worker.metrics-processor
-agent_name: Metrics Processor
+agent_id: worker.video-execution
+agent_name: Video Execution Processor
 status: active
 owner: Backend Team
 governance_verdict: APPROVED_WITH_CONDITIONS
@@ -9,18 +9,18 @@ execution_engine: NestJS BullMQ
 zone: principal_vps
 ---
 
-# Agent: Metrics Processor
+# Agent: Video Execution Processor
 
 ## Identity
 
 | Field | Value |
 |-------|-------|
-| ID | `worker.metrics-processor` |
-| Name | Metrics Processor |
+| ID | `worker.video-execution` |
+| Name | Video Execution Processor |
 | Status | active |
 | Owner | Backend Team |
-| Description | BullMQ processor — collecte et aggregation metriques systeme |
-| Source | `backend/src/modules/system/processors/metrics.processor.ts` |
+| Description | BullMQ processor — execution pipeline video (RAG video management) |
+| Source | `backend/src/workers/processors/video-execution.processor.ts` |
 
 ## Execution Environment
 
@@ -28,20 +28,20 @@ zone: principal_vps
 |-------|-------|
 | Zone | principal_vps |
 | Runtime | NestJS BullMQ Worker |
-| Output | report_only |
+| Output | rpc_only |
 
 ## Trust & Risk
 
 | Field | Value |
 |-------|-------|
 | Trust Level | restricted |
-| Risk Class | low |
-| Risk Factors | Read-only metrics collection |
+| Risk Class | medium |
+| Risk Factors | External API calls, media processing |
 
 ## Access Rights
 
-- **Read**: System metrics, health endpoints
-- **Write**: Metrics storage (via internal service)
+- **Read**: Video queue jobs, RAG video metadata
+- **Write**: Video processing results (via RPC)
 - **Secrets**: DATABASE_URL, GROQ_API_KEY (via env)
 
 ## Governance

@@ -1,6 +1,6 @@
 ---
-agent_id: worker.metrics-processor
-agent_name: Metrics Processor
+agent_id: worker.content-refresh
+agent_name: Content Refresh Processor
 status: active
 owner: Backend Team
 governance_verdict: APPROVED_WITH_CONDITIONS
@@ -9,18 +9,18 @@ execution_engine: NestJS BullMQ
 zone: principal_vps
 ---
 
-# Agent: Metrics Processor
+# Agent: Content Refresh Processor
 
 ## Identity
 
 | Field | Value |
 |-------|-------|
-| ID | `worker.metrics-processor` |
-| Name | Metrics Processor |
+| ID | `worker.content-refresh` |
+| Name | Content Refresh Processor |
 | Status | active |
 | Owner | Backend Team |
-| Description | BullMQ processor — collecte et aggregation metriques systeme |
-| Source | `backend/src/modules/system/processors/metrics.processor.ts` |
+| Description | BullMQ processor — refresh contenu SEO gammes via Groq LLM pipeline |
+| Source | `backend/src/workers/processors/content-refresh.processor.ts` |
 
 ## Execution Environment
 
@@ -28,20 +28,20 @@ zone: principal_vps
 |-------|-------|
 | Zone | principal_vps |
 | Runtime | NestJS BullMQ Worker |
-| Output | report_only |
+| Output | rpc_only |
 
 ## Trust & Risk
 
 | Field | Value |
 |-------|-------|
 | Trust Level | restricted |
-| Risk Class | low |
-| Risk Factors | Read-only metrics collection |
+| Risk Class | medium |
+| Risk Factors | LLM calls via Groq, DB writes via RPC |
 
 ## Access Rights
 
-- **Read**: System metrics, health endpoints
-- **Write**: Metrics storage (via internal service)
+- **Read**: __seo_gamme_purchase_guide, __seo_gamme_conseil, RAG corpus
+- **Write**: __seo_gamme_purchase_guide, __seo_gamme_conseil (via RPC)
 - **Secrets**: DATABASE_URL, GROQ_API_KEY (via env)
 
 ## Governance

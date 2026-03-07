@@ -1,14 +1,17 @@
 ---
 series_id: G-SERIES
 series_name: Governance Agents
-status: planned
+status: conceptual
 total_agents: 18
 governance_verdict: NOT_APPROVED
 last_audit: 2026-02-04
 zone: principal_vps
+code_status: no_implementation
 ---
 
 # G-Series: Governance Agents (18 agents)
+
+> **WARNING**: Conceptual series only. No implementation exists in the codebase.
 
 ## Overview
 

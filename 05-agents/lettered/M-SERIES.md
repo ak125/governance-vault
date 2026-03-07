@@ -1,14 +1,17 @@
 ---
 series_id: M-SERIES
 series_name: Mutation Agents
-status: planned
+status: conceptual
 total_agents: 2
 governance_verdict: NOT_APPROVED
 last_audit: 2026-02-04
 zone: external
+code_status: no_implementation
 ---
 
 # M-Series: Mutation Agents (2 agents)
+
+> **WARNING**: Conceptual series only. No implementation exists in the codebase.
 
 ## Overview
 

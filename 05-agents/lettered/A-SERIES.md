@@ -1,14 +1,17 @@
 ---
 series_id: A-SERIES
 series_name: Architecture Agents
-status: planned
+status: conceptual
 total_agents: 7
 governance_verdict: NOT_APPROVED
 last_audit: 2026-02-04
 zone: external
+code_status: no_implementation
 ---
 
 # A-Series: Architecture Agents (7 agents)
+
+> **WARNING**: Conceptual series only. No implementation exists in the codebase.
 
 ## Overview
 

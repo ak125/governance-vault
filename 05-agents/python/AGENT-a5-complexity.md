@@ -1,14 +1,17 @@
 ---
 agent_id: a5-complexity
 agent_name: Complexity Analyzer
-status: active
+status: planned
 owner: Analysis Team
-governance_verdict: APPROVED
-last_audit: 2026-02-04
+governance_verdict: NOT_APPROVED
+last_audit: 2026-03-08
 zone: external
+code_status: no_implementation
 ---
 
 # Agent: Complexity Analyzer
+
+> **WARNING**: No implementation found in codebase. This agent is planned/conceptual only.
 
 ## Identity
 
@@ -45,7 +48,7 @@ zone: external
 
 ## Governance
 
-- **Verdict**: APPROVED
+- **Verdict**: **NOT_APPROVED**
 - **Related ADR**: ADR-009, ADR-007, ADR-008
 - **Airlock Required**: no (read-only analysis)
 - **Audit Trail**: no
@@ -56,5 +59,5 @@ zone: external
 
 ---
 
-_Last audit: 2026-02-04_
+_Last audit: 2026-03-08_
 _Auditor: Claude (Governance Analyst)_

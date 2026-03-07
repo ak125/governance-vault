@@ -1,14 +1,17 @@
 ---
 series_id: F-SERIES
 series_name: Testing Agents
-status: planned
+status: conceptual
 total_agents: 6
 governance_verdict: NOT_APPROVED
 last_audit: 2026-02-04
 zone: external
+code_status: no_implementation
 ---
 
 # F-Series: Testing Agents (6 agents)
+
+> **WARNING**: Conceptual series only. No implementation exists in the codebase.
 
 ## Overview
 

@@ -1,14 +1,17 @@
 ---
 series_id: B-SERIES
 series_name: Ethics Agents
-status: planned
+status: conceptual
 total_agents: 1
 governance_verdict: NOT_APPROVED
 last_audit: 2026-02-04
 zone: external
+code_status: no_implementation
 ---
 
 # B-Series: Ethics Agents (1 agent)
+
+> **WARNING**: Conceptual series only. No implementation exists in the codebase.
 
 ## Overview
 

@@ -1,15 +1,18 @@
 ---
 agent_id: f1-dead-code-surgeon
 agent_name: Dead Code Surgeon
-status: active
+status: planned
 owner: Analysis Team
-governance_verdict: APPROVED_WITH_CONDITIONS
-last_updated: 2026-03-07
+governance_verdict: NOT_APPROVED
+last_updated: 2026-03-08
 execution_engine: Claude API
 zone: external
+code_status: no_implementation
 ---
 
 # Agent: Dead Code Surgeon
+
+> **WARNING**: No implementation found in codebase. This agent is planned/conceptual only.
 
 ## Identity
 
@@ -46,7 +49,7 @@ zone: external
 
 ## Governance
 
-- **Verdict**: **APPROVED_WITH_CONDITIONS**
+- **Verdict**: **NOT_APPROVED**
 - **Conditions**: All deletions via Airlock bundle, human review required
 - **Related ADR**: ADR-002, ADR-009, ADR-007, ADR-008, ADR-011
 - **Airlock Required**: **yes**
@@ -58,5 +61,5 @@ zone: external
 
 ---
 
-_Last updated: 2026-03-07_
+_Last audit: 2026-03-08_
 _Auditor: Claude (Governance Analyst)_
