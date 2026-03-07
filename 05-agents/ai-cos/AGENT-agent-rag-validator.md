@@ -4,7 +4,8 @@ agent_name: RAG Validator Agent
 status: planned
 owner: AI Team
 governance_verdict: APPROVED_WITH_CONDITIONS
-last_audit: 2026-02-04
+last_updated: 2026-03-07
+execution_engine: Claude API
 zone: principal_vps
 ---
 
@@ -25,7 +26,7 @@ zone: principal_vps
 | Field | Value |
 |-------|-------|
 | Zone | principal_vps (when activated) |
-| Runtime | AI-COS Framework |
+| Runtime | Claude API |
 | Output | report_only |
 
 ## Trust & Risk
@@ -52,9 +53,9 @@ zone: principal_vps
 
 ## Placement Decision
 
-**Phase 1 eligible** - AI-COS Level 3 Executor with read access.
+**Phase 1 eligible** - Claude API executor (ADR-011) with read access.
 
 ---
 
-_Last audit: 2026-02-04_
+_Last updated: 2026-03-07_
 _Auditor: Claude (Governance Analyst)_

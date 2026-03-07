@@ -1,11 +1,13 @@
 ---
 id: ADR-005
 title: Airlock Observe Mode Activation
-status: accepted
+status: accepted-revised
+version: 1.1.0
 date: 2026-02-03
+date_revision: 2026-03-07
 decision_makers: [Architecture Team]
 supersedes: null
-related_to: [ADR-002, ADR-003]
+related_to: [ADR-002, ADR-003, ADR-009, ADR-011]
 ---
 
 # ADR-005: Airlock Observe Mode Activation
@@ -40,14 +42,20 @@ Airlock est activé en **mode observe uniquement**.
 - Création automatique de PR autorisée
 - Agents sans droits d'écriture directe
 
-## Critères de Sortie (Observe → Enforce)
+## Moteur d'execution (revision v1.1 — ADR-011)
 
-La transition vers le mode enforce nécessite:
+> Depuis ADR-011 (2026-03-07), Claude API remplace OpenClaw comme moteur d'execution des agents.
+> L'Airlock observe mode s'applique desormais aux bundles generes par Claude API / Cowork.
 
-1. **Minimum 7 jours d'observation** avec métriques
-2. **Revue des candidats bloqués** (fonctions P0/P1)
-3. **Zero faux positifs critiques** sur période d'observation
-4. **ADR séparée** documentant la décision de transition
+## Criteres de Sortie (Observe → Enforce)
+
+La transition vers le mode enforce necessite:
+
+1. **Minimum 14 jours d'operation stable** avec Claude API comme moteur (cf. ADR-009 v2.0)
+2. **Revue des candidats bloques** (fonctions P0/P1)
+3. **Zero faux positifs critiques** sur periode d'observation
+4. **Zero violation Airlock** en mode enforce
+5. **ADR separee** documentant la decision de transition
 
 ## Conséquences
 
@@ -83,11 +91,13 @@ En cas de problème, désactiver complètement:
 RPC_GATE_MODE=disabled
 ```
 
-## Références
+## References
 
-- ADR-002 (Airlock & Zero-Trust)
+- ADR-002 v2.0 (Airlock & Zero-Trust — Claude API)
 - ADR-003 (RPC Governance)
+- ADR-009 v2.0 (Phase 1 Agent Activation)
+- ADR-011 (Remplacement OpenClaw par Claude API)
 - Audit Trail 2026-02-03
 
 ---
-_Dernière mise à jour: 2026-02-03_
+_Derniere mise a jour: 2026-03-07_

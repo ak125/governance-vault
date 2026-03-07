@@ -4,7 +4,8 @@ agent_name: Amelia (Developer Agent)
 status: active
 owner: BMAD BMM Team
 governance_verdict: APPROVED_WITH_CONDITIONS
-last_audit: 2026-02-04
+last_updated: 2026-03-07
+execution_engine: Cowork / Claude Desktop
 zone: local
 ---
 
@@ -25,7 +26,7 @@ zone: local
 | Field | Value |
 |-------|-------|
 | Zone | local (per ADR-008) |
-| Runtime | BMAD Framework |
+| Runtime | Cowork / Claude Desktop |
 | Output | **bundle_only** |
 
 ## Trust & Risk
@@ -56,5 +57,5 @@ zone: local
 
 ---
 
-_Last audit: 2026-02-04_
+_Last updated: 2026-03-07_
 _Auditor: Claude (Governance Analyst)_

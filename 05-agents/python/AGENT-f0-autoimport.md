@@ -4,7 +4,8 @@ agent_name: Auto Import Fixer
 status: active
 owner: Analysis Team
 governance_verdict: APPROVED_WITH_CONDITIONS
-last_audit: 2026-02-04
+last_updated: 2026-03-07
+execution_engine: Claude API
 zone: external
 ---
 
@@ -25,7 +26,7 @@ zone: external
 | Field | Value |
 |-------|-------|
 | Zone | external (per ADR-008) |
-| Runtime | Python Script |
+| Runtime | Claude API (Python Script) |
 | Output | **bundle_only** |
 | File | `f0_autoimport.py` |
 
@@ -57,5 +58,5 @@ zone: external
 
 ---
 
-_Last audit: 2026-02-04_
+_Last updated: 2026-03-07_
 _Auditor: Claude (Governance Analyst)_
