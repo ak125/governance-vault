@@ -48,7 +48,7 @@ zone: external
 
 - **Verdict**: **APPROVED_WITH_CONDITIONS**
 - **Conditions**: All changes via Airlock bundle
-- **Related ADR**: ADR-002, ADR-009, ADR-007, ADR-008
+- **Related ADR**: ADR-002, ADR-009, ADR-007, ADR-008, ADR-011
 - **Airlock Required**: **yes**
 - **Audit Trail**: yes
 

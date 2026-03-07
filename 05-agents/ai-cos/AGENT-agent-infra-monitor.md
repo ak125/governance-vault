@@ -47,7 +47,7 @@ zone: principal_vps
 
 - **Verdict**: **APPROVED_WITH_CONDITIONS**
 - **Conditions**: Read-only monitoring
-- **Related ADR**: ADR-009
+- **Related ADR**: ADR-009, ADR-011
 - **Airlock Required**: no (monitoring only)
 - **Audit Trail**: yes
 

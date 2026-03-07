@@ -47,7 +47,7 @@ zone: principal_vps
 
 - **Verdict**: **APPROVED_WITH_CONDITIONS**
 - **Conditions**: Read-only access, logs via RPC
-- **Related ADR**: ADR-003, ADR-009
+- **Related ADR**: ADR-003, ADR-009, ADR-011
 - **Airlock Required**: no (read-only)
 - **Audit Trail**: yes
 

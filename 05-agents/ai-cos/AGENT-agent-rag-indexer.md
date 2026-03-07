@@ -47,7 +47,7 @@ zone: principal_vps
 
 - **Verdict**: **APPROVED_WITH_CONDITIONS**
 - **Conditions**: Indexing via RPC only
-- **Related ADR**: ADR-003, ADR-009
+- **Related ADR**: ADR-003, ADR-009, ADR-011
 - **Airlock Required**: no (data operations)
 - **Audit Trail**: yes
 

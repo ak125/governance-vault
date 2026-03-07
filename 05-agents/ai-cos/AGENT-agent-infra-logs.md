@@ -47,7 +47,7 @@ zone: principal_vps
 
 - **Verdict**: **APPROVED_WITH_CONDITIONS**
 - **Conditions**: Log aggregation only
-- **Related ADR**: ADR-009
+- **Related ADR**: ADR-009, ADR-011
 - **Airlock Required**: no (read operations)
 - **Audit Trail**: yes
 

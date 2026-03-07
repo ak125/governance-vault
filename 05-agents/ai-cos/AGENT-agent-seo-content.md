@@ -47,7 +47,7 @@ zone: principal_vps
 
 - **Verdict**: **APPROVED_WITH_CONDITIONS**
 - **Conditions**: Content via Airlock bundle
-- **Related ADR**: ADR-002, ADR-003, ADR-009
+- **Related ADR**: ADR-002, ADR-003, ADR-009, ADR-011
 - **Airlock Required**: yes
 - **Audit Trail**: yes
 

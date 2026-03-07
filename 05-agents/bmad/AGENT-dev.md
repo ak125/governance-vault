@@ -47,7 +47,7 @@ zone: local
 
 - **Verdict**: **APPROVED_WITH_CONDITIONS**
 - **Conditions**: All code changes via Airlock bundle
-- **Related ADR**: ADR-002, ADR-005, ADR-009, ADR-008
+- **Related ADR**: ADR-002, ADR-005, ADR-009, ADR-008, ADR-011
 - **Airlock Required**: **yes**
 - **Audit Trail**: yes
 

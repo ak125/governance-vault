@@ -47,7 +47,7 @@ zone: principal_vps
 
 - **Verdict**: **APPROVED_WITH_CONDITIONS**
 - **Conditions**: Cleanup via RPC only, human approval for deletions
-- **Related ADR**: ADR-003, ADR-009
+- **Related ADR**: ADR-003, ADR-009, ADR-011
 - **Airlock Required**: yes (for deletions)
 - **Audit Trail**: yes
 
