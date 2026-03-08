@@ -19,6 +19,7 @@ Index des ADR (Architecture Decision Records) et décisions opérationnelles.
 | ADR-009 | Phase 1 Agent Activation Framework | Accepted-Revised (v2.0) | 2026-03-07 | [[ADR-009-agents-phase1-activation]] |
 | ADR-010 | Airlock Enforce Mode & CI Authority | Accepted | 2026-02-04 | [[ADR-010-airlock-enforce-activation]] |
 | ADR-011 | Remplacement OpenClaw par Claude API | Accepted | 2026-03-07 | [[ADR-011-openclaw-claude-api-replacement]] |
+| ADR-012 | AI-COS VPS Architecture & Agent Placement | Accepted | 2026-03-08 | [[ADR-012-aicos-vps-architecture]] |
 
 ---
 
@@ -42,12 +43,13 @@ Index des ADR (Architecture Decision Records) et décisions opérationnelles.
 - [[ADR-003-rpc-governance]] - Contrôle centralisé des appels RPC
 - [[ADR-005-airlock-observe-activation]] - Activation Airlock mode observe (superseded by ADR-010)
 - [[ADR-007-location-independence]] - Règle Maître: Location Independence
-- [[ADR-008-agent-placement-rules]] - 3 Zones: External, Principal VPS, Production
+- [[ADR-008-agent-placement-rules]] - 3 Zones: External, Principal VPS, Production (→ 4 zones avec ADR-012)
 - [[ADR-010-airlock-enforce-activation]] - Airlock Enforce Mode & CI Authority
 
 ### Agents
 - [[ADR-009-agents-phase1-activation]] - Framework d'activation Phase 1
 - [[ADR-011-openclaw-claude-api-replacement]] - Remplacement OpenClaw par Claude API
+- [[ADR-012-aicos-vps-architecture]] - AI-COS VPS Observatoire (4e zone, dashboard read-only)
 
 ### Performance
 - (aucune ADR active)
@@ -90,4 +92,4 @@ Voir `02-decisions/_templates/`
 
 ---
 
-_Derniere mise a jour: 2026-03-07_
+_Derniere mise a jour: 2026-03-08_

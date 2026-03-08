@@ -45,8 +45,9 @@ Official source of truth for all agents in the AutoMecanik system.
 - ADR-002: Zero-Trust Agents
 - ADR-009: Phase 1 Agent Activation
 - ADR-007: Location Independence
-- ADR-008: Agent Placement Rules (3 Zones)
+- ADR-008: Agent Placement Rules (3 Zones → 4 Zones)
 - ADR-011: OpenClaw to Claude API Replacement
+- ADR-012: AI-COS VPS Architecture & Agent Placement
 
 ---
 
@@ -214,7 +215,7 @@ Official source of truth for all agents in the AutoMecanik system.
 
 For CI integration:
 - `status`: active | planned | disabled | conceptual
-- `zone`: local | principal_vps | external (per ADR-008)
+- `zone`: local | principal_vps | aicos_vps | external (per ADR-008, ADR-012)
 - `trust`: trusted | restricted | untrusted
 - `output`: report | bundle | rpc
 - `domain`: seo | rag | vehicle | payment | ui | infra | marketing | governance | bmad
