@@ -19,7 +19,7 @@ code_status: no_implementation
 |-------|-------|
 | ID | `a9-seo` |
 | Name | SEO Auditor |
-| Status | active |
+| Status | **planned** (no implementation) |
 | Owner | Analysis Team |
 | Description | Audits SEO meta tags, structure, and best practices |
 

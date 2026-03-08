@@ -19,7 +19,7 @@ code_status: no_implementation
 |-------|-------|
 | ID | `a4-dead-code` |
 | Name | Dead Code Detector |
-| Status | active |
+| Status | **planned** (no implementation) |
 | Owner | Analysis Team |
 | Description | Detects unused code, functions, and imports |
 

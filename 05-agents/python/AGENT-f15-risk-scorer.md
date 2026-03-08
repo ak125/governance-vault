@@ -19,7 +19,7 @@ code_status: no_implementation
 |-------|-------|
 | ID | `f15-risk-scorer` |
 | Name | Risk Scorer |
-| Status | active |
+| Status | **planned** (no implementation) |
 | Owner | Analysis Team |
 | Description | Calculates risk scores for code changes and PRs |
 

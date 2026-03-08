@@ -19,7 +19,7 @@ code_status: no_implementation
 |-------|-------|
 | ID | `a7-performance` |
 | Name | Performance Analyzer |
-| Status | active |
+| Status | **planned** (no implementation) |
 | Owner | Analysis Team |
 | Description | Detects performance anti-patterns and bottlenecks |
 

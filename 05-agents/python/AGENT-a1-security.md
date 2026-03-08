@@ -19,7 +19,7 @@ code_status: no_implementation
 |-------|-------|
 | ID | `a1_security` |
 | Name | Security Scanner |
-| Status | active |
+| Status | **planned** (no implementation) |
 | Owner | Analysis Team |
 | Description | Scans codebase for security vulnerabilities |
 

@@ -19,7 +19,7 @@ code_status: no_implementation
 |-------|-------|
 | ID | `a12-documentation` |
 | Name | Documentation Analyzer |
-| Status | active |
+| Status | **planned** (no implementation) |
 | Owner | Analysis Team |
 | Description | Analyzes documentation coverage and quality |
 

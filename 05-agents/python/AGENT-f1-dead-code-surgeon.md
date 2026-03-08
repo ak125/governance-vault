@@ -20,7 +20,7 @@ code_status: no_implementation
 |-------|-------|
 | ID | `f1-dead-code-surgeon` |
 | Name | Dead Code Surgeon |
-| Status | active |
+| Status | **planned** (no implementation) |
 | Owner | Analysis Team |
 | Description | Removes verified dead code with high confidence |
 

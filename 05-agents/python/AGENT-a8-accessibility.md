@@ -19,7 +19,7 @@ code_status: no_implementation
 |-------|-------|
 | ID | `a8-accessibility` |
 | Name | Accessibility Scanner |
-| Status | active |
+| Status | **planned** (no implementation) |
 | Owner | Analysis Team |
 | Description | Scans for WCAG compliance and accessibility issues |
 

@@ -20,7 +20,7 @@ code_status: no_implementation
 |-------|-------|
 | ID | `f0-autoimport` |
 | Name | Auto Import Fixer |
-| Status | active |
+| Status | **planned** (no implementation) |
 | Owner | Analysis Team |
 | Description | Automatically fixes missing and unused imports |
 

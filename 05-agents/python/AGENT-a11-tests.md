@@ -19,7 +19,7 @@ code_status: no_implementation
 |-------|-------|
 | ID | `a11-tests` |
 | Name | Test Coverage Analyzer |
-| Status | active |
+| Status | **planned** (no implementation) |
 | Owner | Analysis Team |
 | Description | Analyzes test coverage and identifies untested code |
 

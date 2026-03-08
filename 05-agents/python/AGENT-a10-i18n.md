@@ -19,7 +19,7 @@ code_status: no_implementation
 |-------|-------|
 | ID | `a10-i18n` |
 | Name | i18n Checker |
-| Status | active |
+| Status | **planned** (no implementation) |
 | Owner | Analysis Team |
 | Description | Checks internationalization compliance and missing translations |
 

@@ -19,7 +19,7 @@ code_status: no_implementation
 |-------|-------|
 | ID | `a6-dependencies` |
 | Name | Dependencies Analyzer |
-| Status | active |
+| Status | **planned** (no implementation) |
 | Owner | Analysis Team |
 | Description | Analyzes npm dependencies, detects vulnerabilities and outdated packages |
 

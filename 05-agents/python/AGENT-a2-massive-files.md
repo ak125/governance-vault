@@ -19,7 +19,7 @@ code_status: no_implementation
 |-------|-------|
 | ID | `a2-massive-files` |
 | Name | Massive Files Detector |
-| Status | active |
+| Status | **planned** (no implementation) |
 | Owner | Analysis Team |
 | Description | Detects large files that may cause performance issues |
 

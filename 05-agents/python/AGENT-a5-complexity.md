@@ -19,7 +19,7 @@ code_status: no_implementation
 |-------|-------|
 | ID | `a5-complexity` |
 | Name | Complexity Analyzer |
-| Status | active |
+| Status | **planned** (no implementation) |
 | Owner | Analysis Team |
 | Description | Calculates cyclomatic complexity and cognitive complexity |
 

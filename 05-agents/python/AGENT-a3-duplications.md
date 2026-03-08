@@ -19,7 +19,7 @@ code_status: no_implementation
 |-------|-------|
 | ID | `a3-duplications` |
 | Name | Duplication Detector |
-| Status | active |
+| Status | **planned** (no implementation) |
 | Owner | Analysis Team |
 | Description | Detects code duplications and DRY violations |
 
