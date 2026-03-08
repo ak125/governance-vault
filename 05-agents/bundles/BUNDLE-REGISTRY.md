@@ -109,7 +109,7 @@ interface JobEnvelope {
 
 ## Authorized Bundle Producers
 
-Per REG-001 v1.4.1, only these agents may produce bundles:
+Per REG-001 v2.1.0, only these agents may produce bundles:
 
 | agent_id | output_type | verdict |
 |----------|-------------|---------|
