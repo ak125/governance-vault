@@ -2,9 +2,9 @@
 id: REG-001
 title: Agent Registry
 status: active
-version: 2.0.0
+version: 2.1.0
 last_audit: 2026-03-08
-total_agents: 165
+total_agents: 136
 ---
 
 # Agent Registry
@@ -15,12 +15,30 @@ Official source of truth for all agents in the AutoMecanik system.
 
 | Verdict | Count |
 |---------|-------|
-| APPROVED | 67 |
-| APPROVED_WITH_CONDITIONS | 19 |
-| NOT_APPROVED | 46 |
-| PLANNED (no code) | 15 |
+| APPROVED | 59 |
+| APPROVED_WITH_CONDITIONS | 16 |
+| NOT_APPROVED | 27 |
 | CONCEPTUAL (lettered) | 34 |
-| **TOTAL** | **165** |
+| **TOTAL** | **136** |
+
+## Domain Coverage
+
+> Counts include all agents (active + planned + conceptual). Lettered series counted as group (34).
+
+| Domain | Active | Planned | Total | Key agents |
+|--------|--------|---------|-------|------------|
+| SEO | 24 | 6 | 30 | keyword-planner, content-batch, seo-monitor-*, seo-vlevel, sitemap-delta |
+| Infrastructure | 15 | 20 | 35 | backend-test, db-migration, gh-ci-deploy, metrics-processor, a1-a12 |
+| BMAD | 10 | 0 | 10 | bmad-master, analyst, architect, dev |
+| Gouvernance | 3 | 6 | 9 | governance-vault-ops, code-review, content-audit |
+| UI/Frontend | 7 | 2 | 9 | frontend-design, ui-os, ui-ux-pro-max, responsive-audit |
+| RAG | 1 | 4 | 5 | rag-ops, rag-indexer, rag-validator, rag-retriever |
+| Marketing | 1 | 1 | 2 | marketing-hub, agent.cmo.ia |
+| Vehicules | 1 | 0 | 1 | vehicle-ops |
+| Paiements | 1 | 0 | 1 | payment-review |
+| **Sous-total** | **63** | **39** | **102** | Individual agents |
+| Lettered Series | 0 | 34 | 34 | G/F/M/A/B-Series (conceptual) |
+| **TOTAL** | **63** | **73** | **136** | |
 
 ## Related ADRs
 
@@ -34,155 +52,155 @@ Official source of truth for all agents in the AutoMecanik system.
 
 ## Registry Table — BMAD Agents
 
-| agent_id | status | zone | trust | output | verdict |
-|----------|--------|------|-------|--------|---------|
-| bmad-master | active | local | trusted | report | APPROVED |
-| analyst | active | local | trusted | report | APPROVED |
-| architect | active | local | trusted | report | APPROVED |
-| dev | active | local | restricted | bundle | APPROVED_WITH_CONDITIONS |
-| pm | active | local | trusted | report | APPROVED |
-| quick-flow-solo-dev | active | local | trusted | report | APPROVED |
-| sm | active | local | trusted | report | APPROVED |
-| tea | active | local | trusted | report | APPROVED |
-| tech-writer | active | local | trusted | report | APPROVED |
-| ux-designer | active | local | trusted | report | APPROVED |
+| agent_id | domain | status | zone | trust | output | verdict |
+|----------|--------|--------|------|-------|--------|---------|
+| bmad-master | bmad | active | local | trusted | report | APPROVED |
+| analyst | bmad | active | local | trusted | report | APPROVED |
+| architect | bmad | active | local | trusted | report | APPROVED |
+| dev | bmad | active | local | restricted | bundle | APPROVED_WITH_CONDITIONS |
+| pm | bmad | active | local | trusted | report | APPROVED |
+| quick-flow-solo-dev | bmad | active | local | trusted | report | APPROVED |
+| sm | bmad | active | local | trusted | report | APPROVED |
+| tea | bmad | active | local | trusted | report | APPROVED |
+| tech-writer | bmad | active | local | trusted | report | APPROVED |
+| ux-designer | bmad | active | local | trusted | report | APPROVED |
 
 ## Registry Table — AI-COS Planned Agents
 
-| agent_id | status | zone | trust | output | verdict |
-|----------|--------|------|-------|--------|---------|
-| agent.ceo.ia | planned | principal_vps | restricted | report | NOT_APPROVED |
-| agent.cto.ia | planned | principal_vps | restricted | report | NOT_APPROVED |
-| agent.cpo.ia | planned | principal_vps | restricted | report | NOT_APPROVED |
-| agent.cmo.ia | planned | principal_vps | restricted | report | NOT_APPROVED |
-| agent.cfo.ia | planned | principal_vps | restricted | report | NOT_APPROVED |
-| agent.qto | planned | principal_vps | restricted | report | NOT_APPROVED |
-| agent.seo.lead | planned | principal_vps | restricted | bundle | NOT_APPROVED |
-| agent.data.lead | planned | principal_vps | restricted | report | NOT_APPROVED |
-| agent.rag.lead | planned | principal_vps | restricted | report | NOT_APPROVED |
-| agent.aicos.architect | planned | principal_vps | restricted | report | NOT_APPROVED |
-| agent.aicos.governance | planned | principal_vps | restricted | report | NOT_APPROVED |
-| front-agent | planned | principal_vps | restricted | report | NOT_APPROVED |
-| agent.seo.vlevel | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
-| agent.seo.sitemap | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
-| agent.seo.canonical | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
-| agent.seo.content | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
-| agent.data.cleanup | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
-| agent.data.validator | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
-| agent.data.backup | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
-| agent.rag.indexer | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
-| agent.rag.validator | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
-| agent.rag.retriever | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
-| agent.infra.monitor | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
-| agent.infra.logs | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
+| agent_id | domain | status | zone | trust | output | verdict |
+|----------|--------|--------|------|-------|--------|---------|
+| agent.ceo.ia | governance | planned | principal_vps | restricted | report | NOT_APPROVED |
+| agent.cto.ia | infra | planned | principal_vps | restricted | report | NOT_APPROVED |
+| agent.cpo.ia | governance | planned | principal_vps | restricted | report | NOT_APPROVED |
+| agent.cmo.ia | marketing | planned | principal_vps | restricted | report | NOT_APPROVED |
+| agent.cfo.ia | governance | planned | principal_vps | restricted | report | NOT_APPROVED |
+| agent.qto | governance | planned | principal_vps | restricted | report | NOT_APPROVED |
+| agent.seo.lead | seo | planned | principal_vps | restricted | bundle | NOT_APPROVED |
+| agent.data.lead | infra | planned | principal_vps | restricted | report | NOT_APPROVED |
+| agent.rag.lead | rag | planned | principal_vps | restricted | report | NOT_APPROVED |
+| agent.aicos.architect | governance | planned | principal_vps | restricted | report | NOT_APPROVED |
+| agent.aicos.governance | governance | planned | principal_vps | restricted | report | NOT_APPROVED |
+| front-agent | ui | planned | principal_vps | restricted | report | NOT_APPROVED |
+| agent.seo.vlevel | seo | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
+| agent.seo.sitemap | seo | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
+| agent.seo.canonical | seo | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
+| agent.seo.content | seo | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
+| agent.data.cleanup | infra | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
+| agent.data.validator | infra | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
+| agent.data.backup | infra | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
+| agent.rag.indexer | rag | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
+| agent.rag.validator | rag | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
+| agent.rag.retriever | rag | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
+| agent.infra.monitor | infra | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
+| agent.infra.logs | infra | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
 
-## Registry Table — Agent Prompts (.claude/agents/) — NEW
+## Registry Table — Agent Prompts (.claude/agents/)
 
-| agent_id | status | zone | trust | output | verdict |
-|----------|--------|------|-------|--------|---------|
-| prompt.keyword-planner | active | local | restricted | rpc | APPROVED |
-| prompt.r4-keyword-planner | active | local | restricted | rpc | APPROVED |
-| prompt.r6-keyword-planner | active | local | restricted | rpc | APPROVED |
-| prompt.research-agent | active | local | restricted | rpc | APPROVED |
-| prompt.brief-enricher | active | local | restricted | rpc | APPROVED |
-| prompt.content-batch | active | local | restricted | rpc | APPROVED |
-| prompt.r1-content-batch | active | local | restricted | rpc | APPROVED |
-| prompt.r4-content-batch | active | local | restricted | rpc | APPROVED |
-| prompt.r6-content-batch | active | local | restricted | rpc | APPROVED |
-| prompt.conseil-batch | active | local | restricted | rpc | APPROVED |
-| prompt.r3-image-prompt | active | local | restricted | report | APPROVED |
-| prompt.r6-image-prompt | active | local | restricted | report | APPROVED |
+| agent_id | domain | status | zone | trust | output | verdict |
+|----------|--------|--------|------|-------|--------|---------|
+| prompt.keyword-planner | seo | active | local | restricted | rpc | APPROVED |
+| prompt.r4-keyword-planner | seo | active | local | restricted | rpc | APPROVED |
+| prompt.r6-keyword-planner | seo | active | local | restricted | rpc | APPROVED |
+| prompt.research-agent | seo | active | local | restricted | rpc | APPROVED |
+| prompt.brief-enricher | seo | active | local | restricted | rpc | APPROVED |
+| prompt.content-batch | seo | active | local | restricted | rpc | APPROVED |
+| prompt.r1-content-batch | seo | active | local | restricted | rpc | APPROVED |
+| prompt.r4-content-batch | seo | active | local | restricted | rpc | APPROVED |
+| prompt.r6-content-batch | seo | active | local | restricted | rpc | APPROVED |
+| prompt.conseil-batch | seo | active | local | restricted | rpc | APPROVED |
+| prompt.r3-image-prompt | seo | active | local | restricted | report | APPROVED |
+| prompt.r6-image-prompt | seo | active | local | restricted | report | APPROVED |
 
 ## Registry Table — Skills (.claude/skills/)
 
-| agent_id | status | zone | trust | output | verdict |
-|----------|--------|------|-------|--------|---------|
-| ui-os | active | local | trusted | report | APPROVED |
-| ui-ux-pro-max | active | local | trusted | report | APPROVED |
-| seo-content-architect | active | local | trusted | report | APPROVED |
-| governance-vault-ops | active | local | trusted | report | APPROVED |
-| frontend-design | active | local | trusted | report | APPROVED |
-| skill.backend-test | active | local | trusted | report | APPROVED |
-| skill.code-review | active | local | trusted | report | APPROVED |
-| skill.content-audit | active | local | trusted | report | APPROVED |
-| skill.db-migration | active | local | trusted | report | APPROVED |
-| skill.marketing-hub | active | local | trusted | report | APPROVED |
-| skill.payment-review | active | local | trusted | report | APPROVED |
-| skill.rag-ops | active | local | trusted | report | APPROVED |
-| skill.responsive-audit | active | local | trusted | report | APPROVED |
-| skill.vehicle-ops | active | local | trusted | report | APPROVED |
+| agent_id | domain | status | zone | trust | output | verdict |
+|----------|--------|--------|------|-------|--------|---------|
+| ui-os | ui | active | local | trusted | report | APPROVED |
+| ui-ux-pro-max | ui | active | local | trusted | report | APPROVED |
+| seo-content-architect | seo | active | local | trusted | report | APPROVED |
+| governance-vault-ops | governance | active | local | trusted | report | APPROVED |
+| frontend-design | ui | active | local | trusted | report | APPROVED |
+| skill.backend-test | infra | active | local | trusted | report | APPROVED |
+| skill.code-review | governance | active | local | trusted | report | APPROVED |
+| skill.content-audit | governance | active | local | trusted | report | APPROVED |
+| skill.db-migration | infra | active | local | trusted | report | APPROVED |
+| skill.marketing-hub | marketing | active | local | trusted | report | APPROVED |
+| skill.payment-review | payment | active | local | trusted | report | APPROVED |
+| skill.rag-ops | rag | active | local | trusted | report | APPROVED |
+| skill.responsive-audit | ui | active | local | trusted | report | APPROVED |
+| skill.vehicle-ops | vehicle | active | local | trusted | report | APPROVED |
 
 ## Registry Table — Backend Workers
 
-| agent_id | status | zone | trust | output | verdict |
-|----------|--------|------|-------|--------|---------|
-| worker.content-refresh | active | principal_vps | restricted | rpc | APPROVED_WITH_CONDITIONS |
-| worker.video-execution | active | principal_vps | restricted | rpc | APPROVED_WITH_CONDITIONS |
-| worker.pipeline-chain-poller | active | principal_vps | restricted | rpc | APPROVED_WITH_CONDITIONS |
-| worker.metrics-processor | active | principal_vps | trusted | report | APPROVED |
-| seo-monitor-scheduler | active | principal_vps | trusted | report | APPROVED |
-| seo-monitor-processor | active | principal_vps | trusted | report | APPROVED |
-| seo-audit-scheduler | active | principal_vps | trusted | report | APPROVED |
-| seo-interpolation-monitor | active | principal_vps | trusted | report | APPROVED |
-| seo-monitoring-service | active | principal_vps | trusted | report | APPROVED |
-| sitemap-delta-service | active | principal_vps | trusted | report | APPROVED |
-| search-monitoring-service | active | principal_vps | trusted | report | APPROVED |
-| support-analytics-service | active | principal_vps | trusted | report | APPROVED |
-| mcp-alerting-service | active | principal_vps | trusted | report | APPROVED |
-| database-monitor | active | principal_vps | trusted | report | APPROVED |
-| cache-warming-service | active | principal_vps | trusted | report | APPROVED |
-| seo-keyword-expert | active | principal_vps | trusted | report | APPROVED |
-| serp-analyzer | active | principal_vps | trusted | report | APPROVED |
+| agent_id | domain | status | zone | trust | output | verdict |
+|----------|--------|--------|------|-------|--------|---------|
+| worker.content-refresh | seo | active | principal_vps | restricted | rpc | APPROVED_WITH_CONDITIONS |
+| worker.video-execution | seo | active | principal_vps | restricted | rpc | APPROVED_WITH_CONDITIONS |
+| worker.pipeline-chain-poller | seo | active | principal_vps | restricted | rpc | APPROVED_WITH_CONDITIONS |
+| worker.metrics-processor | infra | active | principal_vps | trusted | report | APPROVED |
+| seo-monitor-scheduler | seo | active | principal_vps | trusted | report | APPROVED |
+| seo-monitor-processor | seo | active | principal_vps | trusted | report | APPROVED |
+| seo-audit-scheduler | seo | active | principal_vps | trusted | report | APPROVED |
+| seo-interpolation-monitor | seo | active | principal_vps | trusted | report | APPROVED |
+| seo-monitoring-service | seo | active | principal_vps | trusted | report | APPROVED |
+| sitemap-delta-service | seo | active | principal_vps | trusted | report | APPROVED |
+| search-monitoring-service | infra | active | principal_vps | trusted | report | APPROVED |
+| support-analytics-service | infra | active | principal_vps | trusted | report | APPROVED |
+| mcp-alerting-service | infra | active | principal_vps | trusted | report | APPROVED |
+| database-monitor | infra | active | principal_vps | trusted | report | APPROVED |
+| cache-warming-service | infra | active | principal_vps | trusted | report | APPROVED |
+| seo-keyword-expert | seo | active | principal_vps | trusted | report | APPROVED |
+| serp-analyzer | seo | active | principal_vps | trusted | report | APPROVED |
 
 ## Registry Table — MCP / GitHub Actions / Scripts
 
-| agent_id | status | zone | trust | output | verdict |
-|----------|--------|------|-------|--------|---------|
-| mcp-shadcn | active | local | trusted | report | APPROVED |
-| mcp-supabase | active | local | trusted | report | APPROVED |
-| mcp-supabase-local | active | local | trusted | report | APPROVED |
-| gh-ci-deploy | active | external | trusted | report | APPROVED |
-| gh-worker-deploy | active | external | trusted | report | APPROVED |
-| gh-perf-gates | active | external | trusted | report | APPROVED |
-| gh-spec-validation | active | external | trusted | report | APPROVED |
-| gh-safety-observer | active | external | trusted | report | APPROVED |
-| ui-audit-suite | active | local | trusted | report | APPROVED |
-| ui-governance-suite | active | local | trusted | report | APPROVED |
+| agent_id | domain | status | zone | trust | output | verdict |
+|----------|--------|--------|------|-------|--------|---------|
+| mcp-shadcn | ui | active | local | trusted | report | APPROVED |
+| mcp-supabase | infra | active | local | trusted | report | APPROVED |
+| mcp-supabase-local | infra | active | local | trusted | report | APPROVED |
+| gh-ci-deploy | infra | active | external | trusted | report | APPROVED |
+| gh-worker-deploy | infra | active | external | trusted | report | APPROVED |
+| gh-perf-gates | infra | active | external | trusted | report | APPROVED |
+| gh-spec-validation | infra | active | external | trusted | report | APPROVED |
+| gh-safety-observer | infra | active | external | trusted | report | APPROVED |
+| ui-audit-suite | ui | active | local | trusted | report | APPROVED |
+| ui-governance-suite | ui | active | local | trusted | report | APPROVED |
 
 ## Registry Table — Python Analysis Agents (NO IMPLEMENTATION)
 
 > These agents were planned but NO scripts exist in the codebase. Status: NOT_APPROVED.
 
-| agent_id | status | zone | trust | output | verdict |
-|----------|--------|------|-------|--------|---------|
-| a1_security | planned | external | untrusted | report | NOT_APPROVED |
-| a2_massive_files | planned | external | untrusted | report | NOT_APPROVED |
-| a3_duplications | planned | external | untrusted | report | NOT_APPROVED |
-| a4_dead_code | planned | external | untrusted | report | NOT_APPROVED |
-| a5_complexity | planned | external | untrusted | report | NOT_APPROVED |
-| a6_dependencies | planned | external | untrusted | report | NOT_APPROVED |
-| a7_performance | planned | external | untrusted | report | NOT_APPROVED |
-| a8_accessibility | planned | external | untrusted | report | NOT_APPROVED |
-| a9_seo | planned | external | untrusted | report | NOT_APPROVED |
-| a10_i18n | planned | external | untrusted | report | NOT_APPROVED |
-| a11_tests | planned | external | untrusted | report | NOT_APPROVED |
-| a12_documentation | planned | external | untrusted | report | NOT_APPROVED |
-| f0_autoimport | planned | external | untrusted | bundle | NOT_APPROVED |
-| f1_dead_code_surgeon | planned | external | untrusted | bundle | NOT_APPROVED |
-| f15_risk_scorer | planned | external | untrusted | report | NOT_APPROVED |
+| agent_id | domain | status | zone | trust | output | verdict |
+|----------|--------|--------|------|-------|--------|---------|
+| a1_security | infra | planned | external | untrusted | report | NOT_APPROVED |
+| a2_massive_files | infra | planned | external | untrusted | report | NOT_APPROVED |
+| a3_duplications | infra | planned | external | untrusted | report | NOT_APPROVED |
+| a4_dead_code | infra | planned | external | untrusted | report | NOT_APPROVED |
+| a5_complexity | infra | planned | external | untrusted | report | NOT_APPROVED |
+| a6_dependencies | infra | planned | external | untrusted | report | NOT_APPROVED |
+| a7_performance | infra | planned | external | untrusted | report | NOT_APPROVED |
+| a8_accessibility | ui | planned | external | untrusted | report | NOT_APPROVED |
+| a9_seo | seo | planned | external | untrusted | report | NOT_APPROVED |
+| a10_i18n | infra | planned | external | untrusted | report | NOT_APPROVED |
+| a11_tests | infra | planned | external | untrusted | report | NOT_APPROVED |
+| a12_documentation | infra | planned | external | untrusted | report | NOT_APPROVED |
+| f0_autoimport | infra | planned | external | untrusted | bundle | NOT_APPROVED |
+| f1_dead_code_surgeon | infra | planned | external | untrusted | bundle | NOT_APPROVED |
+| f15_risk_scorer | infra | planned | external | untrusted | report | NOT_APPROVED |
 
 ## Lettered Series (Conceptual - NOT_APPROVED)
 
 > Conceptual agent series. No implementation exists in the codebase.
 
-| Series | Count | Status |
-|--------|-------|--------|
-| G-Series (Governance) | 18 | conceptual |
-| F-Series (Testing) | 6 | conceptual |
-| M-Series (Mutation) | 2 | conceptual |
-| A-Series (Architecture) | 7 | conceptual |
-| B-Series (Ethics) | 1 | conceptual |
-| **Total Lettered** | **34** | NOT_APPROVED |
+| Series | Domain | Count | Status |
+|--------|--------|-------|--------|
+| G-Series (Governance) | governance | 18 | conceptual |
+| F-Series (Testing) | infra | 6 | conceptual |
+| M-Series (Mutation) | infra | 2 | conceptual |
+| A-Series (Architecture) | infra | 7 | conceptual |
+| B-Series (Ethics) | governance | 1 | conceptual |
+| **Total Lettered** | — | **34** | NOT_APPROVED |
 
 ---
 
@@ -199,10 +217,11 @@ For CI integration:
 - `zone`: local | principal_vps | external (per ADR-008)
 - `trust`: trusted | restricted | untrusted
 - `output`: report | bundle | rpc
+- `domain`: seo | rag | vehicle | payment | ui | infra | marketing | governance | bmad
 - `verdict`: APPROVED | APPROVED_WITH_CONDITIONS | NOT_APPROVED
 
 ---
 
-_Registry Version: 2.0.0_
+_Registry Version: 2.1.0_
 _Last Updated: 2026-03-08_
 _Maintainer: Governance Team_
