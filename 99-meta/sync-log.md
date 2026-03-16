@@ -79,3 +79,40 @@ Log de synchronisation canon → vault
 ## 2026-02-02T14:23:37+01:00 SYNC
 - src: `/opt/automecanik/app/.spec/00-canon/seo/vlevel-rules.md`
 - dest: `/opt/automecanik/app/.local/governance-vault/03-rules/technical/vlevel-rules.md`
+2026-03-16T15:19:22+01:00 | CONFLICT | architecture.md → architecture.md.conflict.1773670762
+2026-03-16T15:19:22+01:00 | SYNC | artefact-registry.md
+2026-03-16T15:19:22+01:00 | SYNC | brand-md-schema.md
+2026-03-16T15:19:22+01:00 | SYNC | catalog-structural-audit.md
+2026-03-16T15:19:22+01:00 | SYNC | change-control-plan.md
+2026-03-16T15:19:22+01:00 | SYNC | db-monitoring-runbook.md
+2026-03-16T15:19:22+01:00 | SYNC | domain-map.md
+2026-03-16T15:19:22+01:00 | SYNC | execution-map.md
+2026-03-16T15:19:22+01:00 | SYNC | final-exec-summary.md
+2026-03-16T15:19:22+01:00 | SYNC | full-structural-audit.md
+2026-03-16T15:19:22+01:00 | SYNC | legacy-canon-map.md
+2026-03-16T15:19:22+01:00 | SYNC | perf-findings.md
+2026-03-16T15:19:22+01:00 | SYNC | phase-2a-rpc-audit-results.md
+2026-03-16T15:19:22+01:00 | SYNC | phase-2b-first-monitoring-review.md
+2026-03-16T15:19:22+01:00 | SYNC | phase-2b-rpc-audit-results.md
+2026-03-16T15:19:22+01:00 | SYNC | phase-2-monitoring-rpc.md
+2026-03-16T15:19:22+01:00 | SYNC | phase-3-v2-validation-plan.md
+2026-03-16T15:19:22+01:00 | SYNC | role-implementation-map.md
+2026-03-16T15:19:22+01:00 | SYNC | role-migration-registry.md
+2026-03-16T15:19:22+01:00 | SYNC | schema-governance-matrix.md
+2026-03-16T15:19:22+01:00 | SYNC | sql-governance-policy.md
+2026-03-16T15:19:22+01:00 | SYNC | sql-governance-rules.md
+2026-03-16T15:19:23+01:00 | SYNC | sql-migration-checklist.md
+2026-03-16T15:19:23+01:00 | SYNC | table-remediation-matrix.md
+2026-03-16T15:19:23+01:00 | SYNC | tecdoc-apply-mapping.md
+2026-03-16T15:19:23+01:00 | SYNC | tecdoc-source-mapping.md
+2026-03-16T15:19:23+01:00 | SYNC | gamme-md-schema.md
+2026-03-16T15:19:23+01:00 | SYNC | image-matrix-v1.md
+2026-03-16T15:19:23+01:00 | SYNC | image-matrix-v2.md
+2026-03-16T15:19:23+01:00 | SYNC | phase2-canon.md
+2026-03-16T15:19:23+01:00 | SYNC | phase-matrix.md
+2026-03-16T15:19:23+01:00 | SYNC | pipeline-phases.md
+2026-03-16T15:19:23+01:00 | SYNC | prompt-registry.md
+2026-03-16T15:19:23+01:00 | SYNC | rag-document-classification-matrix.md
+2026-03-16T15:19:23+01:00 | CONFLICT | repo-map.md → repo-map.md.conflict.1773670763
+2026-03-16T15:19:23+01:00 | SYNC | role-matrix.md
+2026-03-16T15:19:23+01:00 | SYNC | video-governance-p0.md
