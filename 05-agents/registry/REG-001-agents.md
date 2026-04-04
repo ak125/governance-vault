@@ -2,9 +2,9 @@
 id: REG-001
 title: Agent Registry
 status: active
-version: 2.1.0
-last_audit: 2026-03-08
-total_agents: 136
+version: 2.3.0
+last_audit: 2026-04-04
+total_agents: 144
 ---
 
 # Agent Registry
@@ -16,10 +16,10 @@ Official source of truth for all agents in the AutoMecanik system.
 | Verdict | Count |
 |---------|-------|
 | APPROVED | 59 |
-| APPROVED_WITH_CONDITIONS | 16 |
-| NOT_APPROVED | 27 |
+| APPROVED_WITH_CONDITIONS | 20 |
+| NOT_APPROVED | 31 |
 | CONCEPTUAL (lettered) | 34 |
-| **TOTAL** | **136** |
+| **TOTAL** | **144** |
 
 ## Domain Coverage
 
@@ -27,7 +27,7 @@ Official source of truth for all agents in the AutoMecanik system.
 
 | Domain | Active | Planned | Total | Key agents |
 |--------|--------|---------|-------|------------|
-| SEO | 24 | 6 | 30 | keyword-planner, content-batch, seo-monitor-*, seo-vlevel, sitemap-delta |
+| SEO | 24 | 10 | 34 | keyword-planner, content-batch, seo-monitor-*, seo-vlevel, sitemap-delta, 4 sub-leads |
 | Infrastructure | 15 | 20 | 35 | backend-test, db-migration, gh-ci-deploy, metrics-processor, a1-a12 |
 | BMAD | 10 | 0 | 10 | bmad-master, analyst, architect, dev |
 | Gouvernance | 3 | 6 | 9 | governance-vault-ops, code-review, content-audit |
@@ -36,9 +36,10 @@ Official source of truth for all agents in the AutoMecanik system.
 | Marketing | 1 | 1 | 2 | marketing-hub, agent.cmo.ia |
 | Vehicules | 1 | 0 | 1 | vehicle-ops |
 | Paiements | 1 | 0 | 1 | payment-review |
-| **Sous-total** | **63** | **39** | **102** | Individual agents |
+| Quality/QA | 4 | 0 | 4 | agent.qa.orchestrator, agent.qa.functional, agent.qa.visual, agent.qa.seo-tech |
+| **Sous-total** | **67** | **43** | **110** | Individual agents |
 | Lettered Series | 0 | 34 | 34 | G/F/M/A/B-Series (conceptual) |
-| **TOTAL** | **63** | **73** | **136** | |
+| **TOTAL** | **67** | **77** | **144** | |
 
 ## Related ADRs
 
@@ -86,6 +87,10 @@ Official source of truth for all agents in the AutoMecanik system.
 | agent.seo.sitemap | seo | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
 | agent.seo.canonical | seo | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
 | agent.seo.content | seo | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
+| agent.seo.kp.lead | seo | planned | principal_vps | restricted | bundle | NOT_APPROVED |
+| agent.seo.content.lead | seo | planned | principal_vps | restricted | bundle | NOT_APPROVED |
+| agent.seo.qa.lead | seo | planned | principal_vps | restricted | bundle | NOT_APPROVED |
+| agent.seo.exec.lead | seo | planned | principal_vps | restricted | bundle | NOT_APPROVED |
 | agent.data.cleanup | infra | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
 | agent.data.validator | infra | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
 | agent.data.backup | infra | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
@@ -94,6 +99,10 @@ Official source of truth for all agents in the AutoMecanik system.
 | agent.rag.retriever | rag | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
 | agent.infra.monitor | infra | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
 | agent.infra.logs | infra | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
+| agent.qa.orchestrator | quality | active | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
+| agent.qa.functional | quality | active | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
+| agent.qa.visual | quality | active | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
+| agent.qa.seo-tech | quality | active | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
 
 ## Registry Table — Agent Prompts (.claude/agents/)
 
@@ -218,11 +227,11 @@ For CI integration:
 - `zone`: local | principal_vps | aicos_vps | external (per ADR-008, ADR-012)
 - `trust`: trusted | restricted | untrusted
 - `output`: report | bundle | rpc
-- `domain`: seo | rag | vehicle | payment | ui | infra | marketing | governance | bmad
+- `domain`: seo | rag | vehicle | payment | ui | infra | marketing | governance | bmad | quality
 - `verdict`: APPROVED | APPROVED_WITH_CONDITIONS | NOT_APPROVED
 
 ---
 
-_Registry Version: 2.1.0_
-_Last Updated: 2026-03-08_
+_Registry Version: 2.3.0_
+_Last Updated: 2026-04-04_
 _Maintainer: Governance Team_
