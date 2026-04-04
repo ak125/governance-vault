@@ -100,7 +100,7 @@ Certains orchestrateurs (ex: IA-SEO Master) ont trop de reports directs (~30 age
 
 | Critère | Exigence | Mesure |
 |---------|----------|--------|
-| Stabilité Phase 1 | 14 jours consécutifs sans incident | Logs Airlock |
+| Stabilité Phase 1 | 3 jours ouvrés sans incident (vague 2a) | Logs Airlock |
 | Airlock enforce actif | Mode enforce sur toutes les fonctions P0 | Config RpcGate |
 | Pipeline opérationnel | agent-submissions traite au moins 1 bundle/semaine | Audit trail |
 | Signed commits | Tous les commits governance-vault sont signés | audit-signatures.sh |
@@ -117,21 +117,24 @@ Certains orchestrateurs (ex: IA-SEO Master) ont trop de reports directs (~30 age
 | Sponsor identifié | Un agent Level 1 ou Level 2 comme sponsor |
 | Budget validé | IA-CFO a approuvé le budget (ou budget = 0 pour orchestration pure) |
 | Bundle G2 soumis | Bundle signé passé par Airlock avec succès |
-| Période observe | 14 jours en mode observe sans violation |
+| Période observe | Selon vague : 3j (2a), 7j (2b), 14j (2c) — en mode observe sans violation |
 
 **Ordre d'activation Phase 2** :
 
 ```
 Vague 2a — Sub-Leads (Level 2.5) sous un Lead existant
   → Risque faible : orchestration locale, pas d'accès production
+  → Période observe : 3 jours ouvrés
   → Premier test : sous-leads SEO sous IA-SEO Master
 
 Vague 2b — Leads (Level 2) avec agents_managed actifs
   → Risque moyen : coordination inter-agents
+  → Période observe : 7 jours
   → Prérequis : sub-leads de la vague 2a stables
 
 Vague 2c — Executive (Level 1) avec authority.proposes
   → Risque élevé : propositions stratégiques
+  → Période observe : 14 jours
   → Prérequis : nouvel ADR spécifique par agent L1
 ```
 
