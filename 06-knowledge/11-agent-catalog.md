@@ -30,7 +30,16 @@ Cataloguer tous les agents AI-COS definis pour la Phase 0.
 | Infra | | Data  | | Diag  | | Prod  | | SEO   | | Cont  |
 +---+---+ +---+---+ +---+---+ +---+---+ +---+---+ +---+---+
     |         |         |         |         |         |
-   ...       ...       ...       ...       ...       ...
+   ...       ...       ...       ...    +---+---+   ...
+                                        |IA-SEO |
+                                        |Master |
+                                        |(L2.5) |
+                                        +---+---+
+                                    +---+---+---+---+
+                                    |   |       |   |
+                                   KP Cont.   QA  Exec
+                                  Lead Lead  Lead Lead
+                                  (L2.5)(L2.5)(L2.5)(L2.5)
 ```
 
 ---
@@ -309,14 +318,46 @@ Agent:
       target: "< 24h"
 
   agents_managed:
-    - "agent.seo.vlevel"
-    - "agent.seo.canonical"
-    - "agent.seo.sitemap"
-    - "agent.seo.content"
+    - "ia-seo-master"
 
   tools:
     - mcp__supabase__execute_sql (read, write)
     - mcp__chrome-devtools__* (execute)
+
+  status: planned
+```
+
+### ia-seo-master (IA-SEO Master)
+
+```yaml
+Agent:
+  id: "ia-seo-master"
+  name: "IA-SEO Master"
+  role: ORCHESTRATOR
+  domain: SEO
+  level: 2.5
+  type: TYPE_2
+
+  mission: "Piloter operationnellement le SEO Squad via 4 sous-leads specialises"
+
+  rattachement:
+    reports_to: "agent.seo.lead"
+    sponsor: "agent.cmo.ia"
+    squad: "seo"
+
+  authority:
+    decides: ["seo_operational_priority", "sub_lead_assignment"]
+    proposes: ["seo_execution_plan", "resource_allocation"]
+    escalates: ["critical_seo_issues", "budget_overrun"]
+
+  agents_managed:
+    - "agent.seo.kp.lead"
+    - "agent.seo.content.lead"
+    - "agent.seo.qa.lead"
+    - "agent.seo.exec.lead"
+
+  tools:
+    - mcp__supabase__execute_sql (read, write)
 
   status: planned
 ```
@@ -398,6 +439,136 @@ Agent:
 
   tools:
     - mcp__supabase__execute_sql (read, write)
+
+  status: planned
+```
+
+---
+
+## Agents Level 2.5 (Sub-Leads SEO)
+
+> Couche intermediaire sous IA-SEO Master pour un span of control gerable (~7 agents par sous-lead).
+> Crees via processus G1 (ADR-013). Activation future via G2 vague 2a.
+
+### agent.seo.kp.lead
+
+```yaml
+Agent:
+  id: "agent.seo.kp.lead"
+  name: "SEO KP Lead"
+  role: ORCHESTRATOR
+  domain: SEO
+  level: 2.5
+  type: TYPE_2
+
+  mission: "Coordonner les agents de recherche de mots-cles et d'analyse SERP"
+
+  rattachement:
+    reports_to: "ia-seo-master"
+    sponsor: "agent.seo.lead"
+    squad: "seo"
+
+  agents_managed:
+    - "prompt.keyword-planner"
+    - "prompt.r4-keyword-planner"
+    - "prompt.r6-keyword-planner"
+    - "prompt.research-agent"
+    - "prompt.brief-enricher"
+    - "seo-keyword-expert"
+    - "serp-analyzer"
+
+  status: planned
+```
+
+### agent.seo.content.lead
+
+```yaml
+Agent:
+  id: "agent.seo.content.lead"
+  name: "SEO Content Lead"
+  role: ORCHESTRATOR
+  domain: SEO
+  level: 2.5
+  type: TYPE_2
+
+  mission: "Coordonner la generation de contenu SEO, image prompts et pipelines content/video"
+
+  rattachement:
+    reports_to: "ia-seo-master"
+    sponsor: "agent.seo.lead"
+    squad: "seo"
+
+  agents_managed:
+    - "agent.seo.content"
+    - "prompt.content-batch"
+    - "prompt.r1-content-batch"
+    - "prompt.r4-content-batch"
+    - "prompt.r6-content-batch"
+    - "prompt.conseil-batch"
+    - "prompt.r3-image-prompt"
+    - "prompt.r6-image-prompt"
+    - "seo-content-architect"
+    - "worker.content-refresh"
+    - "worker.video-execution"
+
+  status: planned
+```
+
+### agent.seo.qa.lead
+
+```yaml
+Agent:
+  id: "agent.seo.qa.lead"
+  name: "SEO QA & Monitoring Lead"
+  role: ORCHESTRATOR
+  domain: SEO
+  level: 2.5
+  type: TYPE_2
+
+  mission: "Coordonner le monitoring SEO, l'audit scheduling et la verification qualite"
+
+  rattachement:
+    reports_to: "ia-seo-master"
+    sponsor: "agent.seo.lead"
+    squad: "seo"
+
+  agents_managed:
+    - "seo-monitor-scheduler"
+    - "seo-monitor-processor"
+    - "seo-audit-scheduler"
+    - "seo-interpolation-monitor"
+    - "seo-monitoring-service"
+    - "agent.qa.seo-tech (dotted-line)"
+    - "seo-sentinel"
+
+  status: planned
+```
+
+### agent.seo.exec.lead
+
+```yaml
+Agent:
+  id: "agent.seo.exec.lead"
+  name: "SEO Execution Lead"
+  role: ORCHESTRATOR
+  domain: SEO
+  level: 2.5
+  type: TYPE_2
+
+  mission: "Coordonner l'execution technique SEO : V-Level, sitemaps, canonicals, pipelines"
+
+  rattachement:
+    reports_to: "ia-seo-master"
+    sponsor: "agent.seo.lead"
+    squad: "seo"
+
+  agents_managed:
+    - "agent.seo.vlevel"
+    - "agent.seo.sitemap"
+    - "agent.seo.canonical"
+    - "sitemap-delta-service"
+    - "worker.pipeline-chain-poller"
+    - "a9_seo"
 
   status: planned
 ```
@@ -649,21 +820,22 @@ Agent:
 |-------|-------|-------|
 | 1 (Executive) | 6 | 5x TYPE_1, 1x TYPE_4 |
 | 2 (Leads) | 3 | 3x TYPE_2 |
+| 2.5 (Sub-Leads SEO) | 5 | 5x TYPE_2 (IA-SEO Master + 4 sous-leads) |
 | 3 (Support/Exec) | 5 | 4x TYPE_3, 1x TYPE_4 |
-| **Total** | **14** | |
+| **Total** | **19** | |
 
 ---
 
 ## Matrice Agent-Domain
 
-| Domain | Level 1 | Level 2 | Level 3 |
-|--------|---------|---------|---------|
-| AICOS | agent.ceo.ia, agent.cfo.ia, agent.qto | - | - |
-| INFRA | agent.cto.ia | - | agent.infra.monitor |
-| DATA | - | agent.data.lead | agent.data.backup |
-| SEO | agent.cmo.ia | agent.seo.lead | agent.seo.vlevel, agent.seo.sitemap |
-| RAG | - | agent.rag.lead | agent.rag.indexer |
-| CORE | agent.cpo.ia | - | - |
+| Domain | Level 1 | Level 2 | Level 2.5 | Level 3 |
+|--------|---------|---------|-----------|---------|
+| AICOS | agent.ceo.ia, agent.cfo.ia, agent.qto | - | - | - |
+| INFRA | agent.cto.ia | - | - | agent.infra.monitor |
+| DATA | - | agent.data.lead | - | agent.data.backup |
+| SEO | agent.cmo.ia | agent.seo.lead | ia-seo-master, seo.kp.lead, seo.content.lead, seo.qa.lead, seo.exec.lead | agent.seo.vlevel, agent.seo.sitemap |
+| RAG | - | agent.rag.lead | - | agent.rag.indexer |
+| CORE | agent.cpo.ia | - | - | - |
 
 ---
 

@@ -2,9 +2,9 @@
 id: REG-001
 title: Agent Registry
 status: active
-version: 2.2.0
-last_audit: 2026-03-09
-total_agents: 140
+version: 2.3.0
+last_audit: 2026-04-04
+total_agents: 144
 ---
 
 # Agent Registry
@@ -17,9 +17,9 @@ Official source of truth for all agents in the AutoMecanik system.
 |---------|-------|
 | APPROVED | 59 |
 | APPROVED_WITH_CONDITIONS | 20 |
-| NOT_APPROVED | 27 |
+| NOT_APPROVED | 31 |
 | CONCEPTUAL (lettered) | 34 |
-| **TOTAL** | **140** |
+| **TOTAL** | **144** |
 
 ## Domain Coverage
 
@@ -27,7 +27,7 @@ Official source of truth for all agents in the AutoMecanik system.
 
 | Domain | Active | Planned | Total | Key agents |
 |--------|--------|---------|-------|------------|
-| SEO | 24 | 6 | 30 | keyword-planner, content-batch, seo-monitor-*, seo-vlevel, sitemap-delta |
+| SEO | 24 | 10 | 34 | keyword-planner, content-batch, seo-monitor-*, seo-vlevel, sitemap-delta, 4 sub-leads |
 | Infrastructure | 15 | 20 | 35 | backend-test, db-migration, gh-ci-deploy, metrics-processor, a1-a12 |
 | BMAD | 10 | 0 | 10 | bmad-master, analyst, architect, dev |
 | Gouvernance | 3 | 6 | 9 | governance-vault-ops, code-review, content-audit |
@@ -37,9 +37,9 @@ Official source of truth for all agents in the AutoMecanik system.
 | Vehicules | 1 | 0 | 1 | vehicle-ops |
 | Paiements | 1 | 0 | 1 | payment-review |
 | Quality/QA | 4 | 0 | 4 | agent.qa.orchestrator, agent.qa.functional, agent.qa.visual, agent.qa.seo-tech |
-| **Sous-total** | **67** | **39** | **106** | Individual agents |
+| **Sous-total** | **67** | **43** | **110** | Individual agents |
 | Lettered Series | 0 | 34 | 34 | G/F/M/A/B-Series (conceptual) |
-| **TOTAL** | **67** | **73** | **140** | |
+| **TOTAL** | **67** | **77** | **144** | |
 
 ## Related ADRs
 
@@ -87,6 +87,10 @@ Official source of truth for all agents in the AutoMecanik system.
 | agent.seo.sitemap | seo | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
 | agent.seo.canonical | seo | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
 | agent.seo.content | seo | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
+| agent.seo.kp.lead | seo | planned | principal_vps | restricted | bundle | NOT_APPROVED |
+| agent.seo.content.lead | seo | planned | principal_vps | restricted | bundle | NOT_APPROVED |
+| agent.seo.qa.lead | seo | planned | principal_vps | restricted | bundle | NOT_APPROVED |
+| agent.seo.exec.lead | seo | planned | principal_vps | restricted | bundle | NOT_APPROVED |
 | agent.data.cleanup | infra | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
 | agent.data.validator | infra | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
 | agent.data.backup | infra | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
@@ -228,6 +232,6 @@ For CI integration:
 
 ---
 
-_Registry Version: 2.2.0_
-_Last Updated: 2026-03-09_
+_Registry Version: 2.3.0_
+_Last Updated: 2026-04-04_
 _Maintainer: Governance Team_
