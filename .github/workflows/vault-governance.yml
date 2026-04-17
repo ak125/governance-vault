@@ -64,6 +64,22 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Configure SSH signature verification
+        run: |
+          # Sans allowed_signers, git retourne %G? = N meme si le commit est
+          # cryptographiquement signe. Cette etape charge les cles autorisees
+          # pour permettre la verification reelle.
+          # La cle publique n'est pas sensible (cf. 99-meta/signing-policy.md).
+          mkdir -p ~/.ssh
+          cat > ~/.ssh/allowed_signers <<'EOF'
+          # governance-vault allowed signers (voir 99-meta/key-registry.md)
+          automecanik.seo@gmail.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGzlu+W6fcbvbqo1wXVaI/sGqitm/HOYvWA2uovt/blS K002-fafa-windows
+          vault-signing@automecanik.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICjDduq8ifx/Uesw0qemXsLjrgPNzZju+zEQnmGAX4wa K001-deploy-vps
+          EOF
+          chmod 600 ~/.ssh/allowed_signers
+          git config --global gpg.ssh.allowedSignersFile ~/.ssh/allowed_signers
+          echo "allowed_signers configured ($(wc -l < ~/.ssh/allowed_signers) key(s))"
+
       - name: Verify commits on this branch are signed
         run: |
           # Pour les PR: verifier les commits de la branche vs main
