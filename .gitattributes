@@ -1,0 +1,17 @@
+# Enforce LF line endings on all text files cross-platform (avoid Windows CRLF noise)
+* text=auto eol=lf
+
+# Shell scripts must always be LF (break otherwise on bash)
+*.sh text eol=lf
+_scripts/gov text eol=lf
+.githooks/* text eol=lf
+
+# Markdown always LF for consistent diffs
+*.md text eol=lf
+
+# Binary assets - don't touch
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.pdf binary
+*.webp binary

@@ -1,82 +1,109 @@
-# Politique de Signature des Commits
+---
+type: policy
+status: canon
+rule: G3
+updated: 2026-04-17
+---
+
+# Politique de Signature des Commits (G3)
 
 **Statut**: Actif depuis 2026-02-02
-**Enforcement**: Obligatoire sur branche `main`
+**Enforcement**: Obligatoire sur `main` (CI job `g3-signed-commits`)
+**Regle canonique**: [[rules-vault]] G3
 
 ---
 
-## Règle
+## Regle
 
-> **Tous les commits de ce vault DOIVENT être signés cryptographiquement.**
-> Un commit non signé invalide la piste d'audit.
+> **Tous les commits de ce vault DOIVENT etre signes cryptographiquement.**
+> Un commit non signe invalide la piste d'audit et sera rejete par le CI.
 
 ---
 
 ## Format de Signature
 
-| Paramètre | Valeur |
+| Parametre | Valeur |
 |-----------|--------|
-| Format | SSH (Ed25519) |
+| Format | SSH (preferred) ou GPG |
 | Algorithme | Ed25519 |
-| Fichier clé | `~/.ssh/vault_signing_key` |
+| Cle par defaut | `~/.ssh/id_ed25519` |
+| Cle dediee optionnelle | `~/.ssh/vault_signing_key` |
+
+SSH signing est **prefere** a GPG car:
+- Plus simple (pas de gpg-agent, pas de keyring)
+- Reutilise la cle SSH deja utilisee pour GitHub
+- Moderne (introduit dans Git 2.34, OpenSSH 8.0+)
 
 ---
 
-## Vérification
+## Verification
 
 ```bash
-# Vérifier la signature du dernier commit
+# Verifier la signature du dernier commit
 git log --show-signature -1
 
-# Vérifier tous les commits depuis une date
+# Resultat attendu:
+# Good "git" signature for <email> with ED25519 key SHA256:<fingerprint>
+
+# Verifier tous les commits depuis une date
 git log --show-signature --since="2026-02-02"
 
-# Vérifier un commit spécifique
+# Verifier un commit specifique
 git verify-commit <sha>
 ```
 
-**Résultat attendu**: `Good "git" signature for...`
-
 ---
 
-## Configuration Requise
+## Configuration
+
+### Linux / macOS
 
 ```bash
-# Configuration globale (une fois par machine)
+# 1. Generer la cle (si pas deja fait)
+ssh-keygen -t ed25519 -C "$(git config user.email)" -f ~/.ssh/id_ed25519
+
+# 2. Configurer git pour signer avec SSH
 git config --global gpg.format ssh
-git config --global user.signingkey ~/.ssh/vault_signing_key.pub
+git config --global user.signingkey ~/.ssh/id_ed25519.pub
 git config --global commit.gpgsign true
 
-# Ou configuration locale (repo-only)
-git config --local gpg.format ssh
-git config --local user.signingkey ~/.ssh/vault_signing_key.pub
-git config --local commit.gpgsign true
+# 3. Creer le fichier allowed_signers
+echo "$(git config user.email) $(cat ~/.ssh/id_ed25519.pub)" >> ~/.ssh/allowed_signers
+git config --global gpg.ssh.allowedSignersFile ~/.ssh/allowed_signers
+
+# 4. (Optionnel) Ajouter la cle a GitHub comme "Signing Key"
+#    https://github.com/settings/keys -> New SSH key -> type "Signing Key"
 ```
 
----
+### Windows
 
-## Génération de Clé (Nouvelle Machine)
+Config supplementaire requise car Git for Windows embarque une version de OpenSSH qui ne gere pas la signature:
 
-```bash
-ssh-keygen -t ed25519 -C "vault-signing@automecanik.com" -f ~/.ssh/vault_signing_key
+```powershell
+# Diriger git vers OpenSSH de Windows
+git config --global gpg.ssh.program "C:/Windows/System32/OpenSSH/ssh-keygen.exe"
+
+# Le reste est identique a Linux/macOS
+git config --global gpg.format ssh
+git config --global user.signingkey "$HOME\.ssh\id_ed25519.pub"
+git config --global commit.gpgsign true
+git config --global gpg.ssh.allowedSignersFile "$HOME\.ssh\allowed_signers"
 ```
-
-**Important**:
-- Utiliser une passphrase forte
-- Backup chiffré offline obligatoire
-- Ne JAMAIS partager la clé privée
 
 ---
 
 ## Allowed Signers
 
-Voir [[key-registry]] pour la liste des clés autorisées.
+Voir [[key-registry]] pour la liste des cles autorisees.
 
-Le fichier `~/.ssh/allowed_signers` doit contenir:
+Format de `~/.ssh/allowed_signers`:
 
 ```
-vault-signing@automecanik.com ssh-ed25519 AAAA... <fingerprint>
+<email> <algo> <public-key>
+automecanik.seo@gmail.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAI...
 ```
+
+Une ligne par cle autorisee. Si une cle n'est pas dans ce fichier, `git log --show-signature` affichera "No signature" meme si le commit est bien signe.
 
 ---
 
@@ -84,75 +111,70 @@ vault-signing@automecanik.com ssh-ed25519 AAAA... <fingerprint>
 
 | Violation | Action |
 |-----------|--------|
-| Commit non signé | Rejet immédiat, investigation |
-| Signature invalide | Rejet, vérification clé |
-| Clé non enregistrée | Rejet, ajout au registry requis |
+| Commit non signe push sur `main` | Rejet par CI `g3-signed-commits` |
+| Signature invalide (`%G? = B`) | Rejet, investigation cle |
+| Cle non enregistree dans `allowed_signers` | Affiche "No signature" localement (non bloquant CI) |
+
+### Test local (doit echouer)
+
+```bash
+git config commit.gpgsign false
+echo "test" > test.md && git add test.md
+git commit -m "test unsigned"
+# Le CI bloquera le push suivant sur main
+git reset --hard HEAD~1
+git config commit.gpgsign true
+```
 
 ---
 
 ## Exceptions
 
-Aucune exception autorisée sur `main`.
+Aucune exception sur `main`.
 
-Pour tests sur branches de développement, utiliser:
+Pour les branches de travail (`feature/*`, `refactor/*`):
+- La signature reste obligatoire par defaut
+- Le CI verifie uniquement les commits merges dans `main`
+
+Pour tests WIP temporaires (a ne pas push):
 ```bash
-git commit --no-gpg-sign -m "WIP: test only"
+git commit --no-gpg-sign -m "WIP: test local only"
+# Ces commits DOIVENT etre reecrit ou supprimes avant push
 ```
-
-Ces commits NE DOIVENT PAS être mergés sur `main`.
 
 ---
 
-## Point d'Écriture Unique (R-Vault-03)
+## Pre-Commit Hook (local)
 
-> **Le vault ne peut être modifié que depuis ce VPS** (`/opt/automecanik/governance-vault`).
-
-### Mécanismes d'Enforcement
-
-| Niveau | Mécanisme | Statut |
-|--------|-----------|--------|
-| Local | Hook `pre-push` vérifie signatures | ✅ Actif |
-| GitHub | Branch protection (signed commits) | ⚠️ Non enforcé (plan gratuit) |
-
-### Hook Pre-Push
-
-Installé à `.git/hooks/pre-push`, ce hook :
-1. Intercepte chaque `git push`
-2. Vérifie que TOUS les commits à pousser sont signés
-3. Bloque le push si un commit non signé est détecté
+Le vault fournit un hook `pre-commit` dans `.githooks/pre-commit` qui verifie G2 (orphans) et les wikilinks casses. Pour l'installer:
 
 ```bash
-# Test du hook
-git config commit.gpgsign false
-echo "test" > test.md && git add test.md
-git commit -m "test unsigned"
-git push  # ❌ PUSH BLOCKED: unsigned commit detected
-git reset --hard HEAD~1
-git config commit.gpgsign true
+git config core.hooksPath .githooks
 ```
 
-### Pourquoi Ce Modèle ?
-
-1. **Contrôle centralisé**: Une seule machine autorisée = audit simplifié
-2. **Pas de drift**: Pas de risque de modifications depuis d'autres sources
-3. **Clé unique**: Une seule clé de signature (`K001`) = traçabilité maximale
-4. **Backup sûr**: La clé est sur le VPS avec passphrase + backup offline
-
-### Ajout d'une Nouvelle Machine (Procédure)
-
-1. Générer nouvelle clé sur la machine
-2. Enregistrer dans [[key-registry]]
-3. Ajouter au fichier `~/.ssh/allowed_signers` sur TOUTES les machines
-4. Commit signé de la modification (depuis machine existante)
-5. Tester la signature depuis nouvelle machine
+Le hook ne verifie **pas** la signature (git s'en charge automatiquement apres `commit.gpgsign true`).
 
 ---
 
-## Audit Trail
+## Rotation de Cle
 
-Chaque modification de cette politique doit être:
-- Signée
-- Justifiée dans le message de commit
-- Tracée dans [[sync-log]]
+Quand une cle est compromise ou perimee:
 
-*Dernière mise à jour: 2026-02-02*
+1. Retirer la cle de `~/.ssh/allowed_signers` sur toutes les machines autorisees
+2. Marquer "Revoquee" dans [[key-registry]]
+3. Generer nouvelle cle et ajouter a `allowed_signers`
+4. Si compromission: documenter dans [[MOC-Incidents]]
+5. Commit signe avec la nouvelle cle pour acter la rotation
+
+---
+
+## Voir aussi
+
+- [[rules-vault]] - Regle G3 (canonique)
+- [[key-registry]] - Registre des cles autorisees
+- [[ci-policy]] - Politique CI/CD (G4)
+- [[sync-log]] - Journal des syncs signes
+
+---
+
+_Derniere mise a jour: 2026-04-17_

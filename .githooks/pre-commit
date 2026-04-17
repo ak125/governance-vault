@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# pre-commit hook - Enforce G2 (Zero Orphelin) + broken wikilinks avant chaque commit
+#
+# Installation (une seule fois):
+#   git config core.hooksPath .githooks
+#
+# Pour bypasser temporairement (a eviter):
+#   git commit --no-verify
+
+set -euo pipefail
+
+VAULT_ROOT="$(git rev-parse --show-toplevel)"
+
+echo "[pre-commit] Running G2 (orphans) + broken-links checks..."
+
+rc=0
+"$VAULT_ROOT/_scripts/check-orphans.sh" "$VAULT_ROOT" || rc=$?
+if [[ $rc -eq 2 ]]; then
+  echo ""
+  echo "[pre-commit] ERROR: Python 3 is missing (check-orphans exit 2)."
+  echo "             Install Python 3 or run: git commit --no-verify (deconseille)."
+  exit 2
+fi
+if [[ $rc -ne 0 ]]; then
+  echo ""
+  echo "[pre-commit] BLOCKED: orphans detected. See 99-meta/orphans-report.md"
+  echo "             Fix: lier depuis un MOC ou archiver (voir G8)."
+  exit 1
+fi
+
+rc=0
+"$VAULT_ROOT/_scripts/check-broken-links.sh" "$VAULT_ROOT" || rc=$?
+if [[ $rc -eq 2 ]]; then
+  echo ""
+  echo "[pre-commit] ERROR: Python 3 is missing (check-broken-links exit 2)."
+  exit 2
+fi
+if [[ $rc -ne 0 ]]; then
+  echo ""
+  echo "[pre-commit] BLOCKED: broken wikilinks detected. See 99-meta/broken-links-report.md"
+  exit 1
+fi
+
+echo "[pre-commit] OK: 0 orphan, 0 broken wikilink."
+exit 0

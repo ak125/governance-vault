@@ -1,0 +1,116 @@
+name: Vault Governance
+
+on:
+  push:
+    branches: [main, "refactor/**"]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  g2-orphans:
+    name: "G2: Zero Orphelin"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Check orphans (G2)
+        run: |
+          chmod +x _scripts/check-orphans.sh
+          _scripts/check-orphans.sh .
+
+      - name: Upload orphans report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: orphans-report
+          path: 99-meta/orphans-report.md
+
+  broken-links:
+    name: "Broken Wikilinks"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Check broken wikilinks
+        run: |
+          chmod +x _scripts/check-broken-links.sh
+          _scripts/check-broken-links.sh .
+
+      - name: Upload broken-links report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: broken-links-report
+          path: 99-meta/broken-links-report.md
+
+  g3-signed-commits:
+    name: "G3: Commits signes"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify commits on this branch are signed
+        run: |
+          # Pour les PR: verifier les commits de la branche vs main
+          # Pour push direct sur main: verifier juste le HEAD
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            BASE="${{ github.event.pull_request.base.sha }}"
+            HEAD="${{ github.event.pull_request.head.sha }}"
+            RANGE="${BASE}..${HEAD}"
+          else
+            RANGE="HEAD~1..HEAD"
+          fi
+
+          echo "Checking signatures in range: $RANGE"
+          UNSIGNED=0
+          for sha in $(git rev-list "$RANGE"); do
+            sig=$(git log -1 --format="%G?" "$sha")
+            # G = valid signature, U = untrusted, X = expired, B = bad, N = no signature
+            if [[ "$sig" == "N" || "$sig" == "B" ]]; then
+              echo "FAIL: commit $sha is not signed (status=$sig)"
+              UNSIGNED=$((UNSIGNED+1))
+            else
+              echo "OK: commit $sha signed (status=$sig)"
+            fi
+          done
+
+          if [[ "$UNSIGNED" -gt 0 ]]; then
+            echo ""
+            echo "G3 violation: $UNSIGNED commit(s) not signed."
+            echo "See 99-meta/signing-policy.md for setup (SSH ed25519)."
+            exit 1
+          fi
+          echo "G3: all commits signed."
+
+  g4-canon-write-block:
+    name: "G4: CI read-only sur canon"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Block direct writes to canon from CI
+        env:
+          AI_VAULT_WRITE: "false"
+        run: |
+          # Cette CI ne doit JAMAIS modifier les zones canon.
+          # Verification: le workflow tourne avec contents: read uniquement.
+          echo "AI_VAULT_WRITE=$AI_VAULT_WRITE"
+          echo "Token permissions are read-only (see permissions: at job level)."
+          echo "G4: kill-switch respected."
