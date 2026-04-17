@@ -198,8 +198,8 @@ Voir [[09-implementation-plan]] pour le détail en 4 steps (10 semaines).
 - [[08-seo-charter]] - PageRole taxonomy et anti-confusion
 
 ### Règles (03-rules/technical/)
-- [[seo-pagerole-rules]] - Validation PageRole
-- [[ai-skill-antipatterns]] - Anti-patterns à éviter
+- [[rules-seo-pagerole]] - Validation PageRole
+- [[rules-ai-antipatterns]] - Anti-patterns à éviter
 
 ---
 

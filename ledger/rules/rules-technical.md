@@ -11,7 +11,7 @@ Ces regles sont **NON-NEGOCIABLES**. Toute violation est un bug critique.
 
 ---
 
-### R1: Architecture 3-Tier
+### T1: Architecture 3-Tier
 
 **OBLIGATOIRE** : Chaque module NestJS doit suivre Controller → Service → DataService.
 
@@ -38,7 +38,7 @@ export class ProductsController {
 
 ---
 
-### R2: Supabase SDK Direct (PAS de Prisma)
+### T2: Supabase SDK Direct (PAS de Prisma)
 
 **OBLIGATOIRE** : Utiliser `@supabase/supabase-js` pour toutes les requetes DB.
 
@@ -58,7 +58,7 @@ const { data, error } = await this.supabase
 
 ---
 
-### R3: Sessions Redis + Passport
+### T3: Sessions Redis + Passport
 
 **OBLIGATOIRE** : Redis pour les sessions, Passport pour l'auth.
 
@@ -80,7 +80,7 @@ app.use(session({
 
 ---
 
-### R4: Validation Zod
+### T4: Validation Zod
 
 **OBLIGATOIRE** : Valider toutes les entrees avec Zod.
 
@@ -97,7 +97,7 @@ export class CreateProductDto extends createZodDto(CreateProductSchema) {}
 
 ---
 
-### R5: Paiements HMAC
+### T5: Paiements HMAC
 
 **OBLIGATOIRE** : Verifier les signatures HMAC sur tous les callbacks paiement.
 
@@ -121,7 +121,7 @@ function verifyPayboxSignature(params: Record<string, string>, signature: string
 
 ---
 
-### R6: Git Workflow - Validation Manuelle
+### T6: Git Workflow - Validation Manuelle
 
 **OBLIGATOIRE** : Push sur `main` uniquement apres validation manuelle explicite.
 
@@ -143,7 +143,7 @@ gh pr merge
 
 ---
 
-### R7: Tests (curl + Playwright + RTL)
+### T7: Tests (curl + Playwright + RTL)
 
 **OBLIGATOIRE** : Utiliser curl, Playwright, @testing-library/react.
 
@@ -171,13 +171,13 @@ cd frontend && npm run test:a11y
 
 | Anti-pattern | Raison |
 |--------------|--------|
-| DB dans Controller | Viole R1 |
-| Prisma en prod | Viole R2 |
-| Sessions en memoire | Viole R3 |
-| Body sans validation | Viole R4 |
-| Callback sans HMAC | Viole R5 |
-| Push main direct | Viole R6 |
-| Jest/Vitest | Viole R7 |
+| DB dans Controller | Viole T1 |
+| Prisma en prod | Viole T2 |
+| Sessions en memoire | Viole T3 |
+| Body sans validation | Viole T4 |
+| Callback sans HMAC | Viole T5 |
+| Push main direct | Viole T6 |
+| Jest/Vitest | Viole T7 |
 
 ### Autres interdits
 
@@ -242,13 +242,13 @@ UN AGENT QUI DOUTE DOIT BLOQUER, JAMAIS "INVENTER".
 
 Avant tout merge sur main, verifier :
 
-- [ ] Architecture 3-tier respectee (R1)
-- [ ] Supabase SDK utilise, pas Prisma (R2)
-- [ ] Sessions Redis configurees (R3)
-- [ ] Schemas Zod pour validation (R4)
-- [ ] Signatures HMAC verifiees (R5)
-- [ ] Validation manuelle obtenue (R6)
-- [ ] Tests curl/Playwright/RTL (R7)
+- [ ] Architecture 3-tier respectee (T1)
+- [ ] Supabase SDK utilise, pas Prisma (T2)
+- [ ] Sessions Redis configurees (T3)
+- [ ] Schemas Zod pour validation (T4)
+- [ ] Signatures HMAC verifiees (T5)
+- [ ] Validation manuelle obtenue (T6)
+- [ ] Tests curl/Playwright/RTL (T7)
 
 ---
 

@@ -395,7 +395,7 @@ export const routesSyncManifest: SkillManifest = {
 
 - [[02-ai-cos-contracts]] - Types SkillInput, SkillOutput
 - [[05-langgraph-router]] - Intégration dans le router
-- [[ai-skill-antipatterns]] - Erreurs à éviter
+- [[rules-ai-antipatterns]] - Erreurs à éviter
 
 ---
 
