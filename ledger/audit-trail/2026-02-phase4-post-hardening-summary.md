@@ -1,9 +1,23 @@
+---
+type: retrospective
+status: complete
+date: 2026-02-03
+owner: [Architecture Team]
+phase: "Phase 4"
+commits_range: "2abfecde..96e88279"
+branch: main
+related_plan: [[2026-02-hardening-migration-plan]]
+supersedes_note: "Ancien ID legacy: DEC-002. Reclasse en retrospective (pas une decision)."
+---
+
 # Phase 4 - Post-Hardening Summary
 
 > **Status**: ✅ COMPLETE (P4.1-P4.7)
 > **Date**: 2026-02-03
 > **Commits**: `2abfecde` → `96e88279`
 > **Branch**: `main`
+> **Nature**: Rétrospective d'exécution (implémente [[2026-02-hardening-migration-plan]])
+> **Ancien ID**: DEC-002
 
 ---
 
@@ -78,7 +92,7 @@
 
 ## Links
 
-- [[DEC-001-hardening-dev-preprod-prod]] - Original hardening plan
+- [[2026-02-hardening-migration-plan]] - Original hardening plan (ancien DEC-001)
 - `backend/docs/RLS_POLICIES.md` - RLS documentation
 - `backend/governance/rpc/` - RPC allowlist/denylist
 

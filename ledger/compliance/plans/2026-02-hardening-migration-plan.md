@@ -1,8 +1,21 @@
+---
+type: plan
+status: executed
+date: 2026-02-02
+owner: [Architecture Team]
+implements: [ADR-001]
+supersedes_note: "Ancien ID legacy: DEC-001. Reclasse en plan d'execution (pas une decision)."
+related_adr: [ADR-001, ADR-003, ADR-004]
+related_incidents: [2026-01-11_critical_rm-module-crash]
+---
+
 # MIGRATION PLAN — DEV / PREPROD / PROD Hardening
 
 > **Branche**: `feat/hardening-dev-preprod-prod`
 > **Créé le**: 2026-02-02
 > **Dernière MAJ**: 2026-02-02
+> **Nature**: Plan d'exécution (execute [[ADR-001-environment-separation]])
+> **Ancien ID**: DEC-001
 
 ---
 

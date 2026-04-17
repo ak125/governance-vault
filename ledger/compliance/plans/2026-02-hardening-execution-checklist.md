@@ -1,12 +1,19 @@
 ---
-id: PLAN-DEC-001
-decision: "[[DEC-001-hardening-dev-preprod-prod]]"
+type: checklist
+id: CHK-HARDENING-EXEC
+decision: "[[ADR-001-environment-separation]]"
+strategy: "[[2026-02-hardening-migration-plan]]"
 status: P0-P1 done, P2 pending
 created: 2026-02-02
-updated: 2026-02-02
+updated: 2026-04-17
+supersedes_note: "Ancien nom: DEC-001-execution-plan.md. Renomme pour coherence (pas une decision)."
 ---
 
-# Plan d'Exécution: DEC-001 Hardening
+# Checklist d'Exécution: Hardening DEV/PREPROD/PROD
+
+> **Ancien ID**: DEC-001-execution-plan
+> **Stratégie**: [[2026-02-hardening-migration-plan]]
+> **Décision de référence**: [[ADR-001-environment-separation]]
 
 ## Phase P0 — Stop risques critiques
 

@@ -1,6 +1,17 @@
+---
+type: moc
+status: canon
+updated: 2026-04-17
+---
+
 # MOC: Decisions
 
-Index des ADR (Architecture Decision Records) et décisions opérationnelles.
+Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
+
+> **Nota (v2 governance)** : Les anciens fichiers `DEC-00X` ont ete reclasses en **April 2026** :
+> - DEC-004 **promu** en [[ADR-014-remove-paybox-callback-test]] (seule vraie decision architecturale)
+> - DEC-001 **deplace** vers `ledger/compliance/plans/` (plan d'execution d'ADR-001, pas decision)
+> - DEC-002, DEC-003 **deplaces** vers `ledger/audit-trail/` (retrospective / audit report)
 
 ---
 
@@ -20,76 +31,93 @@ Index des ADR (Architecture Decision Records) et décisions opérationnelles.
 | ADR-010 | Airlock Enforce Mode & CI Authority | Accepted | 2026-02-04 | [[ADR-010-airlock-enforce-activation]] |
 | ADR-011 | Remplacement OpenClaw par Claude API | Accepted | 2026-03-07 | [[ADR-011-openclaw-claude-api-replacement]] |
 | ADR-012 | AI-COS VPS Architecture & Agent Placement | Accepted | 2026-03-08 | [[ADR-012-aicos-vps-architecture]] |
-
----
-
-## Décisions Opérationnelles Récentes
-
-| Date | Décision | Impact |
-|------|----------|--------|
-| 2026-02-03 | Activation gouvernance formelle | Vault aligné avec réalité système |
+| ADR-013 | Agent Lifecycle Governance | Accepted | 2026-03-15 | [[ADR-013-agent-lifecycle-governance]] |
+| ADR-014 | Suppression /api/paybox/callback-test | Accepted | 2026-02-03 | [[ADR-014-remove-paybox-callback-test]] |
 
 ---
 
 ## Par Catégorie
 
 ### Architecture
+
 - [[ADR-001-environment-separation]] - Séparation des environnements DEV/PREPROD/PROD
 - [[ADR-004-rm-module-scope]] - Classification module rm/ comme DEV-only
 - [[ADR-006-ai-orchestrator-architecture]] - Architecture AI-COS (LangGraph, Skills, RAG)
+- [[ADR-007-location-independence]] - Règle Maître : Location Independence
 
 ### Sécurité
+
 - [[ADR-002-airlock-zero-trust]] - Principe Zero-Trust pour agents IA
 - [[ADR-003-rpc-governance]] - Contrôle centralisé des appels RPC
-- [[ADR-005-airlock-observe-activation]] - Activation Airlock mode observe (superseded by ADR-010)
-- [[ADR-007-location-independence]] - Règle Maître: Location Independence
-- [[ADR-008-agent-placement-rules]] - 3 Zones: External, Principal VPS, Production (→ 4 zones avec ADR-012)
+- [[ADR-005-airlock-observe-activation]] - Airlock observe (superseded by [[ADR-010-airlock-enforce-activation]])
+- [[ADR-008-agent-placement-rules]] - 3 Zones → 4 zones avec [[ADR-012-aicos-vps-architecture]]
 - [[ADR-010-airlock-enforce-activation]] - Airlock Enforce Mode & CI Authority
+- [[ADR-014-remove-paybox-callback-test]] - Suppression endpoint vulnérable (T5)
 
 ### Agents
+
 - [[ADR-009-agents-phase1-activation]] - Framework d'activation Phase 1
 - [[ADR-011-openclaw-claude-api-replacement]] - Remplacement OpenClaw par Claude API
-- [[ADR-012-aicos-vps-architecture]] - AI-COS VPS Observatoire (4e zone, dashboard read-only)
-
-### Performance
-- (aucune ADR active)
+- [[ADR-012-aicos-vps-architecture]] - AI-COS VPS Observatoire (4e zone)
+- [[ADR-013-agent-lifecycle-governance]] - Cycle de vie des agents
 
 ### SEO
+
 - [[ADR-006-ai-orchestrator-architecture]] - Inclut SEO Charter et PageRole validation
 
 ---
 
-## ADR Legacy (Implicites)
+## Décisions non-ADR (historique)
 
-Ces décisions existent dans le code mais n'ont pas d'ADR formelle:
+Anciens fichiers `DEC-00X` reclasses vers les bonnes zones du ledger :
 
-| Décision | Source | Status |
-|----------|--------|--------|
-| Supabase Direct SDK (no Prisma) | CLAUDE.md R2 | Implicite - Rule R2 |
-| Redis Sessions | CLAUDE.md R3 | Implicite - Rule R3 |
-| Monorepo Structure | repo-map.md | Implicite - Canon |
-
-> Note: Ces décisions sont documentées dans les règles (R1-R7) plutôt que comme ADR formelles.
+| Ancien ID | Nouvelle localisation | Raison |
+|-----------|----------------------|--------|
+| DEC-001 | [[2026-02-hardening-migration-plan]] (`ledger/compliance/plans/`) | Plan d'exécution d'[[ADR-001-environment-separation]], pas une décision |
+| DEC-002 | [[2026-02-phase4-post-hardening-summary]] (`ledger/audit-trail/`) | Rétrospective Phase 4, pas une décision |
+| DEC-003 | [[2026-02-paybox-compatibility-audit]] (`ledger/audit-trail/`) | Rapport d'audit technique, pas une décision |
+| DEC-004 | [[ADR-014-remove-paybox-callback-test]] (promu ADR) | Seule vraie décision parmi les 4 DECs |
 
 ---
 
-## Template
+## Règles Techniques Implicites (non-ADR)
 
-Voir `02-decisions/_templates/`
-- `adr-template.md` - Pour décisions architecturales
-- `operational-decision-template.md` - Pour décisions opérationnelles
+Certaines décisions sont documentées dans les **règles** plutôt qu'en ADR :
+
+| Décision | Règle | Localisation |
+|----------|-------|--------------|
+| Supabase SDK direct (no Prisma) | T2 | [[rules-technical]] |
+| Sessions Redis + Passport | T3 | [[rules-technical]] |
+| Validation Zod | T4 | [[rules-technical]] |
+
+> Pour les décisions de type "règle du jeu" permanentes, la canonisation se fait dans `rules-*.md` (voir [[MOC-Rules]]).
 
 ---
 
 ## Processus ADR
 
-1. Contexte identifié
-2. Options analysées
-3. Décision prise (avec justification)
-4. Conséquences documentées
-5. Revue planifiée
-6. Validation par decision_makers
+1. **Contexte** identifié (problème, incident, besoin)
+2. **Options** analysées (minimum 2 alternatives)
+3. **Décision** prise (avec justification)
+4. **Conséquences** documentées (positives, négatives, neutres)
+5. **Critères de succès** définis (mesurables)
+6. **Revue planifiée** (date + critères de reconsidération)
+7. **Signature** par decision_makers + commit signé (G3)
 
 ---
 
-_Derniere mise a jour: 2026-03-08_
+## Template
+
+Voir [[adr-template]] dans `_templates/`.
+
+---
+
+## Voir aussi
+
+- [[MOC-Rules]] - Règles canoniques T/G/AI/V
+- [[MOC-Incidents]] - Post-mortems (sources de nouvelles ADR)
+- [[MOC-Compliance]] - Checklists, evidence-packs
+
+---
+
+_Derniere mise a jour: 2026-04-17_
