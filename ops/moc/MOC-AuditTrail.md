@@ -22,6 +22,7 @@ Journal chronologique des **evenements de gouvernance** : audits ponctuels, retr
 | 2026-02-03 | [[2026-02-phase4-post-hardening-summary]] | Retrospective (Phase 4) |
 | 2026-02-03 | [[2026-02-paybox-compatibility-audit]] | Audit (Paybox) |
 | 2026-02-04 | [[2026-02-04_phase13-14-vault-sync-complete]] | Completion (vault sync) |
+| 2026-04-17 | [[2026-04-17-governance-vault-v2-refactor]] | Retrospective (v2 refactor, 6 phases) |
 
 ---
 
