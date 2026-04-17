@@ -75,7 +75,7 @@ Aucun mécanisme de contournement n'est autorisé : les tests d'intégration doi
 
 **Inconvénients** :
 - Risque de déploiement accidentel (`NODE_ENV` mal configurée)
-- Violation [[ADR-001]] (Environment Separation) : tout module DEV-only doit être explicitement documenté et barré par ESLint + .dockerignore, pas par une simple variable d'environnement
+- Violation [[ADR-001-environment-separation]] (Environment Separation) : tout module DEV-only doit être explicitement documenté et barré par ESLint + .dockerignore, pas par une simple variable d'environnement
 
 ## Justification
 
@@ -90,7 +90,7 @@ Les options B/C/D maintiennent un code vulnérable "gardé" par des mécanismes 
 - Surface d'attaque réduite de manière permanente
 - Impossible de forger des paiements via cet endpoint
 - Code de `paybox-callback.controller.ts` simplifié (~120 lignes supprimées)
-- Alignement strict avec T5 et [[ADR-003]] (RPC Governance)
+- Alignement strict avec T5 et [[ADR-003-rpc-governance]] (RPC Governance)
 
 ### Négatives
 

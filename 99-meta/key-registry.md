@@ -42,7 +42,7 @@ vault-signing@automecanik.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICjDduq8ifx/Ue
 
 1. Marquer la clé comme "Révoqué" dans ce registre
 2. Retirer de `~/.ssh/allowed_signers`
-3. Documenter la raison dans [[../01-incidents/]] si compromission
+3. Documenter la raison dans [[MOC-Incidents]] si compromission
 4. Générer nouvelle clé si nécessaire
 5. Commit signé avec nouvelle clé
 

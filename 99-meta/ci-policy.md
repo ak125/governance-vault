@@ -162,7 +162,7 @@ Si un cas d'usage légitime nécessite une écriture automatisée:
 
 Cette politique est vérifiée par:
 - Revue trimestrielle des tokens GitHub
-- Audit mensuel des signatures ([[../scripts/audit-signatures.sh]])
+- Audit mensuel des signatures (`_scripts/audit-signatures.sh`)
 - Monitoring des push sur le repo
 
 *Voir aussi: [[signing-policy]], [[cron-setup]]*
