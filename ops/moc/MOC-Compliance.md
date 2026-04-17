@@ -48,16 +48,29 @@ Index des plans d'exécution, checklists, audits et rapports de conformité.
 
 ## Evidence Packs
 
-Les bundles de preuves sont dans `ledger/compliance/evidence-pack/YYYY-MM/EP-*/`. Chaque pack regroupe :
+Les bundles de preuves sont dans `ledger/compliance/evidence-pack/YYYY/YYYY-MM/EP-*/`. Chaque pack a un `INDEX.md` listant ses 9 documents canoniques.
+
+### Packs 2026-02
+
+- [[INDEX-EP-20260205-airlock-implementation]] - Implementation Airlock (observe -> enforce)
+- [[INDEX-EP-20260205-incident]] - Incident response formalise
+- [[INDEX-EP-20260205-monthly]] - Snapshot mensuel fevrier 2026
+- [[INDEX-EP-20260205-test-v2]] - Refonte V2 test harness
+
+### Structure canonique (9 documents par pack)
 
 - `01-context.md` - Scope et objectifs
-- `02-invariants.md` - Invariants respectés
-- `03-decisions.md` - ADR/décisions associées
-- `04-tests.md` - Résultats de tests
-- `08-security-controls.md` - Contrôles de sécurité
+- `02-invariants.md` - Invariants respectes (T/G/AI/V)
+- `03-decisions.md` - ADR et decisions associees
+- `04-changes.md` - Changements appliques
+- `05-ci-proof.md` - Preuves CI
+- `06-audit-trail.md` - Journal chronologique
+- `07-incidents.md` - Incidents lies
+- `08-security-controls.md` - Controles de securite
 - `09-attestations.md` - Signatures de validation
+- `manifest.sha256` - Hashes SHA-256 (integrity)
 
-> **Note** : certains evidence-packs contiennent des refs legacy (`DEC-002/003/004`) qui pointaient vers un ancien système de numérotation Airlock. Ces refs sont à corriger en Phase 5.
+> **Note Phase 5** : certains evidence-packs contiennent encore des refs legacy `DEC-002/003/004` pointant vers un ancien systeme de numerotation Airlock (different des 4 DEC-001..004 reclasses en ADR). A corriger lors du prochain cycle d'audit.
 
 ---
 

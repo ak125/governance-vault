@@ -40,7 +40,7 @@ Les regles **G1-G4** definissent comment le vault Obsidian lui-meme doit etre go
 
 > Tout document du vault DOIT etre:
 > - lie depuis **au moins 1 MOC** dans `ops/moc/`, OU
-> - reference via `[[wikilink]]` depuis un autre document du vault
+> - reference via un wikilink Obsidian depuis un autre document du vault
 
 **Exceptions (whitelist):**
 - Fichiers dans `ops/moc/` (les MOC sont des points d'entree)
