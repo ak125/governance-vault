@@ -5,7 +5,7 @@ status: draft
 date: 2026-02-02
 author: "@claude"
 category: security
-related: ["DEC-001"]
+related: ["ADR-001", "2026-02-hardening-migration-plan"]
 ---
 
 # SPEC-002: Validator Engine

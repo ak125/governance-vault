@@ -1,4 +1,18 @@
+---
+type: audit-report
+status: complete
+date: 2026-02-03
+owner: [Payment Security Team]
+scope: "Paybox NestJS vs legacy PHP compatibility"
+related_adr: [ADR-003]
+related_incidents: [2026-02-03-paybox-orderid-format]
+supersedes_note: "Ancien ID legacy: DEC-003. Reclasse en audit report (pas une decision)."
+---
+
 # AUDIT PAYBOX - COMPATIBILITÉ STRICTE (Étape B)
+
+> **Nature**: Rapport d'audit technique
+> **Ancien ID**: DEC-003
 
 ## Mission
 Vérification de la compatibilité stricte de l'implémentation Paybox NestJS avec le comportement legacy PHP en production.

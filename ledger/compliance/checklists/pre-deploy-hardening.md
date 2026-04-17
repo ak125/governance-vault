@@ -1,7 +1,8 @@
 ---
 id: CHK-HARDENING
-decision: "[[DEC-001-hardening-dev-preprod-prod]]"
-plan: "[[DEC-001-execution-plan]]"
+decision: "[[ADR-001-environment-separation]]"
+plan: "[[2026-02-hardening-migration-plan]]"
+retrospective: "[[2026-02-phase4-post-hardening-summary]]"
 type: pre-deploy
 ---
 
@@ -75,8 +76,9 @@ Cette checklist doit être validée avant tout déploiement en PREPROD ou PROD.
 
 ## Référence
 
-- Décision: [[DEC-001-hardening-dev-preprod-prod]]
-- Plan: [[DEC-001-execution-plan]]
+- Décision architecturale: [[ADR-001-environment-separation]]
+- Plan d'exécution: [[2026-02-hardening-migration-plan]] (ancien DEC-001)
+- Rétrospective: [[2026-02-phase4-post-hardening-summary]] (ancien DEC-002)
 - Incident origine: INC-2026-001 (Crash prod RmModule)
 
 ---
