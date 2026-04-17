@@ -331,7 +331,7 @@ export class JobManager {
 
 ## 4. Anti-Patterns MiniLo
 
-> Ces patterns sont INTERDITS. Voir [[ai-skill-antipatterns]] pour la liste complète.
+> Ces patterns sont INTERDITS. Voir [[rules-ai-antipatterns]] pour la liste complète.
 
 ### ❌ ANTI-PATTERN 1: Direct execution without envelope
 
@@ -435,7 +435,7 @@ CREATE INDEX idx_ai_jobs_created ON ai_jobs(created_at);
 
 - [[02-ai-cos-contracts]] - JobEnvelope schema
 - [[05-langgraph-router]] - Orchestration target
-- [[ai-skill-antipatterns]] - Full anti-patterns list
+- [[rules-ai-antipatterns]] - Full anti-patterns list
 
 ---
 

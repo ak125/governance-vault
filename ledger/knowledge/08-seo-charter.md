@@ -290,7 +290,7 @@ export async function runSeoAudit(options: AuditOptions): Promise<AuditReport> {
 ## Voir aussi
 
 - [[ADR-006-ai-orchestrator-architecture]] - Architecture globale
-- [[seo-pagerole-rules]] - Règles de validation CI
+- [[rules-seo-pagerole]] - Règles de validation CI
 - [[03-skills-registry]] - Skill `seo_role_audit`
 
 ---

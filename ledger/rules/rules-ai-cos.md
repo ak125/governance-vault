@@ -25,7 +25,7 @@ Les 10 regles non-negociables que tout agent AI-COS DOIT respecter.
 
 ## Les 10 Regles d'Or
 
-### R1: PAS D'INDICATEUR = SUPPRESSION
+### AI1: PAS D'INDICATEUR = SUPPRESSION
 
 ```
 +---------------------------------------------------------------------+
@@ -45,7 +45,7 @@ Les 10 regles non-negociables que tout agent AI-COS DOIT respecter.
 
 ---
 
-### R2: IA-CEO PROPOSE, HUMAN CEO DECIDE
+### AI2: IA-CEO PROPOSE, HUMAN CEO DECIDE
 
 ```
 +---------------------------------------------------------------------+
@@ -66,7 +66,7 @@ Les 10 regles non-negociables que tout agent AI-COS DOIT respecter.
 
 ---
 
-### R3: DOUTE = BLOCAGE
+### AI3: DOUTE = BLOCAGE
 
 ```
 +---------------------------------------------------------------------+
@@ -87,7 +87,7 @@ Les 10 regles non-negociables que tout agent AI-COS DOIT respecter.
 
 ---
 
-### R4: PRODUCTION SANS VALIDATION = INTERDIT
+### AI4: PRODUCTION SANS VALIDATION = INTERDIT
 
 ```
 +---------------------------------------------------------------------+
@@ -111,7 +111,7 @@ Agent --> Output --> QTO Verifie --> Validation --> Production
 
 ---
 
-### R5: AUCUN AGENT HORS HIERARCHIE
+### AI5: AUCUN AGENT HORS HIERARCHIE
 
 ```
 +---------------------------------------------------------------------+
@@ -132,7 +132,7 @@ Agent --> Output --> QTO Verifie --> Validation --> Production
 
 ---
 
-### R6: 1 CREATION = 1 FUSION OU SUPPRESSION
+### AI6: 1 CREATION = 1 FUSION OU SUPPRESSION
 
 ```
 +---------------------------------------------------------------------+
@@ -153,7 +153,7 @@ Agent --> Output --> QTO Verifie --> Validation --> Production
 
 ---
 
-### R7: DIAGNOSTIC = MULTI-VALIDATION
+### AI7: DIAGNOSTIC = MULTI-VALIDATION
 
 ```
 +---------------------------------------------------------------------+
@@ -175,7 +175,7 @@ Agent --> Output --> QTO Verifie --> Validation --> Production
 
 ---
 
-### R8: CONTENU CRITIQUE = QUALITY OFFICER
+### AI8: CONTENU CRITIQUE = QUALITY OFFICER
 
 ```
 +---------------------------------------------------------------------+
@@ -198,7 +198,7 @@ Agent --> Output --> QTO Verifie --> Validation --> Production
 
 ---
 
-### R9: KILL-SWITCH = HUMAN CEO EXCLUSIF
+### AI9: KILL-SWITCH = HUMAN CEO EXCLUSIF
 
 ```
 +---------------------------------------------------------------------+
@@ -221,7 +221,7 @@ Agent --> Output --> QTO Verifie --> Validation --> Production
 
 ---
 
-### R10: TRACABILITE = OBLIGATOIRE
+### AI10: TRACABILITE = OBLIGATOIRE
 
 ```
 +---------------------------------------------------------------------+
@@ -251,16 +251,16 @@ Agent --> Output --> QTO Verifie --> Validation --> Production
 |                        AI-COS GOLDEN RULES                               |
 +=========================================================================+
 |                                                                          |
-|  R1  PAS D'INDICATEUR = SUPPRESSION                                     |
-|  R2  IA-CEO PROPOSE, HUMAN CEO DECIDE                                   |
-|  R3  DOUTE = BLOCAGE                                                    |
-|  R4  PRODUCTION SANS VALIDATION = INTERDIT                              |
-|  R5  AUCUN AGENT HORS HIERARCHIE                                        |
-|  R6  1 CREATION = 1 FUSION OU SUPPRESSION                               |
-|  R7  DIAGNOSTIC = MULTI-VALIDATION                                      |
-|  R8  CONTENU CRITIQUE = QUALITY OFFICER                                 |
-|  R9  KILL-SWITCH = HUMAN CEO EXCLUSIF                                   |
-|  R10 TRACABILITE = OBLIGATOIRE                                          |
+|  AI1  PAS D'INDICATEUR = SUPPRESSION                                     |
+|  AI2  IA-CEO PROPOSE, HUMAN CEO DECIDE                                   |
+|  AI3  DOUTE = BLOCAGE                                                    |
+|  AI4  PRODUCTION SANS VALIDATION = INTERDIT                              |
+|  AI5  AUCUN AGENT HORS HIERARCHIE                                        |
+|  AI6  1 CREATION = 1 FUSION OU SUPPRESSION                               |
+|  AI7  DIAGNOSTIC = MULTI-VALIDATION                                      |
+|  AI8  CONTENU CRITIQUE = QUALITY OFFICER                                 |
+|  AI9  KILL-SWITCH = HUMAN CEO EXCLUSIF                                   |
+|  AI10 TRACABILITE = OBLIGATOIRE                                          |
 |                                                                          |
 +=========================================================================+
 ```
@@ -271,24 +271,24 @@ Agent --> Output --> QTO Verifie --> Validation --> Production
 
 ### Avant de creer un agent:
 
-- [ ] R1: KPIs definis avec seuils ?
-- [ ] R5: Rattachement (reports_to, sponsor, squad) ?
-- [ ] R6: Agent a fusionner/supprimer identifie ?
-- [ ] R10: Audit trail configure ?
+- [ ] AI1: KPIs definis avec seuils ?
+- [ ] AI5: Rattachement (reports_to, sponsor, squad) ?
+- [ ] AI6: Agent a fusionner/supprimer identifie ?
+- [ ] AI10: Audit trail configure ?
 
 ### Avant d'executer une tache:
 
-- [ ] R2: Workflow de validation humaine ?
-- [ ] R3: Gestion du doute (blocage/escalade) ?
-- [ ] R4: QTO dans le pipeline ?
-- [ ] R7: Multi-validation si diagnostic ?
-- [ ] R8: QTO si contenu critique ?
+- [ ] AI2: Workflow de validation humaine ?
+- [ ] AI3: Gestion du doute (blocage/escalade) ?
+- [ ] AI4: QTO dans le pipeline ?
+- [ ] AI7: Multi-validation si diagnostic ?
+- [ ] AI8: QTO si contenu critique ?
 
 ### En cas d'urgence:
 
-- [ ] R9: Human CEO contacte ?
-- [ ] R9: Niveau Kill-Switch identifie ?
-- [ ] R10: Incident logue ?
+- [ ] AI9: Human CEO contacte ?
+- [ ] AI9: Niveau Kill-Switch identifie ?
+- [ ] AI10: Incident logue ?
 
 ---
 
@@ -296,16 +296,16 @@ Agent --> Output --> QTO Verifie --> Validation --> Production
 
 | Violation | Severite | Action |
 |-----------|----------|--------|
-| R1 (pas de KPI) | Critique | Suppression agent |
-| R2 (decision IA) | Critique | Rollback + Audit |
-| R3 (invention) | Critique | Blocage + Review |
-| R4 (prod non validee) | Critique | Retrait + Incident |
-| R5 (hors hierarchie) | Haute | Rattachement force |
-| R6 (creation sans equilibre) | Moyenne | Review CEO |
-| R7 (diag non valide) | Critique | Blocage immediat |
-| R8 (bypass QTO) | Haute | Retrait + Audit |
-| R9 (kill-switch non autorise) | Critique | Incident majeur |
-| R10 (pas de trace) | Haute | Blocage + MAJ |
+| AI1 (pas de KPI) | Critique | Suppression agent |
+| AI2 (decision IA) | Critique | Rollback + Audit |
+| AI3 (invention) | Critique | Blocage + Review |
+| AI4 (prod non validee) | Critique | Retrait + Incident |
+| AI5 (hors hierarchie) | Haute | Rattachement force |
+| AI6 (creation sans equilibre) | Moyenne | Review CEO |
+| AI7 (diag non valide) | Critique | Blocage immediat |
+| AI8 (bypass QTO) | Haute | Retrait + Audit |
+| AI9 (kill-switch non autorise) | Critique | Incident majeur |
+| AI10 (pas de trace) | Haute | Blocage + MAJ |
 
 ---
 

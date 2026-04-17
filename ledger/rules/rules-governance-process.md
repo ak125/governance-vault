@@ -1,12 +1,13 @@
-# Governance Policy - AutoMecanik
+# Rules - Governance Process (G5-G8)
 
-> **Source de verite** - Regles de gouvernance processus au 2026-01-07
-> **Version**: 1.0.0 | **Status**: CANON
-> **Complement de:** rules.md (R1-R7 = technique, R8+ = processus)
+> **Source de verite** - Regles de gouvernance processus au 2026-04-17
+> **Version**: 2.0.0 | **Status**: CANON
+> **Taxonomie**: G = Governance (G1-G4 = vault dans rules-vault.md, G5-G8 = processus ici)
+> **Complement de:** rules-technical.md (T1-T7 = technique, G5+ = processus)
 
 ---
 
-## R8: Canon-Only Policy
+## G5: Canon-Only Policy
 
 **OBLIGATOIRE:** Seuls les fichiers dans `.spec/00-canon/` font autorite.
 
@@ -21,7 +22,7 @@
 
 ---
 
-## R9: Proof Requirements (Anti-BS Rule)
+## G6: Proof Requirements (Anti-BS Rule)
 
 **OBLIGATOIRE:** Chaque claim "fait" doit inclure preuves.
 
@@ -44,7 +45,7 @@ git status --porcelain      # Etat git
 
 ---
 
-## R10: RAG Corpus Alignment
+## G7: RAG Corpus Alignment
 
 **OBLIGATOIRE:** RAG corpus reference UNIQUEMENT documents valides.
 
@@ -64,7 +65,7 @@ git status --porcelain      # Etat git
 
 ---
 
-## R11: Obsolete Handling
+## G8: Obsolete Handling
 
 **OBLIGATOIRE:** Documents obsoletes doivent etre explicitement archives.
 
@@ -94,10 +95,10 @@ Exclusion du corpus RAG
 
 Avant tout workflow BMAD:
 
-- [ ] Sources = canon uniquement (R8)
-- [ ] Claims avec preuves (R9)
-- [ ] RAG alignment verifie (R10)
-- [ ] Obsolete archive (R11)
+- [ ] Sources = canon uniquement (G5)
+- [ ] Claims avec preuves (G6)
+- [ ] RAG alignment verifie (G7)
+- [ ] Obsolete archive (G8)
 
 Apres chaque deliverable:
 
@@ -109,11 +110,13 @@ Apres chaque deliverable:
 
 ## References
 
-- **rules.md** - R1-R7: Regles techniques code
+- **rules-technical.md** - T1-T7: Regles techniques code
+- **rules-ai-cos.md** - AI1-AI10: Regles d'or agents IA
+- **rules-vault.md** - G1-G4: Regles de gouvernance du vault
 - **architecture.md** - Architecture NestJS/Remix/Supabase
 - **repo-map.md** - Structure monorepo
 
 ---
 
-_Derniere mise a jour: 2026-01-07_
-_Status: CANON - Complement de rules.md_
+_Derniere mise a jour: 2026-04-17_
+_Status: CANON - Complement de rules-technical.md_
