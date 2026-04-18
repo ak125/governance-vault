@@ -17,6 +17,8 @@ Index des incidents et post-mortems. Cette MOC est la porte d'entree pour tout e
 
 | ID | Date | Severite | Titre | Status |
 |----|------|----------|-------|--------|
+| INC-2026-002 | 2026-04-14 | Critical | Paybox tunnel SEV1 IPN blocked (25j) | Closed |
+| INC-2026-01-30 | 2026-02-03 | Critical | Paybox OrderId Format Bug (silent) | Closed |
 | INC-2026-01-11 | 2026-01-11 | Critical | rm/ Module Crash Production | Closed |
 
 ---
@@ -25,6 +27,8 @@ Index des incidents et post-mortems. Cette MOC est la porte d'entree pour tout e
 
 ### Critical
 
+- [[2026-04-14-paybox-tunnel-sev1-ipn-blocked]] — 3 bugs cumules Paybox, 25j de commandes non-confirmees (559 EUR GMV non-recuperes)
+- [[2026-02-03-paybox-orderid-format]] — Bug silencieux format orderId callback Paybox (durée inconnue)
 - [[2026-01-11_critical_rm-module-crash]] — Crash production module rm/ (~15min downtime)
 
 ### High
@@ -45,6 +49,8 @@ Index des incidents et post-mortems. Cette MOC est la porte d'entree pour tout e
 
 ### 2026
 
+- [[2026-04-14-paybox-tunnel-sev1-ipn-blocked]] — Paybox tunnel IPN blocked 25 jours (Cloudflare WAF + gate errorCode + RPC type error)
+- [[2026-02-03-paybox-orderid-format]] — Format orderId callback Paybox mismatch DB
 - [[2026-01-11_critical_rm-module-crash]] — rm/ module import error
 
 ### 2025
@@ -128,6 +134,18 @@ Un incident de severite `Critical` ou `High` **DOIT** declencher une activation 
 | INC-2026-01-11 | Creer [[ADR-001-environment-separation]] (Environment Separation) | Complete |
 | INC-2026-01-11 | Creer [[ADR-004-rm-module-scope]] (rm/ Module Scope) | Complete |
 | INC-2026-01-11 | Ajouter verification CI imports | Planifie |
+| INC-2026-01-30 | Helper centralise `normalizeOrderId()` + tests | Complete |
+| INC-2026-01-30 | Creer [[ADR-014-remove-paybox-callback-test]] | Complete |
+| INC-2026-002 | PREV-1 cron 15min alerting email Gmail OAuth2 | Complete (2026-04-18) |
+| INC-2026-002 | PREV-4 Phase 1 Caddy logs retention 30j | Complete (2026-04-18) |
+| INC-2026-002 | M1 Sanitize logs paybox.service.ts (10 tests) | Complete |
+| INC-2026-002 | M2 Bug #2 Gate errorCode fix (13 tests) | Complete |
+| INC-2026-002 | PREV-2 Canary E2E paiement en CI (Playwright) | Planifie (2026-05-15) |
+| INC-2026-002 | PREV-4 Phase 2 Ship Caddy logs vers Cloudflare R2 | Planifie (2026-05-15) |
+| INC-2026-002 | ADR-015 Paybox pipeline stability (a creer) | Planifie (2026-04-30) |
+| INC-2026-002 | Runbook `.spec/runbooks/payments-tunnel-debug.md` | Planifie (2026-04-30) |
+| INC-2026-002 | Lint CI migration-orpheline (detection `.rpc()` sans migration) | Planifie (2026-05-30) |
+| INC-2026-002 | Dashboard analytics refus CB (ic_postback FAILED) | Planifie (2026-06-01) |
 
 ---
 
@@ -135,11 +153,14 @@ Un incident de severite `Critical` ou `High` **DOIT** declencher une activation 
 
 | Metrique | Valeur |
 |----------|--------|
-| Total incidents documentes | 1 |
-| Incidents critiques | 1 |
-| MTTR moyen (incidents critiques) | ~15 minutes |
-| Incidents ayant produit une ADR | 1 (2 ADRs) |
+| Total incidents documentes | 3 |
+| Incidents critiques | 3 |
+| MTTR pire cas | 25 jours (INC-2026-002, detection J+25) |
+| MTTR moyen hors detection | ~4h (resolution technique une fois detecte) |
+| MTTD pire cas | 25 jours (INC-2026-002, pas d'alerte metier avant PREV-1) |
+| Incidents ayant produit une ADR | 2 (ADR-001, ADR-004, ADR-014 + ADR-015 a creer) |
 | Incidents ayant declenche un kill-switch | 0 |
+| Impact business cumule | 559 EUR GMV (INC-2026-002, accepte comme cout) |
 
 ---
 

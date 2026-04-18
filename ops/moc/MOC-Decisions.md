@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-04-17
+updated: 2026-04-18
 ---
 
 # MOC: Decisions
@@ -33,6 +33,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-012 | AI-COS VPS Architecture & Agent Placement | Accepted | 2026-03-08 | [[ADR-012-aicos-vps-architecture]] |
 | ADR-013 | Agent Lifecycle Governance | Accepted | 2026-03-15 | [[ADR-013-agent-lifecycle-governance]] |
 | ADR-014 | Suppression /api/paybox/callback-test | Accepted | 2026-02-03 | [[ADR-014-remove-paybox-callback-test]] |
+| ADR-015 | Governance Vault — Single Source of Truth | Accepted | 2026-04-18 | [[ADR-015-vault-single-source-of-truth]] |
 
 ---
 
@@ -64,6 +65,10 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 ### SEO
 
 - [[ADR-006-ai-orchestrator-architecture]] - Inclut SEO Charter et PageRole validation
+
+### Gouvernance
+
+- [[ADR-015-vault-single-source-of-truth]] - Vault canonique unique, dépréciation `.local/governance-vault/`, guardrails agents
 
 ---
 
@@ -120,4 +125,4 @@ Voir [[adr-template]] dans `_templates/`.
 
 ---
 
-_Derniere mise a jour: 2026-04-17_
+_Derniere mise a jour: 2026-04-18_
