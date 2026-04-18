@@ -173,6 +173,7 @@ Quand une cle est compromise ou perimee:
 - [[rules-vault]] - Regle G3 (canonique)
 - [[key-registry]] - Registre des cles autorisees
 - [[ci-policy]] - Politique CI/CD (G4)
+- [[branch-protection]] - Protection serveur de main (combine G1-G4)
 - [[sync-log]] - Journal des syncs signes
 
 ---

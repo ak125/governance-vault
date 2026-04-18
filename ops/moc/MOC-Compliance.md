@@ -70,7 +70,7 @@ Les bundles de preuves sont dans `ledger/compliance/evidence-pack/YYYY/YYYY-MM/E
 - `09-attestations.md` - Signatures de validation
 - `manifest.sha256` - Hashes SHA-256 (integrity)
 
-> **Note Phase 5** : certains evidence-packs contiennent encore des refs legacy `DEC-002/003/004` pointant vers un ancien systeme de numerotation Airlock (different des 4 DEC-001..004 reclasses en ADR). A corriger lors du prochain cycle d'audit.
+> **Note** : les evidence-packs referencent `DEC-002..013` qui est le systeme de numerotation **Airlock canonique** (different des 4 vault DEC legacy reclasses en Phase 4). Voir [[airlock-decisions-reference]] pour le mapping complet DEC ↔ ADR.
 
 ---
 
