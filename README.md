@@ -110,7 +110,12 @@ _scripts/sync-canon.sh --commit
 
 # Activer le pre-commit hook localement (une fois)
 git config core.hooksPath .githooks
+
+# (Re)appliquer la protection serveur de main
+_scripts/setup-branch-protection.sh
 ```
+
+Details complets sur la protection serveur : [[branch-protection]]
 
 ---
 

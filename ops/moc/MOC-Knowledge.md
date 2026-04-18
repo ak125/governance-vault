@@ -46,6 +46,10 @@ Base de connaissances architecturale.
 - [[normalize-order-id-pattern]] - Pattern : normalisation d'identifiants externes (paiements)
 - [[validator-engine-spec]] - SPEC-002 Validator Engine
 
+## References
+
+- [[airlock-decisions-reference]] - Mapping Airlock DEC-002..013 ↔ ADR canoniques (leve l'ambiguite avec les DEC legacy)
+
 ## Knowledge Sous-Dossier Diagnostics
 
 - [[2026-02-payment-fixes]] - Index des correctifs paiement fevrier 2026
