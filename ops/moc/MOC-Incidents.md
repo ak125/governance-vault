@@ -17,6 +17,7 @@ Index des incidents et post-mortems. Cette MOC est la porte d'entree pour tout e
 
 | ID | Date | Severite | Titre | Status |
 |----|------|----------|-------|--------|
+| INC-2026-003 | 2026-04-18 | High | Diagnostic Engine — Seeding contenu metier sans validation RAG/vault | Resolved |
 | INC-2026-01-11 | 2026-01-11 | Critical | rm/ Module Crash Production | Closed |
 
 ---
@@ -29,7 +30,7 @@ Index des incidents et post-mortems. Cette MOC est la porte d'entree pour tout e
 
 ### High
 
-- (aucun)
+- [[2026-04-18_high_diag-engine-rag-seeding]] — Agent a fabrique 350 entrees contenu metier en DB sans consulter RAG + vault (rollback OK, pivot delegation RAG pure)
 
 ### Medium
 
@@ -45,6 +46,7 @@ Index des incidents et post-mortems. Cette MOC est la porte d'entree pour tout e
 
 ### 2026
 
+- [[2026-04-18_high_diag-engine-rag-seeding]] — Diagnostic engine : violation gouvernance contenu (RAG ignore, ~350 entrees fabriquees, rollback)
 - [[2026-01-11_critical_rm-module-crash]] — rm/ module import error
 
 ### 2025
