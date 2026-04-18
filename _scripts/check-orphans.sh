@@ -76,11 +76,13 @@ def is_root_path(rel_path: str) -> bool:
     return False
 
 # Collect all .md files
+# Use .as_posix() so paths use forward slashes on Windows too
+# (otherwise the ROOT_DIRS whitelist below would miss files under 99-meta\ etc.)
 all_stems = {}   # stem -> relative path
 for p in root.rglob("*.md"):
     if any(part in EXCLUDE_DIRS for part in p.parts):
         continue
-    rel = str(p.relative_to(root))
+    rel = p.relative_to(root).as_posix()
     all_stems[p.stem] = rel
 
 def strip_code(txt: str) -> str:
