@@ -68,12 +68,12 @@ else
 
 ## Actions Requises
 
-1. Investiguer chaque commit non signé
-2. Vérifier si le commit est légitime
-3. Documenter dans [[../01-incidents/]] si compromission
-4. Considérer re-signature si possible (rebase interactif)
+1. Classer le commit: pre-policy (< 2026-02-02) / post-rebase (artefact GitHub Free) / anomalie vraie
+2. Si anomalie vraie: investiguer la legitimite du commit
+3. Documenter dans [[MOC-Incidents]] si compromission suspectee
+4. Considerer re-signature si possible (rebase interactif)
 
-> **Attention**: Un commit non signé invalide la piste d'audit depuis ce point.
+> **Note**: Les commits non signes sur main sont souvent un artefact attendu (merge rebase sans re-signature sur plan Free). Voir [[branch-protection]] section "Artefact Connu : Signature Chain au Merge Rebase".
 "
   STATUS="❌ ${#UNSIGNED[@]} non signés"
 fi

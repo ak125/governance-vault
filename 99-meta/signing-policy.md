@@ -15,8 +15,14 @@ updated: 2026-04-17
 
 ## Regle
 
-> **Tous les commits de ce vault DOIVENT etre signes cryptographiquement.**
-> Un commit non signe invalide la piste d'audit et sera rejete par le CI.
+> **Tous les commits de ce vault DOIVENT etre signes cryptographiquement au moment de leur push.**
+> Un commit non signe sera rejete par le CI G3 au niveau de la PR et ne pourra pas atteindre `main`.
+
+### Niveau d'enforcement
+
+G3 est enforce **au niveau PR** (CI job `g3-signed-commits` verifie `%G?` = G sur chaque commit du push/PR).
+
+**Note sur main** : sur plan GitHub Free, le merge rebase reecrit les commits sans re-signer (voir [[branch-protection]] section "Artefact Connu : Signature Chain au Merge Rebase"). Un `git verify-commit` local sur main trouvera donc des commits sans signature pour chaque PR mergee. C'est un **artefact attendu**, pas une violation : la signature a ete verifiee une fois par CI au moment du merge, et la trace existe dans les GitHub Actions logs + audit log. La chain-of-custody est **distribuee** (PR CI logs + GitHub audit) plutot que purement locale.
 
 ---
 

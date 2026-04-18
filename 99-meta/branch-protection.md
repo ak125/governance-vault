@@ -96,9 +96,54 @@ Chaque desactivation laisse une trace dans les **audit logs GitHub** (irreversib
 
 ## Signatures Requises
 
-`required_signatures` (cote GitHub) n'est **pas** inclus dans notre config actuelle — ce parametre necessite un plan **GitHub Pro/Team** pour les repos prives. Le job `g3-signed-commits` fait le meme travail en verifiant `%G?` sur chaque commit du push/PR. Resultat equivalent, marche sur plan Free.
+`required_signatures` (cote GitHub) n'est **pas** inclus dans notre config actuelle — ce parametre necessite un plan **GitHub Pro/Team** pour les repos prives. Le job `g3-signed-commits` fait le meme travail en verifiant `%G?` sur chaque commit du push/PR. Resultat equivalent pour bloquer le merge, **mais avec un artefact a connaitre** (voir section suivante).
 
 Si le plan evolue un jour, il suffit d'ajouter `"required_signatures": true` au JSON du script et de le relancer. Idempotent.
+
+---
+
+## Artefact Connu : Signature Chain au Merge Rebase
+
+### Observation
+
+Sur plan GitHub Free, quand une PR est mergee via `gh pr merge --rebase` (strategie imposee par `required_linear_history: true`), **GitHub reecrit chaque commit avec un nouveau SHA et n'en re-signe pas l'objet**. Resultat :
+
+- `git verify-commit <sha>` sur `main` retourne "No principal matched" pour les commits post-merge
+- `git cat-file commit <sha>` ne contient **aucun champ `gpgsig`**
+- Les commits sur la **branche PR originale** (avant merge) etaient bien signes — CI G3 les a verifies
+
+### Ce que ca veut dire
+
+G3 est **enforced au niveau PR**, pas au niveau main. La chaine de custody existe mais est **distribuee** :
+
+| Couche | Artefact | Ou verifier |
+|--------|----------|-------------|
+| Local pre-push | Commit signe K001/K002 | `git log --show-signature` sur la branche de travail |
+| CI sur PR | `%G?` = G valide | GitHub Actions logs, job `g3-signed-commits` |
+| GitHub merge | Qui a mergee, quand, quelle strategie | GitHub audit log |
+| Main apres merge | SHA + committer (sans gpgsig) | `git log` sur main |
+
+### Pourquoi ce n'est PAS une faille
+
+- Le merge sur `main` est bloque si le CI G3 echoue sur la PR → aucun commit non signe ne peut atteindre main sans contournement explicite
+- `enforce_admins: true` + `required_linear_history: true` + `allow_force_pushes: false` rendent impossible tout contournement
+- L'audit log GitHub est tamper-evident (irreversible) et conserve l'identite du merger
+
+### Consequence pour l'audit retro
+
+Un audit local style `_scripts/audit-signatures.sh` sur `main` trouvera **des commits non signes pour chaque PR mergee en rebase**. C'est un **artefact attendu**, pas une violation. Le rapport doit etre lu comme :
+
+- **Non signes pre-policy** (< 2026-02-02) : bootstrap historique, pas d'action
+- **Non signes post-rebase** : artefact GitHub Free, trace compensee par CI logs de la PR
+- **Non signes inattendus** (post-policy, pas de PR associee) : **vraie anomalie**, a investiguer
+
+### Options de resolution (si gap inacceptable un jour)
+
+1. **GitHub Pro** (~4€/mois) → activer `required_signatures: true` → GitHub auto-signe les rebased commits avec sa cle verifiee
+2. **Changer strategie `--merge`** → preserve les signatures mais casse `required_linear_history`
+3. **Rebase local + push** avant de merger via PR → permet de signer chaque commit rebase (lourd manuellement)
+
+Choix actuel : **Option B** (documenter le gap, compter sur CI + audit log GitHub comme controle compensatoire). Decision tracee dans [[signing-policy]] et dans l'evidence-pack [[INDEX-EP-20260418-governance-hardening]].
 
 ---
 
