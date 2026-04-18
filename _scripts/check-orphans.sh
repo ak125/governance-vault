@@ -12,7 +12,7 @@
 #   - _templates/        (templates reutilisables)
 #   - _scripts/          (scripts d'enforcement)
 #   - .obsidian/, .git/  (infra)
-#   - README.md, CLAUDE.md (racine)
+#   - README.md, CLAUDE.md, AGENTS.md (racine)
 #
 # Ignore les [[...]] dans les blocs de code (``` ... ``` et `inline`) pour eviter
 # les faux positifs (bash `[[ -n $var ]]`, exemples `[[wikilink]]` en doc).
@@ -65,7 +65,7 @@ root = Path(sys.argv[1]).resolve()
 
 EXCLUDE_DIRS = {".git", ".obsidian"}
 ROOT_DIRS = {"ops/moc", "99-meta", "_assets", "_templates", "_scripts"}
-ROOT_FILES = {"README.md", "CLAUDE.md"}
+ROOT_FILES = {"README.md", "CLAUDE.md", "AGENTS.md"}
 
 def is_root_path(rel_path: str) -> bool:
     if rel_path in ROOT_FILES:
