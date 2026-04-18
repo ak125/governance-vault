@@ -20,6 +20,7 @@ Index des ADR (Architecture Decision Records) et décisions opérationnelles.
 | ADR-010 | Airlock Enforce Mode & CI Authority | Accepted | 2026-02-04 | [[ADR-010-airlock-enforce-activation]] |
 | ADR-011 | Remplacement OpenClaw par Claude API | Accepted | 2026-03-07 | [[ADR-011-openclaw-claude-api-replacement]] |
 | ADR-012 | AI-COS VPS Architecture & Agent Placement | Accepted | 2026-03-08 | [[ADR-012-aicos-vps-architecture]] |
+| ADR-013 | Governance Vault — Single Source of Truth sur DEV VPS | Accepted | 2026-04-18 | [[ADR-013-vault-single-source-of-truth]] |
 
 ---
 
@@ -27,6 +28,7 @@ Index des ADR (Architecture Decision Records) et décisions opérationnelles.
 
 | Date | Décision | Impact |
 |------|----------|--------|
+| 2026-04-18 | Vault SOT unique (ADR-013) — `.local/governance-vault/` deprecated | Zéro gap DEV↔GitHub |
 | 2026-02-03 | Activation gouvernance formelle | Vault aligné avec réalité système |
 
 ---
