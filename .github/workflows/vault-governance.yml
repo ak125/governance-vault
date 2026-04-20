@@ -113,6 +113,24 @@ jobs:
           fi
           echo "G3: all commits signed."
 
+  v1-paths:
+    name: "No V1 Paths (ADR-015)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check no v1 paths
+        run: |
+          chmod +x _scripts/check-v1-paths.sh
+          _scripts/check-v1-paths.sh .
+
+      - name: Upload v1-paths report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v1-paths-report
+          path: 99-meta/v1-paths-report.md
+
   g4-canon-write-block:
     name: "G4: CI read-only sur canon"
     runs-on: ubuntu-latest
