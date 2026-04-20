@@ -2,8 +2,9 @@
 id: INC-2026-003
 date: 2026-04-18
 severity: high
-status: resolved
+status: closed
 impact_duration: "~2h (session dev, pas de prod impact)"
+closed_at: 2026-04-20
 affected_systems:
   - __diag_symptom
   - __diag_maintenance_operation
@@ -177,5 +178,87 @@ Benefices :
 
 ---
 
+## Suite 2026-04-20 — Closure complete
+
+### Resolution technique finale
+
+- **Saturation DB `pieces_relation_type`** (incident connexe) s'est resorbee naturellement
+  (batch RPC `get_alternative_vehicles_for_gamme` termine). Fenetre d'action ouverte.
+- **Commit `02170cc0`** : refactor `lookupDtc` via RAG. Elimine la derniere dependance
+  aux colonnes `__diag_symptom.dtc_codes` (qui etaient vides post-rollback). Zero
+  reference aux synonymes fabriques dans tout le code backend.
+- **Migration cleanup `20260420_diag_cleanup_post_pivot.sql` APPLIQUEE en DB** :
+  - `DROP COLUMN __diag_symptom.synonyms, dtc_codes`
+  - `DROP COLUMN __diag_maintenance_operation.synonyms`
+  - `DROP FUNCTION search_diag_symptoms(text, integer)`
+  - `DROP FUNCTION search_diag_maintenance(text, integer)`
+  - `DROP INDEX` × 5 (label_trgm, synonyms_gin, dtc_gin, maintenance_*)
+  - Verification : `SELECT column_name WHERE column_name IN ('synonyms','dtc_codes')` → 0 rows
+- **RPC allowlist v1.0.2** : retrait des 2 RPC obsoletes, total 166 → 164.
+
+### Smoke test live 2026-04-20 (DB saine post-cleanup)
+
+```
+/api/diagnostic-engine/systems          HTTP 200 — 13/13 systems
+/api/diagnostic-engine/stats            HTTP 200 — 100 sessions
+/api/diagnostic-engine/dtc/P0300        HTTP 200 — 8 rag_hits via RAG (zero fabrication)
+/api/diagnostic-engine/search?q=...     HTTP 200 — matches slug DB + chunks autonomes
+/diagnostic-auto                        HTTP 200
+/diagnostic-auto/systeme/freinage       HTTP 200
+/diagnostic-auto/dtc/P0300              HTTP 200
+/entretien                              HTTP 200
+```
+8/8 HTTP 200. Pivot RAG delegation confirme operationnel sans les colonnes DB vidées.
+
+### Nettoyage PRs
+
+- **PR #79 `docs/inc-2026-002-paybox-tunnel`** : **FERMEE** le 2026-04-20.
+  Scope creep : 20 commits de sujets mixtes (paybox + tecdoc + monitoring +
+  RM-v2 perf + SEO + AI + rag-watcher + error-log + diagnostic breezy-eagle).
+  Impossible a reviewer en l'etat.
+- **PR #85 `feat/diagnostic-engine-public-surface`** : **OUVERTE**, branche
+  creee depuis `main`, 5 commits breezy-eagle cherry-picked proprement :
+  `8a6c2418`, `408845f1`, `933c9b05`, `9850ccd6`, `79ac2073`. CI technique
+  verte (TS/ESLint/CodeQL/Build). 2 fails CI pre-existants infrastructure
+  non lies au code breezy-eagle (`.spec/api` attendu qui n'existe pas,
+  `CWV Performance` timeout boot en CI). Prete a merger.
+
+### Nouvelles feedback memory (prevention recidive)
+
+3 feedback files ecrits dans `~/.claude/projects/-opt-automecanik-app/memory/` :
+
+1. **`feedback_rag_vault_always_first.md`** — jamais seed contenu metier depuis
+   LLM, source = RAG + governance-vault.
+2. **`feedback_sitemap_no_trigger.md`** — jamais trigger `POST /api/sitemap/v10/generate-all`
+   sans validation (2e violation meme session).
+3. **`feedback_branch_scope_discipline.md`** (NEW 2026-04-20) — toujours creer
+   branche dediee `feat/<sujet>` depuis `main` au demarrage d'un plan. Jamais
+   heriter branche fourre-tout. Declenche par la reaction user "docs/inc-2026-002-paybox-tunnel
+   pourquoi on travaille sur paybox alors on est sur diagnostic".
+
+### Statut final
+
+| Artefact | Etat |
+|---|---|
+| DB Supabase | Colonnes/RPC/index orphelins supprimes, schema propre |
+| Code backend/frontend | Zero reference aux colonnes supprimees, lint + typecheck + jest verts |
+| Smoke test live | 8/8 HTTP 200 |
+| PR monorepo propre | #85 ouverte, attend revue + merge |
+| PR monorepo scope-creep | #79 fermee |
+| Feedback memory | 3 regles ajoutees pour prevention |
+| Sitemap fantomes DEV | Supprimes (`/var/www/sitemaps/sitemap-diagnostic.xml` + `-maintenance.xml`) |
+| Post-mortem vault (ce fichier) | PR #9 ouverte, 4/4 checks vault verts |
+
+### Bloqueurs residuels (hors scope incident)
+
+- [ ] Index `pieces_relation_type(rtp_ga_id)` a creer quand opportun
+      (incident separe, saturation a repetition sans cet index, 47 GB table)
+- [ ] Fails CI pre-existants `Validate Specifications` + `CWV Performance`
+      (infra CI, pas breezy-eagle) — fix dans PR dediee infra
+
+**Incident ferme 2026-04-20.**
+
+---
+
 *Cree le: 2026-04-18*
-*Derniere mise a jour: 2026-04-18*
+*Derniere mise a jour: 2026-04-20 — closure complete*

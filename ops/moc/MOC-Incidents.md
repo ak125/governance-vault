@@ -17,7 +17,7 @@ Index des incidents et post-mortems. Cette MOC est la porte d'entree pour tout e
 
 | ID | Date | Severite | Titre | Status |
 |----|------|----------|-------|--------|
-| INC-2026-003 | 2026-04-18 | High | Diagnostic Engine — Seeding contenu metier sans validation RAG/vault | Resolved |
+| INC-2026-003 | 2026-04-18 | High | Diagnostic Engine — Seeding contenu metier sans validation RAG/vault | Closed |
 | INC-2026-01-11 | 2026-01-11 | Critical | rm/ Module Crash Production | Closed |
 
 ---
