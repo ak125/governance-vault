@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-04-18
+updated: 2026-04-20
 ---
 
 # MOC: Incidents
@@ -17,6 +17,7 @@ Index des incidents et post-mortems. Cette MOC est la porte d'entree pour tout e
 
 | ID | Date | Severite | Titre | Status |
 |----|------|----------|-------|--------|
+| INC-2026-004 | 2026-04-20 | High | `___xtr_msg` firehose cascade — timeouts Supabase REST | Resolved |
 | INC-2026-003 | 2026-04-18 | High | Diagnostic Engine — Seeding contenu metier sans validation RAG/vault | Closed |
 | INC-2026-01-11 | 2026-01-11 | Critical | rm/ Module Crash Production | Closed |
 
@@ -30,6 +31,7 @@ Index des incidents et post-mortems. Cette MOC est la porte d'entree pour tout e
 
 ### High
 
+- [[2026-04-20_high_xtr-msg-firehose-cascade]] — Firehose logs d'erreur dans `___xtr_msg` sature PostgREST et cree une boucle positive de timeouts (-95 % inserts apres fix, table dediee `__error_logs` + pg_cron 30j)
 - [[2026-04-18_high_diag-engine-rag-seeding]] — Agent a fabrique 350 entrees contenu metier en DB sans consulter RAG + vault (rollback OK, pivot delegation RAG pure)
 
 ### Medium
@@ -46,6 +48,7 @@ Index des incidents et post-mortems. Cette MOC est la porte d'entree pour tout e
 
 ### 2026
 
+- [[2026-04-20_high_xtr-msg-firehose-cascade]] — Error log firehose → boucle positive PostgREST → timeouts 15s (fix: RPC + buffer + table dediee)
 - [[2026-04-18_high_diag-engine-rag-seeding]] — Diagnostic engine : violation gouvernance contenu (RAG ignore, ~350 entrees fabriquees, rollback)
 - [[2026-01-11_critical_rm-module-crash]] — rm/ module import error
 
@@ -137,9 +140,11 @@ Un incident de severite `Critical` ou `High` **DOIT** declencher une activation 
 
 | Metrique | Valeur |
 |----------|--------|
-| Total incidents documentes | 1 |
+| Total incidents documentes | 3 |
 | Incidents critiques | 1 |
+| Incidents high | 2 |
 | MTTR moyen (incidents critiques) | ~15 minutes |
+| MTTR moyen (incidents high) | ~1h de hard-failure + investigation |
 | Incidents ayant produit une ADR | 1 (2 ADRs) |
 | Incidents ayant declenche un kill-switch | 0 |
 
@@ -160,4 +165,4 @@ Voir [[_templates/incident-template|_templates/incident-template.md]]
 
 ---
 
-_Derniere mise a jour: 2026-04-18_
+_Derniere mise a jour: 2026-04-20_
