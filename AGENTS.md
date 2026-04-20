@@ -41,7 +41,11 @@ Voir aussi [[ADR-015-vault-single-source-of-truth|ADR-015]] pour la décision fo
 ## Workflow nouveau-document
 
 1. **Toujours** : `cd /opt/automecanik/governance-vault/` (ou ton clone Windows/PC)
-2. Vérifier qu'on est à jour : `git pull --rebase origin main`
+2. **Preflight OBLIGATOIRE** — refuse si clone périmé ou v1 paths détectés :
+   ```bash
+   _scripts/preflight-write.sh
+   ```
+   Exit 0 = GO. Exit 10-13 = fix requis (voir message). Ne jamais écrire sans GO.
 3. Créer une branche : `git checkout -b <type>/<slug>`
    - Exemples : `docs/inc-2026-003-xyz`, `adr/ADR-NNN-yyy`, `chore/archive-zzz`
 4. **Utiliser les helpers** si dispo :
@@ -64,6 +68,22 @@ Voir aussi [[ADR-015-vault-single-source-of-truth|ADR-015]] pour la décision fo
    gh pr create --base main
    ```
 10. Attendre CI G1-G4 vert, review, merge rebase (linear history)
+
+---
+
+## Preflight automatique (ADR-015 §Guardrails)
+
+**Pourquoi** : le cron `vault-sync.sh` sync `main` toutes les 5 min, mais ça ne couvre pas la fenêtre entre 2 ticks. Si un agent démarre dans cette fenêtre avec un clone périmé, il risque de recréer le bug PR #7 (2026-04-18 : clone 16 commits en retard → PR sur structure v1 vs main v2).
+
+**Que vérifie `_scripts/preflight-write.sh`** :
+1. Canonical path (pas dans `.local/governance-vault/`)
+2. `git fetch origin` réussit (réseau OK)
+3. Working tree propre (pas de changements en cours perdus)
+4. Si sur `main` : local = `origin/main` (pas behind / pas diverged)
+5. Si sur branche : informatif si `origin/main` a avancé
+6. Aucun fichier sous path v1 (réutilise `check-v1-paths.sh`)
+
+**Codes de sortie** : 0 = GO, 10 = clone périmé, 11 = tree sale, 12 = dans .local/, 13 = v1 paths, 20 = repo KO, 21 = fetch KO.
 
 ---
 
