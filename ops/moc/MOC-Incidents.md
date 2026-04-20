@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-04-18
+updated: 2026-04-20
 ---
 
 # MOC: Incidents
@@ -17,6 +17,7 @@ Index des incidents et post-mortems. Cette MOC est la porte d'entree pour tout e
 
 | ID | Date | Severite | Titre | Status |
 |----|------|----------|-------|--------|
+| INC-2026-004 | 2026-04-20 | High | `___xtr_msg` firehose cascade — timeouts Supabase REST | Resolved |
 | INC-2026-002 | 2026-04-14 | Critical | Paybox tunnel SEV1 IPN blocked (25j) | Closed |
 | INC-2026-01-30 | 2026-02-03 | Critical | Paybox OrderId Format Bug (silent) | Closed |
 | INC-2026-01-11 | 2026-01-11 | Critical | rm/ Module Crash Production | Closed |
@@ -33,7 +34,7 @@ Index des incidents et post-mortems. Cette MOC est la porte d'entree pour tout e
 
 ### High
 
-- (aucun)
+- [[2026-04-20_high_xtr-msg-firehose-cascade]] — Firehose logs d'erreur dans `___xtr_msg` sature PostgREST et cree une boucle positive de timeouts (-95 % inserts apres fix, table dediee `__error_logs` + pg_cron 30j)
 
 ### Medium
 
@@ -49,6 +50,7 @@ Index des incidents et post-mortems. Cette MOC est la porte d'entree pour tout e
 
 ### 2026
 
+- [[2026-04-20_high_xtr-msg-firehose-cascade]] — Error log firehose → boucle positive PostgREST → timeouts 15s (fix: RPC + buffer + table dediee)
 - [[2026-04-14-paybox-tunnel-sev1-ipn-blocked]] — Paybox tunnel IPN blocked 25 jours (Cloudflare WAF + gate errorCode + RPC type error)
 - [[2026-02-03-paybox-orderid-format]] — Format orderId callback Paybox mismatch DB
 - [[2026-01-11_critical_rm-module-crash]] — rm/ module import error
@@ -146,6 +148,9 @@ Un incident de severite `Critical` ou `High` **DOIT** declencher une activation 
 | INC-2026-002 | Runbook `.spec/runbooks/payments-tunnel-debug.md` | Planifie (2026-04-30) |
 | INC-2026-002 | Lint CI migration-orpheline (detection `.rpc()` sans migration) | Planifie (2026-05-30) |
 | INC-2026-002 | Dashboard analytics refus CB (ic_postback FAILED) | Planifie (2026-06-01) |
+| INC-2026-004 | Audit autres services ecrivant dans `___xtr_msg` | Planifie (2026-04-30) |
+| INC-2026-004 | Scanner autres tables fourre-tout (ex: `__blog_advice`) | Planifie (2026-05-15) |
+| INC-2026-004 | Alerte rate inserts `__error_logs` > 30/min | Planifie (2026-05-15) |
 
 ---
 
@@ -153,8 +158,9 @@ Un incident de severite `Critical` ou `High` **DOIT** declencher une activation 
 
 | Metrique | Valeur |
 |----------|--------|
-| Total incidents documentes | 3 |
+| Total incidents documentes | 4 |
 | Incidents critiques | 3 |
+| Incidents high | 1 |
 | MTTR pire cas | 25 jours (INC-2026-002, detection J+25) |
 | MTTR moyen hors detection | ~4h (resolution technique une fois detecte) |
 | MTTD pire cas | 25 jours (INC-2026-002, pas d'alerte metier avant PREV-1) |
@@ -179,4 +185,4 @@ Voir [[_templates/incident-template|_templates/incident-template.md]]
 
 ---
 
-_Derniere mise a jour: 2026-04-18_
+_Derniere mise a jour: 2026-04-20_
