@@ -34,6 +34,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-013 | Agent Lifecycle Governance | Accepted | 2026-03-15 | [[ADR-013-agent-lifecycle-governance]] |
 | ADR-014 | Suppression /api/paybox/callback-test | Accepted | 2026-02-03 | [[ADR-014-remove-paybox-callback-test]] |
 | ADR-015 | Governance Vault — Single Source of Truth | Accepted | 2026-04-18 | [[ADR-015-vault-single-source-of-truth]] |
+| ADR-019 | AI Content Advisor Escalation (Pattern A) | Proposed | 2026-04-21 | [[ADR-019-ai-content-advisor-escalation]] |
 
 ---
 
