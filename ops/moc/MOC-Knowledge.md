@@ -42,6 +42,7 @@ Base de connaissances architecturale.
 - [[r7-brand-editorial-live-sync]] - R7 brand live editorial sync (Wikidata + DB)
 - [[r7-surface-purity-no-cross-surface-urls]] - R7 pureté surface, pas d'URLs cross-surface
 - [[runbook-build-brand-rag]] - Runbook ops build-brand-rag.py (Wikidata + DB + Wikipedia REST)
+- [[runbook-admin-brand-editorial]] - Runbook admin UI curation éditorial R7 (FAQ/issues/maintenance)
 
 ## Gouvernance (Historique v1)
 
