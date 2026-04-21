@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+# pre-push — Enforce G2 (Zero Orphelin) + Broken Wikilinks localement
+# AVANT le push, pour eviter les aller-retours CI GitHub bloquants.
+#
+# Installe via : git config core.hooksPath .githooks (deja fait)
+#
+# Si l'un des checks echoue :
+#   - push refuse
+#   - rapport affiche (99-meta/*-report.md)
+#   - remediation suggeree
+#
+# Bypass d'urgence : git push --no-verify (DANGEROUS : casse la PR cote CI).
+set -euo pipefail
+
+VAULT_ROOT="$(git rev-parse --show-toplevel)"
+ORPHANS_SCRIPT="$VAULT_ROOT/_scripts/check-orphans.sh"
+WIKILINKS_SCRIPT="$VAULT_ROOT/_scripts/check-broken-links.sh"
+
+red() { printf '\033[31m%s\033[0m\n' "$*"; }
+green() { printf '\033[32m%s\033[0m\n' "$*"; }
+yellow() { printf '\033[33m%s\033[0m\n' "$*"; }
+
+has_failure=0
+
+if [ -x "$ORPHANS_SCRIPT" ]; then
+  if ! bash "$ORPHANS_SCRIPT" "$VAULT_ROOT" > /tmp/pre-push-orphans.log 2>&1; then
+    red "✗ G2 Zero Orphelin FAIL"
+    cat /tmp/pre-push-orphans.log | head -5
+    yellow "  Remediation : ajouter un [[wikilink]] depuis un MOC ops/moc/MOC-*.md"
+    yellow "  Rapport complet : 99-meta/orphans-report.md"
+    has_failure=1
+  else
+    green "✓ G2 Zero Orphelin"
+  fi
+fi
+
+if [ -x "$WIKILINKS_SCRIPT" ]; then
+  if ! bash "$WIKILINKS_SCRIPT" "$VAULT_ROOT" > /tmp/pre-push-wikilinks.log 2>&1; then
+    red "✗ Broken Wikilinks FAIL"
+    cat /tmp/pre-push-wikilinks.log | head -5
+    yellow "  Remediation : downgrade les [[liens]] vers fichiers non-mergés en plain text"
+    yellow "  Rapport complet : 99-meta/broken-links-report.md"
+    has_failure=1
+  else
+    green "✓ Broken Wikilinks"
+  fi
+fi
+
+if [ "$has_failure" -ne 0 ]; then
+  echo ""
+  red "Push refusé : fix les checks ci-dessus avant de re-pousser."
+  yellow "Bypass urgence (casse la PR CI) : git push --no-verify"
+  exit 1
+fi
+
+green "✓ Pre-push OK"
+exit 0
