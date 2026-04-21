@@ -35,6 +35,7 @@ Base de connaissances architecturale.
 - [[seo-hub-refactoring]] - Refactoring SEO Hub
 - [[strategie-filtre-huile]] - Stratégie filtre huile
 - [[08-seo-charter]] - PageRole taxonomy et anti-confusion rules
+- [[r7-brand-editorial-live-sync]] - Architecture R7 canonical RAG + live editorial
 
 ## Gouvernance (Historique v1)
 
