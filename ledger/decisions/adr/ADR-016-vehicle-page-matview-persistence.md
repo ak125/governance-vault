@@ -226,9 +226,9 @@ Fallback : si `stale = TRUE` ou ligne absente, appeler synchroniquement `build_v
 
 ## Liens
 
-- Related : [[INC-2026-005-gsc-5xx-vehicle-page-cold-rpc]]
+- Related : `INC-2026-005-gsc-5xx-vehicle-page-cold-rpc`
 - Related : [[ADR-003-rpc-governance]] (principes RPC)
-- Related rules : [[rules-performance-budget-ttfb]], [[rules-seo-http-status-contract]]
+- Related rules : `rules-performance-budget-ttfb`, `rules-seo-http-status-contract`
 
 ---
 
