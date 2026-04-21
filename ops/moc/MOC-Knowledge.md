@@ -30,6 +30,9 @@ Base de connaissances architecturale.
 - [[07-mcp-governance]] - PR rules et CI gates
 - [[09-implementation-plan]] - Plan d'implémentation 4 steps
 
+### DB / Ops Patterns
+- [[mcp-vs-python-direct-pg]] - Quand passer MCP vs Python psycopg2 direct (CONCURRENTLY, > 60s)
+
 ## SEO
 
 - [[seo-hub-refactoring]] - Refactoring SEO Hub
