@@ -179,9 +179,9 @@ Le coût (2-4 semaines) est amorti sur :
 ## Liens
 
 - Related : [[ADR-017-rpc-pieces-cast-cleanup]] (prérequis)
-- Related : [[INC-2026-005-gsc-5xx-vehicle-page-cold-rpc]]
+- Related : [[2026-04-20-gsc-5xx-vehicle-page-cold-rpc]]
 - Related memory : `db-pieces-indexes.md`, `feedback_internal_ids.md`
-- Related rules : [[rules-db-governance]]
+- Related rules : [[rules-technical]]
 
 ---
 

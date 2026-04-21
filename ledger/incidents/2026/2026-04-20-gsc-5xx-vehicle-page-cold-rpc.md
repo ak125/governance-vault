@@ -136,8 +136,8 @@ tags:
 ## Liens
 
 - Related : [[ADR-016-vehicle-page-matview-persistence]]
-- Related : [[INC-2026-002-paybox-tunnel-sev1-ipn-blocked]] (pattern similaire : bricolages empilés avant correction structurelle)
-- Related rules : [[rules-governance]] G1/G2
+- Related : [[2026-04-14-paybox-tunnel-sev1-ipn-blocked]] (pattern similaire : bricolages empilés avant correction structurelle)
+- Related rules : [[rules-governance-process]] G1/G2
 - Code affecté :
   - `backend/src/modules/vehicles/services/vehicle-rpc.service.ts`
   - `frontend/app/routes/constructeurs.$brand.$model.$type.tsx:454-594`

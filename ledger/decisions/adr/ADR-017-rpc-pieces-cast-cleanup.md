@@ -184,10 +184,10 @@ Un fichier `backend/supabase/migrations/YYYYMMDD_rpc_pieces_cast_cleanup_adr017.
 
 ## Liens
 
-- Related : [[INC-2026-005-gsc-5xx-vehicle-page-cold-rpc]]
+- Related : [[2026-04-20-gsc-5xx-vehicle-page-cold-rpc]]
 - Related : [[ADR-016-vehicle-page-matview-persistence]] (même classe de problème, autre RPC)
 - Related : [[ADR-018-dual-column-schema-consolidation]] (cause racine)
-- Related rules : [[rules-rpc-governance]], [[rules-performance-budget-ttfb]]
+- Related rules : [[rules-technical]], [[rules-technical]]
 
 ---
 
