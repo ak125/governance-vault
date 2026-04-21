@@ -29,6 +29,42 @@ Sans curation : les 36 pages affichent le même boilerplate (FAQ identiques, no 
 
 **Hors scope de cette UI** : les champs factuels (country, founded_year, top_models, top_engines, history) sont gérés par le script [[runbook-build-brand-rag]]. Ne pas confondre.
 
+## ⚠️ Règle critique — R7 = marque, pas modèle
+
+R7 est un **hub marque**. La promesse centrale est d'orienter vers les accès utiles. Tout contenu **spécifique à un modèle ou une motorisation** dérive vers R8 (page véhicule) et **doit être exclu** de l'éditorial R7.
+
+**Test mental** : « Est-ce vrai pour toutes les {marque} en général ? » Si non → ce n'est pas R7.
+
+### FAQ
+
+| ✅ R7 valide (marque-level) | ❌ Dérive R8 (modèle/motorisation) |
+|---|---|
+| « Les pièces Peugeot sont-elles compatibles avec Citroën et DS (Stellantis) ? » | « Le 1.6 HDi Peugeot a-t-il des problèmes d'injecteurs ? » |
+| « Où trouver le numéro VIN sur une BMW ? » | « Où est le VIN sur une BMW Série 3 E90 ? » |
+| « Quels sont les codes moteur propriétaires Renault ? » | « La Clio IV en dCi 1.5 a-t-elle un problème de FAP ? » |
+
+### Problèmes courants
+
+| ✅ R7 valide | ❌ Dérive R8 |
+|---|---|
+| « Le catalogue pièces Peugeot peut manquer pour les modèles antérieurs à 1990 » | « Le 308 II a une fragilité sur la pompe à eau » |
+| « Les pièces Alfa Romeo sont plus rares que la moyenne européenne » | « Le 1.4 TBi Giulietta a une consommation d'huile anormale » |
+
+### Intervalles d'entretien
+
+| ✅ R7 valide | ❌ Dérive R8 |
+|---|---|
+| « BMW recommande le DOT 4 LV sur l'ensemble de sa gamme récente » | « BMW N47 : courroie de distribution à 120 000 km » |
+| « Peugeot applique un intervalle vidange allongé aux moteurs BlueHDi Euro 6 » | « 1.6 HDi DV6 : distribution à changer à 180 000 km avec galets » |
+
+### Que faire si tu trouves un signal R8 ?
+
+Le système n'a **pas encore** d'équivalent admin UI pour R8. Si tu lis une fiche Rappel Conso FR ou une donnée OEM spécifique à un modèle/moteur :
+
+1. **Ne pas la coller dans l'UI R7** — elle pollue le signal marque.
+2. La noter dans un backlog externe (ticket, note Obsidian) pour quand R8 aura sa table éditoriale.
+3. La gate surface-purity côté backend (PR #97) refusera une URL R8 dans un champ R7, mais une mention textuelle du modèle (« Boxer NG », « 1.6 HDi ») passe silencieusement — c'est à toi de l'éviter.
+
 ## Pré-requis
 
 | Item | Où | Notes |
@@ -55,12 +91,13 @@ Le backend applique `AuthenticatedGuard + IsAdminGuard`. Toute PUT anonyme → 4
 3. Remplir le champ **Réponse** (20–1000 caractères)
 4. Les char counters deviennent **rouges en gras** si la longueur sort des bornes Zod
 
-**Qualité** : les FAQ génériques ("À quoi sert un filtre à air ?") ne servent à rien, elles sont déjà couvertes par R3/R4. Viser du **marque-spécifique** :
+**Qualité** : les FAQ génériques ("À quoi sert un filtre à air ?") ne servent à rien, elles sont déjà couvertes par R3/R4. Viser du **marque-level mais pas modèle-level** (cf. règle R7 vs R8 plus haut) :
 
-- ✅ "Pourquoi la courroie de distribution Multiair Alfa Romeo doit-elle être changée à 120 000 km ?"
-- ✅ "Quel est l'intervalle de remplacement du liquide DSG sur VW Golf 7 ?"
-- ❌ "Qu'est-ce qu'une plaquette de frein ?" (R4 Référence)
-- ❌ "Comment changer un filtre à huile ?" (R3/conseils)
+- ✅ « Les pièces Peugeot sont-elles compatibles avec la gamme Citroën / DS (Stellantis) ? »
+- ✅ « Comment identifier une pièce d'origine Alfa Romeo vs équivalent aftermarket ? »
+- ❌ « Pourquoi la courroie Multiair Giulietta doit être changée à 120 000 km ? » (R8 — modèle + moteur)
+- ❌ « Qu'est-ce qu'une plaquette de frein ? » (R4 Référence)
+- ❌ « Comment changer un filtre à huile ? » (R3/conseils)
 
 ## Ajouter un problème courant
 
@@ -68,10 +105,12 @@ Le backend applique `AuthenticatedGuard + IsAdminGuard`. Toute PUT anonyme → 4
 2. **Symptôme** obligatoire (5–200 car)
 3. **Cause** et **Piste de résolution** optionnels (5–300 car chacun)
 
-**Qualité** : un problème utile mentionne un détail reconnaissable de la marque (motorisation, date modèle, technologie propriétaire).
+**Qualité** : un problème utile est **transversal à la marque** — disponibilité catalogue, politique constructeur, compatibilité inter-marques du groupe, etc. Pas un défaut modèle/motorisation.
 
-- ✅ "Consommation d'huile anormale 1.4 TBi Alfa Romeo 2010–2015"
-- ❌ "Bruit dans le moteur" (trop vague, pas marque-spécifique)
+- ✅ « Les pièces Alfa Romeo antérieures à 1987 sont difficiles à sourcer en neuf »
+- ✅ « Peugeot applique une politique de compatibilité croisée avec le groupe Stellantis depuis 2021 »
+- ❌ « Consommation d'huile anormale 1.4 TBi Giulietta 2010–2015 » (R8 — modèle + moteur + millésime)
+- ❌ « Bruit dans le moteur » (trop vague)
 
 ## Ajouter un intervalle d'entretien
 
@@ -80,10 +119,13 @@ Le backend applique `AuthenticatedGuard + IsAdminGuard`. Toute PUT anonyme → 4
 3. **Intervalle km** et/ou **Intervalle années** — au moins un des deux recommandé
 4. **Note** optionnelle (0–300 car) — bonne place pour préciser une tolérance ou exception
 
-**Qualité** : donner l'intervalle OEM documenté pour la marque, pas une moyenne générique.
+**Qualité** : donner une recommandation **transversale à la marque** (politique constructeur, préconisation fluide/huile/pièce valable sur toute la gamme récente). Si c'est propre à un moteur ou un modèle, c'est R8 — pas ici.
 
-- ✅ "Courroie de distribution Multiair — 120 000 km ou 5 ans — incluant galets tendeurs et pompe à eau"
-- ❌ "Courroie — à changer régulièrement" (non actionnable, non spécifique)
+- ✅ « Liquide de frein — Peugeot prescrit le DOT 4 LV sur l'ensemble de sa gamme depuis 2018 »
+- ✅ « Huile moteur — BMW valide uniquement les huiles Longlife LL-04 pour sa gamme diesel récente »
+- ❌ « Courroie Multiair — 120 000 km ou 5 ans » (R8 — motorisation précise)
+- ❌ « Distribution 1.6 HDi DV6 — 180 000 km » (R8)
+- ❌ « Courroie — à changer régulièrement » (trop vague)
 
 ## Enregistrer
 
@@ -215,11 +257,12 @@ LIMIT 10;
 
 ## Règles dérivées
 
-1. **Curer d'abord la valeur différenciante** — une FAQ générique n'ajoute rien. Viser du marque-spécifique ou ne rien ajouter.
-2. **Char counters font loi** — si un champ est rouge, le backend refusera. Corriger avant de perdre du temps à cliquer Enregistrer.
-3. **Pas d'URL profonde dans le texte** — le gate surface-purity refuse automatiquement (cf. [[r7-surface-purity-no-cross-surface-urls]]). Laisser le frontend gérer la navigation R8.
-4. **Score = signal, pas objectif** — un score à 88 avec contenu pertinent vaut mieux qu'un 92 gonflé artificiellement (le risque de boilerplate est mesuré).
-5. **Batch via `skipEnrich=true`** — pour import massif ; l'UI n'est pas conçue pour 100 marques d'affilée.
+1. **R7 reste marque-level** — si c'est vrai pour un modèle ou une motorisation mais pas pour la marque entière, c'est R8, pas ici. Test mental : « vrai pour toutes les {marque} ? »
+2. **Curer d'abord la valeur différenciante** — une FAQ générique n'ajoute rien. Viser du marque-transversal ou ne rien ajouter.
+3. **Char counters font loi** — si un champ est rouge, le backend refusera. Corriger avant de perdre du temps à cliquer Enregistrer.
+4. **Pas d'URL profonde dans le texte** — le gate surface-purity refuse automatiquement (cf. [[r7-surface-purity-no-cross-surface-urls]]). Laisser le frontend gérer la navigation R8.
+5. **Score = signal, pas objectif** — un score à 88 avec contenu pertinent vaut mieux qu'un 92 gonflé artificiellement (le risque de boilerplate est mesuré).
+6. **Batch via `skipEnrich=true`** — pour import massif ; l'UI n'est pas conçue pour 100 marques d'affilée.
 
 ## Références
 
