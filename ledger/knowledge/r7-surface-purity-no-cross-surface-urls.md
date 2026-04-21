@@ -113,6 +113,6 @@ if (block.renderedText.match(R8_URL_RE)) {
 
 - PR code : [nestjs-remix-monorepo #86](https://github.com/ak125/nestjs-remix-monorepo/pull/86) commit `60386066`
 - Incident de dérive : commit parent `7a09ca51` (annulé par `60386066`)
-- Matrice éditoriale : [[R1-router-merge-policy]] (vault, à créer pour R0-R8 complet)
+- Matrice éditoriale : R1-router-merge-policy (à créer pour R0-R8 complet)
 - Lié : [[r7-brand-editorial-live-sync]] (vault PR #15 — architecture R7)
-- Lié : [[r7-brand-route-refactoring]] (vault PR #14 — patterns frontend R7)
+- Lié : PR #14 (vault, patterns frontend R7)

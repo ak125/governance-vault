@@ -173,4 +173,4 @@ CREATE TABLE __seo_brand_editorial (
 - Schéma : [`backend/src/config/brand-rag-frontmatter.schema.ts`](https://github.com/ak125/nestjs-remix-monorepo/blob/feat/r7-brand-editorial-live-sync/backend/src/config/brand-rag-frontmatter.schema.ts)
 - Table migration : `backend/supabase/migrations/20260420_seo_brand_editorial_table.sql`
 - Build script : `scripts/rag/build-brand-rag.py`
-- Liée : [[r7-brand-route-refactoring]] (PR #14 vault — patterns frontend du même refactor)
+- Liée : PR #14 (vault, patterns frontend du même refactor)
