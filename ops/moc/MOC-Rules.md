@@ -21,6 +21,7 @@ Index des regles canoniques du projet AutoMecanik, organisees par taxonomie uniq
 | **V** | V-Level SEO | [[rules-seo-vlevel]] | Classification keywords SEO |
 | **R-SEO** | SEO PageRole | [[rules-seo-pagerole]] | Validation PageRole CI |
 | **AP** | Anti-Patterns | [[rules-ai-antipatterns]] | Anti-patterns IA a eviter |
+| **D** | Deployment | [[rules-deployment-workflow]] | Triggers DEV/PROD (push main vs tag v*) |
 
 ---
 
@@ -32,6 +33,10 @@ Index des regles canoniques du projet AutoMecanik, organisees par taxonomie uniq
 
 - [[rules-vault]] - **G1-G4** : Canon Fait Foi, Zero Orphelin, Commits Signes, CI Read-Only
 - [[rules-governance-process]] - **G5-G8** : Canon-Only Policy, Proof Requirements, RAG Corpus Alignment, Obsolete Handling
+
+## Regles Deployment (D)
+
+- [[rules-deployment-workflow]] - **D1-D6** : push main = DEV preprod, tag v* = PROD, workflow nominal, rollback
 
 ## Regles AI-COS (AI)
 
