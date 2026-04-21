@@ -25,6 +25,7 @@ Journal chronologique des **evenements de gouvernance** : audits ponctuels, retr
 | 2026-04-17 | [[2026-04-17-governance-vault-v2-refactor]] | Retrospective (v2 refactor, 6 phases) |
 | 2026-04-18 | [[2026-04-18-phase7-residuels-and-option-b]] | Retrospective (Phase 7 cloture — residuels + Option B + EP meta-vault) |
 | 2026-04-21 | [[2026-04-21-session-r7-brand-complete]] | Retrospective (R7 brand live-sync + Wikidata + admin UI + 11 PRs) |
+| 2026-04-21 | [[2026-04-21-pipeline-content-hardening]] | Evidence-pack (pipeline R1/R3/R4/R6 hardening, Zod SSOT parser) |
 
 ---
 
