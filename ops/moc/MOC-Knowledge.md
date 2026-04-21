@@ -34,6 +34,7 @@ Base de connaissances architecturale.
 
 - [[seo-hub-refactoring]] - Refactoring SEO Hub
 - [[strategie-filtre-huile]] - Stratégie filtre huile
+- [[r7-brand-route-refactoring]] - Patterns frontend refactor route R7 constructeur
 - [[08-seo-charter]] - PageRole taxonomy et anti-confusion rules
 - [[r7-brand-editorial-live-sync]] - R7 brand live editorial sync (Wikidata + DB)
 - [[r7-surface-purity-no-cross-surface-urls]] - R7 pureté surface, pas d'URLs cross-surface
