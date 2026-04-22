@@ -44,6 +44,7 @@ Base de connaissances architecturale.
 - [[runbook-build-brand-rag]] - Runbook ops build-brand-rag.py (Wikidata + DB + Wikipedia REST)
 - [[runbook-download-brand-oem-corpus]] - Runbook ops download-brand-oem-corpus.py (corpus brut multi-source par marque)
 - [[runbook-admin-brand-editorial]] - Runbook admin UI curation éditorial R7 (FAQ/issues/maintenance)
+- [[runbook-curate-r7-batch]] - Runbook ops curate-r7-batch.py (orchestration drafts → API admin)
 
 ## Gouvernance (Historique v1)
 
