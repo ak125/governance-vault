@@ -20,6 +20,7 @@ Index des regles canoniques du projet AutoMecanik, organisees par taxonomie uniq
 | **AI** | AI-COS | [[rules-ai-cos]] | Agents IA (golden rules) |
 | **V** | V-Level SEO | [[rules-seo-vlevel]] | Classification keywords SEO |
 | **R-SEO** | SEO PageRole | [[rules-seo-pagerole]] | Validation PageRole CI |
+| **R-SEO-KW** | SEO KW import | [[rules-seo-kw-import]] | Import Google Ads KP & alias enrichment |
 | **AP** | Anti-Patterns | [[rules-ai-antipatterns]] | Anti-patterns IA a eviter |
 | **D** | Deployment | [[rules-deployment-workflow]] | Triggers DEV/PROD (push main vs tag v*) |
 
@@ -46,6 +47,7 @@ Index des regles canoniques du projet AutoMecanik, organisees par taxonomie uniq
 
 - [[rules-seo-vlevel]] - **V1-V6** : Classification keywords (V1 super-champion, V2 TOP 20, V3 champion local, V4 variant, V5 volume=0, V6 bloc B)
 - [[rules-seo-pagerole]] - **R-SEO-01 a R-SEO-08** : Validation PageRole pour CI
+- [[rules-seo-kw-import]] - **R-SEO-KW-01 a 05** : Import Google Ads KP (review rejets >5% vol, arbre decision morphologie/alias/hors-scope, batch YAML par session, patches script PR dediee, --suggest-aliases obligatoire)
 
 ## Anti-patterns (AP)
 
