@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-04-20
+updated: 2026-04-22
 ---
 
 # MOC: Incidents
@@ -17,6 +17,7 @@ Index des incidents et post-mortems. Cette MOC est la porte d'entree pour tout e
 
 | ID | Date | Severite | Titre | Status |
 |----|------|----------|-------|--------|
+| [[2026-04-22-redis-public-exposure-bsi\|INC-2026-008]] | 2026-04-22 | Medium | Redis DEV public exposure (BSI CB-Report#20260422-10008190) | Resolved |
 | [[2026-04-21-503-vehicle-pages-rpc-allowlist-stale-image\|INC-2026-006]] | 2026-04-21 | High | 503 /constructeurs/* — allowlist RPC manquante + image preprod obsolete | Closed (structural fix) |
 | [[2026-04-21-false-prod-claim-on-main-merge\|INC-2026-007]] | 2026-04-21 | Low | False prod claim after main merge (doc ambiguity) | Resolved |
 | INC-2026-004 | 2026-04-20 | High | `___xtr_msg` firehose cascade — timeouts Supabase REST | Resolved |
@@ -40,7 +41,7 @@ Index des incidents et post-mortems. Cette MOC est la porte d'entree pour tout e
 
 ### Medium
 
-- (aucun)
+- [[2026-04-22-redis-public-exposure-bsi]] — Redis DEV sur `46.224.118.55:6379` exposé publiquement sans auth, signalé par BSI (CERT-Bund). Remédiation 2 couches (Hetzner Cloud Firewall + alignement compose files). Zero compromission détectée.
 
 ### Low
 
@@ -52,6 +53,7 @@ Index des incidents et post-mortems. Cette MOC est la porte d'entree pour tout e
 
 ### 2026
 
+- [[2026-04-22-redis-public-exposure-bsi]] — Redis DEV exposé publiquement (BSI), firewall Hetzner + alignement compose files (PR monorepo #102)
 - [[2026-04-20_high_xtr-msg-firehose-cascade]] — Error log firehose → boucle positive PostgREST → timeouts 15s (fix: RPC + buffer + table dediee)
 - [[2026-04-14-paybox-tunnel-sev1-ipn-blocked]] — Paybox tunnel IPN blocked 25 jours (Cloudflare WAF + gate errorCode + RPC type error)
 - [[2026-02-03-paybox-orderid-format]] — Format orderId callback Paybox mismatch DB
@@ -187,4 +189,4 @@ Voir [[_templates/incident-template|_templates/incident-template.md]]
 
 ---
 
-_Derniere mise a jour: 2026-04-20_
+_Derniere mise a jour: 2026-04-22_
