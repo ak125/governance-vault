@@ -15,7 +15,7 @@ Session de sécurisation systématique de la DB Supabase
 `cxpojprgwgubzjyqzmoq` (massdoc). 12 PR mergées + applied en prod sur
 2 jours (2026-04-22 et 2026-04-23). **204 objets DB hardenizés**.
 Découverte critique en cours d'audit : leak de hashes mot de passe admin
-via anon key (cf. [[INC-2026-009-admin-password-hashes-anon-leak]]).
+via anon key (cf. [[2026-04-23-admin-password-hashes-anon-leak|INC-2026-009]]).
 
 ## Contexte initial
 
@@ -119,7 +119,7 @@ n'a pas USAGE sur `tecdoc_map`/`tecdoc_raw`). REVOKE seul ferme l'exposition.
 |---|---|---|
 | [#120](https://github.com/ak125/nestjs-remix-monorepo/pull/120) | 4 critical leak policies (`___config_admin`, `ic_postback`, `___config`, `___config_ip`) | ✅ Apply 2026-04-23 (apply IMMÉDIAT avant PR) |
 
-Détails : voir [[INC-2026-009-admin-password-hashes-anon-leak]].
+Détails : voir [[2026-04-23-admin-password-hashes-anon-leak|INC-2026-009]].
 
 ### Vague 4b deferred — Catalog/blog/SEO zero-trust
 
@@ -206,5 +206,5 @@ Tables : tout le catalogue auto (`auto_*`, `pieces_*`, `___xtr_*`,
 ## Liens governance
 
 - Décision architecturale : [[ADR-021-database-rls-hardening-zero-trust]]
-- Incident critique : [[INC-2026-009-admin-password-hashes-anon-leak]]
+- Incident critique : [[2026-04-23-admin-password-hashes-anon-leak|INC-2026-009]]
 - Vault canon : [[ADR-015-vault-single-source-of-truth]]

@@ -37,7 +37,7 @@ L'audit Supabase advisor remontait :
 - `policy_exists_rls_disabled` : 1 ERROR
 
 L'incident le plus grave découvert pendant l'audit :
-[[INC-2026-009-admin-password-hashes-anon-leak]] — la table `___config_admin`
+[[2026-04-23-admin-password-hashes-anon-leak|INC-2026-009]] — la table `___config_admin`
 exposait les hashes de mots de passe admin à toute personne possédant la clé
 publique `SUPABASE_ANON_KEY`.
 
