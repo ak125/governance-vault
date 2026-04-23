@@ -388,7 +388,7 @@ Conditions pour lancer l'execution :
 - [[ADR-015-vault-single-source-of-truth]] — vault canon
 - [[ADR-020-weekly-vault-lint]] — pattern lint prod
 - [[ADR-021-database-rls-hardening-zero-trust]] — pattern RLS zero-trust à répliquer sur `__rag_proposals`
-- [[rules-governance]] — G1-G4
+- [[rules-governance-process]] — G1-G4
 - Monorepo PR #139 — Phase A blog list variation (livrée)
 - Brainstorming session transcript : Claude Code 2026-04-23, modèle Opus 4.7 1M
 
