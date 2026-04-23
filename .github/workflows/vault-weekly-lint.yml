@@ -50,37 +50,114 @@ jobs:
             report.md
           retention-days: 90
 
-      - name: Compare vs previous run (new findings only)
+      - name: Download previous artifact (for diff)
+        id: prev
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CURRENT_RUN_ID: ${{ github.run_id }}
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          mkdir -p previous-artifact
+          # Query all artifacts of this repo, filter weekly-lint-* from OTHER runs (not current),
+          # pick the most recent non-expired one.
+          payload=$(gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${{ github.repository }}/actions/artifacts?per_page=100")
+          artifact_id=$(echo "$payload" | python3 -c "
+          import json, sys, os
+          current = int(os.environ['CURRENT_RUN_ID'])
+          data = json.load(sys.stdin)
+          matches = [
+              a for a in data.get('artifacts', [])
+              if a.get('name', '').startswith('weekly-lint-')
+              and not a.get('expired', False)
+              and a.get('workflow_run', {}).get('id') != current
+          ]
+          matches.sort(key=lambda a: a.get('created_at', ''), reverse=True)
+          if matches:
+              print(matches[0]['id'])
+          ")
+          if [[ -z "$artifact_id" ]]; then
+            echo "No previous artifact found (first run or all expired)."
+            exit 0
+          fi
+          echo "Downloading previous artifact id=$artifact_id..."
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${{ github.repository }}/actions/artifacts/${artifact_id}/zip" \
+            > previous-artifact/artifact.zip
+          cd previous-artifact
+          unzip -q artifact.zip
+          rm artifact.zip
+          ls -la
+
+      - name: Diff current vs previous findings
         id: diff
         if: steps.lint.outputs.has_findings == 'true'
         run: |
           python3 - <<'PY'
-          import json, os, hashlib
-          data = json.load(open("findings.json"))
-          current = set()
-          for m in data.get("modern_checks", []):
-              for f in m.get("findings", []):
-                  key = f"{m.get('check')}|{f.get('file')}|{f.get('rule')}|{f.get('message')}"
-                  current.add(hashlib.sha256(key.encode()).hexdigest()[:16])
-          for l in data.get("legacy_checks", []):
-              if l.get("status") == "fail":
-                  key = f"{l.get('check')}|legacy-fail|{l.get('exit_code')}"
-                  current.add(hashlib.sha256(key.encode()).hexdigest()[:16])
-          new_count = len(current)
+          import json, os, pathlib, hashlib
+
+          def hashes(data):
+              out = set()
+              for m in data.get("modern_checks", []):
+                  for f in m.get("findings", []):
+                      key = f"{m.get('check')}|{f.get('file')}|{f.get('rule')}|{f.get('message')}"
+                      out.add(hashlib.sha256(key.encode()).hexdigest()[:16])
+              for l in data.get("legacy_checks", []):
+                  if l.get("status") == "fail":
+                      key = f"{l.get('check')}|legacy-fail|{l.get('exit_code')}"
+                      out.add(hashlib.sha256(key.encode()).hexdigest()[:16])
+              return out
+
+          current = hashes(json.load(open("findings.json")))
+
+          previous = set()
+          prev_root = pathlib.Path("previous-artifact")
+          prev_file = None
+          if prev_root.exists():
+              candidates = sorted(prev_root.rglob("findings.json"))
+              if candidates:
+                  prev_file = candidates[0]
+                  try:
+                      previous = hashes(json.load(open(prev_file)))
+                  except Exception as e:
+                      print(f"WARN: could not parse previous findings: {e}")
+
+          new = current - previous
+          resolved = previous - current
+          has_new = len(new) > 0
+          first_run = not previous  # no previous artifact found at all
+
           with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
-              fh.write(f"finding_hashes={','.join(sorted(current))}\n")
-              fh.write(f"new_count={new_count}\n")
+              fh.write(f"has_new={'true' if has_new else 'false'}\n")
+              fh.write(f"new_count={len(new)}\n")
+              fh.write(f"resolved_count={len(resolved)}\n")
+              fh.write(f"current_count={len(current)}\n")
+              fh.write(f"previous_count={len(previous)}\n")
+              fh.write(f"first_run={'true' if first_run else 'false'}\n")
+
+          print(f"Current:  {len(current)} findings")
+          print(f"Previous: {len(previous)} findings ({'from ' + str(prev_file) if prev_file else 'no previous artifact'})")
+          print(f"New:      {len(new)}")
+          print(f"Resolved: {len(resolved)}")
           PY
 
-      - name: Open issue if findings present
-        if: steps.lint.outputs.has_findings == 'true'
+      - name: Open issue if NEW findings (or first run)
+        if: steps.diff.outputs.has_new == 'true' || steps.diff.outputs.first_run == 'true'
         uses: peter-evans/create-issue-from-file@v5
         with:
-          title: "[weekly-lint ${{ github.run_id }}] ${{ steps.lint.outputs.summary }}"
+          title: "[weekly-lint ${{ github.run_id }}] ${{ steps.lint.outputs.summary }} (+${{ steps.diff.outputs.new_count }} new, -${{ steps.diff.outputs.resolved_count }} resolved)"
           content-filepath: report.md
           labels: |
             governance
             weekly-lint
+
+      - name: Skip note (findings unchanged)
+        if: steps.lint.outputs.has_findings == 'true' && steps.diff.outputs.has_new != 'true' && steps.diff.outputs.first_run != 'true'
+        run: |
+          echo "No NEW findings since last successful run — skipping issue creation."
+          echo "Current findings: ${{ steps.diff.outputs.current_count }} (unchanged vs previous ${{ steps.diff.outputs.previous_count }})."
+          echo "Artifact uploaded for record; see weekly-lint-${{ github.run_id }}."
 
       - name: Summary
         if: always()
