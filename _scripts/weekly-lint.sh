@@ -19,6 +19,16 @@
 #
 # Usage :
 #   _scripts/weekly-lint.sh --output findings.json --markdown report.md [--monorepo PATH]
+#
+# ADR-022 scope note (2026-04-23) :
+#   Les schemas `_scripts/schemas/vehicle-{model,variations,role-map}.schema.json`
+#   s'appliquent aux fichiers du monorepo `rag/knowledge/vehicles/**` et NON au vault.
+#   Leur enforcement est délégué au workflow monorepo `.github/workflows/rag-vehicle-lint.yml`
+#   (CI sur chaque PR modifiant ces fichiers), PAS à weekly-vault-lint — évite la
+#   duplication de gate.
+#   Si un fichier vehicle-* apparait accidentellement dans le vault, check-orphans
+#   le flagguera (G2) et check-frontmatter-schema.py ne le classifiera pas
+#   (classify() ne match aucun pattern vehicle → skip silencieux, non-bloquant).
 
 set -euo pipefail
 
