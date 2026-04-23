@@ -31,6 +31,7 @@ Journal chronologique des **evenements de gouvernance** : audits ponctuels, retr
 | 2026-04-22 | [[2026-04-22-alias-expansions-batch-preventif]] | Evidence-pack (SEO alias dictionary + apostrophe normalization fix) |
 | 2026-04-23 | [[2026-04-23-alias-dict-roman-arabic-normalization]] | Evidence-pack (alias dict wiring + roman/arabic modele matching for V-Level) |
 | 2026-04-23 | [[2026-04-23-seo-kp-alias-maitre-cylindre-frein]] | Evidence-pack (alias canonicalization `maitre-cylindre-de-frein`) |
+| 2026-04-23 | [[2026-04-23-seo-kw-pipeline-cable-frein-main]] | Evidence-pack (pipeline SEO KW bout-en-bout `cable-de-frein-a-main` gamme 15/232 + V-Level SQL port) |
 | 2026-04-23 | [[2026-04-23-seo-kw-pipeline-maitre-cylindre]] | Evidence-pack (pipeline SEO KW `maitre-cylindre-de-frein` gamme 16/232 + découverte bug regex TS script) |
 
 ---
