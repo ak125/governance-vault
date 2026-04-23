@@ -37,6 +37,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-019 | AI Content Advisor Escalation (Pattern A) | Proposed | 2026-04-21 | [[ADR-019-ai-content-advisor-escalation]] |
 | ADR-020 | Weekly Governance Vault Lint | Accepted | 2026-04-23 | [[ADR-020-weekly-vault-lint]] |
 | ADR-021 | Database RLS Hardening — Zero-Trust per-Table | Accepted | 2026-04-23 | [[ADR-021-database-rls-hardening-zero-trust]] |
+| ADR-022 | R8 RAG Control Plane — Propose-Before-Write + 5-Layer Gates | Proposed | 2026-04-23 | [[ADR-022-r8-rag-control-plane]] |
 
 ---
 
@@ -69,6 +70,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 ### SEO
 
 - [[ADR-006-ai-orchestrator-architecture]] - Inclut SEO Charter et PageRole validation
+- [[ADR-022-r8-rag-control-plane]] - R8 RAG Control Plane (propose-before-write, 5-layer gates, rotation déterministe)
 
 ### Gouvernance
 
