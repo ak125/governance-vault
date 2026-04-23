@@ -30,6 +30,8 @@ Journal chronologique des **evenements de gouvernance** : audits ponctuels, retr
 | 2026-04-22 | [[2026-04-22-session-r7-full-curation]] | Retrospective (R7 P1 complète : 36/36 marques curées, score avg +5.03, fix S3_SHORTCUTS 410) |
 | 2026-04-22 | [[2026-04-22-alias-expansions-batch-preventif]] | Evidence-pack (SEO alias dictionary + apostrophe normalization fix) |
 | 2026-04-23 | [[2026-04-23-alias-dict-roman-arabic-normalization]] | Evidence-pack (alias dict wiring + roman/arabic modele matching for V-Level) |
+| 2026-04-23 | [[2026-04-23-seo-kp-alias-maitre-cylindre-frein]] | Evidence-pack (alias canonicalization `maitre-cylindre-de-frein`) |
+| 2026-04-23 | [[2026-04-23-seo-kw-pipeline-maitre-cylindre]] | Evidence-pack (pipeline SEO KW `maitre-cylindre-de-frein` gamme 16/232 + découverte bug regex TS script) |
 
 ---
 
