@@ -17,7 +17,7 @@ Index des incidents et post-mortems. Cette MOC est la porte d'entree pour tout e
 
 | ID | Date | Severite | Titre | Status |
 |----|------|----------|-------|--------|
-| [[2026-04-23-admin-password-hashes-anon-leak\|INC-2026-009]] | 2026-04-23 | Critical | Admin password hashes exposed via PostgREST anon key (___config_admin) | Resolved |
+| [[2026-04-23-admin-password-hashes-anon-leak\|INC-2026-011]] | 2026-04-23 | Critical | Admin password hashes exposed via PostgREST anon key (___config_admin) | Resolved |
 | [[2026-04-22-redis-public-exposure-bsi\|INC-2026-008]] | 2026-04-22 | Medium | Redis DEV public exposure (BSI CB-Report#20260422-10008190) | Resolved |
 | [[2026-04-21-503-vehicle-pages-rpc-allowlist-stale-image\|INC-2026-006]] | 2026-04-21 | High | 503 /constructeurs/* — allowlist RPC manquante + image preprod obsolete | Closed (structural fix) |
 | [[2026-04-21-false-prod-claim-on-main-merge\|INC-2026-007]] | 2026-04-21 | Low | False prod claim after main merge (doc ambiguity) | Resolved |

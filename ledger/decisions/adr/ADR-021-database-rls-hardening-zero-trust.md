@@ -7,7 +7,7 @@ decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
 related_rules: []
-related_incidents: ["INC-2026-009"]
+related_incidents: ["INC-2026-011"]
 reviewed_by: ""
 ---
 
@@ -37,7 +37,7 @@ L'audit Supabase advisor remontait :
 - `policy_exists_rls_disabled` : 1 ERROR
 
 L'incident le plus grave découvert pendant l'audit :
-[[2026-04-23-admin-password-hashes-anon-leak|INC-2026-009]] — la table `___config_admin`
+[[2026-04-23-admin-password-hashes-anon-leak|INC-2026-011]] — la table `___config_admin`
 exposait les hashes de mots de passe admin à toute personne possédant la clé
 publique `SUPABASE_ANON_KEY`.
 
@@ -90,7 +90,7 @@ audit annuel.
 - **0 advisor flag actif** sur le scope traité
 - **204 objets DB hardenizés** (55 tables RLS + 47 vues + 102 policies)
 - Pattern reproductible : toute nouvelle table → service_role policy par défaut
-- Découverte critique : INC-2026-009 fixée en urgence
+- Découverte critique : INC-2026-011 fixée en urgence
 
 ### Négatives
 
@@ -116,7 +116,7 @@ audit annuel.
 | 2e | #109 | 22 policies (RLS no-policy + always-true) | ✅ Apply |
 | 3a-3f | #111-#118 | 47 vues (DEFINER → INVOKER) | ✅ Apply |
 | 4a | #119 | 25 policies KG/internal unsafe | ✅ Apply |
-| 4b-critical | #120 | 4 policies (admin pswd + payment leak) | ✅ Apply (INC-2026-009) |
+| 4b-critical | #120 | 4 policies (admin pswd + payment leak) | ✅ Apply (INC-2026-011) |
 | 4b-deferred | #121 | 73 policies + 59 created (catalog/blog/SEO zero-trust) | ✅ Apply |
 
 ## Pattern technique canonique
@@ -171,6 +171,6 @@ DROP POLICY IF EXISTS "<old_policy_name>" ON public.<table>; -- APPROVED: <raiso
 
 ## Liens
 
-- Incident critique : [[2026-04-23-admin-password-hashes-anon-leak|INC-2026-009]]
+- Incident critique : [[2026-04-23-admin-password-hashes-anon-leak|INC-2026-011]]
 - Audit-trail consolidé : [[2026-04-23-db-security-hardening-vagues-1-4]]
 - ADR de référence pour gouvernance vault : [[ADR-015-vault-single-source-of-truth]]

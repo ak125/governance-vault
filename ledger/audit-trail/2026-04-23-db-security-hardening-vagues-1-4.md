@@ -3,7 +3,7 @@ type: audit-trail
 date: 2026-04-23
 session: db-security-hardening-vagues-1-4
 related_adr: ["ADR-021"]
-related_incidents: ["INC-2026-009"]
+related_incidents: ["INC-2026-011"]
 status: closed
 ---
 
@@ -15,7 +15,7 @@ Session de sécurisation systématique de la DB Supabase
 `cxpojprgwgubzjyqzmoq` (massdoc). 12 PR mergées + applied en prod sur
 2 jours (2026-04-22 et 2026-04-23). **204 objets DB hardenizés**.
 Découverte critique en cours d'audit : leak de hashes mot de passe admin
-via anon key (cf. [[2026-04-23-admin-password-hashes-anon-leak|INC-2026-009]]).
+via anon key (cf. [[2026-04-23-admin-password-hashes-anon-leak|INC-2026-011]]).
 
 ## Contexte initial
 
@@ -119,7 +119,7 @@ n'a pas USAGE sur `tecdoc_map`/`tecdoc_raw`). REVOKE seul ferme l'exposition.
 |---|---|---|
 | [#120](https://github.com/ak125/nestjs-remix-monorepo/pull/120) | 4 critical leak policies (`___config_admin`, `ic_postback`, `___config`, `___config_ip`) | ✅ Apply 2026-04-23 (apply IMMÉDIAT avant PR) |
 
-Détails : voir [[2026-04-23-admin-password-hashes-anon-leak|INC-2026-009]].
+Détails : voir [[2026-04-23-admin-password-hashes-anon-leak|INC-2026-011]].
 
 ### Vague 4b deferred — Catalog/blog/SEO zero-trust
 
@@ -163,7 +163,7 @@ Tables : tout le catalogue auto (`auto_*`, `pieces_*`, `___xtr_*`,
    aurait raté la fuite critical.
 
 2. **`naming convention != content sensitivity`** : voir lesson principale
-   de INC-2026-009.
+   de INC-2026-011.
 
 3. **Apply prod inversion ordre PR autorisé pour vraies emergencies**.
    Documenté dans le commit + audit-trail. La feedback memory
@@ -206,5 +206,5 @@ Tables : tout le catalogue auto (`auto_*`, `pieces_*`, `___xtr_*`,
 ## Liens governance
 
 - Décision architecturale : [[ADR-021-database-rls-hardening-zero-trust]]
-- Incident critique : [[2026-04-23-admin-password-hashes-anon-leak|INC-2026-009]]
+- Incident critique : [[2026-04-23-admin-password-hashes-anon-leak|INC-2026-011]]
 - Vault canon : [[ADR-015-vault-single-source-of-truth]]

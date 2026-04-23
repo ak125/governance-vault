@@ -1,5 +1,5 @@
 ---
-id: INC-2026-009
+id: INC-2026-011
 date: 2026-04-23
 severity: critical
 status: resolved
