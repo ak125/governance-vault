@@ -1,12 +1,13 @@
 ---
 id: ADR-005
 title: Airlock Observe Mode Activation
-status: accepted-revised
+status: superseded
 version: 1.1.0
 date: 2026-02-03
 date_revision: 2026-03-07
 decision_makers: [Architecture Team]
 supersedes: null
+superseded_by: [ADR-010]
 related_to: [ADR-002, ADR-003, ADR-009, ADR-011]
 ---
 

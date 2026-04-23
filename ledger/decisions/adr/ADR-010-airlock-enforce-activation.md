@@ -7,7 +7,8 @@ decision_makers:
   - Architecture Team
   - Security Team
 version: 1.0.0
-supersedes: ADR-005 (observe mode)
+supersedes: [ADR-005]
+supersedes_notes: "Observe mode"
 ---
 
 # ADR-010: Airlock Enforce Mode Activation
