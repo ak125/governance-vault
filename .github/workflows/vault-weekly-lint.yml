@@ -1,0 +1,94 @@
+name: Vault Weekly Lint
+
+on:
+  schedule:
+    - cron: "0 2 * * 1" # Monday 02:00 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  weekly-lint:
+    name: "Weekly Governance Lint"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Python deps
+        run: pip install --quiet pyyaml
+
+      - name: Run weekly lint
+        id: lint
+        run: |
+          chmod +x _scripts/weekly-lint.sh
+          # --monorepo skipped: CI has no access to /opt/automecanik/app
+          _scripts/weekly-lint.sh --output findings.json --markdown report.md
+          python3 - <<'PY'
+          import json, os
+          data = json.load(open("findings.json"))
+          t = data.get("totals", {})
+          summary = f"{t.get('error', 0)} error(s), {t.get('warning', 0)} warning(s), {t.get('legacy_failures', 0)} legacy fail(s)"
+          has_findings = (t.get('error', 0) > 0 or t.get('warning', 0) > 0 or t.get('legacy_failures', 0) > 0)
+          with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
+              fh.write(f"summary={summary}\n")
+              fh.write(f"has_findings={'true' if has_findings else 'false'}\n")
+          PY
+
+      - name: Upload weekly-lint artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: weekly-lint-${{ github.run_id }}
+          path: |
+            findings.json
+            report.md
+          retention-days: 90
+
+      - name: Compare vs previous run (new findings only)
+        id: diff
+        if: steps.lint.outputs.has_findings == 'true'
+        run: |
+          python3 - <<'PY'
+          import json, os, hashlib
+          data = json.load(open("findings.json"))
+          current = set()
+          for m in data.get("modern_checks", []):
+              for f in m.get("findings", []):
+                  key = f"{m.get('check')}|{f.get('file')}|{f.get('rule')}|{f.get('message')}"
+                  current.add(hashlib.sha256(key.encode()).hexdigest()[:16])
+          for l in data.get("legacy_checks", []):
+              if l.get("status") == "fail":
+                  key = f"{l.get('check')}|legacy-fail|{l.get('exit_code')}"
+                  current.add(hashlib.sha256(key.encode()).hexdigest()[:16])
+          new_count = len(current)
+          with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
+              fh.write(f"finding_hashes={','.join(sorted(current))}\n")
+              fh.write(f"new_count={new_count}\n")
+          PY
+
+      - name: Open issue if findings present
+        if: steps.lint.outputs.has_findings == 'true'
+        uses: peter-evans/create-issue-from-file@v5
+        with:
+          title: "[weekly-lint ${{ github.run_id }}] ${{ steps.lint.outputs.summary }}"
+          content-filepath: report.md
+          labels: |
+            governance
+            weekly-lint
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Weekly Lint Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.lint.outputs.summary }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [[ -f report.md ]]; then
+            cat report.md >> $GITHUB_STEP_SUMMARY
+          fi
