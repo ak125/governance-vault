@@ -36,6 +36,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-015 | Governance Vault — Single Source of Truth | Accepted | 2026-04-18 | [[ADR-015-vault-single-source-of-truth]] |
 | ADR-019 | AI Content Advisor Escalation (Pattern A) | Proposed | 2026-04-21 | [[ADR-019-ai-content-advisor-escalation]] |
 | ADR-020 | Weekly Governance Vault Lint | Accepted | 2026-04-23 | [[ADR-020-weekly-vault-lint]] |
+| ADR-021 | Database RLS Hardening — Zero-Trust per-Table | Accepted | 2026-04-23 | [[ADR-021-database-rls-hardening-zero-trust]] |
 
 ---
 
@@ -56,6 +57,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 - [[ADR-008-agent-placement-rules]] - 3 Zones → 4 zones avec [[ADR-012-aicos-vps-architecture]]
 - [[ADR-010-airlock-enforce-activation]] - Airlock Enforce Mode & CI Authority
 - [[ADR-014-remove-paybox-callback-test]] - Suppression endpoint vulnérable (T5)
+- [[ADR-021-database-rls-hardening-zero-trust]] - Zero-trust per-table policies (RLS + INVOKER views)
 
 ### Agents
 
