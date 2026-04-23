@@ -17,7 +17,7 @@ Index des incidents et post-mortems. Cette MOC est la porte d'entree pour tout e
 
 | ID | Date | Severite | Titre | Status |
 |----|------|----------|-------|--------|
-| [[2026-04-23-admin-password-hashes-anon-leak\|INC-2026-011]] | 2026-04-23 | Critical | Admin password hashes exposed via PostgREST anon key (___config_admin) | Resolved |
+| [[2026-04-23-ci-cwv-backend-boot-crash\|INC-2026-009]] | 2026-04-23 | Medium | CI CWV Performance Gate — crash silencieux backend Nest au fresh boot | Investigating |
 | [[2026-04-22-redis-public-exposure-bsi\|INC-2026-008]] | 2026-04-22 | Medium | Redis DEV public exposure (BSI CB-Report#20260422-10008190) | Resolved |
 | [[2026-04-21-503-vehicle-pages-rpc-allowlist-stale-image\|INC-2026-006]] | 2026-04-21 | High | 503 /constructeurs/* — allowlist RPC manquante + image preprod obsolete | Closed (structural fix) |
 | [[2026-04-21-false-prod-claim-on-main-merge\|INC-2026-007]] | 2026-04-21 | Low | False prod claim after main merge (doc ambiguity) | Resolved |
@@ -32,7 +32,6 @@ Index des incidents et post-mortems. Cette MOC est la porte d'entree pour tout e
 
 ### Critical
 
-- [[2026-04-23-admin-password-hashes-anon-leak]] — Hashes mot de passe admin (`___config_admin.cnfa_pswd`) lisibles par anon key via PostgREST + 5914 historiques paiement (`ic_postback`) exposés. Découvert pendant audit Vague 4b (cf. [[ADR-021-database-rls-hardening-zero-trust]]), fixé en urgence (PR monorepo #120). Aucune trace d'exploitation.
 - [[2026-04-14-paybox-tunnel-sev1-ipn-blocked]] — 3 bugs cumules Paybox, 25j de commandes non-confirmees (559 EUR GMV non-recuperes)
 - [[2026-02-03-paybox-orderid-format]] — Bug silencieux format orderId callback Paybox (durée inconnue)
 - [[2026-01-11_critical_rm-module-crash]] — Crash production module rm/ (~15min downtime)
@@ -43,6 +42,7 @@ Index des incidents et post-mortems. Cette MOC est la porte d'entree pour tout e
 
 ### Medium
 
+- [[2026-04-23-ci-cwv-backend-boot-crash]] — CI `🔍 CWV Performance Check` échoue systématiquement : `npm start` backend crash exit 1 après `DiagnosticEngineModule`, sans stack. Prod/DEV opérationnels. Bloque PR frontend qui déclenchent Performance Gates.
 - [[2026-04-22-redis-public-exposure-bsi]] — Redis DEV sur `46.224.118.55:6379` exposé publiquement sans auth, signalé par BSI (CERT-Bund). Remédiation 2 couches (Hetzner Cloud Firewall + alignement compose files). Zero compromission détectée.
 
 ### Low
