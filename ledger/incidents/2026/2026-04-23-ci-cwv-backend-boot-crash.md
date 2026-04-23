@@ -4,15 +4,15 @@ type: incident
 title: "CI CWV Performance Gate bloqué : crash silencieux du backend Nest au fresh boot"
 date: 2026-04-23
 date_detected: 2026-04-22
-date_resolved: ""
+date_resolved: 2026-04-23
 severity: medium
-status: investigating
+status: resolved
 impact_duration: ""
 affected_systems:
   - ci
   - backend
   - performance-gates-workflow
-root_cause: "À investiguer — crash silencieux (exit code 1) du process Nest après DiagnosticEngineModule init, avant app.listen(). Prod et DEV VPS tournent normalement, crash CI-only."
+root_cause: "APP_URL manquant dans env vars du step \"Start server\" de .github/workflows/perf-gates.yml. Le backend crashait avec ConfigurationException (payment.config.ts:48-62) au boot en CI. bufferLogs:true masquait partiellement la stack. Fix mergé via monorepo PR #123."
 related_rules: []
 related_adrs: []
 owner: "@automecanik.seo"
@@ -22,7 +22,7 @@ tags:
   - post-mortem
   - ci-cwv
   - backend-boot
-  - investigating
+  - resolved
 ---
 
 # INC-2026-009: CI CWV Performance Gate bloqué — crash silencieux du backend Nest au fresh boot
@@ -91,7 +91,31 @@ Commits récents `c91d804e paybox callback gate secure-by-default strict mode`. 
 
 ## Root Cause
 
-À déterminer.
+**APP_URL env var manquant dans le step "Start server" du workflow `.github/workflows/perf-gates.yml`**.
+
+Le fichier `backend/src/config/payment.config.ts:48-62` valide 4 env vars obligatoires pour l'initialisation du PaymentsModule, dont `APP_URL`. Quand Nest monte AppModule, `payment.config.ts` throw `ConfigurationException('Missing required environment variable: APP_URL')` qui remonte dans le bootstrap. Le process exit avec code 1.
+
+`NestFactory.create(AppModule, { bufferLogs: true })` dans `main.ts` bufferise les logs jusqu'à `app.useLogger(logger)`. L'exception tombe avant ce flush, d'où la perte partielle de la stack trace visible. Seule la ligne `[ExceptionHandler] Missing required environment variable: APP_URL` apparaît dans le log CI complet (le message metier de la DomainException).
+
+Reproduction locale confirmée (Node 20, NODE_ENV=production, mocks CI exacts) :
+- Avec `APP_URL` set → Nest démarre, HTTP 200 sur /health en <1s
+- Sans `APP_URL` → `npm start` exit 1 en 50ms, 60s timeout `/health`, exit 124
+
+## Résolution
+
+**Monorepo PR #123** (commit `619919f3`, mergé 2026-04-23 ~15:00 UTC) : ajout d'une seule ligne dans le step "Start server" :
+
+```yaml
+APP_URL: http://localhost:3000
+```
+
++ commentaire explicatif multi-lignes référençant cet incident.
+
+**Hypothèses initiales toutes réfutées** :
+- H1 (régression RLS vague 4a/4b) : ❌ backend ne touche pas ces tables au boot
+- H2 (Paybox RSA strict refuse mocks) : ❌ crash pré-runtime Paybox
+- H3 (helmet dynamic import) : ❌ `catch` global aurait loggé
+- H4 (bufferLogs avale la stack) : ✅ partiellement vrai, a contribué à la difficulté du diagnostic mais pas la cause
 
 ## Résolution
 
