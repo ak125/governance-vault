@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://automecanik.com/governance-vault/schemas/adr.schema.json",
+  "title": "ADR frontmatter",
+  "description": "Frontmatter YAML obligatoire pour tout Architecture Decision Record (ledger/decisions/adr/ADR-NNN-slug.md).",
+  "type": "object",
+  "required": ["id", "title", "status", "date", "decision_makers"],
+  "additionalProperties": true,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^ADR-[0-9]{3}$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": ["proposed", "accepted", "accepted-revised", "rejected", "deprecated", "superseded", "deferred"]
+    },
+    "date": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "decision_makers": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "supersedes": {
+      "type": ["array", "null", "string"],
+      "items": { "type": "string" }
+    },
+    "superseded_by": {
+      "type": ["array", "null", "string"],
+      "items": { "type": "string" }
+    },
+    "related_rules": {
+      "type": ["array", "null"],
+      "items": { "type": "string" }
+    },
+    "related_incidents": {
+      "type": ["array", "null"],
+      "items": { "type": "string" }
+    },
+    "reviewed_by": { "type": "string" },
+    "version": { "type": "string" }
+  }
+}

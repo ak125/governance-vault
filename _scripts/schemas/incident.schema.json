@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://automecanik.com/governance-vault/schemas/incident.schema.json",
+  "title": "Incident frontmatter",
+  "description": "Frontmatter YAML obligatoire pour tout incident post-mortem (ledger/incidents/YYYY/YYYY-MM-DD-slug.md).",
+  "type": "object",
+  "required": ["id", "date", "severity", "status"],
+  "additionalProperties": true,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^INC-[0-9]{4}-[0-9]{2,3}$"
+    },
+    "date": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["critical", "high", "medium", "low", "sev1", "sev2", "sev3"]
+    },
+    "status": {
+      "type": "string",
+      "enum": ["open", "investigating", "mitigated", "resolved", "closed"]
+    },
+    "impact_duration": { "type": "string" },
+    "affected_systems": {
+      "type": ["array", "null"],
+      "items": { "type": "string" }
+    },
+    "root_cause": { "type": "string" },
+    "related_rules": {
+      "type": ["array", "null"],
+      "items": { "type": "string" }
+    },
+    "related_adr": {
+      "type": ["array", "null"],
+      "items": { "type": "string" }
+    },
+    "owner": { "type": "string" },
+    "reviewed_by": { "type": "string" }
+  }
+}

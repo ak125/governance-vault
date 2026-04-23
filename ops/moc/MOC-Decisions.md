@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-04-18
+updated: 2026-04-23
 ---
 
 # MOC: Decisions
@@ -35,6 +35,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-014 | Suppression /api/paybox/callback-test | Accepted | 2026-02-03 | [[ADR-014-remove-paybox-callback-test]] |
 | ADR-015 | Governance Vault — Single Source of Truth | Accepted | 2026-04-18 | [[ADR-015-vault-single-source-of-truth]] |
 | ADR-019 | AI Content Advisor Escalation (Pattern A) | Proposed | 2026-04-21 | [[ADR-019-ai-content-advisor-escalation]] |
+| ADR-020 | Weekly Governance Vault Lint | Accepted | 2026-04-23 | [[ADR-020-weekly-vault-lint]] |
 
 ---
 
@@ -70,6 +71,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 ### Gouvernance
 
 - [[ADR-015-vault-single-source-of-truth]] - Vault canonique unique, dépréciation `.local/governance-vault/`, guardrails agents
+- [[ADR-020-weekly-vault-lint]] - Lint hebdomadaire du vault (frontmatter, supersedes, obsolète, canon-backlinks)
 
 ---
 
@@ -126,4 +128,4 @@ Voir [[adr-template]] dans `_templates/`.
 
 ---
 
-_Derniere mise a jour: 2026-04-18_
+_Derniere mise a jour: 2026-04-23_

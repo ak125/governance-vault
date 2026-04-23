@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://automecanik.com/governance-vault/schemas/moc.schema.json",
+  "title": "MOC frontmatter",
+  "description": "Frontmatter YAML obligatoire pour toute Map of Content (ops/moc/MOC-*.md).",
+  "type": "object",
+  "required": ["type", "status", "updated"],
+  "additionalProperties": true,
+  "properties": {
+    "type": { "const": "moc" },
+    "status": {
+      "type": "string",
+      "enum": ["canon", "draft"]
+    },
+    "updated": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    }
+  }
+}
