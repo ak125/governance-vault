@@ -3,12 +3,14 @@ id: ADR-009
 title: Phase 1 Agent Activation Framework
 status: accepted-revised
 version: 2.0.0
+date: 2026-03-07
 date_original: 2026-02-03
 date_revision: 2026-03-07
 decision_makers:
   - Architecture
   - Governance
-supersedes: ADR-009 v1.0 (OpenClaw era)
+supersedes: []
+supersedes_notes: "Informal OpenClaw-era v1.0 (not archived in this vault)"
 references:
   - ADR-002 v2.0
   - ADR-011

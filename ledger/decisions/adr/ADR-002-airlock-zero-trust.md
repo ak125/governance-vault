@@ -3,12 +3,14 @@ id: ADR-002
 title: Airlock & Zero-Trust Agents
 status: accepted-revised
 version: 2.0.0
+date: 2026-03-07
 date_original: 2026-02-03
 date_revision: 2026-03-07
 decision_makers:
   - Architecture Team
   - Governance Team
-supersedes: ADR-002 v1.0 (OpenClaw era)
+supersedes: []
+supersedes_notes: "Informal OpenClaw-era v1.0 (not archived in this vault)"
 superseded_by: null
 references:
   - ADR-009

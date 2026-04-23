@@ -1,3 +1,9 @@
+---
+type: moc
+status: canon
+updated: 2026-04-23
+---
+
 # MOC: Knowledge
 
 Base de connaissances architecturale.

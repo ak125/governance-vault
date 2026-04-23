@@ -4,16 +4,20 @@
   "title": "Incident frontmatter",
   "description": "Frontmatter YAML obligatoire pour tout incident post-mortem (ledger/incidents/YYYY/YYYY-MM-DD-slug.md).",
   "type": "object",
-  "required": ["id", "date", "severity", "status"],
+  "required": ["id", "severity", "status"],
   "additionalProperties": true,
   "properties": {
     "id": {
       "type": "string",
-      "pattern": "^INC-[0-9]{4}-[0-9]{2,3}$"
+      "pattern": "^INC-[0-9]{4}-[0-9]{2,3}(-[0-9]{1,2})?$"
     },
     "date": {
       "type": "string",
       "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "date_detected": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}(T[0-9]{2}:[0-9]{2}(:[0-9]{2})?([+-][0-9]{2}:?[0-9]{2}|Z)?)?$"
     },
     "severity": {
       "type": "string",
@@ -21,12 +25,20 @@
     },
     "status": {
       "type": "string",
-      "enum": ["open", "investigating", "mitigated", "resolved", "closed"]
+      "enum": [
+        "open",
+        "investigating",
+        "mitigated",
+        "resolved",
+        "closed",
+        "closed-with-followup",
+        "closed-with-structural-fix"
+      ]
     },
     "impact_duration": { "type": "string" },
     "affected_systems": {
       "type": ["array", "null"],
-      "items": { "type": "string" }
+      "items": { "type": ["string", "object"] }
     },
     "root_cause": { "type": "string" },
     "related_rules": {
