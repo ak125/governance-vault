@@ -34,6 +34,7 @@ Journal chronologique des **evenements de gouvernance** : audits ponctuels, retr
 | 2026-04-23 | [[2026-04-23-seo-kw-pipeline-cable-frein-main]] | Evidence-pack (pipeline SEO KW bout-en-bout `cable-de-frein-a-main` gamme 15/232 + V-Level SQL port) |
 | 2026-04-23 | [[2026-04-23-seo-kw-pipeline-maitre-cylindre]] | Evidence-pack (pipeline SEO KW `maitre-cylindre-de-frein` gamme 16/232 + découverte bug regex TS script) |
 | 2026-04-23 | [[2026-04-23-seo-kw-vehicle-rpc-refactor]] | Evidence-pack (refactor `insert-missing-keywords.ts` : regex hardcodées → RPC SQL dynamique `match_keyword_text_to_vehicle`) |
+| 2026-04-23 | [[2026-04-23-seo-kw-pipeline-pompe-vide-freinage]] | Evidence-pack (pipeline SEO KW `pompe-a-vide-de-freinage` gamme 17/232 + arbitrage canon cross-gamme) |
 
 ---
 
