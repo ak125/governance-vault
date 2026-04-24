@@ -2,7 +2,7 @@
 type: moc
 status: canon
 role: master-index
-updated: 2026-04-17
+updated: 2026-04-24
 ---
 
 # MOC: Governance
@@ -64,6 +64,7 @@ Voir [[MOC-Rules]] pour les details.
 - [[ci-policy]] - Politique CI/CD (read-only sur canon)
 - [[cron-setup]] - Configuration des tasks cron
 - [[deploy-bot]] - Role du bot CI/CD (69/108 commits, non-SPOF)
+- [[claude-desktop-instructions]] - Onboarding Claude Desktop (MCP filesystem, condensé CLAUDE.md + AGENTS.md)
 
 ## Archive
 
