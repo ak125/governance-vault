@@ -37,6 +37,7 @@ Journal chronologique des **evenements de gouvernance** : audits ponctuels, retr
 | 2026-04-23 | [[2026-04-23-seo-kw-pipeline-pompe-vide-freinage]] | Evidence-pack (pipeline SEO KW `pompe-a-vide-de-freinage` gamme 17/232 + arbitrage canon cross-gamme) |
 | 2026-04-23 | [[2026-04-23-r6-gatekeeper-wiring-and-vlevel-script-port]] | Evidence-pack (wire R6 `sgpg_gatekeeper_*` symétrie R1, port `rebuild-type-vlevel.py` canon, backfill 223 rows 235→18 NULL) |
 | 2026-04-23 | [[2026-04-23-freinage-completion-backlog]] | Evidence-pack (completion freinage 13 gammes : backlog V-Level pg=70/82/402, classify tambour pg=123, diagnostic legacy pg=3859) |
+| 2026-04-24 | [[2026-04-24-seo-kw-pipeline-repartiteur-frein]] | Evidence-pack (pipeline SEO KW `repartiteur-de-frein` gamme 18/232 + première application formelle R-SEO-KW-06 sur synonymes techniques) |
 
 ---
 
