@@ -1,0 +1,274 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://automecanik.com/governance-vault/schemas/vehicle-model.schema.json",
+  "title": "Vehicle Model RAG frontmatter",
+  "description": "Frontmatter YAML des fichiers /rag/knowledge/vehicles/{slug}.md. Données DB+TecDoc+Wikipedia, régénérables idempotently. ADR-022 R8 RAG Control Plane.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "category",
+    "doc_family",
+    "source_type",
+    "slug",
+    "doc_id",
+    "modele_id",
+    "marque_id",
+    "brand_alias",
+    "brand_name",
+    "model_name",
+    "year_from",
+    "body_variants",
+    "lang",
+    "motorisations",
+    "source_of_truth",
+    "lifecycle",
+    "verification_status"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semver. Bump majeur = breaking change frontmatter."
+    },
+    "category": { "const": "catalog/vehicle" },
+    "doc_family": { "const": "catalog" },
+    "source_type": { "const": "vehicle_model" },
+    "title": { "type": "string", "minLength": 1, "maxLength": 120 },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "minLength": 3,
+      "maxLength": 80
+    },
+    "doc_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "description": "UUIDv5 déterministe basé sur slug. Jamais régénéré."
+    },
+    "modele_id": { "type": "integer", "minimum": 1 },
+    "marque_id": { "type": "integer", "minimum": 1 },
+    "brand_alias": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+    "brand_name": { "type": "string", "minLength": 1, "maxLength": 50 },
+    "model_name": { "type": "string", "minLength": 1, "maxLength": 80 },
+    "model_normalized": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "Normalisation romain→arabe (clio-3 pas clio-iii). Optionnel si identique à slug."
+    },
+    "year_from": { "type": "integer", "minimum": 1900, "maximum": 2099 },
+    "year_to": {
+      "oneOf": [
+        { "type": "integer", "minimum": 1900, "maximum": 2099 },
+        { "type": "null" }
+      ],
+      "description": "null = production en cours."
+    },
+    "body_variants": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "berline",
+          "break",
+          "suv",
+          "coupe",
+          "cabriolet",
+          "monospace",
+          "utilitaire",
+          "pickup",
+          "fourgon"
+        ]
+      }
+    },
+    "lang": { "const": "fr" },
+    "motorisations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["engine_family_key", "moteur", "fuel", "variants"],
+        "properties": {
+          "engine_family_key": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(-[a-z0-9\\.]+)*$",
+            "description": "Clé canonique pour neighbor_family_key R8. Ex: renault-clio-3-1.5dci."
+          },
+          "moteur": { "type": "string", "minLength": 1, "maxLength": 50 },
+          "fuel": {
+            "enum": ["diesel", "essence", "hybride", "electrique", "gpl", "flexfuel"]
+          },
+          "cylindree_cc": { "type": "integer", "minimum": 500, "maximum": 10000 },
+          "engine_codes": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "type": "string", "pattern": "^[A-Z0-9]+[A-Z0-9\\-\\.]*$" }
+          },
+          "trim_level": { "enum": ["base", "standard", "premium", "sport"] },
+          "variants": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["power_ps", "type_ids"],
+              "properties": {
+                "power_ps": { "type": "integer", "minimum": 20, "maximum": 1500 },
+                "power_kw": { "type": "integer", "minimum": 15, "maximum": 1100 },
+                "type_ids": {
+                  "type": "array",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": { "type": "integer", "minimum": 1 },
+                  "description": "FK vers auto_type. CI valide existence en DB."
+                },
+                "year_from": { "type": "integer", "minimum": 1900, "maximum": 2099 },
+                "year_to": {
+                  "oneOf": [{ "type": "integer" }, { "type": "null" }]
+                },
+                "norme_euro": {
+                  "enum": ["EU1", "EU2", "EU3", "EU4", "EU5", "EU6", "EU6d", "EU7"]
+                }
+              }
+            }
+          },
+          "specifics": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "problemes_connus": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["text", "confidence"],
+                  "properties": {
+                    "text": { "type": "string", "minLength": 10, "maxLength": 500 },
+                    "source": { "type": "string" },
+                    "source_url": { "type": "string", "format": "uri" },
+                    "confidence": { "enum": ["low", "medium", "high", "oem_verified"] }
+                  }
+                }
+              },
+              "pieces_critiques": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+                },
+                "description": "pg_alias vers gammes. CI valide FK en DB."
+              },
+              "intervalles": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "vidange_km": { "type": "integer", "minimum": 5000, "maximum": 100000 },
+                  "courroie_distribution_km": { "type": "integer", "minimum": 30000, "maximum": 400000 }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "specs_techniques": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "longueur_mm": { "type": "integer", "minimum": 2000, "maximum": 10000 },
+        "largeur_mm": { "type": "integer", "minimum": 1000, "maximum": 3000 },
+        "hauteur_mm": { "type": "integer", "minimum": 800, "maximum": 4000 },
+        "empattement_mm": { "type": "integer", "minimum": 1500, "maximum": 5000 },
+        "reservoir_l": { "type": "integer", "minimum": 10, "maximum": 200 },
+        "places": { "type": "integer", "minimum": 1, "maximum": 9 },
+        "source_url": { "type": "string", "format": "uri" }
+      }
+    },
+    "pieces_usure": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["pg_alias", "count_references"],
+        "properties": {
+          "pg_alias": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+          "count_references": { "type": "integer", "minimum": 1 }
+        }
+      }
+    },
+    "source_of_truth": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Provenance par champ. Critique pour audit.",
+      "properties": {
+        "motorisations": { "enum": ["tecdoc", "db", "manual"] },
+        "specs_techniques": {
+          "enum": ["caradisiac", "tecdoc", "manual", "wikipedia"]
+        },
+        "pieces_usure": { "enum": ["db", "manual"] },
+        "problemes_connus": { "enum": ["manual", "atelier", "forum", "oem_doc"] },
+        "engine_codes": { "enum": ["tecdoc", "manual"] },
+        "body_variants": { "enum": ["tecdoc", "db"] }
+      }
+    },
+    "lifecycle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "created_at",
+        "last_enriched_at",
+        "last_enriched_by",
+        "content_hash",
+        "enrichment_count"
+      ],
+      "properties": {
+        "schema_version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+        "created_at": { "type": "string", "format": "date-time" },
+        "last_enriched_at": { "type": "string", "format": "date-time" },
+        "last_enriched_by": {
+          "type": "string",
+          "pattern": "^.+@[\\w\\.]+.*$",
+          "description": "Format : service@version ou user@email."
+        },
+        "content_hash": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{16,64}$"
+        },
+        "enrichment_count": { "type": "integer", "minimum": 1 },
+        "source_commit": { "type": "string", "pattern": "^[0-9a-f]{7,40}$" }
+      }
+    },
+    "locked_fields": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-zA-Z_][\\w\\.\\[\\]]*$"
+      },
+      "description": "JSONPath protégé contre regen auto. Ex: motorisations.0.specifics.problemes_connus."
+    },
+    "risk_flags": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "wikipedia_sourced",
+          "auto_generated",
+          "low_confidence",
+          "missing_tecdoc",
+          "stale_data"
+        ]
+      }
+    },
+    "verification_status": {
+      "enum": ["draft", "verified", "oem_verified", "deprecated"]
+    },
+    "verification_date": { "type": "string", "format": "date" },
+    "verified_by": { "type": "string" },
+    "updated_at": { "type": "string" }
+  }
+}

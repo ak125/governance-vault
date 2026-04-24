@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://automecanik.com/governance-vault/schemas/vehicle-variations.schema.json",
+  "title": "Vehicle Variations Templates",
+  "description": "Templates éditoriaux pour rotation R8. Fichier /rag/knowledge/vehicles/{slug}.variations.yaml. ADR-022.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "slug", "slots", "quality_gates"],
+  "properties": {
+    "schema_version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "slug": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+    "updated_at": { "type": "string" },
+    "updated_by": { "type": "string" },
+    "slots": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "h1",
+        "intro_motorisation",
+        "meta_description",
+        "catalog_h2",
+        "faq_h2"
+      ],
+      "properties": {
+        "h1": { "$ref": "#/$defs/slot" },
+        "intro_motorisation": { "$ref": "#/$defs/slot" },
+        "meta_description": { "$ref": "#/$defs/slot" },
+        "catalog_h2": { "$ref": "#/$defs/slot" },
+        "faq_h2": { "$ref": "#/$defs/slot" }
+      }
+    },
+    "quality_gates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "min_variants_per_slot",
+        "max_length_meta",
+        "max_length_h1",
+        "placeholder_validation"
+      ],
+      "properties": {
+        "forbidden_terms_ref": { "type": "string" },
+        "min_variants_per_slot": { "type": "integer", "const": 3 },
+        "max_length_meta": { "type": "integer", "const": 170 },
+        "max_length_h1": { "type": "integer", "const": 70 },
+        "placeholder_validation": { "const": "strict" }
+      }
+    }
+  },
+  "$defs": {
+    "slot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["min_variants", "salt", "variants"],
+      "properties": {
+        "min_variants": { "type": "integer", "minimum": 3, "maximum": 10 },
+        "salt": { "type": "string", "pattern": "^[a-z_]+$" },
+        "max_chars": { "type": "integer", "minimum": 20, "maximum": 500 },
+        "variants": {
+          "type": "array",
+          "minItems": 3,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "template", "required_placeholders"],
+            "properties": {
+              "id": { "type": "string", "pattern": "^[a-z0-9_]+$" },
+              "template": { "type": "string", "minLength": 10 },
+              "required_placeholders": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": { "$ref": "#/$defs/placeholder" }
+              },
+              "optional_placeholders": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": { "$ref": "#/$defs/placeholder" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "placeholder": {
+      "enum": [
+        "brand",
+        "model",
+        "type_name",
+        "power_ps",
+        "power_kw",
+        "fuel",
+        "engine_code",
+        "year_from",
+        "year_to",
+        "families_count",
+        "body",
+        "power_tier",
+        "delivery_info"
+      ]
+    }
+  }
+}

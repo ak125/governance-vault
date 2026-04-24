@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://automecanik.com/governance-vault/schemas/vehicle-role-map.schema.json",
+  "title": "Vehicle Role Map",
+  "description": "Mapping sections Markdown → blocs R8 (S_IDENTITY, S_TECH_SPECS, etc.). Fichier /rag/knowledge/vehicles/{slug}.role_map.json. ADR-022.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["doc_type", "doc_id", "schema_version", "sections"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "doc_type": { "const": "VEHICLE_MODEL" },
+    "doc_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "schema_version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "sections": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "section_key",
+          "primary_role",
+          "purity_min",
+          "maps_to_r8_blocks"
+        ],
+        "properties": {
+          "section_key": {
+            "type": "string",
+            "pattern": "^S_MODEL_[A-Z_]+$"
+          },
+          "primary_role": { "const": "R8_VEHICLE" },
+          "allowed_roles": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": { "enum": ["R8_VEHICLE"] }
+          },
+          "purity_min": { "type": "integer", "minimum": 50, "maximum": 100 },
+          "chunk_kind": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "definition",
+                "trust_proofs",
+                "table_row",
+                "anchor_list",
+                "faq",
+                "selection_checks",
+                "anti_mistakes"
+              ]
+            }
+          },
+          "maps_to_r8_blocks": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "S_IDENTITY",
+                "S_SEO_INTRO",
+                "S_COMPAT_SCOPE",
+                "S_TECH_SPECS",
+                "S_VARIANT_DIFFERENCE",
+                "S_SELECTION_GUIDE",
+                "S_ENTRETIEN_CONTEXT",
+                "S_CATALOG_ACCESS",
+                "S_FAQ_DEDICATED",
+                "S_TRUST",
+                "S_ANTI_ERRORS",
+                "S_ENGINE_FAMILY"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}
