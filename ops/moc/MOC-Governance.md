@@ -63,6 +63,7 @@ Voir [[MOC-Rules]] pour les details.
 - [[sync-log]] - Log de synchronisation canon
 - [[ci-policy]] - Politique CI/CD (read-only sur canon)
 - [[cron-setup]] - Configuration des tasks cron
+- [[deploy-bot]] - Role du bot CI/CD (69/108 commits, non-SPOF)
 
 ## Archive
 
