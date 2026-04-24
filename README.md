@@ -58,7 +58,6 @@ Voir `99-meta/ci-policy.md`.
 governance-vault/
 ├── .github/workflows/    # CI gouvernance (G2, G3, G4)
 ├── .githooks/            # Pre-commit hooks (G2 + broken links)
-├── _assets/              # Diagrammes, images
 ├── _scripts/             # Scripts enforcement (check-orphans, broken-links, sync-canon, ...)
 ├── _templates/           # Templates (ADR, incident, rule, deployment)
 ├── 99-meta/              # Gouvernance du vault (signing-policy, key-registry, ci-policy, sync-log)
