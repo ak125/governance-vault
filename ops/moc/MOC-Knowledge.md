@@ -53,6 +53,7 @@ Base de connaissances architecturale.
 - [[runbook-curate-r7-batch]] - Runbook ops curate-r7-batch.py (orchestration drafts → API admin)
 - [[r8-rag-control-plane-design-20260423]] - R8 RAG Control Plane design spec (5-layer gates, 3 artefacts par modèle, TemplateRotator)
 - [[r8-rag-control-plane-implementation-plan-20260423]] - R8 RAG Control Plane implementation plan (16 artefacts DAG, rollout 8 stages)
+- [[r8-enricher-vehicle-not-found-investigation-20260424]] - Investigation "vehicle not found" sur R8 enricher post-wire (ADR-022 P2d)
 
 ## Gouvernance (Historique v1)
 
