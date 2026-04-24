@@ -65,6 +65,7 @@ Voir [[MOC-Rules]] pour les details.
 - [[cron-setup]] - Configuration des tasks cron
 - [[deploy-bot]] - Role du bot CI/CD (69/108 commits, non-SPOF)
 - [[claude-desktop-instructions]] - Onboarding Claude Desktop (MCP filesystem, condensé CLAUDE.md + AGENTS.md)
+- [[obsidian-setup]] - Topologie canonique coffre Obsidian (1 clone = 1 vault, plugins Dataview/Templater/Git, SSH signing G3)
 
 ## Archive
 
