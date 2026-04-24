@@ -35,6 +35,7 @@ Journal chronologique des **evenements de gouvernance** : audits ponctuels, retr
 | 2026-04-23 | [[2026-04-23-seo-kw-pipeline-maitre-cylindre]] | Evidence-pack (pipeline SEO KW `maitre-cylindre-de-frein` gamme 16/232 + découverte bug regex TS script) |
 | 2026-04-23 | [[2026-04-23-seo-kw-vehicle-rpc-refactor]] | Evidence-pack (refactor `insert-missing-keywords.ts` : regex hardcodées → RPC SQL dynamique `match_keyword_text_to_vehicle`) |
 | 2026-04-23 | [[2026-04-23-seo-kw-pipeline-pompe-vide-freinage]] | Evidence-pack (pipeline SEO KW `pompe-a-vide-de-freinage` gamme 17/232 + arbitrage canon cross-gamme) |
+| 2026-04-23 | [[2026-04-23-r6-gatekeeper-wiring-and-vlevel-script-port]] | Evidence-pack (wire R6 `sgpg_gatekeeper_*` symétrie R1, port `rebuild-type-vlevel.py` canon, backfill 223 rows 235→18 NULL) |
 
 ---
 
