@@ -38,6 +38,7 @@ Journal chronologique des **evenements de gouvernance** : audits ponctuels, retr
 | 2026-04-23 | [[2026-04-23-r6-gatekeeper-wiring-and-vlevel-script-port]] | Evidence-pack (wire R6 `sgpg_gatekeeper_*` symétrie R1, port `rebuild-type-vlevel.py` canon, backfill 223 rows 235→18 NULL) |
 | 2026-04-23 | [[2026-04-23-freinage-completion-backlog]] | Evidence-pack (completion freinage 13 gammes : backlog V-Level pg=70/82/402, classify tambour pg=123, diagnostic legacy pg=3859) |
 | 2026-04-24 | [[2026-04-24-seo-kw-pipeline-repartiteur-frein]] | Evidence-pack (pipeline SEO KW `repartiteur-de-frein` gamme 18/232 + première application formelle R-SEO-KW-06 sur synonymes techniques) |
+| 2026-04-24 | [[2026-04-24-seo-kw-kit-frein-arriere-3-incidents-db]] | Evidence-pack (pipeline SEO KW `kit-de-freins-arriere` gamme 19/232 + 3 incidents DB systémiques découverts et corrigés : trigger polyglot, pg_id désynchro, executor UPDATE no-op) |
 
 ---
 
