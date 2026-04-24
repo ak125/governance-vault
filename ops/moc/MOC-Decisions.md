@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-04-23
+updated: 2026-04-24
 ---
 
 # MOC: Decisions
@@ -38,6 +38,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-020 | Weekly Governance Vault Lint | Accepted | 2026-04-23 | [[ADR-020-weekly-vault-lint]] |
 | ADR-021 | Database RLS Hardening — Zero-Trust per-Table | Accepted | 2026-04-23 | [[ADR-021-database-rls-hardening-zero-trust]] |
 | ADR-022 | R8 RAG Control Plane — Propose-Before-Write + 5-Layer Gates | Proposed | 2026-04-23 | [[ADR-022-r8-rag-control-plane]] |
+| ADR-023 | Hook-Layer Defense for .local/governance-vault/ | Accepted | 2026-04-24 | [[ADR-023-hook-layer-defense]] |
 
 ---
 
@@ -76,6 +77,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 
 - [[ADR-015-vault-single-source-of-truth]] - Vault canonique unique, dépréciation `.local/governance-vault/`, guardrails agents
 - [[ADR-020-weekly-vault-lint]] - Lint hebdomadaire du vault (frontmatter, supersedes, obsolète, canon-backlinks)
+- [[ADR-023-hook-layer-defense]] - Défense 3 couches contre écriture `.local/governance-vault/` (hook + CI + cron), enforcement ADR-015
 
 ---
 
@@ -132,4 +134,4 @@ Voir [[adr-template]] dans `_templates/`.
 
 ---
 
-_Derniere mise a jour: 2026-04-23_
+_Derniere mise a jour: 2026-04-24_
