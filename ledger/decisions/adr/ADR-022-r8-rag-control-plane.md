@@ -1,15 +1,16 @@
 ---
 id: ADR-022
 title: "R8 RAG Control Plane — Propose-Before-Write + 5-Layer Gates"
-status: proposed
+status: accepted
 date: 2026-04-23
+decision_date: 2026-04-25
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
 related_rules: ["G1", "G2", "G3"]
 related_incidents: []
 related_adr: ["ADR-015", "ADR-020", "ADR-021"]
-reviewed_by: ""
+reviewed_by: "@fafa"
 ---
 
 # ADR-022: R8 RAG Control Plane — Propose-Before-Write + 5-Layer Gates
