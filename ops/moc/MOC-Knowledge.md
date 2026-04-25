@@ -64,6 +64,7 @@ Base de connaissances architecturale.
 - [[normalize-order-id-pattern]] - Pattern : normalisation d'identifiants externes (paiements)
 - [[validator-engine-spec]] - SPEC-002 Validator Engine
 - [[pre-push-local-check-pattern]] - Pattern : hook pre-push local pour éliminer aller-retours CI
+- [[claude-code-skill-modular-pattern]] - Pattern : split SKILL.md Claude Code en references/<concern>.md (concern-based, conditional loading)
 
 ## References
 
