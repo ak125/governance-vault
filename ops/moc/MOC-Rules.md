@@ -47,7 +47,7 @@ Index des regles canoniques du projet AutoMecanik, organisees par taxonomie uniq
 
 - [[rules-seo-vlevel]] - **V1-V6** : Classification keywords (V1 super-champion, V2 TOP 20, V3 champion local, V4 variant, V5 volume=0, V6 bloc B)
 - [[rules-seo-pagerole]] - **R-SEO-01 a R-SEO-08** : Validation PageRole pour CI
-- [[rules-seo-kw-import]] - **R-SEO-KW-01 a R-SEO-KW-06** : Import Google Ads KP + alias enrichment (review rejets, arbre decision, batch YAML, cross-gamme scope check)
+- [[rules-seo-kw-import]] - **R-SEO-KW-01 a R-SEO-KW-07** : Import Google Ads KP + alias enrichment (review rejets, arbre decision, batch YAML, cross-gamme scope check, RAG_ONLY_ENRICHED state)
 
 ## Anti-patterns (AP)
 
