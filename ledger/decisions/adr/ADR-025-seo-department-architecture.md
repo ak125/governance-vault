@@ -247,7 +247,6 @@ Nouvelles variables uniquement quand zéro existante :
   - [[ADR-015-vault-single-source-of-truth]] — vault SoT
   - [[ADR-022-r8-rag-control-plane]] — précédent module modulaire
   - [[ADR-023-hook-layer-defense]] — defense in depth pattern
-  - [[ADR-024-claude-session-log-pattern]] — observabilité session
 
 ## ADRs filles à venir (prévus)
 
