@@ -39,6 +39,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-021 | Database RLS Hardening — Zero-Trust per-Table | Accepted | 2026-04-23 | [[ADR-021-database-rls-hardening-zero-trust]] |
 | ADR-022 | R8 RAG Control Plane — Propose-Before-Write + 5-Layer Gates | Proposed | 2026-04-23 | [[ADR-022-r8-rag-control-plane]] |
 | ADR-023 | Hook-Layer Defense for .local/governance-vault/ | Accepted | 2026-04-24 | [[ADR-023-hook-layer-defense]] |
+| ADR-025 | SEO Department Architecture (Observability, On-page, Content ops, Intelligence, GEO/AEO) | Accepted | 2026-04-25 | [[ADR-025-seo-department-architecture]] |
 
 ---
 
@@ -72,6 +73,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 
 - [[ADR-006-ai-orchestrator-architecture]] - Inclut SEO Charter et PageRole validation
 - [[ADR-022-r8-rag-control-plane]] - R8 RAG Control Plane (propose-before-write, 5-layer gates, rotation déterministe)
+- [[ADR-025-seo-department-architecture]] - Architecture département SEO 5 modules (Observability, On-page, Content ops, Intelligence, GEO/AEO) sur 8 semaines, DB lean (7 tables au lieu de 15 via JSONB discriminated unions)
 
 ### Gouvernance
 
