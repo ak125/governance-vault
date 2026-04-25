@@ -42,6 +42,7 @@ Journal chronologique des **evenements de gouvernance** : audits ponctuels, retr
 | 2026-04-25 | [[2026-04-25-rag-only-enriched-stage-canon]] | Evidence-pack (canon stage `RAG_ONLY_ENRICHED` ajouté à `v_kw_pipeline_status` ; débloque 147 gammes G1/G2 (63%) artificiellement NO_CSV ; freinage 13/13 canon ; R-SEO-KW-07 ajoutée) |
 | 2026-04-25 | [[2026-04-25-p1-deploy-inc3-verify-rag-content-gaps]] | Evidence-pack (P1 deploy unblock @ast-grep Alpine + INC-3 verify post-deploy + 28 "BLOCK" audit reclassifiés en RAG content gaps, pas bugs code) |
 | 2026-04-25 | [[2026-04-25-r1-gatekeeper-symmetry-backfill]] | Evidence-pack (closure follow-up §7 #4 R6 audit — symmetry audit complète, R1 100% scored 48→0 NULL via backfill-r1-gatekeeper.py) |
+| 2026-04-25 | [[2026-04-25-r6-100pct-closure-and-di-fix]] | Evidence-pack (R6 100% scored 241/241 — closure §7 #1 cluster RAG-incomplet 18→0 NULL via PR #180 early-return write + PR #181 DI fix RContentAuditorService) |
 | 2026-04-25 | [[2026-04-25-r8-refactor-and-parallel-agent-incident]] | Retrospective (R8 route refactor 1+2a+2b mergés, 2020→1258 lignes −38%, 7/13 sections, + incident parallel-agent + R-AGENT-01 proposée) |
 
 ---
