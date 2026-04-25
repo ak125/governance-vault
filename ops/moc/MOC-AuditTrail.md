@@ -39,6 +39,7 @@ Journal chronologique des **evenements de gouvernance** : audits ponctuels, retr
 | 2026-04-23 | [[2026-04-23-freinage-completion-backlog]] | Evidence-pack (completion freinage 13 gammes : backlog V-Level pg=70/82/402, classify tambour pg=123, diagnostic legacy pg=3859) |
 | 2026-04-24 | [[2026-04-24-seo-kw-pipeline-repartiteur-frein]] | Evidence-pack (pipeline SEO KW `repartiteur-de-frein` gamme 18/232 + première application formelle R-SEO-KW-06 sur synonymes techniques) |
 | 2026-04-24 | [[2026-04-24-seo-kw-kit-frein-arriere-3-incidents-db]] | Evidence-pack (pipeline SEO KW `kit-de-freins-arriere` gamme 19/232 + 3 incidents DB systémiques découverts et corrigés : trigger polyglot, pg_id désynchro, executor UPDATE no-op) |
+| 2026-04-25 | [[2026-04-25-rag-only-enriched-stage-canon]] | Evidence-pack (canon stage `RAG_ONLY_ENRICHED` ajouté à `v_kw_pipeline_status` ; débloque 147 gammes G1/G2 (63%) artificiellement NO_CSV ; freinage 13/13 canon ; R-SEO-KW-07 ajoutée) |
 
 ---
 

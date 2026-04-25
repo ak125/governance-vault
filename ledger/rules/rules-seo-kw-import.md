@@ -195,6 +195,62 @@ cette verification formelle.
 
 ---
 
+## R-SEO-KW-07: Pipeline stage `RAG_ONLY_ENRICHED` (gammes niche sans Google Ads)
+
+**Regle**: Une gamme avec `pipeline_stage = 'RAG_ONLY_ENRICHED'` est canon-valide
+et equivalent fonctionnel a `FULLY_ENRICHED` pour QA Phase 8. **NE PAS bloquer**
+sur l'absence de Google Ads KW si tous les KP+content sont presents.
+
+**Etat detecte par la view `v_kw_pipeline_status`** :
+```
+raw_count IS NULL                    -- aucun __seo_keywords import
+AND kp_r1.pg_id IS NOT NULL          -- R1 KP validated
+AND kp_r3.pg_id IS NOT NULL          -- R3 KP validated
+AND kp_r6.pg_id IS NOT NULL          -- R6 KP validated
+AND content_r1.pg_id IS NOT NULL     -- R1 slot present
+AND content_r3.pg_id IS NOT NULL     -- R3 sections present
+AND content_r4.pg_id IS NOT NULL     -- R4 reference published
+AND content_r6.pg_id IS NOT NULL     -- R6 PG present
+=> 'RAG_ONLY_ENRICHED'
+```
+
+**Pourquoi ce stage existe ?** Trois cas legitimes :
+
+1. **Gamme niche** : composant a faible volume search (ABS, accessoires rares).
+   Google Ads KP renvoie 0 resultats. RAG suffit pour generer le contenu.
+2. **Pre-canon legacy** : gamme enrichie via le pipeline R3 batch Phase 5
+   avant l'introduction du flow `import-gads-kp.py`. Contenu deja en place.
+3. **CSV pas encore exporte** : gamme dans le batch d'attente, mais pas
+   encore prioritaire pour l'export Google Ads manuel.
+
+Dans les 3 cas, la gamme est **fonctionnellement complete** au sens du pipeline
+de contenu et doit pouvoir passer la QA + etre publiee.
+
+**Decouverte 2026-04-25** : 147 / 232 gammes G1/G2 (63%) etaient artificiellement
+en NO_CSV alors qu'elles satisfaisaient les criteres ci-dessus. Le BLOCK QA
+Phase 8 cachait cette majorite fonctionnelle.
+
+**Comment appliquer (skill `/gamme-qa`)** :
+
+| Phase 8 actuelle | Phase 8 canon (post 2026-04-25) |
+|---|---|
+| `BLOCK si pipeline_stage != 'FULLY_ENRICHED'` | `BLOCK si pipeline_stage NOT IN ('FULLY_ENRICHED', 'RAG_ONLY_ENRICHED')` |
+| | (RAG_ONLY peut emettre WARN observationnel "no Google Ads source") |
+
+**Migration view canon** : PR monorepo ak125/nestjs-remix-monorepo#158
+(2026-04-25). View `v_kw_pipeline_status` mise a jour. Skill `/gamme-qa`
+sera aligne au prochain release du skill.
+
+**Evidence**: cas `agregat-de-freinage` (pg=415, freinage niche ABS).
+Avant fix : NO_CSV (BLOCK). Apres fix : RAG_ONLY_ENRICHED (PASS canon).
+Freinage 12/13 → 13/13 canon.
+
+**Anti-pattern**: ne pas creer un stub KW vol=0 pour "flipper" l'etat
+NO_CSV → CSV_IMPORTED. C'est du bricolage qui ment a la view. Le stage
+RAG_ONLY_ENRICHED est la verite : pas de KW Google Ads, contenu complet.
+
+---
+
 ## Cross-references
 
 - Pipeline: `scripts/seo/import-gads-kp.py` (monorepo `ak125/nestjs-remix-monorepo`)
@@ -206,7 +262,9 @@ cette verification formelle.
 
 ---
 
-_Derniere mise a jour : 2026-04-23_
+_Derniere mise a jour : 2026-04-25_
 _Creee suite au batch R1_ROUTER 2026-04-22 (voir ledger/audit-trail)._
 _R-SEO-KW-06 ajoutee 2026-04-23 suite au batch R1_ROUTER pompe-a-vide-de-freinage_
 _(89% rejets, cas d'ecole cross-gamme scope ; cf. evidence pompe-vide-freinage)._
+_R-SEO-KW-07 ajoutee 2026-04-25 suite a la decouverte que 147 gammes (63%)_
+_etaient artificiellement en NO_CSV alors que RAG-only-enrichies (cas pg=415)._
