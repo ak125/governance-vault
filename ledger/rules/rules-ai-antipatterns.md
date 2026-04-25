@@ -243,6 +243,35 @@ export class VehicleCacheService { /* caching logic */ }
 
 ---
 
+## AP-11: Inventer une convention sans grep le codebase
+
+**Pattern interdit** : proposer un nouveau nom d'ENV var, un domaine, un nom de table, un nom de service, ou tout autre identifiant **sans avoir d'abord cherché si la convention existe déjà** dans le codebase.
+
+```typescript
+// ❌ WRONG: invente GOOGLE_SA_CLIENT_EMAIL
+this.configService.get('GOOGLE_SA_CLIENT_EMAIL');
+
+// ✅ CORRECT: a grep d'abord, trouve GSC_CLIENT_EMAIL existant déjà lu par
+// crawl-budget-audit.service.ts:208-216 et url-audit.service.ts:50-60
+this.configService.get('GSC_CLIENT_EMAIL');
+```
+
+**Avant TOUTE proposition de nouvelle convention**, l'agent DOIT exécuter au minimum :
+
+| Si proposition concerne… | Commande grep obligatoire |
+|--------------------------|----------------------------|
+| ENV variable | `grep -rE "process\.env\.\|configService\.get" backend/src \| grep -i "<topic>"` + `grep -i "<topic>" backend/.env.example` |
+| Domaine canonique | `cat backend/src/config/site.constants.ts` + `grep -rE "automecanik\." backend/src/config frontend/app/root.tsx` |
+| Nouvelle table DB | `ls backend/supabase/migrations/ \| grep -i "<topic>"` + `git ls-files \| grep -E "schemas?\.ts$"` |
+| Nouveau service NestJS | `find backend/src/modules -name "*.ts" \| xargs grep -l "<keyword>"` |
+| Nouveau skill | `ls .claude/skills/` + lecture des `SKILL.md` frontmatters |
+
+Si le `grep` retourne du code qui résout déjà le problème → **étendre l'existant**, pas créer du nouveau. Si gap réel → confirmer par 2-3 patterns différents.
+
+**Pourquoi** : incidents répétés (session 2026-04-25, 3× en une session) où des conventions inventées (`GOOGLE_SA_CLIENT_EMAIL`, `GSC_PROPERTY_URL`, `automecanik.fr`) ont créé des PRs à corriger alors que le codebase utilisait déjà `GSC_CLIENT_EMAIL`, `GSC_SITE_URL`, `automecanik.com`. L'utilisateur a explicitement demandé que cette règle devienne canon.
+
+---
+
 ## Checklist de Revue
 
 Avant de merger un PR touchant au système AI:
@@ -257,6 +286,7 @@ Avant de merger un PR touchant au système AI:
 - [ ] Contexte RAG pour la génération (AP-08)
 - [ ] Pas de dépendances circulaires (AP-09)
 - [ ] Services < 500 lignes (AP-10)
+- [ ] Aucune convention inventée sans grep préalable (AP-11)
 
 ---
 
