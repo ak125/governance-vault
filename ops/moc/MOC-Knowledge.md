@@ -64,6 +64,8 @@ Base de connaissances architecturale.
 - [[normalize-order-id-pattern]] - Pattern : normalisation d'identifiants externes (paiements)
 - [[validator-engine-spec]] - SPEC-002 Validator Engine
 - [[pre-push-local-check-pattern]] - Pattern : hook pre-push local pour éliminer aller-retours CI
+- [[typescript-aliases-tsc-alias-gotcha-20260427]] - Pattern : alias TypeScript backend NestJS (tsc-alias build chain, watch race, codemod sed multi-niveaux)
+- [[codeql-volume-false-positive-20260427]] - Pattern : CodeQL flag des alerts pré-existantes sur diffs >300 fichiers — procédure intersection diff ∩ alerts
 
 ## References
 
