@@ -1,9 +1,11 @@
 ---
 id: INC-2026-012
 date: 2026-04-23
+date_detected: 2026-04-23
+date_resolved: 2026-04-23
 severity: high
-status: resolved-with-followup
-impact_duration: "backlog cumulatif — premier pic observé 2026-02-24 dans GSC, plateau 411k pages depuis ~2026-03"
+status: closed-with-monitoring
+impact_duration: "backlog cumulatif — premier pic observé 2026-02-24 dans GSC, plateau 411k pages depuis ~2026-03. Code-side resolved 2026-04-23 (deploy PROD `v2026.04.23-gsc-404-tecdoc-fix` + sitemap régénéré). Désindexation GSC attendue J+60."
 affected_systems:
   - gsc-indexing: automecanik.com (411k pages indiquées en 404)
   - route-frontend: /pieces/{gamme}/{marque}/{modele}/{type}.html
@@ -52,7 +54,15 @@ Volume effectif indexable = `__sitemap_p_link` × Googlebot crawl. Les 411 k ne 
 | 2026-04-23 T17:15 | Audit Supabase via mcp : `auto_type.type_id_i <= 83456` vs `__sitemap_p_link.map_type_id` jusqu'à 134362 — **99 912 rows orphelines confirmées (21 %)**. |
 | 2026-04-23 T17:30 | PR [#134](https://github.com/ak125/nestjs-remix-monorepo/pull/134) ouverte : loader `pieces-vehicle.loader.server.ts` passe 404→410 sur patterns permanents (désindexation GSC plus rapide). |
 | 2026-04-23 T18:00 | PR [#135](https://github.com/ak125/nestjs-remix-monorepo/pull/135) ouverte : filtre in-memory des orphelins à la génération du sitemap XML (4 services patchés + helper cached). |
-| 2026-04-23 T18:30 | Post-mortem consigné dans vault (ce document). |
+| 2026-04-23 T18:30 | Post-mortem consigné dans vault ([PR #47](https://github.com/ak125/governance-vault/pull/47)). PR migration N2 [#136](https://github.com/ak125/nestjs-remix-monorepo/pull/136) ouverte. Runbook N3 [PR #48](https://github.com/ak125/governance-vault/pull/48) ouverte. |
+| 2026-04-23 T18:20 | PRs #133, #134, #135 mergées sur `main`. Deploy DEV preprod déclenché. |
+| 2026-04-23 T18:30 | Smoke tests DEV (localhost:3000) : 4/4 pass. PR #136 mergée 18:42 après fix CI Migration Safety (annotation `-- APPROVED:` requise). |
+| 2026-04-23 T18:55 | Tag `v2026.04.23-gsc-404-tecdoc-fix` créé. Premier deploy PROD (run `24847428766`) : ❌ safety gate "SHA consistency (preprod image ↔ tag commit)" — l'image preprod était sur `5dd0be92` (HEAD post-#136/#139) tandis que le tag pointait sur `dff60aa6`. |
+| 2026-04-23 T19:00 | Retag sur `5dd0be92` (HEAD actuel). Deploy PROD run `24848431783` : ✅ success. |
+| 2026-04-23 T19:35 | Smoke tests PROD `https://www.automecanik.com` : 5/5 pass — `/pieces-purflux.html` → 410 HTML 37 KB (vs 410 plain-text 4 B avant), `/pieces/.../type-19354.html` → 410, `/pieces/.../-12345.html` → 410, URL canonique → 200, homepage → 200. |
+| 2026-04-23 T19:42 | Owner SEO trigger `POST /api/sitemap/v10/generate-all` (HTTP 201, 19 s) : **102 395 URLs bucket stable** (3 shards), **250 539 URLs hubs** (113 files), `indexPath: /var/www/sitemaps/sitemap.xml`. |
+| 2026-04-23 T19:45 | Vérification XML public : 0 orphelin `type_id > 83456` détecté dans `sitemap-pieces-1.xml`. Spot-check 5 URLs random : 4 × 200 + 1 × 301 (URL normalisée vers slug canonique — comportement attendu). |
+| 2026-04-23 T19:50 | Resubmit GSC programmé par owner SEO (action manuelle UI Search Console). Incident clôturé code-side. |
 
 ## Impact
 
@@ -106,11 +116,39 @@ Approche **non-destructive, code-only, réversible** (refus explicite des DELETE
 
 Matrice de complétion :
 
-| Action | Effet | Statut |
-|--------|-------|--------|
-| N1 – Code fix (PR #133, #134, #135) | Arrête le bleeding + accélère désindex | ✅ Fait (PRs ouvertes) |
-| N2 – `DELETE FROM __sitemap_p_link WHERE map_type_id NOT IN (SELECT type_id_i FROM auto_type WHERE type_display='1')` (~100 k rows) | Cleanup DB prod, non strictement nécessaire (le filtre #135 rend les orphelins inertes) | ⏸ En attente validation humaine (destructive) |
-| N3 – Régénérer sitemap + resubmit GSC | Déclenche rapidement le recrawl par Google | ⏸ Bloqué par règle mémoire `feedback_sitemap_no_trigger.md` (jamais trigger sans validation) |
+| Action | Effet | Statut final |
+|--------|-------|--------------|
+| N1 – Code fix (PR #133, #134, #135) | Arrête le bleeding + accélère désindex | ✅ **Mergées + déployées PROD** (tag `v2026.04.23-gsc-404-tecdoc-fix`, 2026-04-23) |
+| N1.b – Migration SQL N2 versionnée (PR #136) | Artefact ops prêt à apply | ✅ **Mergée** (apply N2 reste optionnel) |
+| N2 – `DELETE FROM __sitemap_p_link WHERE map_type_id NOT IN (SELECT type_id_i FROM auto_type WHERE type_display='1')` (~100 k rows) | Cleanup DB prod | ⏸ **Optionnel** — le filtre #135 rend les orphelins inertes au sitemap. À apply manuellement par DBA via `mcp__supabase__apply_migration` quand jugé utile. |
+| N3 – Régénérer sitemap + resubmit GSC | Déclenche rapidement le recrawl par Google | ✅ **Sitemap régénéré** 2026-04-23 19:42 (`POST /api/sitemap/v10/generate-all` HTTP 201, 19 s, 102 395 URLs bucket stable + 250 539 URLs hubs, 0 orphelin `type_id > 83456` confirmé). Resubmit GSC = action manuelle owner SEO. |
+
+### Résultats sitemap régénéré (2026-04-23 19:42 UTC)
+
+```json
+{
+  "success": true,
+  "totalUrls": 102395,
+  "totalFiles": 11,
+  "durationMs": 18748,
+  "indexPath": "/var/www/sitemaps/sitemap.xml",
+  "buckets": [
+    {"bucket": "hot",    "urlCount": 0,      "filesGenerated": 0},
+    {"bucket": "stable", "urlCount": 102395, "filesGenerated": 3},
+    {"bucket": "cold",   "urlCount": 0,      "filesGenerated": 0}
+  ],
+  "hubResult": {"totalUrls": 250539, "totalFiles": 113}
+}
+```
+
+**Vérifications post-génération (2026-04-23 19:45 UTC)** :
+
+- `sitemap-pieces-1.xml` (50 000 URLs), `sitemap-pieces-2.xml` (50 000 URLs), `sitemap-pieces-3.xml` (2 395 URLs) — somme 102 395 ✅
+- Filtre orphans actif : aucun `type_id > 83456` détecté dans le XML public (vérification regex `'[0-9]+\.html'`)
+- Spot-check 5 URLs random dans `sitemap-pieces-1.xml` : 4 × HTTP 200 + 1 × HTTP 301 (URL normalisée vers slug canonique, comportement attendu)
+- Smoke tests PROD post-deploy : 5/5 pass (`/pieces-purflux.html` 410 HTML 37 KB, `/pieces/.../type-19354.html` 410, `/pieces/.../-12345.html` 410, `/pieces/filtre-a-huile-7.html` 200, `/` 200)
+
+**À noter** : `sitemap-pieces-4.xml` existe encore (50 000 URLs, leftover ancien run, non référencé dans `sitemap.xml` index donc pas indexé par GSC). Cleanup à faire dans une opération séparée non-bloquante.
 
 ## Lessons Learned
 
@@ -158,10 +196,43 @@ Les 3 PRs sont code-only, réversibles via `git revert`. Le N2/N3 reste entre le
 
 ## Suivi
 
-- [ ] Merger PR #134 (impact le plus immédiat sur désindexation)
-- [ ] Merger PR #133 (UX cohérente sur `/pieces-{supplier}.html`)
-- [ ] Merger PR #135 (empêche réémission au prochain cycle sitemap)
-- [ ] Décider N2 (DELETE 100 k rows orphelines de `__sitemap_p_link`) — owner SEO
-- [ ] Décider N3 (régénération sitemap + resubmit GSC) — owner SEO, après validation des 3 PRs en DEV
-- [ ] Monitoring GSC : recompter les 404 à J+30, J+60, J+90 après merge de #134. Objectif : réduction ≥ 80 % à J+60.
-- [ ] (Action de suivi Lesson #4) instrumenter `pieces-vehicle.loader.server.ts` pour log vers `__error_logs`
+### Code-side ✅ COMPLET (2026-04-23)
+
+- [x] Merger PR #134 (impact le plus immédiat sur désindexation) — commit `1b12dbaa`
+- [x] Merger PR #133 (UX cohérente sur `/pieces-{supplier}.html`) — commit `0b3beecb`
+- [x] Merger PR #135 (empêche réémission au prochain cycle sitemap) — commit `dcee00a0`
+- [x] Merger PR #136 (migration N2 versionnée) — commit `f36f983b`
+- [x] Tag PROD `v2026.04.23-gsc-404-tecdoc-fix` créé sur `5dd0be92` (retag après safety gate SHA mismatch initial)
+- [x] Deploy PROD success (run `24848431783`, 2026-04-23 ~19:30 UTC)
+- [x] Smoke tests PROD post-deploy : 5/5 pass
+- [x] Régénération sitemap PROD : 102 395 URLs bucket stable, 0 orphelin
+- [x] Spot-check sitemap : 4×200 + 1×301 sur 5 URLs random
+- [x] PR vault [#45](https://github.com/ak125/governance-vault/pull/45) (pattern 3-layer error pipeline) ouverte
+- [x] PR vault [#47](https://github.com/ak125/governance-vault/pull/47) (post-mortem incident — ce document) ouverte
+- [x] PR vault [#48](https://github.com/ak125/governance-vault/pull/48) (runbook régénération sitemap) ouverte
+
+### Action humaine restante (owner SEO)
+
+- [ ] **Resubmit GSC** : ajouter `https://www.automecanik.com/sitemap.xml` dans Search Console (UI)
+- [ ] N2 optionnel — apply migration `20260424_archive_purge_sitemap_orphan_types.sql` via `mcp__supabase__apply_migration` quand jugé utile (le filtre #135 rend les orphelins inertes côté XML, donc N2 = cosmétique DB)
+
+### Monitoring (à actualiser dans ce document)
+
+- [ ] J+7 (2026-04-30) : noter count GSC `Indexation > Introuvable (404)`
+- [ ] J+30 (2026-05-23) : count attendu < 200 k (réduction ≥ 50 %)
+- [ ] J+60 (2026-06-22) : count attendu < 80 k (objectif réduction ≥ 80 %)
+- [ ] J+90 (2026-07-22) : stabilisation < 20 k
+
+### Action de suivi Lesson #4 (hors scope incident)
+
+- [ ] Instrumenter `pieces-vehicle.loader.server.ts` pour log vers `__error_logs` au sampling 1/100. Permettra de détecter le prochain backlog GSC avant qu'il atteigne 400 k. À tracker comme PR séparée.
+
+## Critères de clôture finale
+
+L'incident passe à `closed` (sans `with-monitoring`) quand :
+
+- [ ] Resubmit GSC fait + statut `Réussi` confirmé sous 24 h
+- [ ] J+60 : count GSC `Introuvable (404)` réduit ≥ 80 % vs 411 k baseline
+- [ ] J+90 : backlog stabilisé sous 20 k
+
+Si J+60 ne montre pas la réduction attendue → ré-ouvrir l'incident, investiguer (nouveau pattern d'orphelins ? lent rythme GSC ? autre source de 404 ?).
