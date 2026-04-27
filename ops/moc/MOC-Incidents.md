@@ -17,6 +17,7 @@ Index des incidents et post-mortems. Cette MOC est la porte d'entree pour tout e
 
 | ID | Date | Severite | Titre | Status |
 |----|------|----------|-------|--------|
+| [[2026-04-23-gsc-411k-404-tecdoc-orphans\|INC-2026-012]] | 2026-04-23 | High | 411k pages GSC en 404 (TecDoc V1 orphans + hardcoded 410 shortcut) | Closed-with-monitoring (J+30/60/90) |
 | [[2026-04-23-ci-cwv-backend-boot-crash\|INC-2026-009]] | 2026-04-23 | Medium | CI CWV Performance Gate — APP_URL manquant dans perf-gates.yml (fix PR monorepo #123) | Resolved |
 | [[2026-04-22-redis-public-exposure-bsi\|INC-2026-008]] | 2026-04-22 | Medium | Redis DEV public exposure (BSI CB-Report#20260422-10008190) | Resolved |
 | [[2026-04-21-503-vehicle-pages-rpc-allowlist-stale-image\|INC-2026-006]] | 2026-04-21 | High | 503 /constructeurs/* — allowlist RPC manquante + image preprod obsolete | Closed (structural fix) |
@@ -38,6 +39,7 @@ Index des incidents et post-mortems. Cette MOC est la porte d'entree pour tout e
 
 ### High
 
+- [[2026-04-23-gsc-411k-404-tecdoc-orphans]] — 411 k pages GSC en 404 (TecDoc V1→V2 remap orphans dans `__sitemap_p_link` + shortcut 410 hardcodé). 3 PRs monorepo (#133/#134/#135) + migration N2 (#136) + tag `v2026.04.23-gsc-404-tecdoc-fix`. Sitemap régénéré avec filtre actif (102 395 URLs stable, 0 orphan).
 - [[2026-04-20_high_xtr-msg-firehose-cascade]] — Firehose logs d'erreur dans `___xtr_msg` sature PostgREST et cree une boucle positive de timeouts (-95 % inserts apres fix, table dediee `__error_logs` + pg_cron 30j)
 
 ### Medium
@@ -55,6 +57,7 @@ Index des incidents et post-mortems. Cette MOC est la porte d'entree pour tout e
 
 ### 2026
 
+- [[2026-04-23-gsc-411k-404-tecdoc-orphans]] — 411 k GSC 404 backlog (TecDoc V1 orphans + hardcoded shortcut), 3 PRs monorepo + migration N2 + tag `v2026.04.23-gsc-404-tecdoc-fix`
 - [[2026-04-22-redis-public-exposure-bsi]] — Redis DEV exposé publiquement (BSI), firewall Hetzner + alignement compose files (PR monorepo #102)
 - [[2026-04-20_high_xtr-msg-firehose-cascade]] — Error log firehose → boucle positive PostgREST → timeouts 15s (fix: RPC + buffer + table dediee)
 - [[2026-04-14-paybox-tunnel-sev1-ipn-blocked]] — Paybox tunnel IPN blocked 25 jours (Cloudflare WAF + gate errorCode + RPC type error)
