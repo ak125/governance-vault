@@ -8,8 +8,8 @@ decision_makers:
   - "@ak125"
 supersedes: []
 superseded_by:
-  - ADR-011-openclaw-claude-api-replacement
-  - ADR-025-seo-department-architecture
+  - ADR-011
+  - ADR-025
 status_review:
   reviewed_at: 2026-04-27
   reviewed_by: "Claude Opus 4.7"
