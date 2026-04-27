@@ -3,7 +3,7 @@
 **Domaine :** SEO, Sitemap V10, Google Search Console
 **Date :** 2026-04-24 (canon, à jour à la création)
 **Première exécution réelle :** 2026-04-23 (cf. section "Run history" en bas — résultats consignés pour référence future)
-**Incident lié :** [[INC-2026-012]] — 411 k GSC 404 TecDoc orphans
+**Incident lié :** [[2026-04-23-gsc-411k-404-tecdoc-orphans|INC-2026-012]] — 411 k GSC 404 TecDoc orphans
 **Évidence :** monorepo PRs #133, #134, #135, #136 + tag `v2026.04.23-gsc-404-tecdoc-fix`
 
 ---
@@ -171,7 +171,7 @@ curl -s https://www.automecanik.com/sitemaps/stable/sitemap-pieces-1.xml \
 4. `Ajouter un sitemap` → `https://www.automecanik.com/sitemap.xml`
 5. Vérifier statut `Réussi` sous 24 h
 
-**Monitoring J+1, J+7, J+30, J+60, J+90** (cf. checklist de suivi dans [[INC-2026-012]]) :
+**Monitoring J+1, J+7, J+30, J+60, J+90** (cf. checklist de suivi dans [[2026-04-23-gsc-411k-404-tecdoc-orphans|INC-2026-012]]) :
 
 - Rapport `Indexation des pages > Introuvable (404)` : tendance à la baisse
 - Objectif : **≤ 50 k URLs en 404 à J+60** (réduction ≥ 87 % depuis les 411 k observés 2026-04-23)
@@ -195,7 +195,7 @@ L'incident passe de `resolved-with-followup` à `closed` quand :
 - [ ] N3 (régénération sitemap + resubmit GSC) exécuté
 - [ ] J+60 : GSC `Introuvable (404)` en baisse de ≥ 80 %
 - [ ] J+90 : backlog stabilisé à une valeur résiduelle acceptable (< 20 k)
-- [ ] Post-mortem complété : [[INC-2026-012]] section Suivi toutes cases cochées
+- [ ] Post-mortem complété : [[2026-04-23-gsc-411k-404-tecdoc-orphans|INC-2026-012]] section Suivi toutes cases cochées
 
 ## Run history
 
@@ -245,7 +245,7 @@ L'incident passe de `resolved-with-followup` à `closed` quand :
 
 ## Références
 
-- Incident : [[INC-2026-012]] (`ledger/incidents/2026/2026-04-23-gsc-411k-404-tecdoc-orphans.md`)
+- Incident : [[2026-04-23-gsc-411k-404-tecdoc-orphans|INC-2026-012]] (`ledger/incidents/2026/2026-04-23-gsc-411k-404-tecdoc-orphans.md`)
 - Pattern canon : [[3-layer-error-pipeline-pattern]] (`ledger/knowledge/`)
 - Migration SQL : monorepo `backend/supabase/migrations/20260424_archive_purge_sitemap_orphan_types.sql`
 - Règle mémoire bloquante : `feedback_sitemap_no_trigger.md` (incident 2026-04-18)
