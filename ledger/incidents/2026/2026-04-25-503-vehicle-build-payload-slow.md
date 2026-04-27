@@ -5,8 +5,9 @@ title: "503 R8 vehicle pages — build_vehicle_page_payload sous-requete catalog
 date: 2026-04-25
 date_detected: 2026-04-25T10:20:00Z
 date_resolved: 2026-04-25T13:56:00Z
+date_steady_state: 2026-04-25T~16:00:00Z  # backfill 28 252 stale termine, watcher auto-unschedule
 severity: medium
-status: resolved
+status: resolved-pending-merge  # fix vivant en DB, PRs monorepo #167 + vault #65 en attente de merge user
 impact_duration: "intermittent depuis 2026-04-23 (2j env. en mode degrade probabiliste, 1 utilisateur impacte observe)"
 affected_systems:
   - route-frontend: /constructeurs/{brand}/{model}/{type}.html (R8)
@@ -71,6 +72,10 @@ tags:
 | 2026-04-25 ~13:30 | Trigger auto_type + wrapper canon mark_stale_with_followup_rebuild deployes |
 | 2026-04-25 ~13:50 | Endpoints admin vehicle-cache + instrumentation loader 503 + smoke /constructeurs/* + check CI guard |
 | 2026-04-25 13:56 | PR monorepo #167 ouverte (3 commits, 7 fichiers nouveaux + 4 modifs) |
+| 2026-04-25 14:19 | Commit `84aa9655` cherry-pick : fix smoke URLs (audi-r8 inactif + peugeot-308 redirect 301 remplaces par chevrolet/fiat/vw fresh canonical) |
+| 2026-04-25 14:25 | PR vault #65 ouverte (post-mortem INC-2026-007) |
+| 2026-04-25 ~16:00 | **Steady state atteint** : backfill 28 252 rows termine, watcher auto-unschedule les 2 cron jobs |
+| 2026-04-27 14:03 | **Validation J+2** : stale=0, fresh=28 505, cron_jobs_active=0, page 34746 = HTTP 200 sub-200ms, stress 100 hits = 100/100 = 200 zero 503 |
 
 ## Impact
 
@@ -161,15 +166,42 @@ PR monorepo : https://github.com/ak125/nestjs-remix-monorepo/pull/167
 - [x] **[DONE 25/04]** Loader Remix instrumente sur 4 chemins 503
 - [x] **[DONE 25/04]** Smoke prod 3 URLs `/constructeurs/*` + check `__error_logs` 5xx
 - [x] **[DONE 25/04]** Garde-fou CI `check-no-direct-vehicle-cache-stale.sh`
-- [x] **[DONE 25/04]** PR monorepo #167 ouverte
-- [ ] **[J+1]** Verifier `stale_count = 0` en prod, watcher unschedule effectif
-- [ ] **[J+1]** PR separee `RPC_TIMEOUT_MS = 500` (Etape 6)
-- [ ] **[J+7]** ADR-016 status `proposed` -> `accepted` avec preuves criteres coches
-- [ ] **[J+14]** Verifier 0 entree `__error_logs` 5xx sur `/constructeurs/*` sur 14 jours
-- [ ] **[J+14]** Re-validation GSC « erreur serveur (5xx) » sur sitemap vehicule
-- [ ] **[FOLLOWUP]** Wirer `scripts/ci/check-no-direct-vehicle-cache-stale.sh` dans `.github/workflows/ci.yml`
-- [ ] **[FOLLOWUP]** Auditer toutes les ADR `proposed`/`accepted` du vault et verifier que chaque case [x] correspond a un artefact reel
-- [ ] **[FOLLOWUP STRUCTUREL]** Check CI qui parse les ADR mergees et verifie les criteres de succes vs commits/migrations
+- [x] **[DONE 25/04 13:56]** PR monorepo #167 ouverte (3 commits root-cause + 1 commit fix smoke URLs cherry-pick)
+- [x] **[DONE 25/04 14:25]** PR vault #65 ouverte (post-mortem INC-2026-007)
+- [x] **[DONE 25/04 ~16:00]** Verifier `stale_count = 0` en prod, watcher unschedule effectif (auto via cron one-shot watcher)
+- [x] **[DONE J+2 27/04 14:03]** Re-validation : stale=0, fresh=28 505, page 34746 = HTTP 200, stress 100 hits = 100/100 = 200
+
+### Reste a faire (hors session, attente user)
+
+- [ ] **[USER ACTION]** **Merger PR monorepo #167** : https://github.com/ak125/nestjs-remix-monorepo/pull/167
+  - Contient : 4 migrations DB + 2 controllers NestJS + instrumentation loader Remix + smoke CI + check CI guard
+  - Note : les 4 migrations DB sont DEJA appliquees en prod via MCP. Le merge ne re-appliquera rien (CREATE OR REPLACE idempotent, DROP TRIGGER IF EXISTS), il trace seulement les fichiers de migration dans le repo.
+  - Pre-requis : aucun, PR pure code/migrations sans rollback risque.
+
+- [ ] **[USER ACTION]** **Merger PR vault #65** : https://github.com/ak125/governance-vault/pull/65
+  - Contient : ce post-mortem INC-2026-007.
+
+- [ ] **[POST-MERGE #167 — USER]** Tag semver `vYYYY.MM.DD-inc-2026-007` puis push pour declencher `deploy-prod.yml` (cf. memory `deployment-workflow.md`).
+  - Etat actuel : DB deja patchee (fonction optim + cron + trigger + canon), mais code backend NestJS et frontend Remix pas encore en prod -> les nouveaux endpoints `/api/admin/vehicle-cache/*` et `/api/internal/error-log` ne sont pas encore disponibles, et le loader Remix ne notifie pas encore les 503 dans `__error_logs`.
+  - **Conséquence si pas tagge** : le système continue de marcher (DB resout le 503), mais les blindspots d'observabilite restent ouverts jusqu'au deploy PROD.
+
+- [ ] **[ETAPE 6 — Bloquee sur merge #167]** Ouvrir PR separee qui passe `RPC_TIMEOUT_MS` 2000 -> 500 ms dans `backend/src/modules/vehicles/services/vehicle-rpc.service.ts:27`.
+  - Pre-requis tous valides depuis 25/04 ~16:00 (stale=0 + trigger + canon en place).
+  - Conformite : alignement final ADR-016 critere de succes #5.
+  - Risque : si une anomalie produit un rebuild on-miss, comportement echec-rapide-visible (503 en 500ms + alerte) plutot que tolerance silencieuse.
+
+- [ ] **[ETAPE 10 — Apres J+7 d'observation]** Mettre ADR-016 status `proposed` -> `accepted` avec preuves criteres #1-#5 coches (vault).
+  - Date cible : 2026-05-02 (J+7 du steady state 25/04).
+
+- [ ] **[J+14 — 2026-05-09]** Verifier 0 entree `__error_logs` 5xx sur `/constructeurs/*` sur 14 jours rolling (pre-requis : merge #167 + deploy PROD pour que l'instrumentation loader soit active).
+
+- [ ] **[J+14 — 2026-05-09]** Re-validation GSC « erreur serveur (5xx) » sur sitemap vehicule.
+
+- [ ] **[FOLLOWUP CI]** Wirer `scripts/ci/check-no-direct-vehicle-cache-stale.sh` dans `.github/workflows/ci.yml` (le script existe sur la branche fix mais n'est pas encore appele par CI).
+
+- [ ] **[FOLLOWUP STRUCTUREL #1]** Auditer toutes les ADR `proposed`/`accepted` du vault et verifier que chaque case [x] correspond a un artefact reel (issue revele par cet incident : ADR-016 etait `proposed` avec criteres non valides en prod).
+
+- [ ] **[FOLLOWUP STRUCTUREL #2]** Ajouter un check CI qui parse les ADR mergees et verifie que les criteres de succes coches correspondent a des commits/migrations reels.
 
 ## Preuves
 
@@ -179,8 +211,12 @@ PR monorepo : https://github.com/ak125/nestjs-remix-monorepo/pull/167
 - EXPLAIN ANALYZE after fix : 27 ms / 113 rows / Buffers hit=11 868 read=0 (-96 %)
 - Stress test 50 types stale random post-fix : p50=405 ms, p95=1816 ms, p99=2135 ms
 - Validation semantique : 5/5 types snapshot identique avant/apres (n_families et total_gammes)
-- PR monorepo : https://github.com/ak125/nestjs-remix-monorepo/pull/167 (3 commits, 7 fichiers nouveaux)
+- PR monorepo : https://github.com/ak125/nestjs-remix-monorepo/pull/167 (4 commits, OPEN au 27/04)
+- PR vault : https://github.com/ak125/governance-vault/pull/65 (1 commit, OPEN au 27/04)
 - DB live state au moment du push : 27 052 stale (en cours de rattrapage), 1 453 fresh, 2 cron jobs actifs
+- DB live state J+2 (2026-04-27 14:03 UTC) : **stale=0, fresh=28 505, cron_jobs_active=0** (steady state confirme)
+- Stress test live J+2 sur 34746 : 100/100 hits paralleles = HTTP 200 (zero 503), p50/p99 ~6.9 s sous charge (file d'attente Node normale)
+- Stress test live J+2 sur 4 URLs distinctes (chevrolet-1623, fiat-1630, vw-1709, renault-34746) : 4/4 = HTTP 200 entre 126-234 ms
 
 ## Communication
 
