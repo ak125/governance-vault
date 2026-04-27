@@ -70,6 +70,7 @@ Base de connaissances architecturale.
 - [[pre-push-local-check-pattern]] - Pattern : hook pre-push local pour éliminer aller-retours CI
 - [[typescript-aliases-tsc-alias-gotcha-20260427]] - Pattern : alias TypeScript backend NestJS (tsc-alias build chain, watch race, codemod sed multi-niveaux)
 - [[codeql-volume-false-positive-20260427]] - Pattern : CodeQL flag des alerts pré-existantes sur diffs >300 fichiers — procédure intersection diff ∩ alerts
+- [[claude-code-dual-workspace-cost-optimization-20260427]] - Pattern : split workspace dev/SEO Claude Code via cwd-bound `.claude/` (~10K tokens/turn économisés en daily dev) + lessons learned (rm symlink trap, Fleet Advisor scope)
 
 ## References
 
