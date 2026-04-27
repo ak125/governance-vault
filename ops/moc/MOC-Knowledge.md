@@ -54,6 +54,7 @@ Base de connaissances architecturale.
 - [[r8-rag-control-plane-design-20260423]] - R8 RAG Control Plane design spec (5-layer gates, 3 artefacts par modèle, TemplateRotator)
 - [[r8-rag-control-plane-implementation-plan-20260423]] - R8 RAG Control Plane implementation plan (16 artefacts DAG, rollout 8 stages)
 - [[r8-vehicle-enrichment-stage1-honest-debrief-20260425]] - R8 Stage 1 vehicle enrichment honest debrief (8h+ session, bricolage scraper Clio III closed, ADR-022 control plane track)
+- [[r8-distinct-render-scraping-canon-20260425]] - Session wrap R8 distinct render + scraping canon (PRs #185 #188 monorepo, vault PR #74 mergée, regression proposal détectée, P0-P5 reste à faire)
 
 ## Gouvernance (Historique v1)
 
@@ -67,6 +68,10 @@ Base de connaissances architecturale.
 - [[pre-push-local-check-pattern]] - Pattern : hook pre-push local pour éliminer aller-retours CI
 - [[typescript-aliases-tsc-alias-gotcha-20260427]] - Pattern : alias TypeScript backend NestJS (tsc-alias build chain, watch race, codemod sed multi-niveaux)
 - [[codeql-volume-false-positive-20260427]] - Pattern : CodeQL flag des alerts pré-existantes sur diffs >300 fichiers — procédure intersection diff ∩ alerts
+
+## Session debriefs
+
+- [[adr-024-r1-cache-session-debrief-20260427]] - Session debrief 2026-04-27 : ADR-024 R1 Gamme Page Cache phases 1-6a livrees, scheduling J+14 pour promotion (8 PRs vault + 4 PRs monorepo, 238/238 cached)
 
 ## References
 
