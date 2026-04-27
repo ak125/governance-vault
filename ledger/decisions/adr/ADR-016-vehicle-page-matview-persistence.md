@@ -1,7 +1,7 @@
 ---
 id: ADR-016
 title: "Vehicle Page Data — Persistance par matérialisation, pas par tolérance de timeout"
-status: proposed
+status: accepted
 date: 2026-04-20
 decision_makers:
   - "@automecanik.seo"
@@ -14,8 +14,26 @@ related_rules:
 related_incidents:
   - INC-2026-005-gsc-5xx-vehicle-page-cold-rpc
 reviewed_by: "Claude Opus 4.7"
+implementation_evidence:
+  status_review_at: 2026-04-27
+  reviewed_by: "Claude Opus 4.7"
+  migrations_shipped:
+    - 20260420_vehicle_page_cache_schema.sql
+    - 20260420_vehicle_page_cache_build_fn.sql
+    - 20260420_vehicle_page_cache_null_guard.sql
+    - 20260421_vehicle_page_cache_inline_and_drop_legacy.sql
+  code_evidence:
+    - "backend/src/modules/vehicles/services/vehicle-rpc.service.ts (L2 cache via __vehicle_page_cache active)"
+    - "backend/src/modules/vehicles/controllers/admin-vehicle-cache.controller.ts (admin endpoints actifs)"
+    - "backend/src/modules/admin/services/r8-vehicle-enricher.service.ts:126 (route via cache-first RPC)"
+  no_feature_flag: true
+  notes: |
+    Décision implémentée et active en production. Pas de feature flag — toutes
+    les requêtes vehicle page passent par get_vehicle_page_data_cached qui sert
+    depuis __vehicle_page_cache (rebuild on miss). Statut passé de `proposed`
+    (7 jours stale après livraison code) à `accepted` pour refléter la réalité.
 tags:
-  - adr/proposed
+  - adr/accepted
   - domain/catalog
   - domain/seo
   - tech/postgres

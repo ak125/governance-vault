@@ -1,7 +1,7 @@
 ---
 id: ADR-017
 title: "Nettoyer les casts TEXT↔INTEGER dans les RPC pieces_* — indexation effective"
-status: proposed
+status: accepted
 date: 2026-04-21
 decision_makers:
   - "@automecanik.seo"
@@ -16,8 +16,26 @@ related_adrs:
   - ADR-016-vehicle-page-matview-persistence
   - ADR-018-dual-column-schema-consolidation
 reviewed_by: "Claude Opus 4.7"
+implementation_evidence:
+  status_review_at: 2026-04-27
+  reviewed_by: "Claude Opus 4.7"
+  phase_1_status: LIVE
+  phase_1_live_at: 2026-04-21
+  migrations_shipped:
+    - 20260421_adr017_rpc_pieces_cast_cleanup.sql
+  perf_gain_phase1: "RPC #1 -96% (395ms vs 10.5s baseline)"
+  index_gain: "+2.6 GB de couverture index effective"
+  remaining_phases:
+    - "8 RPC pieces_* restantes à traiter dans les phases suivantes"
+  notes: |
+    Phase 1 LIVE en production le 2026-04-21. RPC #1 mesuré à 395ms vs 10.5s
+    baseline pré-cleanup (gain -96%). Décision factuellement appliquée et
+    mesurée. Statut passé de `proposed` (6 jours stale après livraison Phase 1)
+    à `accepted` pour refléter la réalité. Les 8 phases restantes sont du
+    follow-up tracké via le plan d'implémentation, pas une raison de garder
+    la décision en `proposed`.
 tags:
-  - adr/proposed
+  - adr/accepted
   - domain/catalog
   - tech/postgres
   - tech/supabase
