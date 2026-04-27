@@ -2,8 +2,9 @@
 
 **Domaine :** SEO, Sitemap V10, Google Search Console
 **Date :** 2026-04-24 (canon, à jour à la création)
+**Première exécution réelle :** 2026-04-23 (cf. section "Run history" en bas — résultats consignés pour référence future)
 **Incident lié :** [[INC-2026-012]] — 411 k GSC 404 TecDoc orphans
-**Évidence :** monorepo PRs #133, #134, #135 + monorepo PR migration N2
+**Évidence :** monorepo PRs #133, #134, #135, #136 + tag `v2026.04.23-gsc-404-tecdoc-fix`
 
 ---
 
@@ -196,6 +197,52 @@ L'incident passe de `resolved-with-followup` à `closed` quand :
 - [ ] J+90 : backlog stabilisé à une valeur résiduelle acceptable (< 20 k)
 - [ ] Post-mortem complété : [[INC-2026-012]] section Suivi toutes cases cochées
 
+## Run history
+
+### Run #1 — 2026-04-23 (première exécution, INC-2026-012 N3)
+
+**Trigger** : `POST https://www.automecanik.com/api/sitemap/v10/generate-all` lancé par owner SEO depuis VPS PROD `49.12.233.2` à 19:42 UTC.
+
+**Réponse API** (HTTP 201, durée 18 748 ms) :
+
+```json
+{
+  "success": true,
+  "totalUrls": 102395,
+  "totalFiles": 11,
+  "indexPath": "/var/www/sitemaps/sitemap.xml",
+  "buckets": [
+    {"bucket": "hot",    "urlCount": 0,      "filesGenerated": 0},
+    {"bucket": "stable", "urlCount": 102395, "filesGenerated": 3},
+    {"bucket": "cold",   "urlCount": 0,      "filesGenerated": 0}
+  ],
+  "hubResult": {"totalUrls": 250539, "totalFiles": 113}
+}
+```
+
+**Vérifications post-trigger** :
+
+| Check | Résultat |
+|-------|----------|
+| `sitemap-pieces-1.xml` taille | 50 000 URLs ✅ |
+| `sitemap-pieces-2.xml` taille | 50 000 URLs ✅ |
+| `sitemap-pieces-3.xml` taille | 2 395 URLs ✅ (somme = 102 395, match API) |
+| Orphan check `type_id > 83456` dans XML | 0 trouvé ✅ (filtre PR #135 actif) |
+| Spot-check 5 URLs random | 4×200 + 1×301 (URL normalisée vers slug canonique = comportement attendu) ✅ |
+| `sitemap.xml` index public | HTTP 200, lastmod 2026-04-23 ✅ |
+
+**Note** : `sitemap-pieces-4.xml` (50 000 URLs) reste sur le filesystem mais n'est pas référencé dans `sitemap.xml` (donc pas indexé par GSC). Leftover d'un ancien run avant le filtre orphans. Cleanup à programmer en opération séparée non-bloquante.
+
+**Calibrage attendu pour les prochains runs** :
+- Bucket stable ≈ 100 k URLs (avec threshold `min_items_threshold = 20`, cf. `crawl_budget_experiments`)
+- Hubs ≈ 250 k URLs (113 files)
+- Durée totale ≈ 20 s
+- Filtre orphans : devrait être proche de 0 si la DB reste stable, sinon investiguer (nouveau remap TecDoc ?)
+
+### Run #2+ — à compléter
+
+À chaque exécution future de ce runbook, ajouter une section similaire avec : trigger source, réponse API, vérifications, anomalies éventuelles.
+
 ## Références
 
 - Incident : [[INC-2026-012]] (`ledger/incidents/2026/2026-04-23-gsc-411k-404-tecdoc-orphans.md`)
@@ -203,4 +250,5 @@ L'incident passe de `resolved-with-followup` à `closed` quand :
 - Migration SQL : monorepo `backend/supabase/migrations/20260424_archive_purge_sitemap_orphan_types.sql`
 - Règle mémoire bloquante : `feedback_sitemap_no_trigger.md` (incident 2026-04-18)
 - Auto-mode règle 5 : toute opération destructive ou sur système partagé nécessite confirmation humaine explicite
-- PRs monorepo : [#133](https://github.com/ak125/nestjs-remix-monorepo/pull/133), [#134](https://github.com/ak125/nestjs-remix-monorepo/pull/134), [#135](https://github.com/ak125/nestjs-remix-monorepo/pull/135)
+- PRs monorepo : [#133](https://github.com/ak125/nestjs-remix-monorepo/pull/133), [#134](https://github.com/ak125/nestjs-remix-monorepo/pull/134), [#135](https://github.com/ak125/nestjs-remix-monorepo/pull/135), [#136](https://github.com/ak125/nestjs-remix-monorepo/pull/136)
+- Tag PROD : `v2026.04.23-gsc-404-tecdoc-fix` (commit `5dd0be92`)
