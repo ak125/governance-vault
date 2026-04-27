@@ -54,6 +54,7 @@ Base de connaissances architecturale.
 - [[r8-rag-control-plane-design-20260423]] - R8 RAG Control Plane design spec (5-layer gates, 3 artefacts par modèle, TemplateRotator)
 - [[r8-rag-control-plane-implementation-plan-20260423]] - R8 RAG Control Plane implementation plan (16 artefacts DAG, rollout 8 stages)
 - [[r8-vehicle-enrichment-stage1-honest-debrief-20260425]] - R8 Stage 1 vehicle enrichment honest debrief (8h+ session, bricolage scraper Clio III closed, ADR-022 control plane track)
+- [[r8-distinct-render-scraping-canon-20260425]] - Session wrap R8 distinct render + scraping canon (PRs #185 #188 monorepo, vault PR #74 mergée, regression proposal détectée, P0-P5 reste à faire)
 
 ## Gouvernance (Historique v1)
 
