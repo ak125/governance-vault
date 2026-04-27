@@ -44,11 +44,11 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-023 | Hook-Layer Defense for .local/governance-vault/ | Accepted | 2026-04-24 | [[ADR-023-hook-layer-defense]] |
 | ADR-024 | R1 Gamme Page Data — Persistance par matérialisation (parité ADR-016) | Proposed | 2026-04-27 | [[ADR-024-r1-gamme-page-matview-persistence]] |
 | ADR-025 | SEO Department Architecture (5 modules) | Accepted | 2026-04-25 | [[ADR-025-seo-department-architecture]] |
+| ADR-026 | Content Repository Separation — automecanik-content as SEO Refined Layer | Proposed | 2026-04-27 | [[ADR-026-content-separation]] |
 | ADR-027 | R5 Diagnostic consolidation into R3 S2_DIAG | Proposed | 2026-04-25 | [[ADR-027-r5-consolidation-into-r3-s2-diag]] |
 | ADR-029 | RAG v2.1 Control Plane Closure — State Machine 7-Stage + Emitter/Detector | Proposed | 2026-04-25 | [[ADR-029-rag-v2.1-control-plane-closure]] |
 
 > **Notes** :
-> - **ADR-026** est en cours sur sa propre feature branch (`docs/adr-026-content-separation`). Elle sera ajoutée ici quand sa PR sera mergée sur main.
 > - **ADR-028, ADR-030** sont des numéros libres au 2026-04-27.
 
 ---
@@ -91,6 +91,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 
 - [[ADR-022-r8-rag-control-plane]] - R8 RAG Control Plane (propose-before-write, 5-layer gates, rotation déterministe)
 - [[ADR-025-seo-department-architecture]] - Architecture département SEO 5 modules (Observability, On-page, Content ops, Intelligence, GEO/AEO) sur 8 semaines, DB lean (7 tables au lieu de 15 via JSONB discriminated unions)
+- [[ADR-026-content-separation]] - Séparation `automecanik-content` (SEO refined layer) du `automecanik-rag` (sources + support chatbot), pattern 2-repos par audience cohérent ADR-015, blue-green Weaviate zéro downtime
 - [[ADR-027-r5-consolidation-into-r3-s2-diag]] - R5 Diagnostic consolidation into R3 S2_DIAG (sunset 1176 R5 sub-pages, hub /diagnostic-auto indexable seul, S2_DIAG ancre canonique R3)
 - [[ADR-029-rag-v2.1-control-plane-closure]] - RAG v2.1 Control Plane Closure (state machine 7 stages + emitter/detector, proposed)
 
