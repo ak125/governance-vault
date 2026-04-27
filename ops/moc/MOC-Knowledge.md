@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-04-23
+updated: 2026-04-26
 ---
 
 # MOC: Knowledge
@@ -74,6 +74,11 @@ Base de connaissances architecturale.
 ## References
 
 - [[airlock-decisions-reference]] - Mapping Airlock DEC-002..013 ↔ ADR canoniques (leve l'ambiguite avec les DEC legacy)
+
+## Investigations & honest debriefs
+
+- [[seo-traffic-drop-investigation-20260426]] - Investigation chute trafic SEO 25/04 (verdict INSUFFICIENT_EVIDENCE, GSC non ingéré, follow-up actions A→E)
+- [[r5-r3-consolidation-voie-b-session-20260425]] - Audit voie B R5→R3 S2_DIAG (verdict PARTIAL_COVERAGE, ADR-027 + Phase B livrées, phases C/D/E + leviers CRM/ads à exécuter)
 
 ## Knowledge Sous-Dossier Diagnostics
 
