@@ -1,0 +1,23 @@
+# Editor / OS transient files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*.bak
+*~
+
+# Vault-specific transient outputs
+#
+# `weekly-vault-lint` (ADR-020) writes a snapshot of detected orphans into
+# `99-meta/orphans-report.md` at run-time. This file is transient — it
+# captures the working-tree state at lint-time, which can include files from
+# a checked-out feature branch that don't exist on `main`. Committing it
+# would create stale, misleading reports.
+#
+# Canonical, timestamped reports go in `99-meta/reports/YYYY-MM-*.md` (e.g.
+# `99-meta/reports/2026-04-signature-audit.md`). The lint should be updated
+# to write there instead — see Q4 trigger in PR description.
+99-meta/orphans-report.md
+
+# Sync log artifacts (regenerated each sync)
+99-meta/last-sync-timestamp.tmp
