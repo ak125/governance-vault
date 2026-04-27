@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-04-24
+updated: 2026-04-27
 ---
 
 # MOC: Decisions
@@ -23,23 +23,30 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-002 | Airlock & Zero-Trust Agents | Accepted-Revised (v2.0) | 2026-03-07 | [[ADR-002-airlock-zero-trust]] |
 | ADR-003 | RPC Governance via RpcGateService | Accepted | 2026-02-03 | [[ADR-003-rpc-governance]] |
 | ADR-004 | rm/ Module Scope (DEV-only) | Accepted | 2026-02-03 | [[ADR-004-rm-module-scope]] |
-| ADR-005 | Airlock Observe Mode Activation | Accepted-Revised (v1.1) | 2026-03-07 | [[ADR-005-airlock-observe-activation]] |
-| ADR-006 | AI Orchestrator Architecture (AI-COS) | Proposed | 2026-02-03 | [[ADR-006-ai-orchestrator-architecture]] |
+| ADR-005 | Airlock Observe Mode Activation | Superseded by [[ADR-010-airlock-enforce-activation]] | 2026-02-03 | [[ADR-005-airlock-observe-activation]] |
+| ADR-006 | AI Orchestrator Architecture (AI-COS) | Superseded by [[ADR-011-openclaw-claude-api-replacement]] + [[ADR-025-seo-department-architecture]] (de facto joint coverage, 2026-04-27) | 2026-02-03 | [[ADR-006-ai-orchestrator-architecture]] |
 | ADR-007 | Location Independence Principle | Accepted | 2026-02-04 | [[ADR-007-location-independence]] |
 | ADR-008 | Agent Placement Rules (3 Zones) | Accepted | 2026-02-04 | [[ADR-008-agent-placement-rules]] |
 | ADR-009 | Phase 1 Agent Activation Framework | Accepted-Revised (v2.0) | 2026-03-07 | [[ADR-009-agents-phase1-activation]] |
 | ADR-010 | Airlock Enforce Mode & CI Authority | Accepted | 2026-02-04 | [[ADR-010-airlock-enforce-activation]] |
 | ADR-011 | Remplacement OpenClaw par Claude API | Accepted | 2026-03-07 | [[ADR-011-openclaw-claude-api-replacement]] |
 | ADR-012 | AI-COS VPS Architecture & Agent Placement | Accepted | 2026-03-08 | [[ADR-012-aicos-vps-architecture]] |
-| ADR-013 | Agent Lifecycle Governance | Accepted | 2026-03-15 | [[ADR-013-agent-lifecycle-governance]] |
+| ADR-013 | Agent Lifecycle Governance | Accepted | 2026-04-04 | [[ADR-013-agent-lifecycle-governance]] |
 | ADR-014 | Suppression /api/paybox/callback-test | Accepted | 2026-02-03 | [[ADR-014-remove-paybox-callback-test]] |
 | ADR-015 | Governance Vault — Single Source of Truth | Accepted | 2026-04-18 | [[ADR-015-vault-single-source-of-truth]] |
-| ADR-019 | AI Content Advisor Escalation (Pattern A) | Proposed | 2026-04-21 | [[ADR-019-ai-content-advisor-escalation]] |
+| ADR-016 | Vehicle Page Data — Persistance par matérialisation | Accepted (2026-04-27, evidence-based promotion) | 2026-04-20 | [[ADR-016-vehicle-page-matview-persistence]] |
+| ADR-017 | Nettoyer les casts TEXT↔INTEGER dans RPC pieces_* | Accepted (2026-04-27, Phase 1 LIVE -96%) | 2026-04-21 | [[ADR-017-rpc-pieces-cast-cleanup]] |
+| ADR-018 | Consolider schéma dual TEXT/INTEGER auto_*/pieces_* | Deferred | 2026-04-21 | [[ADR-018-dual-column-schema-consolidation]] |
+| ADR-019 | AI Content Advisor Escalation (Pattern A) | Accepted | 2026-04-21 | [[ADR-019-ai-content-advisor-escalation]] |
 | ADR-020 | Weekly Governance Vault Lint | Accepted | 2026-04-23 | [[ADR-020-weekly-vault-lint]] |
 | ADR-021 | Database RLS Hardening — Zero-Trust per-Table | Accepted | 2026-04-23 | [[ADR-021-database-rls-hardening-zero-trust]] |
-| ADR-022 | R8 RAG Control Plane — Propose-Before-Write + 5-Layer Gates | Proposed | 2026-04-23 | [[ADR-022-r8-rag-control-plane]] |
+| ADR-022 | R8 RAG Control Plane — Propose-Before-Write + 5-Layer Gates | Accepted | 2026-04-23 | [[ADR-022-r8-rag-control-plane]] |
 | ADR-023 | Hook-Layer Defense for .local/governance-vault/ | Accepted | 2026-04-24 | [[ADR-023-hook-layer-defense]] |
-| ADR-025 | SEO Department Architecture (Observability, On-page, Content ops, Intelligence, GEO/AEO) | Accepted | 2026-04-25 | [[ADR-025-seo-department-architecture]] |
+| ADR-025 | SEO Department Architecture (5 modules) | Accepted | 2026-04-25 | [[ADR-025-seo-department-architecture]] |
+
+> **Notes** :
+> - **ADR-026, ADR-027, ADR-029** sont en cours sur leurs propres feature branches respectives (`docs/adr-026-content-separation`, `adr/027-r5-consolidation-r3-s2-diag`, `feat/adr-029-rag-v2.1-control-plane`). Elles seront ajoutées ici quand leurs PRs respectives seront mergées sur main.
+> - **ADR-024, ADR-028, ADR-030** sont des numéros libres au 2026-04-27.
 
 ---
 
@@ -49,7 +56,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 
 - [[ADR-001-environment-separation]] - Séparation des environnements DEV/PREPROD/PROD
 - [[ADR-004-rm-module-scope]] - Classification module rm/ comme DEV-only
-- [[ADR-006-ai-orchestrator-architecture]] - Architecture AI-COS (LangGraph, Skills, RAG)
+- [[ADR-006-ai-orchestrator-architecture]] - Architecture AI-COS LangGraph (superseded by [[ADR-011-openclaw-claude-api-replacement]] + [[ADR-025-seo-department-architecture]])
 - [[ADR-007-location-independence]] - Règle Maître : Location Independence
 
 ### Sécurité
@@ -68,10 +75,16 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 - [[ADR-011-openclaw-claude-api-replacement]] - Remplacement OpenClaw par Claude API
 - [[ADR-012-aicos-vps-architecture]] - AI-COS VPS Observatoire (4e zone)
 - [[ADR-013-agent-lifecycle-governance]] - Cycle de vie des agents
+- [[ADR-019-ai-content-advisor-escalation]] - AI Content advisor escalation (Pattern A documented)
+
+### Performance & DB
+
+- [[ADR-016-vehicle-page-matview-persistence]] - Vehicle Page persistance par matérialisation (`__vehicle_page_cache`, p99 < 50 ms cible)
+- [[ADR-017-rpc-pieces-cast-cleanup]] - Nettoyer casts TEXT↔INTEGER dans RPC `pieces_*` (Phase 1 LIVE, RPC #1 -96%)
+- [[ADR-018-dual-column-schema-consolidation]] - Consolider schéma dual TEXT/INTEGER auto_*/pieces_* (deferred)
 
 ### SEO
 
-- [[ADR-006-ai-orchestrator-architecture]] - Inclut SEO Charter et PageRole validation
 - [[ADR-022-r8-rag-control-plane]] - R8 RAG Control Plane (propose-before-write, 5-layer gates, rotation déterministe)
 - [[ADR-025-seo-department-architecture]] - Architecture département SEO 5 modules (Observability, On-page, Content ops, Intelligence, GEO/AEO) sur 8 semaines, DB lean (7 tables au lieu de 15 via JSONB discriminated unions)
 
@@ -122,6 +135,47 @@ Certaines décisions sont documentées dans les **règles** plutôt qu'en ADR :
 
 ---
 
+## Status Semantics (Status Machine)
+
+> Les ADR utilisent l'un des statuts suivants. Toute autre valeur est invalide et doit être normalisée à la première occasion. Auto-checkable via `_scripts/check-frontmatter-schema.py`.
+
+| Status | Sémantique | Critère d'entrée | Transitions sortantes autorisées |
+|---|---|---|---|
+| `proposed` | Décision rédigée, en attente de revue/approbation | ADR créée avec frontmatter complet, body suivant template `_templates/adr-template.md` | → `accepted` (approuvé) ; → `deferred` (info manquante) ; → `superseded` (rare, ex : remplacée avant approbation) |
+| `accepted` | Décision approuvée et active. Code peut être en n'importe quel état d'implémentation | Approuvée par `decision_makers`, commit signé (G3) | → `accepted-revised` (modification substantielle ; bump `version` semver) ; → `superseded` (remplacée par une autre ADR ou un ensemble) ; → `deprecated` (devenue obsolète sans remplacement formel) |
+| `accepted-revised` | Acceptée + révisée depuis ; numéro de version semver bumped (ex : v2.0) | Modification substantielle d'une ADR `accepted`, motivée explicitement | → `superseded` ; → `deprecated` |
+| `deferred` | Reportée en attente d'information ou de dépendances | Décision en `proposed` qui ne peut conclure faute d'inputs | → `proposed` (reprise) ; → `superseded` ; → `deprecated` (jamais reprise) |
+| `superseded` | Remplacée par une autre ADR (ou ensemble d'ADR), partiellement ou totalement | `superseded_by[]` non vide, contient ≥ 1 ADR cible existant | **terminal** (aucune transition sortante) |
+| `deprecated` | Plus applicable, sans remplacement formel | Décision morte, mais le contenu garde valeur historique | **terminal** (aucune transition sortante) |
+
+### Règles d'invariance
+
+- **Q1 / G6 anti-BS** : tout passage à `accepted` doit citer evidence d'implémentation (migrations shippées, code refs, mesures perf) dans le frontmatter `implementation_evidence:` ou en body.
+- Tout passage à `superseded` doit définir `superseded_by[]` non vide. `_scripts/check-adr-supersedes.py` enforce cette règle.
+- Une ADR `proposed` > 30 jours est de la dette de gouvernance (Q4) — déclenche alert dans `weekly-vault-lint` ([[ADR-020-weekly-vault-lint]]) à venir.
+- Une ADR `superseded` peut pointer vers **plusieurs** ADR via `superseded_by: [...]` lorsqu'aucune ADR seule ne couvre l'intégralité (cas "de facto joint coverage" — voir [[ADR-006-ai-orchestrator-architecture]] superseded by ADR-011 + ADR-025).
+
+### Champs frontmatter associés
+
+```yaml
+status: <one of the 6 above>
+supersedes: []          # ADR(s) que cette décision remplace
+superseded_by: []       # ADR(s) qui remplacent cette décision (obligatoire si status=superseded)
+status_review:          # optionnel, pour transitions
+  reviewed_at: YYYY-MM-DD
+  reviewed_by: "<actor>"
+  reviewed_under_rule: <rule-id>
+  reason: |
+    <explication libre>
+implementation_evidence: # optionnel, recommandé pour status=accepted
+  migrations_shipped: []
+  code_evidence: []
+  notes: |
+    <texte libre>
+```
+
+---
+
 ## Template
 
 Voir [[adr-template]] dans `_templates/`.
@@ -136,4 +190,8 @@ Voir [[adr-template]] dans `_templates/`.
 
 ---
 
-_Derniere mise a jour: 2026-04-24_
+_Derniere mise a jour: 2026-04-27_
+
+_Synchronisé manuellement vs frontmatter ADR le 2026-04-27. Q4 follow-up :
+auto-générer cette table depuis `_scripts/sync-moc-decisions.py` (à créer)
+pour éviter dérive future._
