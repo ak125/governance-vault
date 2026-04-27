@@ -79,6 +79,7 @@ Base de connaissances architecturale.
 
 - [[seo-traffic-drop-investigation-20260426]] - Investigation chute trafic SEO 25/04 (verdict INSUFFICIENT_EVIDENCE, GSC non ingéré, follow-up actions A→E)
 - [[r5-r3-consolidation-voie-b-session-20260425]] - Audit voie B R5→R3 S2_DIAG (verdict PARTIAL_COVERAGE, ADR-027 + Phase B livrées, phases C/D/E + leviers CRM/ads à exécuter)
+- [[fleet-advisor-claude-4-7-status-20260425]] - Fleet advisor + Claude 4.7 session status 2026-04-25 (8 agents UUIDs canon, draft Advisor pending board, AI-COS disk full incident resolved)
 
 ## Knowledge Sous-Dossier Diagnostics
 
