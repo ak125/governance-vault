@@ -59,6 +59,7 @@ Base de connaissances architecturale.
 
 ## Gouvernance (Historique v1)
 
+- [[single-maintainer-merge-pattern]] - Pattern admin-merge per-PR avec CI gates comme enforcement (vault opéré single-maintainer en attendant un 2ᵉ reviewer)
 - [[03-governance]] - Regles canoniques AI-COS v1.3.0 (superseded par [[rules-ai-cos]])
 - [[GOVERNANCE-HUMAN]] - Doctrine Human Authority & Zero-Trust (pre-ADR-002)
 
