@@ -1,5 +1,5 @@
 ---
-id: INC-2026-007
+id: INC-2026-010
 type: incident
 title: "503 R8 vehicle pages — build_vehicle_page_payload sous-requete catalog mal optimisee"
 date: 2026-04-25
@@ -22,7 +22,7 @@ related_rules:
   - rpc-governance
 related_adrs:
   - ADR-016-vehicle-page-matview-persistence
-  - ADR-021-db-rls-hardening
+  - ADR-021-database-rls-hardening-zero-trust
 related_incidents:
   - INC-2026-005-gsc-5xx-vehicle-page-cold-rpc
   - INC-2026-006-503-vehicle-pages-rpc-allowlist-stale-image
@@ -41,7 +41,7 @@ tags:
   - followup-adr-016
 ---
 
-# INC-2026-007 : 503 R8 vehicle pages — build_vehicle_page_payload sous-requete catalog mal optimisee
+# INC-2026-010 : 503 R8 vehicle pages — build_vehicle_page_payload sous-requete catalog mal optimisee
 
 > [!warning] Résumé
 > Le 25/04 vers 10:20 UTC, un utilisateur signale un HTTP 503 sur
@@ -73,7 +73,7 @@ tags:
 | 2026-04-25 ~13:50 | Endpoints admin vehicle-cache + instrumentation loader 503 + smoke /constructeurs/* + check CI guard |
 | 2026-04-25 13:56 | PR monorepo #167 ouverte (3 commits, 7 fichiers nouveaux + 4 modifs) |
 | 2026-04-25 14:19 | Commit `84aa9655` cherry-pick : fix smoke URLs (audi-r8 inactif + peugeot-308 redirect 301 remplaces par chevrolet/fiat/vw fresh canonical) |
-| 2026-04-25 14:25 | PR vault #65 ouverte (post-mortem INC-2026-007) |
+| 2026-04-25 14:25 | PR vault #65 ouverte (post-mortem INC-2026-010) |
 | 2026-04-25 ~16:00 | **Steady state atteint** : backfill 28 252 rows termine, watcher auto-unschedule les 2 cron jobs |
 | 2026-04-27 14:03 | **Validation J+2** : stale=0, fresh=28 505, cron_jobs_active=0, page 34746 = HTTP 200 sub-200ms, stress 100 hits = 100/100 = 200 zero 503 |
 
@@ -167,7 +167,7 @@ PR monorepo : https://github.com/ak125/nestjs-remix-monorepo/pull/167
 - [x] **[DONE 25/04]** Smoke prod 3 URLs `/constructeurs/*` + check `__error_logs` 5xx
 - [x] **[DONE 25/04]** Garde-fou CI `check-no-direct-vehicle-cache-stale.sh`
 - [x] **[DONE 25/04 13:56]** PR monorepo #167 ouverte (3 commits root-cause + 1 commit fix smoke URLs cherry-pick)
-- [x] **[DONE 25/04 14:25]** PR vault #65 ouverte (post-mortem INC-2026-007)
+- [x] **[DONE 25/04 14:25]** PR vault #65 ouverte (post-mortem INC-2026-010)
 - [x] **[DONE 25/04 ~16:00]** Verifier `stale_count = 0` en prod, watcher unschedule effectif (auto via cron one-shot watcher)
 - [x] **[DONE J+2 27/04 14:03]** Re-validation : stale=0, fresh=28 505, page 34746 = HTTP 200, stress 100 hits = 100/100 = 200
 
@@ -179,7 +179,7 @@ PR monorepo : https://github.com/ak125/nestjs-remix-monorepo/pull/167
   - Pre-requis : aucun, PR pure code/migrations sans rollback risque.
 
 - [ ] **[USER ACTION]** **Merger PR vault #65** : https://github.com/ak125/governance-vault/pull/65
-  - Contient : ce post-mortem INC-2026-007.
+  - Contient : ce post-mortem INC-2026-010.
 
 - [ ] **[POST-MERGE #167 — USER]** Tag semver `vYYYY.MM.DD-inc-2026-007` puis push pour declencher `deploy-prod.yml` (cf. memory `deployment-workflow.md`).
   - Etat actuel : DB deja patchee (fonction optim + cron + trigger + canon), mais code backend NestJS et frontend Remix pas encore en prod -> les nouveaux endpoints `/api/admin/vehicle-cache/*` et `/api/internal/error-log` ne sont pas encore disponibles, et le loader Remix ne notifie pas encore les 503 dans `__error_logs`.
@@ -229,10 +229,10 @@ PR monorepo : https://github.com/ak125/nestjs-remix-monorepo/pull/167
 ## Liens
 
 - Related : [[ADR-016-vehicle-page-matview-persistence]] (ADR origine, status `proposed` a faire passer `accepted`)
-- Related : [[ADR-021-db-rls-hardening]] (deployee meme jour 23/04 — non-cause confirmee par mesure RLS=BYPASS effective via SECURITY DEFINER)
+- Related : [[ADR-021-database-rls-hardening-zero-trust]] (deployee meme jour 23/04 — non-cause confirmee par mesure RLS=BYPASS effective via SECURITY DEFINER)
 - Related : [[2026-04-20-gsc-5xx-vehicle-page-cold-rpc]] (INC-2026-005, ancetre meme classe de bug)
 - Related : [[2026-04-21-503-vehicle-pages-rpc-allowlist-stale-image]] (INC-2026-006, meme commit fc9b94af coupable)
-- Related rules : [[rules-technical]], [[rules-seo-pagerole]], [[rpc-governance]]
+- Related rules : [[rules-technical]], [[rules-seo-pagerole]], [[ADR-003-rpc-governance]]
 - Code affecte (monorepo) :
   - `backend/src/modules/vehicles/services/vehicle-rpc.service.ts:24-29` (RPC_TIMEOUT_MS)
   - `frontend/app/routes/constructeurs.$brand.$model.$type.tsx:80-110` (notify503ToErrorLog)
