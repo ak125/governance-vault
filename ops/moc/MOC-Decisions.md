@@ -42,11 +42,12 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-021 | Database RLS Hardening — Zero-Trust per-Table | Accepted | 2026-04-23 | [[ADR-021-database-rls-hardening-zero-trust]] |
 | ADR-022 | R8 RAG Control Plane — Propose-Before-Write + 5-Layer Gates | Accepted | 2026-04-23 | [[ADR-022-r8-rag-control-plane]] |
 | ADR-023 | Hook-Layer Defense for .local/governance-vault/ | Accepted | 2026-04-24 | [[ADR-023-hook-layer-defense]] |
+| ADR-024 | R1 Gamme Page Data — Persistance par matérialisation (parité ADR-016) | Proposed | 2026-04-27 | [[ADR-024-r1-gamme-page-matview-persistence]] |
 | ADR-025 | SEO Department Architecture (5 modules) | Accepted | 2026-04-25 | [[ADR-025-seo-department-architecture]] |
 
 > **Notes** :
 > - **ADR-026, ADR-027, ADR-029** sont en cours sur leurs propres feature branches respectives (`docs/adr-026-content-separation`, `adr/027-r5-consolidation-r3-s2-diag`, `feat/adr-029-rag-v2.1-control-plane`). Elles seront ajoutées ici quand leurs PRs respectives seront mergées sur main.
-> - **ADR-024, ADR-028, ADR-030** sont des numéros libres au 2026-04-27.
+> - **ADR-028, ADR-030** sont des numéros libres au 2026-04-27.
 
 ---
 
@@ -82,6 +83,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 - [[ADR-016-vehicle-page-matview-persistence]] - Vehicle Page persistance par matérialisation (`__vehicle_page_cache`, p99 < 50 ms cible)
 - [[ADR-017-rpc-pieces-cast-cleanup]] - Nettoyer casts TEXT↔INTEGER dans RPC `pieces_*` (Phase 1 LIVE, RPC #1 -96%)
 - [[ADR-018-dual-column-schema-consolidation]] - Consolider schéma dual TEXT/INTEGER auto_*/pieces_* (deferred)
+- [[ADR-024-r1-gamme-page-matview-persistence]] - R1 Gamme Page persistance par matérialisation (`__gamme_page_cache`, parité ADR-016, proposed)
 
 ### SEO
 
