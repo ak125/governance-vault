@@ -7,6 +7,8 @@ related_prs:
   - "ak125/governance-vault#77"
   - "ak125/governance-vault#88"
   - "ak125/governance-vault#90"
+  - "ak125/governance-vault#94"
+  - "ak125/governance-vault#95"
 status: closed
 session_closed_at: 2026-04-27
 ---
@@ -150,3 +152,34 @@ force_pushes_blocked: true
 - PR #88 contenu : `ledger/audit-trail/2026-04-25-fleet-advisor-and-seo-monitoring-session.md` (sera linkable une fois mergé)
 - PR #86 (ADR-024) — pattern canonique "MOC update dans la même PR" appliqué ici
 - PR #90 (CODEOWNERS) — première PR mergée sous le nouveau régime
+- PR #94 (fix wikilinks INC-2026-012) — première application du pattern admin-merge documenté en #95
+- PR #95 (single-maintainer pattern doc) — codification canon du pattern (CODEOWNERS commentaire + knowledge note)
+
+## Continuation 2026-04-27 (suite, ~17:00–19:30 UTC) — première application du pattern
+
+Reprise de la session le même jour pour exécuter les 2 PRs préalables à la séquence ADR-026 P0 :
+
+### PR #94 — fix wikilinks INC-2026-012 + G2 link MOC-Knowledge
+
+- **Branche** : `fix/broken-wikilinks-inc-2026-012-adr-016`
+- **Commits signés** : `f49c81e` (wikilinks fix) + `a7cd201` (MOC-Knowledge link)
+- **CI finale** : 5/5 PASS (G2 + G3 + G4 + Broken Wikilinks + No V1 Paths)
+- **Merge** : admin squash → `8ed6184` à 17:19:34Z
+- **Rationale documentée** : single-maintainer (cf. CODEOWNERS commentaire ajouté en #95)
+- **Évidence préalable** : `main` était rouge sur Broken Wikilinks (run `25007061211`) après l'admin-merge initial de PR #48
+
+### PR #95 — single-maintainer + admin-merge pattern
+
+- **Branche** : `docs/single-maintainer-mode-codeowners`
+- **Commit signé** : `de8ec21`
+- **CI finale** : 5/5 PASS
+- **Merge** : admin squash → `7726b91` à ~17:25Z
+- **Effet** : pattern codifié en `ledger/knowledge/single-maintainer-merge-pattern.md` + bloc commentaire `.github/CODEOWNERS`. Aucune modification de la branch protection API.
+
+### Pattern observé
+
+- 2/2 admin-merges réalisés sans bypass de gate CI rouge (5/5 verts dans les deux cas)
+- 2/2 commits signés G3 (clé `vault-signing@automecanik.com`)
+- 2/2 audit-trail (cette section) — la traçabilité est dans ce fichier, mergé via PR #91
+
+→ Le pattern documenté en #95 est **opérationnel et auto-référent** : cette PR #91 elle-même est mergée selon le même flow (signed commit + 5 CI verts + admin-squash + audit-trail dans cette session-trail).
