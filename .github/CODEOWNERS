@@ -1,0 +1,21 @@
+# CODEOWNERS — governance-vault
+#
+# Couplé à la branch protection `main` ("Require review from Code Owners") :
+# toute PR touchant ces paths exige une approval de l'owner avant merge.
+#
+# Paths NON listés ici ne déclenchent pas de review humaine bloquante —
+# seuls les 5 G* checks CI (G2/G3/G4 + Broken Wikilinks + No V1 Paths)
+# gardent la barre.
+#
+# Voir aussi : ADR-015 (vault SoT), governance rules G1–G4 dans `ops/rules/`.
+
+# ── Décisions architecturales (ADR) ──
+ledger/decisions/**       @ak125
+
+# ── Rules canon (T/G/AI/V) ──
+ops/rules/**              @ak125
+
+# ── Méta-protection : ce fichier + workflows CI gouvernance ──
+.github/CODEOWNERS                          @ak125
+.github/workflows/vault-governance.yml      @ak125
+.github/workflows/vault-weekly-lint.yml     @ak125
