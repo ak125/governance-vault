@@ -68,6 +68,10 @@ Base de connaissances architecturale.
 - [[typescript-aliases-tsc-alias-gotcha-20260427]] - Pattern : alias TypeScript backend NestJS (tsc-alias build chain, watch race, codemod sed multi-niveaux)
 - [[codeql-volume-false-positive-20260427]] - Pattern : CodeQL flag des alerts pré-existantes sur diffs >300 fichiers — procédure intersection diff ∩ alerts
 
+## Session debriefs
+
+- [[adr-024-r1-cache-session-debrief-20260427]] - Session debrief 2026-04-27 : ADR-024 R1 Gamme Page Cache phases 1-6a livrees, scheduling J+14 pour promotion (8 PRs vault + 4 PRs monorepo, 238/238 cached)
+
 ## References
 
 - [[airlock-decisions-reference]] - Mapping Airlock DEC-002..013 ↔ ADR canoniques (leve l'ambiguite avec les DEC legacy)
