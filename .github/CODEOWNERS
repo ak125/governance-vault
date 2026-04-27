@@ -1,11 +1,31 @@
 # CODEOWNERS — governance-vault
 #
-# Couplé à la branch protection `main` ("Require review from Code Owners") :
-# toute PR touchant ces paths exige une approval de l'owner avant merge.
+# ⚠️  MODE OPÉRATIONNEL ACTUEL : SINGLE-MAINTAINER + ADMIN-MERGE PATTERN
+# ─────────────────────────────────────────────────────────────────────
+# Le vault est aujourd'hui maintenu par un seul humain (`@ak125`). En
+# pratique, GitHub interdit à un auteur d'approuver sa propre PR, donc
+# tant qu'un 2ᵉ reviewer n'est pas onboardé, ce fichier reste une
+# DOCUMENTATION D'OWNERSHIP plutôt qu'un gate bloquant : la branch
+# protection `main` requiert 1 approval mais l'auteur unique est aussi
+# l'owner unique → blocage structurel.
 #
-# Paths NON listés ici ne déclenchent pas de review humaine bloquante —
-# seuls les 5 G* checks CI (G2/G3/G4 + Broken Wikilinks + No V1 Paths)
-# gardent la barre.
+# Pattern de merge canon documenté dans
+# `ledger/knowledge/single-maintainer-merge-pattern.md` :
+#   1. Ouvrir une PR avec commit signé (G3) + description explicite
+#   2. Attendre que les 5 gates CI passent au vert (G2 + G3 + G4 +
+#      Broken Wikilinks + No V1 Paths)
+#   3. `gh pr merge <N> --admin --squash` (admin override autorisé par
+#      `enforce_admins:false` dans branch protection)
+#   4. Logger le merge dans l'audit-trail PR #91 (session récap)
+#
+# CI gates restent l'enforcement réel. Les ownership ci-dessous servent
+# à signaler la responsabilité, pas à bloquer.
+#
+# Revert vers mode bi-maintainer : à l'arrivée d'un 2ᵉ reviewer,
+# enlever ce bloc + rétablir `required_approving_review_count: 1` +
+# `require_code_owner_reviews: true` (déjà en place côté branch
+# protection — aucune action GitHub API requise, juste cesser
+# l'admin-merge).
 #
 # Voir aussi : ADR-015 (vault SoT), governance rules G1–G4 dans `ops/rules/`.
 
