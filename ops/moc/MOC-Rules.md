@@ -23,6 +23,7 @@ Index des regles canoniques du projet AutoMecanik, organisees par taxonomie uniq
 | **R-SEO-KW** | SEO KW import | [[rules-seo-kw-import]] | Import Google Ads KP + alias enrichment |
 | **AP** | Anti-Patterns | [[rules-ai-antipatterns]] | Anti-patterns IA a eviter |
 | **D** | Deployment | [[rules-deployment-workflow]] | Triggers DEV/PROD (push main vs tag v*) |
+| **Q** | Engineering Quality | [[rules-engineering-quality]] | Best-approach mandate (anti-bricolage), verify-before-create (DB et files), modernization continue |
 
 ---
 
@@ -52,6 +53,10 @@ Index des regles canoniques du projet AutoMecanik, organisees par taxonomie uniq
 ## Anti-patterns (AP)
 
 - [[rules-ai-antipatterns]] - **AP-01 a AP-10** : Anti-patterns AI-COS a eviter
+
+## Engineering Quality (Q)
+
+- [[rules-engineering-quality]] - **Q1-Q4** : Mandat de la meilleure approche (anti-bricolage), verifier l'existant avant de creer (grep + Supabase information_schema), esprit de modernisation continue. Regles meta qui s'appliquent AVANT toute autre regle (T*, G*, AP*).
 
 ---
 
