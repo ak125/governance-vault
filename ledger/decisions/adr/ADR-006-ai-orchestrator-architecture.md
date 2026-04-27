@@ -1,12 +1,40 @@
 ---
 id: ADR-006
 title: AI Orchestrator Architecture (AI-COS Evolution)
-status: proposed
+status: superseded
 version: 1.0.0
 date: 2026-02-03
 decision_makers:
   - "@ak125"
-tags: [architecture, ai-cos, langgraph, rag, seo]
+supersedes: []
+superseded_by:
+  - ADR-011-openclaw-claude-api-replacement
+  - ADR-025-seo-department-architecture
+status_review:
+  reviewed_at: 2026-04-27
+  reviewed_by: "Claude Opus 4.7"
+  reviewed_under_rule: rules-engineering-quality (Q1)
+  supersession_type: de_facto_joint_coverage
+  reason: |
+    Architecture proposée le 2026-02-03 jamais construite comme conçue.
+    Vérification grep au 2026-04-27 :
+    - Pas de module `langgraph-router` ni `minilo` dans backend/src/modules/
+    - Seul `agentic-engine` existe, marqué DEPRECE pour les pipelines KP
+    - La couche JobEnvelope + LangGraph router décrite dans cet ADR n'a
+      jamais été implémentée
+    Couverture de facto par DEUX ADR complémentaires (pas un remplacement
+    unique) :
+    - ADR-011 (Claude API direct) couvre la couche LLM provider de l'ADR-006
+    - ADR-025 (SEO Department Architecture) couvre la couche orchestration
+      métier via skills-first (Anthropic seul, prompts canoniques, enrichers
+      0-LLM) — différent du design LangGraph original mais résout le besoin
+    Statut passé de `proposed` (84 jours stale) à `superseded` pour clore la
+    décision en limbo. Le contenu de cet ADR reste valide comme document
+    historique : il documente la VISION du 2026-02-03 et les top-10 problèmes
+    architecturaux identifiés à l'époque, dont plusieurs (god module SEO,
+    circular deps, cache fragmentation) ont été traités par d'autres ADR
+    (ADR-025 pour SEO, divers pour catalog/vehicles).
+tags: [architecture, ai-cos, langgraph, rag, seo, adr/superseded]
 ---
 
 # ADR-006: AI Orchestrator Architecture (AI-COS Evolution)
