@@ -379,3 +379,85 @@ Plan de rollback détaillé par phase dans `/home/deploy/.claude/plans/verifier-
 - [[MOC-Decisions]] — index ADR (cette ADR-031 référencée post-merge)
 - `rules-agent-exit-contract.md` (canon) — distribution AEC déjà fermée 4/4 copies
 - Plan d'exécution : `/home/deploy/.claude/plans/verifier-diagnostic-faq-policies-declarative-rain.md`
+
+---
+
+## Amendement 2026-04-28 (D15bis) — Mapping `guides/` + `reference/` corrigé après inspection
+
+### Contexte
+
+Avant Phase F, inspection empirique des deux dossiers `guides/` (16 fichiers) et `reference/` (1 fichier) dans `automecanik-rag/knowledge/`, croisée avec un grep des consommateurs réels (frontend Remix routes, backend NestJS, RAG service `knowledge_service.py`).
+
+### Découverte
+
+D15 mappe les 8 catégories vers wiki avec `guides/ + reference/ → wiki/support/`. Cette correspondance est **conceptuellement fausse** :
+
+- `reference/freinage__ece-r90.md` est une **norme technique** (`category: glossary, intent: define`). Pas du support client (livraison/retour/garantie/etc.).
+- 9× `guides/choisir-X.md` sont des **guides d'achat thématiques** liés à une gamme de pièces (`site_section: guide-achat`).
+- 3× `guides/freinage__purge.md` + `freinage__quand-changer.md` + `entretien-batterie.md` sont des **fiches d'entretien** liées à une gamme.
+- `guides/identifier-panne-auto.md` est un **overview diagnostic transversal**.
+- `guides/selecteur-vehicule-pieces-auto.md` (16 KB) est un how-to UX, déjà servi en standalone par `frontend/app/routes/blog-pieces-auto.guide-achat.comment-utiliser-selecteur-vehicule-pieces-auto.tsx` (DB-backed) — le `.md` RAG est un doublon orphelin.
+- `guides/references-oem.md` + `guides/cnit-code-national-identification-type.md` sont des **glossaires techniques publics** redondants avec sources externes (Wikipedia, sites OEM).
+
+L'enum `support.category` (livraison | retour | garantie | compatibilite | paiement | compte | service-client | seo-strategy) ne couvre AUCUN de ces cas. Forcer `wiki/support/` exigerait une extension d'enum qui rendrait `support` fourre-tout — anti-pattern documenté dans le principe utilisateur "no hybrid workarounds" (memory `feedback_no_hybrid_workarounds.md`).
+
+Crucial : les routes Remix `/blog-pieces-auto/guide-achat/$pg_alias` (R6 guide-achat) sont servies depuis DB par `r6-guide.service.ts`, **pas depuis ces .md**. Les seuls consommateurs réels de `rag/knowledge/guides/*.md` sont Weaviate / RAG chatbot via `knowledge_service.py` (`source_type: guide`). Couplage faible avec le site → marge de manœuvre pour redistribuer.
+
+### Mapping révisé (D15bis remplace D15 partiellement)
+
+| Source (legacy) | Cible structurelle | Justification |
+|---|---|---|
+| `reference/freinage__ece-r90.md` | absorbé dans `wiki/gamme/plaquette-de-frein.md` champ `entity_data.references[]` | une norme = un fait technique de la gamme concernée |
+| `guides/choisir-X.md` (9 fichiers) | absorbés dans la `wiki/gamme/<X>.md` correspondante (section body "Guide d'achat") | un guide d'achat = section éditoriale de la fiche gamme |
+| `guides/freinage__purge.md`, `freinage__quand-changer.md`, `entretien-batterie.md` | absorbés dans la fiche gamme correspondante (section "Entretien") | idem |
+| `guides/identifier-panne-auto.md` | `wiki/diagnostic/identifier-panne-auto.md` (entity_type=diagnostic, overview transversal) | guide diagnostic, alimente Phase H |
+| `guides/selecteur-vehicule-pieces-auto.md` | **tombstone** — `manifests/tombstones.json` | doublon : article Remix standalone DB-backed déjà publié |
+| `guides/references-oem.md`, `guides/cnit-code-national-identification-type.md` | **tombstone** — `manifests/tombstones.json` | glossaires techniques redondants avec sources externes (Wikipedia, OEM sites) |
+
+### Conséquences sur Phase F
+
+Le batch original "5 catégories métier" (gammes / vehicles / constructeurs / guides / reference) devient **4 catégories** :
+
+| Phase | Source | Cible | Files |
+|---|---|---|---|
+| F.1 | `reference/` (1) + `guides/` (13 absorbables) | enrichissement distribué dans `wiki/gamme/<slug>.md` | 14 absorptions + 0 nouvelle fiche |
+| F.2 | `constructeurs/` | `wiki/constructeur/` | 72 |
+| F.3 | `vehicles/` | `wiki/vehicle/` | 83 |
+| F.4 | `gammes/` | `wiki/gamme/` (incluant absorptions F.1) | 241 |
+| F.tombstones | `guides/{selecteur-vehicule-pieces-auto, references-oem, cnit-code-national-identification-type}.md` | `automecanik-raw/manifests/tombstones.json` | 3 (D21 conformes) |
+| F.diagnostic-overview | `guides/identifier-panne-auto.md` | repoussé à Phase H avec le batch diagnostic | 1 (Phase H scope) |
+
+Phase G (faq + policies) inchangée. Phase H (diagnostic) gagne 1 fichier d'overview.
+
+### Schema `entity_data.gamme` doit gagner `references`
+
+Pour absorber proprement `reference/freinage__ece-r90.md` et structurer les normes/standards par gamme, ajouter au schema `_meta/schema/entity-data/gamme.schema.json` :
+
+```json
+{
+  "references": {
+    "description": "Normes, standards techniques, glossaire de termes spécifiques à la gamme. Alimenté Phase F depuis automecanik-rag/knowledge/reference/.",
+    "type": "array",
+    "items": {
+      "type": "object",
+      "required": ["kind", "title"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "enum": ["norm", "glossary", "standard"] },
+        "title": { "type": "string", "minLength": 1 },
+        "summary_md": { "type": "string" },
+        "external_url": { "type": "string", "format": "uri" }
+      }
+    },
+    "default": []
+  }
+}
+```
+
+Body sections "Guide d'achat" et "Entretien" restent du markdown libre dans le body (pas de champ schema dédié) — alignées avec la flexibilité du frontmatter v1.0.
+
+### Statut D15
+
+D15 d'origine ("8 catégories migrent vers wiki") reste **partiellement valide** pour les 6 catégories qui migrent canoniquement (gammes, vehicles, constructeurs, faq, policies, diagnostic). D15bis **remplace** la portion `guides/` + `reference/` par le mapping révisé ci-dessus.
+
+Ce point sera reflété dans le runbook (`adr-031-migration-runbook-20260428.md`) via une PR de mise à jour lorsque Phase F démarrera. Tombstones documentées dans le manifest raw au moment de leur écriture (Phase F.tombstones), conformément à D21.
