@@ -24,6 +24,7 @@ Index des regles canoniques du projet AutoMecanik, organisees par taxonomie uniq
 | **AP** | Anti-Patterns | [[rules-ai-antipatterns]] | Anti-patterns IA a eviter |
 | **D** | Deployment | [[rules-deployment-workflow]] | Triggers DEV/PROD (push main vs tag v*) |
 | **Q** | Engineering Quality | [[rules-engineering-quality]] | Best-approach mandate (anti-bricolage), verify-before-create (DB et files), modernization continue |
+| **AEC** | Agent Exit Contract | [[rules-agent-exit-contract]] | Coverage manifest obligatoire, no overclaim, statuts autorises, 5 etats separes — applique a TOUT agent/audit |
 
 ---
 
@@ -57,6 +58,10 @@ Index des regles canoniques du projet AutoMecanik, organisees par taxonomie uniq
 ## Engineering Quality (Q)
 
 - [[rules-engineering-quality]] - **Q1-Q4** : Mandat de la meilleure approche (anti-bricolage), verifier l'existant avant de creer (grep + Supabase information_schema), esprit de modernisation continue. Regles meta qui s'appliquent AVANT toute autre regle (T*, G*, AP*).
+
+## Agent Exit Contract (AEC)
+
+- [[rules-agent-exit-contract]] - **AEC-01 a AEC-05** : Coverage manifest obligatoire, no overclaim, statuts autorises (PARTIAL_COVERAGE/SCOPE_SCANNED/REVIEW_REQUIRED/VALIDATED_FOR_SCOPE_ONLY/INSUFFICIENT_EVIDENCE), 5 etats separes (scan/analysis/correction/validation/verdict). **Source canonique unique** — copies dans repos applicatifs verifiees par hash SHA-256. Applique a TOUT agent/run/audit/analyse.
 
 ---
 
