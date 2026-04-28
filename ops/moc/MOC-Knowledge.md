@@ -56,6 +56,7 @@ Base de connaissances architecturale.
 - [[r8-rag-control-plane-design-20260423]] - R8 RAG Control Plane design spec (5-layer gates, 3 artefacts par modèle, TemplateRotator)
 - [[r8-rag-control-plane-implementation-plan-20260423]] - R8 RAG Control Plane implementation plan (16 artefacts DAG, rollout 8 stages)
 - [[r8-vehicle-enrichment-stage1-honest-debrief-20260425]] - R8 Stage 1 vehicle enrichment honest debrief (8h+ session, bricolage scraper Clio III closed, ADR-022 control plane track)
+- [[adr-031-migration-runbook-20260428]] - Runbook migration ADR-031 (4-couche raw/wiki/exports/consumers) Phases B-J : inventaire raw, migration physique, refacto scripts, pilote wiki, batch métier, support, diagnostic, deprecate __rag_proposals, cleanup J+30+
 
 ## Gouvernance (Historique v1)
 
