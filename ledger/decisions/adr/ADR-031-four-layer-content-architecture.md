@@ -461,3 +461,71 @@ Body sections "Guide d'achat" et "Entretien" restent du markdown libre dans le b
 D15 d'origine ("8 catégories migrent vers wiki") reste **partiellement valide** pour les 6 catégories qui migrent canoniquement (gammes, vehicles, constructeurs, faq, policies, diagnostic). D15bis **remplace** la portion `guides/` + `reference/` par le mapping révisé ci-dessus.
 
 Ce point sera reflété dans le runbook (`adr-031-migration-runbook-20260428.md`) via une PR de mise à jour lorsque Phase F démarrera. Tombstones documentées dans le manifest raw au moment de leur écriture (Phase F.tombstones), conformément à D21.
+
+---
+
+## Amendement 2026-04-28 (D23) — Convention de chemin pluriel adoptée (réalité repo prévaut)
+
+### Contexte
+
+Audit pré-Phase F.x : la convention figée dans le corps de cette ADR (§"Architecture cible" + §"Convention de chemin figée" + §"Décision" + plusieurs occurrences) impose `wiki/<entity_type_singular>/` (`wiki/gamme/`, `wiki/vehicle/`, etc.) et écrit explicitement « Pas de variantes pluriel (`wiki/gammes/` interdit) ».
+
+Inspection empirique de `ak125/automecanik-wiki@main` (post-Phase E) :
+
+```
+wiki/
+  ├── constructeurs/    (pluriel)
+  ├── diagnostic/       (singulier — invariant en français)
+  ├── gammes/           (pluriel)
+  ├── support/          (singulier — invariant en français)
+  └── vehicles/         (pluriel)
+```
+
+Les répertoires existent déjà depuis Phase B.3 (skeleton schema v1.0). Le `README.md` et le `CLAUDE.md` du wiki, l'`ingestion-contract.md`, le `_meta/entity-registry.json` et plusieurs scripts internes référencent tous le pluriel. Le coût d'un rename (5 dirs + ~10 fichiers de gouvernance + paths futurs Phase F.1-F.4 + migrations downstream) est strictement supérieur au bénéfice d'un alignement cosmétique.
+
+### Décision
+
+**Adopter le pluriel comme convention canonique** pour les 3 catégories où il est naturel (`gammes/`, `vehicles/`, `constructeurs/`). Garder le singulier invariant en français (`diagnostic/`, `support/`).
+
+Convention canonique D23 :
+
+| Entity_type (frontmatter) | Path canonique |
+|---|---|
+| `gamme` (singulier dans frontmatter `entity_type:`, `id:`) | `wiki/gammes/<slug>.md` |
+| `vehicle` | `wiki/vehicles/<slug>.md` |
+| `constructeur` | `wiki/constructeurs/<slug>.md` |
+| `support` | `wiki/support/<slug>.md` |
+| `diagnostic` | `wiki/diagnostic/<slug>.md` |
+
+Le **singulier reste obligatoire dans le frontmatter** (`entity_type: gamme`, `id: gamme:plaquette-de-frein`) — il représente l'entité unique. Le **pluriel s'applique uniquement au répertoire** qui contient la collection.
+
+### Justification
+
+1. **Coût rename > coût amendment.** 5 répertoires, ~10 fichiers gouvernance, scripts, paths Phase F.1-F.4, et tout futur consommateur référent — vs un §amendment.
+2. **Cohérence Obsidian.** Les coffres Obsidian classiques utilisent des dossiers pluriels pour les collections (Notes/, Projects/, etc.).
+3. **Asymétrie naturelle préservée.** `diagnostic` et `support` sont des invariants en français — les forcer en pluriel artificiel (`diagnostics/`, `supports/`) introduirait son propre bricolage sémantique.
+4. **Le frontmatter reste l'autorité.** Les entity_type dans `id:` et `entity_type:` (gamme/vehicle/...) restent au singulier, ce qui est ce que les exports + le RAG consomment vraiment. Le path n'est qu'un chemin de stockage.
+
+### Impact sur les autres règles ADR-031
+
+- **D15** (8 catégories migrent vers wiki) : inchangée, sauf que les paths cibles utilisent désormais le pluriel pour les 3 catégories concernées.
+- **D15bis** (mapping guides/+reference/ corrigé) : `wiki/gammes/<slug>.md` au lieu de `wiki/gamme/<slug>.md`. Diagnostic reste `wiki/diagnostic/identifier-panne-auto.md`.
+- **D20** (sync-from-wiki.py source = `wiki/exports/rag/`) : exports/ structure interne **inchangée** côté script — c'est aux scripts de génération d'exports/ d'écrire sous `<wiki>/exports/rag/<entity_type_pluriel>/` ou `<wiki>/exports/rag/<entity_type_singular>/` selon ce que les consommateurs (chatbot Weaviate) attendent. Décision déléguée au design d'exports/ Phase F.x ; ne bloque pas D20 lui-même.
+- **D22** (knowledge/ generated dir) : le hook `commit-msg` dans `automecanik-rag` regex déjà tolérant aux deux formes (singulier + pluriel) — vérifié dans la PR qui a livré le hook (ak125/automecanik-rag#5). Aucun changement requis.
+
+### Conséquences pratiques
+
+- Le corps d'ADR-031 garde sa rédaction "singulier" historique pour audit trail. **Cette §D23 est l'autorité actuelle**. Toute mention contradictoire dans le corps est superseded par cet amendement.
+- Le script `recycle-from-rag.py` (wiki #4) écrit déjà des `target_path: wiki/<entity_type_singular>/...` dans son body de proposition. Doit être patché pour produire le pluriel : `wiki/gammes/<slug>.md`. Petite PR mécanique post-D23.
+- Le `README.md` et le `CLAUDE.md` du wiki **n'ont pas besoin d'être modifiés** — ils décrivent déjà le pluriel.
+
+### Amendment companion à venir
+
+Un PR suivant sur `ak125/automecanik-wiki` mettra à jour :
+
+1. `_scripts/recycle-from-rag.py` : `wiki/<entity_type_pluriel>/` dans le body de proposition + pour cohérence du commentaire en tête de fichier.
+2. (Optionnel) Plusieurs typos dans `CLAUDE.md` du wiki signalées en audit (`wiki/<entity_type>/` rendu en `wiki//` après stripping de placeholders, et `exportable.<key>: true` rendu en `exportable.: true`).
+
+### Statut
+
+D23 prend effet immédiatement à l'acceptation de cet amendement. Les paths singuliers restants dans le corps de l'ADR sont **archive narrative** ; les paths canoniques pour Phase F.x et au-delà sont ceux de la table D23 ci-dessus.
