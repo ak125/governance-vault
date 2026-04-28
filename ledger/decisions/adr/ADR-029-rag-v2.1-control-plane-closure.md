@@ -2,16 +2,28 @@
 id: ADR-029
 title: "RAG v2.1 Control Plane Closure — State Machine 7-Stage + Emitter/Detector"
 status: proposed
+version: 2.1.1
 date: 2026-04-25
 decision_date: null
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
+amended_by: ["ADR-031"]
 related_rules: ["G1", "G2", "G3"]
 related_incidents: []
-related_adr: ["ADR-015", "ADR-022"]
+related_adr: ["ADR-015", "ADR-022", "ADR-031"]
 reviewed_by: null
 ---
+
+> 📌 **Amendement v2.1.1 — Paths post-ADR-031** (2026-04-28)
+>
+> Les chemins `/opt/automecanik/rag/knowledge/gammes/` mentionnés dans ce document sont remplacés par `/opt/automecanik-wiki/wiki/gamme/` après acceptation d'[[ADR-031-four-layer-content-architecture]].
+>
+> La **state machine 7 stages** (`v5_ssot` → `v5_audited` → `v5_enriched` → `v5_qa_passed` → `v5_indexed` / `v5_blocked` / `v5_pending_review`) reste **valide et inchangée** pour `entity_type: gamme`. Seuls les paths d'écriture/lecture des fichiers `.md` changent.
+>
+> **Extension à d'autres entity_types** (vehicle, constructeur, support, diagnostic) est un sujet futur hors scope de cet amendement — fera l'objet d'ADRs dédiées au cas par cas.
+>
+> Voir [[ADR-031-four-layer-content-architecture]] §"Plan d'exécution" Phase F pour le séquencement de la migration physique gammes vers wiki.
 
 # ADR-029: RAG v2.1 Control Plane Closure — State Machine 7-Stage + Emitter/Detector
 
