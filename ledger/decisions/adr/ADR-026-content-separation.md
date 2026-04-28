@@ -1,17 +1,25 @@
 ---
 id: ADR-026
 title: "Content Repository Separation — automecanik-content as SEO Refined Layer"
-status: proposed
+status: superseded
 date: 2026-04-26
 decision_date: null
 decision_makers: ["@fafa"]
 supersedes: []
-superseded_by: []
+superseded_by: ["ADR-031"]
 related_rules: ["G1", "G2", "G3", "G5", "AP-10", "AP-11"]
 related_incidents: []
-related_adr: ["ADR-012", "ADR-015", "ADR-022", "ADR-025", "ADR-027", "ADR-029"]
+related_adr: ["ADR-012", "ADR-015", "ADR-022", "ADR-025", "ADR-027", "ADR-029", "ADR-031"]
 reviewed_by: null
 ---
+
+> ⚠️ **SUPERSEDED par [[ADR-031-four-layer-content-architecture]]** (2026-04-28).
+>
+> ADR-026 prévoyait 3 layers (raw + content + rag) avec carve-out diagnostic/faq/policies en LAYER 1B. ADR-031 généralise à **4 layers** (raw / wiki / exports / consumers) avec **flux unifié pour les 8 catégories** (ajout migration diagnostic/faq/policies vers wiki).
+>
+> Le repo `automecanik-content` est par ailleurs renommé `automecanik-wiki` (déjà fait, schema v1.0 mergé).
+>
+> Voir [[ADR-031-four-layer-content-architecture]] §"Décision" pour l'architecture cible.
 
 # ADR-026: Content Repository Separation — `automecanik-content` as SEO Refined Layer
 
