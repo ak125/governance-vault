@@ -60,6 +60,7 @@ Base de connaissances architecturale.
 ## Gouvernance (Historique v1)
 
 - [[single-maintainer-merge-pattern]] - Pattern admin-merge per-PR avec CI gates comme enforcement (vault opéré single-maintainer en attendant un 2ᵉ reviewer)
+- [[sandbox-merge-auto-rule-20260428]] - Sandbox auto-merge rule : merges main routiniers en auto (5 conditions trigger), tag PROD + apply prod DB + force-push restent gardés
 - [[03-governance]] - Regles canoniques AI-COS v1.3.0 (superseded par [[rules-ai-cos]])
 - [[GOVERNANCE-HUMAN]] - Doctrine Human Authority & Zero-Trust (pre-ADR-002)
 
