@@ -1,17 +1,25 @@
 ---
 id: ADR-022
 title: "R8 RAG Control Plane — Propose-Before-Write + 5-Layer Gates"
-status: accepted
+status: superseded
 date: 2026-04-23
 decision_date: 2026-04-25
 decision_makers: ["@fafa"]
 supersedes: []
-superseded_by: []
+superseded_by: ["ADR-031"]
 related_rules: ["G1", "G2", "G3"]
 related_incidents: []
-related_adr: ["ADR-015", "ADR-020", "ADR-021"]
+related_adr: ["ADR-015", "ADR-020", "ADR-021", "ADR-031"]
 reviewed_by: "@fafa"
 ---
+
+> ⚠️ **SUPERSEDED par [[ADR-031-four-layer-content-architecture]]** (2026-04-28).
+>
+> Le design intent d'ADR-022 (propose-before-write, gates L0-L5, schémas canon, idempotence par fingerprint) est **intégré au design plus large d'ADR-031, généralisé à tous les R via le flux raw → wiki**.
+>
+> En pratique, `__rag_proposals` est resté Stage 0 dormant 3 jours après acceptation (`RAG_PROPOSAL_MODE=off`, R8 écrit toujours direct filesystem comme R3/R4/R6/R7). ADR-031 acte cette réalité empirique en supprimant l'asymétrie R8 et en généralisant les gates à toutes les R via raw → wiki.
+>
+> Voir [[ADR-031-four-layer-content-architecture]] §"Héritage ADR-022" pour la trajectoire de transition (Phase I deprecate-in-place J0 → Phase J rename ou drop J+30+).
 
 # ADR-022: R8 RAG Control Plane — Propose-Before-Write + 5-Layer Gates
 
