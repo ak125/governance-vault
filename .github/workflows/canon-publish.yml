@@ -1,0 +1,64 @@
+name: canon-publish
+
+# Runs on every push to main that touches a canon file or canon-hashes.json.
+# - PRs: re-checks 99-meta/canon-hashes.json is in sync (drift = fail).
+# - main: re-checks; on drift, fails (canon must be hashed BEFORE merge).
+# - main: dispatches `canon-updated` repository_dispatch to consumer repos so
+#   they can resync their derived copies via PR.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "ledger/rules/rules-agent-exit-contract.md"
+      - "99-meta/canon-hashes.json"
+      - "_scripts/compute-canon-hashes.py"
+      - ".github/workflows/canon-publish.yml"
+  pull_request:
+    paths:
+      - "ledger/rules/rules-agent-exit-contract.md"
+      - "99-meta/canon-hashes.json"
+      - "_scripts/compute-canon-hashes.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: canon-hashes drift check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify 99-meta/canon-hashes.json is in sync
+        run: _scripts/compute-canon-hashes.py --check
+
+  dispatch:
+    name: dispatch canon-updated to consumers
+    needs: check
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        repo:
+          - ak125/automecanik-wiki
+          - ak125/automecanik-raw
+    steps:
+      - name: Repository dispatch ${{ matrix.repo }}
+        env:
+          GH_TOKEN: ${{ secrets.CANON_DISPATCH_TOKEN }}
+        run: |
+          if [ -z "${GH_TOKEN}" ]; then
+            echo "::warning::CANON_DISPATCH_TOKEN secret not set — skipping ${{ matrix.repo }}"
+            exit 0
+          fi
+          gh api "repos/${{ matrix.repo }}/dispatches" \
+            -f event_type=canon-updated \
+            -f 'client_payload[canon]=aec' \
+            -f 'client_payload[commit]=${{ github.sha }}'
