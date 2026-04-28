@@ -369,8 +369,7 @@ Plan de rollback détaillé par phase dans `/home/deploy/.claude/plans/verifier-
 ## Références
 
 - [[ADR-012-aicos-vps-architecture]] — VPS architecture 3-tiers
-- [[ADR-013-canonical-vault-path]] — canonical path /opt/automecanik/governance-vault/
-- [[ADR-015-vault-single-source-of-truth]] — précédent repo séparé
+- [[ADR-015-vault-single-source-of-truth]] — précédent repo séparé + canonical path /opt/automecanik/governance-vault/
 - [[ADR-022-r8-rag-control-plane]] — superseded par cette ADR (héritage intégré)
 - [[ADR-026-content-separation]] — superseded par cette ADR (4 layers vs 3)
 - [[ADR-027-r5-consolidation-into-r3-s2-diag]] — non bloquant pour migration diagnostic
