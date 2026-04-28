@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://automecanik.com/schemas/tombstones.schema.json",
+  "title": "Tombstones manifest — automecanik-raw/manifests/tombstones.json",
+  "description": "Schema for documented deletion tombstones. Required by ADR-031 §D21 (no silent suppressions). Each entry traces the original path, reason, decision metadata, and checksum baseline.",
+  "type": "object",
+  "required": ["tombstones"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "format": "uri"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Schema version. Bump major on breaking changes."
+    },
+    "updated": {
+      "type": "string",
+      "format": "date",
+      "description": "Last update date YYYY-MM-DD"
+    },
+    "tombstones": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/tombstone" }
+    }
+  },
+  "$defs": {
+    "tombstone": {
+      "type": "object",
+      "required": ["original_path", "reason", "decided_at", "decided_by", "audit_run_id"],
+      "additionalProperties": false,
+      "properties": {
+        "original_path": {
+          "type": "string",
+          "description": "Full path of the deleted item. May be filesystem path, DB object (DB:schema.table), or external URL.",
+          "minLength": 1
+        },
+        "reason": {
+          "type": "string",
+          "description": "Free-form explanation. Must be specific enough that a future reader understands why this was deleted.",
+          "minLength": 10
+        },
+        "decided_at": {
+          "type": "string",
+          "format": "date",
+          "description": "ISO date YYYY-MM-DD of the decision (not necessarily the deletion date)"
+        },
+        "decided_by": {
+          "type": "string",
+          "description": "Decision-maker handle (@fafa, @cowork, etc.). Must be a real human or signed agent identity.",
+          "pattern": "^@[a-zA-Z0-9_-]+$"
+        },
+        "checksum_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "SHA-256 of the deleted content (file content or DB dump). Allows future verification if rollback is needed."
+        },
+        "audit_run_id": {
+          "type": "string",
+          "description": "Identifier of the audit run that decided this tombstone (e.g. 'phase-f-prep-20260501', 'incident-2026-005-cleanup')",
+          "minLength": 1
+        },
+        "rollback_path": {
+          "type": "string",
+          "description": "Optional. Path to rollback artifact if recovery is possible (e.g. 'automecanik-rag/knowledge/.rollback-20260501/<file>')."
+        },
+        "supersedes": {
+          "type": "string",
+          "description": "Optional. ID of a previous tombstone that this one replaces or refines."
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "$schema": "https://automecanik.com/schemas/tombstones.schema.json",
+      "version": "1.0.0",
+      "updated": "2026-04-28",
+      "tombstones": [
+        {
+          "original_path": "/opt/automecanik/rag/knowledge/structured/abc.json",
+          "reason": "obsolete pipeline output, no consumer found post-audit Phase F prep (ADR-031)",
+          "decided_at": "2026-04-28",
+          "decided_by": "@fafa",
+          "checksum_sha256": "deadbeef0000000000000000000000000000000000000000000000000000beef",
+          "audit_run_id": "phase-f-prep-20260428"
+        },
+        {
+          "original_path": "DB:public.__rag_proposals",
+          "reason": "Deprecated 2026-XX-XX par ADR-031 §Héritage ADR-022, observed 0 writes + 0 reads sur 30j Phase J cleanup",
+          "decided_at": "2026-XX-XX",
+          "decided_by": "@fafa",
+          "checksum_sha256": "feedface0000000000000000000000000000000000000000000000000000face",
+          "audit_run_id": "phase-j-cleanup-20260X"
+        }
+      ]
+    }
+  ]
+}
