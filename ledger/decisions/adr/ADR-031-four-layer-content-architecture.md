@@ -87,6 +87,8 @@ Ce principe est **non-négociable**. Toutes les décisions ci-dessous découlent
 
 Adopter une **architecture documentaire à 4 couches** — `automecanik-raw` → `automecanik-wiki` → exports → consommateurs — avec **flux unifié pour toutes les R (R0-R8)** et **migration physique planifiée** des 313 MB de contenu brut existant.
 
+> **Note sur le nommage** : le dépôt initialement nommé `automecanik-content` (créé 2026-04-26 hors ledger, puis renommé en cours de Phase 1+3) est maintenant `automecanik-wiki`. Le nom `automecanik-content` est **réservé**, le cas échéant plus tard, à un dépôt de **contenus éditoriaux produits depuis le wiki** (briefs, articles, FAQ enrichies, guides), et **non** à la base de connaissance canonique. Cette précision évite toute confusion lors d'une relecture d'ADR-026.
+
 ### Architecture cible
 
 ```
@@ -97,7 +99,7 @@ Sources brutes
   ├── monorepo : datasets / fixtures / golden sets / CSV (recyclables après inventaire)
   └── monorepo logique applicative (PAS une source raw)
        ↓
-automecanik-raw/  (Git LFS pour binaires, déterministe)
+automecanik-raw/  (Git normal pour texte stable, Git LFS ou storage externe pour binaires/gros fichiers — D16)
   ├── sources/         nouvelles sources brutes par origine
   ├── recycled/        rag-knowledge/, monorepo-fixtures/, r8-generation/
   ├── normalized/      sources nettoyées/mappées
@@ -159,7 +161,7 @@ Générés depuis `wiki/<entity_type>/` par scripts dédiés, avec lint + schema
 | Consommateur | Source de lecture | Rôle |
 |---|---|---|
 | RAG chatbot | `wiki/exports/rag/` (via `scripts/rag/sync-from-wiki.py` → `automecanik-rag/knowledge/`) | Réponses chatbot Weaviate |
-| SEO R0-R8 | `wiki/exports/seo/` (uniforme tous les R, pas d'exception R8) | Génération pages publiques |
+| SEO R0-R8 | `wiki/exports/seo/` (uniforme tous les R, pas d'exception R8) | Génération pages publiques. **`wiki/exports/seo/` fournit la matière validée — intentions, angles, données structurées, sourcing — ; la logique SEO R0-R8 (génération, classification, V-Level, rotation, publish gates) reste dans `nestjs-remix-monorepo`. Le wiki n'est pas un moteur SEO.** |
 | Blog | Table `__blog_*` monorepo (consommateur secondaire wiki via lien) | Articles éditoriaux |
 | Support chatbot | `wiki/exports/support/` | Réponses client (faq, policies) |
 | Outil diagnostic auto | `wiki/diagnostic/` + DB `__diag_*` (logique métier) | Diagnostic symptôme/cause |
@@ -187,7 +189,7 @@ Ces principes restent **valides et désirables**, et sont **intégrés au design
 
 **Conséquence opérationnelle** :
 
-- Phase I (J0) : table `__rag_proposals` deprecated **in-place** (trigger BEFORE INSERT raise EXCEPTION, comment SQL deprecated, retirer écritures applicatives, retirer flag `RAG_PROPOSAL_MODE`). **Pas de rename**, pas de drop. Observation 30j (`pg_stat_user_tables` + grep codebase + logs).
+- Phase I (J0) : table `__rag_proposals` deprecated **in-place** (trigger `BEFORE INSERT OR UPDATE` raise EXCEPTION — bloque toute nouvelle écriture **et** toute modification de lignes existantes ; comment SQL deprecated ; retirer écritures applicatives ; retirer flag `RAG_PROPOSAL_MODE`). **Pas de rename**, pas de drop. Observation 30j (`pg_stat_user_tables` + grep codebase + logs).
 - Phase J (J+30+) : si preuves d'inutilisation (seq_scan + idx_scan = 0 sur 30j, 0 hit grep, 0 error log), **rename `__rag_proposals_deprecated` OU drop**. Tombstone documenté dans `automecanik-raw/manifests/tombstones.json`. Suppression complète `rag-proposal.service.ts`.
 
 ADR-022 status devient `superseded`, `superseded_by: [ADR-031]`. Son contenu reste lisible comme audit trail historique.
@@ -351,7 +353,7 @@ Plan de rollback détaillé par phase dans `/home/deploy/.claude/plans/verifier-
 - Phase C : sha256 baseline permet rollback byte-identity
 - Phase D : default fallback env var = no-break by design
 - Phase F-H : symlink temporaire diagnostic/wiki en cas de régression cron
-- Phase I : table non renommée, lectures résiduelles continuent de marcher (vide)
+- Phase I : table conservée sous son nom d'origine, lectures résiduelles continuent de fonctionner (table peut contenir des lignes historiques) ; seules les nouvelles écritures sont bloquées par trigger
 - Phase J : tombstone documenté permet rollback via git revert
 
 ---
