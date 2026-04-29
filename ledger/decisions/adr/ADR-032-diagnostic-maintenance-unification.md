@@ -116,7 +116,9 @@ Total : 5 validés, 2 splits fuel-aware (intentionnels), 2 drifts à corriger, 4
 | Safety rules normatives (gates) | `kg_safety_triggers` + RPC `kg_check_safety_gate` | DROP `__diag_safety_rule` après backfill 21 rows. SQL direct dans `data-service.ts:236, :375` retiré au profit de la RPC. |
 | DTC codes consolidation | `kg_nodes.dtc_code` + vue `v_dtc_lookup` consolidant `__seo_observable.dtc_codes[]` avec colonne `source ENUM('kg', 'seo_only', 'merged')` | Pas de table `__diag_dtc`. |
 | Cases learning | RPC `kg_record_case` (existante, jamais appelée) → table `kg_cases` | Wire dans `diagnostic-engine.orchestrator.ts` post-`validateSession()`. |
-| Vocab UI / wizard / safety phrases / FAQ / CLUSTERS / SIGNS | `automecanik-raw/sources/diagnostic/*` → `automecanik-wiki/proposals/` → `automecanik-wiki/wiki/diagnostic/<slug>.md` (Markdown + frontmatter YAML structuré, conforme ADR-031). Backend lit via **submodule git** `automecanik-wiki/wiki/diagnostic/` → `backend/content/diagnostic/`, parsed runtime avec `gray-matter`, cache LRU. | Pas de tables DB pour le contenu UI. Pas d'exports JSON. Pas de table `__content_exports`. Le `.md` est la source unique. |
+| Vocab UI / wizard / safety phrases / FAQ / CLUSTERS / SIGNS / **Contrôles mensuels** | `automecanik-raw/sources/diagnostic/*` → `automecanik-wiki/proposals/` → `automecanik-wiki/wiki/diagnostic/<slug>.md` (Markdown + frontmatter YAML structuré). **Contrôles mensuels** vivent dans `automecanik-wiki/wiki/support/controles-mensuels.md` (entity_type `support` car conseil client générique, pas diagnostic interactif). Backend lit via **submodule git** `automecanik-wiki/wiki/{diagnostic,support}/` → `backend/content/{diagnostic,support}/`, parsed runtime avec `gray-matter`, cache LRU. | Pas de tables DB pour le contenu UI. Pas d'exports JSON. Pas de table `__content_exports`. Le `.md` est la source unique. |
+| **Conseil pédagogique par pièce d'entretien** (advice marketing 1-2 lignes par slug, ex: "Utiliser l'huile recommandée par le constructeur") | `automecanik-wiki/wiki/gamme/<slug>.md` frontmatter `entity_data.maintenance.educational_advice` | **Pas dans `kg_nodes`** (séparation stricte : DB = data structurée, wiki = contenu pédagogique). Joint au runtime via `kg_nodes.node_alias` ↔ filename wiki gamme. |
+| **Alertes par palier kilométrique** (10k, 30k, 60k, 100k, 150k actions[]) | **RPC dérivée** `kg_get_maintenance_alerts_by_milestone(p_milestones INT[] DEFAULT ARRAY[10000,30000,60000,100000,150000])` | **Zéro hardcode des paliers** : la RPC groupe les `MaintenanceInterval` selon `km_interval ≤ milestone`. Ajouter/modifier un node dans `kg_nodes` recalcule automatiquement les paliers. Modifiable via paramètre RPC (admin pourra exposer un sélecteur de paliers). |
 
 ### D2 — Personnalisation véhicule (fuel-aware seulement)
 
@@ -150,14 +152,37 @@ Pas de table `__content_exports`. Pas de CI sync cross-repo. Pas de Storage SDK.
 
 Le skill existant `.claude/skills/vehicle-ops/SKILL.md` est étendu avec une section diagnostic (RPCs `kg_*`, canon `__diag_*` interactif, content via FS submodule, anti-patterns). Pas de skill `diagnostic-ops` séparé.
 
-### D7 — Backfill éditorial dans Phase 1
+### D7 — Backfill éditorial + dérivations dans Phase 1
 
 Le seed canon dans `kg_nodes` (Phase 1 PR-1) doit ajouter :
 
 - 4 `MaintenanceInterval` missing : `filtre-huile`, `batterie`, `amortisseur`, `pneu`.
 - 2 `MaintenanceInterval` séparés du `controle-freinage` existant : `remplacement-plaquettes-frein-avant`, `remplacement-disques-frein-avant`.
 
-Total : 13 `MaintenanceInterval` actuels + 6 ajoutés = 19. Les 13 slugs frontend hardcoded sont alors couverts (avec splits fuel-aware légitimes).
+Total : 13 `MaintenanceInterval` actuels + 6 ajoutés = **19**. Les 13 slugs frontend hardcoded sont alors couverts (avec splits fuel-aware légitimes).
+
+PR-1 ajoute également :
+
+- Champ `maintenance_priority TEXT CHECK (maintenance_priority IN ('critique','important','normal'))` sur `kg_nodes` (aligné sur les 3 niveaux frontend hardcoded actuels). Backfill des 19 nodes avec valeurs éditorialement validées.
+- RPC `kg_get_maintenance_alerts_by_milestone(p_milestones INT[] DEFAULT ARRAY[10000,30000,60000,100000,150000], p_fuel_type TEXT DEFAULT NULL)` qui retourne `(milestone_km, actions JSONB)` où `actions` est la liste des `MaintenanceInterval` dont `km_interval ≤ milestone_km`, classés par `maintenance_priority`. Conforme D2 (fuel-aware filtering optionnel).
+
+### D9 — Endpoint backend agrégé pour calendrier-entretien
+
+Pour éviter que le frontend `calendrier-entretien.tsx` fasse 3 fetches séparés (entretien périodique + contrôles mensuels + alertes paliers), le backend expose **un endpoint unique** :
+
+```
+GET /api/diagnostic-engine/calendar?type_id=X&current_km=Y
+```
+
+Le `MaintenanceCalculatorService.getCalendar(typeId, currentKm)` (Phase 2 PR-3) :
+
+1. Appelle `kg_get_smart_maintenance_schedule(p_type_id, p_fuel_type)` pour entretien périodique (intervalles + risk levels).
+2. Appelle `kg_get_maintenance_alerts_by_milestone(p_fuel_type)` pour alertes paliers.
+3. Lit `backend/content/support/controles-mensuels.md` via `DiagnosticContentService` (PR-6) pour les 6 contrôles mensuels.
+4. Joint chaque `MaintenanceInterval` retourné par `kg_*` avec son `wiki/gamme/<node_alias>.md` frontmatter pour récupérer `entity_data.maintenance.educational_advice` et `entity_data.maintenance.related_pages`.
+5. Retourne JSON consolidé conforme contrat Zod (à définir dans `types/calendar-output.schema.ts`).
+
+Le frontend (Phase 5 PR-7) fait **un seul fetch**. Pas de logique de jointure côté loader Remix.
 
 ### D8 — Fallback strategy (coverage 0%)
 
@@ -193,16 +218,18 @@ Tant que `auto_type_motor_code` n'est pas alimenté éditorialement (hors scope 
 **PR-1** : nouvelle migration qui :
 
 1. INSERT direct dans `kg_nodes` (`node_type='MaintenanceInterval'`) pour les 6 nouveaux slugs (D7).
-2. Étend `kg_get_smart_maintenance_schedule` avec `p_type_id` + `p_fuel_type` (D3, D2).
-3. Crée vue `v_dtc_lookup` + RPC `kg_get_dtc_lookup`.
-4. Backfill 21 rows `__diag_safety_rule` → `kg_safety_triggers` + DROP `__diag_safety_rule` (validation gate transactionnelle).
-5. Cleanup `database.types.ts` : suppression types orphelins.
-6. Tests Jest dans `backend/tests/unit/diagnostic-engine.kg-extensions.test.ts`.
+2. Ajoute colonne `maintenance_priority` (D7) + backfill des 19 nodes.
+3. Étend `kg_get_smart_maintenance_schedule` avec `p_type_id` + `p_fuel_type` (D3, D2).
+4. Crée RPC dérivée `kg_get_maintenance_alerts_by_milestone(p_milestones INT[], p_fuel_type TEXT)` (D7).
+5. Crée vue `v_dtc_lookup` + RPC `kg_get_dtc_lookup`.
+6. Backfill 21 rows `__diag_safety_rule` → `kg_safety_triggers` + DROP `__diag_safety_rule` (validation gate transactionnelle).
+7. Cleanup `database.types.ts` : suppression types orphelins.
+8. Tests Jest dans `backend/tests/unit/diagnostic-engine.kg-extensions.test.ts` (incluant test RPC alerts-by-milestone sur 5 paliers).
 
 ### Phase 2 — Backend unification (3 PRs)
 
 - PR-2 (refactor prompts dynamic via Zod options) : préalable.
-- PR-3 (`MaintenanceCalculatorService` + safety RPC rewire).
+- PR-3 (`MaintenanceCalculatorService` avec méthode `getCalendar(typeId, currentKm)` agrégée D9 + endpoint `/api/diagnostic-engine/calendar` + safety RPC rewire).
 - PR-4 (wire `kg_record_case` + ajout `breakdown` intent + endpoint `/api/diagnostic-engine/breakdown`).
 
 ### Phase 3 — Skill DEV étendu (1 PR)
@@ -211,9 +238,9 @@ PR-5 : extension `vehicle-ops` SKILL.md (D6).
 
 ### Phase 4 — Contenu wiki + backend FS service (3 release groups + 1 PR)
 
-- RG-1 : vocab diagnostic (5 fichiers `.md` dans `wiki/diagnostic/`).
-- RG-2 : gammes entretien batch 1 (5 gammes, raw+wiki+rag).
-- RG-3 : gammes entretien batch 2 (5 gammes).
+- RG-1 : vocab diagnostic + support (5 fichiers `.md` dans `wiki/diagnostic/` + 1 fichier `wiki/support/controles-mensuels.md` D1).
+- RG-2 : gammes entretien batch 1 (5 gammes, raw+wiki+rag) — frontmatter `entity_data.maintenance.educational_advice` + `related_pages` obligatoires (D1).
+- RG-3 : gammes entretien batch 2 (5 gammes) — même schéma frontmatter.
 - PR-6 : `DiagnosticContentService` via submodule git (D5).
 
 ### Phase 5 — Frontend dynamique (5 PRs)
@@ -226,6 +253,8 @@ PR-7 à PR-11 : suppression des 800+ lignes de constants TypeScript, remplacemen
 
 1. `SELECT to_regclass('public.__diag_safety_rule')` → `NULL` (droppée en Phase 1).
 2. `SELECT COUNT(*) FROM kg_nodes WHERE node_type='MaintenanceInterval'` → ≥ **19** (13 actuels + 6 ajoutés).
+2bis. `SELECT COUNT(*) FROM kg_nodes WHERE node_type='MaintenanceInterval' AND maintenance_priority IS NOT NULL` → **19** (backfill D7 complet).
+2ter. `SELECT * FROM kg_get_maintenance_alerts_by_milestone(ARRAY[10000,30000,60000,100000,150000])` → 5 rows non vides (RPC dérivée fonctionnelle, D7).
 3. `SELECT COUNT(*) FROM kg_safety_triggers` → ≥ **45** (24 + 21 backfillés).
 4. `SELECT COUNT(*) FROM kg_cases` → ≥ 1 après une session validée (corpus alimenté par PR-4).
 5. `grep -rE "^const [A-Z_]+ = (\{|\[)" frontend/app/routes/diagnostic-auto*.tsx frontend/app/routes/blog-pieces-auto.calendrier-entretien.tsx frontend/app/components/diagnostic-wizard/DiagnosticWizard.tsx` → **0 résultat de contenu métier** (UI tokens type `URGENCY_COLORS` map limitée ≤10 lignes acceptés).
@@ -233,6 +262,8 @@ PR-7 à PR-11 : suppression des 800+ lignes de constants TypeScript, remplacemen
 7. `grep -rn "kg_record_case" backend/src/modules/diagnostic-engine/` → ≥ 1 (orchestrator).
 8. `cat .gitmodules | grep automecanik-wiki` → entrée présente.
 9. `ls automecanik-wiki/wiki/diagnostic/*.md | wc -l` → ≥ 5.
+9bis. `ls automecanik-wiki/wiki/support/controles-mensuels.md` → présent (D1).
+9ter. Pour 5 gammes entretien batch 1, `yq '.entity_data.maintenance.educational_advice' wiki/gamme/<slug>.md` → non vide (D1 schéma frontmatter).
 10. `cat .claude/skills/vehicle-ops/SKILL.md | grep -i "diagnostic\|kg_get_smart\|breakdown"` → ≥ 3 références.
 
 ---
