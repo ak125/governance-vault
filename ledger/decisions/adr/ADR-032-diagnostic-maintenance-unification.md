@@ -113,7 +113,8 @@ Total : 5 validés, 2 splits fuel-aware (intentionnels), 2 drifts à corriger, 4
 |---|---|---|
 | Sessions / symptômes / causes / safety triggers interactifs | `__diag_*` (system, symptom, cause, symptom_cause_link, session) | Inchangé. C'est le bon canon. |
 | Maintenance / intervalles / wear factors / risque | `kg_nodes` (`node_type='MaintenanceInterval'`) + RPCs `kg_*` existantes | Le seed fictif `20260321_*_10_systems.sql` (INSERTs sur tables inexistantes) est **réécrit** : INSERTs canon dans `kg_nodes`. Pas de DROP TABLE (les tables n'existent pas). |
-| Safety rules normatives (gates) | `kg_safety_triggers` + RPC `kg_check_safety_gate` | DROP `__diag_safety_rule` après backfill 21 rows. SQL direct dans `data-service.ts:236, :375` retiré au profit de la RPC. |
+| Safety rules — canon **diagnostic interactif** (cause-by-cause via RULE_CAUSE_MAP) | `__diag_safety_rule` (21 rules) consommé par `risk-safety.engine.ts` (RULE_CAUSE_MAP, isRuleRelevant, buildSafetyAlert). | **Conservé tel quel** (pas de DROP, pas de fusion). Audit empirique 2026-04-29 : sémantique cause-by-cause distincte. |
+| Safety triggers — canon **KG observable** (aggregate par UUIDs) | `kg_safety_triggers` (24 rows) + RPC `kg_check_safety_gate(p_observable_ids uuid[])` retournant 1 row aggregate. | **Conservé tel quel**, complémentaire au précédent. Pas de fusion. |
 | DTC codes consolidation | `kg_nodes.dtc_code` + vue `v_dtc_lookup` consolidant `__seo_observable.dtc_codes[]` avec colonne `source ENUM('kg', 'seo_only', 'merged')` | Pas de table `__diag_dtc`. |
 | Cases learning | RPC `kg_record_case` (existante, jamais appelée) → table `kg_cases` | Wire dans `diagnostic-engine.orchestrator.ts` post-`validateSession()`. |
 | Vocab UI / wizard / safety phrases / FAQ / CLUSTERS / SIGNS / **Contrôles mensuels** | `automecanik-raw/sources/diagnostic/*` → `automecanik-wiki/proposals/` → `automecanik-wiki/wiki/diagnostic/<slug>.md` (Markdown + frontmatter YAML structuré). **Contrôles mensuels** vivent dans `automecanik-wiki/wiki/support/controles-mensuels.md` (entity_type `support` car conseil client générique, pas diagnostic interactif). Backend lit via **submodule git** `automecanik-wiki/wiki/{diagnostic,support}/` → `backend/content/{diagnostic,support}/`, parsed runtime avec `gray-matter`, cache LRU. | Pas de tables DB pour le contenu UI. Pas d'exports JSON. Pas de table `__content_exports`. Le `.md` est la source unique. |
@@ -226,13 +227,13 @@ Tant que `auto_type_motor_code` n'est pas alimenté éditorialement (hors scope 
 3. Étend `kg_get_smart_maintenance_schedule` avec `p_type_id` + `p_fuel_type` (D3, D2).
 4. Crée RPC dérivée `kg_get_maintenance_alerts_by_milestone(p_milestones INT[], p_fuel_type TEXT)` (D7).
 5. Crée vue `v_dtc_lookup` + RPC `kg_get_dtc_lookup`.
-6. Backfill 21 rows `__diag_safety_rule` → `kg_safety_triggers` + DROP `__diag_safety_rule` (validation gate transactionnelle).
+6. ~~Backfill 21 rows `__diag_safety_rule` → `kg_safety_triggers` + DROP~~ **RETIRÉ** (audit empirique 2026-04-29 : `__diag_safety_rule` reste canon distinct).
 7. Cleanup `database.types.ts` : suppression types orphelins.
 8. Tests Jest dans `backend/tests/unit/diagnostic-engine.kg-extensions.test.ts` (incluant test RPC alerts-by-milestone sur 5 paliers).
 
-### Phase 2 — Backend unification (2 PRs, simplifiée post-audit empirique)
+### Phase 2 — Backend unification (2 PRs, simplifiée post-audits empiriques)
 
-- PR-2 (`MaintenanceCalculatorService` avec méthode `getCalendar(typeId, currentKm)` agrégée D9 + endpoint `/api/diagnostic-engine/calendar` + safety RPC rewire).
+- PR-2 (`MaintenanceCalculatorService` : `getSchedule()` + `getAlerts()` + 2 endpoints. `getCalendar()` agrégé D9 reporté Phase 4 PR-6 — dépend `DiagnosticContentService` submodule wiki. **Pas de safety RPC rewire** : `__diag_safety_rule` reste canon distinct, audit 2026-04-29 — voir mémoire `diag-safety-rule-canonical-distinct.md`).
 - PR-3 (wire `kg_record_case` + ajout direct `breakdown` intent au Zod enum + endpoint `/api/diagnostic-engine/breakdown`).
 
 ### Phase 3 — Skill DEV étendu (1 PR)
@@ -254,14 +255,14 @@ PR-7 à PR-11 : suppression des 800+ lignes de constants TypeScript, remplacemen
 
 ## Critères de succès
 
-1. `SELECT to_regclass('public.__diag_safety_rule')` → `NULL` (droppée en Phase 1).
+1. `SELECT to_regclass('public.__diag_safety_rule')` → **NOT NULL** (canon conservé, voir D1).
 2. `SELECT COUNT(*) FROM kg_nodes WHERE node_type='MaintenanceInterval'` → ≥ **19** (13 actuels + 6 ajoutés).
 2bis. `SELECT COUNT(*) FROM kg_nodes WHERE node_type='MaintenanceInterval' AND maintenance_priority IS NOT NULL` → **19** (backfill D7 complet).
 2ter. `SELECT * FROM kg_get_maintenance_alerts_by_milestone(ARRAY[10000,30000,60000,100000,150000])` → 5 rows non vides (RPC dérivée fonctionnelle, D7).
-3. `SELECT COUNT(*) FROM kg_safety_triggers` → ≥ **45** (24 + 21 backfillés).
+3. `SELECT COUNT(*) FROM kg_safety_triggers` → ≥ **24** (canon KG observable inchangé, pas de backfill).
 4. `SELECT COUNT(*) FROM kg_cases` → ≥ 1 après une session validée (corpus alimenté par PR-4).
 5. `grep -rE "^const [A-Z_]+ = (\{|\[)" frontend/app/routes/diagnostic-auto*.tsx frontend/app/routes/blog-pieces-auto.calendrier-entretien.tsx frontend/app/components/diagnostic-wizard/DiagnosticWizard.tsx` → **0 résultat de contenu métier** (UI tokens type `URGENCY_COLORS` map limitée ≤10 lignes acceptés).
-6. `grep -rnE "from\(['\\\"\`]__diag_safety_rule|__diag_maintenance_operation|__diag_maintenance_symptom_link|__diag_context_questions|__diag_safe_phrases|__diag_wizard_steps" backend/src/` → **0 résultat**.
+6. `grep -rnE "__diag_(maintenance_operation|maintenance_symptom_link|context_questions|safe_phrases|wizard_steps)" backend/src/` → **0 résultat** (types orphelins nettoyés). NB : `__diag_safety_rule` conservé canon distinct (D1).
 7. `grep -rn "kg_record_case" backend/src/modules/diagnostic-engine/` → ≥ 1 (orchestrator).
 8. `cat .gitmodules | grep automecanik-wiki` → entrée présente.
 9. `ls automecanik-wiki/wiki/diagnostic/*.md | wc -l` → ≥ 5.
