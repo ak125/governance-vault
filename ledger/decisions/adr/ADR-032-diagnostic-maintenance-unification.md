@@ -116,7 +116,8 @@ Total : 5 validés, 2 splits fuel-aware (intentionnels), 2 drifts à corriger, 4
 | Safety rules — canon **diagnostic interactif** (cause-by-cause via RULE_CAUSE_MAP) | `__diag_safety_rule` (21 rules) consommé par `risk-safety.engine.ts` (RULE_CAUSE_MAP, isRuleRelevant, buildSafetyAlert). | **Conservé tel quel** (pas de DROP, pas de fusion). Audit empirique 2026-04-29 : sémantique cause-by-cause distincte. |
 | Safety triggers — canon **KG observable** (aggregate par UUIDs) | `kg_safety_triggers` (24 rows) + RPC `kg_check_safety_gate(p_observable_ids uuid[])` retournant 1 row aggregate. | **Conservé tel quel**, complémentaire au précédent. Pas de fusion. |
 | DTC codes consolidation | `kg_nodes.dtc_code` + vue `v_dtc_lookup` consolidant `__seo_observable.dtc_codes[]` avec colonne `source ENUM('kg', 'seo_only', 'merged')` | Pas de table `__diag_dtc`. |
-| Cases learning | RPC `kg_record_case` (existante, jamais appelée) → table `kg_cases` | Wire dans `diagnostic-engine.orchestrator.ts` post-`validateSession()`. |
+| Cases learning — corpus diagnostic interactif | `__diag_session.result jsonb` (déjà alimenté via `saveSession()` orchestrator ligne 144) | **Aucun wire à faire**, corpus déjà persisté. Audit 2026-04-29 invalide l'hypothèse V1. |
+| Cases learning — corpus KG (turbo/EGR futur) | RPC `kg_record_case(p_observable_ids uuid[], p_predicted_fault_id uuid, …)` → `kg_cases` | À wire le jour où un service KG-driven manipule Observable/Fault UUIDs. **Pas dans diag-orchestrator** (univers disjoints). Voir mémoire `diag-vs-kg-pipelines-disjoints.md`. |
 | Vocab UI / wizard / safety phrases / FAQ / CLUSTERS / SIGNS / **Contrôles mensuels** | `automecanik-raw/sources/diagnostic/*` → `automecanik-wiki/proposals/` → `automecanik-wiki/wiki/diagnostic/<slug>.md` (Markdown + frontmatter YAML structuré). **Contrôles mensuels** vivent dans `automecanik-wiki/wiki/support/controles-mensuels.md` (entity_type `support` car conseil client générique, pas diagnostic interactif). Backend lit via **submodule git** `automecanik-wiki/wiki/{diagnostic,support}/` → `backend/content/{diagnostic,support}/`, parsed runtime avec `gray-matter`, cache LRU. | Pas de tables DB pour le contenu UI. Pas d'exports JSON. Pas de table `__content_exports`. Le `.md` est la source unique. |
 | **Conseil pédagogique par pièce d'entretien** (advice marketing 1-2 lignes par slug, ex: "Utiliser l'huile recommandée par le constructeur") | `automecanik-wiki/wiki/gamme/<slug>.md` frontmatter `entity_data.maintenance.educational_advice` | **Pas dans `kg_nodes`** (séparation stricte : DB = data structurée, wiki = contenu pédagogique). Joint au runtime via `kg_nodes.node_alias` ↔ filename wiki gamme. |
 | **Alertes par palier kilométrique** (10k, 30k, 60k, 100k, 150k actions[]) | **RPC dérivée** `kg_get_maintenance_alerts_by_milestone(p_milestones INT[] DEFAULT ARRAY[10000,30000,60000,100000,150000])` | **Zéro hardcode des paliers** : la RPC groupe les `MaintenanceInterval` selon `km_interval ≤ milestone`. Ajouter/modifier un node dans `kg_nodes` recalcule automatiquement les paliers. Modifiable via paramètre RPC (admin pourra exposer un sélecteur de paliers). |
@@ -234,7 +235,7 @@ Tant que `auto_type_motor_code` n'est pas alimenté éditorialement (hors scope 
 ### Phase 2 — Backend unification (2 PRs, simplifiée post-audits empiriques)
 
 - PR-2 (`MaintenanceCalculatorService` : `getSchedule()` + `getAlerts()` + 2 endpoints. `getCalendar()` agrégé D9 reporté Phase 4 PR-6 — dépend `DiagnosticContentService` submodule wiki. **Pas de safety RPC rewire** : `__diag_safety_rule` reste canon distinct, audit 2026-04-29 — voir mémoire `diag-safety-rule-canonical-distinct.md`).
-- PR-3 (wire `kg_record_case` + ajout direct `breakdown` intent au Zod enum + endpoint `/api/diagnostic-engine/breakdown`).
+- PR-3 (ajout direct `breakdown` intent au Zod enum + endpoint `/api/diagnostic-engine/breakdown`). **Wire `kg_record_case` retiré** : audit 2026-04-29 confirme univers disjoints (`__diag_*` slugs vs `kg_*` UUIDs) — corpus diag déjà alimenté via `__diag_session.result`. Voir mémoire `diag-vs-kg-pipelines-disjoints.md`.
 
 ### Phase 3 — Skill DEV étendu (1 PR)
 
@@ -260,10 +261,10 @@ PR-7 à PR-11 : suppression des 800+ lignes de constants TypeScript, remplacemen
 2bis. `SELECT COUNT(*) FROM kg_nodes WHERE node_type='MaintenanceInterval' AND maintenance_priority IS NOT NULL` → **19** (backfill D7 complet).
 2ter. `SELECT * FROM kg_get_maintenance_alerts_by_milestone(ARRAY[10000,30000,60000,100000,150000])` → 5 rows non vides (RPC dérivée fonctionnelle, D7).
 3. `SELECT COUNT(*) FROM kg_safety_triggers` → ≥ **24** (canon KG observable inchangé, pas de backfill).
-4. `SELECT COUNT(*) FROM kg_cases` → ≥ 1 après une session validée (corpus alimenté par PR-4).
+4. `SELECT COUNT(*) FROM __diag_session WHERE result IS NOT NULL` → croissant (corpus diag interactif déjà alimenté). `kg_cases` reste à 0 tant qu'aucun service KG-driven ne consomme Observable/Fault UUIDs (hors scope ADR-032).
 5. `grep -rE "^const [A-Z_]+ = (\{|\[)" frontend/app/routes/diagnostic-auto*.tsx frontend/app/routes/blog-pieces-auto.calendrier-entretien.tsx frontend/app/components/diagnostic-wizard/DiagnosticWizard.tsx` → **0 résultat de contenu métier** (UI tokens type `URGENCY_COLORS` map limitée ≤10 lignes acceptés).
 6. `grep -rnE "__diag_(maintenance_operation|maintenance_symptom_link|context_questions|safe_phrases|wizard_steps)" backend/src/` → **0 résultat** (types orphelins nettoyés). NB : `__diag_safety_rule` conservé canon distinct (D1).
-7. `grep -rn "kg_record_case" backend/src/modules/diagnostic-engine/` → ≥ 1 (orchestrator).
+7. `grep -rn "kg_record_case" backend/src/modules/diagnostic-engine/` → **0** (univers disjoints, ne PAS wire ici). Voir mémoire `diag-vs-kg-pipelines-disjoints.md`.
 8. `cat .gitmodules | grep automecanik-wiki` → entrée présente.
 9. `ls automecanik-wiki/wiki/diagnostic/*.md | wc -l` → ≥ 5.
 9bis. `ls automecanik-wiki/wiki/support/controles-mensuels.md` → présent (D1).
