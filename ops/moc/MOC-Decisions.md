@@ -48,6 +48,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-027 | R5 Diagnostic consolidation into R3 S2_DIAG | Proposed | 2026-04-25 | [[ADR-027-r5-consolidation-into-r3-s2-diag]] |
 | ADR-029 | RAG v2.1 Control Plane Closure — State Machine 7-Stage + Emitter/Detector | Proposed | 2026-04-25 | [[ADR-029-rag-v2.1-control-plane-closure]] |
 | ADR-032 | Diagnostic & Maintenance Unification — kg_* canon (maintenance/DTC) + content via wiki/exports per ADR-031 | Proposed | 2026-04-29 | [[ADR-032-diagnostic-maintenance-unification]] |
+| ADR-033 | Wiki Gamme Diagnostic Relations Contract — references-only from R3/R4 to `__diag_symptom` / `__diag_system` | Proposed | 2026-04-29 | [[ADR-033-wiki-gamme-diagnostic-relations-contract]] |
 
 > **Notes** :
 > - **ADR-028, ADR-030** sont des numéros libres au 2026-04-27.
