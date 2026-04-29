@@ -204,35 +204,67 @@ Choisir 1 fiche par entity_type stratégique :
 - `proposals/_index.md` lisible humainement
 - Aucune collision slug (`node _scripts/check-slug-uniqueness.mjs`)
 
-## Phase F — Migration métier (5 catégories)
+## Phase F — Migration métier (4 batches)
+
+> **Mise à jour 2026-04-28** : ce paragraphe absorbe les amendments §D15bis et §D23 (vault PRs #103, #104) et la révision empirique du count `vehicles` (8 sur main, pas 83 — cf [[adr-031-pre-phase-f-audit-corrections-20260428]]).
 
 Batches recommandés par ordre de risque croissant :
 
-1. `reference/` (1 fichier) → `wiki/support/<slug>.md` (smallest, validates flow)
-2. `guides/` (16 fichiers) → `wiki/support/<slug>.md`
-3. `constructeurs/` (72 fichiers) → `wiki/constructeur/<slug>.md`
-4. `vehicles/` (83 fichiers) → `wiki/vehicle/<slug>.md`
-5. `gammes/` (241 fichiers actuels, cible 1655) → `wiki/gamme/<slug>.md`
+| # | Phase | Source | Cible | Files |
+|---|---|---|---|---|
+| 1 | F.3 | `vehicles/` | `wiki/vehicles/<slug>.md` | 8 (main, pas la branche feat) |
+| 2 | F.2 | `constructeurs/` | `wiki/constructeurs/<slug>.md` | 36 |
+| 3 | F.1 | `reference/` (1) + `guides/` (13 absorbables) → distribués | `wiki/gammes/<slug>.md` body sections + `entity_data.references[]` | 14 absorptions |
+| 4 | F.4 | `gammes/` (incluant les absorptions de F.1) | `wiki/gammes/<slug>.md` | 241 (cible 1655 long-terme) |
+| ... | F.tombstones | 3 fichiers redondants `guides/{selecteur-vehicule-pieces-auto, references-oem, cnit-code-national-identification-type}.md` | `automecanik-raw/manifests/tombstones.json` per D21 | 3 |
+| ... | (Phase H) | `guides/identifier-panne-auto.md` | `wiki/diagnostic/identifier-panne-auto.md` | 1 (Phase H, hors Phase F) |
 
-### Création `scripts/rag/sync-from-wiki.py` (D20)
+**Total Phase F en scope** : 313 fiches (8 + 36 + 14 + 241 + 3 + 1, dont 1 reportée Phase H).
 
-Garde-fous obligatoires :
+### Convention de chemin (§D23)
+
+Les targets utilisent le **pluriel** pour les 3 collections naturelles (`gammes/`, `vehicles/`, `constructeurs/`) et le **singulier** invariant français pour `support/` + `diagnostic/`. Le frontmatter `entity_type:` et `id:` restent au singulier — ils identifient l'entité, pas le répertoire.
+
+### Mapping `guides/` + `reference/` (§D15bis)
+
+Plutôt que de migrer ces 17 fichiers vers `wiki/support/` (anti-pattern catch-all), ils sont **distribués** :
+
+| Source | Cible structurelle | Pattern |
+|---|---|---|
+| `reference/freinage__ece-r90.md` | absorbé dans `wiki/gammes/plaquette-de-frein.md` `entity_data.references[]` | absorption |
+| `guides/choisir-X.md` (9) | absorbés dans `wiki/gammes/<X>.md` body section "Guide d'achat" | absorption |
+| `guides/freinage__purge`, `freinage__quand-changer`, `entretien-batterie` | absorbés dans la gamme correspondante body section "Entretien" | absorption |
+| `guides/identifier-panne-auto.md` | `wiki/diagnostic/identifier-panne-auto.md` (Phase H) | promote |
+| 3 fichiers redondants (selecteur-vehicule-pieces-auto, references-oem, cnit-code-national-identification-type) | `automecanik-raw/manifests/tombstones.json` per D21 | tombstone |
+
+L'absorption requiert une nouvelle option `--mode enrich` dans `recycle-from-rag.py` (Phase F.0.x — sub-PR à venir) qui, au lieu de produire une nouvelle proposition, modifie une proposition gamme existante en injectant la section body ou l'entrée `entity_data.references[]`.
+
+### Création `scripts/rag/sync-from-wiki.py` (D20) — ✅ livré
+
+`nestjs-remix-monorepo/scripts/rag/sync-from-wiki.py` (PR monorepo #206) :
 - Source path **doit** matcher `automecanik-wiki/exports/rag/`. Reject `wiki/<entity_type>/`.
 - Dry-run par défaut, `--apply` requis pour write.
 - Idempotent (sha256 check avant overwrite).
+- 6/6 smoke tests verts (empty / D20 reject / dry-run / apply / idempotent).
 
-### Pre-commit hook automecanik-rag (D22)
+### Hook automecanik-rag (D22) — ✅ livré
 
-```bash
-# .githooks/pre-commit dans automecanik-rag
-if git diff --cached --name-only | grep -E "^knowledge/(gammes|vehicles|constructeurs|guides|reference)/" >/dev/null; then
-  if ! git log -1 --format=%B | grep -q "rollback-documented"; then
-    echo "ERROR: Modification manuelle de knowledge/<5 catégories métier> interdite (D22 ADR-031)."
-    echo "Pour rollback documenté, ajouter 'rollback-documented' dans le commit message."
-    exit 1
-  fi
-fi
+`automecanik-rag/.githooks/commit-msg` (PR rag #5) — opt-in via `git config core.hooksPath .githooks`.
+`automecanik-rag/.github/workflows/d22-protected-paths.yml` — backstop CI (binding regardless of local hook setup).
+
+Regex protégée (les deux formes pluriel + singulier listées pour fenêtre de migration) :
+
 ```
+^knowledge/(gammes|gamme|vehicles|vehicle|constructeurs|constructeur
+            |support|diagnostic|faq|faqs|policies|reference|guides)/
+```
+
+Marqueur d'autorisation : `rollback-documented` dans le commit message.
+
+3/3 smoke tests verts :
+- TEST 1 edit gammes/ sans label → reject rc=1
+- TEST 2 edit gammes/ avec label → allow rc=0
+- TEST 3 edit hors protégé → allow sans label rc=0
 
 ## Phase G — Support (faq + policies + dédup faqs)
 
