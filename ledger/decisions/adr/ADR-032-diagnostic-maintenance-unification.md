@@ -138,9 +138,13 @@ La RPC existante `kg_get_smart_maintenance_schedule(p_engine_family_code TEXT, p
 
 Pas de wrapper distinct `kg_get_smart_maintenance_schedule_by_type_id`. Un seul point d'entrée.
 
-### D4 — Intent breakdown via consommation Zod dynamique
+### D4 — Intent breakdown ajout direct (audit empirique invalide le refactor préalable)
 
-Avant ajout de `'breakdown'` à `DiagnosticIntentEnum`, refactor préalable obligatoire : tous les sites qui hardcodent les intents (`validate-phase0.ts:54,84,106,123` + prompts LLM identifiés) consomment `DiagnosticIntentEnum.options` dynamiquement. Ajouter un futur intent ne demandera plus de grep+patch.
+L'audit empirique 2026-04-29 a invalidé l'hypothèse initiale d'un bricolage de prompts hardcodés : `grep -rln "diagnostic_symptom.*warning_light" backend/src/` → **0 fichier** énumère plusieurs intents en dur hors `DiagnosticIntentEnum` Zod (le seul site canonique). Les références à un intent literal dans `validate-phase0.ts` sont des **fixtures de test** (cas particulier `diagnostic_symptom`), pas une énumération exhaustive. `admin-keyword-planner.controller.ts:1797` utilise `r('diagnostic', 'symptoms')` comme **lookup RAG**, pas comme `DiagnosticIntent` literal.
+
+Conséquence : ajouter `'breakdown'` à `DiagnosticIntentEnum` = **1 ligne de modification**, aucun refactor préalable nécessaire. Pas de bricolage à corriger préventivement.
+
+Voir mémoire Claude Code `diag-intent-enum-canonical-only.md`.
 
 ### D5 — Distribution exports support → backend via submodule git
 
@@ -226,11 +230,10 @@ Tant que `auto_type_motor_code` n'est pas alimenté éditorialement (hors scope 
 7. Cleanup `database.types.ts` : suppression types orphelins.
 8. Tests Jest dans `backend/tests/unit/diagnostic-engine.kg-extensions.test.ts` (incluant test RPC alerts-by-milestone sur 5 paliers).
 
-### Phase 2 — Backend unification (3 PRs)
+### Phase 2 — Backend unification (2 PRs, simplifiée post-audit empirique)
 
-- PR-2 (refactor prompts dynamic via Zod options) : préalable.
-- PR-3 (`MaintenanceCalculatorService` avec méthode `getCalendar(typeId, currentKm)` agrégée D9 + endpoint `/api/diagnostic-engine/calendar` + safety RPC rewire).
-- PR-4 (wire `kg_record_case` + ajout `breakdown` intent + endpoint `/api/diagnostic-engine/breakdown`).
+- PR-2 (`MaintenanceCalculatorService` avec méthode `getCalendar(typeId, currentKm)` agrégée D9 + endpoint `/api/diagnostic-engine/calendar` + safety RPC rewire).
+- PR-3 (wire `kg_record_case` + ajout direct `breakdown` intent au Zod enum + endpoint `/api/diagnostic-engine/breakdown`).
 
 ### Phase 3 — Skill DEV étendu (1 PR)
 
