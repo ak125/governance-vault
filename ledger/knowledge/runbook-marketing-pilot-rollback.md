@@ -149,6 +149,6 @@ qui :
 ## Références
 
 - [[ADR-036-marketing-operating-layer]] — Phase 1 pilote LOCAL
-- [[ADR-013-agent-lifecycle]] — G1/G2/G3 agent governance
+- [[ADR-013-agent-lifecycle-governance]] — G1/G2/G3 agent governance
 - [[rules-ai-cos]] — AI4 QTO valide AVANT publication
 - [[runbook-admin-brand-editorial]] — runbook éditorial brand R7 (référence pattern)

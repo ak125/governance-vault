@@ -63,6 +63,10 @@ Index des regles canoniques du projet AutoMecanik, organisees par taxonomie uniq
 
 - [[rules-agent-exit-contract]] - **AEC-01 a AEC-05** : Coverage manifest obligatoire, no overclaim, statuts autorises (PARTIAL_COVERAGE/SCOPE_SCANNED/REVIEW_REQUIRED/VALIDATED_FOR_SCOPE_ONLY/INSUFFICIENT_EVIDENCE), 5 etats separes (scan/analysis/correction/validation/verdict). **Source canonique unique** — copies dans repos applicatifs verifiees par hash SHA-256. Applique a TOUT agent/run/audit/analyse.
 
+## Marketing Brand Voice
+
+- [[rules-marketing-voice]] - **v1.0.0** : 2 voix de marque (ECOMMERCE `automecanik.com` national / LOCAL magasin 93) + règles HYBRID strictes (zone 93, hybrid_reason obligatoire, CTA + conversion_goal séparés par unit). Section `local_canon` (legal_name, trade_name, address, phone, opening_hours) à compléter par le métier avant `validated: true`. Sync vers monorepo via canon-publish (pattern AEC). Référence canon : [[ADR-036-marketing-operating-layer]].
+
 ---
 
 ## Plus d'infos

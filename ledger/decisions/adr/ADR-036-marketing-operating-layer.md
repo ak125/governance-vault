@@ -351,7 +351,7 @@ Twilio vs OVH SMS, GBP API).
 
 ## Références
 
-- [[ADR-013-agent-lifecycle]] — G1/G2/G3 governance des agents
+- [[ADR-013-agent-lifecycle-governance]] — G1/G2/G3 governance des agents
 - [[ADR-015-vault-single-source-of-truth]] — gouvernance canon vault
 - [[ADR-025-seo-department-architecture]] — pattern modules + OperatingMatrix
 - [[ADR-031-four-layer-content-architecture]] — raw/wiki/exports/consumers
