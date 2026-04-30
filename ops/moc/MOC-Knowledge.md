@@ -87,6 +87,7 @@ Base de connaissances architecturale.
 - [[r5-r3-consolidation-voie-b-session-20260425]] - Audit voie B R5→R3 S2_DIAG (verdict PARTIAL_COVERAGE, ADR-027 + Phase B livrées, phases C/D/E + leviers CRM/ads à exécuter)
 - [[fleet-advisor-claude-4-7-status-20260425]] - Fleet advisor + Claude 4.7 session status 2026-04-25 (8 agents UUIDs canon, draft Advisor pending board, AI-COS disk full incident resolved)
 - [[adr-026-p0-handoff-completion-20260427]] - ADR-026 P0 Content Repository Separation handoff completion (PR #78 + content#1 livrées, TODO P1-P6 detailed, verdict PARTIAL_COVERAGE)
+- [[pr224-exit-124-cascade-debrief-20260430]] - PR #224 perf-gates exit-124 — cascade de 6 bugs distincts révélés en chaîne (BullModule fallback `'redis'` cause racine, +5 collateral fixes), lifecycle NestJS v10 précisé, INIT_TRACE recipe, lock contract ast-grep étendu
 
 ## Knowledge Sous-Dossier Diagnostics
 
