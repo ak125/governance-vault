@@ -39,6 +39,14 @@ CANONS: dict[str, dict] = {
             {"repo": "ak125/nestjs-remix-monorepo", "path": "workspaces/seo-batch/.claude/rules/agent-exit-contract.md"},
         ],
     },
+    "marketing_voice": {
+        "name": "Marketing Brand Voice",
+        "canon_path": "ledger/rules/rules-marketing-voice.md",
+        "version": "1.0.0",
+        "consumers": [
+            {"repo": "ak125/nestjs-remix-monorepo", "path": ".claude/rules/marketing-voice.md"},
+        ],
+    },
 }
 
 FRONTMATTER_RE = re.compile(r"^---\n.*?\n---\n*", re.DOTALL)
