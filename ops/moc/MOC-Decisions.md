@@ -51,7 +51,6 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-030 | npm ci --ignore-scripts permanent dans Dockerfile (Alpine musl + @ast-grep/cli) | Accepted | 2026-04-30 | [[ADR-030-npm-ignore-scripts-alpine-musl]] |
 | ADR-032 | Diagnostic & Maintenance Unification — kg_* canon (maintenance/DTC) + content via wiki/exports per ADR-031 | Proposed | 2026-04-29 | [[ADR-032-diagnostic-maintenance-unification]] |
 | ADR-033 | Wiki Gamme Diagnostic Relations Contract — references-only from R3/R4 to `__diag_symptom` / `__diag_system` | Proposed | 2026-04-29 | [[ADR-033-wiki-gamme-diagnostic-relations-contract]] |
-| ADR-035 | AI-COS Operating Contract — Observatory + Single-Trigger Routines (note: frontmatter `id` actuel = ADR-034, à réconcilier dans une PR follow-up séparée) | Proposed | 2026-04-30 | [[ADR-035-aicos-operating-contract]] |
 
 > **Notes** : ADR-034, ADR-035 réservés à drafts en cours (autres flux de travail). À indexer ici par leurs propres PRs.
 
