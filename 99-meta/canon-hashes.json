@@ -25,6 +25,10 @@
         {
           "repo": "ak125/nestjs-remix-monorepo",
           "path": "workspaces/seo-batch/.claude/rules/agent-exit-contract.md"
+        },
+        {
+          "repo": "ak125/nestjs-remix-monorepo",
+          "path": "workspaces/marketing/.claude/rules/agent-exit-contract.md"
         }
       ]
     },
@@ -38,6 +42,10 @@
         {
           "repo": "ak125/nestjs-remix-monorepo",
           "path": ".claude/rules/marketing-voice.md"
+        },
+        {
+          "repo": "ak125/nestjs-remix-monorepo",
+          "path": "workspaces/marketing/.claude/rules/marketing-voice.md"
         }
       ]
     }
