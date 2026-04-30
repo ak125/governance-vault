@@ -47,6 +47,7 @@ Journal chronologique des **evenements de gouvernance** : audits ponctuels, retr
 | 2026-04-25 | [[2026-04-25-session-adr-029-p1-status]] | Session-trail (ADR-029 P1 fondation — state machine 7 stages, follow-ups P2/P3/P4) |
 | 2026-04-27 | [[2026-04-27-session-closure-r6-r1-gatekeeper-todo]] | Session-closure (bilan 3 sessions R6/R1 gatekeeper, R1+R6 100% scored, 5 follow-ups TODO classés priorité) |
 | 2026-04-27 | [[2026-04-27-session-vault-governance-hardening]] | Session-trail (G2 fixes PR #77/#88 + auto-merge ON + CODEOWNERS canon + branch protection main : 5 G* + 1 approval + code-owner reviews + enforce_admins=false) |
+| 2026-04-30 | [[2026-04-30-preprod-isolation-audit]] | Audit pre-decision (preprod Supabase isolation : diff env runner 30 vars vs example 63, gh secrets 9/0 PREPROD_*, 4 Supabase projects 0 branches, branch cost $9.66/mois, decision triggers options A/B/C pour ADR-028) |
 
 ---
 

@@ -46,12 +46,14 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-025 | SEO Department Architecture (5 modules) | Accepted | 2026-04-25 | [[ADR-025-seo-department-architecture]] |
 | ADR-026 | Content Repository Separation — automecanik-content as SEO Refined Layer | Proposed | 2026-04-27 | [[ADR-026-content-separation]] |
 | ADR-027 | R5 Diagnostic consolidation into R3 S2_DIAG | Proposed | 2026-04-25 | [[ADR-027-r5-consolidation-into-r3-s2-diag]] |
+| ADR-028 | Préprod Supabase isolation via branch (ALLOW_PROD_ENV_COPY remediation) | Proposed | 2026-04-30 | [[ADR-028-preprod-supabase-isolation]] |
 | ADR-029 | RAG v2.1 Control Plane Closure — State Machine 7-Stage + Emitter/Detector | Proposed | 2026-04-25 | [[ADR-029-rag-v2.1-control-plane-closure]] |
+| ADR-030 | npm ci --ignore-scripts permanent dans Dockerfile (Alpine musl + @ast-grep/cli) | Accepted | 2026-04-30 | [[ADR-030-npm-ignore-scripts-alpine-musl]] |
 | ADR-032 | Diagnostic & Maintenance Unification — kg_* canon (maintenance/DTC) + content via wiki/exports per ADR-031 | Proposed | 2026-04-29 | [[ADR-032-diagnostic-maintenance-unification]] |
 | ADR-033 | Wiki Gamme Diagnostic Relations Contract — references-only from R3/R4 to `__diag_symptom` / `__diag_system` | Proposed | 2026-04-29 | [[ADR-033-wiki-gamme-diagnostic-relations-contract]] |
+| ADR-035 | AI-COS Operating Contract — Observatory + Single-Trigger Routines (note: frontmatter `id` actuel = ADR-034, à réconcilier dans une PR follow-up séparée) | Proposed | 2026-04-30 | [[ADR-035-aicos-operating-contract]] |
 
-> **Notes** :
-> - **ADR-028, ADR-030** sont des numéros libres au 2026-04-27.
+> **Notes** : ADR-034, ADR-035 réservés à drafts en cours (autres flux de travail). À indexer ici par leurs propres PRs.
 
 ---
 
@@ -73,6 +75,8 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 - [[ADR-010-airlock-enforce-activation]] - Airlock Enforce Mode & CI Authority
 - [[ADR-014-remove-paybox-callback-test]] - Suppression endpoint vulnérable (T5)
 - [[ADR-021-database-rls-hardening-zero-trust]] - Zero-trust per-table policies (RLS + INVOKER views)
+- [[ADR-028-preprod-supabase-isolation]] - Isolation préprod Supabase via branch ($9.66/mois) — fin de partage DB prod/préprod
+- [[ADR-030-npm-ignore-scripts-alpine-musl]] - `--ignore-scripts` permanent dans Dockerfile, alternative migration debian rejetée (formalise PR #168)
 
 ### Agents
 
