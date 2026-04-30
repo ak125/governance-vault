@@ -37,6 +37,7 @@ CANONS: dict[str, dict] = {
             {"repo": "ak125/automecanik-raw", "path": "agent-exit-contract.md"},
             {"repo": "ak125/nestjs-remix-monorepo", "path": ".claude/rules/agent-exit-contract.md"},
             {"repo": "ak125/nestjs-remix-monorepo", "path": "workspaces/seo-batch/.claude/rules/agent-exit-contract.md"},
+            {"repo": "ak125/nestjs-remix-monorepo", "path": "workspaces/marketing/.claude/rules/agent-exit-contract.md"},
         ],
     },
     "marketing_voice": {
@@ -45,6 +46,7 @@ CANONS: dict[str, dict] = {
         "version": "1.0.0",
         "consumers": [
             {"repo": "ak125/nestjs-remix-monorepo", "path": ".claude/rules/marketing-voice.md"},
+            {"repo": "ak125/nestjs-remix-monorepo", "path": "workspaces/marketing/.claude/rules/marketing-voice.md"},
         ],
     },
 }
