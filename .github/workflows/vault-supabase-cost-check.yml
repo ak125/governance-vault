@@ -1,0 +1,231 @@
+name: Vault Supabase Cost Check
+
+# routine:
+#   id: supabase-cost-check
+#   owner: ops
+#   trigger: cron weekly (Monday 08:00 UTC, after vault-weekly-lint)
+#   input: GET https://api.supabase.com/v1/organizations/{org_ref}/usage
+#   output: governance-vault/ledger/audit-trail/YYYY-MM-DD-supabase-cost.md (via artifact)
+#   escalation: issue P1 if monthly projection > 30 USD or +20% vs previous run
+#   secret: SUPABASE_ACCESS_TOKEN (vault-only, never log/artifact, see ledger/knowledge/supabase-management-token.md)
+#
+# ADR reference: ADR-034 (3 axes: Trigger=GHA cron / Execution=runner DEV / Evidence=artifact + audit-trail) + ADR-028 (cost monitoring couche 6 défense).
+
+on:
+  schedule:
+    - cron: "0 8 * * 1" # Monday 08:00 UTC (after vault-weekly-lint at 02:00 UTC)
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  issues: write
+
+# Single-trigger discipline (ADR-034) + concurrency safety pour vault-write group
+concurrency:
+  group: vault-write
+  cancel-in-progress: false
+
+jobs:
+  cost-check:
+    name: "Supabase Cost Check (V1 simple)"
+    runs-on: ubuntu-latest
+
+    env:
+      # Org canonique AutoMecanik (cf. vérifié 2026-04-30 via mcp__supabase__list_organizations)
+      SUPABASE_ORG_ID: fezyshchnnrwwpnzbcwb
+      # Seuil escalade (USD/mois projeté). Configurable via repository variable si besoin.
+      THRESHOLD_USD_MONTHLY: 30
+      # Seuil delta vs previous run (pourcentage)
+      THRESHOLD_DELTA_PCT: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Mask SUPABASE_ACCESS_TOKEN
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        # Force GitHub Actions à masquer le token dans tous les logs (verrou n°4 plan rev5)
+        run: |
+          if [ -z "$SUPABASE_ACCESS_TOKEN" ]; then
+            echo "::error::SUPABASE_ACCESS_TOKEN secret missing — see ledger/knowledge/supabase-management-token.md for provisioning."
+            exit 1
+          fi
+          echo "::add-mask::$SUPABASE_ACCESS_TOKEN"
+
+      - name: Fetch Supabase billing summary
+        id: fetch
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        # Verrou n°4 plan rev5 : endpoint Management API documenté en commentaire ci-dessous + dans la PR description.
+        # Endpoint utilisé : GET /v1/organizations/{ref}/billing/subscription
+        # Doc : https://api.supabase.com/api/v1/redoc — section "Organization billing"
+        # Si l'endpoint change ou retourne un schema inattendu, le script fail explicitement (pas de silent NaN).
+        run: |
+          set -euo pipefail
+          ENDPOINT="https://api.supabase.com/v1/organizations/${SUPABASE_ORG_ID}/billing/subscription"
+          echo "Endpoint: ${ENDPOINT}"
+          HTTP_CODE=$(curl -s -o response.json -w "%{http_code}" \
+            -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
+            -H "Accept: application/json" \
+            "${ENDPOINT}")
+
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "::error::Management API returned HTTP ${HTTP_CODE} — endpoint may have changed or token invalid."
+            echo "First 200 chars of response (no token):"
+            head -c 200 response.json | sed 's/[A-Za-z0-9_-]\{20,\}/***REDACTED***/g'
+            exit 1
+          fi
+
+          # Validate schema : must contain a numeric cost field (tier price + usage)
+          # On extrait : plan name + plan price (mensuel base) — si schema change, jq fail propre.
+          PLAN_NAME=$(jq -r '.tier // .plan // "unknown"' response.json)
+          PLAN_BASE_USD=$(jq -r '.plan_price // .price // 0' response.json)
+
+          if [ "$PLAN_NAME" = "unknown" ]; then
+            echo "::error::Response schema unexpected — no .tier or .plan field. See raw response."
+            exit 1
+          fi
+
+          # Redact response for artifact (zap any field looking like token/refresh/key/secret)
+          jq 'walk(if type == "object" then with_entries(if (.key | test("token|secret|key|password|refresh"; "i")) then .value = "***REDACTED***" else . end) else . end)' response.json > response.redacted.json
+
+          # Cost projection : V1 simple — base plan price seul (pas de breakdown compute/disk/egress).
+          # V2 (futur, hors scope) intègrera le breakdown via /v1/organizations/{ref}/usage.
+          PROJECTED_USD="$PLAN_BASE_USD"
+
+          {
+            echo "plan_name=${PLAN_NAME}"
+            echo "plan_base_usd=${PLAN_BASE_USD}"
+            echo "projected_usd=${PROJECTED_USD}"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Render report
+        id: report
+        env:
+          PLAN_NAME: ${{ steps.fetch.outputs.plan_name }}
+          PLAN_BASE_USD: ${{ steps.fetch.outputs.plan_base_usd }}
+          PROJECTED_USD: ${{ steps.fetch.outputs.projected_usd }}
+        run: |
+          set -euo pipefail
+          DATE=$(date -u +%Y-%m-%d)
+          OVER_THRESHOLD="false"
+          if awk "BEGIN{exit !($PROJECTED_USD > $THRESHOLD_USD_MONTHLY)}"; then
+            OVER_THRESHOLD="true"
+          fi
+
+          cat > report.md <<EOF
+          # Supabase Cost Check — ${DATE}
+
+          | Field | Value |
+          |---|---|
+          | Plan | ${PLAN_NAME} |
+          | Base price (USD/month) | ${PLAN_BASE_USD} |
+          | Projected total (USD/month, V1 simple = base only) | ${PROJECTED_USD} |
+          | Threshold (USD/month) | ${THRESHOLD_USD_MONTHLY} |
+          | Over threshold? | ${OVER_THRESHOLD} |
+
+          ## Method (V1 simple)
+
+          GET \`/v1/organizations/${SUPABASE_ORG_ID}/billing/subscription\`. Extract \`plan_price\`. No breakdown compute/disk/egress (V2 future scope).
+
+          ## Issue escalation
+
+          Issue P1 \`[supabase-cost \${run_id}] projection \$XX/mo (>\${THRESHOLD_USD_MONTHLY} OR +\${THRESHOLD_DELTA_PCT}% vs prev)\` opened only if NEW (delta vs previous artifact, threshold breached).
+
+          ## References
+
+          - ADR-028 Option D — preprod read-only hardening (couche 6 cost monitoring)
+          - ADR-034 — AI-COS Operating Contract (3 axes Trigger/Execution/Evidence)
+          - Token rules : \`ledger/knowledge/supabase-management-token.md\`
+          EOF
+
+          {
+            echo "over_threshold=${OVER_THRESHOLD}"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Upload artifact (redacted)
+        uses: actions/upload-artifact@v4
+        with:
+          name: supabase-cost-${{ github.run_id }}
+          path: |
+            response.redacted.json
+            report.md
+          retention-days: 90
+
+      - name: Download previous artifact (for delta)
+        id: prev
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CURRENT_RUN_ID: ${{ github.run_id }}
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          mkdir -p previous-artifact
+          payload=$(gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${{ github.repository }}/actions/artifacts?per_page=100")
+          artifact_id=$(echo "$payload" | python3 -c "
+          import json, sys, os
+          current = int(os.environ['CURRENT_RUN_ID'])
+          data = json.load(sys.stdin)
+          matches = [
+              a for a in data.get('artifacts', [])
+              if a.get('name', '').startswith('supabase-cost-')
+              and not a.get('expired', False)
+              and a.get('workflow_run', {}).get('id') != current
+          ]
+          matches.sort(key=lambda a: a.get('created_at', ''), reverse=True)
+          if matches:
+              print(matches[0]['id'])
+          ")
+          if [[ -z "$artifact_id" ]]; then
+            echo "No previous artifact found (first run or all expired)."
+            exit 0
+          fi
+          gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${{ github.repository }}/actions/artifacts/${artifact_id}/zip" \
+            > previous-artifact/artifact.zip
+          cd previous-artifact && unzip -q artifact.zip && rm artifact.zip
+
+      - name: Compute delta vs previous run
+        id: delta
+        env:
+          PROJECTED_USD: ${{ steps.fetch.outputs.projected_usd }}
+        run: |
+          set -euo pipefail
+          DELTA_PCT=0
+          OVER_DELTA="false"
+          if [ -f previous-artifact/response.redacted.json ]; then
+            PREV_USD=$(jq -r '.plan_price // .price // 0' previous-artifact/response.redacted.json)
+            if awk "BEGIN{exit !($PREV_USD > 0)}"; then
+              DELTA_PCT=$(awk "BEGIN{printf \"%.1f\", (($PROJECTED_USD - $PREV_USD) / $PREV_USD) * 100}")
+              if awk "BEGIN{exit !($DELTA_PCT > $THRESHOLD_DELTA_PCT)}"; then
+                OVER_DELTA="true"
+              fi
+            fi
+          fi
+          {
+            echo "delta_pct=${DELTA_PCT}"
+            echo "over_delta=${OVER_DELTA}"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Open issue if threshold breached
+        if: steps.report.outputs.over_threshold == 'true' || steps.delta.outputs.over_delta == 'true'
+        uses: peter-evans/create-issue-from-file@v5
+        with:
+          title: "[supabase-cost ${{ github.run_id }}] projection $${{ steps.fetch.outputs.projected_usd }}/mo (delta ${{ steps.delta.outputs.delta_pct }}% vs prev)"
+          content-filepath: report.md
+          labels: |
+            ops
+            supabase-cost
+            P1
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Supabase Cost Check Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [[ -f report.md ]]; then
+            cat report.md >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Delta vs previous: ${{ steps.delta.outputs.delta_pct }}% (over threshold ${THRESHOLD_DELTA_PCT}%: ${{ steps.delta.outputs.over_delta }})" >> $GITHUB_STEP_SUMMARY
