@@ -53,25 +53,47 @@ Plan `harmonic-mapping-elephant.md` — 4 PRs séquencées :
 
 ## Outcome
 
-- **Vault PR #111** : closed by `ak125` à 2026-04-30T13:21:29Z, commentaire de supersede détaillé, 3 PRs successeurs en flight
-- **Monorepo PR #223** (`feat/p1.1-report-violations-workflow`) : reste **OPEN, scope-clean** (1 workflow report-violations.yml = mesure depcruise + tsc nightly self-hosted, non bloquant) — utile indépendamment du repivot car alimente PR P1.2/P1.3 du plan original (bump `warn → error` après mesure)
-- **RAG PR #6** (`feat/p1.4-rag-eval-nightly-schedule`) : reste **OPEN, mergeable, scope-clean** (schedule cron + self-hosted runner pour atteindre RAG localhost) — utile indépendamment, monitoring continu
-- **Coût net économisé** : ~$120/an (12 × $9.66) en évitant Supabase branch + complexité opérationnelle (pause/resume, reset périodique, drift schema)
+### Phase A — supersede par utilisateur (2026-04-30 ~13:21 UTC)
+
+- **Vault PR #111** : closed by `ak125`, commentaire de supersede détaillé, 4 PRs successeurs en flight (responsabilité utilisateur)
+- **Monorepo PR #223** + **RAG PR #6** restent ouvertes initialement, jugées scope-clean
+
+### Phase B — cleanup no-bricolage (2026-04-30 ~17:44 UTC, après "go" utilisateur)
+
+Ré-analyse honnête plan rev 3 vs PRs en flight a révélé 2 PRs hors scope :
+
+| PR | Plan rev 3 ? | Audit complémentaire | Décision |
+|----|--------------|----------------------|----------|
+| Vault #115 G2 fix `seo-operating-matrix` backlink | n/a (infra fix CI) | 5/5 checks pass | **MERGED** par admin squash 2026-04-30T17:44:37Z, branch deleted |
+| Vault #114 (ce trail) | n/a (consigné sur demande) | rebasé sur main propre, G2/Wikilinks/V1Paths pass | **OPEN, mergeable** post G3/G4 |
+| Monorepo #223 `report-violations.yml` | **NON** (servait rev 2 P1.1 retiré) | aucun consommateur des reports nightly | **CLOSED** — bricolage (data sans plan d'action) |
+| RAG #6 schedule nightly | **NON** (servait rev 2 P1.4 retiré) | `gh secret list automecanik-rag` = vide → fail garanti | **CLOSED** — double bricolage (hors scope + secret manquant) |
+
+Branches `feat/p1.1-report-violations-workflow` et `feat/p1.4-rag-eval-nightly-schedule` supprimées (reopenable si retour au plan canon).
+
+### Coût net session
+
+- **Économisé** : ~$120/an (12 × $9.66) en évitant Supabase branch + complexité op (pause/resume, reset, drift schema)
+- **Évité** : 2 workflows nightly bricolage (dont 1 qui aurait fail à 100% par secret manquant)
 
 ## Actions de suivi (responsabilité utilisateur)
 
-- Créer les 3 PRs successeurs selon plan rev 3 (PR 1 ADR-030 → PR 2 ci.yml → PR 3 ADR-028 reviser → PR 4 ADR-031)
-- Vérifier branche orpheline `feat/adr-028-030-preprod-isolation` côté GitHub (PR closed mais branche reste) — à supprimer si non réutilisée
+- Créer les 4 PRs successeurs selon plan rev 3 (`harmonic-mapping-elephant.md`) : PR 1 ADR-030 AI-COS Operating Contract → PR 2 monorepo ci.yml read-only hardening + READ_ONLY backend guard + write-detect job → PR 3 ADR-028 reviser Option D → PR 4 vault `vault-supabase-cost-check` routine
+- Branche orpheline `feat/adr-028-030-preprod-isolation` côté GitHub (PR #111 closed mais branche reste) — à supprimer si non réutilisée
+
+## Bricolage résiduel (hors scope cette session-trail)
+
+- Fichier disk-only `ledger/decisions/adr/ADR-035-aicos-operating-contract.md` (frontmatter dit `id: ADR-034`, fichier nommé `ADR-035`) traîne sur le runner DEV. Pas git-tracké donc invisible CI. À nettoyer dans une PR future si l'auteur d'origine ne le commit pas.
 
 ## Coverage manifest (Agent Exit Contract v1.0.0)
 
 | Champ | Valeur |
 |-------|--------|
-| `scope_requested` | Consigner l'itération session 2026-04-30 dans le vault |
-| `scope_actually_scanned` | 3 itérations du plan (rev 1/2/3) + 3 PRs livrées + 1 closed-superseded + 2 mémoires updated |
-| `files_read_count` | ~25 (claims audit + ci.yml + .env files + docker-compose RAG + Supabase MCP + workflows + MOC files) |
-| `excluded_paths` | Implémentation des 3 PRs successeurs (responsabilité utilisateur) ; détails contenu ADR-030 AI-COS (sera dans la PR 1) ; coverage grep `READ_ONLY` (sera dans PR 2) |
-| `corrections_proposed` | Repivot Option C → Option D (porté par utilisateur, pas par agent) |
+| `scope_requested` | Consigner l'itération session 2026-04-30 dans le vault (Phase A repivot + Phase B cleanup no-bricolage) |
+| `scope_actually_scanned` | 3 itérations du plan (rev 1/2/3) + Phase A (3 PRs livrées + 1 closed-superseded + 2 mémoires updated) + Phase B cleanup (1 merged, 1 rebased, 2 closed) |
+| `files_read_count` | ~25 (claims audit + ci.yml + .env files + docker-compose RAG + Supabase MCP + workflows + MOC files + plan rev 3) |
+| `excluded_paths` | Implémentation des 4 PRs successeurs (responsabilité utilisateur) ; détails contenu ADR-030 AI-COS (sera dans la PR 1) ; coverage grep `READ_ONLY` (sera dans PR 2) ; cleanup ADR-035 disk-only |
+| `corrections_proposed` | Phase A : Repivot Option C → Option D (porté par utilisateur). Phase B : close 2 PRs out-of-scope rev 3 (porté par agent après "go" utilisateur) |
 | `corrections_applied` | 2 mémoires utilisateur updated, ce session-trail consigné |
 | `remaining_unknowns` | Calendrier de merge des 3 PRs successeurs ; numérotation finale npm-ignore-scripts ADR (031 ou autre selon décision PR 4) |
 | `final_status` | `SCOPE_SCANNED` — itération consignée, ownership transféré utilisateur |
