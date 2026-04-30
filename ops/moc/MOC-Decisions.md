@@ -49,11 +49,12 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-029 | RAG v2.1 Control Plane Closure — State Machine 7-Stage + Emitter/Detector | Proposed | 2026-04-25 | [[ADR-029-rag-v2.1-control-plane-closure]] |
 | ADR-032 | Diagnostic & Maintenance Unification — kg_* canon (maintenance/DTC) + content via wiki/exports per ADR-031 | Proposed | 2026-04-29 | [[ADR-032-diagnostic-maintenance-unification]] |
 | ADR-033 | Wiki Gamme Diagnostic Relations Contract — references-only from R3/R4 to `__diag_symptom` / `__diag_system` | Proposed | 2026-04-29 | [[ADR-033-wiki-gamme-diagnostic-relations-contract]] |
+| ADR-035 | AI-COS Operating Contract — Observatory + Single-Trigger Routines (draft autonome, hors scope ADR-036) | Proposed | 2026-04-30 | [[ADR-035-aicos-operating-contract]] |
 | ADR-036 | Marketing Operating Layer — 3 agents G1 (LEAD/LOCAL/RETENTION) + business_unit séparé ECOMMERCE/LOCAL/HYBRID + canon brand voice | Proposed | 2026-04-30 | [[ADR-036-marketing-operating-layer]] |
 
 > **Notes** :
 > - **ADR-028, ADR-030** sont des numéros libres au 2026-04-27.
-> - **ADR-034, ADR-035** réservés à drafts AI-COS (autre travail en cours).
+> - **ADR-034** restera libre (numéro initial AI-COS renommé en 035 pour collision avec ADR-036 marketing également 034 initialement — résolu par décalage AI-COS → 035, marketing → 036).
 
 ---
 
