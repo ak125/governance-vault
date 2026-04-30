@@ -272,6 +272,40 @@ Si le `grep` retourne du code qui résout déjà le problème → **étendre l'e
 
 ---
 
+## AP-12: Reconstruire orchestrateur/scheduler/registry/dashboard maison sur AI-COS
+
+**Pattern interdit** : ajouter à AI-COS un bus événementiel maison, un scheduler daemon, un registry agent, un moteur de permissions, ou un dashboard custom alors que les primitives natives existent déjà (GitHub Actions, Paperclip, Claude Code SDK, governance-vault audit-trail).
+
+```typescript
+// ❌ WRONG: invente un scheduler maison sur AI-COS
+const schedulerService = new CustomCronEngine({ /* ... */ });
+schedulerService.register('site-load-check', '*/30 * * * *', siteLoadCheck);
+
+// ✅ CORRECT: utilise GitHub Actions cron (primitive native, versioned, observable, free)
+// .github/workflows/vault-supabase-cost-check.yml
+// on:
+//   schedule:
+//     - cron: "0 8 * * 1"
+```
+
+**Avant TOUTE proposition d'ajout d'infrastructure sur AI-COS**, vérifier qu'une primitive native ne couvre pas déjà le besoin :
+
+| Tentation maison | Primitive native équivalente |
+|---|---|
+| Bus événementiel | GitHub webhooks → `workflow_dispatch` / `repository_dispatch` |
+| Scheduler daemon | GitHub Actions `cron` (1 trigger par routine, single-trigger discipline) |
+| Registry agent | [[MOC-Agents]] (canon vault) + Claude Code skills (`.md` files) |
+| Moteur permissions | `GITHUB_TOKEN` scope + `gh secrets` repo policy + branch protection |
+| Dashboard custom | Paperclip cockpit (existant) + GitHub Actions UI native |
+| Dead-man switch | Healthchecks.io externe (optionnel, skip propre si non configuré) |
+| Job envelope / state machine | Réutiliser le pattern [[ADR-020-weekly-vault-lint]] : artifact + diff vs previous + issue NEW-only |
+
+Si la primitive native ne couvre VRAIMENT pas le besoin → **ouvrir un ADR explicite** pour override, pas un patch silencieux. L'ADR doit citer le pattern [[ADR-034-aicos-operating-contract]] et justifier l'écart.
+
+**Pourquoi** : voir [[ADR-034-aicos-operating-contract]]. [[ADR-006-ai-orchestrator-architecture]] (Orchestrateur AI-COS LangGraph) a été superseded car la vision n'a jamais été construite en 3 mois — au lieu de la rebricoler, ADR-034 acte officiellement que AI-COS = observatoire et que les opérations transverses s'appuient sur les outils qui marchent. Validation empirique : [[ADR-036-marketing-operating-layer]] applique déjà ce contrat avec succès (extension OperatingMatrixService + dual-workspace + Paperclip routine + canon-publish).
+
+---
+
 ## Checklist de Revue
 
 Avant de merger un PR touchant au système AI:
@@ -287,6 +321,7 @@ Avant de merger un PR touchant au système AI:
 - [ ] Pas de dépendances circulaires (AP-09)
 - [ ] Services < 500 lignes (AP-10)
 - [ ] Aucune convention inventée sans grep préalable (AP-11)
+- [ ] Aucune infrastructure orchestrateur/scheduler/registry/dashboard maison sur AI-COS sans ADR explicite (AP-12)
 
 ---
 
