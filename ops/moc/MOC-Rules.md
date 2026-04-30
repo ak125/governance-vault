@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-04-17
+updated: 2026-04-30
 ---
 
 # MOC: Rules
@@ -53,7 +53,7 @@ Index des regles canoniques du projet AutoMecanik, organisees par taxonomie uniq
 
 ## Anti-patterns (AP)
 
-- [[rules-ai-antipatterns]] - **AP-01 a AP-10** : Anti-patterns AI-COS a eviter
+- [[rules-ai-antipatterns]] - **AP-01 a AP-12** : Anti-patterns AI-COS a eviter (incl. AP-11 grep-before-invent, AP-12 no-homemade-orchestrator-on-aicos via [[ADR-034-aicos-operating-contract]])
 
 ## Engineering Quality (Q)
 
