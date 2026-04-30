@@ -39,6 +39,7 @@ Base de connaissances architecturale.
 ### DB / Ops Patterns
 - [[mcp-vs-python-direct-pg]] - Quand passer MCP vs Python psycopg2 direct (CONCURRENTLY, > 60s)
 - [[3-layer-error-pipeline-pattern]] - Pipeline 3-couches gestion erreur HTTP 404/410/301 (frontend catchall + API bridge + RedirectService/ErrorLogService) — anti-pattern shortcut hardcodé dans RemixController (cf. INC-2026-012)
+- [[seo-operating-matrix-and-nonblocking-bootstrap-20260430]] - SEO Operating Matrix (matrice agents × registry × catalog read-only, PR #222) + non-blocking `onModuleInit` pattern verrouillé par ast-grep (PR #224, exit-124 cascade debrief)
 
 ## SEO
 
