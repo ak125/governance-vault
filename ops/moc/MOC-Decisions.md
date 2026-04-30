@@ -46,6 +46,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-025 | SEO Department Architecture (5 modules) | Accepted | 2026-04-25 | [[ADR-025-seo-department-architecture]] |
 | ADR-026 | Content Repository Separation — automecanik-content as SEO Refined Layer | Proposed | 2026-04-27 | [[ADR-026-content-separation]] |
 | ADR-027 | R5 Diagnostic consolidation into R3 S2_DIAG | Proposed | 2026-04-25 | [[ADR-027-r5-consolidation-into-r3-s2-diag]] |
+| ADR-028 | Préprod read-only hardening (sans Supabase branch — Option D) | Accepted | 2026-04-30 | [[ADR-028-preprod-supabase-isolation]] |
 | ADR-029 | RAG v2.1 Control Plane Closure — State Machine 7-Stage + Emitter/Detector | Proposed | 2026-04-25 | [[ADR-029-rag-v2.1-control-plane-closure]] |
 | ADR-030 | npm ci --ignore-scripts permanent dans Dockerfile (Alpine musl + @ast-grep/cli) | Accepted | 2026-04-30 | [[ADR-030-npm-ignore-scripts-alpine-musl]] |
 | ADR-032 | Diagnostic & Maintenance Unification — kg_* canon (maintenance/DTC) + content via wiki/exports per ADR-031 | Proposed | 2026-04-29 | [[ADR-032-diagnostic-maintenance-unification]] |
@@ -54,7 +55,6 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-036 | Marketing Operating Layer — 3 agents G1 (LEAD/LOCAL/RETENTION) + business_unit séparé ECOMMERCE/LOCAL/HYBRID + canon brand voice | Proposed | 2026-04-30 | [[ADR-036-marketing-operating-layer]] |
 
 > **Notes** :
-> - **ADR-028** est un numéro libre au 2026-04-27 (sera mergée Option D read-only hardening — voir plan AI-COS rev5).
 > - **ADR-035** réservé à draft en cours (autre flux de travail). À indexer ici par sa propre PR.
 
 ---
@@ -77,6 +77,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 - [[ADR-010-airlock-enforce-activation]] - Airlock Enforce Mode & CI Authority
 - [[ADR-014-remove-paybox-callback-test]] - Suppression endpoint vulnérable (T5)
 - [[ADR-021-database-rls-hardening-zero-trust]] - Zero-trust per-table policies (RLS + INVOKER views)
+- [[ADR-028-preprod-supabase-isolation]] - Préprod read-only hardening Option D ($0/mois, 5 couches de défense, sans Supabase branch — accepted post-PR monorepo #246+#248)
 - [[ADR-030-npm-ignore-scripts-alpine-musl]] - `npm ci --ignore-scripts` permanent dans Dockerfile (supply chain hardening + fix Alpine musl @ast-grep/cli, formalise PR monorepo #168)
 
 ### Agents
