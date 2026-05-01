@@ -53,6 +53,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-033 | Wiki Gamme Diagnostic Relations Contract — references-only from R3/R4 to `__diag_symptom` / `__diag_system` | Proposed | 2026-04-29 | [[ADR-033-wiki-gamme-diagnostic-relations-contract]] |
 | ADR-034 | AI-COS Operating Contract — Observatory + Single-Trigger Routines + AP-12 anti-bricolage | Proposed | 2026-04-30 | [[ADR-034-aicos-operating-contract]] |
 | ADR-036 | Marketing Operating Layer — 3 agents G1 (LEAD/LOCAL/RETENTION) + business_unit séparé ECOMMERCE/LOCAL/HYBRID + canon brand voice | Proposed | 2026-04-30 | [[ADR-036-marketing-operating-layer]] |
+| ADR-037 | Agent Naming Canon — frontmatter `role:` Zod-validated, fail-fast (SEO agents) | Accepted | 2026-05-01 | [[ADR-037-agent-naming-canon]] |
 
 > **Notes** :
 > - **ADR-035** réservé à draft en cours (autre flux de travail). À indexer ici par sa propre PR.
