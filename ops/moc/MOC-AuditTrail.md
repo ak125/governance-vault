@@ -48,6 +48,7 @@ Journal chronologique des **evenements de gouvernance** : audits ponctuels, retr
 | 2026-04-27 | [[2026-04-27-session-closure-r6-r1-gatekeeper-todo]] | Session-closure (bilan 3 sessions R6/R1 gatekeeper, R1+R6 100% scored, 5 follow-ups TODO classés priorité) |
 | 2026-04-27 | [[2026-04-27-session-vault-governance-hardening]] | Session-trail (G2 fixes PR #77/#88 + auto-merge ON + CODEOWNERS canon + branch protection main : 5 G* + 1 approval + code-owner reviews + enforce_admins=false) |
 | 2026-04-30 | [[2026-04-30-preprod-isolation-audit]] | Audit pré-décision ADR-028 (état working tree + Supabase orga + cost branch + recommandation Option C, ensuite revue post-empirical-audit en Option D — voir [[ADR-028-preprod-supabase-isolation]]) |
+| 2026-04-30 | [[2026-04-30-aicos-rev5-session]] | Session-trail AI-COS rev5 (7 PRs livrées + ADR-034 AI-COS Operating Contract + ADR-028 Option D accepted + routine LIVE `vault-supabase-cost-check` + incident PR #242 → #244 + 5 mémoires utilisateur canonisées) |
 
 ---
 
