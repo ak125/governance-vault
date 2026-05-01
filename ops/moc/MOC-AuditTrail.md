@@ -49,6 +49,7 @@ Journal chronologique des **evenements de gouvernance** : audits ponctuels, retr
 | 2026-04-27 | [[2026-04-27-session-vault-governance-hardening]] | Session-trail (G2 fixes PR #77/#88 + auto-merge ON + CODEOWNERS canon + branch protection main : 5 G* + 1 approval + code-owner reviews + enforce_admins=false) |
 | 2026-04-30 | [[2026-04-30-preprod-isolation-audit]] | Audit pré-décision ADR-028 (état working tree + Supabase orga + cost branch + recommandation Option C, ensuite revue post-empirical-audit en Option D — voir [[ADR-028-preprod-supabase-isolation]]) |
 | 2026-04-30 | [[2026-04-30-aicos-rev5-session]] | Session-trail AI-COS rev5 (7 PRs livrées + ADR-034 AI-COS Operating Contract + ADR-028 Option D accepted + routine LIVE `vault-supabase-cost-check` + incident PR #242 → #244 + 5 mémoires utilisateur canonisées) |
+| 2026-05-01 | [[2026-05-01-roadmap-canonization-and-chantier-c-ready]] | Session-trail (Roadmap globale 2026 canonisée — 9 chantiers A→I + P0→P8 + grille hebdo, vault PR #128 + Chantier C ADR-033 verdict READY après hotfixes #256/#257) |
 
 ---
 
