@@ -54,6 +54,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-034 | AI-COS Operating Contract — Observatory + Single-Trigger Routines + AP-12 anti-bricolage | Proposed | 2026-04-30 | [[ADR-034-aicos-operating-contract]] |
 | ADR-036 | Marketing Operating Layer — 3 agents G1 (LEAD/LOCAL/RETENTION) + business_unit séparé ECOMMERCE/LOCAL/HYBRID + canon brand voice | Proposed | 2026-04-30 | [[ADR-036-marketing-operating-layer]] |
 | ADR-037 | Agent Naming Canon — frontmatter `role:` Zod-validated, fail-fast (SEO agents) | Accepted | 2026-05-01 | [[ADR-037-agent-naming-canon]] |
+| ADR-038 | Marketing Agent Naming Canon — extension ADR-037 (MarketingRoleId + business_unit) | Accepted | 2026-05-01 | [[ADR-038-marketing-agent-naming-canon]] |
 
 > **Notes** :
 > - **ADR-035** réservé à draft en cours (autre flux de travail). À indexer ici par sa propre PR.

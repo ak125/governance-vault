@@ -1,9 +1,9 @@
 ---
 id: ADR-038
 title: "Marketing Agent Naming Canon — frontmatter `role:` + `business_unit:` Zod-validated, fail-fast (étend ADR-037 au scope marketing)"
-status: proposed
+status: accepted
 date: 2026-04-30
-decision_date: null
+decision_date: 2026-05-01
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
