@@ -10,11 +10,13 @@ related_repos:
   - automecanik-wiki
   - automecanik-raw
 related_prs:
-  - automecanik-wiki#11 (P-pré statuts CLAUDE.md + double verrou)
-  - automecanik-raw#7 (P0 manifests dérivés + manifest_id content-addressable)
-  - automecanik-raw#8 (P1 _scripts/gates.py AEC runner, stacked)
-  - automecanik-wiki#12 (P5 confidence drift gate)
-  - nestjs-remix-monorepo#259 (P3 diag-canon flat map + composite FK)
+  - automecanik-wiki#11 (P-pré statuts CLAUDE.md + double verrou) MERGED 2026-05-01
+  - automecanik-raw#7 (P0 manifests dérivés + manifest_id content-addressable) MERGED 2026-05-01
+  - automecanik-raw#9 (P1 _scripts/gates.py AEC runner — ex-#8 ré-ouverte post auto-close) MERGED 2026-05-01
+  - automecanik-wiki#12 (P5 confidence drift gate) MERGED 2026-05-01
+  - nestjs-remix-monorepo#259 (P3 diag-canon flat map + composite FK) MERGED 2026-05-01
+  - automecanik-wiki#13 (P2 source-catalog raw_ref content-addressing) MERGED 2026-05-01
+  - governance-vault#130 (audit-trail evidence-pack initial) MERGED 2026-05-01
 related_adr:
   - ADR-031 (raw/wiki/exports/consumers)
   - ADR-033 (wiki gamme diagnostic_relations contract)
@@ -28,7 +30,8 @@ tags:
   - manifest-id
   - aec-runner
   - sprint-execution
-final_status: PARTIAL_COVERAGE
+final_status: SCOPE_SCANNED
+plan_closed_at: 2026-05-01T20:12:00Z
 ---
 
 # Audit stratégique externe — vérification + exécution Sprints 1-3
@@ -167,9 +170,41 @@ L'utilisateur a refusé l'approche "patcher chaque trou" et demandé "la straté
 - Composite FK violation testée : `symptom_system_mismatch:brake_noise_metallic:filtration:freinage` détecté correctement
 - **Principes 1, 6**
 
-## Sprint 4 — pendant
+## Sprint 4 — livré
 
-**P2 — Cross-repo content-addressing** : migration `automecanik-wiki/_meta/source-catalog.yaml` de `archived_at: <path>` vers `raw_ref: { repo, manifest_id, expected_sha256 }`. Dépend du **merge de raw PR #7** (qui définit la stratégie `manifest_id`). Règle de transition 30j codifiée dans le plan : ✅ raw_ref seul, ⚠️ archived_at seul (WARN avec deadline), ❌ les deux divergents (FAIL `dual_ref_divergence`).
+**Wiki PR #13** (`feat/p2-source-catalog-raw-ref-migration`) — P2 cross-repo content-addressing
+- `_meta/source-catalog.yaml` : 4 sources reçoivent `raw_ref { repo: automecanik-raw, manifest_id, expected_sha256: null }` (toutes en `status: to_capture`, donc `expected_sha256` reste null tant que le fichier raw n'est pas archivé)
+- `_meta/schema/source-catalog-entry.schema.json` (NEW) : JSON Schema 2020-12 décrivant le contrat ; `raw_ref.manifest_id` pattern aligné sur `automecanik-raw/_schemas/raw-manifests.schema.json` `$defs.manifest_id`
+- `_scripts/quality-gates.py` : nouveau pré-flight check `gate_source_catalog_raw_refs()` avec tableau d'arbitrage 4 cas (raw_ref / archived_at / status). 7 nouvelles raisons : `source_unresolved`, `source_sha_drift`, `raw_ref_malformed`, `raw_ref_missing_manifest_id`, `source_unreferenceable`, `legacy_archived_at_deprecated`, `raw_inventory_unreachable`
+- `archived_at` legacy conservé J+30 (deprecate-before-rename)
+- Sweep local : 18/18 fiches PASS, 3 cas synthétiques détectés
+- CI verte (4/4 jobs)
+- **Principes 1, 3**
+
+**Limite assumée P2** : détection `dual_ref_divergence` (raw_ref vs archived_at résolvant à des contenus différents) non implémentée — exigerait reverse lookup chemin→manifest_id. Hors P2 minimum viable, à reprendre lors d'un sprint cleanup post-J+30 deadline.
+
+## Bilan final du plan
+
+**7 PRs livrées en 1 journée** (2026-05-01) sur 3 repos applicatifs + 1 vault, sur 4 sprints, en respectant les 6 principes architecturaux unifiés. Tous les sprints clôturés CI verte.
+
+| Sprint | PR | Repo | Principes |
+|---|---|---|---|
+| 1 — P-pré | wiki #11 | automecanik-wiki | 1, 4 |
+| 1 — P0 | raw #7 | automecanik-raw | 1, 2, 4 |
+| 2 — P1 | raw #9 (ex #8) | automecanik-raw | 1, 6 |
+| 2 — P5 | wiki #12 | automecanik-wiki | 4, 5, 6 |
+| 3 — P3 | monorepo #259 | nestjs-remix-monorepo | 1, 6 |
+| 4 — P2 | wiki #13 | automecanik-wiki | 1, 3 |
+| audit | vault #130 | governance-vault | (evidence-pack) |
+
+**Plan CLOSED** : 2026-05-01T20:12:00Z (merge wiki PR #13).
+
+**Erreurs / surprises notables** :
+- Wiki PR #12 a nécessité un rebase + résolution de conflit pre-commit-config (P-pré et P5 ajoutaient tous deux des hooks à la fin du fichier — résolution = garder les 2)
+- Raw PR #8 auto-fermée post-merge de #7 (base branch deleted) → ré-ouverte en #9 avec cherry-pick clean
+- CI raw a nécessité fix `lfs: true` dans 2 workflows (raw-checksum-verify.yml + lint.yml) — sans ça actions/checkout récupère pointer LFS au lieu des binaires (1162 fichiers LFS)
+- Wiki CI a nécessité fix mdformat sur CLAUDE.md + ingestion-contract.md (le hook reformate les escapes underscore + table padding)
+- L'« anomalie 1.0 » de plaquette-de-frein.md est mathématiquement correcte par la formule ADR-033 §C8 — l'audit avait flaggé une lecture sémantique trompeuse, pas une erreur de calcul
 
 ## Tests / vérifications exécutés
 
@@ -204,17 +239,22 @@ unscanned_zones:
   - PRs récentes #239-#256 individuellement (références titre uniquement, pas diffs)
   - Tests automatisés Python (pas exécutés en CI ici)
   - Logs runs CI antérieurs (non consultés)
-corrections_proposed: 5 (P-pré, P0, P1, P5, P3)
-corrections_applied: 5 + 1 dépendance déclenchée (cron manuel)
+corrections_proposed: 6 (P-pré, P0, P1, P5, P3, P2)
+corrections_applied: 6 / 6 livrées + mergées (CI verte sur tous les jobs)
 validation_executed:
   - Lectures statiques exhaustives (Read + git show)
-  - 4 PRs CI passées (#11, #7, #8, #12) — #259 en cours
-  - Aucun script d'agent IA exécuté sans validation humaine
+  - 7 PRs mergées (wiki #11/#12/#13, raw #7/#9, monorepo #259, vault #130)
+  - Tous les CI jobs vert (24+ checks au cumul)
+  - 3 cas synthétiques testés sur P2 gate cross-repo
+  - 18/18 fiches wiki PASS sweep quality-gates
+  - 10/10 fiches PASS validate-gamme-diagnostic-relations sur wiki main réel
 remaining_unknowns:
-  - Sprint 4 P2 cross-repo migration (pendant — dépend du merge des PRs Sprint 1-2-3)
-  - Cron PR-D nightly run effectivement émettra 3 fichiers post-merge P3
-  - Vault canon-hashes.json drift detection sur diag-canon.json (vault PR follow-up)
-final_status: PARTIAL_COVERAGE — verdict 19/19 claims couverts statiquement + 5 PRs livrées + Sprint 4 pendant
+  - Détection P2 `dual_ref_divergence` (raw_ref vs archived_at résolvant à des contenus différents) — reverse lookup chemin→manifest_id non implémenté, à reprendre post-J+30
+  - Cron PR-D nightly run émettra 3 fichiers post-merge P3 (premier run nightly à valider demain 02:00 UTC)
+  - Vault canon-hashes.json drift detection sur diag-canon.json (follow-up vault PR séparée)
+  - Migration des 1725 fichiers `recycled/rag-knowledge/web/` (legacy frontmatter incomplet/indenté) — exempté en P1 avec deadline migration
+  - 6 fichiers `*.prompt.md` schema (Gate F futur)
+final_status: SCOPE_SCANNED — plan CLOSED 2026-05-01, 6 PRs livrées + 1 audit-trail + 0 régression CI
 ```
 
 ## Référence
