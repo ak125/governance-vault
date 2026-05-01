@@ -225,4 +225,6 @@ final_status: PARTIAL_COVERAGE — verdict 19/19 claims couverts statiquement + 
 - ADR-033 (wiki gamme diagnostic_relations contract) — vault
 - ADR-039 (wiki frontmatter Zod canon) — vault
 - `rules-agent-exit-contract.md` v1.0.0 — vault `ledger/rules/`
-- Mémoires liées : [[feedback_no_hybrid_workarounds]], [[feedback_deprecate_before_rename_before_drop]], [[feedback_branch_scope_discipline]]
+- Mémoires user-side liées (hors vault, `~/.claude/projects/-opt-automecanik-app/memory/`) :
+  `feedback_no_hybrid_workarounds.md`, `feedback_deprecate_before_rename_before_drop.md`,
+  `feedback_branch_scope_discipline.md`
