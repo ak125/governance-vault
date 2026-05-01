@@ -1,9 +1,9 @@
 ---
 id: ADR-039
 title: "Wiki Proposal Frontmatter Zod Canon — TS mirror du JSON Schema canon, validateur CLI mono-repo (PR-C ADR-033)"
-status: proposed
+status: accepted
 date: 2026-04-30
-decision_date: null
+decision_date: 2026-05-01
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []

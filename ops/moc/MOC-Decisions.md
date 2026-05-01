@@ -55,6 +55,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-036 | Marketing Operating Layer — 3 agents G1 (LEAD/LOCAL/RETENTION) + business_unit séparé ECOMMERCE/LOCAL/HYBRID + canon brand voice | Proposed | 2026-04-30 | [[ADR-036-marketing-operating-layer]] |
 | ADR-037 | Agent Naming Canon — frontmatter `role:` Zod-validated, fail-fast (SEO agents) | Accepted | 2026-05-01 | [[ADR-037-agent-naming-canon]] |
 | ADR-038 | Marketing Agent Naming Canon — extension ADR-037 (MarketingRoleId + business_unit) | Accepted | 2026-05-01 | [[ADR-038-marketing-agent-naming-canon]] |
+| ADR-039 | Wiki Proposal Frontmatter Zod Canon — TS mirror du JSON Schema canon, CLI validator (PR-C ADR-033) | Accepted | 2026-05-01 | [[ADR-039-wiki-frontmatter-zod-canon]] |
 
 > **Notes** :
 > - **ADR-035** réservé à draft en cours (autre flux de travail). À indexer ici par sa propre PR.
