@@ -62,6 +62,7 @@ Base de connaissances architecturale.
 - [[adr-031-migration-runbook-20260428]] - Runbook migration ADR-031 (4-couche raw/wiki/exports/consumers) Phases B-J : inventaire raw, migration physique, refacto scripts, pilote wiki, batch métier, support, diagnostic, deprecate __rag_proposals, cleanup J+30+
 - [[adr-031-pre-phase-f-audit-corrections-20260428]] - Audit verdict utilisateur pré-Phase F.x : 5 corrections appliquées (D raw repo private, A §D23 plural amendment, B typos false alarm, C recycler plural, E+F source_refs déférés) + count vehicles corrigé 8 (pas 83)
 - [[adr-032-session-empirics-20260429]] - Découvertes empiriques ADR-032 Diagnostic & Maintenance Unification (Phases 0-5 livrées en 1 session) : 5 patterns canonisés — 3 faux problèmes corrigés in-flight, seed silent fail via ON CONFLICT DO NOTHING, frontmatter wiki strict, PostgREST normalise pg_stat_statements (gate ADR-017 J+1 non MCP-validable), extension over creation (6 décisions rejected)
+- [[adr-033-wave-2-closed-20260501]] - ADR-033 Phase 2/3 wave closure : 10 PRs livrées (rag #7, wiki #10, monorepo 8 PRs dont PR-B/C/D/F + 3 fixes), verdict READY 6/6 critères C1-C6 atteint 2026-05-01 10:55 UTC (run #25211876381). 6 patterns canonisés — PR-A.app collapsed (find avant supposer), Python > TS pour CI side-canon, `gh secret list` avant référencer, `.strip()` défensif env vars, PR-E déférée (outil sans contenu = bricolage), scope-disjoint firewall via worktrees. Branchement consommateurs Partie 3 débloqué.
 
 ## Gouvernance (Historique v1)
 
