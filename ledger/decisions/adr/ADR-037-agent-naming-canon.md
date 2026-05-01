@@ -1,9 +1,9 @@
 ---
 id: ADR-037
 title: "Agent Naming Canon — frontmatter `role:` Zod-validated, fail-fast, source de vérité unique"
-status: proposed
+status: accepted
 date: 2026-04-30
-decision_date: null
+decision_date: 2026-05-01
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
