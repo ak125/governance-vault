@@ -91,6 +91,7 @@ Base de connaissances architecturale.
 - [[fleet-advisor-claude-4-7-status-20260425]] - Fleet advisor + Claude 4.7 session status 2026-04-25 (8 agents UUIDs canon, draft Advisor pending board, AI-COS disk full incident resolved)
 - [[adr-026-p0-handoff-completion-20260427]] - ADR-026 P0 Content Repository Separation handoff completion (PR #78 + content#1 livrées, TODO P1-P6 detailed, verdict PARTIAL_COVERAGE)
 - [[pr224-exit-124-cascade-debrief-20260430]] - PR #224 perf-gates exit-124 — cascade de 6 bugs distincts révélés en chaîne (BullModule fallback `'redis'` cause racine, +5 collateral fixes), lifecycle NestJS v10 précisé, INIT_TRACE recipe, lock contract ast-grep étendu
+- [[marketing-phase1-adr036-cascade-debrief-20260501]] - Phase 1 ADR-036 livrée en cascade 5+1 sous-PRs séquentielles (4 mergées #238/#240/#241/#243 + #245 superseded par ADR-038 #247) — patterns canonisés : pas de duplication des 9 tables `__marketing_*` existantes, convention `brand_gate_level PASS/WARN/FAIL` adoptée, service `MarketingMatrixService` séparé (pas god-object SEO), validation triple verrou (CHECK SQL + DTO Zod + invariant matrix), apply DB différé go user. 5 gotchas documentés (auto-log rebase conflicts, Migration Safety `-- APPROVED:`, TS2352 ProcessEnv, race tsc-alias, in-flight ADR-038 collision)
 
 ## Knowledge Sous-Dossier Diagnostics
 
