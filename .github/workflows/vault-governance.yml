@@ -81,37 +81,14 @@ jobs:
           echo "allowed_signers configured ($(wc -l < ~/.ssh/allowed_signers) key(s))"
 
       - name: Verify commits on this branch are signed
+        # Delegue a _scripts/check-signatures.sh — meme SoT que .githooks/pre-push (G3 client-side).
         run: |
-          # Pour les PR: verifier les commits de la branche vs main
-          # Pour push direct sur main: verifier juste le HEAD
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            BASE="${{ github.event.pull_request.base.sha }}"
-            HEAD="${{ github.event.pull_request.head.sha }}"
-            RANGE="${BASE}..${HEAD}"
+            RANGE="${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
           else
             RANGE="HEAD~1..HEAD"
           fi
-
-          echo "Checking signatures in range: $RANGE"
-          UNSIGNED=0
-          for sha in $(git rev-list "$RANGE"); do
-            sig=$(git log -1 --format="%G?" "$sha")
-            # G = valid signature, U = untrusted, X = expired, B = bad, N = no signature
-            if [[ "$sig" == "N" || "$sig" == "B" ]]; then
-              echo "FAIL: commit $sha is not signed (status=$sig)"
-              UNSIGNED=$((UNSIGNED+1))
-            else
-              echo "OK: commit $sha signed (status=$sig)"
-            fi
-          done
-
-          if [[ "$UNSIGNED" -gt 0 ]]; then
-            echo ""
-            echo "G3 violation: $UNSIGNED commit(s) not signed."
-            echo "See 99-meta/signing-policy.md for setup (SSH ed25519)."
-            exit 1
-          fi
-          echo "G3: all commits signed."
+          bash _scripts/check-signatures.sh "$PWD" "$RANGE"
 
   v1-paths:
     name: "No V1 Paths (ADR-015)"
