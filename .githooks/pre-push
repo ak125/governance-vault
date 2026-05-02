@@ -15,6 +15,7 @@ set -euo pipefail
 VAULT_ROOT="$(git rev-parse --show-toplevel)"
 ORPHANS_SCRIPT="$VAULT_ROOT/_scripts/check-orphans.sh"
 WIKILINKS_SCRIPT="$VAULT_ROOT/_scripts/check-broken-links.sh"
+SIGNATURES_SCRIPT="$VAULT_ROOT/_scripts/check-signatures.sh"
 
 red() { printf '\033[31m%s\033[0m\n' "$*"; }
 green() { printf '\033[32m%s\033[0m\n' "$*"; }
@@ -43,6 +44,18 @@ if [ -x "$WIKILINKS_SCRIPT" ]; then
     has_failure=1
   else
     green "✓ Broken Wikilinks"
+  fi
+fi
+
+if [ -x "$SIGNATURES_SCRIPT" ]; then
+  if ! bash "$SIGNATURES_SCRIPT" "$VAULT_ROOT" > /tmp/pre-push-signatures.log 2>&1; then
+    red "✗ G3 Commits signes FAIL"
+    cat /tmp/pre-push-signatures.log | head -10
+    yellow "  Remediation : git rebase --exec 'git commit --amend --no-edit -S' origin/main"
+    yellow "  Setup SSH ed25519 : voir 99-meta/signing-policy.md"
+    has_failure=1
+  else
+    green "✓ G3 Commits signes"
   fi
 fi
 
