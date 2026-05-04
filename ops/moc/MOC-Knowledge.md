@@ -69,6 +69,7 @@ Base de connaissances architecturale.
 
 - [[single-maintainer-merge-pattern]] - Pattern admin-merge per-PR avec CI gates comme enforcement (vault opéré single-maintainer en attendant un 2ᵉ reviewer)
 - [[sandbox-merge-auto-rule-20260428]] - Sandbox auto-merge rule : merges main routiniers en auto (5 conditions trigger), tag PROD + apply prod DB + force-push restent gardés
+- [[vault-self-review-workflow-20260504]] - Self-review obligatoire avant `gh pr merge --admin` sur vault PR Claude-ouvert : 8-item checklist canon (frontmatter, factuel, math, wikilinks, anti-patterns, cohérence, précédent, MOC). Étend single-maintainer + sandbox-merge-auto-rule. Précédent PR #146 (2 erreurs factuelles détectées avant merge)
 - [[03-governance]] - Regles canoniques AI-COS v1.3.0 (superseded par [[rules-ai-cos]])
 - [[GOVERNANCE-HUMAN]] - Doctrine Human Authority & Zero-Trust (pre-ADR-002)
 
