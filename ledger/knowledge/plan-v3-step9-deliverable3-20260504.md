@@ -96,7 +96,13 @@ RPC Safety Gate, DEV Safety x2, Core Build, plus le workflow custom à 6s).
 - ❓ deliverable 1 : pre-commit côté repo `automecanik-rag` refusant commits sans marker `synced-from-wiki:`
 - ❓ deliverable 2 : pre-commit grep monorepo (équivalent à deliverable 3, fusionné)
 
-Donc **8/9 étapes livrées**, reste deliverable 1 d'Étape 9 côté repo rag.
+**Comptage strict** :
+- ✅ confirmées livrées : Étapes 2 (cron), 3, 4, 5, 6, 7 = **6/9**
+- ⚠️ partielle : Étape 9 (2/3 deliverables — ast-grep #286 + pre-commit #290)
+- ❓ indéfinies : Étape 1 (kill-switch peut être obsolète post-Étape 5), Étape 8 (cleanup + amend §D22)
+
+PARTIAL_COVERAGE assumée : aucun audit exhaustif des Étapes 1 et 8 fait
+dans cette session, ne pas inférer leur statut sans vérification.
 
 ## Pattern canon validé
 
