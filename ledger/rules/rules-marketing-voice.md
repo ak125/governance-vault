@@ -8,7 +8,7 @@ version: 1.0.0
 related_adr: ["ADR-036"]
 sync:
   target_repo: ak125/nestjs-remix-monorepo
-  target_path: .claude/rules/marketing-voice.md
+  target_path: .claude/canon-mirrors/marketing-voice.md
   hash_key: marketing_voice
   workflow: canon-publish.yml
   ci_check: marketing-voice-hash.yml
@@ -22,8 +22,8 @@ sync:
 > **Version** : 1.0.0 | **Status** : `proposed` (à passer `accepted` après merge ADR-036)
 
 Ce fichier est l'**unique source canonique** de la voix de marque marketing.
-Toute copie dans le monorepo (`.claude/rules/marketing-voice.md`) est **dérivée
-vérifiée par hash SHA-256** (cf §"Distribution canonique" en fin).
+Toute copie dans le monorepo (`.claude/canon-mirrors/marketing-voice.md`) est
+**dérivée vérifiée par hash SHA-256** (cf §"Distribution canonique" en fin).
 
 ---
 
@@ -209,7 +209,9 @@ Synchronisation vers monorepo via :
 
 1. **Source de vérité** : ce fichier
 2. **Hash SHA-256 publié** : `99-meta/canon-hashes.json` clé `marketing_voice`
-3. **Copie dérivée monorepo** : `.claude/rules/marketing-voice.md`
+3. **Copie dérivée monorepo** : `.claude/canon-mirrors/marketing-voice.md` (et
+   miroir `workspaces/marketing/.claude/canon-mirrors/marketing-voice.md`)
+   — sous `canon-mirrors/` pour ne pas être chargée comme rule Claude Code.
 4. **Workflow vault** : `.github/workflows/canon-publish.yml` ouvre une PR auto
    dans le monorepo à chaque modification mergée ici.
 5. **Vérification CI monorepo** : workflow `marketing-voice-hash.yml` (miroir
@@ -225,6 +227,7 @@ Synchronisation vers monorepo via :
 | Version | Date | Changements |
 |---|---|---|
 | 1.0.0 | 2026-04-30 | Création initiale (proposed). 3 voix : ECOMMERCE, LOCAL, HYBRID. Section `local_canon` à compléter par le métier avant `validated: true`. |
+| 1.0.1 | 2026-05-04 | Patch path : copies monorepo relocalisées de `.claude/rules/` vers `.claude/canon-mirrors/` pour ne pas alourdir le contexte projet Claude Code (~6K tokens/tour). Backend runtime path à update conjointement (`marketing-matrix.service.ts:48`). Aucune règle modifiée. |
 
 ## Référence
 
