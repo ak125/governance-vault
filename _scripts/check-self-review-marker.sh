@@ -38,8 +38,9 @@ if ! PR_BODY="$(gh pr view "$PR_NUMBER" --json body --jq .body 2>&1)"; then
   exit 2
 fi
 
-# Pattern : tolere whitespaces, casse, **bold** Markdown, et ` `/`-` separator.
-PATTERN='self[- ]review[ -]?verdict[[:space:]]*:[[:space:]]*\*{0,2}(APPROVE|AUTO_SYNC|HUMAN_AUTHORED)\*{0,2}'
+# Pattern : tolere whitespaces, casse, **bold** Markdown autour de chaque
+# token, et ` `/`-` separator entre "self" et "review".
+PATTERN='self[- ]review[ -]?verdict[*]*[[:space:]]*:[[:space:]]*[*]*(APPROVE|AUTO_SYNC|HUMAN_AUTHORED)[*]*'
 
 if echo "$PR_BODY" | grep -qiE "$PATTERN"; then
   MATCHED=$(echo "$PR_BODY" | grep -oiE "$PATTERN" | head -1)
@@ -56,7 +57,7 @@ Format attendu (un de ces 3, ligne dans la description GitHub) :
   - Self-review verdict: AUTO_SYNC      -> PR mécanique (canon-publish, Dependabot, ...)
   - Self-review verdict: HUMAN_AUTHORED -> PR humaine (auto-review explicit skip)
 
-Voir : ledger/knowledge/vault-self-review-workflow-20260504.md §9 Marker
+Voir : ledger/knowledge/vault-self-review-workflow-20260504.md §7 Marker structurel
 EOF
 
 exit 1
