@@ -17,7 +17,7 @@ set -euo pipefail
 VAULT_PATH="${1:-$(cd "$(dirname "$0")/.." && pwd)}"
 RANGE="${2:-}"
 
-if [[ ! -d "$VAULT_PATH/.git" ]]; then
+if ! git -C "$VAULT_PATH" rev-parse --git-dir >/dev/null 2>&1; then
   echo "Error: not a git repo: $VAULT_PATH" >&2
   exit 2
 fi
