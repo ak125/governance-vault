@@ -31,11 +31,12 @@ tags:
 
 ## 1. Contexte / problème
 
-Au 2026-05-04, le user-level `~/.claude/settings.json` activait **27 plugins**
-officiels (`claude-plugins-official`). À chaque session Claude Code dans
-`/opt/automecanik/app/`, la liste de skills associée (descriptions courtes)
-gonfle le system-reminder initial — typiquement 100+ entrées dans le bloc
-`Available skills`.
+Au 2026-05-04, le user-level `~/.claude/settings.json` listait **28 plugins**
+officiels (`claude-plugins-official`) dont **24 actifs** (4 déjà désactivés :
+`frontend-design`, `security-guidance`, `remember`, `goodmem`). À chaque
+session Claude Code dans `/opt/automecanik/app/`, la liste de skills associée
+(descriptions courtes) gonfle le system-reminder initial — typiquement 100+
+entrées dans le bloc `Available skills`.
 
 Conséquence : tokens consommés à chaque tour pour des plugins non-pertinents
 au workload monorepo (dev backend NestJS / frontend Remix / governance vault),
@@ -145,7 +146,7 @@ Estimation conservative (sur la base des descriptions de skills observées
 dans le system-reminder courant) :
 
 - 8 plugins × ~3-6 skills/plugin × ~80 tokens/description
-  ≈ **1500–3800 tokens économisés** par tour sur le system-reminder initial.
+  ≈ **1900–3800 tokens économisés** par tour sur le system-reminder initial.
 
 À mesurer empiriquement en next session via comparaison du nombre d'entrées
 listées dans `Available skills` avant/après redémarrage.
