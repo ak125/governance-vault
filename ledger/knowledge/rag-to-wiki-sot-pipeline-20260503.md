@@ -99,10 +99,53 @@ verdict: PARTIAL_COVERAGE (8/9 étapes plan v3 livrées + gardes, reste Étape 6
 
 ## Étapes restantes plan v3 (handoff next session)
 
+### Smoke test Étape 6 — chaîne validée localement 2026-05-04
+
+`brand-fiche-generator.py --brand renault` lancé en DEV avec credentials
+chargés depuis `backend/.env` :
+- ✅ Wikidata Q6686 résolu (Renault)
+- ✅ DB Supabase : 40 vehicles → 8 models, 6 engines
+- ✅ Wikipedia FR REST OK (412 chars history)
+- ✅ Frontmatter 17 champs valides écrit dans `wiki/exports/rag/constructeurs/renault.md`
+- ⚠️ Bug mineur : `BRANDS_DIR.mkdir(parents=True, exist_ok=True)` manquant —
+  `mkdir -p` à faire avant ou patcher le script.
+
+**Le pipeline est mécaniquement fonctionnel.** Le smoke output a été nettoyé
+post-test (gitignore — voir dilemme ci-dessous).
+
+### Dilemme architectural découvert post smoke test
+
+**`automecanik-wiki/.gitignore` ligne 1-4** :
+```
+# Exports générés — contenu gitignored, contrats schema commités
+exports/rag/**
+exports/seo/**
+exports/support/**
+!exports/**/.gitkeep
+```
+
+L'intention initiale Phase B.3 (commit `ebacc7c`) était : le contenu de
+`exports/rag/` est régénéré à la demande, pas commité. Mais ça pose problème
+pour le CI sync : le runner checkout wiki main et trouve `exports/rag/` vide.
+
+3 patterns possibles à arbitrer next session :
+
+| Pattern | Pro | Con |
+|---|---|---|
+| **A** : `exports/rag/**` reste gitignored, **le workflow CI sync lance les générateurs** avant copy | Contenu toujours fresh, pas de drift git, philosophie initiale respectée | Sync coûteux (Wikidata + Wikipedia + DB), nécessite SECRET_SERVICE_ROLE_KEY côté rag, fragile si rate limits |
+| **B** : Délister `exports/rag/**` du gitignore, **commit le contenu généré** | Sync simple (pure file copy), reproducible, audit trail | Commits "auto" polluent git log, drift possible si génération non-régulière |
+| **C** : Workflow séparé côté monorepo qui exécute les générateurs et **push le résultat dans wiki** ; le sync rag fait pure copy | Séparation claire (génération monorepo, stockage wiki, sync rag), pas de secret côté rag | 3-stage pipeline plus complexe à débugger |
+
+**Recommandation** : Pattern **B** (déférence au gitignore par défaut, mais commit
+explicite). Pattern A trop fragile (un down réseau bloque le sync). Pattern C trop
+complexe pour le ROI. Mais l'arbitrage user reste à faire.
+
+### Étapes 6/7/8
+
 | # | Description | Prereq | Notes |
 |---|---|---|---|
-| **6** | **Régénération via générateurs refactorisés vers `wiki/exports/rag/`** | toutes Étapes 1-5 + 9 ✅ | **Session dédiée DEV requise** : credentials Supabase (SERVICE_ROLE_KEY) + connexion Wikidata/Wikipedia/RPC. Lancer chaque générateur localement, diff vs legacy doit être minimal (timestamps + produced_by). 3 scripts à exécuter : brand-fiche-generator (36 brands), gamme-from-web-corpus-generator (gammes), diagnostic-from-db-generator (à compléter). |
-| 7 | Activer workflow CI sync (premier run réel) | Étape 6 + secret `RAG_DISPATCH_PAT` configuré côté wiki | Une fois wiki/exports/rag/ peuplé via Étape 6 → premier sync vers automecanik-rag/knowledge/. Mode `--prune` pour nettoyer orphans legacy. |
+| **6** | **Régénération via générateurs refactorisés vers `wiki/exports/rag/`** | toutes Étapes 1-5 + 9 ✅ + arbitrage gitignore (Pattern A/B/C) | Smoke test 1 brand ✅. Reste 35 brands + 200+ gammes + diagnostic. Patcher `mkdir(parents=True, exist_ok=True)` dans les 3 wiki-generators avant batch run. |
+| 7 | Activer workflow CI sync (premier run réel) | Étape 6 + arbitrage gitignore + secret `RAG_DISPATCH_PAT` côté wiki | Une fois wiki/exports/rag/ peuplé via Étape 6 → premier sync vers automecanik-rag/knowledge/. Mode `--prune` pour nettoyer orphans legacy. |
 | 8 | Cleanup contenu legacy rag/knowledge/ + adapter backend `rag-pipeline.service.ts:224` | Étape 7 | Backend lit `RAG_KNOWLEDGE_PATH/gammes/<scope>` ligne 224 — vérifier compatibilité avec mirror (probablement OK car même path layout), sinon adapter. |
 
 **Note Étape 9** : la garde ast-grep côté monorepo + le hook D22 commit-msg / workflow CI d22-protected-paths côté rag (déjà existants depuis Phase F0.c.2) couvrent ensemble la garde permanente.
