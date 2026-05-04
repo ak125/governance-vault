@@ -80,6 +80,7 @@ Base de connaissances architecturale.
 - [[validator-engine-spec]] - SPEC-002 Validator Engine
 - [[pre-push-local-check-pattern]] - Pattern : hook pre-push local pour éliminer aller-retours CI
 - [[vault-prepush-hook-worktree-gotcha-20260504]] - Gotcha : pre-push G3 hook rejette les worktrees (`[[ ! -d .git ]]` faux puisque `.git` est un fichier dans worktrees). Workaround push depuis checkout principal ; fix 1-ligne avec `git rev-parse --is-inside-work-tree`
+- [[vault-branch-protection-contexts-vs-checks-gotcha-20260504]] - Gotcha : `gh api PATCH .../required_status_checks -f 'contexts[]=...'` retourne 200 OK mais drop silencieusement les contexts non-encore-observés. Fix : utiliser format `checks` JSON avec `app_id` explicite via `--input -`
 - [[typescript-aliases-tsc-alias-gotcha-20260427]] - Pattern : alias TypeScript backend NestJS (tsc-alias build chain, watch race, codemod sed multi-niveaux)
 - [[codeql-volume-false-positive-20260427]] - Pattern : CodeQL flag des alerts pré-existantes sur diffs >300 fichiers — procédure intersection diff ∩ alerts
 - [[claude-code-dual-workspace-cost-optimization-20260427]] - Pattern : split workspace dev/SEO Claude Code via cwd-bound `.claude/` (~10K tokens/turn économisés en daily dev) + lessons learned (rm symlink trap, Fleet Advisor scope)
