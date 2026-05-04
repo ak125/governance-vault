@@ -199,8 +199,10 @@ SEO / etc.) — le placement détermine la trouvabilité future.
 
 ## 5. Hors scope (intentionnel)
 
-- **Branch protection (review humaine)** : non touchée. CODEOWNERS strict +
-  5 gates + enforce_admins restent l'arbitrage forçant la review humaine.
+- **Politique de review humaine** (CODEOWNERS + `required_approving_review_count` +
+  `enforce_admins`) : non touchée. Le solo maintainer reste l'arbitrage final.
+  Le §7 étend `required_status_checks` (couche orthogonale : gates
+  mécaniques) sans toucher la politique de review.
 - **Bot auto-approve** (CodeRabbit, Optibot, ou GitHub App custom) : non
   intégré. Hors contexte vault-specific (factuel sur settings.json, etc.).
 - **Hook PreToolUse `gh pr merge`** : non créé. Bricolage qui patche le
@@ -242,7 +244,8 @@ Trois valeurs acceptées (case-insensitive, `**bold**` toléré) :
 **Enforcement** :
 
 - Workflow : `.github/workflows/vault-self-review-marker.yml`
-- Script : `_scripts/check-self-review-marker.sh` (pattern `vault-hooks-canonical-pattern`)
+- Script : `_scripts/check-self-review-marker.sh` (pattern aligné sur
+  `pre-push-local-check-pattern.md` — script + workflow + même source de vérité)
 - Status check name : `Self-Review Marker`
 - À ajouter dans `branch protection` `main` `required_status_checks` :
   ```bash
