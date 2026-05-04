@@ -99,6 +99,44 @@ verdict: PARTIAL_COVERAGE (8/9 étapes plan v3 livrées + gardes, reste Étape 6
 
 ## Étapes restantes plan v3 (handoff next session)
 
+### Sync activé bout-en-bout 2026-05-04 — 36 brands mirrored ✅
+
+Premier sync réel post-pivot :
+
+```
+36 brands DB+Wikidata+Wikipedia
+    ↓ scripts/wiki-generators/brand-fiche-generator.py
+36 fichiers wiki/exports/rag/constructeurs/<slug>.md
+    ↓ wiki PR #22 MERGED (Pattern B Pattern: contenu commit)
+main wiki @ 986928a
+    ↓ cron VPS DEV (monorepo PR #288 MERGED)
+36 fichiers rag/knowledge/constructeurs/<slug>.md (mirror)
+    ↓ git commit "synced-from-wiki: 986928a" (D22 hook fix PR rag #14 MERGED)
+rag main @ d5e27b62 ✅
+```
+
+**Étape 8 backend = no-op** : `rag-pipeline.service.ts:224` lit `path.join(this.knowledgePath, 'gammes', dto.scope)`, le path layout `<root>/<entity>/<slug>.md` est identique entre legacy et mirror. Aucune adaptation nécessaire.
+
+### Découverte Étape 6 gammes — script enricher, pas générateur
+
+`scripts/wiki-generators/gamme-from-web-corpus-generator.py` n'est **pas un générateur** comme `brand-fiche-generator.py` — c'est un **enricher** qui ajoute des données techniques (`phase5_enrichment` block) à des fiches gammes EXISTANTES dans `wiki/exports/rag/gammes/`.
+
+Test dry-run 2026-05-04 :
+```
+237 gammes avec fichiers web OEM
+1149 fichiers mappés total
+Résultat : 0 gammes enrichies (0 sans données | 0 filtrées | 0 protégées)
+```
+
+**Cause** : `gamme_path = GAMMES_DIR/<slug>.md` n'existe pas → `continue`. L'enricher saute toutes les gammes car aucune fiche initiale n'existe dans `wiki/exports/rag/gammes/`.
+
+**Impact Étape 6 gammes** : pas de pipeline complet sans script générateur initial. 2 options :
+
+1. **Créer `gamme-skeleton-generator.py`** qui génère les fiches gammes initiales depuis DB (`auto_pieces_gamme`), puis lance l'enricher
+2. **Importer les 241 gammes du legacy** (`automecanik-raw/recycled/rag-knowledge/gammes/` post PR raw #15) vers `wiki/exports/rag/gammes/`. L'enricher peut ensuite ajouter les blocs phase5
+
+**Décision reportée** : à arbitrer next session. Pour l'instant, Étape 6 gammes bloquée. Brands livrés (36/36).
+
 ### Pivot architectural 2026-05-04 — cron VPS DEV remplace GitHub Actions cross-repo
 
 **Décision user** : *« meilleure solution pas de bricolage »*. Les workflows
