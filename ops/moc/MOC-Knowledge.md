@@ -80,6 +80,7 @@ Base de connaissances architecturale.
 - [[typescript-aliases-tsc-alias-gotcha-20260427]] - Pattern : alias TypeScript backend NestJS (tsc-alias build chain, watch race, codemod sed multi-niveaux)
 - [[codeql-volume-false-positive-20260427]] - Pattern : CodeQL flag des alerts pré-existantes sur diffs >300 fichiers — procédure intersection diff ∩ alerts
 - [[claude-code-dual-workspace-cost-optimization-20260427]] - Pattern : split workspace dev/SEO Claude Code via cwd-bound `.claude/` (~10K tokens/turn économisés en daily dev) + lessons learned (rm symlink trap, Fleet Advisor scope)
+- [[claude-code-plugin-enablement-policy-20260504]] - Politique : 8 plugins user-level désactivés (cloudflare/netlify/optibot/qodo/searchfit-seo/pagerduty/adspirer/firecrawl) pour la session app/ + règle « propose-only » (Claude propose la réactivation, jamais en silence)
 - [[supabase-management-token]] - Provisioning + règles strictes pour le secret `SUPABASE_ACCESS_TOKEN` (Management API readonly token, vault-only, scope `organizations:read`, masking + redaction artifact, rotation procédure). Consommé par routine `vault-supabase-cost-check.yml` (PR plan AI-COS rev5).
 
 ## References
