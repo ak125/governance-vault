@@ -199,8 +199,8 @@ SEO / etc.) — le placement détermine la trouvabilité future.
 
 ## 5. Hors scope (intentionnel)
 
-- **Branch protection** : non touchée. CODEOWNERS strict + 5 gates +
-  enforce_admins restent l'arbitrage forçant la review.
+- **Branch protection (review humaine)** : non touchée. CODEOWNERS strict +
+  5 gates + enforce_admins restent l'arbitrage forçant la review humaine.
 - **Bot auto-approve** (CodeRabbit, Optibot, ou GitHub App custom) : non
   intégré. Hors contexte vault-specific (factuel sur settings.json, etc.).
 - **Hook PreToolUse `gh pr merge`** : non créé. Bricolage qui patche le
@@ -221,7 +221,59 @@ Objectif : ≥ 1 erreur sémantique détectée toutes les 3 PRs (sinon la
 checklist est sur-engineered ou le rédacteur est trop conservateur ; à
 revoir).
 
-## 7. Références
+## 7. Marker structurel (gate CI)
+
+Pour permettre à un CI gate de **vérifier mécaniquement** que la self-review
+a été appliquée (sans dépendre de la mémoire user-level Claude), chaque PR
+vault doit inclure dans son **PR body** une ligne marker :
+
+```
+Self-review verdict: APPROVE
+```
+
+Trois valeurs acceptées (case-insensitive, `**bold**` toléré) :
+
+| Marker | Sémantique |
+|--------|------------|
+| `Self-review verdict: APPROVE` | Claude a appliqué la 8-item checklist et tout est conforme |
+| `Self-review verdict: AUTO_SYNC` | PR mécanique (canon-publish, Dependabot, sync) — checklist non applicable |
+| `Self-review verdict: HUMAN_AUTHORED` | PR rédigée par un humain — auto-review explicit skip |
+
+**Enforcement** :
+
+- Workflow : `.github/workflows/vault-self-review-marker.yml`
+- Script : `_scripts/check-self-review-marker.sh` (pattern `vault-hooks-canonical-pattern`)
+- Status check name : `Self-Review Marker`
+- À ajouter dans `branch protection` `main` `required_status_checks` :
+  ```bash
+  gh api -X PUT repos/ak125/governance-vault/branches/main/protection/required_status_checks \
+    -F 'strict=true' \
+    -f 'contexts[]=G2: Zero Orphelin' \
+    -f 'contexts[]=Broken Wikilinks' \
+    -f 'contexts[]=G3: Commits signes' \
+    -f 'contexts[]=G4: CI read-only sur canon' \
+    -f 'contexts[]=No V1 Paths (ADR-015)' \
+    -f 'contexts[]=Self-Review Marker'
+  ```
+  → 6 gates au lieu de 5. `enforce_admins: true` empêche `gh pr merge --admin`
+  de bypass tant que le gate est rouge.
+
+**Pourquoi pas une couche unique** (canon + marker) :
+
+- La 8-item checklist (§3) est l'**activité** de review (sémantique, faite par Claude)
+- Le marker (§7) est la **trace** vérifiable mécaniquement (CI, audit)
+- L'un sans l'autre est insuffisant : checklist sans marker = pas vérifiable
+  mécaniquement ; marker sans checklist = théâtre (cocher sans review réelle).
+
+Si l'humain veut bypass tout self-review (« je sais ce que je fais, c'est un
+typo »), il peut écrire `Self-review verdict: HUMAN_AUTHORED` — mais cette
+mention est versionnée dans le commit + audit trail GitHub. La trace existe.
+
+**Évolution** : pour amender la liste des markers, ouvrir une PR amendant
+**ce canon** ET le script `_scripts/check-self-review-marker.sh` ensemble
+(atomique).
+
+## 8. Références
 
 - `single-maintainer-merge-pattern.md` — le pattern admin-merge solo qu'on
   étend

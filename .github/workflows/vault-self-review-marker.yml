@@ -1,0 +1,29 @@
+name: Self-Review Marker
+
+# Gate sémantique : refuse les PRs vault sans marker self-review verdict
+# explicite dans la PR body.
+# Source canon : ledger/knowledge/vault-self-review-workflow-20260504.md §9
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  check-marker:
+    name: "Self-Review Marker"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check self-review marker in PR body
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          chmod +x _scripts/check-self-review-marker.sh
+          _scripts/check-self-review-marker.sh "$PR_NUMBER"
