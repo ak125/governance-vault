@@ -99,6 +99,36 @@ verdict: PARTIAL_COVERAGE (8/9 étapes plan v3 livrées + gardes, reste Étape 6
 
 ## Étapes restantes plan v3 (handoff next session)
 
+### Pivot architectural 2026-05-04 — cron VPS DEV remplace GitHub Actions cross-repo
+
+**Décision user** : *« meilleure solution pas de bricolage »*. Les workflows
+GitHub Actions du sync (rag #12 receveur + wiki #19 dispatcher avec PAT
+`RAG_DISPATCH_PAT`) étaient du bricolage défensif :
+
+| Bricolage initial | Pourquoi c'était inutile |
+|---|---|
+| 3 `actions/checkout` dans le receveur | Les 3 clones git existent déjà sur DEV VPS |
+| `actions/setup-python@v5` | python3 + stdlib disponibles localement |
+| PAT cross-repo `RAG_DISPATCH_PAT` rotation 90j | Deploy bot SSH key déjà active |
+| Dispatcher HTTP API call | Pour un sync 100% local |
+| `schedule: daily` safety net | Redondant avec cron horaire |
+
+**Pattern canonique remplaçant** (PR monorepo #288) :
+`scripts/cron/sync-rag-from-wiki.sh` + 1 ligne crontab DEV VPS.
+Pull wiki + pull rag + sync filesystem + commit/push avec deploy bot SSH.
+Lock global `/tmp/rag-global.lock` (compatible avec `run-phase-f.sh`).
+
+**Reverts associés** :
+- PR rag #13 : remove `.github/workflows/sync-rag-from-wiki.yml`
+- PR wiki #20 : remove `.github/workflows/dispatch-rag-sync.yml`
+- User action post-merge : retirer secret `RAG_DISPATCH_PAT` côté wiki
+
+**Leçon retenue** : pour un setup mono-VPS avec assets locaux complets
+(clones git, SSH keys, env vars, cron pattern éprouvé), GitHub Actions
+cross-repo est du bricolage. Cron local = pattern canon.
+
+---
+
 ### Smoke test Étape 6 — chaîne validée localement 2026-05-04
 
 `brand-fiche-generator.py --brand renault` lancé en DEV avec credentials
