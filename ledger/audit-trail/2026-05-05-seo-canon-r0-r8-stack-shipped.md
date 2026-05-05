@@ -97,4 +97,4 @@ ADR-040 formalise cette décision.
 - 99 tests `node:test` package + 40 tests Jest backend + 12 tests Jest `parseResponseOrSoft` = 151 tests
 - 0 erreurs typecheck sur fichiers nouveaux/migrés
 - 18 → 0 warnings ast-grep baseline (PR-3a-cleanup)
-- 10 reviews automatiques cumulées (4 + 4 + 3 + cette session ADR)
+- 11 reviews automatiques cumulées sur 9 PRs monorepo (Wave 1: 4, Wave 2: 4, Wave 3: 3) — la rédaction de cette ADR-040 vault est une session distincte non comptée dans les reviews de PRs monorepo
