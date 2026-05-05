@@ -57,6 +57,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-037 | Agent Naming Canon — frontmatter `role:` Zod-validated, fail-fast (SEO agents) | Accepted | 2026-05-01 | [[ADR-037-agent-naming-canon]] |
 | ADR-038 | Marketing Agent Naming Canon — extension ADR-037 (MarketingRoleId + business_unit) | Accepted | 2026-05-01 | [[ADR-038-marketing-agent-naming-canon]] |
 | ADR-039 | Wiki Proposal Frontmatter Zod Canon — TS mirror du JSON Schema canon, CLI validator (PR-C ADR-033) | Accepted | 2026-05-01 | [[ADR-039-wiki-frontmatter-zod-canon]] |
+| ADR-040 | SEO Roles Canon R0..R8 — single source of truth côté TypeScript via @repo/seo-roles, pas de DB CHECK | Accepted | 2026-05-05 | [[ADR-040-seo-roles-canon-ts-side-only]] |
 
 ---
 
