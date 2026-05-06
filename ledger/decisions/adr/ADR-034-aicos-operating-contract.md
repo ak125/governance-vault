@@ -10,6 +10,8 @@ related_rules: ["AP-12", "Q1", "Q4", "AEC"]
 related_incidents: []
 related_adr: ["ADR-006", "ADR-011", "ADR-012", "ADR-015", "ADR-020", "ADR-025", "ADR-028", "ADR-036"]
 reviewed_by: ""
+implementation_status: contract-active-since-2026-04-30, accepting-promotion-after-30d-evidence (audit J+30 ~2026-05-30 via routine trig_01Tq3Z8ohU29suDmnezZhWnG)
+implementation_status_updated: 2026-05-05
 ---
 
 # ADR-034: AI-COS Operating Contract — Observatory + Single-Trigger Routines
