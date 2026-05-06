@@ -17,7 +17,9 @@ set -euo pipefail
 VAULT_PATH="${1:-$(cd "$(dirname "$0")/.." && pwd)}"
 RANGE="${2:-}"
 
-if [[ ! -d "$VAULT_PATH/.git" ]]; then
+if [[ ! -e "$VAULT_PATH/.git" ]]; then
+  # `-d` would reject git worktrees, where `.git` is a file (gitlink) pointing
+  # to the main repo's `.git/worktrees/<name>` instead of a directory.
   echo "Error: not a git repo: $VAULT_PATH" >&2
   exit 2
 fi
