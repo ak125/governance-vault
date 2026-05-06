@@ -60,6 +60,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-040 | SEO Roles Canon R0..R8 — single source of truth côté TypeScript via @repo/seo-roles, pas de DB CHECK | Accepted | 2026-05-05 | [[ADR-040-seo-roles-canon-ts-side-only]] |
 | ADR-041 | R1 Router Posture Reaffirmed — empirical validation supersedes hypothesis-driven commerce-safe pivot | Proposed | 2026-05-06 | [[ADR-041-r1-router-posture-empirical-reaffirm]] |
 | ADR-042 | Wiki gamme skeleton-generator (Pattern A) — débloquer Étape 6 gammes du pivot ADR-031 sans contournement legacy | Superseded by monorepo PR #332 (direct RAG backfill, 2026-05-06) | 2026-05-06 | [[ADR-042-wiki-gamme-skeleton-generator]] |
+| ADR-043 | Plan F (DevSecOps) — cadre Phase 1 threat-model-first sur 3 sprints (NIST SSDF + OWASP SAMM v2 + SLSA L2) | Proposed | 2026-05-06 | [[ADR-043-plan-F-devsecops-phase-1-cadre]] |
 
 ---
 
