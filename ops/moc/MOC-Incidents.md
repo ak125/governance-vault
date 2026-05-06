@@ -17,6 +17,7 @@ Index des incidents et post-mortems. Cette MOC est la porte d'entree pour tout e
 
 | ID | Date | Severite | Titre | Status |
 |----|------|----------|-------|--------|
+| [[2026-05-06-cf-cache-poisoning-pieces-5xx\|INC-2026-005-recurrence]] | 2026-05-06 | High | Cloudflare cache poisoning sur loader-thrown 5xx Remix (`/pieces/*` 47 % 5xx, s-maxage=86400 leak) — PR #320 | Mitigated-with-followup |
 | [[2026-05-02-diagnostic-tool-unsourced-probas\|INC-2026-013]] | 2026-05-02 | High | Probabilités non sourcées dans `__diag_symptom_cause_link` — 162 rows exposées client `/diagnostic-auto/*` | Open |
 | [[2026-04-23-gsc-411k-404-tecdoc-orphans\|INC-2026-012]] | 2026-04-23 | High | 411k pages GSC en 404 (TecDoc V1 orphans + hardcoded 410 shortcut) | Closed-with-monitoring (J+30/60/90) |
 | [[2026-04-23-ci-cwv-backend-boot-crash\|INC-2026-009]] | 2026-04-23 | Medium | CI CWV Performance Gate — APP_URL manquant dans perf-gates.yml (fix PR monorepo #123) | Resolved |
@@ -40,6 +41,7 @@ Index des incidents et post-mortems. Cette MOC est la porte d'entree pour tout e
 
 ### High
 
+- [[2026-05-06-cf-cache-poisoning-pieces-5xx]] — Récurrence INC-2026-005 sur la chaîne pieces RM V2. Cause CDN : `headers: HeadersFunction = () => ({...})` zero-arg appliquait `s-maxage=86400` à toutes les réponses, y compris loader-thrown 5xx → Cloudflare cache 500 pendant 24h. Sample 930 URLs : 47 % `/pieces/*` en 500 cache HIT. PR #320 : helper `~/utils/cache-control` errorHeaders-aware + 7 tests + lint dual-layer (script bash + ast-grep + step CI blocant + pre-commit).
 - [[2026-05-02-diagnostic-tool-unsourced-probas]] — 162 scores `relative_score` dans `__diag_symptom_cause_link` copiés depuis RAG éditorial non sourcé (`bruits-freinage.md`), exposés côté client `/diagnostic-auto/*`. 4 PRs planifiées (migration DB `is_trusted`, backend, frontend, re-sourcing). ADR-035 proposé.
 - [[2026-04-23-gsc-411k-404-tecdoc-orphans]] — 411 k pages GSC en 404 (TecDoc V1→V2 remap orphans dans `__sitemap_p_link` + shortcut 410 hardcodé). 3 PRs monorepo (#133/#134/#135) + migration N2 (#136) + tag `v2026.04.23-gsc-404-tecdoc-fix`. Sitemap régénéré avec filtre actif (102 395 URLs stable, 0 orphan).
 - [[2026-04-20_high_xtr-msg-firehose-cascade]] — Firehose logs d'erreur dans `___xtr_msg` sature PostgREST et cree une boucle positive de timeouts (-95 % inserts apres fix, table dediee `__error_logs` + pg_cron 30j)
@@ -59,6 +61,7 @@ Index des incidents et post-mortems. Cette MOC est la porte d'entree pour tout e
 
 ### 2026
 
+- [[2026-05-06-cf-cache-poisoning-pieces-5xx]] — INC-2026-005-recurrence : Cloudflare cache poisoning 24h sur loader-thrown 5xx Remix (`/pieces/*` 47 % 5xx). PR #320 (commit a93b7dcb) helper buildCacheHeaders + lint guard.
 - [[2026-05-02-diagnostic-tool-unsourced-probas]] — 162 scores non sourcés dans moteur diagnostic (probas copiées depuis RAG éditorial), 4 PRs d'atténuation planifiées (ADR-035)
 - [[2026-04-23-gsc-411k-404-tecdoc-orphans]] — 411 k GSC 404 backlog (TecDoc V1 orphans + hardcoded shortcut), 3 PRs monorepo + migration N2 + tag `v2026.04.23-gsc-404-tecdoc-fix`
 - [[2026-04-22-redis-public-exposure-bsi]] — Redis DEV exposé publiquement (BSI), firewall Hetzner + alignement compose files (PR monorepo #102)
