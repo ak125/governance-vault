@@ -6,8 +6,8 @@ date: 2026-05-06
 date_detected: 2026-05-05
 date_resolved: 2026-05-06
 severity: high
-status: mitigated-with-followup
-impact_duration: "Persistance jusqu'à 24h après chaque 500 origin (s-maxage=86400). Stock GSC 30,4k URLs."
+status: resolved
+impact_duration: "Persistance jusqu'à 24h après chaque 500 origin (s-maxage=86400). Stock GSC 30,4k URLs. Levée par PROD tag v2026.05.06-cf-cache-5xx-fix + purge Cloudflare 2026-05-06 ~13:35-13:42 UTC."
 affected_systems:
   - route-frontend: /pieces/{gamme}/{marque}/{modele}/{type}.html (R2)
   - route-frontend: /pieces/{gamme}-{id}.html (R1)
@@ -31,7 +31,8 @@ tags:
   - tech/remix
   - tech/caddy
   - cache-poisoning
-  - mitigated
+  - resolved
+  - post-mortem
   - followup-backend-rm-v2
 ---
 
@@ -107,3 +108,55 @@ Cloudflare honore `s-maxage` (CDN-tier `Cache-Control` directive RFC-7234) **mê
 - **Incident parent** : INC-2026-005 (`2026-04-20-gsc-5xx-vehicle-page-cold-rpc.md`)
 - **Helper** : `frontend/app/utils/cache-control.ts`
 - **Lint script** : `scripts/lint/check-no-zero-arg-headers-with-s-maxage.sh`
+
+---
+
+## Résolution end-to-end (addendum 2026-05-06 ~13:42 UTC)
+
+### Chaîne de fix
+
+| # | Action | Quand | Référence |
+|---|--------|-------|-----------|
+| 1 | PR monorepo #320 — helper `buildCacheHeaders` + 3 routes migrées + 7 tests + lint dual-layer | 2026-05-06 ~13:00 UTC | commit `a93b7dcb` |
+| 2 | PR monorepo #322 — fix YAML quoting de la règle ast-grep introduite par #320 | 2026-05-06 ~13:14 UTC | commit `e270b95c` |
+| 3 | Vault PR #167 — post-mortem indexé MOC-Incidents (3 sections) | 2026-05-06 ~13:20 UTC | commit `f331d1f` |
+| 4 | Tag PROD `v2026.05.06-cf-cache-5xx-fix` poussé sur `e270b95c` | 2026-05-06 ~13:34 UTC | tag annoté |
+| 5 | Workflow `deploy-prod.yml` run #25438575798 — image `production` promue | 2026-05-06 ~13:36 UTC | success 2m2s |
+| 6 | Cloudflare purge `/pieces/*` (action utilisateur) | 2026-05-06 ~13:40 UTC | purge confirmé empiriquement |
+
+### Vérifications empiriques
+
+**Avant chaîne de fix** (audit 2026-05-06 13:27 UTC, 930 URLs sample sitemap stratifié) :
+
+- 27,8 % `/pieces/*` en `HTTP 500` + `cf-cache-status: HIT` + `age > 300s`
+- 100 % type_id legacy `<60000` (URLs SEO prioritaires)
+- Latence retry 40 ms = serveur cache CF, pas origin
+
+**Après purge Cloudflare** (sample 30 URLs ex-500, sans cache-bust) :
+
+- 30/30 = `HTTP 200`
+- `cf-cache-status: HIT` avec `age` faible = nouvelles entrées 200 cachées
+- Backend RM V2 répond 200 OK sur les combos `(gamme_id, type_id)` qui timeout-aient à 10-12 s pendant l'audit (origine du 500 transitoire, probablement résolu par cache backend Redis warm ou ADR-016 partiel)
+
+**Après deploy PROD `v2026.05.06-cf-cache-5xx-fix`** (sample 30 URLs ex-500 + edge cases) :
+
+- 30/30 ex-500 = `HTTP 200` (succès propagé)
+- Edge cases (orphan type_id `999999`, URL malformée) = `HTTP 200 + X-Robots-Tag: noindex, follow` (page no-products alternatives propre, pas de 5xx accidentel)
+- Helper `buildCacheHeaders` confirmé dans le bundle prod (les routes l'importent et le bundle build green)
+
+### Validation de la mitigation
+
+Le helper canonique `frontend/app/utils/cache-control.ts` est désormais actif côté production. Comportement validé indirectement par 7/7 tests vitest qui assertent le contrat sur tous les états (succès, errorHeaders, X-Robots-Tag propagation, no-leak régression). La provocation d'un 5xx vivant côté prod n'a pas pu être obtenue (le système gère bien les edge cases via page alternatives 200+noindex), mais le contrat unitaire est verrouillé.
+
+Defense in depth garantit que tout 5xx futur transitoire (timeout backend ponctuel, hook réseau, etc.) sortira avec `Cache-Control: no-cache, no-store, must-revalidate` au lieu de `s-maxage=86400` — Cloudflare ne pourra plus accumuler 30 k URLs en 5xx HIT 24h. La cache poisoning est structurellement éliminée sur les 3 routes route-level concernées (`pieces.\$gamme...\$type[.]html.tsx`, `pieces.\$slug.tsx`, `blog-pieces-auto.guide-achat._index.tsx`), avec garde mécanique 3 couches (script bash awk + pre-commit hook + step CI lint blocant) qui empêche toute régression sur de futures routes.
+
+### Action utilisateur restante
+
+Re-validation Google Search Console : `Indexation des pages` → `Erreur serveur (5xx)` → bouton `Valider la correction`. Recrawl progressif Googlebot 3-7 jours typique. Surveillance recommandée à J+3 / J+7 / J+14 pour confirmer la baisse du compteur GSC vers 0.
+
+### Suivi futur (séparés)
+
+- Origine timeout backend `/api/rm/page-v2` 10-12 s sur certaines combos (`gamme_id × type_id`) — probablement même nature qu'INC-2026-005 (cold RPC `pieces_relation_type` 47 GB) appliquée à la chaîne RM V2. Nécessite SSH PROD pour stack trace si récurrence observable.
+- Migration des 4 routes mineures encore en `() => ({...})` mais sans `s-maxage` (`_index.tsx`, `constructeurs.\$brand[.]html.tsx`, `blog-pieces-auto.guide-achat.\$pg_alias.tsx`, `blog-pieces-auto.conseils.\$pg_alias.tsx`). Risque marginal mais cohérence.
+- Bilateral cross-ref vers INC parent INC-2026-005 (canon §3.7).
+- Pre-existing fail GATE-3 `dependabot-claude-review.yml` (`pull_request_target` + `actions/checkout`) — détecté pendant cet incident mais hors scope, follow-up sécurité séparé.
