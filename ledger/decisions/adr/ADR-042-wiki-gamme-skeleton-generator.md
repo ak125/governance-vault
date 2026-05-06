@@ -1,18 +1,33 @@
 ---
 id: ADR-042
 title: "Wiki gamme skeleton-generator (Pattern A) — débloquer Étape 6 gammes du pivot ADR-031 sans contournement legacy"
-status: proposed
+status: superseded
 date: 2026-05-06
-decision_date: null
+decision_date: 2026-05-06
 decision_makers: ["@fafa"]
 supersedes: []
-superseded_by: []
+superseded_by: ["monorepo PR #332 — direct backfill from RAG mirror"]
 amends: []
 related_rules: []
 related_incidents: []
 related_adr: ["ADR-031", "ADR-041", "ADR-039"]
-implementation_status: not_started
+implementation_status: cancelled
 ---
+
+> **⚠️ SUPERSEDED 2026-05-06** — investigation post-merge (user pushback) a révélé que le problème ADR-042 prétendait résoudre était fondé sur **enquête incomplète**.
+>
+> Réalité empirique :
+> - 169/232 R1 slots avaient déjà 4/5 sections à 100% (DB peuplée)
+> - RAG mirror `/opt/automecanik/rag/knowledge/gammes/` toujours disponible avec champs structurés (cost_range, brands.premium, related_parts, confusion_with)
+> - Le pipeline canon (agent r1-content-batch → RAG mirror → DB) n'a JAMAIS dépendu du peuplement wiki gamme spécifique
+>
+> Solution effective : [monorepo PR #332](https://github.com/ak125/nestjs-remix-monorepo/pull/332) — `scripts/seo/backfill-r1-safe-table.py` mirror direct du pattern `backfill-r1-gatekeeper.py`. Run en 1 minute sur 142 slots → `has_safe_table: 169/169 (100%)`. ADR-041 §2.B fermée empiriquement sans pivot wiki gamme.
+>
+> Le skeleton-generator de cette ADR (monorepo PR #331) a été reverté via [monorepo PR #333](https://github.com/ak125/nestjs-remix-monorepo/pull/333).
+>
+> Mémoire user-level `feedback_validate_full_context_before_planning_solution` ajoutée pour prévenir récurrence : valider full chain (DB existante + recyclage legacy + pipelines existants + canon flows) AVANT de drafter une ADR débloquante.
+>
+> Cette ADR reste publiée comme document historique de l'investigation et de l'arbitrage A/B documenté en mémoire `rag-to-wiki-sot-pivot-20260503`. Le **pivot wiki gamme spécifique** (Pattern A vs B) reste un futur sujet possible si curation humaine sur 232 gammes devient justifiée par un autre signal — mais ce n'est PAS le path pour ADR-041 §2.B.
 
 # ADR-042: Wiki gamme skeleton-generator (Pattern A)
 
