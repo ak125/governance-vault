@@ -31,22 +31,22 @@ CANONS: dict[str, dict] = {
     "aec": {
         "name": "Agent Exit Contract",
         "canon_path": "ledger/rules/rules-agent-exit-contract.md",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "consumers": [
             {"repo": "ak125/automecanik-wiki", "path": "_meta/agent-exit-contract.md"},
             {"repo": "ak125/automecanik-raw", "path": "agent-exit-contract.md"},
-            {"repo": "ak125/nestjs-remix-monorepo", "path": ".claude/rules/agent-exit-contract.md"},
-            {"repo": "ak125/nestjs-remix-monorepo", "path": "workspaces/seo-batch/.claude/rules/agent-exit-contract.md"},
-            {"repo": "ak125/nestjs-remix-monorepo", "path": "workspaces/marketing/.claude/rules/agent-exit-contract.md"},
+            {"repo": "ak125/nestjs-remix-monorepo", "path": ".claude/canon-mirrors/agent-exit-contract.md"},
+            {"repo": "ak125/nestjs-remix-monorepo", "path": "workspaces/seo-batch/.claude/canon-mirrors/agent-exit-contract.md"},
+            {"repo": "ak125/nestjs-remix-monorepo", "path": "workspaces/marketing/.claude/canon-mirrors/agent-exit-contract.md"},
         ],
     },
     "marketing_voice": {
         "name": "Marketing Brand Voice",
         "canon_path": "ledger/rules/rules-marketing-voice.md",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "consumers": [
-            {"repo": "ak125/nestjs-remix-monorepo", "path": ".claude/rules/marketing-voice.md"},
-            {"repo": "ak125/nestjs-remix-monorepo", "path": "workspaces/marketing/.claude/rules/marketing-voice.md"},
+            {"repo": "ak125/nestjs-remix-monorepo", "path": ".claude/canon-mirrors/marketing-voice.md"},
+            {"repo": "ak125/nestjs-remix-monorepo", "path": "workspaces/marketing/.claude/canon-mirrors/marketing-voice.md"},
         ],
     },
 }

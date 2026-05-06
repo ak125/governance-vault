@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-04-30
+updated: 2026-05-02
 ---
 
 # MOC: Decisions
@@ -52,10 +52,12 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-032 | Diagnostic & Maintenance Unification — kg_* canon (maintenance/DTC) + content via wiki/exports per ADR-031 | Proposed | 2026-04-29 | [[ADR-032-diagnostic-maintenance-unification]] |
 | ADR-033 | Wiki Gamme Diagnostic Relations Contract — references-only from R3/R4 to `__diag_symptom` / `__diag_system` | Proposed | 2026-04-29 | [[ADR-033-wiki-gamme-diagnostic-relations-contract]] |
 | ADR-034 | AI-COS Operating Contract — Observatory + Single-Trigger Routines + AP-12 anti-bricolage | Proposed | 2026-04-30 | [[ADR-034-aicos-operating-contract]] |
+| ADR-035 | Diagnostic Tool Source Trust Flag — is_trusted + source_origin sur __diag_symptom_cause_link | Proposed | 2026-05-02 | [[ADR-035-diagnostic-tool-source-trust-flag]] |
 | ADR-036 | Marketing Operating Layer — 3 agents G1 (LEAD/LOCAL/RETENTION) + business_unit séparé ECOMMERCE/LOCAL/HYBRID + canon brand voice | Proposed | 2026-04-30 | [[ADR-036-marketing-operating-layer]] |
-
-> **Notes** :
-> - **ADR-035** réservé à draft en cours (autre flux de travail). À indexer ici par sa propre PR.
+| ADR-037 | Agent Naming Canon — frontmatter `role:` Zod-validated, fail-fast (SEO agents) | Accepted | 2026-05-01 | [[ADR-037-agent-naming-canon]] |
+| ADR-038 | Marketing Agent Naming Canon — extension ADR-037 (MarketingRoleId + business_unit) | Accepted | 2026-05-01 | [[ADR-038-marketing-agent-naming-canon]] |
+| ADR-039 | Wiki Proposal Frontmatter Zod Canon — TS mirror du JSON Schema canon, CLI validator (PR-C ADR-033) | Accepted | 2026-05-01 | [[ADR-039-wiki-frontmatter-zod-canon]] |
+| ADR-040 | SEO Roles Canon R0..R8 — single source of truth côté TypeScript via @repo/seo-roles, pas de DB CHECK | Accepted | 2026-05-05 | [[ADR-040-seo-roles-canon-ts-side-only]] |
 
 ---
 
@@ -94,6 +96,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 - [[ADR-017-rpc-pieces-cast-cleanup]] - Nettoyer casts TEXT↔INTEGER dans RPC `pieces_*` (Phase 1 LIVE, RPC #1 -96%)
 - [[ADR-018-dual-column-schema-consolidation]] - Consolider schéma dual TEXT/INTEGER auto_*/pieces_* (deferred)
 - [[ADR-024-r1-gamme-page-matview-persistence]] - R1 Gamme Page persistance par matérialisation (`__gamme_page_cache`, parité ADR-016, proposed)
+- [[ADR-035-diagnostic-tool-source-trust-flag]] - Flag `is_trusted` + `source_origin` sur `__diag_symptom_cause_link` (INC-2026-013 : 162 scores non sourcés exposés client)
 
 ### SEO
 
@@ -129,12 +132,12 @@ Anciens fichiers `DEC-00X` reclasses vers les bonnes zones du ledger :
 Certaines décisions sont documentées dans les **règles** plutôt qu'en ADR :
 
 | Décision | Règle | Localisation |
-|----------|-------|--------------|
+|----------|-------|-------------|
 | Supabase SDK direct (no Prisma) | T2 | [[rules-technical]] |
 | Sessions Redis + Passport | T3 | [[rules-technical]] |
 | Validation Zod | T4 | [[rules-technical]] |
 
-> Pour les décisions de type "règle du jeu" permanentes, la canonisation se fait dans `rules-*.md` (voir [[MOC-Rules]]).
+> Pour les décisions de type « règle du jeu » permanentes, la canonisation se fait dans `rules-*.md` (voir [[MOC-Rules]]).
 
 ---
 
@@ -168,7 +171,7 @@ Certaines décisions sont documentées dans les **règles** plutôt qu'en ADR :
 - **Q1 / G6 anti-BS** : tout passage à `accepted` doit citer evidence d'implémentation (migrations shippées, code refs, mesures perf) dans le frontmatter `implementation_evidence:` ou en body.
 - Tout passage à `superseded` doit définir `superseded_by[]` non vide. `_scripts/check-adr-supersedes.py` enforce cette règle.
 - Une ADR `proposed` > 30 jours est de la dette de gouvernance (Q4) — déclenche alert dans `weekly-vault-lint` ([[ADR-020-weekly-vault-lint]]) à venir.
-- Une ADR `superseded` peut pointer vers **plusieurs** ADR via `superseded_by: [...]` lorsqu'aucune ADR seule ne couvre l'intégralité (cas "de facto joint coverage" — voir [[ADR-006-ai-orchestrator-architecture]] superseded by ADR-011 + ADR-025).
+- Une ADR `superseded` peut pointer vers **plusieurs** ADR via `superseded_by: [...]` lorsqu'aucune ADR seule ne couvre l'intégralité (cas « de facto joint coverage » — voir [[ADR-006-ai-orchestrator-architecture]] superseded by ADR-011 + ADR-025).
 
 ### Champs frontmatter associés
 
@@ -205,8 +208,8 @@ Voir [[adr-template]] dans `_templates/`.
 
 ---
 
-_Derniere mise a jour: 2026-04-27_
+_Derniere mise a jour: 2026-05-02_
 
-_Synchronisé manuellement vs frontmatter ADR le 2026-04-27. Q4 follow-up :
+_Synchronisé manuellement vs frontmatter ADR le 2026-05-02. Q4 follow-up :
 auto-générer cette table depuis `_scripts/sync-moc-decisions.py` (à créer)
 pour éviter dérive future._
