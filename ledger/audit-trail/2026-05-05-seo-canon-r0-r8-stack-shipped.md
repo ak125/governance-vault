@@ -1,4 +1,30 @@
+---
+title: "Session 2026-05-05 — SEO Canon R0..R8 stack livré (9 PRs mergées)"
+date: 2026-05-05
+type: session-trail
+related_chantier: D
+related_adr: ["ADR-040"]
+related_prs:
+  - "ak125/nestjs-remix-monorepo#304"
+  - "ak125/nestjs-remix-monorepo#305"
+  - "ak125/nestjs-remix-monorepo#306"
+  - "ak125/nestjs-remix-monorepo#307"
+  - "ak125/nestjs-remix-monorepo#308"
+  - "ak125/nestjs-remix-monorepo#309"
+  - "ak125/nestjs-remix-monorepo#310"
+  - "ak125/nestjs-remix-monorepo#311"
+  - "ak125/nestjs-remix-monorepo#312"
+status: closed
+session_closed_at: 2026-05-05
+---
+
 # 2026-05-05 — SEO Canon R0..R8 stack livré (9 PRs mergées)
+
+> **Chantier de rattachement** : `D` (SEO indexation / crawl budget) per
+> roadmap pre-canon `MOC-Roadmap-2026` (vault PR #128 OPEN) et plan-directeur
+> local `~/.claude/plans/plan-directeur-roadmap-globale-automecanik-2026.md`.
+> ADR-040 consacre R0..R8 comme socle TS-side ; le résultat *business
+> indexation* (D1-D7) reste TBD — distinct de cette livraison.
 
 ## Synthèse
 
