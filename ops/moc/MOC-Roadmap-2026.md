@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-05-01
+updated: 2026-05-06
 ---
 
 # MOC : Roadmap globale 2026
@@ -46,12 +46,12 @@ la stratégie globale.
 | A  | Runtime e-commerce / business core | Fiabiliser ce qui vend (panier, paiement, commande, emails) | — |
 | B  | Catalogue / compatibilité véhicule | Donnée produit exploitable (V-Level, alias, doublons, OEM) | [[ADR-032-diagnostic-maintenance-unification]] |
 | C  | Knowledge / Raw / Wiki / Diagnostic Canon | Source canonique unique pour RAG/SEO/chatbot | [[ADR-031-four-layer-content-architecture]], [[ADR-033-wiki-gamme-diagnostic-relations-contract]] |
-| D  | SEO / indexation / crawl budget | Sortir du piège « pages explorées non indexées » | — (pipelines R0-R8) |
+| D  | SEO / indexation / crawl budget | Sortir du piège « pages explorées non indexées » | [[ADR-040-seo-roles-canon-ts-side-only]] (R0..R8 canon TS-side, accepted 2026-05-05) |
 | E  | Performance backend / frontend | Vitesse, stabilité, conversion | [[ADR-016-vehicle-page-matview-persistence]], [[ADR-017-rpc-pieces-cast-cleanup]] |
 | F  | Sécurité / DevSecOps / isolation prod | Éviter incidents graves | [[ADR-021-database-rls-hardening-zero-trust]], [[ADR-028-preprod-supabase-isolation]], [[ADR-030-npm-ignore-scripts-alpine-musl]] |
 | G  | RAG / support client / assistant | Aider clients, réduire support manuel — RAG = consommateur | [[ADR-022-r8-rag-control-plane]] |
-| H  | Marketing / acquisition | Trafic utile + conversion (LOCAL 93 + retention) | [[ADR-036-marketing-operating-layer]], ADR-038 (WIP) |
-| I  | Agents / gouvernance / Paperclip | Encadrer agents sans complexifier — réduire d'abord | [[ADR-034-aicos-operating-contract]], ADR-037 (WIP) |
+| H  | Marketing / acquisition | Trafic utile + conversion (LOCAL 93 + retention) | [[ADR-036-marketing-operating-layer]], [[ADR-038-marketing-agent-naming-canon]] |
+| I  | Agents / gouvernance / Paperclip | Encadrer agents sans complexifier — réduire d'abord | [[ADR-034-aicos-operating-contract]], [[ADR-037-agent-naming-canon]], [[ADR-039-wiki-frontmatter-zod-canon]] |
 
 ### Détail des sujets par chantier
 
@@ -122,7 +122,7 @@ la priorité P0→P8.
 | F — Sécurité | [[ADR-021-database-rls-hardening-zero-trust]] / [[ADR-028-preprod-supabase-isolation]] / [[ADR-030-npm-ignore-scripts-alpine-musl]] + plan global TBD | Existant partiel |
 | G — RAG | [[ADR-022-r8-rag-control-plane]] + mémoires RAG | Existant partiel |
 | H — Marketing | Plan local Claude Code (ADR-036 Phase 1 majoritairement mergée 2026-04-30, Phase 2 en cours) | Actif |
-| I — Agents/Paperclip | [[ADR-034-aicos-operating-contract]] + ADR-037/038 (WIP non-mergées) | Existant partiel |
+| I — Agents/Paperclip | [[ADR-034-aicos-operating-contract]] + [[ADR-037-agent-naming-canon]] / [[ADR-038-marketing-agent-naming-canon]] / [[ADR-039-wiki-frontmatter-zod-canon]] (accepted 2026-05-01) | Existant partiel |
 
 > Les plans listés comme « Plan local Claude Code » vivent actuellement dans
 > `/home/deploy/.claude/plans/` sur la VPS DEV. Ils ne sont pas versionnés ni
@@ -148,11 +148,13 @@ Cette MOC **ne fait pas** :
 - [[ADR-031-four-layer-content-architecture]] — raw/wiki/exports/consumers
 - [[ADR-033-wiki-gamme-diagnostic-relations-contract]] — diagnostic relations
 - [[ADR-036-marketing-operating-layer]] — Marketing Operating Layer
+- [[ADR-040-seo-roles-canon-ts-side-only]] — SEO Roles canon R0..R8 TS-side (accepted 2026-05-05)
 - [[MOC-Decisions]] — index ADRs vault
 - [[MOC-Knowledge]] — index knowledge vault
 - [[MOC-Agents]] — index agents (chantier I)
-- ADR-037 (agent naming canon) — proposed, branche WIP `adr-037-agent-naming-canon`
-- ADR-038 (marketing naming canon) — proposed, monorepo PR #247
+- [[ADR-037-agent-naming-canon]] — agent naming canon (accepted 2026-05-01)
+- [[ADR-038-marketing-agent-naming-canon]] — marketing extension (accepted 2026-05-01)
+- [[ADR-039-wiki-frontmatter-zod-canon]] — wiki frontmatter Zod canon (accepted 2026-05-01)
 
 ---
 
@@ -161,3 +163,4 @@ Cette MOC **ne fait pas** :
 | Version | Date | Changements |
 |---|---|---|
 | 1.0.0 | 2026-05-01 | Création initiale. 9 chantiers A→I, priorité P0→P8, grille d'arbitrage. Source pré-canonisation : `/home/deploy/.claude/plans/plan-directeur-roadmap-globale-automecanik-2026.md` (scratch local DEV, conservé pour traçabilité genèse). |
+| 1.0.1 | 2026-05-06 | Self-review pré-merge : (a) Chantier D désormais ancré sur [[ADR-040-seo-roles-canon-ts-side-only]] (accepted 2026-05-05) ; (b) ADR-037/038 promues `accepted 2026-05-01`, ADR-039 ajoutée (chantier I + H) ; (c) wikilinks complétés. Aucune décision changée, mise à jour factuelle pré-merge. |
