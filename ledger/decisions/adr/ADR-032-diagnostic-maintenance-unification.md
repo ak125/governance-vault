@@ -12,6 +12,8 @@ related_rules: ["G1", "G2", "G3", "Q1", "Q3", "AP-10"]
 related_incidents: []
 related_adr: ["ADR-016", "ADR-022", "ADR-026", "ADR-027", "ADR-031"]
 reviewed_by: null
+implementation_status: phases-0-4-shipped, phase-5-pending (PR-8/9/10/11)
+implementation_status_updated: 2026-05-05
 ---
 
 # ADR-032: Diagnostic & Maintenance Unification
