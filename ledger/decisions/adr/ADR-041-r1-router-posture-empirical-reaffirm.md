@@ -1,9 +1,9 @@
 ---
 id: ADR-041
 title: "R1 Router Posture Reaffirmed — empirical validation supersedes hypothesis-driven commerce-safe pivot"
-status: proposed
+status: accepted
 date: 2026-05-06
-decision_date: null
+decision_date: 2026-05-06
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
@@ -11,7 +11,7 @@ amends: []
 related_rules: ["R-SEO-01", "R-SEO-02"]
 related_incidents: []
 related_adr: ["ADR-016", "ADR-024", "ADR-040"]
-implementation_status: not_started
+implementation_status: in_progress
 ---
 
 # ADR-041: R1 Router Posture — Empirical Reaffirm
