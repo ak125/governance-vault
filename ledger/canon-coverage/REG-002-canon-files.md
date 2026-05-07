@@ -2,18 +2,23 @@
 id: REG-002
 title: Canon Coverage Registry — .spec/00-canon/* enforcement audit
 status: active
-version: 1.2.0
+version: 1.3.0
 last_audit: 2026-05-07
 total_files: 35
 total_root: 19
 total_db_governance: 16
-total_enforced: 4
+total_enforced: 5
 total_prose_with_derivation: 5
-total_prose_only: 26
+total_prose_only: 25
 related_adr: ADR-048
 related_adr_sub: ADR-049
 ---
 
+> **v1.3.0 (2026-05-07, sprint 2 ADR-048 P1 — `prompt-registry.md`)** :
+> - `prompt-registry.md` état `prose-only` → `enforced` (path drift detector + CI workflow LIVE, monorepo PR #366 mergée 2026-05-07). Applique mécaniquement la règle de maintenance §3 du canon ("Les paths doivent pointer vers des fichiers existants").
+> - **Audit baseline 2026-05-07** : 28/70 paths cités sont morts (40% drift). Cleanup canon manuel requis (PR séparée, décision humaine).
+> - Quick stats : enforced 4 → 5 (11.4% → 14.3%), prose-only 26 → 25 (74.3% → 71.4%)
+>
 > **v1.2.0 (2026-05-07, sprint 2 ADR-048 P1 — `repo-map.md`)** :
 > - `repo-map.md` état `prose-only` → `enforced` (drift detector + CI workflow LIVE, monorepo PR #358 mergée 2026-05-07)
 > - Quick stats mis à jour : enforced 3 → 4 (8.6% → 11.4%), prose-only 27 → 26 (77.1% → 74.3%)
@@ -43,13 +48,13 @@ Source de vérité pour le check `_scripts/check-canon-freshness.py` (PR sprint 
 
 | State | Count | % |
 |-------|-------|---|
-| **enforced** | 4 | 11.4% |
+| **enforced** | 5 | 14.3% |
 | **prose-with-derivation** | 5 | 14.3% |
-| **prose-only** | 26 | 74.3% |
+| **prose-only** | 25 | 71.4% |
 | **deprecated** | 0 | 0% |
 | **TOTAL** | **35** | 100% |
 
-> **Update 2026-05-07** : `repo-map.md` migré prose-only → enforced via drift detector (monorepo PR #358 mergée). Coverage racine = 4/19 (21%) enforced. Cible C5 d'ADR-048 = ≥80% sur 19 racine fin sprint 3.
+> **Update 2026-05-07 (sprint 2 P1)** : 2 fichiers racine migrés prose-only → enforced via drift detectors (monorepo PRs #358 + #366). Coverage racine = **5/19 (26%)** enforced. Cible C5 d'ADR-048 = ≥80% sur 19 racine fin sprint 3 = ≥16/19. Reste 11 fichiers à migrer.
 
 ## Schéma de la table
 
@@ -79,7 +84,7 @@ Source de vérité pour le check `_scripts/check-canon-freshness.py` (PR sprint 
 | `phase2-canon.md` | prose-with-derivation | JSDoc `@see` cite (5 fichiers TS) | `execution-registry.{types,constants}.ts`, `content-section-policy.ts`, `execution-plan-resolver.service.ts`, `evidence-grading.constants.ts` | 2026-03-14 | (none) | 180 |
 | `phase-matrix.md` | prose-only | (none) | (none) | 2026-03-14 | (none) | 180 |
 | `pipeline-phases.md` | prose-only | (none) | (none) | 2026-03-14 | (none) | 180 |
-| `prompt-registry.md` | prose-only | (none) | (none) | 2026-03-14 | (none) | 180 |
+| `prompt-registry.md` | enforced | path drift detector `scripts/spec-canon/check-prompt-registry-drift.py` + CI workflow `spec-canon-prompt-registry-drift.yml` (mode warn-only, applique regle de maintenance §3 du canon : "Les paths doivent pointer vers des fichiers existants") (monorepo PR #366 merged 2026-05-07) | CI workflow on PR (paths : prompt-registry.md, .claude/agents/**, .claude/prompts/**, page-contract-*.ts) | 2026-03-14 | ADR-048 sprint 2 P1 | 180 |
 | `rag-document-classification-matrix.md` | prose-only | (none) | (none) | 2026-03-15 | (none) | 180 |
 | `repo-map.md` | enforced | drift detector `scripts/spec-canon/check-repo-map-drift.py` + CI workflow `spec-canon-repo-map-drift.yml` (monorepo PR #358 merged 2026-05-07, mode warn-only) | CI workflow on PR (paths : repo-map.md, backend/src/modules/**, frontend/app/routes/**, packages/**, docker-compose*.yml) | 2026-03-09 | ADR-048 sprint 2 P1 | 90 |
 | `role-matrix.md` | enforced | TS package `@repo/seo-roles` + 4 layers (ADR-040) | router-validator, gatekeeper, content-quality-gate, etc. | 2026-03-14 | (none) | 180 |
@@ -130,12 +135,13 @@ Schéma étendu (sprint DB-1 ADR-049 sub-axe 1) : nouvelle colonne `db_classific
 
 ## Notes d'audit
 
-### Files marqués `enforced` (4 — l'objectif coverage racine à fin sprint 3 est ≥80%, soit ≥16/19)
+### Files marqués `enforced` (5 — l'objectif coverage racine à fin sprint 3 est ≥80%, soit ≥16/19)
 
 - **`gamme-md-schema.md`** : enforced via Zod schema `wiki-proposal-frontmatter.schema.ts` (backend) + `validate-frontmatter.{py,mjs}` (automecanik-wiki) — ADR-039 LIVE
 - **`role-matrix.md`** : enforced via TS package `@repo/seo-roles` + 4 layers (router-validator, gatekeeper, content-quality-gate, frontend badges) — ADR-040 LIVE
 - **`brand-md-schema.md`** : enforced via `backend/src/config/brand-role-map.schema.ts` qui cite explicitement ce fichier comme SoT et dérive un schema Zod — ad hoc, pas d'ADR formelle (à formaliser)
 - **`repo-map.md`** : enforced via drift detector `scripts/spec-canon/check-repo-map-drift.py` + CI workflow `.github/workflows/spec-canon-repo-map-drift.yml` (mode warn-only) — ADR-048 sprint 2 P1 LIVE 2026-05-07 (monorepo PR #358)
+- **`prompt-registry.md`** : enforced via path drift detector `scripts/spec-canon/check-prompt-registry-drift.py` + CI workflow `.github/workflows/spec-canon-prompt-registry-drift.yml` (mode warn-only). Applique mécaniquement la règle de maintenance §3 du canon ("Les paths doivent pointer vers des fichiers existants"). **Audit baseline 2026-05-07 : 28/70 paths morts (40% drift)** — cleanup canon manuel requis (séparément). ADR-048 sprint 2 P1 LIVE 2026-05-07 (monorepo PR #366)
 
 ### Files marqués `prose-with-derivation` (5)
 
@@ -144,7 +150,7 @@ JSDoc `@see` ou commentaire pointe vers le canon, des constants/types sont **dé
 - `architecture.md` : 1 ref dans `cache-ttl.config.ts`
 - `phase2-canon.md` : 5 refs dans `execution-registry`, `content-section-policy`, `execution-plan-resolver`, `evidence-grading`
 
-### Files marqués `prose-only` (26 — vraie dette d'enforcement)
+### Files marqués `prose-only` (25 — vraie dette d'enforcement)
 
 Aucun consumer programmatique détecté. Le canon vit en prose, le code peut diverger arbitrairement longtemps sans signal. Cible prioritaire de la migration sprint 2-3 d'ADR-048.
 
@@ -152,8 +158,8 @@ Aucun consumer programmatique détecté. Le canon vit en prose, le code peut div
 - `architecture.md` (déjà prose-with-derivation, candidate dependency-cruiser)
 - `phase2-canon.md` (déjà prose-with-derivation, candidate tests d'intégration)
 
-**Priorité P1 sprint 2** (schématisable rapidement) :
-- `prompt-registry.md` (Zod schema pour structure prompts) — pending
+**Priorité P1 sprint 2** :
+- ~~`prompt-registry.md` (Zod schema pour structure prompts)~~ — ✅ LIVRÉ 2026-05-07 (path drift detector, monorepo PR #366 mergée). Audit baseline : 28/70 paths morts (40%) — cleanup canon manuel requis (séparément).
 - ~~`repo-map.md` (auto-generator depuis filesystem)~~ — ✅ LIVRÉ 2026-05-07 (drift detector, monorepo PR #358 mergée)
 
 **Priorité P2 sprint 3** :
