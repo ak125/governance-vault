@@ -1,6 +1,8 @@
 # AGENTS.md — Governance Vault Single Source of Truth
 
 > Instructions obligatoires pour tout agent (Claude Code, Cowork, AI-COS, Codex, scripts, humains utilisant un agent) qui produit un document de gouvernance.
+>
+> "Single Source of Truth" ici designe la **gouvernance operationnelle** (autorite formelle : [[ADR-015-vault-single-source-of-truth|ADR-015]]). Pour les acceptions distinctes du mot `canon` dans ce projet, voir le glossaire dans [[MOC-Governance]] section "Glossaire `canon`".
 
 ---
 

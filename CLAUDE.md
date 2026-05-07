@@ -7,6 +7,8 @@ Ce fichier guide les agents Claude (Code, Desktop, Cowork, Agent SDK) quand ils 
 ## Regle Maitresse
 
 > **Ce vault n'est PAS le canon.** Le canon architectural reside dans `.spec/00-canon/` du monorepo. Ce vault est un **miroir enrichi operationnel** (G1).
+>
+> Le mot `canon` est polysemique. Pour les acceptions distinctes (canon architectural / document canonique / canonical path / registry / source), voir le glossaire dans [[MOC-Governance]] section "Glossaire `canon`". L'autorite de chaque acception reste dans son document canonique (regle G1, ADR-015, etc.) — jamais dupliquee ici.
 
 Avant toute modification:
 

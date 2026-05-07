@@ -8,6 +8,8 @@ updated: 2026-05-07
 
 Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 
+> **Source de verite (verrouille en PR-2 / glossaire canon)** : les **statuts ADR sont canoniques dans le frontmatter de chaque fichier ADR** (`ledger/decisions/adr/ADR-NNN-*.md`). MOC-Decisions est l'**index officiel derive**, pas la SoT. En cas de divergence, le frontmatter ADR fait foi ; l'index est realigne par PR signee. Le check `_scripts/check-moc-integrity.py` (PR-3) detecte mecaniquement les divergences index-vs-frontmatter.
+
 > **Nota (v2 governance)** : Les anciens fichiers `DEC-00X` ont ete reclasses en **April 2026** :
 > - DEC-004 **promu** en [[ADR-014-remove-paybox-callback-test]] (seule vraie decision architecturale)
 > - DEC-001 **deplace** vers `ledger/compliance/plans/` (plan d'execution d'ADR-001, pas decision)
