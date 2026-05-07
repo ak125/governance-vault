@@ -1,7 +1,7 @@
 ---
 id: ADR-048
 title: "Canon Enforcement Coverage Audit"
-status: proposed
+status: accepted
 date: 2026-05-07
 decision_makers: [Fafa]
 supersedes: []
@@ -243,5 +243,5 @@ Issue GitHub liée : #189 (deadline 2026-05-21).
 
 *Proposé le: 2026-05-07*
 *Finalisé (sections élaborées) le: 2026-05-07*
-*Statut: proposed (cadre + sections élaborées, en attente review et acceptation Fafa)*
+*Accepté le: 2026-05-07*
 *Dernière revue: 2026-05-07*
