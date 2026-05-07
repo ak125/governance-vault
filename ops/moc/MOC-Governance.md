@@ -30,7 +30,7 @@ updated: 2026-05-07
 
 ## Regles Vault (G1-G4)
 
-Les 4 regles de gouvernance du vault lui-meme. Voir [[rules-vault]].
+Les regles G1-G4 de gouvernance du vault lui-meme. Voir [[rules-vault]].
 
 | Regle | Description | Enforcement |
 |-------|-------------|-------------|
