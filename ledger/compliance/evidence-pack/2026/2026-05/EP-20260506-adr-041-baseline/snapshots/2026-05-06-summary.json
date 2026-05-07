@@ -1,0 +1,93 @@
+{
+  "snapshot_at": "2026-05-06T18:00:00Z",
+  "window_end": "2026-05-04",
+  "window_days": 28,
+  "source": {
+    "table": "__seo_gsc_daily",
+    "fetcher": "backend/src/modules/seo-monitoring/services/gsc-daily-fetcher.service.ts",
+    "site": "sc-domain:automecanik.com",
+    "url_pattern": "https://www.automecanik.com/pieces/{slug}-{pg_id}[.html|/...]",
+    "exclusions": ["/auto-%", "/voiture-%"]
+  },
+  "totals": {
+    "n_slots": 169,
+    "n_with_gsc_data": 108,
+    "clicks_28d": 54,
+    "impressions_28d": 11415,
+    "ctr_28d_global": 0.00473
+  },
+  "buckets_2a": {
+    "A_long": {
+      "definition": "LENGTH(r1s_micro_seo_block) >= 700",
+      "n_slots": 6,
+      "n_with_gsc_data": 4,
+      "clicks_28d": 6,
+      "impressions_28d": 484,
+      "ctr_28d": 0.01240,
+      "note": "Sample size GSC=4 trop petit pour conclusion statistique. Re-mesurer T+30."
+    },
+    "B_short": {
+      "definition": "LENGTH(r1s_micro_seo_block) < 300",
+      "n_slots": 132,
+      "n_with_gsc_data": 90,
+      "clicks_28d": 40,
+      "impressions_28d": 9432,
+      "ctr_28d": 0.00424
+    },
+    "mid": {
+      "definition": "LENGTH(r1s_micro_seo_block) BETWEEN 300 AND 699",
+      "n_slots": 31,
+      "n_with_gsc_data": 14,
+      "clicks_28d": 8,
+      "impressions_28d": 1499,
+      "ctr_28d": 0.00534
+    }
+  },
+  "directional_signal_t0": {
+    "ctr_a_vs_b": "+0.82pt (A_long 1.24% vs B_short 0.42%)",
+    "ratio": "~2.93x",
+    "confidence": "low — A_long n_with_gsc=4 only",
+    "next_action": "Confirm or refute on T+30 snapshot 2026-06-05"
+  },
+  "subdecisions_state_at_t0": {
+    "2A_length_rule": {
+      "status": "pending_t30_decision",
+      "criteria": "Δ CTR ≥ 1pt OU Δ position ≤ -2 sur fenêtre stable T+30"
+    },
+    "2B_safe_table_backfill": {
+      "status": "DONE",
+      "evidence": "monorepo PR #332 merged 2026-05-06 — 169/169 r1s_safe_table_rows non-empty (verified via execute_sql 2026-05-07)",
+      "audit_t0_value": "26/169 (15.4%)",
+      "current_value": "169/169 (100%)"
+    },
+    "2C_vocab_cleanup": {
+      "status": "partial",
+      "audit_t0_value": "13/169 with forbidden vocab",
+      "current_value": "10/169",
+      "remaining_terms": ["commander"],
+      "cleared_terms": ["stock", "livraison", "paiement"],
+      "note": "Effet de bord du backfill 2.B sur 3/4 termes. 10 slots avec 'commander' subsistent — cleanup ciblé requis."
+    }
+  },
+  "top10_by_impressions": [
+    {"pg_id": 1145, "pg_alias": "vanne-egr", "bucket": "B_short", "impressions": 2000, "clicks": 0, "ctr": 0.0, "position": 47.26, "len": 147},
+    {"pg_id": 10, "pg_alias": "courroie-d-accessoire", "bucket": "B_short", "impressions": 791, "clicks": 12, "ctr": 0.01517, "position": 11.97, "len": 145},
+    {"pg_id": 247, "pg_alias": "support-moteur", "bucket": "mid", "impressions": 783, "clicks": 5, "ctr": 0.00639, "position": 14.15, "len": 337},
+    {"pg_id": 8, "pg_alias": "filtre-a-air", "bucket": "B_short", "impressions": 684, "clicks": 1, "ctr": 0.00146, "position": 7.33, "len": 283},
+    {"pg_id": 310, "pg_alias": "galet-tendeur-de-courroie-d-accessoire", "bucket": "B_short", "impressions": 645, "clicks": 3, "ctr": 0.00465, "position": 41.49, "len": 148},
+    {"pg_id": 316, "pg_alias": "thermostat", "bucket": "B_short", "impressions": 470, "clicks": 3, "ctr": 0.00638, "position": 12.37, "len": 146},
+    {"pg_id": 577, "pg_alias": "volant-moteur", "bucket": "B_short", "impressions": 298, "clicks": 2, "ctr": 0.00671, "position": 58.48, "len": 163},
+    {"pg_id": 2234, "pg_alias": "turbo", "bucket": "B_short", "impressions": 264, "clicks": 0, "ctr": 0.0, "position": 35.74, "len": 159},
+    {"pg_id": 307, "pg_alias": "kit-de-distribution", "bucket": "B_short", "impressions": 248, "clicks": 1, "ctr": 0.00403, "position": 38.26, "len": 154},
+    {"pg_id": 4, "pg_alias": "alternateur", "bucket": "B_short", "impressions": 241, "clicks": 0, "ctr": 0.0, "position": 39.5, "len": 170}
+  ],
+  "all_a_long_rows": [
+    {"pg_id": 3902, "pg_alias": "injecteur", "len": 754, "clicks": 1, "impressions": 193, "ctr": 0.00518, "position": 38.88},
+    {"pg_id": 7, "pg_alias": "filtre-a-huile", "len": 804, "clicks": 3, "impressions": 140, "ctr": 0.02143, "position": 28.18},
+    {"pg_id": 82, "pg_alias": "disque-de-frein", "len": 1250, "clicks": 0, "impressions": 95, "ctr": 0.0, "position": 24.82},
+    {"pg_id": 854, "pg_alias": "amortisseur", "len": 939, "clicks": 2, "impressions": 56, "ctr": 0.03571, "position": 33.5},
+    {"pg_id": 128, "pg_alias": "joint-chemise-de-cylindre", "len": 700, "clicks": 0, "impressions": 0, "ctr": 0.0, "position": null},
+    {"pg_id": 792, "pg_alias": "moteur-electrique-de-ventilateur", "len": 756, "clicks": 0, "impressions": 0, "ctr": 0.0, "position": null}
+  ],
+  "method_query": "See ../03-baseline-snapshot.sql Q1 (full 169 rows JSON exported via jsonb_agg). Top 10 by impressions and full A_long set retained inline; remaining rows in detailed JSON file generated on demand."
+}
