@@ -63,60 +63,69 @@ Per `feedback_no_overclaim_security_words` la décision T+30 promise dans le pla
 
 ---
 
-## Sous-décision 2.C — Cleanup 10 slots `commander`
+## Sous-décision 2.C — Re-qualification : faux-positif d'audit (CLOSED 2026-05-07)
 
-### Recommandation : **MAINTENANT, indépendant de 2.A**
+### Verdict révisé : **PAS d'action requise — les 10 occurrences sont canon-conformes**
 
-### État actuel (re-mesuré 2026-05-07)
+### Découverte (rectification 2026-05-07)
 
-| Mot interdit | Slots | Audit T0 (2026-05-06) |
-|---|---|---|
-| `commander` | 10 | 10 (was 10) |
-| `stock` | 0 | 3 |
-| `livraison` | 0 | 3 |
-| `paiement` | 0 | 3 |
+L'audit ADR-041 §Q3 a vérifié 4 termes (`commander`, `stock`, `livraison`, `paiement`). Or **le canon `r1-router-validator.md` FORBIDDEN list** ([source](../../../../../monorepo/workspaces/seo-batch/.claude/agents/r1-router-validator.md#L54-77)) liste **explicitement** :
 
-3 termes nettoyés par effet de bord du backfill 2.B (PR monorepo #332). Reste 10 slots avec `commander`.
+> Lexique interdit dominant : ajouter au panier, livraison, promo, en stock, démonter, remonter, symptôme, panne, qu'est-ce que, meilleur choix avant achat
 
-### Justification
+→ **`commander` et `paiement` ne sont PAS dans le canon FORBIDDEN.** L'audit a élargi arbitrairement la liste de test au-delà du canon SoT.
 
-- **Conformité canon** : `r1-router-validator.md` FORBIDDEN section L54-77. 10 slots en violation explicite.
-- **Coût** : `UPDATE __seo_r1_gamme_slots SET r1s_micro_seo_block = REPLACE(...)` ciblé sur ces 10 slots — ou re-run agent r1-content-batch sur ces 10 pg_id.
-- **Pas de double travail avec 2.A Option 1** : Option 1 abaisse la règle, ne touche pas au contenu existant. Cleanup 2.C re-écrit ces 10 blocs, et leurs nouvelles versions <300c respecteront déjà la règle abaissée.
+### Inspection des 10 occurrences `commander`
 
-### Implémentation suggérée
+Mesure 2026-05-07 contexte autour du mot :
 
-Approche **agent re-run** (préférée vs UPDATE SQL aveugle) :
+| pg_id | pg_alias | Contexte |
+|-------|----------|----------|
+| 1218 | module-d-allumage | "piloter, **commander**, contrôler" |
+| 1432 | commande-correcteur-de-portee | "**commander**, activer, regler" |
+| 258 | maitre-cylindre-de-frein | "**commander** le freinage" |
+| 566 | arbre-a-came | "**commander**, synchroniser, actionner les soupapes" |
+| 61 | relais-de-clignotant | "**commander**, activer, cadencer" |
+| 618 | cable-d-accelerateur | "transmettre, actionner, **commander**" |
+| 751 | commande-d-essuie-glace | "**commander**, activer, selectionner" |
+| 807 | contacteur-de-feu-de-recul | "activer, signaler, **commander**" |
+| 809 | commande-d-eclairage | "**commander**, activer, regler" |
+| 864 | interrupteur-verrouilage-des-portes | "**commander**, activer, verrouiller" |
 
-```bash
-# workspaces/seo-batch
-cd /opt/automecanik/app/workspaces/seo-batch
-# Récupérer la liste des 10 pg_id concernés
-psql "$DATABASE_URL" -c "
-  SELECT r1s_pg_id, r1s_micro_seo_block
-  FROM __seo_r1_gamme_slots
-  WHERE r1s_micro_seo_block ILIKE '%commander%'
-  ORDER BY r1s_pg_id;
-"
-# Lancer agent r1-content-batch sur cette liste avec instruction "rewrite without commander/stock/livraison/paiement"
-```
+**100 % sens technique mécanique** ("commander un dispositif" = piloter/contrôler), **0 % sens transactionnel** ("commander un produit"). Le canon `r1-router-validator.md` interdit le sens transactionnel (lexique panier/livraison/promo/stock) mais pas le verbe technique.
 
-Verification post-cleanup :
+### Conclusion 2.C
+
+- **Aucun slot ne viole le canon FORBIDDEN.**
+- Le "vocab cleanup 2.C" était un faux-positif d'audit (extension arbitraire de la liste de test).
+- Pas de PR monorepo nécessaire, pas de UPDATE SQL, pas de re-run agent.
+- Per [`feedback_decision_must_be_signal_proven_not_intuited`](../../../../knowledge/feedback_decision_must_be_signal_proven_not_intuited.md) : signal mesuré (canon SoT vs audit list extension) → décision = pas d'action.
+- Per [`feedback_canon_rule_live_iff_adr_accepted`](../../../../knowledge/feedback_canon_rule_live_iff_adr_accepted.md) : le canon `r1-router-validator.md` est SoT, l'audit n'a pas autorité pour étendre.
+
+### Garde-fou
+
+Re-mesure périodique avec liste **strictement alignée** sur le canon FORBIDDEN :
+
 ```sql
-SELECT COUNT(*) FROM __seo_r1_gamme_slots
-WHERE r1s_micro_seo_block ~* '\m(commander|stock|livraison|paiement)\M';
--- Expected: 0
+-- Garde-fou canonique : violations FORBIDDEN list de r1-router-validator.md L54-77
+SELECT r1s_pg_id, LENGTH(r1s_micro_seo_block) AS len
+FROM __seo_r1_gamme_slots
+WHERE r1s_micro_seo_block ~* '\m(ajouter au panier|livraison|promo|en stock|qu''est-ce que|meilleur choix avant achat)\M'
+   OR r1s_micro_seo_block ~* '\mstock\M'  -- "stock" hors "en stock" reste sensible commercialement
+ORDER BY r1s_pg_id;
+-- Expected 2026-05-07: 0 rows.
 ```
 
 ---
 
 ## Implications pour ADR-041
 
-Une fois 2.A Option 1 + 2.C appliqués :
-- `r1-content-batch.md` rule #6 cohérent avec production (était fictionnel à 96.5% des slots)
-- 0 slot avec vocab interdit (canon FORBIDDEN respecté)
-- Sous-décisions 2.A/2.B/2.C toutes appliquées
-- ADR-041 frontmatter peut passer `implementation_status: in_progress → complete`
+État sous-décisions au 2026-05-07 :
+- **2.A** : pendante — décision longueur reportée (skip user 2026-05-07). Re-mesure T+30 toujours utile comme contrôle anti-régression.
+- **2.B** : ✅ DONE 169/169 (monorepo PR #332).
+- **2.C** : ✅ CLOSED — faux-positif d'audit, canon FORBIDDEN respecté, 0 violation réelle.
+
+`implementation_status` reste `in_progress` tant que 2.A n'est pas tranché.
 
 LIVE déclarable canon ssi :
 1. ✅ ADR-041 status=accepted (PR #178 done)
@@ -127,4 +136,4 @@ LIVE déclarable canon ssi :
 
 ## Findings cross-cutting (hors scope ADR-041)
 
-- **Sentry CSP** : `*.ingest.de.sentry.io` bloqué par `connect-src` policy. Détecté smoke 2026-05-07 sur `rotule-de-direction-2066.html`. Per memory [`sentry-vps-bootstrap-20260506`](../../../../knowledge/sentry-vps-bootstrap-20260506.md), Sentry+SOPS PROD est activé. Ce blocage CSP rend Sentry **inopérant côté navigateur** → reporting d'erreurs frontend cassé. À traiter en PR séparée (CSP `connect-src` à étendre).
+- **Sentry CSP** : `*.ingest.de.sentry.io` bloqué par `connect-src` policy. Détecté smoke 2026-05-07 sur `rotule-de-direction-2066.html`. Per memory [`sentry-vps-bootstrap-20260506`](../../../../knowledge/sentry-vps-bootstrap-20260506.md), Sentry+SOPS PROD est activé. Ce blocage CSP rendait Sentry inopérant côté navigateur. **Fix** : monorepo PR #344 (`fix(csp): allow Sentry ingest in connect-src`) — ajout `https://*.ingest.de.sentry.io` dans `CSP_DIRECTIVES.connectSrc`.
