@@ -19,6 +19,7 @@ Index des plans d'exécution, checklists, audits et rapports de conformité.
 | Stack canon `@repo/seo-roles` (9 PRs monorepo #304-312) | [[ADR-040-seo-roles-canon-ts-side-only]] | Executed (2026-05-05) |
 | Cascade read-only hardening préprod (9 classes) | [[ADR-028-preprod-supabase-isolation]] | In progress (8/9 merged, 9e classe deploy regression — voir audit-trail 2026-05-07) |
 | Plan F DevSecOps Phase 1 (NIST SSDF + OWASP SAMM v2 + SLSA L2) | [[ADR-043-plan-F-devsecops-phase-1-cadre]] | Proposed (cadre 3 sprints, threat-model-first) |
+| Canon Enforcement Coverage Audit — registry [[REG-002-canon-files]] livrable C1 | [[ADR-048-canon-enforcement-coverage]] | Sprint 1 axe 1 LIVE (registry 35 fichiers categorises) |
 
 ---
 
