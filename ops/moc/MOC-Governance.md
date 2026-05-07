@@ -2,12 +2,14 @@
 type: moc
 status: canon
 role: master-index
-updated: 2026-04-24
+updated: 2026-05-07
 ---
 
 # MOC: Governance
 
-**Master Index** du vault de gouvernance AutoMecanik. Point d'entree unique.
+**Master Index** du vault de gouvernance AutoMecanik. Point d'entree unique de navigation.
+
+> Ce MOC ne contient pas de statistiques numeriques. Chaque metrique vit dans sa source canonique unique (voir la section "Single Source of Truth" ci-dessous). Cette discipline garantit qu'aucun chiffre ne peut deriver entre l'index et la realite.
 
 ---
 
@@ -15,10 +17,10 @@ updated: 2026-04-24
 
 | MOC | Role |
 |-----|------|
-| [[MOC-Decisions]] | ADR canoniques (14 ADR au 2026-04-17) |
-| [[MOC-Rules]] | Taxonomie T/G/AI/V - regles canoniques |
+| [[MOC-Decisions]] | Index des ADR (statuts a jour, source canonique = frontmatter de chaque ADR) |
+| [[MOC-Rules]] | Taxonomie T / G / AI / V / R-SEO / R-SEO-KW / AP / D / Q / AEC — regles canoniques |
 | [[MOC-Compliance]] | Plans d'execution, checklists, evidence-packs |
-| [[MOC-Agents]] | 119 agents par categorie |
+| [[MOC-Agents]] | Catalogue agents par categorie (registry SoT : [[REG-001-agents]]) |
 | [[MOC-Incidents]] | Post-mortems et incidents |
 | [[MOC-Knowledge]] | Base de connaissances (specs, guides) |
 | [[MOC-AuditTrail]] | Audit-trail, bundles rejetes, audits RPC |
@@ -41,17 +43,15 @@ Les 4 regles de gouvernance du vault lui-meme. Voir [[rules-vault]].
 
 ## Taxonomie Canonique
 
-Voir [[MOC-Rules]] pour les details.
+Voir [[MOC-Rules]] pour la taxonomie complete (T / G / AI / V / R-SEO / R-SEO-KW / AP / D / Q / AEC). Aucune duplication ici — la taxonomie a une source unique.
 
-| Prefix | Domaine | Fichier |
-|--------|---------|---------|
-| `T1-T7` | Technical Rules | [[rules-technical]] |
-| `G1-G4` | Vault Governance | [[rules-vault]] |
-| `G5-G8` | Governance Process | [[rules-governance-process]] |
-| `AI1-AI10` | AI-COS Rules | [[rules-ai-cos]] |
-| `V1-V6` | V-Level SEO | [[rules-seo-vlevel]] |
-| `PageRole` | SEO PageRole | [[rules-seo-pagerole]] |
-| Antipatterns | AI Antipatterns | [[rules-ai-antipatterns]] |
+---
+
+## Single Source of Truth
+
+> Le `governance-vault` est la **source de verite unique des documents de gouvernance operationnelle** (ADR, rules, MOCs, audit-trail, evidence-packs, runbooks, registry agents — formalise par [[ADR-015-vault-single-source-of-truth]]). Le **canon architectural** (contrats de schemas, code patterns figes) reste dans `.spec/00-canon/` du monorepo. Les deux sont distincts et ne se recouvrent pas.
+
+Pour les definitions operationnelles des differents sens du mot `canon` (canon architectural / document canonique / canonical path / registry / source), un glossaire sera ajoute dans la section dediee de ce MOC en PR-2.
 
 ---
 
@@ -63,27 +63,13 @@ Voir [[MOC-Rules]] pour les details.
 - [[sync-log]] - Log de synchronisation canon
 - [[ci-policy]] - Politique CI/CD (read-only sur canon)
 - [[cron-setup]] - Configuration des tasks cron
-- [[deploy-bot]] - Role du bot CI/CD (69/108 commits, non-SPOF)
-- [[claude-desktop-instructions]] - Onboarding Claude Desktop (MCP filesystem, condensé CLAUDE.md + AGENTS.md)
+- [[deploy-bot]] - Role du bot CI/CD (non-SPOF)
+- [[claude-desktop-instructions]] - Onboarding Claude Desktop (MCP filesystem, condense CLAUDE.md + AGENTS.md)
 - [[obsidian-setup]] - Topologie canonique coffre Obsidian (1 clone = 1 vault, plugins Dataview/Templater/Git, SSH signing G3)
 
 ## Archive
 
 - [[INDEX-archive]] - Documents archives (superseded, OpenClaw, etc.)
-
----
-
-## Statistiques (2026-04-17)
-
-| Metrique | Valeur |
-|----------|--------|
-| ADR actifs | 14 |
-| Incidents formalises | 0 |
-| Retrospectives | 4 |
-| Evidence-packs | 4 (fevrier 2026) |
-| Agents | 119 (11 categories) |
-| Regles canoniques | 7 fichiers (T1-T7, G1-G8, AI1-AI10, V1-V6, + R-SEO, AP) |
-| Bundles rejetes (Airlock) | 8 |
 
 ---
 
@@ -104,7 +90,3 @@ Preuves         -> [[MOC-Compliance]] (evidence-pack)
         v
 Audit-trail     -> [[MOC-AuditTrail]] (retrospective, rejects)
 ```
-
----
-
-_Derniere mise a jour: 2026-04-17_

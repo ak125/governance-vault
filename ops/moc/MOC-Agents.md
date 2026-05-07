@@ -1,50 +1,32 @@
 ---
 type: moc
 status: canon
-updated: 2026-04-17
-total_agents: 119
+updated: 2026-05-07
 ---
 
 # MOC: Agents
 
 Index canonique de tous les agents du monorepo AutoMecanik. Les agents sont stockes dans `ledger/agents/<categorie>/` et indexes par un `INDEX-agents-<categorie>.md` par categorie.
 
-> **Source de verite** : `ledger/agents/registry/REG-001-agents.md` (catalogue structure avec metadata).
+> **Source de verite** : [[REG-001-agents]] (catalogue structure avec metadata, contient le compte canonique `total_agents` et les compteurs par verdict). Ce MOC n'embarque aucun nombre absolu — ils vivraient en duplication et deriveraient.
 
 ---
 
 ## Categories
 
-| Categorie | # | Index |
-|-----------|---|-------|
-| AI-COS | 44 | [[INDEX-agents-ai-cos]] |
-| Backend | 19 | [[INDEX-agents-backend]] |
-| Python | 15 | [[INDEX-agents-python]] |
-| Skills | 14 | [[INDEX-agents-skills]] |
-| BMAD | 10 | [[INDEX-agents-bmad]] |
-| GitHub Actions | 5 | [[INDEX-agents-github-actions]] |
-| Lettered | 5 | [[INDEX-agents-lettered]] |
-| MCP | 3 | [[INDEX-agents-mcp]] |
-| Scripts | 2 | [[INDEX-agents-scripts]] |
-| Bundles | 1 | [[INDEX-agents-bundles]] |
-| Registry | 1 | [[INDEX-agents-registry]] |
-| **TOTAL** | **119** | - |
+Liste des index par categorie. Pour les compteurs et metadata par agent : [[REG-001-agents]].
 
----
-
-## Descriptions par Categorie
-
-- **AI-COS** - C-Suite IA (CEO/CFO/CMO/CPO/CTO), leads SEO/RAG/Data, QA, prompts R1/R3/R4/R6
-- **Backend** - Services NestJS (SEO, monitoring, cache, sitemap delta)
-- **Python** - Analyzers A1-A12, Fixproof F0/F1/F15 (read-only audits)
-- **Skills** - Modules Claude Agent SDK reutilisables (UI-OS, governance-vault-ops, etc.)
-- **BMAD** - Business Model Agent Development (analyst, architect, dev, pm, sm)
-- **GitHub Actions** - CI/CD automation (deploy, perf-gates, spec-validation)
-- **Lettered** - Series A/B/F/G/M (condensed agents)
-- **MCP** - Model Context Protocol servers (Supabase, shadcn)
-- **Scripts** - Scripts orchestration (UI audit, governance)
-- **Bundles** - Bundles historiques wrapped (legacy)
-- **Registry** - Catalog canonique REG-001-agents
+- [[INDEX-agents-ai-cos]] — C-Suite IA (CEO/CFO/CMO/CPO/CTO), leads SEO/RAG/Data, QA, prompts R1/R3/R4/R6
+- [[INDEX-agents-backend]] — Services NestJS (SEO, monitoring, cache, sitemap delta)
+- [[INDEX-agents-python]] — Analyzers A1-A12, Fixproof F0/F1/F15 (read-only audits)
+- [[INDEX-agents-skills]] — Modules Claude Agent SDK reutilisables (UI-OS, governance-vault-ops, etc.)
+- [[INDEX-agents-bmad]] — Business Model Agent Development (analyst, architect, dev, pm, sm)
+- [[INDEX-agents-github-actions]] — CI/CD automation (deploy, perf-gates, spec-validation)
+- [[INDEX-agents-lettered]] — Series A/B/F/G/M (condensed agents)
+- [[INDEX-agents-mcp]] — Model Context Protocol servers (Supabase, shadcn)
+- [[INDEX-agents-scripts]] — Scripts orchestration (UI audit, governance)
+- [[INDEX-agents-bundles]] — Bundles historiques wrapped (legacy)
+- [[INDEX-agents-registry]] — Catalog canonique REG-001-agents
 
 ---
 
@@ -64,13 +46,7 @@ Chaque agent est affecte a une zone. Voir [[ADR-008-agent-placement-rules]] et [
 
 ## Verdicts d'Approbation (Phase 1 Activation)
 
-Voir [[ADR-009-agents-phase1-activation]] pour le framework.
-
-| Verdict | # | Signification |
-|---------|---|---------------|
-| APPROVED | ~54 | Execution autorisee (observability + enforce) |
-| APPROVED_WITH_CONDITIONS | ~15 | Execution avec garde-fous supplementaires |
-| NOT_APPROVED | ~46 | Specifie mais pas active (pending review) |
+Voir [[ADR-009-agents-phase1-activation]] pour le framework. Compteurs exacts par verdict (APPROVED / APPROVED_WITH_CONDITIONS / NOT_APPROVED / CONCEPTUAL) : voir [[REG-001-agents]] frontmatter et section "Quick Stats".
 
 ---
 
@@ -95,7 +71,3 @@ Voir [[ADR-009-agents-phase1-activation]] pour le framework.
 - [[MOC-Rules]] - Taxonomie T/G/AI/V
 - [[MOC-Compliance]] - Evidence-packs associes
 - [[MOC-AuditTrail]] - Audit-trail bundles et RPC
-
----
-
-_Derniere mise a jour: 2026-04-17_
