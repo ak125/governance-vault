@@ -11,6 +11,7 @@
 #   7. check-obsolete-rules.py       (nouveau — status deprecated sans replacement)
 #   8. check-canon-backlinks.py      (nouveau — G1 drift cross-canon)
 #   9. check-moc-integrity.py        (nouveau — invariants structurels MOC, anti-drift PR-3)
+#  10. check-canon-freshness.py      (nouveau — fichiers .spec/00-canon/ stales vs REG-002 thresholds, ADR-048 sprint 1)
 #
 # N'écrit JAMAIS dans le vault. Produit :
 #   - findings.json   (agrégat structure par check)
@@ -127,8 +128,10 @@ run_modern "moc-integrity"      $PY_BIN _scripts/check-moc-integrity.py .
 
 if [[ -d "$MONOREPO_PATH/.spec/00-canon" ]]; then
   run_modern "canon-backlinks" $PY_BIN _scripts/check-canon-backlinks.py . --monorepo "$MONOREPO_PATH"
+  run_modern "canon-freshness" $PY_BIN _scripts/check-canon-freshness.py . --monorepo "$MONOREPO_PATH"
 else
   echo '{"check": "canon-backlinks", "findings": [], "summary": {"error":0,"warning":0,"info":0}, "skipped": "monorepo path not available in this environment"}' >> "$MODERN_RESULTS"
+  echo '{"check": "canon-freshness", "findings": [], "summary": {"error":0,"warning":0,"info":0}, "skipped": "monorepo path not available in this environment"}' >> "$MODERN_RESULTS"
 fi
 
 # --- Aggregate ---
