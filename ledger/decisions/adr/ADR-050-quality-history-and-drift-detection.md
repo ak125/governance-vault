@@ -1,9 +1,9 @@
 ---
 id: ADR-050
 title: "Quality history & drift detection — `__seo_quality_history` + RPC outliers + Sentry/OTel enrichers"
-status: proposed
+status: accepted
 date: 2026-05-07
-decision_date: null
+decision_date: 2026-05-07
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []

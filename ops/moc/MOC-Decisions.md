@@ -70,7 +70,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-047 | Contract-as-code — `@repo/seo-role-contracts` SoT comportemental, séparé de l'identité (amends ADR-040) | Accepted | 2026-05-07 | [[ADR-047-seo-role-contracts-as-code]] |
 | ADR-048 | Canon Enforcement Coverage Audit — combler l'asymétrie d'enforcement entre vault (mécanique) et `.spec/00-canon/` (partiel), Option D hybride 3 sprints | Accepted | 2026-05-07 | [[ADR-048-canon-enforcement-coverage]] |
 | ADR-049 | DB Governance Canon Enforcement — sub-projet ADR-048 pour les 20 fichiers `.spec/00-canon/db-governance/*` (densité élevée, expertise SQL/Postgres dédiée) | Proposed | 2026-05-07 | [[ADR-049-db-governance-canon-enforcement]] |
-| ADR-050 | Quality history & drift detection — `__seo_quality_history` + RPC outliers + Sentry/OTel enrichers (Phase 0 baseline trou #8) | Proposed | 2026-05-07 | [[ADR-050-quality-history-and-drift-detection]] |
+| ADR-050 | Quality history & drift detection — `__seo_quality_history` + RPC outliers + Sentry/OTel enrichers (Phase 0 baseline trou #8) | Accepted | 2026-05-07 | [[ADR-050-quality-history-and-drift-detection]] |
 
 ---
 
