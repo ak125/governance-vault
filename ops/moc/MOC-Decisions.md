@@ -61,6 +61,8 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-041 | R1 Router Posture Reaffirmed — empirical validation supersedes hypothesis-driven commerce-safe pivot | Proposed | 2026-05-06 | [[ADR-041-r1-router-posture-empirical-reaffirm]] |
 | ADR-042 | Wiki gamme skeleton-generator (Pattern A) — débloquer Étape 6 gammes du pivot ADR-031 sans contournement legacy | Superseded by monorepo PR #332 (direct RAG backfill, 2026-05-06) | 2026-05-06 | [[ADR-042-wiki-gamme-skeleton-generator]] |
 | ADR-043 | Plan F (DevSecOps) — cadre Phase 1 threat-model-first sur 3 sprints (NIST SSDF + OWASP SAMM v2 + SLSA L2) | Proposed | 2026-05-06 | [[ADR-043-plan-F-devsecops-phase-1-cadre]] |
+| ADR-044 | SEO Strategy 2026 — priorité contenu R6/R8/R7, R3 remediation only, 7 vagues | Proposed | 2026-05-07 | [[ADR-044-seo-strategy-2026-roles-priority]] |
+| ADR-045 | SEO Monitoring Cron V0 — daily-fetch GSC/GA4/Links + cron/health endpoint (socle V0.A) | Proposed | 2026-05-07 | [[ADR-045-seo-monitoring-cron-v0]] |
 
 ---
 
