@@ -61,6 +61,10 @@ Les bundles de preuves sont dans `ledger/compliance/evidence-pack/YYYY/YYYY-MM/E
 
 - [[INDEX-EP-20260418-governance-hardening]] - Meta-vault hardening (Phase 5+6+residuels) — premier EP scope governance-vault
 
+### Packs 2026-05
+
+- [[INDEX-EP-20260506-adr-041-baseline]] - Baseline empirique ADR-041 (R1 router posture reaffirm)
+
 ### Structure canonique (9 documents par pack)
 
 - `01-context.md` - Scope et objectifs
