@@ -2,18 +2,24 @@
 id: REG-002
 title: Canon Coverage Registry — .spec/00-canon/* enforcement audit
 status: active
-version: 1.4.0
+version: 1.5.0
 last_audit: 2026-05-07
 total_files: 35
 total_root: 19
 total_db_governance: 16
-total_enforced: 6
+total_enforced: 7
 total_prose_with_derivation: 4
-total_prose_only: 25
+total_prose_only: 24
 related_adr: ADR-048
 related_adr_sub: ADR-049
 ---
 
+> **v1.5.0 (2026-05-07, sprint DB-2 ADR-049 sub-axe 2 — `sql-governance-rules.md`)** :
+> - **Premier fichier `db-governance/*` migré enforced** : `sql-governance-rules.md` état `prose-only` → `enforced` (R2 index justification check + CI workflow LIVE, monorepo PR #374 mergée 2026-05-07)
+> - **Audit baseline 2026-05-07** : 376 violations historiques sur 215 migrations (R2 ne s'applique pas rétroactivement). Workflow CI scope = `--since=origin/main` → noise zéro pour PRs futures.
+> - Quick stats : enforced 6 → 7 (17.1% → **20.0%**), prose-only 25 → 24 (71.4% → 68.6%)
+> - Coverage db-governance/* : 0/16 → **1/16 (6%)**. Cible DB-C5 d'ADR-049 = ≥80%
+>
 > **v1.4.0 (2026-05-07, sprint 2 ADR-048 P0 — `phase2-canon.md`)** :
 > - `phase2-canon.md` état `prose-with-derivation` → `enforced` (enum drift detector + CI workflow LIVE, monorepo PR #367 mergée 2026-05-07)
 > - **Audit baseline 2026-05-07** : 29/29 valeurs canon (6 enums : execution_mode, section_eligibility, evidence_grade, qa_decision, write_mode, publication_decision) implémentées dans `backend/src/` — **100% coverage**
@@ -54,13 +60,13 @@ Source de vérité pour le check `_scripts/check-canon-freshness.py` (PR sprint 
 
 | State | Count | % |
 |-------|-------|---|
-| **enforced** | 6 | 17.1% |
+| **enforced** | 7 | 20.0% |
 | **prose-with-derivation** | 4 | 11.4% |
-| **prose-only** | 25 | 71.4% |
+| **prose-only** | 24 | 68.6% |
 | **deprecated** | 0 | 0% |
 | **TOTAL** | **35** | 100% |
 
-> **Update 2026-05-07 (sprint 2 P0+P1)** : 3 fichiers racine migrés via drift detectors (monorepo PRs #358 repo-map, #366 prompt-registry, #367 phase2-canon). Coverage racine = **6/19 (32%)** enforced. Cible C5 d'ADR-048 = ≥80% sur 19 racine fin sprint 3 = ≥16/19. Reste **10 fichiers** à migrer.
+> **Update 2026-05-07 (sprint 2 + sprint DB-2)** : 4 fichiers migrés via drift detectors (monorepo PRs #358 repo-map, #366 prompt-registry, #367 phase2-canon, #374 sql-governance-rules R2 check). Coverage canon total = **7/35 (20%)**, racine = 6/19 (32%), db-governance = 1/16 (6%). Cible C5 d'ADR-048 (post amend) = ≥80% sur 19 racine fin sprint 3. Cible DB-C5 d'ADR-049 = ≥80% sur 16 db-governance.
 
 ## Schéma de la table
 
@@ -126,7 +132,7 @@ Schéma étendu (sprint DB-1 ADR-049 sub-axe 1) : nouvelle colonne `db_classific
 | `db-governance/role-implementation-map.md` | prose-only | active-rule | (none) | (none) | 2026-03-14 | (none) | 60 |
 | `db-governance/role-migration-registry.md` | prose-only | active-registry | (récemment modifié) | (none) | 2026-05-05 | (none) | 90 |
 | `db-governance/schema-governance-matrix.md` | prose-only | active-rule | (none) | (none) | 2026-03-14 | (none) | 60 |
-| `db-governance/sql-governance-rules.md` | prose-only | active-rule | (cible SQL invariants en CI sprint DB-2 P0) | (none) | 2026-03-14 | (none) | 60 |
+| `db-governance/sql-governance-rules.md` | enforced | active-rule | R2 (index justification) check via `scripts/spec-canon/check-sql-rule-r2-index-justification.py` + CI workflow `spec-canon-sql-rule-r2-check.yml` (mode warn-only, scope --since=origin/main pour PRs) (monorepo PR #374 merged 2026-05-07) | CI workflow on PR (paths : backend/supabase/migrations/**) | 2026-03-14 | ADR-049 sprint DB-2 sub-axe 2 | 60 |
 | `db-governance/sql-migration-checklist.md` | prose-only | closed-plan | (none) | (none) | 2026-03-14 | (none) | 730 |
 
 ### Distribution `db_classification` (16 fichiers)
@@ -141,7 +147,7 @@ Schéma étendu (sprint DB-1 ADR-049 sub-axe 1) : nouvelle colonne `db_classific
 
 ## Notes d'audit
 
-### Files marqués `enforced` (6 — l'objectif coverage racine à fin sprint 3 est ≥80%, soit ≥16/19)
+### Files marqués `enforced` (7 — l'objectif coverage racine à fin sprint 3 est ≥80%, soit ≥16/19)
 
 - **`gamme-md-schema.md`** : enforced via Zod schema `wiki-proposal-frontmatter.schema.ts` (backend) + `validate-frontmatter.{py,mjs}` (automecanik-wiki) — ADR-039 LIVE
 - **`role-matrix.md`** : enforced via TS package `@repo/seo-roles` + 4 layers (router-validator, gatekeeper, content-quality-gate, frontend badges) — ADR-040 LIVE
@@ -149,6 +155,7 @@ Schéma étendu (sprint DB-1 ADR-049 sub-axe 1) : nouvelle colonne `db_classific
 - **`repo-map.md`** : enforced via drift detector `scripts/spec-canon/check-repo-map-drift.py` + CI workflow `.github/workflows/spec-canon-repo-map-drift.yml` (mode warn-only) — ADR-048 sprint 2 P1 LIVE 2026-05-07 (monorepo PR #358)
 - **`prompt-registry.md`** : enforced via path drift detector `scripts/spec-canon/check-prompt-registry-drift.py` + CI workflow `.github/workflows/spec-canon-prompt-registry-drift.yml` (mode warn-only). Applique mécaniquement la règle de maintenance §3 du canon ("Les paths doivent pointer vers des fichiers existants"). **Audit baseline 2026-05-07 : 28/70 paths morts (40% drift)** — cleanup canon manuel requis (séparément). ADR-048 sprint 2 P1 LIVE 2026-05-07 (monorepo PR #366)
 - **`phase2-canon.md`** : enforced via enum drift detector `scripts/spec-canon/check-phase2-canon-enum-drift.py` + CI workflow `.github/workflows/spec-canon-phase2-canon-enum-drift.yml` (mode warn-only). Vérifie les 6 enums canoniques (29 valeurs : execution_mode, section_eligibility, evidence_grade, qa_decision, write_mode, publication_decision) sont implémentés comme string literals dans `backend/src/`. **Audit baseline 2026-05-07 : 29/29 alive (100% coverage)** — le canon est parfaitement aligné avec le code. ADR-048 sprint 2 P0 LIVE 2026-05-07 (monorepo PR #367)
+- **`db-governance/sql-governance-rules.md`** (premier fichier db-governance enforced !) : règle R2 (index justification) enforced via `scripts/spec-canon/check-sql-rule-r2-index-justification.py` + CI workflow `.github/workflows/spec-canon-sql-rule-r2-check.yml` (mode warn-only, scope `--since=origin/main` pour PRs). Vérifie que tout `CREATE INDEX` dans une migration ajoutée par la PR a un comment block R2 (≥3/5 markers : `-- INDEX:`, `-- Table:`, `-- Pattern:`, `-- Gain attendu:`, `-- RPC concernees:`). **Audit baseline 2026-05-07 : 376 violations sur 215 migrations historiques** (R2 du 2026-03-14 ne s'applique pas rétroactivement, baseline irrelevant pour CI). ADR-049 sprint DB-2 sub-axe 2 (DB-P0) LIVE 2026-05-07 (monorepo PR #374)
 
 ### Files marqués `prose-with-derivation` (4)
 
