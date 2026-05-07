@@ -66,7 +66,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-043 | Plan F (DevSecOps) — cadre Phase 1 threat-model-first sur 3 sprints (NIST SSDF + OWASP SAMM v2 + SLSA L2) | Proposed | 2026-05-06 | [[ADR-043-plan-F-devsecops-phase-1-cadre]] |
 | ADR-044 | SEO Strategy 2026 — priorité contenu R6/R8/R7, R3 remediation only, 7 vagues | Proposed | 2026-05-07 | [[ADR-044-seo-strategy-2026-roles-priority]] |
 | ADR-045 | SEO Monitoring Cron V0 — daily-fetch GSC/GA4/Links + cron/health endpoint (socle V0.A) | Proposed | 2026-05-07 | [[ADR-045-seo-monitoring-cron-v0]] |
-| ADR-046 | R-stack canonique — 1 générateur par rôle + chaîne L0-L5 mécaniquement gouvernée (Phase 0 refondation) | Proposed | 2026-05-07 | [[ADR-046-r-stack-single-generator-and-layers]] |
+| ADR-046 | R-stack canonique — 1 générateur par rôle + chaîne L0-L5 mécaniquement gouvernée (Phase 0 refondation) | Accepted | 2026-05-07 | [[ADR-046-r-stack-single-generator-and-layers]] |
 | ADR-047 | Contract-as-code — `@repo/seo-role-contracts` SoT comportemental, séparé de l'identité (amends ADR-040) | Proposed | 2026-05-07 | [[ADR-047-seo-role-contracts-as-code]] |
 | ADR-048 | Canon Enforcement Coverage Audit — combler l'asymétrie d'enforcement entre vault (mécanique) et `.spec/00-canon/` (partiel), Option D hybride 3 sprints | Accepted | 2026-05-07 | [[ADR-048-canon-enforcement-coverage]] |
 

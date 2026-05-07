@@ -1,9 +1,9 @@
 ---
 id: ADR-046
 title: "R-stack canonique — 1 générateur par rôle + chaîne L0-L5 mécaniquement gouvernée"
-status: proposed
+status: accepted
 date: 2026-05-07
-decision_date: null
+decision_date: 2026-05-07
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
