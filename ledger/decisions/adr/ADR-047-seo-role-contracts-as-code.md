@@ -1,9 +1,9 @@
 ---
 id: ADR-047
 title: "Contract-as-code — `@repo/seo-role-contracts` SoT comportemental, séparé de l'identité"
-status: proposed
+status: accepted
 date: 2026-05-07
-decision_date: null
+decision_date: 2026-05-07
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
