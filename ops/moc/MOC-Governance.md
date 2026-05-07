@@ -51,7 +51,18 @@ Voir [[MOC-Rules]] pour la taxonomie complete (T / G / AI / V / R-SEO / R-SEO-KW
 
 > Le `governance-vault` est la **source de verite unique des documents de gouvernance operationnelle** (ADR, rules, MOCs, audit-trail, evidence-packs, runbooks, registry agents — formalise par [[ADR-015-vault-single-source-of-truth]]). Le **canon architectural** (contrats de schemas, code patterns figes) reste dans `.spec/00-canon/` du monorepo. Les deux sont distincts et ne se recouvrent pas.
 
-Pour les definitions operationnelles des differents sens du mot `canon` (canon architectural / document canonique / canonical path / registry / source), un glossaire sera ajoute dans la section dediee de ce MOC en PR-2.
+### Glossaire `canon` (polysemie levee)
+
+Le mot `canon` apparait sous plusieurs sens distincts dans le vault et ses fichiers d'instructions. **Ce glossaire definit les termes (semantique linguistique) ; il n'etablit aucune autorite.** L'autorite pour chaque acception reste dans son document canonique (regles, ADR, registries) qui est cite plutot que duplique.
+
+| Terme | Definition (semantique) | Source d'autorite |
+|-------|--------------------------|-------------------|
+| **canon architectural** | Contrats de schemas, code patterns figes, source-of-truth applicative. Concept distinct du contenu de gouvernance. | [[rules-vault]] G1 designe la SoT actuellement en vigueur. Toute revision passe par un ADR. |
+| **document canonique** | Document avec autorite editoriale dans le vault (`type: moc` ou ADR `status: accepted`). C'est ce que designe `status: canon` dans un frontmatter MOC. **N'implique pas "canon architectural"**. | Schema de frontmatter `_scripts/schemas/moc.schema.json` + ADR du document concerne. |
+| **canonical registry** | Registry designe SoT pour son domaine (autorite par domaine, pas statut editorial). | Le registry lui-meme + son frontmatter (ex. [[REG-001-agents]] frontmatter `id: REG-001`). |
+| **canonical source** | Endroit unique ou une information donnee vit ; tout le reste est derive (index, miroir, projection). Principe DRY applique a la gouvernance. | Concept architectural — voir PR-1 (refactor MOC-Governance) pour application concrete. |
+
+Lorsque le mot `canon` est utilise sans qualificatif, il faut preferer l'interpretation `document canonique` (sens editorial), sauf si le contexte rend explicite qu'il s'agit de canon architectural (mots-cles : "code", "schemas", "patterns figes", reference explicite a une regle de la famille G).
 
 ---
 
