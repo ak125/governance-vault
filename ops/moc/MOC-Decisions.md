@@ -71,6 +71,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-048 | Canon Enforcement Coverage Audit — combler l'asymétrie d'enforcement entre vault (mécanique) et `.spec/00-canon/` (partiel), Option D hybride 3 sprints | Accepted | 2026-05-07 | [[ADR-048-canon-enforcement-coverage]] |
 | ADR-049 | DB Governance Canon Enforcement — sub-projet ADR-048 pour les 20 fichiers `.spec/00-canon/db-governance/*`, Option DB-D hybride 2 sprints (reclassement-first + migration P0/P1 + freshness ajusté + cross-validation Supabase MCP) | Accepted | 2026-05-07 | [[ADR-049-db-governance-canon-enforcement]] |
 | ADR-050 | Quality history & drift detection — `__seo_quality_history` + RPC outliers + Sentry/OTel enrichers (Phase 0 baseline, prérequis bloquant PR-T) | Accepted | 2026-05-07 | [[ADR-050-quality-history-and-drift-detection]] |
+| ADR-051 | Frontend bundle budget enforcement — `bundle-top10.json` versionné, branchement décisionnel A/B post-sprint perf, matrice raw vs gzip vs per-page (refus du bricolage PR monorepo #382) | Accepted | 2026-05-07 | [[ADR-051-frontend-bundle-budget-enforcement]] |
 
 ---
 
