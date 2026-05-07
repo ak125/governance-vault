@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-05-02
+updated: 2026-05-07
 ---
 
 # MOC: Decisions
@@ -44,11 +44,12 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-023 | Hook-Layer Defense for .local/governance-vault/ | Accepted | 2026-04-24 | [[ADR-023-hook-layer-defense]] |
 | ADR-024 | R1 Gamme Page Data — Persistance par matérialisation (parité ADR-016) | Proposed | 2026-04-27 | [[ADR-024-r1-gamme-page-matview-persistence]] |
 | ADR-025 | SEO Department Architecture (5 modules) | Accepted | 2026-04-25 | [[ADR-025-seo-department-architecture]] |
-| ADR-026 | Content Repository Separation — automecanik-content as SEO Refined Layer | Proposed | 2026-04-27 | [[ADR-026-content-separation]] |
-| ADR-027 | R5 Diagnostic consolidation into R3 S2_DIAG | Proposed | 2026-04-25 | [[ADR-027-r5-consolidation-into-r3-s2-diag]] |
+| ADR-026 | Content Repository Separation — automecanik-content as SEO Refined Layer | Superseded | 2026-04-27 | [[ADR-026-content-separation]] |
+| ADR-027 | R5 Diagnostic consolidation into R3 S2_DIAG | Accepted | 2026-04-25 | [[ADR-027-r5-consolidation-into-r3-s2-diag]] |
 | ADR-028 | Préprod read-only hardening (sans Supabase branch — Option D) | Accepted | 2026-04-30 | [[ADR-028-preprod-supabase-isolation]] |
 | ADR-029 | RAG v2.1 Control Plane Closure — State Machine 7-Stage + Emitter/Detector | Proposed | 2026-04-25 | [[ADR-029-rag-v2.1-control-plane-closure]] |
 | ADR-030 | npm ci --ignore-scripts permanent dans Dockerfile (Alpine musl + @ast-grep/cli) | Accepted | 2026-04-30 | [[ADR-030-npm-ignore-scripts-alpine-musl]] |
+| ADR-031 | Four-Layer Content Architecture — Raw / Wiki / Exports / Consumers (Unified Flow All R0-R8) | Proposed | 2026-04-28 | [[ADR-031-four-layer-content-architecture]] |
 | ADR-032 | Diagnostic & Maintenance Unification — kg_* canon (maintenance/DTC) + content via wiki/exports per ADR-031 | Proposed | 2026-04-29 | [[ADR-032-diagnostic-maintenance-unification]] |
 | ADR-033 | Wiki Gamme Diagnostic Relations Contract — references-only from R3/R4 to `__diag_symptom` / `__diag_system` | Proposed | 2026-04-29 | [[ADR-033-wiki-gamme-diagnostic-relations-contract]] |
 | ADR-034 | AI-COS Operating Contract — Observatory + Single-Trigger Routines + AP-12 anti-bricolage | Proposed | 2026-04-30 | [[ADR-034-aicos-operating-contract]] |
@@ -58,7 +59,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-038 | Marketing Agent Naming Canon — extension ADR-037 (MarketingRoleId + business_unit) | Accepted | 2026-05-01 | [[ADR-038-marketing-agent-naming-canon]] |
 | ADR-039 | Wiki Proposal Frontmatter Zod Canon — TS mirror du JSON Schema canon, CLI validator (PR-C ADR-033) | Accepted | 2026-05-01 | [[ADR-039-wiki-frontmatter-zod-canon]] |
 | ADR-040 | SEO Roles Canon R0..R8 — single source of truth côté TypeScript via @repo/seo-roles, pas de DB CHECK | Accepted | 2026-05-05 | [[ADR-040-seo-roles-canon-ts-side-only]] |
-| ADR-041 | R1 Router Posture Reaffirmed — empirical validation supersedes hypothesis-driven commerce-safe pivot | Proposed | 2026-05-06 | [[ADR-041-r1-router-posture-empirical-reaffirm]] |
+| ADR-041 | R1 Router Posture Reaffirmed — empirical validation supersedes hypothesis-driven commerce-safe pivot | Accepted | 2026-05-06 | [[ADR-041-r1-router-posture-empirical-reaffirm]] |
 | ADR-042 | Wiki gamme skeleton-generator (Pattern A) — débloquer Étape 6 gammes du pivot ADR-031 sans contournement legacy | Superseded by monorepo PR #332 (direct RAG backfill, 2026-05-06) | 2026-05-06 | [[ADR-042-wiki-gamme-skeleton-generator]] |
 | ADR-043 | Plan F (DevSecOps) — cadre Phase 1 threat-model-first sur 3 sprints (NIST SSDF + OWASP SAMM v2 + SLSA L2) | Proposed | 2026-05-06 | [[ADR-043-plan-F-devsecops-phase-1-cadre]] |
 | ADR-044 | SEO Strategy 2026 — priorité contenu R6/R8/R7, R3 remediation only, 7 vagues | Proposed | 2026-05-07 | [[ADR-044-seo-strategy-2026-roles-priority]] |
