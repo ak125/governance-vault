@@ -10,6 +10,7 @@
 #   6. check-adr-supersedes.py       (nouveau — chaînes supersedes)
 #   7. check-obsolete-rules.py       (nouveau — status deprecated sans replacement)
 #   8. check-canon-backlinks.py      (nouveau — G1 drift cross-canon)
+#   9. check-moc-integrity.py        (nouveau — invariants structurels MOC, anti-drift PR-3)
 #
 # N'écrit JAMAIS dans le vault. Produit :
 #   - findings.json   (agrégat structure par check)
@@ -122,6 +123,7 @@ print(json.dumps(data))
 run_modern "frontmatter-schema" $PY_BIN _scripts/check-frontmatter-schema.py .
 run_modern "adr-supersedes"     $PY_BIN _scripts/check-adr-supersedes.py .
 run_modern "obsolete-rules"     $PY_BIN _scripts/check-obsolete-rules.py .
+run_modern "moc-integrity"      $PY_BIN _scripts/check-moc-integrity.py .
 
 if [[ -d "$MONOREPO_PATH/.spec/00-canon" ]]; then
   run_modern "canon-backlinks" $PY_BIN _scripts/check-canon-backlinks.py . --monorepo "$MONOREPO_PATH"
