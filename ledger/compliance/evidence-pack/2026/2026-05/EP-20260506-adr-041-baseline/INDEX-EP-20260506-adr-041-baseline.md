@@ -21,22 +21,31 @@ Pose la baseline empirique T0 (snapshot GSC 28j ending 2026-05-04) et planifie l
 |---------|---------|
 | [[01-context]] | Périmètre, hypothèses H-2A.1/2/3, garanties méthodo |
 | [[02-data-source]] | Pipeline GSC existant + tables/services réutilisés |
-| `03-baseline-snapshot.sql` | SQL : Q1 (169 rows JSON) + Q2 (3 rows bucket aggregate) |
+| `03-baseline-snapshot.sql` | SQL : Q1 (169 rows JSON) + Q2 (3 rows bucket aggregate) — **CORRIGÉ 2026-05-07 : filtre URL R1 PURE** |
 | [[04-trajectory-plan]] | Calendrier T0→T+30, critères décision 2.A, anti-overclaim |
 | [[05-bucket-samples-and-smoke]] | A_long n=6 + B_short n=10 + smoke URLs prod |
-| `snapshots/2026-05-06-summary.json` | Snapshot T0 capturé via Supabase MCP `execute_sql` |
+| [[06-decision-recommendations]] | **Recommandations 2.A (Option 1) + 2.C (cleanup now) empiriquement justifiées** |
+| `snapshots/2026-05-06-summary.json` | Snapshot T0 + smoke prod 4/4 + correction R1 PURE |
 
-## Findings T0 (2026-05-06)
+## Findings T0 (2026-05-06, corrigés 2026-05-07)
 
-### Signal directionnel A vs B (low-confidence)
+### ⚠️ Correction filtre URL — R1 PURE seulement
+
+Le snapshot initial utilisait un filtre `LIKE 'https://www.automecanik.com/pieces/%'` qui agrégeait par erreur les URLs **R8 vehicle-scoped** (`/pieces/{slug}-{pg_id}/{marque}.../{type}.html`) sous le `pg_id` R1. Filtre corrigé via regex ancrée `^.../pieces/[^/]+-(\d+)\.html$`.
+
+### Signal réel R1 PURE
 
 | Bucket | n_slots | n_with_gsc | clicks_28d | impressions_28d | CTR_28d |
 |--------|---------|------------|------------|------------------|---------|
-| A_long (≥700c)  | 6   | 4   | 6   | 484    | **1.240%** |
-| mid (300-699c)  | 31  | 14  | 8   | 1499   | 0.534% |
-| B_short (<300c) | 132 | 90  | 40  | 9432   | 0.424% |
+| A_long (≥700c)  | 6   | **2**  | **0**  | **5**    | 0% |
+| mid (300-699c)  | 31  | 6      | 0      | 177      | 0% |
+| B_short (<300c) | 132 | 53     | 2      | 1551     | 0.129% |
 
-→ **CTR(A) ~2.93x CTR(B)** et **Δ +0.82pt**, mais sample size A_long avec data GSC n'est que de 4 — confiance statistique faible. À confirmer T+30.
+→ **Bucket A_long : 5 impressions sur 28j, 0 clicks**. Sample impossible à utiliser même T+30. Trafic R1 PUR ~6.5× inférieur à l'estimation initiale (R8 imputé à tort).
+
+### Smoke prod 2026-05-07 (Playwright auto)
+
+4 URLs réellement indexées testées : 4/4 render OK. Structure DOM riche (H1 + 5 H2 + multi-marques + multi-véhicules + tableaux compat). Le `r1s_micro_seo_block` est **un bloc parmi ~10 sections** rendues. 1 finding cross-cutting : Sentry CSP bloqué (hors scope ADR-041).
 
 ### Effets confirmés des sous-décisions
 
@@ -53,12 +62,14 @@ Pose la baseline empirique T0 (snapshot GSC 28j ending 2026-05-04) et planifie l
 - 54 clicks total, 11,415 impressions, CTR global = 0.473%.
 - Position moyenne pondérée par impressions : variable selon slot (1 à 92, médiane ~30).
 
-## Verdict T0
+## Verdict T0 (revisé 2026-05-07)
 
-**Trajectoire en cours, pas de canon LIVE déclarable**. Per [`feedback_canon_rule_live_iff_adr_accepted`](../../../../knowledge/feedback_canon_rule_live_iff_adr_accepted.md) le canon ADR-041 status=accepted permet l'usage du canon ; le qualificatif "LIVE" requiert le signal stable T+30 (per `feedback_decision_must_be_signal_proven_not_intuited`).
+Avec la baseline R1 PURE corrigée, **les volumes sont trop faibles pour qu'un A/B test 30j produise un signal exploitable** (bucket A_long = 5 impressions). La data déjà disponible suffit à recommander Option 1 pour 2.A — pas besoin d'attendre T+30 (per `feedback_decision_must_be_signal_proven_not_intuited` : la décision est signal-proven, simplement le signal n'est pas "ranking", c'est "volume insuffisant pour mesurer un effet").
+
+Voir [[06-decision-recommendations]] pour 2.A (Option 1) et 2.C (cleanup now).
 
 ## Suivi
 
-Cet evidence-pack est **incrémental** — chaque snapshot T+N ajoute un fichier dans `snapshots/`. Le verdict 2.A final sera consigné dans `snapshots/2026-06-05-decision.md` signé @fafa.
+Cet evidence-pack est **incrémental** — chaque snapshot T+N ajoute un fichier dans `snapshots/`. T+30 reste utile **comme contrôle anti-régression** après application 2.A/2.C, pas comme critère de décision.
 
 ## Self-review verdict: APPROVE
