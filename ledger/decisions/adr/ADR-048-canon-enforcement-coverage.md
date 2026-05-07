@@ -197,7 +197,7 @@ Quantifiés et auditables :
 - [ ] **C2 — Migration P0+P1 (fin sprint 2)** : minimum 5 fichiers prose-only migrés vers enforcement mécanique (`architecture.md` via dep-cruiser, `phase2-canon.md` via tests d'intégration, `prompt-registry.md` via Zod, `repo-map.md` via generator, `pipeline-phases.md` via tests).
 - [ ] **C3 — Cron freshness LIVE (fin sprint 1)** : `_scripts/check-canon-freshness.py` actif en weekly-lint mode `--warn`, reporting hebdomadaire opérationnel.
 - [ ] **C4 — Cross-repo invariant LIVE (fin sprint 3)** : `_scripts/check-canon-cross-repo.py` actif en weekly-lint, validation bidirectionnelle vault ↔ monorepo, mode `--warn` initialement.
-- [ ] **C5 — Coverage ≥ 80% à fin sprint 3** : sur les 35 fichiers, ≥ 28 ont un état `enforced` ou `deprecated` (les 20%) restants peuvent être `prose-with-derivation` justifié, 0 `prose-only` non-justifié.
+- [ ] **C5 — Coverage ≥ 80% à fin sprint 3 (scope hors db-governance/*)** : amendé en sprint DB-1 ADR-049 (2026-05-07) suite extraction sub-projet. Cible : sur les **19 fichiers racine** `.spec/00-canon/*` (hors `db-governance/`), ≥ 16 (= ≥80%) ont un état `enforced` ou `deprecated`. Les 20% restants peuvent être `prose-with-derivation` justifié, 0 `prose-only` non-justifié. Le coverage `db-governance/*` (16 fichiers) est tracké séparément via DB-C5 d'ADR-049.
 
 ## Implémentation
 

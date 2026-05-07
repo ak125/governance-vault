@@ -2,11 +2,20 @@
 id: REG-002
 title: Canon Coverage Registry — .spec/00-canon/* enforcement audit
 status: active
-version: 1.0.0
+version: 1.1.0
 last_audit: 2026-05-07
 total_files: 35
+total_root: 19
+total_db_governance: 16
 related_adr: ADR-048
+related_adr_sub: ADR-049
 ---
+
+> **v1.1.0 (2026-05-07, sprint DB-1 ADR-049)** :
+> - Extension colonne `db_classification` pour les 16 rows `db-governance/*` (active-rule / active-registry / historical-snapshot / closed-plan)
+> - Correction count : 16 fichiers db-governance (et non 20 comme annoncé en v1.0.0 — comptage erroné)
+> - Ajustement `freshness_threshold_days` par catégorie (60j active-rule, 90j active-registry, 730j historical-snapshot et closed-plan)
+> - Ajout frontmatter `total_root: 19`, `total_db_governance: 16`, `related_adr_sub: ADR-049`
 
 # REG-002 Canon Coverage Registry
 
@@ -68,28 +77,46 @@ Source de vérité pour le check `_scripts/check-canon-freshness.py` (PR sprint 
 | `tecdoc-integration-roadmap-v3.md` | prose-only | (none) | (none) | 2026-03-28 | (none) | 365 |
 | `video-governance-p0.md` | prose-only | (none) | (none) | 2026-02-24 | (none) | 365 |
 
-## Registry — sous-répertoire `db-governance/*` (20 fichiers)
+## Registry — sous-répertoire `db-governance/*` (16 fichiers)
 
-Sous-projet dense. Si la migration P3 sprint 3 dépasse le scope alloué, ce sous-arbre fera l'objet d'un ADR fils dédié (**ADR-049 candidate**, à évaluer fin sprint 1).
+Sous-projet dense gouverné par [[ADR-049-db-governance-canon-enforcement|ADR-049]] (sub-projet d'ADR-048, accepted 2026-05-07).
 
-| path | state | enforcement_mechanism | consumers | last_modified | last_referenced_adr | freshness_threshold_days |
-|---|---|---|---|---|---|---|
-| `db-governance/change-control-plan.md` | prose-only | (none) | (none) | 2026-03-14 | (none) | 180 |
-| `db-governance/domain-map.md` | prose-only | (récemment modifié) | (none) | 2026-05-06 | (none) | 90 |
-| `db-governance/execution-map.md` | prose-only | (none) | (none) | 2026-03-14 | (none) | 180 |
-| `db-governance/final-exec-summary.md` | prose-only | (none) | (none) | 2026-03-14 | (none) | 365 |
-| `db-governance/full-structural-audit.md` | prose-only | (none) | (none) | 2026-03-15 | (none) | 365 |
-| `db-governance/legacy-canon-map.md` | prose-only | (récemment modifié) | (none) | 2026-05-05 | ADR-040 | 90 |
-| `db-governance/perf-findings.md` | prose-only | (none) | (none) | 2026-03-14 | (none) | 365 |
-| `db-governance/phase-2a-rpc-audit-results.md` | prose-only | (none) | (none) | 2026-03-14 | (none) | 365 |
-| `db-governance/phase-2b-first-monitoring-review.md` | prose-only | (none) | (none) | 2026-03-14 | (none) | 365 |
-| `db-governance/phase-2b-rpc-audit-results.md` | prose-only | (none) | (none) | 2026-03-14 | (none) | 365 |
-| `db-governance/pr4b-mcp-inventory-2026-05-05.md` | prose-only | (récemment modifié) | (none) | 2026-05-05 | ADR-040 | 90 |
-| `db-governance/role-implementation-map.md` | prose-only | (none) | (none) | 2026-03-14 | (none) | 180 |
-| `db-governance/role-migration-registry.md` | prose-only | (récemment modifié) | (none) | 2026-05-05 | (none) | 90 |
-| `db-governance/schema-governance-matrix.md` | prose-only | (none) | (none) | 2026-03-14 | (none) | 180 |
-| `db-governance/sql-governance-rules.md` | prose-only | (none) | (none) | 2026-03-14 | (none) | 180 |
-| `db-governance/sql-migration-checklist.md` | prose-only | (none) | (none) | 2026-03-14 | (none) | 180 |
+**Note correction 2026-05-07** : audit initial REG-002 v1.0.0 disait "20 fichiers" — comptage erroné. `find .spec/00-canon/db-governance -type f` retourne 16 fichiers réels. Header et ADR-049 corrigés en sprint DB-1.
+
+Schéma étendu (sprint DB-1 ADR-049 sub-axe 1) : nouvelle colonne `db_classification` :
+- `active-rule` : règle SQL/governance active (cible enforcement formel sprint DB-2, threshold 60j)
+- `active-registry` : registry vivant (Zod schema validable, threshold 90j)
+- `historical-snapshot` : audit ponctuel datable, accepte staleness (threshold 730j)
+- `closed-plan` : plan de migration achevé, candidat `deprecated` (threshold n/a, marquer state=deprecated en sprint DB-2 si confirmé)
+
+| path | state | db_classification | enforcement_mechanism | consumers | last_modified | last_referenced_adr | freshness_threshold_days |
+|---|---|---|---|---|---|---|---|
+| `db-governance/change-control-plan.md` | prose-only | closed-plan | (none) | (none) | 2026-03-14 | (none) | 730 |
+| `db-governance/domain-map.md` | prose-only | active-rule | (récemment modifié, candidat auto-generator info_schema) | (none) | 2026-05-06 | (none) | 60 |
+| `db-governance/execution-map.md` | prose-only | closed-plan | (none) | (none) | 2026-03-14 | (none) | 730 |
+| `db-governance/final-exec-summary.md` | prose-only | closed-plan | (none) | (none) | 2026-03-14 | (none) | 730 |
+| `db-governance/full-structural-audit.md` | prose-only | historical-snapshot | (none) | (none) | 2026-03-15 | (none) | 730 |
+| `db-governance/legacy-canon-map.md` | prose-only | active-registry | (récemment modifié, cite ADR-040 PR #305) | (none) | 2026-05-05 | ADR-040 | 90 |
+| `db-governance/perf-findings.md` | prose-only | historical-snapshot | (none) | (none) | 2026-03-14 | (none) | 730 |
+| `db-governance/phase-2a-rpc-audit-results.md` | prose-only | historical-snapshot | (none) | (none) | 2026-03-14 | (none) | 730 |
+| `db-governance/phase-2b-first-monitoring-review.md` | prose-only | historical-snapshot | (none) | (none) | 2026-03-14 | (none) | 730 |
+| `db-governance/phase-2b-rpc-audit-results.md` | prose-only | historical-snapshot | (none) | (none) | 2026-03-14 | (none) | 730 |
+| `db-governance/pr4b-mcp-inventory-2026-05-05.md` | prose-only | active-registry | (récemment modifié, cite ADR-040 PR #312) | (none) | 2026-05-05 | ADR-040 | 90 |
+| `db-governance/role-implementation-map.md` | prose-only | active-rule | (none) | (none) | 2026-03-14 | (none) | 60 |
+| `db-governance/role-migration-registry.md` | prose-only | active-registry | (récemment modifié) | (none) | 2026-05-05 | (none) | 90 |
+| `db-governance/schema-governance-matrix.md` | prose-only | active-rule | (none) | (none) | 2026-03-14 | (none) | 60 |
+| `db-governance/sql-governance-rules.md` | prose-only | active-rule | (cible SQL invariants en CI sprint DB-2 P0) | (none) | 2026-03-14 | (none) | 60 |
+| `db-governance/sql-migration-checklist.md` | prose-only | closed-plan | (none) | (none) | 2026-03-14 | (none) | 730 |
+
+### Distribution `db_classification` (16 fichiers)
+
+| Classification | Count | Threshold | Cible sprint DB-2 |
+|---|---|---|---|
+| `active-rule` | 4 | 60j | enforcement formel SQL invariants (DB-P0, 3 fichiers prioritaires : sql-governance-rules, domain-map, schema-governance-matrix) |
+| `active-registry` | 3 | 90j | Zod schemas validables (DB-P1) |
+| `historical-snapshot` | 5 | 730j | accepte staleness, signal cron freshness escalade quasi-jamais |
+| `closed-plan` | 4 | 730j | candidate `deprecated` si confirmé clos par Fafa |
+| **TOTAL** | **16** | | |
 
 ## Notes d'audit
 

@@ -82,10 +82,12 @@ def parse_reg_002(reg_path: Path) -> tuple[list[dict], list[dict]]:
     table_section = None  # nom de la section pour debug
 
     for i, line in enumerate(lines):
-        # Heading detection
-        if re.match(r"^##\s+", line):
+        # Heading detection (any level — H1 à H6 — sortir de la table en cours)
+        if re.match(r"^#{1,6}\s+", line):
             in_table = False
-            table_section = line.strip("# ").strip()
+            # Garder le H2 comme nom de section pour les findings
+            if re.match(r"^##\s+", line):
+                table_section = line.strip("# ").strip()
             continue
 
         # Table row detection : "| `path` | state | mech | consumers | YYYY-MM-DD | adr | int |"
@@ -108,18 +110,23 @@ def parse_reg_002(reg_path: Path) -> tuple[list[dict], list[dict]]:
         if parts and parts[-1].endswith("|"):
             parts[-1] = parts[-1].rstrip("|").strip()
 
-        if len(parts) != 7:
+        # Schema racine : 7 colonnes (path, state, mech, consumers, mtime, adr, threshold)
+        # Schema db-governance (sprint DB-1 ADR-049) : 8 colonnes (insert db_classification après state)
+        db_classification = None
+        if len(parts) == 7:
+            path_raw, state, mech, consumers, mtime, adr_ref, threshold_raw = parts
+        elif len(parts) == 8:
+            path_raw, state, db_classification, mech, consumers, mtime, adr_ref, threshold_raw = parts
+        else:
             findings.append({
                 "severity": "warning",
                 "file": str(reg_path),
                 "line": i + 1,
                 "rule": f"{CHECK_NAME}.reg-002-row-shape-broken",
-                "message": f"Row REG-002 malformee (section {table_section}) : {len(parts)} colonnes attendues 7. Skipped.",
+                "message": f"Row REG-002 malformee (section {table_section}) : {len(parts)} colonnes attendues 7 (racine) ou 8 (db-governance). Skipped.",
                 "actual_row": line[:120],
             })
             continue
-
-        path_raw, state, mech, consumers, mtime, adr_ref, threshold_raw = parts
         # Strip backticks markdown du path
         path_clean = path_raw.strip("`").strip()
         # Convertir threshold en int
@@ -141,6 +148,7 @@ def parse_reg_002(reg_path: Path) -> tuple[list[dict], list[dict]]:
         rows.append({
             "path": path_clean,
             "state": state,
+            "db_classification": db_classification,
             "enforcement_mechanism": mech,
             "consumers": consumers,
             "registry_mtime": mtime,
