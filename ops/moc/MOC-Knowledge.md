@@ -56,6 +56,7 @@ Base de connaissances architecturale.
 - [[runbook-curate-r7-batch]] - Runbook ops curate-r7-batch.py (orchestration drafts → API admin)
 - [[runbook-regenerate-sitemap-after-tecdoc-fix]] - Runbook ops régénération sitemap V10 + resubmit GSC après fix TecDoc orphans (lié [[2026-04-23-gsc-411k-404-tecdoc-orphans|INC-2026-012]])
 - [[runbook-marketing-pilot-rollback]] - Runbook rollback chirurgical Phase 1 Marketing Operating Layer ([[ADR-036-marketing-operating-layer]]) : critères d'échec, désactivation routine + archive briefs + agent status:archived, post-mortem incident obligatoire. Pas de DROP de tables.
+- [[runbook-rag-sync-user-bootstrap]] - Runbook bootstrap compte système `rag-sync` + groupe `nestjs` + sudoers + SSH key ([[ADR-046-r-stack-single-generator-and-layers]] Layer L3 + [[ADR-050-quality-history-and-drift-detection]]). Prérequis manuel à `scripts/ops/lock-rag-knowledge.sh` (monorepo PR #356).
 - [[r8-rag-control-plane-design-20260423]] - R8 RAG Control Plane design spec (5-layer gates, 3 artefacts par modèle, TemplateRotator)
 - [[r8-rag-control-plane-implementation-plan-20260423]] - R8 RAG Control Plane implementation plan (16 artefacts DAG, rollout 8 stages)
 - [[r8-vehicle-enrichment-stage1-honest-debrief-20260425]] - R8 Stage 1 vehicle enrichment honest debrief (8h+ session, bricolage scraper Clio III closed, ADR-022 control plane track)
