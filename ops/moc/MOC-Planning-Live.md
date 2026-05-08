@@ -3,7 +3,7 @@ type: moc
 status: proposed
 updated: 2026-05-08
 schema_version: planning.v1
-semantic_hash: 5b28e35b8e14c792
+semantic_hash: 291a2bfd5e604339
 adr_link: ADR-053
 ---
 
@@ -91,6 +91,7 @@ adr_link: ADR-053
 | github:ak125/nestjs-remix-monorepo:pr:396 | P5 | PR | review | chore(frontend): Remix hydration payload audit (Sprint perf PR-5bis) |
 | github:ak125/nestjs-remix-monorepo:pr:397 | P5 | PR | review | chore(ci): bundle freshness check + budget README matrix (Sprint perf PR-6) |
 | github:ak125/nestjs-remix-monorepo:pr:398 | P5 | PR | in-progress | feat(seo-v9): PR-1 audit inventaire + matrice gap legacy → monorepo (READ-ONLY) |
+| github:ak125/nestjs-remix-monorepo:pr:399 | P5 | PR | in-progress | feat(seo-v9): PR-2a registries + Zod contracts (foundation, no business logic) |
 | github:ak125/nestjs-remix-monorepo:pr:46 | P5 | PR | review | audit: full-stack performance analysis (93 issues, 7 critical) |
 | github:ak125/nestjs-remix-monorepo:pr:77 | P5 | PR | review | spec(arch): AUT-271 — 3 ADRs + 44 manifests + 69 invariants + DoD |
 | github:ak125/nestjs-remix-monorepo:pr:85 | P5 | PR | review | feat(diagnostic): exposer moteur __diag_* + delegation RAG (plan breezy-eagle propre) |
