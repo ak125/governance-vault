@@ -6,9 +6,11 @@ date: 2026-05-08
 deciders: [Fafa]
 related: [MOC-Roadmap-2026, MOC-Planning-Live, ADR-034]
 # --- état spécifique Planning Live (NOT a canon ADR field) ---
-planning_live_state: observing
-live_since: null
+planning_live_state: live
+live_since: 2026-05-08
 observability_required_days: 7
+override_observability_gate: true
+override_rationale: "User signoff explicite 2026-05-08 17:30 UTC — empirical proof early : 1er real run end-to-end success (commit 4fa3784, 81 items, MOC + snapshot écrits sans incident, 2 bugs empiriques captés et fixés en PR #224 + #225). Le système est validé empiriquement plutôt que par observation passive de 7 jours."
 ---
 
 # ADR-053: Planning Live System
