@@ -14,12 +14,14 @@ def _mock_subprocess_view_then_fieldlist():
     field_list_out = json.dumps({
         "fields": [
             {"id": "PVTF_title", "name": "Title", "type": "ProjectV2Field"},
+            {"id": "PVTSSF_status", "name": "Status", "type": "ProjectV2SingleSelectField",
+             "options": [{"id": "opt_todo", "name": "Todo"}, {"id": "opt_inprog", "name": "In Progress"}, {"id": "opt_done", "name": "Done"}]},
             {"id": "PVTSSF_priority", "name": "Priority", "type": "ProjectV2SingleSelectField",
              "options": [{"id": "opt_p0", "name": "P0"}, {"id": "opt_p1", "name": "P1"}]},
             {"id": "PVTSSF_itemtype", "name": "ItemType", "type": "ProjectV2SingleSelectField",
              "options": [{"id": "opt_pr", "name": "PR"}, {"id": "opt_adr", "name": "ADR"}]},
             {"id": "PVTSSF_planstatus", "name": "PlanStatus", "type": "ProjectV2SingleSelectField",
-             "options": [{"id": "opt_review", "name": "review"}, {"id": "opt_done", "name": "done"}]},
+             "options": [{"id": "opt_review", "name": "review"}, {"id": "opt_done2", "name": "done"}]},
             {"id": "PVTF_canonicalid", "name": "CanonicalId", "type": "ProjectV2Field"},
             {"id": "PVTF_owner", "name": "Owner", "type": "ProjectV2Field"},
             {"id": "PVTF_stagnationdays", "name": "StagnationDays", "type": "ProjectV2Field"},
@@ -95,6 +97,27 @@ def test_set_number_field_handles_zero():
     # 0 IS a valid stagnation_days value, must be set
     args = mock_run.call_args[0][0]
     assert "--number" in args
+
+
+def test_map_plan_status_review_to_in_progress():
+    assert gh_project_fields._map_plan_status_to_gh_status("review") == "In Progress"
+
+
+def test_map_plan_status_blocked_to_in_progress():
+    assert gh_project_fields._map_plan_status_to_gh_status("blocked") == "In Progress"
+
+
+def test_map_plan_status_done_to_done():
+    assert gh_project_fields._map_plan_status_to_gh_status("done") == "Done"
+
+
+def test_map_plan_status_cancelled_to_done():
+    assert gh_project_fields._map_plan_status_to_gh_status("cancelled") == "Done"
+
+
+def test_map_plan_status_unknown_returns_none():
+    assert gh_project_fields._map_plan_status_to_gh_status("invalid") is None
+    assert gh_project_fields._map_plan_status_to_gh_status(None) is None
 
 
 def test_populate_item_fields_skips_unknown_fields_and_returns_results():

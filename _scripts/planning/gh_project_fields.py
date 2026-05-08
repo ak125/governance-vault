@@ -141,6 +141,27 @@ def set_number_field(
     ])
 
 
+_PLAN_TO_GH_STATUS = {
+    "todo": "Todo",
+    "in-progress": "In Progress",
+    "review": "In Progress",   # PR in review IS being worked on (board UX)
+    "blocked": "In Progress",  # blocked items still alive — keep visible
+    "done": "Done",
+    "cancelled": "Done",       # closed without delivery — out of board
+}
+
+
+def _map_plan_status_to_gh_status(plan_status: Optional[str]) -> Optional[str]:
+    """Map our 6-value planning-status.yml to GH default Status's 3 options.
+
+    Lossy but pragmatic : the default Kanban view is grouped by GH Status,
+    so populating it makes the board immediately useful without UI configuration.
+    """
+    if not plan_status:
+        return None
+    return _PLAN_TO_GH_STATUS.get(plan_status)
+
+
 def populate_item_fields(item_id: str, item: dict[str, Any], project_number: int) -> dict[str, bool]:
     """Set all 9 custom fields for an item. Returns per-field success map (best-effort).
 
@@ -165,6 +186,14 @@ def populate_item_fields(item_id: str, item: dict[str, Any], project_number: int
         results["plan_status"] = set_select_field(item_id, project_id, fields["plan_status"], item.get("status"))
     if "blocked_reason" in fields and item.get("blocked_reason"):
         results["blocked_reason"] = set_select_field(item_id, project_id, fields["blocked_reason"], item["blocked_reason"])
+
+    # Default GH Status field (3-option : Todo/In Progress/Done) — drives the
+    # default Kanban view shown when user opens the project for the first time.
+    # Maps our 6 canon plan-status values onto GH's 3 — lossy but useful for UX.
+    if "status" in fields:
+        gh_status_value = _map_plan_status_to_gh_status(item.get("status"))
+        if gh_status_value:
+            results["gh_status"] = set_select_field(item_id, project_id, fields["status"], gh_status_value)
 
     # Text fields
     if "owner" in fields and item.get("owner"):
