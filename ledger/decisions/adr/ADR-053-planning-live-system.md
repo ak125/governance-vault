@@ -1,0 +1,231 @@
+---
+id: ADR-053
+title: Planning Live System (cross-repo PR/ADR aggregation)
+status: proposed
+date: 2026-05-08
+deciders: [Fafa]
+related: [MOC-Roadmap-2026, MOC-Planning-Live, ADR-034]
+# --- état spécifique Planning Live (NOT a canon ADR field) ---
+planning_live_state: observing
+live_since: null
+observability_required_days: 7
+---
+
+# ADR-053: Planning Live System
+
+## Context
+
+Session 2026-05-08 a montré qu'un roadmap manuel à 7 niveaux couvrant ~50 PRs/ADRs sur 2 repos
+(vault + monorepo) avec 4 chantiers concurrents devient ingérable sans tooling. Trello a été
+écarté (SoT parallèle au MOC vault, viole governance no-duplication). GitHub Projects v2 est
+natif au workflow GitHub déjà en place mais l'API GraphQL est fragile (IDs opaques, rate limits,
+syntaxe instable).
+
+## Decision
+
+Construire un système où :
+1. **MOC-Planning-Live.md + git history + ledger/snapshots/planning/run-*.json** = SoT canonique
+2. **GitHub Projects v2** = projection UI best-effort (panne ⇒ système continue)
+3. **Paperclip alerts P0** = projection notification best-effort (panne ⇒ webhook fallback)
+4. **Sync** : VPS DEV cron daily 08:00 UTC, entry shell `_scripts/planning/run-cron.sh` →
+   orchestrator Python `_scripts/planning/sync_planning.py`. Aligné canon vault read-only-on-GHA
+   (cf. `feedback_cron_vps_canon_pour_mono_vps_setup.md`).
+
+## Invariants
+
+- **I1** : MOC + git + snapshots = SoT canonique. GH Project + Paperclip = best-effort.
+- **I2** : `sync_planning.py` = unique writer auto. Exception humaine : bloc YAML `ack` uniquement.
+- **I3** : Commit MOC "business update" ssi `semantic_hash` change. Updates techniques (ack)
+  = commits séparés (`chore(planning): ack update [no-hash-change]`).
+- **I4** : Priority/ItemType/BlockedReason/Status = 4 schemas YAML versionnés sous
+  `.spec/00-canon/planning/`. `schema_version: planning.v1` dans chaque snapshot.
+- **I5** : Alertes Paperclip rate-limited (cooldown 24h) + ackables + best-effort
+  (fallback webhook, exit 0 sauf `--strict-alerts`).
+
+### `semantic_hash` blacklist exhaustive
+
+EXCLUS : `last_alert_at`, `acked_at`, `mute_until`, `stagnation_days`, `generated_at`,
+`schema_version`, `source_status`, ordre non-canonique.
+
+INCLUS : `canonical_id`, `priority`, `item_type`, `status`, `blocked_reason`, `owner`,
+`depends_on[]`, `adr_link`, `title`.
+
+## Lifecycle (3 phases)
+
+1. **PR-1 mergée** : ADR existe en `status: proposed`, système `planning_live_state: observing`
+2. **PR-3 mergée** : ADR promu `status: proposed → accepted` (canon LIVE règle générale).
+   `planning_live_state` reste `observing`, `live_since: null` — système accepté mais en obs.
+3. **+7j obs green + signoff Fafa** : audit-trail dédié promote
+   `planning_live_state: observing → live`, set `live_since: <ISO date>`.
+   Système LIVE canon ET LIVE opérationnel.
+
+## Schemas canoniques
+
+Voir `.spec/00-canon/planning/` :
+- `planning-priority.yml` (P0..P8 + SLA)
+- `planning-itemtype.yml` (PR/ADR/ROADMAP/INCIDENT/EPIC)
+- `planning-blocked-reason.yml`
+- `planning-status.yml`
+
+## §6 Mécanisme d'alerte
+
+À décider en début PR-3 (3 options) :
+- (a) HTTP POST direct vers `paperclip-control-plane/api/...`
+- (b) Subprocess vers skill `paperclip` (claude-code skill)
+- (c) Webhook fallback uniquement (Slack/Discord via `lib-supabase-report.sh`)
+
+Décision empirique sera consignée dans cet ADR à PR-3.
+
+## Annexe A : Project IDs GitHub
+
+À remplir après setup one-shot Task 1.12. **Format machine-readable obligatoire** (bloc YAML
+parsable par `_read_project_number_from_adr` — éviter regex fragile).
+
+Distinguer **deux** identifiants :
+
+- `project_number` (entier) → **utilisé par `gh project` CLI**
+  (ex. `gh project view 42 --owner ak125`)
+- `project_id` (`PV2_xxx`) → **utilisé par GraphQL API**
+  (ex. `gh api graphql -f query='query { node(id: "PV2_xxx") { … } }'`)
+
+Champs custom (9 au total) — `PVTSSF_xxx` pour single-select, `PVTF_xxx` pour text/number :
+
+```yaml
+github_project:
+  project_number: 0   # à remplir après Task 1.12 Step 1
+  project_id: ""      # PV2_xxx récupéré via GraphQL
+  field_ids:
+    priority: ""        # PVTSSF_xxx
+    itemtype: ""        # PVTSSF_xxx
+    status: ""          # PVTSSF_xxx
+    blocked_reason: ""  # PVTSSF_xxx
+    owner: ""           # PVTF_xxx
+    stagnation_days: "" # PVTF_xxx
+    depends_on: ""      # PVTF_xxx
+    adr_link: ""        # PVTF_xxx
+    canonical_id: ""    # PVTF_xxx
+```
+
+Récupérer via : `gh project field-list <project_number> --owner ak125 --format json --jq '.fields[] | {name, id}'`.
+
+## Annexe B : Procédure GraphQL fallback
+
+Si `gh project field-create` casse (CLI version drift, parsing options enum etc.),
+utiliser GraphQL directement.
+
+**1. Récupérer le `project_id` (PV2_xxx)** :
+
+```bash
+gh api graphql -f query='
+  query($login: String!, $number: Int!) {
+    organization(login: $login) {
+      projectV2(number: $number) { id }
+    }
+  }' -f login=ak125 -F number=$PROJECT_NUM \
+  --jq '.data.organization.projectV2.id'
+```
+
+**2. Créer un champ single-select** (ex: `Priority`) :
+
+```bash
+gh api graphql -f query='
+  mutation($projectId: ID!, $name: String!, $options: [ProjectV2SingleSelectFieldOptionInput!]!) {
+    createProjectV2Field(input: {
+      projectId: $projectId,
+      dataType: SINGLE_SELECT,
+      name: $name,
+      singleSelectOptions: $options
+    }) {
+      projectV2Field {
+        ... on ProjectV2SingleSelectField { id name }
+      }
+    }
+  }' \
+  -f projectId="$PROJECT_ID" \
+  -f name="Priority" \
+  -F options='[
+    {"name":"P0","color":"RED","description":"page-someone tier"},
+    {"name":"P1","color":"ORANGE","description":"current sprint"},
+    {"name":"P2","color":"YELLOW","description":"sprint backlog"},
+    {"name":"P3","color":"GREEN","description":"cycle backlog"},
+    {"name":"P4","color":"BLUE","description":"quarter backlog"},
+    {"name":"P5","color":"PURPLE","description":"triage"},
+    {"name":"P6","color":"PINK","description":"idea"},
+    {"name":"P7","color":"GRAY","description":"deferred"},
+    {"name":"P8","color":"GRAY","description":"archive"}
+  ]'
+```
+
+**3. Créer un champ texte** (ex: `Owner`, `CanonicalId`, `AdrLink`) :
+
+```bash
+gh api graphql -f query='
+  mutation($projectId: ID!, $name: String!) {
+    createProjectV2Field(input: {
+      projectId: $projectId,
+      dataType: TEXT,
+      name: $name
+    }) {
+      projectV2Field {
+        ... on ProjectV2Field { id name }
+      }
+    }
+  }' \
+  -f projectId="$PROJECT_ID" \
+  -f name="CanonicalId"
+```
+
+**4. Créer un champ nombre** (ex: `StagnationDays`) :
+
+```bash
+gh api graphql -f query='
+  mutation($projectId: ID!, $name: String!) {
+    createProjectV2Field(input: {
+      projectId: $projectId,
+      dataType: NUMBER,
+      name: $name
+    }) {
+      projectV2Field {
+        ... on ProjectV2Field { id name }
+      }
+    }
+  }' \
+  -f projectId="$PROJECT_ID" \
+  -f name="StagnationDays"
+```
+
+Itérer pour les 9 champs : 4 single-select (Priority, ItemType, Status, BlockedReason),
+4 text (Owner, DependsOn, AdrLink, CanonicalId), 1 number (StagnationDays).
+
+## Hors scope (volontaire)
+
+- HealthScore 0-100 (besoin baseline 30j snapshots)
+- Execution intelligence (planning-intelligence.py daily digest)
+- DependsOn graph viz cycle/topo
+- Multicanal Slack/Discord policy
+- Promotion en lot des 11 ADRs proposed (chantier séparé)
+- GH Projects v2 automation rules (viole I2)
+- GH Projects v2 custom field population (Priority/ItemType/Status/CanonicalId/...) :
+  PR-2 = `item-add` only. Vues Kanban par Priority non-fonctionnelles avant follow-up PR-2.x.
+- stagnation_days pour ADRs : MVP utilise `updated_at` des PRs uniquement. Follow-up PR-2.x
+  ajoutera tracking via `git log -1 --format=%ct -- ledger/decisions/adr/ADR-NNN-*.md`.
+
+## Consequences
+
+**Positives** :
+- Visibilité quotidienne automatique
+- Audit-trail complet via snapshots immuables
+- Découplage SoT canonique vs projections UI
+- Aligné canon vault (VPS DEV cron, pas write-on-GHA)
+
+**Négatives / risques** :
+- Coût initial ~10h
+- API GH Projects v2 fragile (mitigé par I1)
+- Maintenance schemas YAML (mitigé par versioning)
+
+## References
+
+- MOC-Roadmap-2026 (chantier complémentaire stratégique)
+- ADR-034 AI-COS Operating Contract (alertes)
+- feedback_canon_rule_live_iff_adr_accepted.md (préservé, pas modifié)
+- feedback_cron_vps_canon_pour_mono_vps_setup.md (runtime VPS DEV justifié)

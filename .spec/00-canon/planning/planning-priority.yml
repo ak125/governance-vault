@@ -1,0 +1,14 @@
+version: 1.0.0
+canonical: true
+adr_link: ADR-053
+schema_version: planning.v1
+priorities:
+  P0: { sla_hours: 24,   meaning: "Prod/governance blocker — page-someone tier" }
+  P1: { sla_hours: 72,   meaning: "Active strategic — current sprint" }
+  P2: { sla_hours: 168,  meaning: "Sprint backlog — within current cycle" }
+  P3: { sla_hours: 336,  meaning: "Cycle backlog — within 2 cycles" }
+  P4: { sla_hours: 720,  meaning: "Quarter backlog — within current Q" }
+  P5: { sla_hours: null, meaning: "Triage — needs categorization" }
+  P6: { sla_hours: null, meaning: "Idea — capture only, no commitment" }
+  P7: { sla_hours: null, meaning: "Deferred — wait for empirical signal" }
+  P8: { sla_hours: null, meaning: "Archive — closed without action" }

@@ -1,0 +1,12 @@
+version: 1.0.0
+canonical: true
+adr_link: ADR-053
+schema_version: planning.v1
+reasons:
+  waiting-review:    "Human review pending"
+  waiting-evidence:  "Empirical signal not yet collected (e.g., 7d observability)"
+  waiting-deploy:    "Code merged but not deployed/promoted"
+  waiting-user:      "User decision/input required"
+  waiting-infra:     "Infrastructure dependency (CI flake, env config, secret)"
+  waiting-dep:       "Blocked by another item (DependsOn populated)"
+  waiting-budget:    "Cost/quota gate not approved"
