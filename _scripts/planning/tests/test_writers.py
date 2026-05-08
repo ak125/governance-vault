@@ -1,8 +1,6 @@
 """Tests for writers.py — snapshot append-only, MOC skip-on-hash, GH project best-effort."""
 import json
-from pathlib import Path
 
-import pytest
 
 from _scripts.planning import writers
 

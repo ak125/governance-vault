@@ -1,7 +1,5 @@
 """Tests for fetch.py — GH PRs via gh api + ADRs via MOC-Decisions parse."""
-from pathlib import Path
 
-import pytest
 
 from _scripts.planning import fetch
 

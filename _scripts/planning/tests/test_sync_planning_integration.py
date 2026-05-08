@@ -5,7 +5,6 @@ without GH_TOKEN, without network. Real GH API contract is covered in
 test_fetch.py. Real cron run is exercised manually via `sudo -u deploy run-cron.sh`.
 """
 import os
-from pathlib import Path
 
 import pytest
 
