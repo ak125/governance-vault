@@ -21,3 +21,8 @@ Thumbs.db
 
 # Sync log artifacts (regenerated each sync)
 99-meta/last-sync-timestamp.tmp
+
+# Python bytecode (never commit)
+__pycache__/
+*.pyc
+*.pyo
