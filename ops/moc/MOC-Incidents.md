@@ -19,6 +19,7 @@ Index des incidents et post-mortems. Cette MOC est la porte d'entree pour tout e
 |----|------|----------|-------|--------|
 | [[2026-05-06-cf-cache-poisoning-pieces-5xx\|INC-2026-005-recurrence]] | 2026-05-06 | High | Cloudflare cache poisoning sur loader-thrown 5xx Remix (`/pieces/*` 47 % 5xx, s-maxage=86400 leak) — PR #320 + tag PROD `v2026.05.06-cf-cache-5xx-fix` + CF purge | Resolved |
 | [[2026-05-02-diagnostic-tool-unsourced-probas\|INC-2026-013]] | 2026-05-02 | High | Probabilités non sourcées dans `__diag_symptom_cause_link` — 162 rows exposées client `/diagnostic-auto/*` | Open |
+| [[2026-04-25-503-vehicle-build-payload-slow\|INC-2026-010]] | 2026-04-25 | Medium | 503 R8 vehicle pages — build_vehicle_page_payload sous-requete catalog mal optimisee (Phase 1 ADR-016). Fix root-cause CTE 2-phases + steady-state guarantees (cron + trigger + canon). | Closed-with-followup (J+14 __error_logs 5xx monitoring) |
 | [[2026-04-23-gsc-411k-404-tecdoc-orphans\|INC-2026-012]] | 2026-04-23 | High | 411k pages GSC en 404 (TecDoc V1 orphans + hardcoded 410 shortcut) | Closed-with-monitoring (J+30/60/90) |
 | [[2026-04-23-ci-cwv-backend-boot-crash\|INC-2026-009]] | 2026-04-23 | Medium | CI CWV Performance Gate — APP_URL manquant dans perf-gates.yml (fix PR monorepo #123) | Resolved |
 | [[2026-04-22-redis-public-exposure-bsi\|INC-2026-008]] | 2026-04-22 | Medium | Redis DEV public exposure (BSI CB-Report#20260422-10008190) | Resolved |
@@ -178,7 +179,7 @@ Un incident de severite `Critical` ou `High` **DOIT** declencher une activation 
 
 | Metrique | Valeur |
 |----------|--------|
-| Total incidents documentes | 10 |
+| Total incidents documentes | 11 |
 | Incidents critiques | 3 |
 | Incidents high | 4 |
 | MTTR pire cas | 25 jours (INC-2026-002, detection J+25) |
