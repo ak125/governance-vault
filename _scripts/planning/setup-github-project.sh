@@ -26,15 +26,28 @@ else
   echo "  Created project #${PROJECT_NUMBER}"
 fi
 
-echo "[3/4] Get project_id (PV2_xxx) via GraphQL..."
+echo "[3/4] Get project_id (PVT_xxx or PV2_xxx) via GraphQL..."
+# Try organization() first (Org accounts), fall back to user() (User accounts like ak125).
 PROJECT_ID=$(gh api graphql -f query='
   query($login: String!, $number: Int!) {
     organization(login: $login) {
       projectV2(number: $number) { id }
     }
   }' -f login="${OWNER}" -F number="${PROJECT_NUMBER}" \
-  --jq '.data.organization.projectV2.id')
-echo "  project_id=${PROJECT_ID}"
+  --jq '.data.organization.projectV2.id // empty' 2>/dev/null || true)
+
+if [ -z "${PROJECT_ID}" ] || [ "${PROJECT_ID}" = "null" ]; then
+  PROJECT_ID=$(gh api graphql -f query='
+    query($login: String!, $number: Int!) {
+      user(login: $login) {
+        projectV2(number: $number) { id }
+      }
+    }' -f login="${OWNER}" -F number="${PROJECT_NUMBER}" \
+    --jq '.data.user.projectV2.id')
+  echo "  project_id=${PROJECT_ID} (user account)"
+else
+  echo "  project_id=${PROJECT_ID} (organization account)"
+fi
 
 echo "[4/4] Create 9 custom fields (idempotent)..."
 add_select() {
@@ -72,7 +85,8 @@ add_number() {
 
 add_select "Priority" "P0,P1,P2,P3,P4,P5,P6,P7,P8"
 add_select "ItemType" "PR,ADR,ROADMAP,INCIDENT,EPIC"
-add_select "Status" "todo,in-progress,review,blocked,done,cancelled"
+# "PlanStatus" instead of "Status" to avoid collision with GH default Status field
+add_select "PlanStatus" "todo,in-progress,review,blocked,done,cancelled"
 add_select "BlockedReason" "waiting-review,waiting-evidence,waiting-deploy,waiting-user,waiting-infra,waiting-dep,waiting-budget"
 add_text "Owner"
 add_number "StagnationDays"
