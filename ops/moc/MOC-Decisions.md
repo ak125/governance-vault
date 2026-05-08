@@ -71,6 +71,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-048 | Canon Enforcement Coverage Audit — combler l'asymétrie d'enforcement entre vault (mécanique) et `.spec/00-canon/` (partiel), Option D hybride 3 sprints | Accepted | 2026-05-07 | [[ADR-048-canon-enforcement-coverage]] |
 | ADR-049 | DB Governance Canon Enforcement — sub-projet ADR-048 pour les 20 fichiers `.spec/00-canon/db-governance/*`, Option DB-D hybride 2 sprints (reclassement-first + migration P0/P1 + freshness ajusté + cross-validation Supabase MCP) | Accepted | 2026-05-07 | [[ADR-049-db-governance-canon-enforcement]] |
 | ADR-050 | Quality history & drift detection — `__seo_quality_history` + RPC outliers + Sentry/OTel enrichers (Phase 0 baseline, prérequis bloquant PR-T) | Accepted | 2026-05-07 | [[ADR-050-quality-history-and-drift-detection]] |
+| ADR-052 | SQL role canon deprecation — defer to TS-only canon (ADR-040), evidence-pack Supabase prouve migration `20260124_add_page_role.sql` jamais appliquée en prod | Proposed | 2026-05-08 | [[ADR-052-sql-role-canon-deprecation]] |
 
 ---
 
