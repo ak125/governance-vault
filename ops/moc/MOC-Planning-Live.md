@@ -3,7 +3,7 @@ type: moc
 status: proposed
 updated: 2026-05-08
 schema_version: planning.v1
-semantic_hash: 6073f523c020e831
+semantic_hash: d7dca93869404143
 adr_link: ADR-053
 ---
 
@@ -50,6 +50,7 @@ adr_link: ADR-053
 | github:ak125/nestjs-remix-monorepo:pr:398 | P3 | PR | in-progress | feat(seo-v9): PR-1 audit inventaire + matrice gap legacy → monorepo (READ-ONLY) |
 | github:ak125/nestjs-remix-monorepo:pr:399 | P3 | PR | in-progress | feat(seo-v9): PR-2a registries + Zod contracts (foundation, no business logic) |
 | github:ak125/nestjs-remix-monorepo:pr:400 | P3 | PR | in-progress | feat(seo-v9): PR-2b policies (canonical/indexability/R2gate/unavailable, stacked sur 2a) |
+| github:ak125/nestjs-remix-monorepo:pr:401 | P3 | PR | in-progress | feat(seo-v9): PR-2c chain services + orchestrator (stacked sur 2b) |
 | github:ak125/nestjs-remix-monorepo:pr:85 | P3 | PR | review | feat(diagnostic): exposer moteur __diag_* + delegation RAG (plan breezy-eagle propre) |
 | github:ak125/governance-vault:pr:110 | P5 | PR | review | docs(knowledge): session handoff MVP G6 + ADR-033 alignment 2026-04-30 |
 | github:ak125/governance-vault:pr:114 | P5 | PR | review | docs(audit-trail): consigner session 2026-04-30 — repivot ADR-028 Option C → Option D |
@@ -68,6 +69,7 @@ adr_link: ADR-053
 | github:ak125/governance-vault:pr:217 | P5 | PR | review | audit-trail(2026-05-08): priority planning vault pending work + ADR-051 collision résolue |
 | github:ak125/governance-vault:pr:22 | P5 | PR | review | ADR-019: AI content advisor escalation via Pattern A |
 | github:ak125/governance-vault:pr:220 | P5 | PR | review | knowledge(perf): consigne sprint perf bundle 7 leçons signal-proven (2026-05-08) |
+| github:ak125/governance-vault:pr:235 | P5 | PR | review | chore(knowledge): update seo-v9 cascade state with PR-2c shipped |
 | github:ak125/governance-vault:pr:29 | P5 | PR | review | audit: P2 quality hardening — accents FR + Phase 9 QA-contenu |
 | github:ak125/governance-vault:pr:64 | P5 | PR | review | docs(adr): ADR-024 Claude Session Timeline Logging via log.md + Auto-Commit Hook |
 | github:ak125/governance-vault:pr:70 | P5 | PR | review | docs(knowledge): vehicle-selector Radix Select + grouped fuel pattern |
@@ -102,11 +104,11 @@ adr_link: ADR-053
 ```yaml
 ack:
   github:ak125/governance-vault:pr:40:
-    last_alert_at: '2026-05-08T18:23:26.509565+00:00'
+    last_alert_at: '2026-05-08T18:49:35.163164+00:00'
   github:ak125/governance-vault:pr:65:
-    last_alert_at: '2026-05-08T18:23:26.509565+00:00'
+    last_alert_at: '2026-05-08T18:49:35.163164+00:00'
   github:ak125/governance-vault:pr:9:
-    last_alert_at: '2026-05-08T18:23:26.509565+00:00'
+    last_alert_at: '2026-05-08T18:49:35.163164+00:00'
 ```
 
 ## See also
