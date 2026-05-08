@@ -132,21 +132,30 @@ Champs custom (9 au total) — `PVTSSF_xxx` pour single-select, `PVTF_xxx` pour 
 
 ```yaml
 github_project:
-  project_number: 0   # à remplir après Task 1.12 Step 1
-  project_id: ""      # PV2_xxx récupéré via GraphQL
+  project_number: 2
+  project_id: "PVT_kwHOAslOC84BXISt"
   field_ids:
-    priority: ""        # PVTSSF_xxx
-    itemtype: ""        # PVTSSF_xxx
-    status: ""          # PVTSSF_xxx
-    blocked_reason: ""  # PVTSSF_xxx
-    owner: ""           # PVTF_xxx
-    stagnation_days: "" # PVTF_xxx
-    depends_on: ""      # PVTF_xxx
-    adr_link: ""        # PVTF_xxx
-    canonical_id: ""    # PVTF_xxx
+    # Custom fields (9 — créés via setup-github-project.sh 2026-05-08)
+    priority: "PVTSSF_lAHOAslOC84BXIStzhSXWvE"
+    itemtype: "PVTSSF_lAHOAslOC84BXIStzhSXWv8"
+    plan_status: "PVTSSF_lAHOAslOC84BXIStzhSXWw0"   # renamed from "status" — collision avec default GH Status field
+    blocked_reason: "PVTSSF_lAHOAslOC84BXIStzhSXWw4"
+    owner: "PVTF_lAHOAslOC84BXIStzhSXWw8"
+    stagnation_days: "PVTF_lAHOAslOC84BXIStzhSXWxA"
+    depends_on: "PVTF_lAHOAslOC84BXIStzhSXWxE"
+    adr_link: "PVTF_lAHOAslOC84BXIStzhSXWx8"
+    canonical_id: "PVTF_lAHOAslOC84BXIStzhSXWzM"
+    # Default GH fields (référence, non-écrits par sync_planning) :
+    # title, assignees, status (default — distinct de plan_status), labels, etc.
 ```
 
-Récupérer via : `gh project field-list <project_number> --owner ak125 --format json --jq '.fields[] | {name, id}'`.
+URL : https://github.com/users/ak125/projects/2
+
+Note : `ak125` est un User account, pas une Organization → la requête GraphQL utilise
+`user(login: $login)`, pas `organization(login: $login)`. Le setup script
+`setup-github-project.sh` a été corrigé en conséquence (cf. PR #229).
+
+Récupérer via : `gh project field-list 2 --owner ak125 --format json --jq '.fields[] | {name, id}'`.
 
 ## Annexe B : Procédure GraphQL fallback
 
