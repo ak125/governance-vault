@@ -10,7 +10,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-from _scripts.planning import fetch, hash_util, schemas, stagnation, writers
+from _scripts.planning import alerts, fetch, hash_util, schemas, stagnation, writers
 
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -100,6 +100,35 @@ def main() -> int:
                   result.ok, result.items_written, result.error)
     else:
         log.warning("No project_number found in ADR-053 §Annexe A — skipping GH Project")
+
+    # Alerts (PR-3) — best-effort, ack-aware
+    ack_block = alerts.read_ack_block(moc_path)
+
+    # 1. Fire new alerts for stagnant P0
+    targets = alerts.compute_alert_targets(items, ack_block=ack_block, now=now)
+    fired_ids = alerts.fire_alerts(targets, strict=args.strict_alerts)
+
+    # 2. Detect closed-issue acks (operator closed `planning-p0-stagnant` issue → ack)
+    closed_acks = alerts.fetch_closed_alert_issues()
+
+    # 3. Merge ack updates : new alerts (last_alert_at) + closed acks (acked_at + acked_by)
+    new_ack = dict(ack_block)
+    if fired_ids:
+        new_ack = alerts.update_last_alert_at(new_ack, fired_ids=fired_ids, now=now)
+    for ack_event in closed_acks:
+        cid = ack_event["canonical_id"]
+        entry = new_ack.setdefault(cid, {})
+        # Only update if not already acked (don't overwrite manual acks)
+        if not entry.get("acked_at"):
+            entry["acked_at"] = ack_event["closed_at"]
+            entry["acked_by"] = ack_event["closed_by"]
+
+    if new_ack != ack_block:
+        alerts.write_ack_update(moc_path, ack_block=new_ack)
+        log.info("Ack block updated (fired=%d, closed_acks=%d)",
+                  len(fired_ids), len(closed_acks))
+    else:
+        log.info("Alerts: 0 fired, 0 closed-issue acks")
 
     return 0
 

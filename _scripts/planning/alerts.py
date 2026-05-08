@@ -3,11 +3,15 @@ best-effort GitHub Issues (primary) + email SMTP (fallback)."""
 import json
 import logging
 import os
+import re
 import smtplib
 import subprocess
 from datetime import datetime, timedelta
 from email.message import EmailMessage
+from pathlib import Path
 from typing import Any
+
+import yaml
 
 
 log = logging.getLogger("planning.alerts")
@@ -16,6 +20,93 @@ log = logging.getLogger("planning.alerts")
 COOLDOWN_HOURS = 24
 ALERT_REPO = "ak125/governance-vault"
 ALERT_LABEL = "planning-p0-stagnant"
+
+
+_ACK_BLOCK_RE = re.compile(
+    r"```yaml\s*\n(ack:[\s\S]*?)\n```",
+    re.MULTILINE,
+)
+
+
+class _StringTimestampLoader(yaml.SafeLoader):
+    """SafeLoader variant that keeps ISO timestamps as strings (no auto-datetime).
+
+    PyYAML's default SafeLoader resolves YAML implicit `tag:yaml.org,2002:timestamp`
+    tokens to `datetime.datetime` objects. We persist `last_alert_at` / `acked_at` /
+    `mute_until` as ISO 8601 strings (UTC, with `Z` suffix preserved) to keep the
+    round-trip stable and stay compatible with `_parse_iso()` which expects a string.
+    """
+
+
+# Remove the timestamp implicit resolver so YYYY-MM-DDTHH:MM:SSZ stays a string.
+_StringTimestampLoader.yaml_implicit_resolvers = {
+    k: [(tag, regexp) for tag, regexp in v if tag != "tag:yaml.org,2002:timestamp"]
+    for k, v in yaml.SafeLoader.yaml_implicit_resolvers.items()
+}
+
+
+def read_ack_block(moc_path: Path) -> dict[str, Any]:
+    """Parse the ack YAML block from MOC. Returns {} if absent or malformed."""
+    if not moc_path.exists():
+        return {}
+    m = _ACK_BLOCK_RE.search(moc_path.read_text())
+    if not m:
+        return {}
+    try:
+        loaded = yaml.load(m.group(1), Loader=_StringTimestampLoader) or {}
+    except yaml.YAMLError:
+        log.warning("ack block YAML invalid in %s", moc_path)
+        return {}
+    return loaded.get("ack") or {}
+
+
+def update_last_alert_at(
+    ack_block: dict[str, Any],
+    *,
+    fired_ids: list[str],
+    now: datetime,
+) -> dict[str, Any]:
+    """Return new ack_block with last_alert_at=now.isoformat() for each fired_id.
+
+    Preserves existing keys (acked_at, mute_until, reason, etc.). Pure function —
+    does NOT mutate input.
+    """
+    iso = now.isoformat()
+    out = {k: dict(v) for k, v in ack_block.items()}
+    for cid in fired_ids:
+        out.setdefault(cid, {})["last_alert_at"] = iso
+    return out
+
+
+def write_ack_update(moc_path: Path, *, ack_block: dict[str, Any]) -> bool:
+    """Rewrite the ack YAML block in MOC. Returns True if file changed.
+
+    Only the ack block is rewritten ; surrounding MOC content (frontmatter, items
+    table, semantic_hash, etc.) is preserved verbatim. This keeps "ack updates"
+    distinct from "business updates" (I3) — the file changes but `semantic_hash`
+    line is untouched, so commit message convention :
+    `chore(planning): ack update [no-hash-change]`.
+
+    "Changed" is checked semantically (parsed YAML equality), not byte-equal —
+    `safe_dump` may add quotes to ISO timestamps that the operator wrote unquoted,
+    which is cosmetic-only and must NOT trigger a commit.
+    """
+    if not moc_path.exists():
+        return False
+    text = moc_path.read_text()
+    new_yaml = yaml.safe_dump({"ack": ack_block}, default_flow_style=False).rstrip()
+    new_block = f"```yaml\n{new_yaml}\n```"
+
+    # Compare semantically against existing block (avoid cosmetic quote-only diffs).
+    existing_ack = read_ack_block(moc_path)
+    if existing_ack == ack_block:
+        return False
+
+    new_text, n = _ACK_BLOCK_RE.subn(new_block, text, count=1)
+    if n == 0 or new_text == text:
+        return False
+    moc_path.write_text(new_text)
+    return True
 
 
 def _parse_iso(s: str) -> datetime:
