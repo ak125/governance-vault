@@ -21,6 +21,8 @@ Index des incidents et post-mortems. Cette MOC est la porte d'entree pour tout e
 | [[2026-05-02-diagnostic-tool-unsourced-probas\|INC-2026-013]] | 2026-05-02 | High | Probabilités non sourcées dans `__diag_symptom_cause_link` — 162 rows exposées client `/diagnostic-auto/*` | Open |
 | [[2026-04-25-503-vehicle-build-payload-slow\|INC-2026-010]] | 2026-04-25 | Medium | 503 R8 vehicle pages — build_vehicle_page_payload sous-requete catalog mal optimisee (Phase 1 ADR-016). Fix root-cause CTE 2-phases + steady-state guarantees (cron + trigger + canon). | Closed-with-followup (J+14 __error_logs 5xx monitoring) |
 | [[2026-04-23-gsc-411k-404-tecdoc-orphans\|INC-2026-012]] | 2026-04-23 | High | 411k pages GSC en 404 (TecDoc V1 orphans + hardcoded 410 shortcut) | Closed-with-monitoring (J+30/60/90) |
+| [[2026-04-23-admin-password-hashes-anon-leak\|INC-2026-011]] | 2026-04-23 | Critical | Admin password hashes (`___config_admin.cnfa_pswd`) lisibles via PostgREST anon key (4 tables RLS `USING(true)` héritées) — fix PR #120, aucune trace d'exploitation | Resolved |
+| [[2026-04-23-paybox-client-regression-post-inc002\|INC-2026-014]] | 2026-04-23 | Medium | Paybox tunnel — alerte régression client (false-positive : tunnel fonctionnel, conversion ~10%). Empirique 2026-05-08 : 4 paiements clients confirmés depuis cliff (GMV 634.66 €, dernier 2026-05-07) | Closed (false-positive) |
 | [[2026-04-23-ci-cwv-backend-boot-crash\|INC-2026-009]] | 2026-04-23 | Medium | CI CWV Performance Gate — APP_URL manquant dans perf-gates.yml (fix PR monorepo #123) | Resolved |
 | [[2026-04-22-redis-public-exposure-bsi\|INC-2026-008]] | 2026-04-22 | Medium | Redis DEV public exposure (BSI CB-Report#20260422-10008190) | Resolved |
 | [[2026-04-21-503-vehicle-pages-rpc-allowlist-stale-image\|INC-2026-006]] | 2026-04-21 | High | 503 /constructeurs/* — allowlist RPC manquante + image preprod obsolete | Closed (structural fix) |
@@ -36,6 +38,7 @@ Index des incidents et post-mortems. Cette MOC est la porte d'entree pour tout e
 
 ### Critical
 
+- [[2026-04-23-admin-password-hashes-anon-leak]] — Hashes mot de passe admin (`___config_admin.cnfa_pswd`) lisibles via PostgREST anon key. 4 tables avec policy historique `Enable read access for all users` (template Supabase initial). Fix urgence PR #120. Aucune trace d'exploitation détectée. Résolu pendant audit Vague 4b ADR-021.
 - [[2026-04-14-paybox-tunnel-sev1-ipn-blocked]] — 3 bugs cumules Paybox, 25j de commandes non-confirmees (559 EUR GMV non-recuperes)
 - [[2026-02-03-paybox-orderid-format]] — Bug silencieux format orderId callback Paybox (durée inconnue)
 - [[2026-01-11_critical_rm-module-crash]] — Crash production module rm/ (~15min downtime)
@@ -49,6 +52,7 @@ Index des incidents et post-mortems. Cette MOC est la porte d'entree pour tout e
 
 ### Medium
 
+- [[2026-04-23-paybox-client-regression-post-inc002]] — **FALSE POSITIVE** — alerte régression Paybox post-INC-2026-002. Hypothèse SEV1 invalidée 3h après ouverture par 6 preuves empiriques (tunnel 100 % fonctionnel). Vraie cause = conversion commerciale ~10 % vs 30-40 % norme e-commerce. Confirmé 2026-05-08 : 4 paiements clients réels depuis cliff (GMV 634.66 €, dernier 2026-05-07). Renumeroté INC-010 → INC-014 (collision avec 503 vehicle).
 - [[2026-04-23-ci-cwv-backend-boot-crash]] — **RÉSOLU** — root cause trouvée : `APP_URL` manquant dans `.github/workflows/perf-gates.yml`. Fix 1 ligne via monorepo PR #123. Backend crash silencieux dû à `bufferLogs:true` masquant la `ConfigurationException`.
 - [[2026-04-22-redis-public-exposure-bsi]] — Redis DEV sur `46.224.118.55:6379` exposé publiquement sans auth, signalé par BSI (CERT-Bund). Remédiation 2 couches (Hetzner Cloud Firewall + alignement compose files). Zero compromission détectée.
 
@@ -65,6 +69,8 @@ Index des incidents et post-mortems. Cette MOC est la porte d'entree pour tout e
 - [[2026-05-06-cf-cache-poisoning-pieces-5xx]] — INC-2026-005-recurrence : Cloudflare cache poisoning 24h sur loader-thrown 5xx Remix (`/pieces/*` 47 % 5xx). PR #320 (commit a93b7dcb) helper buildCacheHeaders + lint guard.
 - [[2026-05-02-diagnostic-tool-unsourced-probas]] — 162 scores non sourcés dans moteur diagnostic (probas copiées depuis RAG éditorial), 4 PRs d'atténuation planifiées (ADR-035)
 - [[2026-04-23-gsc-411k-404-tecdoc-orphans]] — 411 k GSC 404 backlog (TecDoc V1 orphans + hardcoded shortcut), 3 PRs monorepo + migration N2 + tag `v2026.04.23-gsc-404-tecdoc-fix`
+- [[2026-04-23-admin-password-hashes-anon-leak]] — INC-2026-011 (Critical, resolved) : 4 tables RLS `USING(true)` exposaient hashes admin via PostgREST anon key (PR #120, audit Vague 4b ADR-021)
+- [[2026-04-23-paybox-client-regression-post-inc002]] — INC-2026-014 (Medium, false-positive) : alerte régression Paybox invalidée 3h après ouverture, vraie cause = conversion commerciale (4 paiements clients confirmés post-cliff, GMV 634.66 €)
 - [[2026-04-22-redis-public-exposure-bsi]] — Redis DEV exposé publiquement (BSI), firewall Hetzner + alignement compose files (PR monorepo #102)
 - [[2026-04-20_high_xtr-msg-firehose-cascade]] — Error log firehose → boucle positive PostgREST → timeouts 15s (fix: RPC + buffer + table dediee)
 - [[2026-04-14-paybox-tunnel-sev1-ipn-blocked]] — Paybox tunnel IPN blocked 25 jours (Cloudflare WAF + gate errorCode + RPC type error)
@@ -179,8 +185,8 @@ Un incident de severite `Critical` ou `High` **DOIT** declencher une activation 
 
 | Metrique | Valeur |
 |----------|--------|
-| Total incidents documentes | 11 |
-| Incidents critiques | 3 |
+| Total incidents documentes | 13 |
+| Incidents critiques | 4 |
 | Incidents high | 4 |
 | MTTR pire cas | 25 jours (INC-2026-002, detection J+25) |
 | MTTR moyen hors detection | ~4h (resolution technique une fois detecte) |
