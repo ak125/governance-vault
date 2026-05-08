@@ -1,0 +1,10 @@
+version: 1.0.0
+canonical: true
+adr_link: ADR-053
+schema_version: planning.v1
+types:
+  PR:       { source: github_pulls,           sot_canonical: false, id_pattern: "github:<org>/<repo>:pr:<num>" }
+  ADR:      { source: vault_decisions,        sot_canonical: true,  id_pattern: "vault:adr:ADR-<NNN>" }
+  ROADMAP:  { source: moc_roadmap_2026,       sot_canonical: true,  id_pattern: "vault:moc-roadmap-2026:item:<slug>" }
+  INCIDENT: { source: vault_incidents,        sot_canonical: true,  id_pattern: "vault:incident:<slug>" }
+  EPIC:     { source: planning_live_manual,   sot_canonical: true,  id_pattern: "vault:planning-live:epic:<slug>" }

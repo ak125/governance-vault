@@ -1,0 +1,11 @@
+version: 1.0.0
+canonical: true
+adr_link: ADR-053
+schema_version: planning.v1
+statuses:
+  todo:        "Not yet started, no commits/branches"
+  in-progress: "Branch exists, commits flowing, not in review"
+  review:      "PR opened, awaiting review/merge"
+  blocked:     "Stalled — BlockedReason mandatory"
+  done:        "Merged + deployed where applicable"
+  cancelled:   "Closed without delivery (auto-archive ≥30d)"
