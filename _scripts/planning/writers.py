@@ -131,19 +131,30 @@ def _gh_project_upsert_one(item: dict[str, Any], project_number: int) -> None:
     catches and converts to WriteResult(ok=False) when strict=False.
     """
     if item.get("url"):
-        subprocess.run(
+        result = subprocess.run(
             ["gh", "project", "item-add", str(project_number),
-             "--owner", "ak125", "--url", item["url"]],
+             "--owner", "ak125", "--url", item["url"], "--format", "json"],
             check=True, capture_output=True, text=True, timeout=15,
         )
-        return
-    title = f"{item['canonical_id']}: {item.get('title','(no title)')}"
-    body = f"canonical_id: {item['canonical_id']}\nitem_type: {item.get('item_type','?')}"
-    subprocess.run(
-        ["gh", "project", "item-create", str(project_number),
-         "--owner", "ak125", "--title", title, "--body", body],
-        check=True, capture_output=True, text=True, timeout=15,
-    )
+    else:
+        title = f"{item['canonical_id']}: {item.get('title','(no title)')}"
+        body = f"canonical_id: {item['canonical_id']}\nitem_type: {item.get('item_type','?')}"
+        result = subprocess.run(
+            ["gh", "project", "item-create", str(project_number),
+             "--owner", "ak125", "--title", title, "--body", body, "--format", "json"],
+            check=True, capture_output=True, text=True, timeout=15,
+        )
+
+    # Populate custom fields (Priority/ItemType/PlanStatus/...) — best-effort.
+    # Failures here don't fail the upsert (the item is already added).
+    try:
+        from _scripts.planning import gh_project_fields
+        item_id = json.loads(result.stdout).get("id")
+        if item_id:
+            gh_project_fields.populate_item_fields(item_id, item, project_number)
+    except Exception:
+        # Best-effort — item-add already succeeded, field population is bonus.
+        pass
 
 
 def write_gh_project(
