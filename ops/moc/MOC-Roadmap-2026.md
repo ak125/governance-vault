@@ -114,7 +114,7 @@ la priorité P0→P8.
 
 | Chantier | Plan dédié | Statut |
 |----------|------------|--------|
-| A — Runtime | TBD | À créer |
+| A — Runtime | TBD (sous-axe UX/Design mobile-V5 actif via [[design-pack-handling-canon-20260507]] + monorepo PR #368 preview noindex) | Existant partiel |
 | B — Catalogue | [[ADR-032-diagnostic-maintenance-unification]] + mémoires monorepo | Existant partiel |
 | C — Raw/Wiki/Diag | Plan local Claude Code rev 4 (re-titré « Plan — Chantier C » 2026-05-01) | Actif |
 | D — SEO indexation | Pipelines R*/agents `workspaces/seo-batch/` (monorepo) + plan global TBD | Existant partiel |

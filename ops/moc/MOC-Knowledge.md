@@ -44,6 +44,7 @@ Base de connaissances architecturale.
 
 ### Frontend / Design Pack Methodology
 - [[design-pack-handling-canon-20260507]] - Canon : design pack = vocabulaire visuel à appliquer aux composants V4 existants, jamais créer un parcours parallèle. URLs SEO sacrées, funnel commercial intouchable. Pattern preview noindex + migration in-place. Précédents : PR #360 rejetée, PR #368 correcte.
+- [[2026-05-07-design-pack-mobile-v5-pivot|Audit-trail design pack mobile-V5 pivot 2026-05-07]] — session pivot : PR #360 rejetée → PR #368 preview noindex correcte ; livraison ship 1 documentée + ship 2 planifié (migration in-place V4).
 
 ## SEO
 
