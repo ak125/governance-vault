@@ -1,7 +1,7 @@
 ---
 id: ADR-053
 title: Planning Live System (cross-repo PR/ADR aggregation)
-status: proposed
+status: accepted
 date: 2026-05-08
 deciders: [Fafa]
 related: [MOC-Roadmap-2026, MOC-Planning-Live, ADR-034]
@@ -26,21 +26,25 @@ syntaxe instable).
 Construire un système où :
 1. **MOC-Planning-Live.md + git history + ledger/snapshots/planning/run-*.json** = SoT canonique
 2. **GitHub Projects v2** = projection UI best-effort (panne ⇒ système continue)
-3. **Paperclip alerts P0** = projection notification best-effort (panne ⇒ webhook fallback)
+3. **GitHub Issues alertes P0** = projection notification best-effort (label `planning-p0-stagnant`,
+   close=ack ; panne ⇒ fallback email SMTP)
 4. **Sync** : VPS DEV cron daily 08:00 UTC, entry shell `_scripts/planning/run-cron.sh` →
    orchestrator Python `_scripts/planning/sync_planning.py`. Aligné canon vault read-only-on-GHA
    (cf. `feedback_cron_vps_canon_pour_mono_vps_setup.md`).
 
 ## Invariants
 
-- **I1** : MOC + git + snapshots = SoT canonique. GH Project + Paperclip = best-effort.
+- **I1** : MOC + git + snapshots = SoT canonique. GH Project + GH Issues + email = best-effort.
 - **I2** : `sync_planning.py` = unique writer auto. Exception humaine : bloc YAML `ack` uniquement.
 - **I3** : Commit MOC "business update" ssi `semantic_hash` change. Updates techniques (ack)
   = commits séparés (`chore(planning): ack update [no-hash-change]`).
 - **I4** : Priority/ItemType/BlockedReason/Status = 4 schemas YAML versionnés sous
   `.spec/00-canon/planning/`. `schema_version: planning.v1` dans chaque snapshot.
-- **I5** : Alertes Paperclip rate-limited (cooldown 24h) + ackables + best-effort
-  (fallback webhook, exit 0 sauf `--strict-alerts`).
+- **I5** : Alertes GitHub Issues rate-limited + ackables (close=ack) + best-effort, fallback
+  email SMTP. Cooldown : pas de duplicate issue si une issue ouverte avec même `canonical_id`
+  existe (dedup natif). Ack : `gh issue close` → prochain run lit
+  `--state closed --label planning-p0-stagnant` et persiste `acked_at` dans MOC.
+  Échec `gh issue create` (rate limit, scope) = fallback email, exit 0 sauf `--strict-alerts`.
 
 ### `semantic_hash` blacklist exhaustive
 
@@ -69,12 +73,46 @@ Voir `.spec/00-canon/planning/` :
 
 ## §6 Mécanisme d'alerte
 
-À décider en début PR-3 (3 options) :
-- (a) HTTP POST direct vers `paperclip-control-plane/api/...`
-- (b) Subprocess vers skill `paperclip` (claude-code skill)
-- (c) Webhook fallback uniquement (Slack/Discord via `lib-supabase-report.sh`)
+**Décision PR-3 : (a) GitHub Issues primary + (b) email SMTP fallback.**
 
-Décision empirique sera consignée dans cet ADR à PR-3.
+### Options évaluées
+
+- ❌ **Paperclip HTTP POST** : Paperclip est en mode observation chez l'opérateur (pas d'auto-action). Ack structuré gaspillé sans interaction active sur le dashboard. Token + URL à gérer comme nouveau secret.
+- ❌ **Webhook Slack/Discord seul** : pas d'ack structuré natif. Devrait recréer ack côté MOC manuellement.
+- ❌ **Email seul** : universel mais pas d'ack structuré, pollution inbox.
+- ✅ **GitHub Issues + email fallback** : retenu (cf. rationale).
+
+### Mécanisme retenu
+
+**Primary** : `gh issue create --repo ak125/governance-vault --title "[P0 stagnant Nd] <canonical_id>" --label "planning-p0-stagnant" --body "<details>"`.
+
+**Dedup** : avant create, lookup `gh issue list --repo ak125/governance-vault --label planning-p0-stagnant --state open --json number,title --search "<canonical_id> in:title"`. Si existe ⇒ skip (pas de re-create, pas de spam).
+
+**Ack** : opérateur ferme l'issue (UI ou `gh issue close N`). Prochain run cron lit `gh issue list --label planning-p0-stagnant --state closed --json number,title,closedAt,closedBy --limit 100`, extrait `canonical_id` du titre, persiste `acked_at: <closedAt>` + `acked_by: <closedBy.login>` dans bloc `ack` du MOC (commit technique `ack update [no-hash-change]`).
+
+**Fallback email SMTP** : si `gh issue create` échoue (rate limit, scope manquant, network), `send_alert_email()` envoie un email à `EMAIL_ALERT_TO` via `smtplib.SMTP(SMTP_HOST, SMTP_PORT)` (env vars de `/etc/automecanik/planning.env`). Best-effort : si SMTP fail aussi, log warning, exit 0 sauf `--strict-alerts`.
+
+### Rationale
+
+- **Cohérence SoT** : items du Planning Live = PRs/ADRs sur GitHub. Alertes = issues GitHub. Tout dans le même outil.
+- **Notification native gratuite** : créer une issue déclenche déjà une notification email + mobile push à l'opérateur (s'il watch le repo) — donc l'email "fallback" est une seconde garantie, pas le canal primaire.
+- **Ack natif** : `gh issue close` (CLI) ou bouton "Close" (mobile) — UX standard. Pas de UI custom à apprendre.
+- **Pas de nouveau secret** : `gh` CLI déjà auth sur VPS DEV (scope `repo` couvre `issues:write`). Aucun PAT supplémentaire.
+- **Dedup natif** : une issue ouverte avec `canonical_id` dans le titre suffit comme verrou. Pas besoin de cooldown 24h en mémoire — l'issue elle-même EST le rate-limiter.
+
+### Variables d'environnement
+
+| Variable | Source | Obligatoire | Notes |
+|----------|--------|-------------|-------|
+| `GH_TOKEN` | déjà auth via `gh auth login` (gh config) | oui (pour create issue) | Scope `repo` requis (couvre `issues:write`) |
+| `SMTP_HOST` | `/etc/automecanik/planning.env` | non (fallback) | ex `smtp.gmail.com` ou relay local `localhost:25` |
+| `SMTP_PORT` | idem | non | défaut 587 si absent |
+| `SMTP_USER` / `SMTP_PASSWORD` | idem | non | App password si Gmail |
+| `SMTP_FROM` | idem | non | `automecanik-bot@<domain>` |
+| `EMAIL_ALERT_TO` | idem | non (sinon skip email) | `automecanik.seo@gmail.com` |
+
+Provisioning VPS DEV : voir Annexe C (file `/etc/automecanik/planning.env`,
+permissions 0640, owner deploy). Kit one-shot manuel hors-repo.
 
 ## Annexe A : Project IDs GitHub
 
