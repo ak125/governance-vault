@@ -7,7 +7,7 @@ date_detected: 2026-04-25T10:20:00Z
 date_resolved: 2026-04-25T13:56:00Z
 date_steady_state: 2026-04-25T~16:00:00Z  # backfill 28 252 stale termine, watcher auto-unschedule
 severity: medium
-status: resolved-pending-merge  # fix vivant en DB, PRs monorepo #167 + vault #65 en attente de merge user
+status: closed-with-followup  # fix root-cause merge (monorepo #167 merged 2026-04-28, ADR-016 accepted) ; J+14 __error_logs 5xx monitoring residuel
 impact_duration: "intermittent depuis 2026-04-23 (2j env. en mode degrade probabiliste, 1 utilisateur impacte observe)"
 affected_systems:
   - route-frontend: /constructeurs/{brand}/{model}/{type}.html (R8)
