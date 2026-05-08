@@ -104,7 +104,7 @@ adr_link: ADR-053
 
 ## See also
 
-- [[ADR-053]]
+- [[ADR-053-planning-live-system]]
 - [[MOC-Roadmap-2026]]
 """
 
