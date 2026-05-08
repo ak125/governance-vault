@@ -124,6 +124,82 @@ if (page.canonical !== page.url) {
 
 ---
 
+## R-SEO-09: URL Immutability (interdiction stricte de toucher aux URLs)
+
+**Règle absolue**: aucune URL existante en production ne doit être modifiée, renommée,
+migrée ou réécrite. Cela inclut **et n'est pas limité à** :
+
+- segments de path (`/pieces/...`, `/constructeurs/...`, `/produit/...`)
+- slugs (`pg_alias`, `marque_alias`, `modele_alias`, `type_alias`, etc.)
+- suffixes (`.html`, `-{pgId}`, `-{typeId}`)
+- séparateurs entre segments (`.` vs `-` vs `/`)
+- query strings indexées
+- patterns canonical produits par `SeoCanonicalService`
+- noms de fichiers route Remix (`pieces.$gamme.$marque.$modele.$type[.]html.tsx`, etc.)
+- patterns de sitemap V10
+- règles `robots.txt`
+- redirections 301 sur des URLs vivantes
+
+**Why**:
+- Le SEO d'AutoMecanik repose sur des URLs indexées de longue date par Google. Tout
+  changement déclenche : 301 massifs, perte d'autorité, pic "Crawled - not indexed",
+  fluctuations de classement, perte de trafic organique.
+- État empirique 2026-05 : régression GSC R3 active (`seo-r2-thin-content-root-cause`),
+  toucher aux URLs aggrave drastiquement.
+- Backlinks externes pointent les URLs actuelles — une URL changée = lien externe cassé,
+  non rattrapable.
+- Sitemap V10 + canonical + linking interne sont **alignés sur les URLs en place** ;
+  modifier nécessite la re-synchronisation de 4-5 systèmes en cascade.
+- Précédent réel : commit `369fca35` sur PR-5 a unilatéralement modifié le canonical
+  R1_GAMME_ROUTER de `/pieces/{pgAlias}` à `/pieces/{pgAlias}-{pgId}.html`. Reverté en
+  `f065e08c`. User a rappelé 2× : « il est strictement interdit de toucher aux URLs ».
+
+**How to apply**:
+
+1. **STOP automatique** — toute proposition contenant un de ces verbes/expressions doit
+   être bloquée et signalée à l'utilisateur avant toute exécution :
+   `réécrire URL`, `migrer slug`, `moderniser path`, `supprimer .html`, `raccourcir URL`,
+   `URL canonique simplifiée`, `rename route file`, `refonte URL`, `harmoniser slugs`,
+   `optimize slug`, `slug optimizer`, `url_title_optimizer`, `URL canonical pattern change`.
+
+2. **Si une incohérence apparente est détectée** entre une route Remix et la canonical
+   configurée (par exemple, route extrait `pgId` mais canonical n'en produit pas) →
+   **STOP**, signaler à l'utilisateur, demander la décision. **Ne pas commit de "fix"
+   unilatéral.**
+
+3. **Cibles autorisées** dans le périmètre SEO : surfaces (catalogue), seuils noindex,
+   chaîne services (renderer/switch/builder/indexability/canonical), shadow mode
+   controllers, feature flags `SEO_CHAIN_*_MODE`, contenu (title/desc/h1/content), tables
+   `__seo_*`, fingerprint, linking interne, JSON-LD. **Tout sauf les URLs.**
+
+4. **`SeoSlugService`** : son rôle est de **reproduire** les slugs legacy à l'identique
+   via golden tests (≥ 50 URLs production). Pas d'"optimisation" qui produirait des slugs
+   différents. Si divergence est détectée pendant l'implémentation, c'est le service qui
+   s'aligne sur le legacy, jamais l'inverse.
+
+5. **`SeoCanonicalService`** : produit le canonical **exact** correspondant à l'URL
+   legacy pour chaque rôle. Pas de "modernisation" du pattern.
+
+6. **`SeoUnavailablePolicy` (410/412)** : retirer une URL morte = HTTP 410 + page
+   contextualisée. **Jamais** de redirection vers une "URL équivalente modernisée".
+
+7. **Exception légitime** (cas rare) : si un chantier exige un changement d'URL pour
+   raison technique forte (sécurité critique, duplicate massif documenté), passer par :
+   - ADR vault dédié documentant la justification empirique
+   - Plan 301 complet avec mapping ancien → nouveau exhaustif
+   - Validation explicite utilisateur **avant** exécution
+   - PR séparée et taggée `breaking-change-url`
+
+   Pas de glissement silencieux.
+
+**Précédents bloqués** (pour rappel) :
+- PR-5 commit `369fca35` reverté `f065e08c` — canonical R1 modifié sans demande.
+- R7/R8 canonical envisagés en PR-6 — scope abandonné après rappel utilisateur.
+
+**Référence mémoire DEV** : `feedback_no_url_changes_ever.md` (auto-loaded).
+
+---
+
 ## CI Integration
 
 ```yaml
