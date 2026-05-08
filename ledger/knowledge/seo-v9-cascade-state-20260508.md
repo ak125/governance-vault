@@ -58,30 +58,32 @@ Refonte SEO seo-v9 approuvée 2026-05-08 après 15 itérations utilisateur (plan
   - `SeoUnavailablePolicy` — STUB 410/412. Branchement réel = PR-8 (raccord système 3 couches erreurs 4xx existant côté backend).
 - **Wiring** : `SeoModule` étendu avec les 4 services.
 
-### PR-2c : `feat(seo-v9): PR-2c chain services + orchestrator (stacked sur 2b)`
+### PR-2c : `feat(seo-v9): PR-2c chain services + orchestrator (stacked sur 2b)` — rev 2
 
 - **PR GitHub** : https://github.com/ak125/nestjs-remix-monorepo/pull/401
 - **Branche** : `feat/seo-v9-pr2c-renderer-switch` (stacked depuis `feat/seo-v9-pr2b-policies`)
-- **Commit** : `d4278b8e`
-- **Tests** : 51/51 chain (Jest), 120/120 SEO module total (0 régression)
+- **Commits** : `d4278b8e` (rev 1 chain) + `79c32c9c` (rev 2 V4 refactor + contrats anti-breaking)
+- **Tests** : 75/75 chain (Jest), 132/132 SEO module total (0 régression)
 - **Livraisons** (8 services dans `backend/src/modules/seo/services/chain/`) :
   - `SeoSlugService` — `url_title_optimizer` FR (stop-words FR `de/du/des/la/le/les/et`, élision `l'`/`d'`, accents incl. œ/æ/ñ/ß, smart quotes `’/‘/‚/‛` → ASCII, troncature word-boundary). 14 tests.
   - `SeoArianeBreadcrumbService` — JSON-LD `BreadcrumbList` Schema.org + `buildTextTrail` compat `mta_ariane`. Validation HTTPS absolue. 7 tests.
   - `SeoMetaRegistryService` — lecture cachée `___meta_tags_ariane` (5 rows pages standard) + `__blog_meta_tags_ariane` (5 rows blog). Cache mémoire 1h. 7 tests.
   - `SeoSwitchSelector` — seed canonique sha256 `parseInt(sha256("$surfaceKey:$pgId:$vehicleId:$alias").slice(0,8),16) % length`. Remplace seed legacy `(typeId+pgId)%len` fragile aux renumérotations TecDoc V2. Distribution testée 10k tirages 10 buckets. 6 tests.
-  - `SeoTemplateRenderer` — variables métier (#Gamme, #VMarque, #VModele, #VType, #VAnnee, #VNbCh, …) + marketing (#PrixPasCher 16, #VousPropose 12, #MinPrice format title|descrip) + contextuelles (#ArticlesCount, #QualityBadge, #FamilyContext). 9 tests.
-  - `SeoInternalLinkingService` (chain) — résolution `#LinkGamme*#`/`#LinkGammeCar*#` via lookup direct `pieces_gamme`. STUB PR-2c, **PR-7 remplacera par MV `seo_internal_link_candidates`** (gain ~5-10× TTFB R1/R7/R8). 9 tests.
-  - `SeoContentBlockBuilder` — assemblage `contentBlocks` structurés (lead / paragraph / switch-variant alias 1-3 / link). Pure. 5 tests.
-  - `SeoChainOrchestratorService` — composition stateless 7 services + policies PR-2b. Output `SeoChainOutput` exhaustif (template + contentBlocks + policies + ariane + metadata). 5 tests intégration. **chain_version = `seo-v9-pr2c`**.
-- **Wiring** : `SeoModule` étendu avec les 8 nouveaux providers + exports (alias `SeoChainInternalLinkingService` pour éviter collision avec `InternalLinkingService` legacy au top level).
-- **Décision V4** : `DynamicSeoV4UltimateService.generateCompleteSeo()` reste **intact** (audit PR-1 a confirmé 0 controller applicatif réel le consomme, juste 4 endpoints debug). La chaîne PR-2c est un nouveau code path consommable en PR-3+ via feature flag `SEO_CHAIN_<surface>_MODE`. API publique V4 inchangée → 0 régression.
+  - `SeoTemplateRenderer` — variables métier (#Gamme, #VMarque, #VModele, #VType, #VAnnee, #VNbCh, …) + marketing (#PrixPasCher 16, #VousPropose 12, #MinPrice format title|descrip) + contextuelles (#ArticlesCount, #QualityBadge, #FamilyContext). `TemplateVariables = SeoVariables` (alias direct Zod). 9 tests.
+  - `SeoInternalLinkingService` (chain) — `resolveLinksBatch(input) → LinkResolutionResult[]` avec contrat exhaustif `{marker, html, isLink, targetUrl, targetRole, indexable, reason?}` + enum `LinkResolutionReason` (`NO_TARGET`/`NOINDEX`/`SELF_LINK`/`ORPHAN`/`CANONICAL_MISMATCH`/`FORBIDDEN_ROLE`). `buildCacheKey` canon Redis `seo:v9:linking:{surface}:{entity}:{hash}` (TTL 1h). Stub PR-2c, **PR-7 remplacera par MV `seo_internal_link_candidates`** (gain ~5-10× TTFB R1/R7/R8). Contrat stable anti-breaking. 18 tests.
+  - `SeoContentBlockBuilder` — assemblage `contentBlocks` discriminés (lead / paragraph / switch-variant / link / fact-list / cta) avec narrowing TS. Préserve l'ordre input des links. Pure. 9 tests.
+  - `SeoChainOrchestratorService` — composition stateless 7 services + policies PR-2b. Output `SeoChainOutput` exhaustif (template + contentBlocks + policies + ariane + metadata). **`chain_version = seo-v9-pr2c`**. 5 tests intégration.
+- **Wiring** : `SeoModule` étendu avec les 8 nouveaux providers + exports.
+- **V4 refactor (rev 2)** : `DynamicSeoV4UltimateService` est devenue un **adaptateur fin** (~150 lignes au lieu de 665). `generateCompleteSeo(pgId, typeId, vars)` parse Zod → bâtit `SeoChainInput` (surface = `R1_GAMME_VEHICLE_ROUTER`) → délègue à `chain.run(input)` → adapte `SeoChainOutput → CompleteSeoResult` (compat 4 endpoints debug `/api/seo-dynamic-v4/*`). Drop : `processTitle/Description/H1/Preview/Content`, `replaceStandardVariables`, `getSeoTemplate/getItemSwitches/getGammeCarSwitches/getFamilySwitches`, `countVariablesInTemplate`. Conservés : cache résultat, `generateDefaultSeo` fallback, `cleanContent`, monitoring proxy. Version V4 → `4.1.0`.
+- **`SeoV4SwitchEngineService` deprecated** : annotation `@deprecated` + provider retiré de `SeoModule` (plus aucun consommateur après le refactor V4). Fichier conservé pour PR-10 cleanup (cf. plan v9 §5 phase D).
+- **Alignement plan v9 §3.4** : la rev 1 livrait la chaîne en parallèle de V4 inchangé (approche hybride violant `feedback_no_hybrid_workarounds`). La rev 2 fait de V4 le orchestrateur stateless prévu par le plan.
 
-## Cumul tests cascade : 121/121 verts
+## Cumul tests cascade : 145/145 verts
 
 - PR-1 : 16 (Vitest scripts/seo/audit)
 - PR-2a + PR-2b backend : 40 (Jest registries + policies)
 - PR-2a package : 14 nouveaux + 6 conformance existants
-- PR-2c : 51 (Jest chain) — 18 nouveaux Jest backend non-chain inclus dans le 120 SEO module total
+- PR-2c : 75 (Jest chain) — rev 2 ajoute 24 tests vs rev 1 (LinkResolutionResult exhaustif, reason codes, ordre, narrowing discriminé). 132/132 SEO module total (0 régression V4).
 
 ## Architecture livrée (foundation + chaîne complète)
 
@@ -117,7 +119,8 @@ backend/src/modules/seo/services/chain/ (PR-2c)
 
 - **PR-2d** : variables marketing exhaustives (#PrixPasCher / #VousPropose / #MinPrice) si gaps détectés via diff vs legacy + tests intégration shadow vs sortie controllers actuels.
 - **PR-3+** : branchement applicatif sur les 4 services réels (`rm-builder`, `gamme-rest`, `brand-rpc`, `vehicle-rpc`) via `SeoChainOrchestratorService.run()` derrière feature flag `SEO_CHAIN_<flag>_MODE=shadow|on`.
-- **PR-7** : remplace stub `SeoInternalLinkingService` par MV `seo_internal_link_candidates` (gain perf ~5-10× sur TTFB R1/R7/R8).
+- **PR-7** : remplace stub `SeoInternalLinkingService` par MV `seo_internal_link_candidates` (gain perf ~5-10× sur TTFB R1/R7/R8). Contrat `LinkResolutionResult` stable → 0 changement caller (anti-breaking dès PR-2c rev 2).
+- **PR-10** : drop `SeoV4SwitchEngineService` (déjà `@deprecated` + retiré du module en PR-2c rev 2).
 
 ## Pour reprise nouvelle session
 
