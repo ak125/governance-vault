@@ -11,6 +11,8 @@ de "stats" - il valide :
   4. Regression guard      : MOC-Governance ne contient plus de chiffre dupliquant les sources
   5. Frontmatter `updated:` : >= date max structurelle du body (par MOC)
   6. Master-index date     : MOC-Governance.updated >= max(satellites.updated)
+  7. MOC-Planning-Live     : schema_version=planning.v1, semantic_hash coherent
+                             avec latest.json (si existe), schemas canon presents
 
 REGLE ANTI-SILENT-OK (non-negociable) : si une section attendue est absente ou
 renommee, on emet un finding explicite plutot qu'un retour silencieux OK. Mieux
@@ -424,6 +426,87 @@ def check_frontmatter_updated_invariant(mocs: dict[str, str], findings: list[dic
             })
 
 
+def check_planning_live(vault: Path, mocs: dict[str, str], findings: list[dict]) -> None:
+    """Check 7 : MOC-Planning-Live (ADR-053).
+
+    Valide :
+    - frontmatter contains schema_version: planning.v1
+    - semantic_hash coherent avec latest.json (si snapshot existe)
+    - schemas canoniques referencees existent (.spec/00-canon/planning/*.yml)
+    """
+    text = mocs.get("MOC-Planning-Live", "")
+    if not text:
+        return  # Optional MOC — silent skip if absent
+
+    fm, _ = parse_frontmatter(text)
+
+    # 7.a — schema_version: planning.v1
+    schema_version = fm.get("schema_version", "").strip()
+    if schema_version != "planning.v1":
+        findings.append({
+            "severity": "error",
+            "file": "ops/moc/MOC-Planning-Live.md",
+            "rule": f"{CHECK_NAME}.planning-live-schema-version",
+            "message": f"Frontmatter schema_version='{schema_version}' attendu 'planning.v1'",
+        })
+
+    # 7.b — semantic_hash coherent avec latest.json (si existe)
+    moc_hash = fm.get("semantic_hash", "").strip()
+    if not moc_hash:
+        findings.append({
+            "severity": "error",
+            "file": "ops/moc/MOC-Planning-Live.md",
+            "rule": f"{CHECK_NAME}.planning-live-hash-missing",
+            "message": "Frontmatter semantic_hash manquant",
+        })
+    else:
+        snapshots_dir = vault / "ledger" / "snapshots" / "planning"
+        if snapshots_dir.exists():
+            # Find most recent date subdir with latest.json
+            date_dirs = sorted(
+                [d for d in snapshots_dir.iterdir() if d.is_dir() and re.match(r"^\d{4}-\d{2}-\d{2}$", d.name)],
+                reverse=True,
+            )
+            for date_dir in date_dirs:
+                latest = date_dir / "latest.json"
+                if latest.exists():
+                    try:
+                        payload = json.loads(latest.read_text(encoding="utf-8"))
+                    except (OSError, json.JSONDecodeError) as e:
+                        findings.append({
+                            "severity": "warning",
+                            "file": str(latest.relative_to(vault).as_posix()),
+                            "rule": f"{CHECK_NAME}.planning-live-latest-malformed",
+                            "message": f"latest.json illisible : {e}",
+                        })
+                        break
+                    snap_hash = payload.get("semantic_hash", "")
+                    if snap_hash and snap_hash != moc_hash:
+                        findings.append({
+                            "severity": "warning",
+                            "file": "ops/moc/MOC-Planning-Live.md",
+                            "rule": f"{CHECK_NAME}.planning-live-hash-mismatch",
+                            "message": f"MOC semantic_hash='{moc_hash}' diffère de "
+                                       f"{latest.relative_to(vault).as_posix()} hash='{snap_hash}' "
+                                       f"(sync engine n'a peut-être pas tourné)",
+                        })
+                    break  # Only check most recent latest.json
+
+    # 7.c — schemas canon referencees existent
+    schema_dir = vault / ".spec" / "00-canon" / "planning"
+    required_schemas = ["planning-priority", "planning-itemtype",
+                        "planning-status", "planning-blocked-reason"]
+    for name in required_schemas:
+        p = schema_dir / f"{name}.yml"
+        if not p.exists():
+            findings.append({
+                "severity": "error",
+                "file": str(p.relative_to(vault).as_posix()),
+                "rule": f"{CHECK_NAME}.planning-live-schema-missing",
+                "message": f"Schema canonique requis introuvable : {name}.yml (référencé par MOC-Planning-Live)",
+            })
+
+
 def check_master_index_invariant(mocs: dict[str, str], findings: list[dict]) -> None:
     """Check 6 : MOC-Governance.updated >= max(satellites.updated)."""
     gov = mocs.get("MOC-Governance", "")
@@ -470,7 +553,7 @@ def main(argv: list[str]) -> int:
     mocs: dict[str, str] = {}
     moc_dir = vault_path / "ops" / "moc"
     for name in ["MOC-Governance", "MOC-Decisions", "MOC-Rules", "MOC-Agents",
-                 "MOC-Compliance", "MOC-AuditTrail"]:
+                 "MOC-Compliance", "MOC-AuditTrail", "MOC-Planning-Live"]:
         f = moc_dir / f"{name}.md"
         if f.exists():
             try:
@@ -485,6 +568,7 @@ def main(argv: list[str]) -> int:
     check_governance_regression_guard(mocs, findings)
     check_frontmatter_updated_invariant(mocs, findings)
     check_master_index_invariant(mocs, findings)
+    check_planning_live(vault_path, mocs, findings)
 
     # Mode strict : eleve les warnings en errors
     if strict:
