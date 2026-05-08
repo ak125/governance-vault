@@ -99,16 +99,14 @@ START_TS=$(date +%s)
 END_TS=$(date +%s)
 DURATION=$((END_TS - START_TS))
 
-# Report to Supabase __cron_runs (canon pattern)
+# Report to Supabase __cron_runs (canon pattern, cf. lib-supabase-report.sh signature)
+# Usage: cron_report "job-name" "ok|warn|error" duration_s '{"json":"metrics"}' "Summary text"
 LIB="/opt/automecanik/app/scripts/cron/lib-supabase-report.sh"
 if [ -f "${LIB}" ]; then
   # shellcheck disable=SC1090
   source "${LIB}"
-  report_cron_run \
-    --routine "planning-live-sync" \
-    --status "${STATUS}" \
-    --duration "${DURATION}" \
-    --message "$(tail -n 1 "${LOG_FILE}" | mask_secrets)"
+  SUMMARY=$(tail -n 1 "${LOG_FILE}" 2>/dev/null | mask_secrets | head -c 400)
+  cron_report "planning-live-sync" "${STATUS}" "${DURATION}" '{}' "${SUMMARY}"
 fi
 
 [ "${STATUS}" = "ok" ] || exit 1
