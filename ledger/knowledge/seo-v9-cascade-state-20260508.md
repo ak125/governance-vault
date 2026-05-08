@@ -13,7 +13,7 @@ related_memories: [seo-chain-architecture-seo-v9.md, seo-r2-indexability-rule.md
 
 Refonte SEO seo-v9 approuvée 2026-05-08 après 15 itérations utilisateur (plan stratégique : `/home/deploy/.claude/plans/apres-investigation-seo-on-iterative-spark.md`). Verdict empirique : **70-80% du legacy SEO PHP est déjà porté côté monorepo**, 20-30% gaps de finition. Pas une refonte from scratch — un raccordement + complétion ciblée.
 
-## 4 PRs livrées (drafts, en HOLD jusqu'à validation utilisateur de la cascade)
+## 5 PRs livrées (drafts, en HOLD jusqu'à validation utilisateur de la cascade)
 
 ### PR-1 : `feat(seo-v9): PR-1 audit inventaire + matrice gap legacy → monorepo (READ-ONLY)`
 
@@ -78,12 +78,27 @@ Refonte SEO seo-v9 approuvée 2026-05-08 après 15 itérations utilisateur (plan
 - **`SeoV4SwitchEngineService` deprecated** : annotation `@deprecated` + provider retiré de `SeoModule` (plus aucun consommateur après le refactor V4). Fichier conservé pour PR-10 cleanup (cf. plan v9 §5 phase D).
 - **Alignement plan v9 §3.4** : la rev 1 livrait la chaîne en parallèle de V4 inchangé (approche hybride violant `feedback_no_hybrid_workarounds`). La rev 2 fait de V4 le orchestrateur stateless prévu par le plan.
 
-## Cumul tests cascade : 145/145 verts
+### PR-2d : `feat(seo-v9): PR-2d marketing seed parity legacy V4 + V4 E2E test (stacked sur 2b)`
+
+- **PR GitHub** : https://github.com/ak125/nestjs-remix-monorepo/pull/402
+- **Branche** : `feat/seo-v9-pr2d-marketing-parity` (stacked depuis `feat/seo-v9-pr2b-policies`, post merge PR-2c → 2b)
+- **Commit** : `06f62afe`
+- **Tests** : 143/143 SEO module verts (8 nouveaux : 4 marketing parity + 4 V4 E2E)
+- **Régression rattrapée** : le refactor PR-2c rev 2 (V4 → chain) avait gommé une subtilité du legacy V4 — `processTitle`/`processDescription`/`processContent` utilisaient 3 seeds différents pour `#PrixPasCher#`. Sans ça, toutes les sections d'une page sortent le même prix → régression duplicate content potentielle. PR-2d reproduit la parité exacte :
+  - `title       : ((pgId % 100) + 1 + typeId) % len`
+  - `description : ((pgId % 100) + typeId) % len`
+  - `content     : typeId % len` (idem `#VousPropose#`)
+  - `h1, preview : seed neutre 0` (legacy n'utilisait pas)
+- **Premier test V4 E2E** : 4 tests verrouillent le contrat de l'adaptateur `DynamicSeoV4UltimateService` (shape `CompleteSeoResult` inchangée pour les 4 endpoints debug, fallback `generateDefaultSeo`, cache HIT/invalidate).
+- **Snapshot R1_GAMME_VEHICLE_ROUTER mis à jour** : description sort `"à prix discount"` (seed `(pgId%100)+typeId`) au lieu de `"économique"` (ancien seed unique). Changement délibéré aligné parité legacy.
+
+## Cumul tests cascade : 153/153 verts
 
 - PR-1 : 16 (Vitest scripts/seo/audit)
 - PR-2a + PR-2b backend : 40 (Jest registries + policies)
 - PR-2a package : 14 nouveaux + 6 conformance existants
-- PR-2c : 75 (Jest chain) — rev 2 ajoute 24 tests vs rev 1 (LinkResolutionResult exhaustif, reason codes, ordre, narrowing discriminé). 132/132 SEO module total (0 régression V4).
+- PR-2c (mergé dans 2b) : 75 (Jest chain) — 132/132 SEO module post-PR-2c rev 2
+- PR-2d : 143/143 SEO module post-PR-2d (+11 vs PR-2c, dont 8 nouveaux + 1 snapshot mis à jour)
 
 ## Architecture livrée (foundation + chaîne complète)
 
@@ -117,8 +132,7 @@ backend/src/modules/seo/services/chain/ (PR-2c)
 
 ## Ce qui reste (HOLD jusqu'à reprise session)
 
-- **PR-2d** : variables marketing exhaustives (#PrixPasCher / #VousPropose / #MinPrice) si gaps détectés via diff vs legacy + tests intégration shadow vs sortie controllers actuels.
-- **PR-3+** : branchement applicatif sur les 4 services réels (`rm-builder`, `gamme-rest`, `brand-rpc`, `vehicle-rpc`) via `SeoChainOrchestratorService.run()` derrière feature flag `SEO_CHAIN_<flag>_MODE=shadow|on`.
+- **PR-3+** : branchement applicatif sur les 4 services réels (`rm-builder`, `gamme-rest`, `brand-rpc`, `vehicle-rpc`) via `SeoChainOrchestratorService.run()` derrière feature flag `SEO_CHAIN_<flag>_MODE=shadow|on`. Avec PR-2d, la parité marketing est verrouillée → on peut brancher sans régresser le duplicate content.
 - **PR-7** : remplace stub `SeoInternalLinkingService` par MV `seo_internal_link_candidates` (gain perf ~5-10× sur TTFB R1/R7/R8). Contrat `LinkResolutionResult` stable → 0 changement caller (anti-breaking dès PR-2c rev 2).
 - **PR-10** : drop `SeoV4SwitchEngineService` (déjà `@deprecated` + retiré du module en PR-2c rev 2).
 
