@@ -72,6 +72,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-049 | DB Governance Canon Enforcement — sub-projet ADR-048 pour les 20 fichiers `.spec/00-canon/db-governance/*`, Option DB-D hybride 2 sprints (reclassement-first + migration P0/P1 + freshness ajusté + cross-validation Supabase MCP) | Accepted | 2026-05-07 | [[ADR-049-db-governance-canon-enforcement]] |
 | ADR-050 | Quality history & drift detection — `__seo_quality_history` + RPC outliers + Sentry/OTel enrichers (Phase 0 baseline, prérequis bloquant PR-T) | Accepted | 2026-05-07 | [[ADR-050-quality-history-and-drift-detection]] |
 | ADR-053 | Planning Live System — cross-repo PR/ADR aggregation, MOC vault SoT canonique + GH Project v2 + GH Issues alerts (label `planning-p0-stagnant`, close=ack) + email SMTP fallback best-effort, VPS DEV cron daily, schemas YAML versionnés | Accepted | 2026-05-08 | [[ADR-053-planning-live-system]] |
+| ADR-055 | SEO Shadow Mode Architecture — `SeoShadowObservatoryModule` canon (R7/R8 câblés), 7 invariants + 5 conditions canon pour flip `mode=on` (defense-in-depth Zod env + boot guard throw + CI guard + lint ast-grep + ADR), persistance `__seo_event_log` via `event_type='anomaly_detected'` + `payload.subtype` | Accepted | 2026-05-09 | [[ADR-055-seo-shadow-mode-architecture]] |
 
 ---
 
