@@ -1,5 +1,5 @@
 ---
-type: canon
+type: rules-document
 status: canon
 scope: deployment
 updated: 2026-04-21

@@ -12,7 +12,6 @@ amended_by: ["ADR-031"]
 related_rules: ["G1", "G2", "G3"]
 related_incidents: []
 related_adr: ["ADR-015", "ADR-022", "ADR-031"]
-reviewed_by: null
 implementation_status: no-implementation-wave (proposed since 2026-04-25, paths superseded by ADR-031 amendment)
 implementation_status_updated: 2026-05-05
 ---

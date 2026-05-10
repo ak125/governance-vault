@@ -4,6 +4,7 @@ title: SEO Shadow Mode Architecture (observability avant flip mode=on)
 status: accepted
 date: 2026-05-09
 deciders: [Fafa]
+decision_makers: [Fafa]
 related: [ADR-031, ADR-037, ADR-039, ADR-047, ADR-048, MOC-Roadmap-2026, R-SEO-09]
 ---
 

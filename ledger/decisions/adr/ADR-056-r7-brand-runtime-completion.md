@@ -4,6 +4,7 @@ title: R7 Brand Runtime Completion (ExecutionRouter dispatch canonique)
 status: accepted
 date: 2026-05-09
 deciders: [Fafa]
+decision_makers: [Fafa]
 related: [ADR-031, ADR-037, ADR-046, ADR-047, ADR-055, R-SEO-09]
 ---
 

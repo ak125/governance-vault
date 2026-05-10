@@ -6,7 +6,9 @@ date: 2026-05-06
 decision_date: 2026-05-06
 decision_makers: ["@fafa"]
 supersedes: []
-superseded_by: ["monorepo PR #332 — direct backfill from RAG mirror"]
+superseded_by: ["ADR-031"]
+resolution_pr: "ak125/nestjs-remix-monorepo#332"
+resolution_note: "Pattern A (skeleton-generator) abandonné. Closure §2.B effectuée via backfill direct RAG mirror sous canon ADR-031 (cf. body §Solution effective)."
 amends: []
 related_rules: []
 related_incidents: []

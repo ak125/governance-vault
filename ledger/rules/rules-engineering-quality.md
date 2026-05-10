@@ -1,5 +1,5 @@
 ---
-type: canon
+type: rules-document
 status: canon
 scope: engineering
 updated: 2026-04-27

@@ -1,5 +1,5 @@
 ---
-type: canon
+type: rules-document
 status: canon
 scope: agents
 updated: 2026-04-28
