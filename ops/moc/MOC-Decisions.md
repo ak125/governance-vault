@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-05-08
+updated: 2026-05-10
 ---
 
 # MOC: Decisions
@@ -77,6 +77,74 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-057 | marketingskills (coreyhaines31) adoption pattern — wrapper canon-bound (upstream read-only via `npx skills add --skill <NAME>` + wrapper local ≤30 lignes injectant FR + canon `marketing-voice.md` + RGPD), cycle 5 étapes (gouvernance → fenêtre branche → PR pilote unique → 30j obs → gate T+30), pilote = `customer-research` (méthodo pure, zéro génération copy), 17 skills bannis explicitement (4 doublons SEO, 2 conflits copy canon, 1 social, 4 hors modèle SaaS, 1 ASO, 1 video, 4 hors phase), 6 anti-patterns codifiés (no bulk install, no fork, no patch, no clone, no batch, no banned). Branchement [[ADR-036-marketing-operating-layer]] / [[ADR-038-marketing-agent-naming-canon]] / [[ADR-039-wiki-frontmatter-zod-canon]] + ADR-054 audit-trail convention (PR vault #242 en cours) | Proposed | 2026-05-09 | [[ADR-057-marketingskills-adoption-pattern]] |
 
 ---
+
+<!-- AUTO-GENERATED:moc-decisions-canonical-index start -->
+
+## ADR Canonical Index (auto-generated)
+
+> Projection mécanique du frontmatter ADR (PR-3 sync_moc_decisions).
+> Toute édition manuelle entre les markers est écrasée à chaque sync.
+> Pour annoter, éditer le frontmatter ADR ou la table « ADR Actifs » ci-dessus.
+> Dernier sync : 2026-05-10.
+
+| ID | Titre | Statut canonique | Date | Fichier |
+|----|-------|------------------|------|---------|
+| ADR-001 | Environment Separation (DEV / PREPROD / PROD) | Accepted | 2026-02-03 | [[ADR-001-environment-separation]] |
+| ADR-002 | Airlock & Zero-Trust Agents | Accepted-Revised | 2026-03-07 | [[ADR-002-airlock-zero-trust]] |
+| ADR-003 | RPC Governance via RpcGateService | Accepted | 2026-02-03 | [[ADR-003-rpc-governance]] |
+| ADR-004 | rm/ Module Scope (DEV-only) | Accepted | 2026-02-03 | [[ADR-004-rm-module-scope]] |
+| ADR-005 | Airlock Observe Mode Activation | Superseded by [[ADR-010-airlock-enforce-activation]] | 2026-02-03 | [[ADR-005-airlock-observe-activation]] |
+| ADR-006 | AI Orchestrator Architecture (AI-COS Evolution) | Superseded by [[ADR-011-openclaw-claude-api-replacement]] + [[ADR-025-seo-department-architecture]] | 2026-02-03 | [[ADR-006-ai-orchestrator-architecture]] |
+| ADR-007 | Location Independence Principle (Règle Maître) | Accepted | 2026-02-04 | [[ADR-007-location-independence]] |
+| ADR-008 | Agent Placement Rules (3 Zones) | Accepted | 2026-02-04 | [[ADR-008-agent-placement-rules]] |
+| ADR-009 | Phase 1 Agent Activation Framework | Accepted-Revised | 2026-03-07 | [[ADR-009-agents-phase1-activation]] |
+| ADR-010 | Airlock Enforce Mode Activation & CI as Final Authority | Accepted | 2026-02-04 | [[ADR-010-airlock-enforce-activation]] |
+| ADR-011 | Remplacement OpenClaw par Claude API | Accepted | 2026-03-07 | [[ADR-011-openclaw-claude-api-replacement]] |
+| ADR-012 | AI-COS VPS Architecture & Agent Placement | Accepted | 2026-03-08 | [[ADR-012-aicos-vps-architecture]] |
+| ADR-013 | Cycle de vie des agents : gouvernance création, activation et restructuration | Accepted | 2026-04-04 | [[ADR-013-agent-lifecycle-governance]] |
+| ADR-014 | Suppression de l'endpoint /api/paybox/callback-test | Accepted | 2026-02-03 | [[ADR-014-remove-paybox-callback-test]] |
+| ADR-015 | Governance Vault — Single Source of Truth sur DEV VPS | Accepted | 2026-04-18 | [[ADR-015-vault-single-source-of-truth]] |
+| ADR-016 | Vehicle Page Data — Persistance par matérialisation, pas par tolérance de timeout | Accepted | 2026-04-20 | [[ADR-016-vehicle-page-matview-persistence]] |
+| ADR-017 | Nettoyer les casts TEXT↔INTEGER dans les RPC pieces_* — indexation effective | Accepted | 2026-04-21 | [[ADR-017-rpc-pieces-cast-cleanup]] |
+| ADR-018 | Consolider le schéma dual TEXT/INTEGER sur tables `auto_*` et `pieces_*` | Deferred | 2026-04-21 | [[ADR-018-dual-column-schema-consolidation]] |
+| ADR-019 | AI Content — advisor escalation via documented Pattern A, not the beta Advisor tool | Accepted | 2026-04-21 | [[ADR-019-ai-content-advisor-escalation]] |
+| ADR-020 | Weekly Governance Vault Lint | Accepted | 2026-04-23 | [[ADR-020-weekly-vault-lint]] |
+| ADR-021 | Database RLS Hardening — Zero-Trust per-Table Policies | Accepted | 2026-04-23 | [[ADR-021-database-rls-hardening-zero-trust]] |
+| ADR-022 | R8 RAG Control Plane — Propose-Before-Write + 5-Layer Gates | Superseded by [[ADR-031-four-layer-content-architecture]] | 2026-04-23 | [[ADR-022-r8-rag-control-plane]] |
+| ADR-023 | Hook-Layer Defense for .local/governance-vault/ | Accepted | 2026-04-24 | [[ADR-023-hook-layer-defense]] |
+| ADR-024 | R1 Gamme Page Data — Persistance par matérialisation, parité ADR-016 | Proposed | 2026-04-27 | [[ADR-024-r1-gamme-page-matview-persistence]] |
+| ADR-025 | SEO Department Architecture (Observability, On-page, Content ops, Intelligence, GEO/AEO) | Accepted | 2026-04-25 | [[ADR-025-seo-department-architecture]] |
+| ADR-026 | Content Repository Separation — automecanik-content as SEO Refined Layer | Superseded by [[ADR-031-four-layer-content-architecture]] | 2026-04-26 | [[ADR-026-content-separation]] |
+| ADR-027 | R5 Diagnostic Consolidation into R3 S2_DIAG — Canonical SEO Architecture | Accepted | 2026-04-25 | [[ADR-027-r5-consolidation-into-r3-s2-diag]] |
+| ADR-028 | Préprod read-only hardening (sans Supabase branch — ADR-028 Option D) | Accepted | 2026-04-30 | [[ADR-028-preprod-supabase-isolation]] |
+| ADR-029 | RAG v2.1 Control Plane Closure — State Machine 7-Stage + Emitter/Detector | Proposed | 2026-04-25 | [[ADR-029-rag-v2.1-control-plane-closure]] |
+| ADR-030 | npm ci --ignore-scripts permanent dans Dockerfile (Alpine musl + @ast-grep/cli) | Accepted | 2026-04-30 | [[ADR-030-npm-ignore-scripts-alpine-musl]] |
+| ADR-031 | Four-Layer Content Architecture — Raw / Wiki / Exports / Consumers (Unified Flow All R0-R8) | Proposed | 2026-04-28 | [[ADR-031-four-layer-content-architecture]] |
+| ADR-032 | Diagnostic & Maintenance Unification — kg_* canon for maintenance/safety/DTC, content via wiki/exports per ADR-031 | Proposed | 2026-04-29 | [[ADR-032-diagnostic-maintenance-unification]] |
+| ADR-033 | Wiki Gamme Diagnostic Relations Contract — references-only from R3/R4 to __diag_symptom / __diag_system | Proposed | 2026-04-29 | [[ADR-033-wiki-gamme-diagnostic-relations-contract]] |
+| ADR-034 | AI-COS Operating Contract — Observatory + Single-Trigger Routines | Proposed | 2026-04-30 | [[ADR-034-aicos-operating-contract]] |
+| ADR-035 | Diagnostic Tool Source Trust Flag — is_trusted + source_origin sur __diag_symptom_cause_link | Proposed | 2026-05-02 | [[ADR-035-diagnostic-tool-source-trust-flag]] |
+| ADR-036 | Marketing Operating Layer — 3 agents G1 (LEAD/LOCAL/RETENTION) + extension OperatingMatrixService + business_unit séparé ECOMMERCE/LOCAL/HYBRID | Proposed | 2026-04-30 | [[ADR-036-marketing-operating-layer]] |
+| ADR-037 | Agent Naming Canon — frontmatter `role:` Zod-validated, fail-fast, source de vérité unique | Accepted | 2026-04-30 | [[ADR-037-agent-naming-canon]] |
+| ADR-038 | Marketing Agent Naming Canon — frontmatter `role:` + `business_unit:` Zod-validated, fail-fast (étend ADR-037 au scope marketing) | Accepted | 2026-04-30 | [[ADR-038-marketing-agent-naming-canon]] |
+| ADR-039 | Wiki Proposal Frontmatter Zod Canon — TS mirror du JSON Schema canon, validateur CLI mono-repo (PR-C ADR-033) | Accepted | 2026-04-30 | [[ADR-039-wiki-frontmatter-zod-canon]] |
+| ADR-040 | SEO Roles Canon R0..R8 — single source of truth côté TypeScript via @repo/seo-roles, pas de DB CHECK | Accepted | 2026-05-05 | [[ADR-040-seo-roles-canon-ts-side-only]] |
+| ADR-041 | R1 Router Posture Reaffirmed — empirical validation supersedes hypothesis-driven commerce-safe pivot | Accepted | 2026-05-06 | [[ADR-041-r1-router-posture-empirical-reaffirm]] |
+| ADR-042 | Wiki gamme skeleton-generator (Pattern A) — débloquer Étape 6 gammes du pivot ADR-031 sans contournement legacy | Superseded by [[ADR-031-four-layer-content-architecture]] | 2026-05-06 | [[ADR-042-wiki-gamme-skeleton-generator]] |
+| ADR-043 | Plan F (DevSecOps) — cadre Phase 1 threat-model-first sur 3 sprints | Proposed | 2026-05-06 | [[ADR-043-plan-F-devsecops-phase-1-cadre]] |
+| ADR-044 | SEO Strategy 2026 — priorité contenu R6/R8/R7, R3 remediation only, 7 vagues | Proposed | 2026-05-07 | [[ADR-044-seo-strategy-2026-roles-priority]] |
+| ADR-045 | SEO Monitoring Cron V0 — daily-fetch GSC/GA4/Links + cron/health endpoint | Proposed | 2026-05-07 | [[ADR-045-seo-monitoring-cron-v0]] |
+| ADR-046 | R-stack canonique — 1 générateur par rôle + chaîne L0-L5 mécaniquement gouvernée | Accepted | 2026-05-07 | [[ADR-046-r-stack-single-generator-and-layers]] |
+| ADR-047 | Contract-as-code — `@repo/seo-role-contracts` SoT comportemental, séparé de l'identité | Accepted | 2026-05-07 | [[ADR-047-seo-role-contracts-as-code]] |
+| ADR-048 | Canon Enforcement Coverage Audit | Accepted | 2026-05-07 | [[ADR-048-canon-enforcement-coverage]] |
+| ADR-049 | DB Governance Canon Enforcement — sub-projet ADR-048 | Accepted | 2026-05-07 | [[ADR-049-db-governance-canon-enforcement]] |
+| ADR-050 | Quality history & drift detection — `__seo_quality_history` + RPC outliers + Sentry/OTel enrichers | Accepted | 2026-05-07 | [[ADR-050-quality-history-and-drift-detection]] |
+| ADR-053 | Planning Live System (cross-repo PR/ADR aggregation) | Accepted | 2026-05-08 | [[ADR-053-planning-live-system]] |
+| ADR-055 | SEO Shadow Mode Architecture (observability avant flip mode=on) | Accepted | 2026-05-09 | [[ADR-055-seo-shadow-mode-architecture]] |
+| ADR-056 | R7 Brand Runtime Completion (ExecutionRouter dispatch canonique) | Accepted | 2026-05-09 | [[ADR-056-r7-brand-runtime-completion]] |
+| ADR-057 | marketingskills (coreyhaines31) — pattern d'adoption wrapper canon-bound | Proposed | 2026-05-09 | [[ADR-057-marketingskills-adoption-pattern]] |
+
+<!-- AUTO-GENERATED:moc-decisions-canonical-index end -->
 
 ## Par Catégorie
 
