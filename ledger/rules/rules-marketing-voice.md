@@ -1,8 +1,8 @@
 ---
 name: rules-marketing-voice
 description: Canon brand voice AutoMecanik (ECOMMERCE) + magasin local 93 (LOCAL). Source unique synchronisée vers monorepo via canon-publish. Verrou local_canon obligatoire avant brief LOCAL/HYBRID validable.
-type: canon
-status: proposed
+type: rules-document
+status: canon
 date: 2026-04-30
 version: 1.0.0
 related_adr: ["ADR-036"]
@@ -19,7 +19,7 @@ sync:
 > **Source de vérité canonique** — règles obligatoires de voix de marque pour
 > tous les agents marketing (ADR-036) et toute campagne produite par le module
 > backend `marketing/`. Synchronisée vers monorepo via canon-publish.
-> **Version** : 1.0.0 | **Status** : `proposed` (à passer `accepted` après merge ADR-036)
+> **Version** : 1.0.0 | **Status** : `canon` (ratifié par ADR-038)
 
 Ce fichier est l'**unique source canonique** de la voix de marque marketing.
 Toute copie dans le monorepo (`.claude/canon-mirrors/marketing-voice.md`) est

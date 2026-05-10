@@ -11,7 +11,6 @@ amends: ["ADR-029"]
 related_rules: ["G1", "G2", "G3", "G5", "AP-10", "AP-11"]
 related_incidents: []
 related_adr: ["ADR-012", "ADR-013", "ADR-015", "ADR-022", "ADR-026", "ADR-027", "ADR-029"]
-reviewed_by: null
 ---
 
 # ADR-031: Four-Layer Content Architecture — Raw / Wiki / Exports / Consumers

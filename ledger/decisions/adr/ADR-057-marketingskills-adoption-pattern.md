@@ -4,6 +4,7 @@ title: marketingskills (coreyhaines31) — pattern d'adoption wrapper canon-boun
 status: proposed
 date: 2026-05-09
 deciders: [Fafa]
+decision_makers: [Fafa]
 related: [ADR-036, ADR-038, ADR-039, ADR-040, ADR-047, ADR-054, ADR-055, MOC-Decisions]
 ---
 

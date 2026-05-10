@@ -1,5 +1,5 @@
 ---
-id: INC-2026-005-recurrence
+id: INC-2026-005-1
 type: incident
 title: GSC 30,4k pages 5xx — Cloudflare cache poisoning sur loader-thrown 5xx Remix
 date: 2026-05-06

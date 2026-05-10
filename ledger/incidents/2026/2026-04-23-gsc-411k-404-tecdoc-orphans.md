@@ -4,7 +4,7 @@ date: 2026-04-23
 date_detected: 2026-04-23
 date_resolved: 2026-04-23
 severity: high
-status: closed-with-monitoring
+status: closed-with-followup
 impact_duration: "backlog cumulatif — premier pic observé 2026-02-24 dans GSC, plateau 411k pages depuis ~2026-03. Code-side resolved 2026-04-23 (deploy PROD `v2026.04.23-gsc-404-tecdoc-fix` + sitemap régénéré). Désindexation GSC attendue J+60."
 affected_systems:
   - gsc-indexing: automecanik.com (411k pages indiquées en 404)
