@@ -1,7 +1,7 @@
 # Configuration Cron - Governance Vault
 
-**Statut**: Manuel (non automatisé)
-**Dernière mise à jour**: 2026-02-02
+**Statut**: Manuel (non automatisé) + 1 cron actif VPS DEV (PR-3)
+**Dernière mise à jour**: 2026-05-10
 
 ---
 
@@ -87,6 +87,38 @@ Pour recevoir des alertes en cas de problème:
 # Ajouter à la fin de chaque cron
 # ... | mail -s "Governance Vault Alert" admin@automecanik.com
 ```
+
+---
+
+## Cron actifs sur VPS DEV (Phase A — PR-3 observation)
+
+### sync-moc-decisions (lundi 01:30 UTC)
+
+Génère la projection canonique des frontmatters ADR vers la section
+`<!-- AUTO-GENERATED:moc-decisions-canonical-index ... -->` de
+`ops/moc/MOC-Decisions.md`. Si diff, ouvre auto-PR signée G3 ; sinon no-op.
+
+```bash
+# Crontab deploy@VPS-DEV
+30 1 * * 1 /opt/automecanik/governance-vault/_scripts/cron-sync-moc-decisions.sh \
+  >> /var/log/governance-vault/sync-moc-decisions.log 2>&1
+```
+
+**Pattern canonique** (cf. `vault-canon-read-only-on-gha.md`) :
+- Pull origin main
+- Run `sync_moc_decisions --write` sur branche temp `govvault/cron-moc-sync-YYYY-MM-DD`
+- Si diff : commit signé G3 + push + auto-PR via `gh pr create --label auto`
+- Si no-op : exit 0, branche supprimée
+
+**Action manuelle requise** : reviewer humain valide ou ferme l'auto-PR.
+
+**Phase de stabilisation 3-7j** : pendant cette fenêtre, observer :
+1. ≥3 cycles sync OK consécutifs (no-op ou auto-merge SAFE)
+2. 0 commit fantôme (faux drift détecté par le générateur)
+3. 0 issue `infra-fail` ouverte non résolue
+
+Une fois ces critères validés → ouvrir PR-4 (`ci-vault-gate.sh` strict mode)
+qui wire `sync_moc_decisions --check` dans le gate bloquant CI.
 
 Ou utiliser un webhook Discord/Slack:
 
