@@ -71,12 +71,21 @@ EOF
 
 git push -u origin "$BRANCH" --quiet
 
-gh pr create --repo ak125/governance-vault \
+# Defense vs orphan branch (PR-3 review [I2]) : si gh pr create échoue
+# (token expired, label missing, network), nettoyer la branche distante
+# pour ne pas polluer le remote sur runs successifs. Conforme au critère
+# PR-4 « 0 issue infra-fail non résolue ».
+if ! gh pr create --repo ak125/governance-vault \
   --title "chore(moc): auto-sync MOC-Decisions canonical index — ${TODAY}" \
   --body "Auto-PR par cron VPS DEV \`cron-sync-moc-decisions.sh\` (PR-3 observation phase). Diff entre markers \`<!-- AUTO-GENERATED:moc-decisions-canonical-index ... -->\`. Reviewer humain valide ou ferme.
 
 Self-review verdict: APPROVE" \
-  --label "auto" || echo "::warning:: gh pr create failed (continue silently — manual follow-up)"
+  --label "auto"; then
+  echo "::warning:: gh pr create failed — cleaning up orphan branch $BRANCH" >&2
+  git push origin --delete "$BRANCH" --quiet 2>&1 | tail -1
+  git checkout main --quiet
+  exit 1
+fi
 
 git checkout main --quiet
 echo "OK: auto-PR opened on branch $BRANCH"

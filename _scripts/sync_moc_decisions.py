@@ -223,6 +223,15 @@ def splice_section(current: str, new_section: str) -> str:
     if start != -1 and end != -1 and end > start:
         end_inclusive = end + len(MARKER_END) + 1  # include trailing newline
         return current[:start] + new_section + current[end_inclusive:]
+    # Defense vs corruption (PR-3 review [I1]): exactly one marker = signal
+    # qu'un humain a accidentellement supprimé une moitié. Refuser plutôt
+    # que tomber sur first-time insertion (qui dupliquerait la section).
+    if start != -1 or end != -1:
+        raise SystemExit(
+            "ERROR: MOC-Decisions.md has exactly one of the two "
+            "AUTO-GENERATED markers — corruption signal. Restore manually "
+            "or delete both markers to re-init."
+        )
     # Markers absent → first-time insertion
     actifs_idx = current.find("## ADR Actifs")
     if actifs_idx == -1:
