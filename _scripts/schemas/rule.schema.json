@@ -8,19 +8,33 @@
   "properties": {
     "type": {
       "type": "string",
-      "enum": ["rule", "rules-document", "canon"]
+      "enum": [
+        "rule",
+        "rules-document"
+      ]
     },
     "status": {
       "type": "string",
-      "enum": ["canon", "draft", "deprecated", "superseded"]
+      "enum": [
+        "canon",
+        "draft",
+        "deprecated",
+        "superseded"
+      ]
     },
     "updated": {
       "type": "string",
       "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
     },
-    "version": { "type": "string" },
+    "version": {
+      "type": "string"
+    },
     "superseded_by": {
-      "type": ["array", "string", "null"]
+      "type": [
+        "array",
+        "string",
+        "null"
+      ]
     }
   }
 }

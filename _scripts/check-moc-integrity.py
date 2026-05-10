@@ -43,8 +43,10 @@ from typing import Any
 
 CHECK_NAME = "moc-integrity"
 
-# Statuts ADR canoniques (5 valeurs verifiees au 2026-05-07)
-CANONICAL_ADR_STATUSES = {"accepted", "accepted-revised", "proposed", "superseded", "deferred"}
+# Statuts ADR canoniques — importés depuis governance_constants (PR-2 SoT).
+# Anciennement hardcodés à 5 valeurs ; le drift avec adr.schema.json (7 valeurs)
+# masquait silencieusement les ADRs `deprecated` et `rejected` du MOC.
+from governance_constants import ADR_STATUSES_VISIBLE_IN_MOC as CANONICAL_ADR_STATUSES  # noqa: E402
 
 # MOCs satellites pour invariant master-index (PR-3 check 6)
 SATELLITE_MOCS = ["MOC-Decisions", "MOC-AuditTrail", "MOC-Compliance", "MOC-Rules", "MOC-Agents"]

@@ -127,6 +127,24 @@ run_modern "adr-supersedes"     $PY_BIN _scripts/check-adr-supersedes.py .
 run_modern "obsolete-rules"     $PY_BIN _scripts/check-obsolete-rules.py .
 run_modern "moc-integrity"      $PY_BIN _scripts/check-moc-integrity.py .
 
+# Parité enums constants ↔ schemas (PR-2 SoT invariant).
+PARITY_OUT="$($PY_BIN -m unittest discover -v -s _scripts -p 'test_governance_constants.py' 2>&1 || true)"
+if echo "$PARITY_OUT" | grep -q "^OK"; then
+  echo '{"check":"governance-constants-parity","findings":[],"summary":{"error":0,"warning":0,"info":0}}' >> "$MODERN_RESULTS"
+else
+  PARITY_MSG="$(echo "$PARITY_OUT" | tail -3 | head -1 | tr -d '"' | head -c 200)"
+  echo "{\"check\":\"governance-constants-parity\",\"findings\":[{\"severity\":\"error\",\"file\":\"_scripts/governance_constants.py\",\"message\":\"drift vs _scripts/schemas/*.schema.json: ${PARITY_MSG}\",\"rule\":\"governance/constants-parity\"}],\"summary\":{\"error\":1,\"warning\":0,\"info\":0}}" >> "$MODERN_RESULTS"
+fi
+
+# No-direct-schema-enum-access guard (PR-2 invariant).
+NDS_OUT="$(_scripts/check-no-direct-schema-enum-access.sh 2>&1 || true)"
+if echo "$NDS_OUT" | grep -q "^OK:"; then
+  echo '{"check":"no-direct-schema-enum-access","findings":[],"summary":{"error":0,"warning":0,"info":0}}' >> "$MODERN_RESULTS"
+else
+  NDS_MSG="$(echo "$NDS_OUT" | tail -1 | tr -d '"' | head -c 200)"
+  echo "{\"check\":\"no-direct-schema-enum-access\",\"findings\":[{\"severity\":\"error\",\"file\":\"_scripts\",\"message\":\"${NDS_MSG}\",\"rule\":\"governance/no-direct-schema-enum-access\"}],\"summary\":{\"error\":1,\"warning\":0,\"info\":0}}" >> "$MODERN_RESULTS"
+fi
+
 if [[ -d "$MONOREPO_PATH/.spec/00-canon" ]]; then
   run_modern "canon-backlinks" $PY_BIN _scripts/check-canon-backlinks.py . --monorepo "$MONOREPO_PATH"
   run_modern "canon-freshness" $PY_BIN _scripts/check-canon-freshness.py . --monorepo "$MONOREPO_PATH"

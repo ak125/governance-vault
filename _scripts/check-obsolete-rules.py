@@ -24,6 +24,13 @@ import re
 import sys
 from pathlib import Path
 
+from governance_constants import ADR_STATUSES_ARCHIVED
+
+# Narrow ARCHIVED → only statuses that semantically imply a successor.
+# rejected/deferred ne demandent pas de replacement (jamais accepté / décision
+# postponée). Dérivé de la SoT pour résister au drift sans étendre l'API.
+_REQUIRES_REPLACEMENT = ADR_STATUSES_ARCHIVED & frozenset({"deprecated", "superseded"})
+
 
 def parse_frontmatter(text: str) -> dict:
     if not text.startswith("---\n"):
@@ -77,7 +84,7 @@ def main(argv: list[str]) -> int:
         status = (fm.get("status") or "").lower()
         file = p.relative_to(vault_path).as_posix()
 
-        if status in ("deprecated", "superseded"):
+        if status in _REQUIRES_REPLACEMENT:
             superseded_by = fm.get("superseded_by")
             if isinstance(superseded_by, str):
                 superseded_by = [superseded_by] if superseded_by.strip() else []
