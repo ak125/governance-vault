@@ -99,9 +99,10 @@ print(json.dumps({
 " "$name" "$rc" "$exit_meaning" "$out" >> "$LEGACY_RESULTS"
 }
 
-run_legacy "orphans"       "_scripts/check-orphans.sh ."       "exit1=orphans found" || true
-run_legacy "broken-links"  "_scripts/check-broken-links.sh ."  "exit1=broken wikilinks" || true
-run_legacy "v1-paths"      "_scripts/check-v1-paths.sh ."      "exit1=v1 paths found" || true
+run_legacy "orphans"          "_scripts/check-orphans.sh ."          "exit1=orphans found" || true
+run_legacy "broken-links"     "_scripts/check-broken-links.sh ."     "exit1=broken wikilinks" || true
+run_legacy "v1-paths"         "_scripts/check-v1-paths.sh ."         "exit1=v1 paths found" || true
+run_legacy "vault-pollution"  "_scripts/check-vault-pollution.sh ."  "exit1=operational sections detected (ADR-060 §1A inv. 5)" || true
 
 # --- Modern checks (Python, JSON native) ---
 

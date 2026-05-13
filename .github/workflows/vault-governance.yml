@@ -108,6 +108,24 @@ jobs:
           name: v1-paths-report
           path: 99-meta/v1-paths-report.md
 
+  vault-pollution:
+    name: "No Operational Sections (ADR-060 §1A inv. 5)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check no operational sections in vault
+        run: |
+          chmod +x _scripts/check-vault-pollution.sh
+          _scripts/check-vault-pollution.sh .
+
+      - name: Upload vault-pollution report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vault-pollution-report
+          path: 99-meta/vault-pollution-report.md
+
   g4-canon-write-block:
     name: "G4: CI read-only sur canon"
     runs-on: ubuntu-latest
