@@ -56,7 +56,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-033 | Wiki Gamme Diagnostic Relations Contract — references-only from R3/R4 to `__diag_symptom` / `__diag_system` | Proposed | 2026-04-29 | [[ADR-033-wiki-gamme-diagnostic-relations-contract]] |
 | ADR-034 | AI-COS Operating Contract — Observatory + Single-Trigger Routines + AP-12 anti-bricolage | Proposed | 2026-04-30 | [[ADR-034-aicos-operating-contract]] |
 | ADR-035 | Diagnostic Tool Source Trust Flag — is_trusted + source_origin sur __diag_symptom_cause_link | Proposed | 2026-05-02 | [[ADR-035-diagnostic-tool-source-trust-flag]] |
-| ADR-036 | Marketing Operating Layer — 3 agents G1 (LEAD/LOCAL/RETENTION) + business_unit séparé ECOMMERCE/LOCAL/HYBRID + canon brand voice | Proposed | 2026-04-30 | [[ADR-036-marketing-operating-layer]] |
+| ADR-036 | Marketing Operating Layer — 3 agents G1 (LEAD/LOCAL/RETENTION) + business_unit séparé ECOMMERCE/LOCAL/HYBRID + canon brand voice | Accepted | 2026-04-30 | [[ADR-036-marketing-operating-layer]] |
 | ADR-037 | Agent Naming Canon — frontmatter `role:` Zod-validated, fail-fast (SEO agents) | Accepted | 2026-05-01 | [[ADR-037-agent-naming-canon]] |
 | ADR-038 | Marketing Agent Naming Canon — extension ADR-037 (MarketingRoleId + business_unit) | Accepted | 2026-05-01 | [[ADR-038-marketing-agent-naming-canon]] |
 | ADR-039 | Wiki Proposal Frontmatter Zod Canon — TS mirror du JSON Schema canon, CLI validator (PR-C ADR-033) | Accepted | 2026-05-01 | [[ADR-039-wiki-frontmatter-zod-canon]] |
@@ -125,7 +125,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-033 | Wiki Gamme Diagnostic Relations Contract — references-only from R3/R4 to __diag_symptom / __diag_system | Proposed | 2026-04-29 | [[ADR-033-wiki-gamme-diagnostic-relations-contract]] |
 | ADR-034 | AI-COS Operating Contract — Observatory + Single-Trigger Routines | Proposed | 2026-04-30 | [[ADR-034-aicos-operating-contract]] |
 | ADR-035 | Diagnostic Tool Source Trust Flag — is_trusted + source_origin sur __diag_symptom_cause_link | Proposed | 2026-05-02 | [[ADR-035-diagnostic-tool-source-trust-flag]] |
-| ADR-036 | Marketing Operating Layer — 3 agents G1 (LEAD/LOCAL/RETENTION) + extension OperatingMatrixService + business_unit séparé ECOMMERCE/LOCAL/HYBRID | Proposed | 2026-04-30 | [[ADR-036-marketing-operating-layer]] |
+| ADR-036 | Marketing Operating Layer — 3 agents G1 (LEAD/LOCAL/RETENTION) + extension OperatingMatrixService + business_unit séparé ECOMMERCE/LOCAL/HYBRID | Accepted | 2026-04-30 | [[ADR-036-marketing-operating-layer]] |
 | ADR-037 | Agent Naming Canon — frontmatter `role:` Zod-validated, fail-fast, source de vérité unique | Accepted | 2026-04-30 | [[ADR-037-agent-naming-canon]] |
 | ADR-038 | Marketing Agent Naming Canon — frontmatter `role:` + `business_unit:` Zod-validated, fail-fast (étend ADR-037 au scope marketing) | Accepted | 2026-04-30 | [[ADR-038-marketing-agent-naming-canon]] |
 | ADR-039 | Wiki Proposal Frontmatter Zod Canon — TS mirror du JSON Schema canon, validateur CLI mono-repo (PR-C ADR-033) | Accepted | 2026-04-30 | [[ADR-039-wiki-frontmatter-zod-canon]] |
