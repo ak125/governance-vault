@@ -117,7 +117,7 @@ la priorité P0→P8.
 | A — Runtime | TBD | À créer |
 | B — Catalogue | [[ADR-032-diagnostic-maintenance-unification]] + mémoires monorepo | Existant partiel |
 | C — Raw/Wiki/Diag | Plan local Claude Code rev 4 (re-titré « Plan — Chantier C » 2026-05-01) | Actif |
-| D — SEO indexation | Pipelines R*/agents `workspaces/seo-batch/` (monorepo) + plan global TBD | Existant partiel |
+| D — SEO indexation | Pipelines R*/agents `workspaces/seo-batch/` (monorepo) + [[ADR-059-seo-runtime-projection]] (proposed 2026-05-13) | Existant partiel |
 | E — Performance | TBD (à consolider depuis ADR-016/017) | À créer |
 | F — Sécurité | [[ADR-021-database-rls-hardening-zero-trust]] / [[ADR-028-preprod-supabase-isolation]] / [[ADR-030-npm-ignore-scripts-alpine-musl]] + plan global TBD | Existant partiel |
 | G — RAG | [[ADR-022-r8-rag-control-plane]] + mémoires RAG | Existant partiel |
