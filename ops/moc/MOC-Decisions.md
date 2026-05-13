@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-05-10
+updated: 2026-05-13
 ---
 
 # MOC: Decisions
@@ -75,6 +75,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-055 | SEO Shadow Mode Architecture — `SeoShadowObservatoryModule` canon (R7/R8 câblés), 7 invariants + 5 conditions canon pour flip `mode=on` (defense-in-depth Zod env + boot guard throw + CI guard + lint ast-grep + ADR), persistance `__seo_event_log` via `event_type='anomaly_detected'` + `payload.subtype` | Accepted | 2026-05-09 | [[ADR-055-seo-shadow-mode-architecture]] |
 | ADR-056 | R7 Brand Runtime Completion — ExecutionRouter dispatche désormais R7_BRAND comme R8 (`targetId` numérique strict, dryRun preview routeur, validation interne enricher préservée), 7 invariants + 5 dettes hors scope (refacto `parseNumericTargetId`, `pcq_pg_id` nommage, ordre `executeWithConcurrency`), code shippé via [PR monorepo #418](https://github.com/ak125/nestjs-remix-monorepo/pull/418) | Accepted | 2026-05-09 | [[ADR-056-r7-brand-runtime-completion]] |
 | ADR-057 | marketingskills (coreyhaines31) adoption pattern — wrapper canon-bound (upstream read-only via `npx skills add --skill <NAME>` + wrapper local ≤30 lignes injectant FR + canon `marketing-voice.md` + RGPD), cycle 5 étapes (gouvernance → fenêtre branche → PR pilote unique → 30j obs → gate T+30), pilote = `customer-research` (méthodo pure, zéro génération copy), 17 skills bannis explicitement (4 doublons SEO, 2 conflits copy canon, 1 social, 4 hors modèle SaaS, 1 ASO, 1 video, 4 hors phase), 6 anti-patterns codifiés (no bulk install, no fork, no patch, no clone, no batch, no banned). Branchement [[ADR-036-marketing-operating-layer]] / [[ADR-038-marketing-agent-naming-canon]] / [[ADR-039-wiki-frontmatter-zod-canon]] + ADR-054 audit-trail convention (PR vault #242 en cours) | Proposed | 2026-05-09 | [[ADR-057-marketingskills-adoption-pattern]] |
+| ADR-058 | Repository Control Plane — registry canonique 3 couches (Layer 1 auto `audit/registry/*.json` + Layer 2 overlay manuel `.spec/00-canon/repository-registry/*.yaml` + Layer 3 projection canonique générée `audit/registry/canonical.json`, jamais SoT primaire), 2 phases de gates CI V1 (Phase 1 freshness warn → Phase 2 block-new owner+domain obligatoires), 5 invariants V1 (SemVer schema, déterminisme strict, classification jamais forcée via `status: UNKNOWN` + `sourceConfidence`, 4 invariants relationnels minimaux, tests round-trip Zod), LLM entrypoint `.claude/knowledge/REPO_MAP.md` (extension `.claude/knowledge/` existant, anti-namespace-parallèle), tier scoping strict V1 obligatoire / V1.5 polish (provenance in-toto, diff PR comments, fast-check ≥500 props, RefId URN, hermetic builders) / V2 platform engineering (MCP server `@repo/registry-mcp`, SLSA L2, block-all Phase 3), élargit ADR-049 REG-002 du scope canon-files au scope complet files/db/rpc/runtime via `relates-to` (pas `supersedes`), acceptance après PR-G mergée + 7-14j signal empirique vert (`block-new` actif, 0 false-positive, coverage stable) | Proposed | 2026-05-13 | [[ADR-058-repository-control-plane]] |
 
 ---
 
@@ -85,7 +86,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 > Projection mécanique du frontmatter ADR (PR-3 sync_moc_decisions).
 > Toute édition manuelle entre les markers est écrasée à chaque sync.
 > Pour annoter, éditer le frontmatter ADR ou la table « ADR Actifs » ci-dessus.
-> Dernier sync : 2026-05-10.
+> Dernier sync : 2026-05-13.
 
 | ID | Titre | Statut canonique | Date | Fichier |
 |----|-------|------------------|------|---------|
@@ -143,6 +144,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-055 | SEO Shadow Mode Architecture (observability avant flip mode=on) | Accepted | 2026-05-09 | [[ADR-055-seo-shadow-mode-architecture]] |
 | ADR-056 | R7 Brand Runtime Completion (ExecutionRouter dispatch canonique) | Accepted | 2026-05-09 | [[ADR-056-r7-brand-runtime-completion]] |
 | ADR-057 | marketingskills (coreyhaines31) — pattern d'adoption wrapper canon-bound | Proposed | 2026-05-09 | [[ADR-057-marketingskills-adoption-pattern]] |
+| ADR-058 | Repository Control Plane — registry canonique 3 couches (data auto + overlay manuel + projection) | Proposed | 2026-05-13 | [[ADR-058-repository-control-plane]] |
 
 <!-- AUTO-GENERATED:moc-decisions-canonical-index end -->
 
