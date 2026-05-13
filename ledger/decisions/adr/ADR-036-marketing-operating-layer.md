@@ -1,9 +1,9 @@
 ---
 id: ADR-036
 title: "Marketing Operating Layer — 3 agents G1 (LEAD/LOCAL/RETENTION) + extension OperatingMatrixService + business_unit séparé ECOMMERCE/LOCAL/HYBRID"
-status: proposed
+status: accepted
 date: 2026-04-30
-decision_date: null
+decision_date: 2026-05-13
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
