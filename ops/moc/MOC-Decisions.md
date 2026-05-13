@@ -51,7 +51,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-028 | Préprod read-only hardening (sans Supabase branch — Option D) | Accepted | 2026-04-30 | [[ADR-028-preprod-supabase-isolation]] |
 | ADR-029 | RAG v2.1 Control Plane Closure — State Machine 7-Stage + Emitter/Detector | Proposed | 2026-04-25 | [[ADR-029-rag-v2.1-control-plane-closure]] |
 | ADR-030 | npm ci --ignore-scripts permanent dans Dockerfile (Alpine musl + @ast-grep/cli) | Accepted | 2026-04-30 | [[ADR-030-npm-ignore-scripts-alpine-musl]] |
-| ADR-031 | Four-Layer Content Architecture — Raw / Wiki / Exports / Consumers (Unified Flow All R0-R8) | Proposed | 2026-04-28 | [[ADR-031-four-layer-content-architecture]] |
+| ADR-031 | Four-Layer Content Architecture — Raw / Wiki / Exports / Consumers (Unified Flow All R0-R8) | Accepted | 2026-04-28 | [[ADR-031-four-layer-content-architecture]] |
 | ADR-032 | Diagnostic & Maintenance Unification — kg_* canon (maintenance/DTC) + content via wiki/exports per ADR-031 | Proposed | 2026-04-29 | [[ADR-032-diagnostic-maintenance-unification]] |
 | ADR-033 | Wiki Gamme Diagnostic Relations Contract — references-only from R3/R4 to `__diag_symptom` / `__diag_system` | Proposed | 2026-04-29 | [[ADR-033-wiki-gamme-diagnostic-relations-contract]] |
 | ADR-034 | AI-COS Operating Contract — Observatory + Single-Trigger Routines + AP-12 anti-bricolage | Proposed | 2026-04-30 | [[ADR-034-aicos-operating-contract]] |
@@ -120,7 +120,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-028 | Préprod read-only hardening (sans Supabase branch — ADR-028 Option D) | Accepted | 2026-04-30 | [[ADR-028-preprod-supabase-isolation]] |
 | ADR-029 | RAG v2.1 Control Plane Closure — State Machine 7-Stage + Emitter/Detector | Proposed | 2026-04-25 | [[ADR-029-rag-v2.1-control-plane-closure]] |
 | ADR-030 | npm ci --ignore-scripts permanent dans Dockerfile (Alpine musl + @ast-grep/cli) | Accepted | 2026-04-30 | [[ADR-030-npm-ignore-scripts-alpine-musl]] |
-| ADR-031 | Four-Layer Content Architecture — Raw / Wiki / Exports / Consumers (Unified Flow All R0-R8) | Proposed | 2026-04-28 | [[ADR-031-four-layer-content-architecture]] |
+| ADR-031 | Four-Layer Content Architecture — Raw / Wiki / Exports / Consumers (Unified Flow All R0-R8) | Accepted | 2026-04-28 | [[ADR-031-four-layer-content-architecture]] |
 | ADR-032 | Diagnostic & Maintenance Unification — kg_* canon for maintenance/safety/DTC, content via wiki/exports per ADR-031 | Proposed | 2026-04-29 | [[ADR-032-diagnostic-maintenance-unification]] |
 | ADR-033 | Wiki Gamme Diagnostic Relations Contract — references-only from R3/R4 to __diag_symptom / __diag_system | Proposed | 2026-04-29 | [[ADR-033-wiki-gamme-diagnostic-relations-contract]] |
 | ADR-034 | AI-COS Operating Contract — Observatory + Single-Trigger Routines | Proposed | 2026-04-30 | [[ADR-034-aicos-operating-contract]] |

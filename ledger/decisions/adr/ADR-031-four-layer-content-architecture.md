@@ -1,9 +1,9 @@
 ---
 id: ADR-031
 title: "Four-Layer Content Architecture — Raw / Wiki / Exports / Consumers (Unified Flow All R0-R8)"
-status: proposed
+status: accepted
 date: 2026-04-28
-decision_date: null
+decision_date: 2026-05-13
 decision_makers: ["@fafa"]
 supersedes: ["ADR-022", "ADR-026"]
 superseded_by: []
