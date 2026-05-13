@@ -1,9 +1,9 @@
 ---
 id: ADR-059
 title: "SEO Runtime Projection Architecture — wiki/exports/seo → DB versionnée → Pages R0-R8"
-status: proposed
+status: accepted
 date: 2026-05-13
-decision_date: null
+decision_date: 2026-05-13
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []

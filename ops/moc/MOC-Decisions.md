@@ -145,7 +145,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-056 | R7 Brand Runtime Completion (ExecutionRouter dispatch canonique) | Accepted | 2026-05-09 | [[ADR-056-r7-brand-runtime-completion]] |
 | ADR-057 | marketingskills (coreyhaines31) — pattern d'adoption wrapper canon-bound | Proposed | 2026-05-09 | [[ADR-057-marketingskills-adoption-pattern]] |
 | ADR-058 | Repository Control Plane — registry canonique 3 couches (data auto + overlay manuel + projection) | Proposed | 2026-05-13 | [[ADR-058-repository-control-plane]] |
-| ADR-059 | SEO Runtime Projection Architecture — wiki/exports/seo → DB versionnée → Pages R0-R8 (supplements ADR-031) | Proposed | 2026-05-13 | [[ADR-059-seo-runtime-projection]] |
+| ADR-059 | SEO Runtime Projection Architecture — wiki/exports/seo → DB versionnée → Pages R0-R8 (supplements ADR-031) | Accepted | 2026-05-13 | [[ADR-059-seo-runtime-projection]] |
 
 <!-- AUTO-GENERATED:moc-decisions-canonical-index end -->
 
