@@ -1,14 +1,15 @@
 ---
 id: ADR-065
 title: "Migration Safety Gate — grep → squawk (SQL AST linter)"
-status: proposed
+status: accepted
 date: 2026-05-14
+decision_date: 2026-05-14
 decision_makers: [Fafa]
 supersedes: []
 superseded_by: []
 related_rules: [G1, T1]
 related_incidents: []
-reviewed_by: ""
+reviewed_by: "@fafa"
 ---
 
 # ADR-065 : Migration Safety Gate — grep → squawk (SQL AST linter)
