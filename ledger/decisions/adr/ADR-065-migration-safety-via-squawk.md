@@ -110,20 +110,31 @@ Les 3 règles WARN legacy qui n'existent pas dans squawk stock :
 - **Squawk hard-error si tous les fichiers explicites sont exclus par `excluded_paths`** ("Failed to find files for provided patterns"). Mitigation : **defense-in-depth** dans le workflow shell — pré-filtre `.down.sql` avant `files:` input. Si la liste résultante est vide, on skip le step squawk via `if:`.
 - **Adoption par autres PRs en cours** : 7 PRs ouverts touchent `backend/supabase/migrations/*`. Après merge de cette ADR + PR monorepo, ils doivent rebase. Coût de coordination faible.
 
+### Local dev parity
+
+- **`squawk-cli@2.52.1` épinglé en `devDependencies`** racine (`--save-exact`, version identique au `version:` input de l'action GitHub `sbdchd/squawk-action@v2`). Toute mise à jour est explicite ; jamais de `^2.52.1` semver-glissant.
+- **`npm run sql:lint`** : invocation directe `node node_modules/squawk-cli/js/bin/squawk --config .squawk.toml 'backend/supabase/migrations/**/*.sql'`. Évite deux quirks connus de la distribution squawk-cli :
+  1. Le symlink `node_modules/.bin/squawk` n'est pas toujours créé au premier `npm install` (interaction du JS-shim + optional platform-binary avec le hoisting npm dans un monorepo). `npm rebuild squawk-cli` répare, mais les contributeurs ne devraient pas avoir à le savoir.
+  2. `npm exec squawk` résoud par nom de package, pas par nom de bin → il fetcherait le package indépendant `squawk@4.0.0` (librairie TTS) au lieu de `squawk-cli`.
+- **`npm run sql:lint:check`** : sanity (affiche `squawk 2.52.1`).
+- Premier passage full-corpus surface **1116 findings sur 181 / 216 migrations lintées** (mostly `require-timeout-settings`, `prefer-bigint-over-int`, `prefer-identity`, `prefer-robust-stmts`). Ne bloque rien — le gate CI lint uniquement les fichiers **modifiés**. Les findings historiques sont un chantier de modernisation séparé.
+
 ### Follow-ups (post-merge)
 
-- **Symétrie pre-commit local** (`.husky/pre-commit`) : optionnel. Pourrait fail-fast au commit local. Pas dans le scope de cette ADR — squawk-cli a un install platform-binary délicat à invoquer depuis npx. À traiter si signal de friction.
+- **Symétrie pre-commit local** (`.husky/pre-commit`) : optionnel. Pourrait fail-fast au commit local en réutilisant `npm run sql:lint -- <staged.sql>`. À traiter si signal de friction.
 - **Wrapper SARIF** : squawk n'émet pas SARIF nativement (reporters : tty/gcc/json/gitlab). Les violations apparaissent uniquement en commentaire PR, pas dans GitHub Security tab. Pas critique ; à reconsidérer si on adopte un workflow de revue centralisée.
 - **Activation `require-table-schema`** (seule règle opt-in) : si on standardise sur des schemas explicites (`public.foo` vs `foo`) — à débattre séparément.
+- **Modernisation rétroactive des 181 migrations** avec findings : chantier séparé, scope V2. Ne bloquera jamais CI tant que la migration n'est pas modifiée.
 
 ## Plan d'exécution (PR monorepo associé)
 
-PR monorepo : [`feat/ci-squawk-migration-safety`](https://github.com/ak125/nestjs-remix-monorepo/pull/517) — un seul commit, scope minimal :
+PR monorepo : [`feat/ci-squawk-migration-safety`](https://github.com/ak125/nestjs-remix-monorepo/pull/517) — 3 commits atomiques :
 
-1. `+38 .squawk.toml` (nouveau).
-2. `+32 / -79 .github/workflows/ci.yml` (réécriture du job `migration-safety`).
-3. **Aucun changement aux 219 migrations existantes** ni aux 129 `-- APPROVED:` annotations (kept as prose).
-4. **Aucun script `npm run sql:lint`** ajouté — squawk-cli a un binaire platform-specific compliqué à invoquer reliably depuis npx ; CI est la source canonique.
+1. **Plateforme** : `+38 .squawk.toml` (nouveau) + `+32 / -79 .github/workflows/ci.yml` (réécriture du job `migration-safety` via `sbdchd/squawk-action@v2`).
+2. **Registry coverage** : `+5 .spec/00-canon/repository-registry/ownership.yaml` (glob D15 pour `.squawk.toml` racine).
+3. **Local dev parity** : `+5 package.json` (`sql:lint` + `sql:lint:check` scripts + `squawk-cli@2.52.1` devDep) + `+103 package-lock.json`.
+
+**Aucun changement aux 219 migrations existantes** ni aux 129 `-- APPROVED:` annotations (kept as prose).
 
 ## Références
 
