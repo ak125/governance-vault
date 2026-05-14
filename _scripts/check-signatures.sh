@@ -17,7 +17,11 @@ set -euo pipefail
 VAULT_PATH="${1:-$(cd "$(dirname "$0")/.." && pwd)}"
 RANGE="${2:-}"
 
-if [[ ! -d "$VAULT_PATH/.git" ]]; then
+# Use `git rev-parse` rather than `[[ -d .git ]]` : in a worktree, `.git` is a
+# *file* pointer (e.g. `gitdir: /path/to/main/.git/worktrees/<name>`), not a
+# directory. The dir-test would reject every worktree and force devs to push
+# from the main checkout — exactly the bug that triggered this fix.
+if ! git -C "$VAULT_PATH" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   echo "Error: not a git repo: $VAULT_PATH" >&2
   exit 2
 fi
