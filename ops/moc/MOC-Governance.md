@@ -78,6 +78,12 @@ Lorsque le mot `canon` est utilise sans qualificatif, il faut preferer l'interpr
 - [[claude-desktop-instructions]] - Onboarding Claude Desktop (MCP filesystem, condense CLAUDE.md + AGENTS.md)
 - [[obsidian-setup]] - Topologie canonique coffre Obsidian (1 clone = 1 vault, plugins Dataview/Templater/Git, SSH signing G3)
 
+## Trackers
+
+Operational state trackers (mutable, append/update only). Each is governed by a policy.
+
+- [[dependency-upgrade-matrix]] - Per-dep state matrix governed by [[dependency-modernization-policy]]
+
 ## Archive
 
 - [[INDEX-archive]] - Documents archives (superseded, OpenClaw, etc.)

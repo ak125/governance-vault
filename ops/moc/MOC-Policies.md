@@ -22,6 +22,12 @@ Les policies decrivent **comment** appliquer les regles (format, template, schem
 | [[BUNDLE-SPEC]] | Specification complete d'un bundle (metadata, structure, contrats) |
 | `bundle.schema.v1.json` | Schema JSON v1 pour validation programmatique |
 
+## Dependency & Modernization Policies
+
+| Document | Role |
+|----------|------|
+| [[dependency-modernization-policy]] | Regles de modernisation des dependances monorepo : classification 3-tier, decision template, promotion ladder (status: proposed, 2026-05-14) |
+
 ## Processus
 
 | Document | Role |
