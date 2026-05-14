@@ -17,6 +17,7 @@ Index des incidents et post-mortems. Cette MOC est la porte d'entree pour tout e
 
 | ID | Date | Severite | Titre | Status |
 |----|------|----------|-------|--------|
+| [[2026-05-14-INC-2026-005-closure\|INC-2026-005-closure]] | 2026-05-14 | High | GSC email (WNC-10031170) — 30 400 pages 5xx, validation 2026-05-06→2026-05-12 FAILED. Root cause déjà fixée par PR #320. Closure : actions manuelles (CF purge safe + force re-crawl GSC) + invariants AST/lint anti-récidive + smoke v2 (150 URLs seedés) + notify503 port pieces.* | Closed (PR-1 monorepo TBD) |
 | [[2026-05-06-cf-cache-poisoning-pieces-5xx\|INC-2026-005-recurrence]] | 2026-05-06 | High | Cloudflare cache poisoning sur loader-thrown 5xx Remix (`/pieces/*` 47 % 5xx, s-maxage=86400 leak) — PR #320 + tag PROD `v2026.05.06-cf-cache-5xx-fix` + CF purge | Resolved |
 | [[2026-05-02-diagnostic-tool-unsourced-probas\|INC-2026-013]] | 2026-05-02 | High | Probabilités non sourcées dans `__diag_symptom_cause_link` — 162 rows exposées client `/diagnostic-auto/*` | Open |
 | [[2026-04-25-503-vehicle-build-payload-slow\|INC-2026-010]] | 2026-04-25 | Medium | 503 R8 vehicle pages — build_vehicle_page_payload sous-requete catalog mal optimisee (Phase 1 ADR-016). Fix root-cause CTE 2-phases + steady-state guarantees (cron + trigger + canon). | Closed-with-followup (J+14 __error_logs 5xx monitoring) |
