@@ -1,9 +1,9 @@
 ---
 id: ADR-063
 title: "CWV Monitoring PROD via CrUX API (field data 28j)"
-status: proposed
+status: accepted
 date: 2026-05-14
-decision_date: null
+decision_date: 2026-05-14
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
