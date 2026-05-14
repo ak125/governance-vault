@@ -34,8 +34,9 @@ fail_closed_checks(){
   [[ -d "$AIRLOCK_DIR/processed" ]] || { echo "❌ Missing: $AIRLOCK_DIR/processed" >&2; exit 1; }
   [[ -d "$AIRLOCK_DIR/rejected"  ]] || { echo "❌ Missing: $AIRLOCK_DIR/rejected"  >&2; exit 1; }
 
-  # Repo is optional for evidence pack (prefer not to require it), but if present we can capture commit refs
-  if [[ -d "$REPO_DIR/.git" ]]; then :; fi
+  # Repo is optional for evidence pack (prefer not to require it), but if present we can capture commit refs.
+  # `git rev-parse` works for both main checkouts and worktrees (where .git is a file pointer, not a dir).
+  if git -C "$REPO_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then :; fi
 }
 
 mkpack(){
@@ -213,7 +214,7 @@ write_changes(){
   list_bundles "$AIRLOCK_DIR/processed" "Processed bundles (recent)" 50 >> "$PACK_DIR/04-changes.md"
   list_bundles "$AIRLOCK_DIR/rejected"  "Rejected bundles (recent)" 50 >> "$PACK_DIR/04-changes.md"
 
-  if [[ $HAS_GIT -eq 1 && -d "$REPO_DIR/.git" ]]; then
+  if [[ $HAS_GIT -eq 1 ]] && git -C "$REPO_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
     printf "## Repo reference (optional)\n\n" >> "$PACK_DIR/04-changes.md"
     (cd "$REPO_DIR" && git log --oneline -n 30) \
       | sed 's/^/- /' \
