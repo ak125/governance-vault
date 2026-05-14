@@ -52,6 +52,31 @@ exige une liste explicite de pages à auditer. L'établissement de cette liste
 prévu en **V0.D** (separate ADR ultérieur). Brancher CWV dans le daily-fetch
 sans ce sample serait du bricolage (liste arbitraire ou liste vide).
 
+> **Mise à jour 2026-05-14 — Volet CWV résolu via [[ADR-063-cwv-monitoring-prod-crux-api]]**
+>
+> Le volet CWV initialement prévu en V0.D (PageSpeed synthetic per-URL +
+> sample top-1k stable) est résolu différemment par [[ADR-063-cwv-monitoring-prod-crux-api]]
+> (status: `proposed`, `amends: ["ADR-045"]`).
+>
+> Approche retenue : **CrUX field data** (Chrome User Experience Report,
+> History API, fenêtre rolling 28j) via le même cron `seo-monitor` BullMQ
+> que GSC/GA4. Origin + Top-100 URLs dynamique seedé depuis `__seo_gsc_daily`
+> (pas de pré-requis `gsc-coverage-fetcher` ni sample top-1k stable).
+>
+> Conséquences pour cet ADR-045 :
+> - **`CwvFetcherService` (PageSpeed) reste conservé** pour diagnostic
+>   per-URL manuel via route admin existante, mais **n'entre pas dans le
+>   cron daily** ni en V0.D, ni en suite.
+> - Le contrat ci-dessus ("CWV exclu du cron tant que sample top-1k stable
+>   absent") devient sans objet : CrUX origin-level couvre 100% du trafic
+>   Chrome sans liste pré-établie.
+> - V0.D reste pertinent uniquement si une autre dépendance (hors CWV) le
+>   requiert ; le **volet CWV est résolu** par ADR-063.
+>
+> Frontmatter ADR-045 inchangé (le champ `superseded_by_partial` n'existe
+> pas dans `_scripts/schemas/adr.schema.json`). Le lien sémantique est porté
+> côté ADR-063 par `amends: ["ADR-045"]`.
+
 ## Décision
 
 ### Architecture
