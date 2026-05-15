@@ -126,6 +126,12 @@ Les rejets Airlock sont journalises pour prouver le fonctionnement du garde-fou.
 - [[MOC-Rules]] - Regles T/G/AI/V
 - [[validator-engine-spec]] - Les 10 gates qui produisent les bundles REJECTED
 
+## Acceptances (2026-05)
+
+| Date | Document | Type |
+|------|----------|------|
+| 2026-05-15 | [[2026-05-15-adr-066-r2-content-composition-v2-accepted]] | ADR acceptance (R2 Content Composition v2 — pipeline 4-gates eligibility/composition/diversity-structural-first/governance, SUPPRESSED canonical, 10 refinements canon + 7 self-review ops, PR 0 vault stack sur PR-V #279) |
+
 ---
 
-_Derniere mise a jour: 2026-04-17_
+_Derniere mise a jour: 2026-05-15_
