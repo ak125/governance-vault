@@ -38,12 +38,15 @@ default allow := false
 
 # ── Règles d'autorisation ─────────────────────────────────────────────────────
 
-# Règle 1 : human_curated
+# Règle 1 : human_curated (NON-SUPPRESSED)
 # Écriture humaine explicite admin-ui (IsAdminGuard authentifié). Toujours
-# autorisée, surpasse les locks et le feature flag (humain = autorité finale).
+# autorisée pour decisions ≠ suppressed. Pour `suppressed`, la Règle 4
+# (human_curated_suppressed) impose les invariants canonical (anti-chain).
+# Cf ADR-067 2026-05-15 : SUPPRESSED même humain doit avoir canonical valide.
 allow if {
 	input.source_kind == "human_curated"
 	is_non_empty_string(input.actor)
+	not input.governance_decision == "suppressed"
 }
 
 # Règle 2 : human_validated_llm
@@ -74,22 +77,23 @@ allow if {
 	is_valid_retry_count(input.retry_count)
 }
 
-# Règle 4 : pipeline_generated_suppressed
-# Génération automatisée, décision SUPPRESSED. Requiert tous les invariants
-# canonical (improvement A, anti-chain prevention) :
+# Règle 4 : human_curated_suppressed (manual override, ADR-067 amendment 2026-05-15)
+#
+# ADR-067 INTERDIT pipeline_generated → suppressed. Seul un admin humain peut
+# manuellement flipper une page vers SUPPRESSED (doublon connu confirmé, page
+# legacy abandonnée). Anti-canonical-chain invariants restent valables.
+#
+# Requiert :
+#   - source_kind = "human_curated"
+#   - actor non-vide (audit-trail)
 #   - canonical_target_type_id non-null
-#   - canonical_target.decision = "index" (no chain : SUPPRESSED → SUPPRESSED interdit)
-#   - canonical_target.pg_id = self.pg_id (no cross-gamme canonical)
-#   - feature flag + flag_state + scores valides comme règle 3
+#   - canonical_target.decision = "index" (no chain)
+#   - canonical_target.pg_id = self.pg_id (no cross-gamme)
 allow if {
-	input.source_kind == "pipeline_generated"
-	input.feature_flag_r2_v2_enabled == true
-	input.flag_state == "enabled"
-	not input.lock_active
+	input.source_kind == "human_curated"
+	is_non_empty_string(input.actor)
 	input.governance_decision == "suppressed"
 	is_valid_canonical_target(input)
-	is_valid_eligibility_score(input.eligibility_score)
-	is_valid_retry_count(input.retry_count)
 }
 
 # Règle 5 : pipeline_generated_review_or_regenerate
@@ -179,6 +183,15 @@ deny contains reason if {
 	input.flag_state == "enabled"
 	input.lock_active == true
 	reason := "denied: pipeline cannot overwrite active lock (human authority preserved)"
+}
+
+# ADR-067 amendment 2026-05-15 : pipeline_generated → suppressed est INTERDIT.
+# Seul un admin humain (source_kind=human_curated) peut flipper vers SUPPRESSED.
+deny contains reason if {
+	not allow
+	input.source_kind == "pipeline_generated"
+	input.governance_decision == "suppressed"
+	reason := "denied: ADR-067 — pipeline_generated cannot emit SUPPRESSED (manual-only via admin UI human_curated path). Compatibilité pièce prime sur similarité texte."
 }
 
 deny contains reason if {
