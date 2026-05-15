@@ -156,10 +156,12 @@ test_deny_index_without_content_hash if {
 	}
 }
 
-# ── ALLOW : pipeline_generated SUPPRESSED (valid canonical, improvement A) ───
+# ── ADR-067 (2026-05-15) — pipeline_generated → suppressed est INTERDIT ─────
+# Cf doctrine pivot : "compatibilité pièce prime sur similarité texte". Seul
+# human_curated peut flipper vers SUPPRESSED (admin UI manual override).
 
-test_allow_pipeline_suppressed_valid_canonical if {
-	write.allow with input as {
+test_deny_pipeline_generated_suppressed_even_valid_canonical if {
+	not write.allow with input as {
 		"source_kind": "pipeline_generated",
 		"feature_flag_r2_v2_enabled": true,
 		"flag_state": "enabled",
@@ -177,13 +179,41 @@ test_allow_pipeline_suppressed_valid_canonical if {
 	}
 }
 
-# ── DENY : SUPPRESSED without canonical_target_type_id ───────────────────────
-
-test_deny_suppressed_null_canonical_target if {
-	not write.allow with input as {
+test_deny_pipeline_suppressed_carries_adr067_reason if {
+	reasons := write.deny with input as {
 		"source_kind": "pipeline_generated",
 		"feature_flag_r2_v2_enabled": true,
 		"flag_state": "enabled",
+		"governance_decision": "suppressed",
+		"canonical_target_type_id": 67890,
+		"canonical_target": {"decision": "index", "pg_id": 100},
+		"pg_id": 100,
+	}
+	some r in reasons
+	contains(r, "ADR-067")
+}
+
+# ── ALLOW : human_curated → suppressed (manual override, ADR-067) ────────────
+
+test_allow_human_curated_suppressed_valid_canonical if {
+	write.allow with input as {
+		"source_kind": "human_curated",
+		"actor": "user:fafa",
+		"governance_decision": "suppressed",
+		"canonical_target_type_id": 67890,
+		"canonical_target": {
+			"decision": "index",
+			"pg_id": 100,
+		},
+		"pg_id": 100,
+		"type_id": 12345,
+	}
+}
+
+test_deny_human_curated_suppressed_missing_canonical if {
+	not write.allow with input as {
+		"source_kind": "human_curated",
+		"actor": "user:fafa",
 		"governance_decision": "suppressed",
 		"canonical_target_type_id": null,
 		"pg_id": 100,
@@ -191,13 +221,27 @@ test_deny_suppressed_null_canonical_target if {
 	}
 }
 
-# ── DENY : SUPPRESSED chain (target.decision != "index", improvement A) ──────
+# ── DENY : SUPPRESSED without canonical_target_type_id (human path ADR-067) ─
 
-test_deny_suppressed_chain_target_is_suppressed if {
+test_deny_suppressed_null_canonical_target if {
 	not write.allow with input as {
-		"source_kind": "pipeline_generated",
-		"feature_flag_r2_v2_enabled": true,
-		"flag_state": "enabled",
+		"source_kind": "human_curated",
+		"actor": "user:fafa",
+		"governance_decision": "suppressed",
+		"canonical_target_type_id": null,
+		"pg_id": 100,
+		"type_id": 12345,
+	}
+}
+
+# ── DENY : SUPPRESSED chain (target.decision != "index") — human_curated path
+# ADR-067 : pipeline path now deny by source_kind ; anti-chain enforced on
+# human_curated SUPPRESSED path (admin override).
+
+test_deny_human_suppressed_chain_target_is_suppressed if {
+	not write.allow with input as {
+		"source_kind": "human_curated",
+		"actor": "user:fafa",
 		"governance_decision": "suppressed",
 		"canonical_target_type_id": 67890,
 		"canonical_target": {
@@ -206,16 +250,13 @@ test_deny_suppressed_chain_target_is_suppressed if {
 		},
 		"pg_id": 100,
 		"type_id": 12345,
-		"eligibility_score": 38,
-		"retry_count": 0,
 	}
 }
 
-test_deny_suppressed_chain_target_is_reject if {
+test_deny_human_suppressed_chain_target_is_reject if {
 	not write.allow with input as {
-		"source_kind": "pipeline_generated",
-		"feature_flag_r2_v2_enabled": true,
-		"flag_state": "enabled",
+		"source_kind": "human_curated",
+		"actor": "user:fafa",
 		"governance_decision": "suppressed",
 		"canonical_target_type_id": 67890,
 		"canonical_target": {
@@ -224,18 +265,15 @@ test_deny_suppressed_chain_target_is_reject if {
 		},
 		"pg_id": 100,
 		"type_id": 12345,
-		"eligibility_score": 38,
-		"retry_count": 0,
 	}
 }
 
-# ── DENY : cross-gamme canonical (target.pg_id != self.pg_id) ────────────────
+# ── DENY : cross-gamme canonical (target.pg_id != self.pg_id) — human path ──
 
 test_deny_cross_gamme_canonical if {
 	not write.allow with input as {
-		"source_kind": "pipeline_generated",
-		"feature_flag_r2_v2_enabled": true,
-		"flag_state": "enabled",
+		"source_kind": "human_curated",
+		"actor": "user:fafa",
 		"governance_decision": "suppressed",
 		"canonical_target_type_id": 67890,
 		"canonical_target": {
@@ -251,9 +289,8 @@ test_deny_cross_gamme_canonical if {
 
 test_deny_cross_gamme_carries_reason if {
 	reasons := write.deny with input as {
-		"source_kind": "pipeline_generated",
-		"feature_flag_r2_v2_enabled": true,
-		"flag_state": "enabled",
+		"source_kind": "human_curated",
+		"actor": "user:fafa",
 		"governance_decision": "suppressed",
 		"canonical_target_type_id": 67890,
 		"canonical_target": {"decision": "index", "pg_id": 999},

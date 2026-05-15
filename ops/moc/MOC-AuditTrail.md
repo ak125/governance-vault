@@ -131,6 +131,7 @@ Les rejets Airlock sont journalises pour prouver le fonctionnement du garde-fou.
 | Date | Document | Type |
 |------|----------|------|
 | 2026-05-15 | [[2026-05-15-adr-066-r2-content-composition-v2-accepted]] | ADR acceptance (R2 Content Composition v2 — pipeline 4-gates eligibility/composition/diversity-structural-first/governance, SUPPRESSED canonical, 10 refinements canon + 7 self-review ops, PR 0 vault stack sur PR-V #279) |
+| 2026-05-15 | [[2026-05-15-adr-067-r2-no-auto-suppression-accepted]] | Doctrine pivot — ADR-067 amende ADR-066. SUPPRESSED automatique strictement INTERDIT (compatibilité pièce prime sur similarité texte). Matrix 5→4 outcomes pipeline : INDEX/REVIEW/REGENERATE/REJECT. SUPPRESSED reste manual-only (admin override UI). Trigger : calibration empirique N=200 prod aurait désindexé 58% des G2 sous doctrine initiale — inacceptable. Rego `r2-content-write.rego` mise à jour : `pipeline_generated → suppressed` désormais deny, `human_curated → suppressed` autorisé avec invariants canonical. 69/69 tests OPA pass. WASM regénéré (SHA `ff894e55…`). Mémoires monorepo : nouvelle `feedback_no_auto_page_suppression_ever` STRICT, 3 amendements (`feedback_seo_suppressed_canonical_decision` superseded, `feedback_canonical_chain_prevention` amended manual-only, `feedback_seo_catalog_signature_before_text_diversity` amended REVIEW+enrichissement). Coût correction = 0 (zéro page R2 v2 produite en prod). Suivi : PR fixup monorepo retire path auto suppressed du code (verdict tree, enum, tests). |
 
 ---
 
