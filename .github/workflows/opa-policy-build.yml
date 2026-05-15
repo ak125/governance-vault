@@ -1,0 +1,106 @@
+name: OPA Policy Build & Test
+
+# PR-V (SEO Governance Control Plane) — vault policies pipeline.
+#
+# Runs on every push/PR touching policies/**, dist/policies/**, or this workflow.
+# Three steps :
+#   1. opa test policies/ -v        → unit tests must pass
+#   2. opa build -t wasm policies/  → bundle must build without errors
+#   3. SHA-256 drift check          → committed dist/policies/h1-write.wasm
+#                                     must match freshly-built artefact
+#
+# OPA version pinned for reproducible WASM SHA (cf. PR-V verification :
+# rebuilds yield identical SHA on 0.69.0).
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'policies/**'
+      - 'dist/policies/**'
+      - '.github/workflows/opa-policy-build.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'policies/**'
+      - 'dist/policies/**'
+      - '.github/workflows/opa-policy-build.yml'
+
+permissions:
+  contents: read
+
+env:
+  OPA_VERSION: 0.69.0
+
+jobs:
+  opa-test-build:
+    name: 'OPA Policy: test + build'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install OPA ${{ env.OPA_VERSION }}
+        run: |
+          curl -sL -o /usr/local/bin/opa \
+            "https://openpolicyagent.org/downloads/v${OPA_VERSION}/opa_linux_amd64_static"
+          chmod +x /usr/local/bin/opa
+          opa version
+
+      - name: opa test (Rego unit tests)
+        run: |
+          if [ -d policies ]; then
+            opa test policies/ -v
+          else
+            echo "No policies/ directory — nothing to test."
+            exit 0
+          fi
+
+      - name: opa build (WASM bundle)
+        run: |
+          if [ ! -f policies/seo-content/h1-write.rego ]; then
+            echo "No policies/seo-content/h1-write.rego — nothing to build."
+            exit 0
+          fi
+          mkdir -p /tmp/build-out
+          opa build \
+            -t wasm \
+            -e seo/content/h1/write/allow \
+            -e seo/content/h1/write/deny \
+            -o /tmp/build-out/h1-write.bundle.tar.gz \
+            policies/seo-content/h1-write.rego
+          tar -xzf /tmp/build-out/h1-write.bundle.tar.gz -C /tmp/build-out /policy.wasm
+          mv /tmp/build-out/policy.wasm /tmp/build-out/h1-write.wasm
+          echo "Built bundle:"
+          ls -la /tmp/build-out/
+          echo "Bundle contents:"
+          tar -tzf /tmp/build-out/h1-write.bundle.tar.gz
+
+      - name: SHA-256 drift check (committed vs freshly-built)
+        run: |
+          if [ ! -f dist/policies/h1-write.wasm ]; then
+            echo "::error::dist/policies/h1-write.wasm is missing — commit the WASM artefact."
+            exit 1
+          fi
+          COMMITTED_SHA=$(sha256sum dist/policies/h1-write.wasm | cut -d' ' -f1)
+          FRESH_SHA=$(sha256sum /tmp/build-out/h1-write.wasm | cut -d' ' -f1)
+          echo "Committed : $COMMITTED_SHA"
+          echo "Fresh     : $FRESH_SHA"
+          if [ "$COMMITTED_SHA" != "$FRESH_SHA" ]; then
+            echo "::error::WASM drift detected. Rebuild via:"
+            echo "  opa build -t wasm -e seo/content/h1/write/allow -e seo/content/h1/write/deny \\"
+            echo "    -o /tmp/bundle.tar.gz policies/seo-content/h1-write.rego"
+            echo "  tar -xzf /tmp/bundle.tar.gz /policy.wasm"
+            echo "  mv policy.wasm dist/policies/h1-write.wasm"
+            exit 1
+          fi
+          echo "OK : committed WASM matches freshly-built (SHA-256 reproducible)."
+
+      - name: Upload artefacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: opa-policy-build-${{ github.run_id }}
+          path: |
+            /tmp/build-out/h1-write.bundle.tar.gz
+            /tmp/build-out/h1-write.wasm
+          retention-days: 30
