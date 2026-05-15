@@ -1,16 +1,21 @@
 name: OPA Policy Build & Test
 
-# PR-V (SEO Governance Control Plane) — vault policies pipeline.
+# PR-V (SEO Governance Control Plane) + ADR-066 (R2 Content Composition v2)
+# — vault policies pipeline.
 #
-# Runs on every push/PR touching policies/**, dist/policies/**, or this workflow.
+# Runs on every push/PR touching policies/**, dist/policies/**, _scripts/build-opa-bundles.sh,
+# or this workflow.
+#
 # Three steps :
-#   1. opa test policies/ -v        → unit tests must pass
-#   2. opa build -t wasm policies/  → bundle must build without errors
-#   3. SHA-256 drift check          → committed dist/policies/h1-write.wasm
-#                                     must match freshly-built artefact
+#   1. opa test policies/ -v        → unit tests must pass (all .rego)
+#   2. _scripts/build-opa-bundles.sh → bundles must build without errors
+#                                     (h1-write, r2-content-write, r2-cluster-health)
+#   3. SHA-256 drift check          → committed dist/policies/*.wasm
+#                                     must match freshly-built artefacts
 #
 # OPA version pinned for reproducible WASM SHA (cf. PR-V verification :
-# rebuilds yield identical SHA on 0.69.0).
+# rebuilds yield identical SHA on 0.69.0). Build via relative paths from
+# vault root for byte-reproducibility (cf. ADR-066 / build script docs).
 
 on:
   pull_request:
@@ -18,12 +23,14 @@ on:
     paths:
       - 'policies/**'
       - 'dist/policies/**'
+      - '_scripts/build-opa-bundles.sh'
       - '.github/workflows/opa-policy-build.yml'
   push:
     branches: [main]
     paths:
       - 'policies/**'
       - 'dist/policies/**'
+      - '_scripts/build-opa-bundles.sh'
       - '.github/workflows/opa-policy-build.yml'
 
 permissions:
@@ -31,6 +38,8 @@ permissions:
 
 env:
   OPA_VERSION: 0.69.0
+  # Policies to build + drift-check. Keep in sync with _scripts/build-opa-bundles.sh POLICIES array.
+  POLICY_NAMES: 'h1-write r2-content-write r2-cluster-health'
 
 jobs:
   opa-test-build:
@@ -55,45 +64,59 @@ jobs:
             exit 0
           fi
 
-      - name: opa build (WASM bundle)
+      - name: opa build (WASM bundles via script)
         run: |
-          if [ ! -f policies/seo-content/h1-write.rego ]; then
-            echo "No policies/seo-content/h1-write.rego — nothing to build."
-            exit 0
+          if [ ! -x _scripts/build-opa-bundles.sh ]; then
+            echo "::error::_scripts/build-opa-bundles.sh missing or not executable"
+            exit 1
           fi
-          mkdir -p /tmp/build-out
-          opa build \
-            -t wasm \
-            -e seo/content/h1/write/allow \
-            -e seo/content/h1/write/deny \
-            -o /tmp/build-out/h1-write.bundle.tar.gz \
-            policies/seo-content/h1-write.rego
-          tar -xzf /tmp/build-out/h1-write.bundle.tar.gz -C /tmp/build-out /policy.wasm
-          mv /tmp/build-out/policy.wasm /tmp/build-out/h1-write.wasm
-          echo "Built bundle:"
-          ls -la /tmp/build-out/
-          echo "Bundle contents:"
-          tar -tzf /tmp/build-out/h1-write.bundle.tar.gz
+          # Script writes to dist/policies/ — capture committed SHAs first for drift check.
+          mkdir -p /tmp/committed-shas
+          for name in $POLICY_NAMES; do
+            if [ -f "dist/policies/${name}.wasm" ]; then
+              sha256sum "dist/policies/${name}.wasm" | cut -d' ' -f1 > "/tmp/committed-shas/${name}.sha"
+            else
+              echo "" > "/tmp/committed-shas/${name}.sha"
+            fi
+          done
+          # Build fresh artefacts. Script overwrites dist/policies/*.wasm.
+          ./_scripts/build-opa-bundles.sh
+          echo ""
+          echo "━━━ Built artefacts ━━━"
+          ls -la dist/policies/
 
       - name: SHA-256 drift check (committed vs freshly-built)
         run: |
-          if [ ! -f dist/policies/h1-write.wasm ]; then
-            echo "::error::dist/policies/h1-write.wasm is missing — commit the WASM artefact."
+          drift=0
+          for name in $POLICY_NAMES; do
+            committed_file="/tmp/committed-shas/${name}.sha"
+            fresh_file="dist/policies/${name}.wasm"
+            if [ ! -s "$committed_file" ]; then
+              echo "::error::Committed SHA for ${name} is missing — commit dist/policies/${name}.wasm first."
+              drift=1
+              continue
+            fi
+            if [ ! -f "$fresh_file" ]; then
+              echo "::error::Fresh artefact dist/policies/${name}.wasm not built."
+              drift=1
+              continue
+            fi
+            committed=$(cat "$committed_file")
+            fresh=$(sha256sum "$fresh_file" | cut -d' ' -f1)
+            echo "${name}:"
+            echo "  Committed : ${committed}"
+            echo "  Fresh     : ${fresh}"
+            if [ "$committed" != "$fresh" ]; then
+              echo "::error::WASM drift detected for ${name}. Rebuild via:"
+              echo "  ./_scripts/build-opa-bundles.sh ${name}"
+              echo "  git add dist/policies/${name}.wasm dist/policies/${name}.bundle.tar.gz"
+              drift=1
+            fi
+          done
+          if [ "$drift" -ne 0 ]; then
             exit 1
           fi
-          COMMITTED_SHA=$(sha256sum dist/policies/h1-write.wasm | cut -d' ' -f1)
-          FRESH_SHA=$(sha256sum /tmp/build-out/h1-write.wasm | cut -d' ' -f1)
-          echo "Committed : $COMMITTED_SHA"
-          echo "Fresh     : $FRESH_SHA"
-          if [ "$COMMITTED_SHA" != "$FRESH_SHA" ]; then
-            echo "::error::WASM drift detected. Rebuild via:"
-            echo "  opa build -t wasm -e seo/content/h1/write/allow -e seo/content/h1/write/deny \\"
-            echo "    -o /tmp/bundle.tar.gz policies/seo-content/h1-write.rego"
-            echo "  tar -xzf /tmp/bundle.tar.gz /policy.wasm"
-            echo "  mv policy.wasm dist/policies/h1-write.wasm"
-            exit 1
-          fi
-          echo "OK : committed WASM matches freshly-built (SHA-256 reproducible)."
+          echo "OK : all committed WASM artefacts match freshly-built (SHA-256 reproducible)."
 
       - name: Upload artefacts
         uses: actions/upload-artifact@v4
@@ -101,6 +124,6 @@ jobs:
         with:
           name: opa-policy-build-${{ github.run_id }}
           path: |
-            /tmp/build-out/h1-write.bundle.tar.gz
-            /tmp/build-out/h1-write.wasm
+            dist/policies/*.bundle.tar.gz
+            dist/policies/*.wasm
           retention-days: 30
