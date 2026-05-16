@@ -41,6 +41,7 @@ POLICIES=(
   "h1-write|h1-write.rego|seo/content/h1/write/allow,seo/content/h1/write/deny"
   "r2-content-write|r2-content-write.rego|seo/content/r2/write/allow,seo/content/r2/write/deny"
   "r2-cluster-health|r2-cluster-health.rego|seo/content/r2/cluster_health/cluster_healthy,seo/content/r2/cluster_health/cluster_pollution_detected,seo/content/r2/cluster_health/deny_collision,seo/content/r2/cluster_health/deny_canonical_chain,seo/content/r2/cluster_health/deny_reasons"
+  "r2-runtime-read|r2-runtime-read.rego|seo/runtime/r2/read/allow,seo/runtime/r2/read/deny,seo/runtime/r2/read/audit"
 )
 
 # ── Filtering : single policy build if argument provided ─────────────────────
