@@ -340,13 +340,14 @@ test_deny_regenerate_retry_overflow if {
 
 # ── ALLOW : REJECT (no content, no canonical required) ───────────────────────
 
-test_allow_pipeline_reject if {
+test_allow_pipeline_reject_with_valid_reason if {
 	write.allow with input as {
 		"source_kind": "pipeline_generated",
 		"feature_flag_r2_v2_enabled": true,
 		"flag_state": "enabled",
 		"governance_decision": "reject",
-		"eligibility_score": 30,
+		"reject_reason": "productCount_under_2",
+		"eligibility_score": 0,
 	}
 }
 
@@ -429,4 +430,114 @@ test_deny_unknown_source_kind if {
 
 test_deny_empty_input if {
 	not write.allow with input as {}
+}
+
+# ── ADR-068 amendment 2026-05-16 — 4 actions auto INTERDITES + REJECT scope ──
+
+# DENY : pipeline → noindex_follow sur page valide (productCount >= 2)
+test_deny_pipeline_auto_noindex_on_valid_page if {
+	reasons := write.deny with input as {
+		"source_kind": "pipeline_generated",
+		"feature_flag_r2_v2_enabled": true,
+		"flag_state": "enabled",
+		"governance_decision": "noindex_follow",
+		"product_count": 50,
+	}
+	some r in reasons
+	contains(r, "ADR-068")
+}
+
+# ALLOW : pipeline → noindex_follow sur page invalide (productCount < 2) reste OK
+# car c'est la legacy noindex rule preservée
+test_pipeline_noindex_on_invalid_page_not_flagged_adr068 if {
+	reasons := write.deny with input as {
+		"source_kind": "pipeline_generated",
+		"feature_flag_r2_v2_enabled": true,
+		"flag_state": "enabled",
+		"governance_decision": "noindex_follow",
+		"product_count": 1,
+	}
+	count([r | r := reasons[_]; contains(r, "ADR-068 — pipeline_generated cannot auto-noindex")]) == 0
+}
+
+# DENY : REJECT scope strict — reject_reason hors des 4 raisons UNIQUES
+test_deny_reject_for_similarity_reason if {
+	reasons := write.deny with input as {
+		"source_kind": "pipeline_generated",
+		"feature_flag_r2_v2_enabled": true,
+		"flag_state": "enabled",
+		"governance_decision": "reject",
+		"reject_reason": "high_catalog_overlap",
+		"eligibility_score": 30,
+	}
+	some r in reasons
+	contains(r, "ADR-068")
+	contains(r, "REJECT scope strict")
+}
+
+# ALLOW : REJECT pour les 4 raisons légitimes
+test_reject_productCount_under_2_passes_adr068 if {
+	reasons := write.deny with input as {
+		"source_kind": "pipeline_generated",
+		"feature_flag_r2_v2_enabled": true,
+		"flag_state": "enabled",
+		"governance_decision": "reject",
+		"reject_reason": "productCount_under_2",
+		"eligibility_score": 0,
+	}
+	count([r | r := reasons[_]; contains(r, "ADR-068 — REJECT scope strict")]) == 0
+}
+
+test_reject_compatibility_absent_passes_adr068 if {
+	reasons := write.deny with input as {
+		"source_kind": "pipeline_generated",
+		"feature_flag_r2_v2_enabled": true,
+		"flag_state": "enabled",
+		"governance_decision": "reject",
+		"reject_reason": "compatibility_absent",
+		"eligibility_score": 0,
+	}
+	count([r | r := reasons[_]; contains(r, "ADR-068 — REJECT scope strict")]) == 0
+}
+
+# DENY : canonical sibling auto sur page INDEX/REVIEW_REQUIRED
+test_deny_canonical_sibling_auto_on_index_page if {
+	reasons := write.deny with input as {
+		"source_kind": "pipeline_generated",
+		"feature_flag_r2_v2_enabled": true,
+		"flag_state": "enabled",
+		"governance_decision": "index",
+		"canonical_url": "https://automecanik.com/pieces/filtre-a-huile/audi/a4/2.0-tdi-140ch.html",
+		"self_url": "https://automecanik.com/pieces/filtre-a-huile/audi/a4/1.9-tdi-110ch.html",
+	}
+	some r in reasons
+	contains(r, "ADR-068")
+	contains(r, "canonical sibling auto")
+}
+
+test_deny_canonical_sibling_auto_on_review_required_page if {
+	reasons := write.deny with input as {
+		"source_kind": "pipeline_generated",
+		"feature_flag_r2_v2_enabled": true,
+		"flag_state": "enabled",
+		"governance_decision": "review_required",
+		"canonical_url": "https://automecanik.com/pieces/filtre-a-huile/audi/a4/2.0-tdi-140ch.html",
+		"self_url": "https://automecanik.com/pieces/filtre-a-huile/audi/a4/1.9-tdi-110ch.html",
+	}
+	some r in reasons
+	contains(r, "ADR-068")
+}
+
+# ALLOW : canonical self est OK
+test_canonical_self_passes_adr068 if {
+	url := "https://automecanik.com/pieces/filtre-a-huile/audi/a4/1.9-tdi-110ch.html"
+	reasons := write.deny with input as {
+		"source_kind": "pipeline_generated",
+		"feature_flag_r2_v2_enabled": true,
+		"flag_state": "enabled",
+		"governance_decision": "index",
+		"canonical_url": url,
+		"self_url": url,
+	}
+	count([r | r := reasons[_]; contains(r, "canonical sibling auto")]) == 0
 }
