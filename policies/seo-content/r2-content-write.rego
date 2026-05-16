@@ -113,13 +113,21 @@ allow if {
 
 # Règle 6 : pipeline_generated_reject
 # Décision REJECT — écrit la raison dans __seo_r2_qa_reviews, no content.
-# Pas de canonical target requis (le cas "pas de sibling fiable").
+# ADR-068 2026-05-16 : reject_reason DOIT être l'une des 4 raisons UNIQUES
+# (productCount_under_2, data_invalid, url_impossible, compatibility_absent).
+# Pas REJECT pour similarité (→ REVIEW_REQUIRED).
 allow if {
 	input.source_kind == "pipeline_generated"
 	input.feature_flag_r2_v2_enabled == true
 	input.flag_state == "enabled"
 	input.governance_decision == "reject"
 	is_valid_eligibility_score(input.eligibility_score)
+	is_valid_reject_reason(input.reject_reason)
+}
+
+is_valid_reject_reason(r) if {
+	allowed := {"productCount_under_2", "data_invalid", "url_impossible", "compatibility_absent"}
+	allowed[r]
 }
 
 # ── Helpers (predicats utilitaires) ──────────────────────────────────────────
@@ -192,6 +200,51 @@ deny contains reason if {
 	input.source_kind == "pipeline_generated"
 	input.governance_decision == "suppressed"
 	reason := "denied: ADR-067 — pipeline_generated cannot emit SUPPRESSED (manual-only via admin UI human_curated path). Compatibilité pièce prime sur similarité texte."
+}
+
+# ── ADR-068 amendment 2026-05-16 : 4 actions auto INTERDITES sur page valide ──
+
+# Une page valide = productCount >= 2 ET compatibilité réelle.
+# Si la page est valide, le pipeline NE PEUT PAS auto-noindex / canonicaliser / exclure sitemap.
+
+# DENY 1 : pipeline → noindex_follow sur page valide (désindexation auto interdite)
+deny contains reason if {
+	not allow
+	input.source_kind == "pipeline_generated"
+	input.governance_decision == "noindex_follow"
+	is_number(input.product_count)
+	input.product_count >= 2
+	reason := "denied: ADR-068 — pipeline_generated cannot auto-noindex a valid page (productCount>=2). Une page valide DOIT rester candidate INDEX (similarité forte → REVIEW_REQUIRED + enrichissement, jamais noindex auto)."
+}
+
+# DENY 2 : REJECT scope strict — 4 raisons UNIQUEMENT
+# (productCount<2, data_invalid, url_impossible, compatibility_absent)
+valid_reject_reasons := {
+	"productCount_under_2",
+	"data_invalid",
+	"url_impossible",
+	"compatibility_absent",
+}
+
+deny contains reason if {
+	not allow
+	input.source_kind == "pipeline_generated"
+	input.governance_decision == "reject"
+	is_string(input.reject_reason)
+	not valid_reject_reasons[input.reject_reason]
+	reason := sprintf("denied: ADR-068 — REJECT scope strict (4 raisons UNIQUES : productCount_under_2 / data_invalid / url_impossible / compatibility_absent). Got reject_reason=%v. Similarité forte n'est PAS une raison REJECT — utiliser REVIEW_REQUIRED.", [input.reject_reason])
+}
+
+# DENY 3 : Page valide INDEX/REVIEW_REQUIRED ne peut pas émettre canonical sibling
+# (canonicalisation auto vers sœur interdite par ADR-068)
+deny contains reason if {
+	not allow
+	input.source_kind == "pipeline_generated"
+	indexable_decisions := {"index", "review_required"}
+	indexable_decisions[input.governance_decision]
+	is_string(input.canonical_url)
+	input.canonical_url != input.self_url
+	reason := sprintf("denied: ADR-068 — pipeline cannot emit canonical sibling auto on valid page (decision=%v). Canonical MUST be self for INDEX/REVIEW_REQUIRED. Canonical sibling reserved for SUPPRESSED human_curated path.", [input.governance_decision])
 }
 
 deny contains reason if {
