@@ -66,6 +66,13 @@ allow if {
 #   - decision="index" ET content_hash présent (no INDEX sans contenu)
 #   - eligibility_score dans [0, 100]
 #   - retry_count ≤ 2
+#   - ADR-070 (2026-05-16) prerequisites INDEX strict (R5+R6+R7 doctrine) :
+#       - R8 snapshot CADRE : r8_snapshot_status ∈ {minimal, enriched, stale}
+#       - R1 gamme context CADRE : r1_gamme_context_status == "loaded"
+#       - MATIÈRE FACTUELLE : knowledge_facts_count > 0 OR validated_wiki_evidence_count > 0
+#       - H1 disambiguation active : h1_contains_motor_power_pattern == true
+#       - S_VARIANT_DISAMBIGUATION section présente
+#       - Pas de specs brutes en paragraphes longs (R7 technical criteria = evidence only)
 allow if {
 	input.source_kind == "pipeline_generated"
 	input.feature_flag_r2_v2_enabled == true
@@ -75,7 +82,46 @@ allow if {
 	is_non_empty_string(input.content_hash)
 	is_valid_eligibility_score(input.eligibility_score)
 	is_valid_retry_count(input.retry_count)
+	# ADR-070 strict gates INDEX
+	adr070_r8_cadre_ok(input)
+	adr070_r1_cadre_ok(input)
+	adr070_factual_matter_ok(input)
+	adr070_disambiguation_ok(input)
+	adr070_no_raw_specs_in_editorial(input)
 }
+
+# ADR-070 helpers (Round 5+6+7 strict INDEX prerequisites)
+
+adr070_r8_cadre_ok(obj) if {
+	valid_r8_snapshot_statuses[obj.r8_snapshot_status]
+}
+
+adr070_r1_cadre_ok(obj) if {
+	obj.r1_gamme_context_status == "loaded"
+}
+
+# MATIÈRE FACTUELLE : KG facts > 0 OR WIKI evidence > 0 (au moins un)
+adr070_factual_matter_ok(obj) if {
+	is_number(obj.knowledge_facts_count)
+	obj.knowledge_facts_count > 0
+}
+
+adr070_factual_matter_ok(obj) if {
+	is_number(obj.validated_wiki_evidence_count)
+	obj.validated_wiki_evidence_count > 0
+}
+
+adr070_disambiguation_ok(obj) if {
+	obj.h1_contains_motor_power_pattern == true
+	obj.s_variant_disambiguation_present == true
+}
+
+adr070_no_raw_specs_in_editorial(obj) if {
+	obj.body_long_form_section_contains_raw_specs == false
+}
+
+# valid R8 snapshot statuses (canon ADR-070 §G, status enum strict Round 2)
+valid_r8_snapshot_statuses := {"minimal", "enriched", "stale"}
 
 # Règle 4 : human_curated_suppressed (manual override, ADR-067 amendment 2026-05-15)
 #
@@ -245,6 +291,79 @@ deny contains reason if {
 	is_string(input.canonical_url)
 	input.canonical_url != input.self_url
 	reason := sprintf("denied: ADR-068 — pipeline cannot emit canonical sibling auto on valid page (decision=%v). Canonical MUST be self for INDEX/REVIEW_REQUIRED. Canonical sibling reserved for SUPPRESSED human_curated path.", [input.governance_decision])
+}
+
+# ── ADR-070 amendment 2026-05-16 : R8+R1 first canon + INTERNAL DIFFERENCE EXHAUSTION + Technical criteria = evidence ──
+#
+# Formule canon Round 5 : R2Content = render(R8VehicleSnapshot, R1GammeContext, VehiclePartKnowledgeFacts, ValidatedWikiEvidence)
+#   CADRE   = R8 + R1 (sans = générique, JAMAIS INDEX)
+#   MATIÈRE = KG facts + WIKI evidence (sans = pauvre, JAMAIS INDEX)
+#
+# Round 6 : INTERNAL DIFFERENCE EXHAUSTION (L0-L3 avant L4 external)
+# Round 7 : Technical criteria = evidence only (PAS éditorial — paragraphes spec dumps interdits)
+#
+# 5 deny invariants stricts INDEX (pipeline only) :
+
+# DENY ADR-070 #1 : R8 snapshot CADRE requis pour INDEX
+# (valid_r8_snapshot_statuses set defined near allow rule 3, canon Round 2 status enum strict)
+
+deny contains reason if {
+	not allow
+	input.source_kind == "pipeline_generated"
+	input.governance_decision == "index"
+	not valid_r8_snapshot_statuses[input.r8_snapshot_status]
+	reason := sprintf("denied: ADR-070 — R8 snapshot CADRE requis pour INDEX (got r8_snapshot_status=%v). R2 ne compose pas sans R8 parent snapshot persisté. Status valides : minimal | enriched | stale (failed → review_required, absent → review_required + enqueue r8-enrichment).", [input.r8_snapshot_status])
+}
+
+# DENY ADR-070 #2 : R1 gamme context CADRE requis pour INDEX
+deny contains reason if {
+	not allow
+	input.source_kind == "pipeline_generated"
+	input.governance_decision == "index"
+	input.r1_gamme_context_status != "loaded"
+	reason := sprintf("denied: ADR-070 — R1 gamme context CADRE requis pour INDEX (got r1_gamme_context_status=%v). R2 ne compose pas sans R1 parent (sections S_SELECTION_GUIDE / S_MISTAKES_AVOID / S_FAQ_GAMME / S_TECHNICAL_CRITERIA / S_REASSURANCE_METIER hérités tels quels). Status loaded requis.", [input.r1_gamme_context_status])
+}
+
+# DENY ADR-070 #3 : MATIÈRE FACTUELLE (KG facts OU WIKI validée) requise pour INDEX
+# R8 + R1 seuls = CADRE générique sans valeur SEO. Au moins 1 fact KG ou 1 evidence WIKI validée requis.
+deny contains reason if {
+	not allow
+	input.source_kind == "pipeline_generated"
+	input.governance_decision == "index"
+	is_number(input.knowledge_facts_count)
+	is_number(input.validated_wiki_evidence_count)
+	input.knowledge_facts_count == 0
+	input.validated_wiki_evidence_count == 0
+	reason := "denied: ADR-070 — MATIÈRE FACTUELLE requise pour INDEX (knowledge_facts_count=0 AND validated_wiki_evidence_count=0). R8+R1 CADRE seul = générique sans valeur SEO. Au moins 1 fact KG canonicalisé OU 1 evidence WIKI validée (auto_validated|human_validated) requis."
+}
+
+# DENY ADR-070 #4 : H1 + S_VARIANT_DISAMBIGUATION obligatoires pour INDEX
+# Disambiguation active : H1 doit contenir power+body+years pattern, et la section S_VARIANT_DISAMBIGUATION doit exister.
+deny contains reason if {
+	not allow
+	input.source_kind == "pipeline_generated"
+	input.governance_decision == "index"
+	input.h1_contains_motor_power_pattern != true
+	reason := "denied: ADR-070 — H1 doit contenir motor_power_pattern (puissance + carrosserie + années) pour INDEX. R2 ne peut pas générer contenu générique type 'Pièces Renault Clio III 1.5 dCi' — DOIT être désambiguïsé activement (ex: 'Pièces Renault Clio III 1.5 dCi 88 ch 3/5 portes, 2010-2014')."
+}
+
+deny contains reason if {
+	not allow
+	input.source_kind == "pipeline_generated"
+	input.governance_decision == "index"
+	input.s_variant_disambiguation_present != true
+	reason := "denied: ADR-070 — section S_VARIANT_DISAMBIGUATION obligatoire pour INDEX (disambiguation active doctrine). Explicite ce qui distingue cette page des sœurs (puissance/carrosserie/années/code moteur)."
+}
+
+# DENY ADR-070 #5 : Technical criteria = evidence only (Round 7)
+# Paragraphes longs avec specs brutes répétées (>5× pattern \d+[,.]\d+\s?mm) dans une section éditoriale = INTERDIT.
+# Les critères techniques DOIVENT rester dans S_COMPAT_DIFFERENCES / S_TECHNICAL_TABLE_COMPACT / S_SELECTION_WARNING uniquement.
+deny contains reason if {
+	not allow
+	input.source_kind == "pipeline_generated"
+	input.governance_decision == "index"
+	input.body_long_form_section_contains_raw_specs == true
+	reason := "denied: ADR-070 R7 — technical criteria = evidence only. Paragraphes longs avec specs brutes (largeur/hauteur/épaisseur mm répétés >5×) dans section éditoriale interdits. Critères techniques DOIVENT rester compacts (tableau S_TECHNICAL_TABLE_COMPACT max 5-7 lignes, warning S_SELECTION_WARNING max 2-3 phrases, mention courte S_COMPAT_DIFFERENCES). Contenu éditorial reste R1 gamme conseil + WIKI prose validée."
 }
 
 deny contains reason if {
