@@ -36,10 +36,20 @@ Pattern industry-standard utilisé par Renovate, Dependabot, Probot.
    - **Webhook** → **Active : décocher** (l'App n'écoute pas d'event, elle agit en sortie)
 3. **Repository permissions** :
    - **`Metadata`** : Read-only (auto-coché)
-   - **`Repository dispatches`** : **Read and write** ← le seul scope utile
+   - **`Contents`** : **Read and write** ← le scope requis pour POST `/repos/{owner}/{repo}/dispatches`
    - (tous les autres : No access)
 4. **Where can this GitHub App be installed?** → **Only on this account**
 5. Bouton **Create GitHub App**.
+
+> **Note sur la permission `Contents`** : contre-intuitif mais documenté côté GitHub —
+> POST `/repos/.../dispatches` exige la permission `Contents: write` pour les GitHub Apps,
+> *pas* `Repository dispatches: write` (qui n'existe que dans le vocabulaire fine-grained
+> PAT UI, jamais exposé dans le manifest GitHub App). Ref :
+> https://docs.github.com/rest/repos/repos#create-a-repository-dispatch-event.
+> Trade-off accepté : l'App pourrait théoriquement écrire dans le contenu des consumer
+> repos, mais le seul appel API utilisé par `canon-publish.yml` est dispatch (no write
+> path). Audit log + scope par-repo (`repositories:` input dans le workflow) limitent
+> le risque pratique.
 
 GitHub affiche alors :
 - **App ID** (entier court, ex. `123456`) — public, peut être en clair

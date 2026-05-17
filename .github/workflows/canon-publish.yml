@@ -7,9 +7,14 @@ name: canon-publish
 #   they can resync their derived copies via PR.
 #
 # Required secrets: CANON_APP_ID + CANON_APP_PRIVATE_KEY — credentials of
-# a dedicated GitHub App with `Repository dispatches: write` permission,
-# installed on each consumer repo. Without them, the dispatch job FAILS
-# (fail-loud, not silent skip). Setup: see 99-meta/canon-dispatch-setup.md.
+# a dedicated GitHub App with `Contents: write` permission. The narrower
+# "Repository dispatches" permission only exists in the fine-grained PAT
+# UI vocabulary ; for a GitHub App, POST /repos/.../dispatches requires
+# the `Contents` permission per
+# docs.github.com/rest/repos/repos#create-a-repository-dispatch-event.
+# The App must be installed on each consumer repo. Without these secrets,
+# the dispatch job FAILS (fail-loud, not silent skip).
+# Setup: see 99-meta/canon-dispatch-setup.md.
 #
 # Why a GitHub App, not a PAT:
 # - Token is short-lived (1h auto-rotated by GitHub) — minimal blast radius
