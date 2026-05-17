@@ -11,12 +11,14 @@ on:
     branches: [main]
     paths:
       - "ledger/rules/rules-agent-exit-contract.md"
+      - "ledger/rules/rules-marketing-voice.md"
       - "99-meta/canon-hashes.json"
       - "_scripts/compute-canon-hashes.py"
       - ".github/workflows/canon-publish.yml"
   pull_request:
     paths:
       - "ledger/rules/rules-agent-exit-contract.md"
+      - "ledger/rules/rules-marketing-voice.md"
       - "99-meta/canon-hashes.json"
       - "_scripts/compute-canon-hashes.py"
   workflow_dispatch:
@@ -49,6 +51,7 @@ jobs:
         repo:
           - ak125/automecanik-wiki
           - ak125/automecanik-raw
+          - ak125/nestjs-remix-monorepo
     steps:
       - name: Repository dispatch ${{ matrix.repo }}
         env:
