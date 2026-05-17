@@ -1,109 +1,124 @@
-# Canon Dispatch Setup — `CANON_DISPATCH_TOKEN`
+# Canon Dispatch Setup — GitHub App credentials
 
-**Statut**: Required secret
+**Statut**: Required secrets (CANON_APP_ID + CANON_APP_PRIVATE_KEY)
 **Workflow**: `.github/workflows/canon-publish.yml` (job `dispatch`)
 **Dernière mise à jour**: 2026-05-17
 
 ---
 
-## Pourquoi ce secret existe
+## Pourquoi une GitHub App
 
-Le workflow `canon-publish.yml` publie une notification `repository_dispatch`
-(`event_type=canon-updated`) vers chaque consumer repo listé dans la matrix
-`dispatch` quand un canon est ratifié sur `main`. Chaque consumer écoute cet
-event et déclenche son propre check de drift (ex. `marketing-voice-hash.yml`,
-`agent-exit-contract-hash.yml`).
+Le workflow `canon-publish.yml` publie un `repository_dispatch` (`event_type=canon-updated`) vers chaque consumer repo après ratification d'un canon sur `main`. Chaque consumer écoute cet event et déclenche son check de drift / sa resync auto.
 
-Le `GITHUB_TOKEN` par défaut ne peut pas appeler `repos/<owner>/<repo>/dispatches`
-sur un repo tiers — il faut un PAT (Personal Access Token) dédié, stocké comme
-secret `CANON_DISPATCH_TOKEN`.
+Le `GITHUB_TOKEN` par défaut ne peut pas appeler `repos/<owner>/<repo>/dispatches` sur un repo tiers — il faut une **authentification cross-repo**.
 
-Sans ce secret, le job `dispatch` **échoue** (fail-loud) : pas de notification,
-pas de propagation. Volontairement bloquant : un canon ratifié mais non
-distribué = drift garanti côté consumer (cf. incident marketing-voice
-v1.0.1 du 2026-05-17, fixé par PR #286 + PR-monorepo #580).
+L'approche initiale (PR #287) utilisait un PAT (`CANON_DISPATCH_TOKEN`). Le PR de migration la remplace par une **GitHub App** dédiée pour les raisons suivantes :
 
-## Scopes requis
+| Critère | PAT classique | **GitHub App** |
+|---|---|---|
+| Token lifetime | Statique (mois → an) | **1h, auto-rotated** |
+| Scope | Souvent over-broad (`repo`) | Permission unique : `Repository dispatches: write` |
+| Identité audit | "user X did Y" | "App AutoMecanik Canon Dispatch did Y" |
+| Survie changement équipe | Cassé si user part | Indépendant de toute identité humaine |
+| Rotation | Manuelle, calendaire | Aucune (sauf rotation de la private key, rare) |
+| Si compromis | Tous scopes accessibles jusqu'à révocation manuelle | Blast radius ≤ 1h + scope minimal |
 
-PAT avec `repo` scope sur **chaque** consumer listé dans la matrix de
-`canon-publish.yml`. Au 2026-05-17 :
-
-| Consumer repo | Pourquoi |
-|---|---|
-| `ak125/nestjs-remix-monorepo` | 3 mirrors AEC + 2 mirrors marketing-voice |
-| `ak125/automecanik-wiki` | 1 mirror AEC dans `_meta/` |
-| `ak125/automecanik-raw` | 1 mirror AEC à la racine |
-
-Quand un consumer est ajouté à la matrix, le PAT doit être étendu (ou
-remplacé) avec le scope sur le nouveau repo.
+Pattern industry-standard utilisé par Renovate, Dependabot, Probot.
 
 ## Setup
 
-### Option 1 — Fine-grained PAT (recommandé)
+### Étape 1 — Créer la GitHub App
 
-1. https://github.com/settings/personal-access-tokens → "Generate new token"
-2. **Resource owner**: `ak125`
-3. **Repository access**: "Only select repositories" → cocher chaque consumer
-   ci-dessus
-4. **Repository permissions** :
-   - `Contents` : Read
-   - `Metadata` : Read (auto)
-   - `Custom properties` : pas nécessaire
-   - **`Repository dispatches`** : **Read and write** ← le scope critique
-5. Expiration : ≤ 1 an, rotation au calendrier (cf. `99-meta/key-registry.md`).
+1. Aller sur https://github.com/settings/apps/new
+2. Champs :
+   - **GitHub App name** : `AutoMecanik Canon Dispatch`
+   - **Homepage URL** : `https://github.com/ak125/governance-vault`
+   - **Webhook** → **Active : décocher** (l'App n'écoute pas d'event, elle agit en sortie)
+3. **Repository permissions** :
+   - **`Metadata`** : Read-only (auto-coché)
+   - **`Repository dispatches`** : **Read and write** ← le seul scope utile
+   - (tous les autres : No access)
+4. **Where can this GitHub App be installed?** → **Only on this account**
+5. Bouton **Create GitHub App**.
 
-### Option 2 — Classic PAT
+GitHub affiche alors :
+- **App ID** (entier court, ex. `123456`) — public, peut être en clair
+- Bouton **Generate a private key** → télécharge un `.pem` (à protéger comme un mot de passe)
 
-1. https://github.com/settings/tokens → "Generate new token (classic)"
-2. Scope **`repo`** (Full control of private repositories)
-3. Idem expiration ≤ 1 an
+### Étape 2 — Installer l'App sur les consumer repos
 
-### Installation du secret
+1. Sur la page de l'App, onglet **Install App**.
+2. Cliquer **Install** sur l'org/user `ak125`.
+3. Choisir **Only select repositories** et cocher exactement les 3 consumers :
+   - `nestjs-remix-monorepo`
+   - `automecanik-wiki`
+   - `automecanik-raw`
+4. Confirmer.
+
+L'App apparaît ensuite dans les Settings → Integrations → GitHub Apps de chaque repo coché.
+
+### Étape 3 — Stocker les credentials côté vault
 
 ```bash
-gh secret set CANON_DISPATCH_TOKEN -R ak125/governance-vault
-# Coller le PAT à l'invite, puis ENTER
+# App ID
+gh secret set CANON_APP_ID -R ak125/governance-vault -b "123456"
+
+# Private key — coller le contenu du .pem téléchargé
+gh secret set CANON_APP_PRIVATE_KEY -R ak125/governance-vault < ~/Downloads/autobecanik-canon-dispatch.YYYY-MM-DD.private-key.pem
 ```
 
 Vérification :
 
 ```bash
-gh secret list -R ak125/governance-vault | grep CANON_DISPATCH_TOKEN
+gh secret list -R ak125/governance-vault | grep -E "CANON_APP"
+# attendu :
+#   CANON_APP_ID           YYYY-MM-DD...
+#   CANON_APP_PRIVATE_KEY  YYYY-MM-DD...
+```
+
+### Étape 4 — Retirer l'ancien PAT (recommandé une fois App opérationnelle)
+
+```bash
+gh secret delete CANON_DISPATCH_TOKEN -R ak125/governance-vault
 ```
 
 ## Vérification post-setup
 
-Au prochain merge canon (AEC ou marketing-voice ou touch
-`99-meta/canon-hashes.json`) sur `main` :
+Au prochain merge canon (AEC ou marketing-voice ou touch `99-meta/canon-hashes.json`) sur `main` :
 
-1. `canon-publish.yml` doit déclencher 3 dispatch jobs (1 par consumer)
-2. Chaque job doit logger un appel `gh api repos/<consumer>/dispatches` réussi
-   (HTTP 204), **sans** message `CANON_DISPATCH_TOKEN secret not set`
-3. Côté chaque consumer : un run `repository_dispatch[canon-updated]` doit
-   apparaître dans `gh run list --event repository_dispatch`
+1. `canon-publish.yml` doit déclencher 3 dispatch jobs (1 par consumer).
+2. Chaque job doit logger :
+   - `Validate App credentials are configured` → success
+   - `Generate scoped App token (1h, repo-scoped to <repo>)` → outputs un token court-lived
+   - `Repository dispatch <repo>` → HTTP 204 sans erreur
+3. Côté chaque consumer : un run `repository_dispatch[canon-updated]` doit apparaître :
 
-Si l'un des 3 n'est pas vérifié → incident token (scope manquant, token
-expiré, mauvais owner) — diagnostic via les logs du job échoué.
+```bash
+gh run list --repo ak125/nestjs-remix-monorepo --event repository_dispatch --limit 1
+gh run list --repo ak125/automecanik-wiki --event repository_dispatch --limit 1
+gh run list --repo ak125/automecanik-raw --event repository_dispatch --limit 1
+```
 
-## Rotation
+Si l'un des 3 manque → diagnostic via logs du job échoué (App pas installée sur ce repo ? private key invalide ? App ID typo ?).
 
-PAT à rotation manuelle ≤ 1 an. Procédure :
+## Rotation de la private key
 
-1. Générer un nouveau PAT avec les mêmes scopes
-2. `gh secret set CANON_DISPATCH_TOKEN -R ak125/governance-vault` (overwrite)
-3. Forcer un re-run `canon-publish.yml` via `workflow_dispatch` pour valider
-4. Révoquer l'ancien PAT sur https://github.com/settings/tokens
+La private key d'une GitHub App n'a pas d'expiration par défaut. À rotater uniquement sur compromission soupçonnée ou politique interne.
 
-Inscrire la rotation dans `99-meta/key-registry.md`.
+Procédure :
+1. Page de l'App → **Private keys** → **Generate a new private key** → download `.pem`
+2. `gh secret set CANON_APP_PRIVATE_KEY -R ak125/governance-vault < new-key.pem`
+3. Re-test : déclencher manuellement le workflow (push commit no-op sur path watched ou `workflow_dispatch`)
+4. Sur la page App, **Revoke** l'ancienne private key
+
+Aucun temps mort : GitHub accepte les deux clés tant que l'ancienne n'est pas révoquée.
 
 ## Référence
 
-- `.github/workflows/canon-publish.yml` — le workflow qui consomme ce secret
+- `.github/workflows/canon-publish.yml` — workflow qui consomme ces secrets
 - `99-meta/canon-hashes.json` — registre des canons distribués
+- `actions/create-github-app-token@v1` — https://github.com/actions/create-github-app-token (action officielle maintenue par GitHub Actions team)
 - ADR-015 — vault single source of truth
 - ADR-036 — marketing operating layer (canon brand voice consumer)
 - ADR-038 — ratification marketing voice v1.0.1
-- Incident 2026-05-17 — drift marketing-voice détecté, root cause = ce
-  secret manquant (graceful-skip silencieux). Fix : PR monorepo #580,
-  PR vault #286 (paths + matrix + consumers guard), PR vault courante
-  (fail-loud + ce doc).
+- Incident 2026-05-17 — drift marketing-voice + root cause `CANON_DISPATCH_TOKEN` jamais configuré (graceful-skip silencieux). Fix : PR monorepo #580, PR vault #286 (paths + matrix + consumers guard), PR vault #287 (fail-loud + doc PAT). Migration vers App : PR courante (sécurité + scope minimal).

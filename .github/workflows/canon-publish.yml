@@ -6,9 +6,17 @@ name: canon-publish
 # - main: dispatches `canon-updated` repository_dispatch to consumer repos so
 #   they can resync their derived copies via PR.
 #
-# Required secret: CANON_DISPATCH_TOKEN — PAT with `repo` scope on each
-# consumer repo listed in the dispatch matrix. Without it, the dispatch
-# job FAILS (fail-loud, not silent skip). Setup: see 99-meta/canon-dispatch-setup.md.
+# Required secrets: CANON_APP_ID + CANON_APP_PRIVATE_KEY — credentials of
+# a dedicated GitHub App with `Repository dispatches: write` permission,
+# installed on each consumer repo. Without them, the dispatch job FAILS
+# (fail-loud, not silent skip). Setup: see 99-meta/canon-dispatch-setup.md.
+#
+# Why a GitHub App, not a PAT:
+# - Token is short-lived (1h auto-rotated by GitHub) — minimal blast radius
+# - Identity is the App (bot), not a user — survives team changes
+# - Token can be scoped per-repo at generation time (`repositories:` input)
+# - Audit log clearly shows "App X did Y" instead of "user Z did Y"
+# - Industry-standard pattern (Renovate, Dependabot, Probot)
 
 on:
   push:
@@ -57,14 +65,35 @@ jobs:
           - ak125/automecanik-raw
           - ak125/nestjs-remix-monorepo
     steps:
-      - name: Repository dispatch ${{ matrix.repo }}
+      - name: Validate App credentials are configured
         env:
-          GH_TOKEN: ${{ secrets.CANON_DISPATCH_TOKEN }}
+          APP_ID: ${{ secrets.CANON_APP_ID }}
+          APP_KEY: ${{ secrets.CANON_APP_PRIVATE_KEY }}
         run: |
-          if [ -z "${GH_TOKEN}" ]; then
-            echo "::error::CANON_DISPATCH_TOKEN secret not set — cannot dispatch canon-updated to ${{ matrix.repo }}. See 99-meta/canon-dispatch-setup.md."
+          if [ -z "${APP_ID}" ] || [ -z "${APP_KEY}" ]; then
+            echo "::error::CANON_APP_ID and/or CANON_APP_PRIVATE_KEY not set — cannot dispatch canon-updated to ${{ matrix.repo }}. See 99-meta/canon-dispatch-setup.md."
             exit 1
           fi
+
+      - name: Parse consumer repo short name
+        id: parse
+        env:
+          MATRIX_REPO: ${{ matrix.repo }}
+        run: echo "name=${MATRIX_REPO##*/}" >> "$GITHUB_OUTPUT"
+
+      - name: Generate scoped App token (1h, repo-scoped to ${{ matrix.repo }})
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.CANON_APP_ID }}
+          private-key: ${{ secrets.CANON_APP_PRIVATE_KEY }}
+          owner: ak125
+          repositories: ${{ steps.parse.outputs.name }}
+
+      - name: Repository dispatch ${{ matrix.repo }}
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
           gh api "repos/${{ matrix.repo }}/dispatches" \
             -f event_type=canon-updated \
             -f 'client_payload[canon]=aec' \
