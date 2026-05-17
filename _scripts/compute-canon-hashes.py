@@ -68,6 +68,13 @@ def compute() -> dict:
         canon_file = REPO_ROOT / meta["canon_path"]
         if not canon_file.exists():
             sys.exit(f"ERROR: canon file missing: {meta['canon_path']}")
+        consumers = meta.get("consumers") or []
+        if not consumers:
+            sys.exit(
+                f"ERROR: canon '{key}' has no consumers declared. "
+                f"Every distributed canon MUST list at least one consumer "
+                f"(repo+path) in CANONS — see _scripts/compute-canon-hashes.py."
+            )
         text = canon_file.read_text(encoding="utf-8")
         canons_out[key] = {
             "name": meta["name"],
