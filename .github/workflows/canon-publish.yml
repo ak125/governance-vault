@@ -5,6 +5,10 @@ name: canon-publish
 # - main: re-checks; on drift, fails (canon must be hashed BEFORE merge).
 # - main: dispatches `canon-updated` repository_dispatch to consumer repos so
 #   they can resync their derived copies via PR.
+#
+# Required secret: CANON_DISPATCH_TOKEN — PAT with `repo` scope on each
+# consumer repo listed in the dispatch matrix. Without it, the dispatch
+# job FAILS (fail-loud, not silent skip). Setup: see 99-meta/canon-dispatch-setup.md.
 
 on:
   push:
@@ -58,8 +62,8 @@ jobs:
           GH_TOKEN: ${{ secrets.CANON_DISPATCH_TOKEN }}
         run: |
           if [ -z "${GH_TOKEN}" ]; then
-            echo "::warning::CANON_DISPATCH_TOKEN secret not set — skipping ${{ matrix.repo }}"
-            exit 0
+            echo "::error::CANON_DISPATCH_TOKEN secret not set — cannot dispatch canon-updated to ${{ matrix.repo }}. See 99-meta/canon-dispatch-setup.md."
+            exit 1
           fi
           gh api "repos/${{ matrix.repo }}/dispatches" \
             -f event_type=canon-updated \
