@@ -162,8 +162,10 @@ jobs:
           # Paranoia redaction (no secret-like field should appear, but mask just in case)
           jq 'walk(if type == "object" then with_entries(if (.key | test("token|secret|key|password|refresh|access"; "i")) then .value = "***REDACTED***" else . end) else . end)' snapshot.json > snapshot.redacted.json
 
-          # Canonical form (sorted keys via -S) for stable sha256 — replay-safe deterministic hash
-          jq -cS . snapshot.redacted.json > snapshot.canonical.json
+          # Canonical form (sorted keys via -S) for stable sha256 — replay-safe deterministic hash.
+          # Exclude snapshot_date: it is per-run metadata, NOT part of the cost surface.
+          # Including it would make every weekly run hash-different even with identical underlying state.
+          jq -cS 'del(.snapshot_date)' snapshot.redacted.json > snapshot.canonical.json
           SNAPSHOT_HASH="$(sha256sum snapshot.canonical.json | cut -d' ' -f1)"
 
           PLAN="$(jq -r '.org.plan' snapshot.redacted.json)"
@@ -224,10 +226,12 @@ jobs:
           DRIFT_KIND="none"
           : > drift-changes.txt
 
-          if [ ! -f previous-artifact/snapshot.canonical.json ]; then
-            echo "First run — baseline established, no comparison possible."
+          if [ ! -f previous-artifact/snapshot.redacted.json ]; then
+            echo "First run (or previous artifact missing redacted form) — baseline established, no comparison possible."
           else
-            PREV_HASH="$(sha256sum previous-artifact/snapshot.canonical.json | cut -d' ' -f1)"
+            # Re-derive previous hash from the redacted snapshot with the CURRENT exclusion rules
+            # (defensive: previous run may have used different exclusions for canonical form).
+            PREV_HASH="$(jq -cS 'del(.snapshot_date)' previous-artifact/snapshot.redacted.json | sha256sum | cut -d' ' -f1)"
 
             if [ "$PREV_HASH" = "$CUR_HASH" ]; then
               echo "No drift (hash match: ${CUR_HASH:0:12}…)"

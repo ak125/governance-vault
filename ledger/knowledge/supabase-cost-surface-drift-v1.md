@@ -64,9 +64,9 @@ Token scope requis : **`organizations:read` + `projects:read`**. Le scope `organ
 
 ## Canonical snapshot (replay-safe deterministic hash)
 
-Format JSON ordonné (clés triées via `jq -cS`, arrays triés par identifiant stable) pour garantir un hash sha256 reproductible — pattern aligné avec les principes de hash canonique pour SoT/replay (fast-json-stable-stringify equivalent en jq).
+Format JSON ordonné (clés triées via `jq -cS`, arrays triés par identifiant stable) **excluant les champs per-run mutables** (`snapshot_date`) pour garantir un hash sha256 reproductible — pattern aligné avec les principes de hash canonique pour SoT/replay (fast-json-stable-stringify equivalent en jq).
 
-Structure :
+Structure (le timestamp est conservé dans le fichier mais exclu du hash) :
 
 ```json
 {
@@ -86,10 +86,20 @@ Structure :
 
 Deux fichiers uploadés en artifact :
 
-- `snapshot.redacted.json` — pretty-printed, champs `token|secret|key|password|refresh|access` masqués par paranoïa
-- `snapshot.canonical.json` — compact, clés triées (`jq -cS`), base du hash sha256
+- `snapshot.redacted.json` — pretty-printed, **inclut** `snapshot_date` (lisibilité humaine + audit-trail), champs `token|secret|key|password|refresh|access` masqués par paranoïa
+- `snapshot.canonical.json` — compact, clés triées, `snapshot_date` exclu — base du hash sha256
 
-Le hash est l'idempotence key : `prev_hash == current_hash` → no drift, exit green sans ouvrir d'issue.
+Hash calculé via :
+
+```bash
+jq -cS 'del(.snapshot_date)' snapshot.redacted.json | sha256sum
+```
+
+Comparaison de runs : le hash précédent est **re-dérivé** à la volée depuis le `snapshot.redacted.json` du run précédent (avec les règles d'exclusion courantes), pour rester robuste si les règles évoluent dans une version future. C'est l'idempotence key : `prev_hash == current_hash` → no drift, exit green sans ouvrir d'issue.
+
+### Découverte empirique 2026-05-18 (fix hash-stability)
+
+Le premier run sur main (run #26032073924) a ouvert un faux-positif issue #293 (P2 `unknown-drift`) parce que `snapshot_date` était initialement inclus dans `snapshot.canonical.json`. Deux runs avec données identiques mais snapshots horodatés différemment → hashs différents → fallback "unknown-drift" tirait. Corrigé par exclusion du timestamp ; issue #293 close comme false-positive lié à la transition.
 
 ## Pourquoi pas une projection $ V1 hardcodée
 
