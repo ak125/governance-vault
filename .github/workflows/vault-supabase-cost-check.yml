@@ -1,15 +1,29 @@
-name: Vault Supabase Cost Check
+name: Vault Supabase Cost Surface Drift Detection
 
 # routine:
-#   id: supabase-cost-check
+#   id: supabase-cost-surface-drift
 #   owner: ops
 #   trigger: cron weekly (Monday 08:00 UTC, after vault-weekly-lint)
-#   input: GET https://api.supabase.com/v1/organizations/{org_ref}/usage
-#   output: governance-vault/ledger/audit-trail/YYYY-MM-DD-supabase-cost.md (via artifact)
-#   escalation: issue P1 if monthly projection > 30 USD or +20% vs previous run
-#   secret: SUPABASE_ACCESS_TOKEN (vault-only, never log/artifact, see ledger/knowledge/supabase-management-token.md)
+#   approach: structural drift detection — Management API does NOT expose dollar prices,
+#             so V1 audits the cost surface (plan tier + project list + per-project add-ons)
+#             and alerts on any change vs the previous weekly snapshot.
+#   evidence: canonical JSON snapshot artifact (90d retention) + report.md (ADR-034 axis 3)
+#   escalation:
+#     - P1 issue: plan tier changes (free↔pro↔team↔enterprise) OR billing add-on added
+#                 (Branching / IPv4 / Read Replica / PITR — none are covered by Spend Cap)
+#     - P2 issue: project added/removed OR add-on removed (informational)
+#   secret: SUPABASE_ACCESS_TOKEN (vault-only, scope: organizations:read + projects:read)
 #
-# ADR reference: ADR-034 (3 axes: Trigger=GHA cron / Execution=runner DEV / Evidence=artifact + audit-trail) + ADR-028 (cost monitoring couche 6 défense).
+# Defense-in-depth context (5 layers — full methodology in ledger doc):
+#   Layer 1 (real-time hard cap): Supabase Dashboard Spend Cap (configured by org owner, out-of-CI)
+#   Layer 2 (notification):       Supabase Dashboard email alert at 80% of cap (out-of-CI)
+#   Layer 3 (this workflow):      structural drift audit (in-CI, weekly)
+#   Layer 4 (replayable trail):   artifact upload (canonical JSON snapshot, 90d)
+#   Layer 5 (manual review):      quarterly Dashboard inspection by org owner (out-of-CI)
+#
+# Methodology: ledger/knowledge/supabase-cost-surface-drift-v1.md
+# Token rules:  ledger/knowledge/supabase-management-token.md
+# ADR refs:     ADR-028 (preprod isolation), ADR-034 (3 axes Trigger/Execution/Evidence)
 
 on:
   schedule:
@@ -20,139 +34,153 @@ permissions:
   contents: read
   issues: write
 
-# Single-trigger discipline (ADR-034) + concurrency safety pour vault-write group
+# Single-trigger discipline (ADR-034) + concurrency safety for vault-write group
 concurrency:
   group: vault-write
   cancel-in-progress: false
 
 jobs:
-  cost-check:
-    name: "Supabase Cost Check (V1 simple)"
+  drift-check:
+    name: "Cost Surface Drift Detection (V1)"
     runs-on: ubuntu-latest
 
     env:
-      # Org canonique AutoMecanik (cf. vérifié 2026-04-30 via mcp__supabase__list_organizations)
-      SUPABASE_ORG_ID: fezyshchnnrwwpnzbcwb
-      # Seuil escalade (USD/mois projeté). Configurable via repository variable si besoin.
-      THRESHOLD_USD_MONTHLY: 30
-      # Seuil delta vs previous run (pourcentage)
-      THRESHOLD_DELTA_PCT: 20
+      # Org canonique AutoMecanik (vérifié 2026-05-18 via mcp__supabase__get_organization)
+      SUPABASE_ORG_SLUG: fezyshchnnrwwpnzbcwb
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Mask SUPABASE_ACCESS_TOKEN
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-        # Force GitHub Actions à masquer le token dans tous les logs (verrou n°4 plan rev5)
         run: |
           if [ -z "$SUPABASE_ACCESS_TOKEN" ]; then
-            echo "::error::SUPABASE_ACCESS_TOKEN secret missing — see ledger/knowledge/supabase-management-token.md for provisioning."
+            echo "::error::SUPABASE_ACCESS_TOKEN secret missing — see ledger/knowledge/supabase-management-token.md for provisioning (scope: organizations:read + projects:read)."
             exit 1
           fi
           echo "::add-mask::$SUPABASE_ACCESS_TOKEN"
 
-      - name: Fetch Supabase billing summary
-        id: fetch
+      - name: Capture cost surface snapshot
+        id: snapshot
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-        # Verrou n°4 plan rev5 : endpoint Management API documenté en commentaire ci-dessous + dans la PR description.
-        # Endpoint utilisé : GET /v1/organizations/{ref}/billing/subscription
-        # Doc : https://api.supabase.com/api/v1/redoc — section "Organization billing"
-        # Si l'endpoint change ou retourne un schema inattendu, le script fail explicitement (pas de silent NaN).
+        # Endpoints (Management API v1, verified 2026-05-18 via Context7 /websites/api_supabase_v1):
+        #   GET /v1/organizations/{slug}            → { id, name, plan, opt_in_tags, allowed_release_channels }
+        #   GET /v1/organizations/{slug}/projects   → [ { id, name, region, status, created_at }, ... ]
+        #   GET /v1/projects/{ref}/billing/addons   → per-project add-ons (Branching/IPv4/Read Replica/PITR)
+        # If any required endpoint fails (4xx/5xx) → fail loud (no silent skip on governance-critical job).
         run: |
           set -euo pipefail
-          ENDPOINT="https://api.supabase.com/v1/organizations/${SUPABASE_ORG_ID}/billing/subscription"
-          echo "Endpoint: ${ENDPOINT}"
-          HTTP_CODE=$(curl -s -o response.json -w "%{http_code}" \
-            -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
-            -H "Accept: application/json" \
-            "${ENDPOINT}")
+          BASE="https://api.supabase.com/v1"
+          AUTH_HEADER="Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}"
 
-          if [ "$HTTP_CODE" != "200" ]; then
-            echo "::error::Management API returned HTTP ${HTTP_CODE} — endpoint may have changed or token invalid."
-            echo "First 200 chars of response (no token):"
-            head -c 200 response.json | sed 's/[A-Za-z0-9_-]\{20,\}/***REDACTED***/g'
-            exit 1
+          # fetch URL OUTPATH [ok_codes_csv]
+          fetch() {
+            local url="$1"
+            local out="$2"
+            local ok_codes="${3:-200}"
+            local code
+            code=$(curl -s -o "$out" -w "%{http_code}" \
+              -H "$AUTH_HEADER" \
+              -H "Accept: application/json" \
+              "$url")
+            if ! echo ",${ok_codes}," | grep -q ",${code},"; then
+              echo "::error::HTTP ${code} for ${url} (expected one of: ${ok_codes})"
+              echo "Response preview (redacted):"
+              head -c 200 "$out" | sed 's/[A-Za-z0-9_-]\{20,\}/***/g'
+              exit 1
+            fi
+            echo "  HTTP ${code} ${url}"
+          }
+
+          echo "=== Fetching org ==="
+          fetch "${BASE}/organizations/${SUPABASE_ORG_SLUG}" org.json
+          # Normalize org.json shape (some Management API endpoints wrap the payload).
+          jq '(.organization // .data // .)' org.json > org.normalized.json
+          mv org.normalized.json org.json
+
+          echo "=== Fetching projects ==="
+          fetch "${BASE}/organizations/${SUPABASE_ORG_SLUG}/projects" projects.json
+
+          # Normalize projects.json shape: API may return bare array `[...]` OR wrapped `{"projects": [...]}` / `{"data": [...]}` / `{"items": [...]}`.
+          # Verified 2026-05-18: /v1/organizations/{slug}/projects returns the wrapped object form.
+          jq '(if type == "array" then . else (.projects // .data // .items // []) end)' projects.json > projects.normalized.json
+          mv projects.normalized.json projects.json
+
+          echo "=== Fetching per-project add-ons ==="
+          mkdir -p addons
+          jq -r '.[].id // .[].ref // empty' projects.json | while read -r ref; do
+            [ -z "$ref" ] && continue
+            # billing/addons may return 200 with selected_addons, or 403 for free-tier projects — both acceptable
+            fetch "${BASE}/projects/${ref}/billing/addons" "addons/${ref}.json" "200,403"
+            # Normalize non-JSON/403 to empty selected_addons so downstream jq doesn't choke
+            if ! jq empty "addons/${ref}.json" 2>/dev/null; then
+              echo '{"selected_addons": []}' > "addons/${ref}.json"
+            fi
+          done
+
+          echo "=== Building canonical snapshot ==="
+          mkdir -p tmp
+          if compgen -G "addons/*.json" > /dev/null; then
+            for f in addons/*.json; do
+              ref="$(basename "$f" .json)"
+              jq --arg ref "$ref" \
+                '{($ref): ((.selected_addons // . // []) | map({variant: (.variant // .type // "unknown"), name: (.name // ""), price_description: (.price_description // .price // null)}) | sort_by(.variant))}' \
+                "$f" > "tmp/addon-${ref}.json"
+            done
+            jq -s 'add // {}' tmp/addon-*.json > addons-combined.json
+          else
+            echo '{}' > addons-combined.json
           fi
 
-          # Validate schema : must contain a numeric cost field (tier price + usage)
-          # On extrait : plan name + plan price (mensuel base) — si schema change, jq fail propre.
-          PLAN_NAME=$(jq -r '.tier // .plan // "unknown"' response.json)
-          PLAN_BASE_USD=$(jq -r '.plan_price // .price // 0' response.json)
+          jq -n \
+            --slurpfile org org.json \
+            --slurpfile projects projects.json \
+            --slurpfile addons addons-combined.json \
+            --arg date "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            '{
+              snapshot_date: $date,
+              schema_version: "v1",
+              org: ($org[0] | {
+                id: .id,
+                name: .name,
+                plan: .plan,
+                opt_in_tags: (.opt_in_tags // [] | sort),
+                allowed_release_channels: (.allowed_release_channels // [] | sort)
+              }),
+              projects: (($projects[0] // []) | sort_by(.id) | map({
+                id: .id,
+                name: .name,
+                region: (.region // null),
+                status: (.status // null),
+                created_at: (.created_at // null)
+              })),
+              addons: ($addons[0] // {})
+            }' > snapshot.json
 
-          if [ "$PLAN_NAME" = "unknown" ]; then
-            echo "::error::Response schema unexpected — no .tier or .plan field. See raw response."
-            exit 1
-          fi
+          # Paranoia redaction (no secret-like field should appear, but mask just in case)
+          jq 'walk(if type == "object" then with_entries(if (.key | test("token|secret|key|password|refresh|access"; "i")) then .value = "***REDACTED***" else . end) else . end)' snapshot.json > snapshot.redacted.json
 
-          # Redact response for artifact (zap any field looking like token/refresh/key/secret)
-          jq 'walk(if type == "object" then with_entries(if (.key | test("token|secret|key|password|refresh"; "i")) then .value = "***REDACTED***" else . end) else . end)' response.json > response.redacted.json
+          # Canonical form (sorted keys via -S) for stable sha256 — replay-safe deterministic hash
+          jq -cS . snapshot.redacted.json > snapshot.canonical.json
+          SNAPSHOT_HASH="$(sha256sum snapshot.canonical.json | cut -d' ' -f1)"
 
-          # Cost projection : V1 simple — base plan price seul (pas de breakdown compute/disk/egress).
-          # V2 (futur, hors scope) intègrera le breakdown via /v1/organizations/{ref}/usage.
-          PROJECTED_USD="$PLAN_BASE_USD"
+          PLAN="$(jq -r '.org.plan' snapshot.redacted.json)"
+          PCOUNT="$(jq -r '.projects | length' snapshot.redacted.json)"
+          ACOUNT="$(jq -r '[.addons | to_entries[] | .value[]] | length' snapshot.redacted.json)"
 
           {
-            echo "plan_name=${PLAN_NAME}"
-            echo "plan_base_usd=${PLAN_BASE_USD}"
-            echo "projected_usd=${PROJECTED_USD}"
+            echo "snapshot_hash=${SNAPSHOT_HASH}"
+            echo "plan=${PLAN}"
+            echo "project_count=${PCOUNT}"
+            echo "addon_count=${ACOUNT}"
           } >> "$GITHUB_OUTPUT"
 
-      - name: Render report
-        id: report
-        env:
-          PLAN_NAME: ${{ steps.fetch.outputs.plan_name }}
-          PLAN_BASE_USD: ${{ steps.fetch.outputs.plan_base_usd }}
-          PROJECTED_USD: ${{ steps.fetch.outputs.projected_usd }}
-        run: |
-          set -euo pipefail
-          DATE=$(date -u +%Y-%m-%d)
-          OVER_THRESHOLD="false"
-          if awk "BEGIN{exit !($PROJECTED_USD > $THRESHOLD_USD_MONTHLY)}"; then
-            OVER_THRESHOLD="true"
-          fi
+          echo ""
+          echo "Snapshot summary: plan=${PLAN} projects=${PCOUNT} addons=${ACOUNT} hash=${SNAPSHOT_HASH:0:12}…"
 
-          cat > report.md <<EOF
-          # Supabase Cost Check — ${DATE}
-
-          | Field | Value |
-          |---|---|
-          | Plan | ${PLAN_NAME} |
-          | Base price (USD/month) | ${PLAN_BASE_USD} |
-          | Projected total (USD/month, V1 simple = base only) | ${PROJECTED_USD} |
-          | Threshold (USD/month) | ${THRESHOLD_USD_MONTHLY} |
-          | Over threshold? | ${OVER_THRESHOLD} |
-
-          ## Method (V1 simple)
-
-          GET \`/v1/organizations/${SUPABASE_ORG_ID}/billing/subscription\`. Extract \`plan_price\`. No breakdown compute/disk/egress (V2 future scope).
-
-          ## Issue escalation
-
-          Issue P1 \`[supabase-cost \${run_id}] projection \$XX/mo (>\${THRESHOLD_USD_MONTHLY} OR +\${THRESHOLD_DELTA_PCT}% vs prev)\` opened only if NEW (delta vs previous artifact, threshold breached).
-
-          ## References
-
-          - ADR-028 Option D — preprod read-only hardening (couche 6 cost monitoring)
-          - ADR-034 — AI-COS Operating Contract (3 axes Trigger/Execution/Evidence)
-          - Token rules : \`ledger/knowledge/supabase-management-token.md\`
-          EOF
-
-          {
-            echo "over_threshold=${OVER_THRESHOLD}"
-          } >> "$GITHUB_OUTPUT"
-
-      - name: Upload artifact (redacted)
-        uses: actions/upload-artifact@v4
-        with:
-          name: supabase-cost-${{ github.run_id }}
-          path: |
-            response.redacted.json
-            report.md
-          retention-days: 90
-
-      - name: Download previous artifact (for delta)
+      - name: Download previous snapshot (for drift comparison)
         id: prev
         env:
           GH_TOKEN: ${{ github.token }}
@@ -161,24 +189,24 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p previous-artifact
-          payload=$(gh api -H "Accept: application/vnd.github+json" \
-            "/repos/${{ github.repository }}/actions/artifacts?per_page=100")
-          artifact_id=$(echo "$payload" | python3 -c "
+          payload="$(gh api -H "Accept: application/vnd.github+json" \
+            "/repos/${{ github.repository }}/actions/artifacts?per_page=100")"
+          artifact_id="$(echo "$payload" | python3 -c "
           import json, sys, os
           current = int(os.environ['CURRENT_RUN_ID'])
           data = json.load(sys.stdin)
           matches = [
               a for a in data.get('artifacts', [])
-              if a.get('name', '').startswith('supabase-cost-')
+              if a.get('name', '').startswith('supabase-cost-surface-')
               and not a.get('expired', False)
               and a.get('workflow_run', {}).get('id') != current
           ]
           matches.sort(key=lambda a: a.get('created_at', ''), reverse=True)
           if matches:
               print(matches[0]['id'])
-          ")
-          if [[ -z "$artifact_id" ]]; then
-            echo "No previous artifact found (first run or all expired)."
+          ")"
+          if [ -z "$artifact_id" ]; then
+            echo "No previous snapshot found (first run or all expired)."
             exit 0
           fi
           gh api -H "Accept: application/vnd.github+json" \
@@ -186,46 +214,167 @@ jobs:
             > previous-artifact/artifact.zip
           cd previous-artifact && unzip -q artifact.zip && rm artifact.zip
 
-      - name: Compute delta vs previous run
-        id: delta
+      - name: Classify drift
+        id: drift
         env:
-          PROJECTED_USD: ${{ steps.fetch.outputs.projected_usd }}
+          CUR_HASH: ${{ steps.snapshot.outputs.snapshot_hash }}
         run: |
           set -euo pipefail
-          DELTA_PCT=0
-          OVER_DELTA="false"
-          if [ -f previous-artifact/response.redacted.json ]; then
-            PREV_USD=$(jq -r '.plan_price // .price // 0' previous-artifact/response.redacted.json)
-            if awk "BEGIN{exit !($PREV_USD > 0)}"; then
-              DELTA_PCT=$(awk "BEGIN{printf \"%.1f\", (($PROJECTED_USD - $PREV_USD) / $PREV_USD) * 100}")
-              if awk "BEGIN{exit !($DELTA_PCT > $THRESHOLD_DELTA_PCT)}"; then
-                OVER_DELTA="true"
+          SEVERITY="none"
+          DRIFT_KIND="none"
+          : > drift-changes.txt
+
+          if [ ! -f previous-artifact/snapshot.canonical.json ]; then
+            echo "First run — baseline established, no comparison possible."
+          else
+            PREV_HASH="$(sha256sum previous-artifact/snapshot.canonical.json | cut -d' ' -f1)"
+
+            if [ "$PREV_HASH" = "$CUR_HASH" ]; then
+              echo "No drift (hash match: ${CUR_HASH:0:12}…)"
+            else
+              echo "Drift detected: prev=${PREV_HASH:0:12}… current=${CUR_HASH:0:12}…"
+
+              # Plan tier change (largest cost lever)
+              PREV_PLAN="$(jq -r '.org.plan' previous-artifact/snapshot.redacted.json)"
+              CUR_PLAN="$(jq -r '.org.plan' snapshot.redacted.json)"
+              if [ "$PREV_PLAN" != "$CUR_PLAN" ]; then
+                SEVERITY="P1"; DRIFT_KIND="plan-tier-change"
+                echo "- Plan tier: \`${PREV_PLAN}\` → \`${CUR_PLAN}\`" >> drift-changes.txt
+              fi
+
+              # Add-on diff at variant level, project-scoped
+              jq -r '[.addons | to_entries[] | .key as $p | .value[] | "\($p):\(.variant)"] | sort | .[]' \
+                previous-artifact/snapshot.redacted.json > prev-addons.txt
+              jq -r '[.addons | to_entries[] | .key as $p | .value[] | "\($p):\(.variant)"] | sort | .[]' \
+                snapshot.redacted.json > cur-addons.txt
+
+              ADDED="$(comm -13 prev-addons.txt cur-addons.txt || true)"
+              REMOVED="$(comm -23 prev-addons.txt cur-addons.txt || true)"
+
+              if [ -n "$ADDED" ]; then
+                if [ "$SEVERITY" != "P1" ]; then SEVERITY="P1"; DRIFT_KIND="addon-added"; fi
+                while IFS= read -r line; do
+                  [ -z "$line" ] && continue
+                  echo "- Add-on **added**: \`${line}\` (likely +cost — not covered by Spend Cap)" >> drift-changes.txt
+                done <<< "$ADDED"
+              fi
+              if [ -n "$REMOVED" ]; then
+                if [ "$SEVERITY" = "none" ]; then SEVERITY="P2"; DRIFT_KIND="addon-removed"; fi
+                while IFS= read -r line; do
+                  [ -z "$line" ] && continue
+                  echo "- Add-on **removed**: \`${line}\`" >> drift-changes.txt
+                done <<< "$REMOVED"
+              fi
+
+              # Project count change (P2 informational)
+              PREV_COUNT="$(jq -r '.projects | length' previous-artifact/snapshot.redacted.json)"
+              CUR_COUNT="$(jq -r '.projects | length' snapshot.redacted.json)"
+              if [ "$PREV_COUNT" != "$CUR_COUNT" ]; then
+                if [ "$SEVERITY" = "none" ]; then SEVERITY="P2"; DRIFT_KIND="project-count-change"; fi
+                echo "- Project count: ${PREV_COUNT} → ${CUR_COUNT}" >> drift-changes.txt
+              fi
+
+              # Hash mismatch with no classified change = anomaly (opt_in_tags / metadata drift)
+              if [ "$SEVERITY" = "none" ]; then
+                SEVERITY="P2"; DRIFT_KIND="unknown-drift"
+                echo "- Hash mismatch with no classified change — opt_in_tags / release_channels / project metadata changed. Inspect canonical diff in artifact." >> drift-changes.txt
               fi
             fi
           fi
+
           {
-            echo "delta_pct=${DELTA_PCT}"
-            echo "over_delta=${OVER_DELTA}"
+            echo "severity=${SEVERITY}"
+            echo "drift_kind=${DRIFT_KIND}"
           } >> "$GITHUB_OUTPUT"
 
-      - name: Open issue if threshold breached
-        if: steps.report.outputs.over_threshold == 'true' || steps.delta.outputs.over_delta == 'true'
+      - name: Render report
+        env:
+          PLAN: ${{ steps.snapshot.outputs.plan }}
+          PCOUNT: ${{ steps.snapshot.outputs.project_count }}
+          ACOUNT: ${{ steps.snapshot.outputs.addon_count }}
+          HASH: ${{ steps.snapshot.outputs.snapshot_hash }}
+          SEVERITY: ${{ steps.drift.outputs.severity }}
+          KIND: ${{ steps.drift.outputs.drift_kind }}
+        run: |
+          set -euo pipefail
+          DATE="$(date -u +%Y-%m-%d)"
+          {
+            echo "# Supabase Cost Surface Snapshot — ${DATE}"
+            echo ""
+            echo "| Field | Value |"
+            echo "|---|---|"
+            echo "| Plan tier | \`${PLAN}\` |"
+            echo "| Projects | ${PCOUNT} |"
+            echo "| Add-ons (total) | ${ACOUNT} |"
+            echo "| Snapshot hash | \`${HASH}\` |"
+            echo "| Drift severity | \`${SEVERITY}\` |"
+            echo "| Drift kind | \`${KIND}\` |"
+            echo ""
+            echo "## Method (V1 — structural drift detection)"
+            echo ""
+            echo "Supabase Management API v1 does NOT expose dollar prices. V1 audits the **cost surface** (plan tier + project list + per-project add-ons) and alerts on any change vs the previous weekly snapshot. The \$ amount is consulted manually on the [Supabase Dashboard billing page](https://supabase.com/dashboard/org/${SUPABASE_ORG_SLUG}/billing) when an issue is opened."
+            echo ""
+            echo "## Endpoints"
+            echo ""
+            echo "- \`GET /v1/organizations/{slug}\` — plan tier"
+            echo "- \`GET /v1/organizations/{slug}/projects\` — project list"
+            echo "- \`GET /v1/projects/{ref}/billing/addons\` — per-project add-ons (Branching / IPv4 / Read Replica / PITR)"
+            echo ""
+            echo "## Changes detected"
+            echo ""
+            if [ -s drift-changes.txt ] && [ "$SEVERITY" != "none" ]; then
+              cat drift-changes.txt
+            else
+              echo "_No drift detected (or first run baseline)._"
+            fi
+            echo ""
+            echo "## Defense-in-depth context"
+            echo ""
+            echo "| Layer | Mechanism | Where |"
+            echo "|---|---|---|"
+            echo "| 1 | Supabase Dashboard Spend Cap (hard ceiling) | out-of-CI |"
+            echo "| 2 | Supabase Dashboard email alert at 80% | out-of-CI |"
+            echo "| 3 | This workflow — structural drift audit | in-CI weekly |"
+            echo "| 4 | Artifact replay (canonical JSON snapshot, 90d retention) | in-CI |"
+            echo "| 5 | Quarterly manual Dashboard review | out-of-CI |"
+            echo ""
+            echo "## References"
+            echo ""
+            echo "- ADR-028 — preprod read-only hardening (cost-aware defense)"
+            echo "- ADR-034 — AI-COS Operating Contract (3 axes Trigger/Execution/Evidence)"
+            echo "- Methodology: \`ledger/knowledge/supabase-cost-surface-drift-v1.md\`"
+            echo "- Token rules: \`ledger/knowledge/supabase-management-token.md\`"
+            echo "- Supabase Management API docs: https://api.supabase.com/api/v1/redoc"
+          } > report.md
+
+      - name: Upload artifact (canonical snapshot + redacted snapshot + report)
+        uses: actions/upload-artifact@v5
+        with:
+          name: supabase-cost-surface-${{ github.run_id }}
+          path: |
+            snapshot.canonical.json
+            snapshot.redacted.json
+            report.md
+          retention-days: 90
+
+      - name: Open issue if drift detected
+        if: steps.drift.outputs.severity == 'P1' || steps.drift.outputs.severity == 'P2'
         uses: peter-evans/create-issue-from-file@v5
         with:
-          title: "[supabase-cost ${{ github.run_id }}] projection $${{ steps.fetch.outputs.projected_usd }}/mo (delta ${{ steps.delta.outputs.delta_pct }}% vs prev)"
+          title: "[supabase-cost-drift ${{ github.run_id }}] ${{ steps.drift.outputs.severity }}: ${{ steps.drift.outputs.drift_kind }}"
           content-filepath: report.md
           labels: |
             ops
-            supabase-cost
-            P1
+            cost-surface-drift
+            ${{ steps.drift.outputs.severity }}
 
       - name: Summary
         if: always()
         run: |
-          echo "## Supabase Cost Check Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          if [[ -f report.md ]]; then
-            cat report.md >> $GITHUB_STEP_SUMMARY
-          fi
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Delta vs previous: ${{ steps.delta.outputs.delta_pct }}% (over threshold ${THRESHOLD_DELTA_PCT}%: ${{ steps.delta.outputs.over_delta }})" >> $GITHUB_STEP_SUMMARY
+          {
+            echo "## Supabase Cost Surface Drift Detection"
+            echo ""
+            if [ -f report.md ]; then
+              cat report.md
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
