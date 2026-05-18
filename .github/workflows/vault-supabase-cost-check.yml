@@ -96,13 +96,21 @@ jobs:
 
           echo "=== Fetching org ==="
           fetch "${BASE}/organizations/${SUPABASE_ORG_SLUG}" org.json
+          # Normalize org.json shape (some Management API endpoints wrap the payload).
+          jq '(.organization // .data // .)' org.json > org.normalized.json
+          mv org.normalized.json org.json
 
           echo "=== Fetching projects ==="
           fetch "${BASE}/organizations/${SUPABASE_ORG_SLUG}/projects" projects.json
 
+          # Normalize projects.json shape: API may return bare array `[...]` OR wrapped `{"projects": [...]}` / `{"data": [...]}` / `{"items": [...]}`.
+          # Verified 2026-05-18: /v1/organizations/{slug}/projects returns the wrapped object form.
+          jq '(if type == "array" then . else (.projects // .data // .items // []) end)' projects.json > projects.normalized.json
+          mv projects.normalized.json projects.json
+
           echo "=== Fetching per-project add-ons ==="
           mkdir -p addons
-          jq -r '.[].id' projects.json | while read -r ref; do
+          jq -r '.[].id // .[].ref // empty' projects.json | while read -r ref; do
             [ -z "$ref" ] && continue
             # billing/addons may return 200 with selected_addons, or 403 for free-tier projects — both acceptable
             fetch "${BASE}/projects/${ref}/billing/addons" "addons/${ref}.json" "200,403"
