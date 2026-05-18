@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-05-02
+updated: 2026-05-18
 ---
 
 # MOC: Incidents
@@ -29,6 +29,7 @@ Index des incidents et post-mortems. Cette MOC est la porte d'entree pour tout e
 | [[2026-04-21-503-vehicle-pages-rpc-allowlist-stale-image\|INC-2026-006]] | 2026-04-21 | High | 503 /constructeurs/* — allowlist RPC manquante + image preprod obsolete | Closed (structural fix) |
 | [[2026-04-21-false-prod-claim-on-main-merge\|INC-2026-007]] | 2026-04-21 | Low | False prod claim after main merge (doc ambiguity) | Resolved |
 | INC-2026-004 | 2026-04-20 | High | `___xtr_msg` firehose cascade — timeouts Supabase REST | Resolved |
+| [[2026-04-18_high_diag-engine-rag-seeding\|INC-2026-003]] | 2026-04-18 | High | Diagnostic Engine — Seeding contenu metier (~350 entrées) sans validation RAG/vault (rollback OK, pivot délégation RAG pure) | Closed |
 | INC-2026-002 | 2026-04-14 | Critical | Paybox tunnel SEV1 IPN blocked (25j) | Closed |
 | INC-2026-01-30 | 2026-02-03 | Critical | Paybox OrderId Format Bug (silent) | Closed |
 | INC-2026-01-11 | 2026-01-11 | Critical | rm/ Module Crash Production | Closed |
@@ -50,6 +51,7 @@ Index des incidents et post-mortems. Cette MOC est la porte d'entree pour tout e
 - [[2026-05-02-diagnostic-tool-unsourced-probas]] — 162 scores `relative_score` dans `__diag_symptom_cause_link` copiés depuis RAG éditorial non sourcé (`bruits-freinage.md`), exposés côté client `/diagnostic-auto/*`. 4 PRs planifiées (migration DB `is_trusted`, backend, frontend, re-sourcing). ADR-035 proposé.
 - [[2026-04-23-gsc-411k-404-tecdoc-orphans]] — 411 k pages GSC en 404 (TecDoc V1→V2 remap orphans dans `__sitemap_p_link` + shortcut 410 hardcodé). 3 PRs monorepo (#133/#134/#135) + migration N2 (#136) + tag `v2026.04.23-gsc-404-tecdoc-fix`. Sitemap régénéré avec filtre actif (102 395 URLs stable, 0 orphan).
 - [[2026-04-20_high_xtr-msg-firehose-cascade]] — Firehose logs d'erreur dans `___xtr_msg` sature PostgREST et cree une boucle positive de timeouts (-95 % inserts apres fix, table dediee `__error_logs` + pg_cron 30j)
+- [[2026-04-18_high_diag-engine-rag-seeding]] — INC-2026-003 : Agent Claude Code a fabriqué ~350 entrées contenu métier (synonymes/DTC codes) en DB sans consulter RAG `/opt/automecanik/rag/knowledge/` ni instructions vault. Rollback OK + pivot architectural vers délégation RAG pure (`RagProxyService.search` runtime, zero pre-computed mapping). Source du canon `feedback_rag_vault_always_first`.
 
 ### Medium
 
@@ -74,6 +76,7 @@ Index des incidents et post-mortems. Cette MOC est la porte d'entree pour tout e
 - [[2026-04-23-paybox-client-regression-post-inc002]] — INC-2026-014 (Medium, false-positive) : alerte régression Paybox invalidée 3h après ouverture, vraie cause = conversion commerciale (4 paiements clients confirmés post-cliff, GMV 634.66 €)
 - [[2026-04-22-redis-public-exposure-bsi]] — Redis DEV exposé publiquement (BSI), firewall Hetzner + alignement compose files (PR monorepo #102)
 - [[2026-04-20_high_xtr-msg-firehose-cascade]] — Error log firehose → boucle positive PostgREST → timeouts 15s (fix: RPC + buffer + table dediee)
+- [[2026-04-18_high_diag-engine-rag-seeding]] — Diagnostic engine : violation gouvernance contenu (RAG ignoré, ~350 entrées fabriquées, rollback + pivot délégation RAG pure)
 - [[2026-04-14-paybox-tunnel-sev1-ipn-blocked]] — Paybox tunnel IPN blocked 25 jours (Cloudflare WAF + gate errorCode + RPC type error)
 - [[2026-02-03-paybox-orderid-format]] — Format orderId callback Paybox mismatch DB
 - [[2026-01-11_critical_rm-module-crash]] — rm/ module import error
