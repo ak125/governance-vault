@@ -24,6 +24,7 @@ Index des regles canoniques du projet AutoMecanik, organisees par taxonomie uniq
 | **AP** | Anti-Patterns | [[rules-ai-antipatterns]] | Anti-patterns IA a eviter |
 | **D** | Deployment | [[rules-deployment-workflow]] | Triggers DEV/PROD (push main vs tag v*) |
 | **Q** | Engineering Quality | [[rules-engineering-quality]] | Best-approach mandate (anti-bricolage), verify-before-create (DB et files), modernization continue |
+| **DoD** | Engineering Definition of Done | [[rules-engineering-definition-of-done]] | 9 invariants requis avant transition REVIEW→MERGED (tests, ownership, rollback, observabilite, drift, docs, monitoring, no TODO, no silent skip) |
 | **AEC** | Agent Exit Contract | [[rules-agent-exit-contract]] | Coverage manifest obligatoire, no overclaim, statuts autorises, 5 etats separes — applique a TOUT agent/audit |
 
 ---
@@ -58,6 +59,10 @@ Index des regles canoniques du projet AutoMecanik, organisees par taxonomie uniq
 ## Engineering Quality (Q)
 
 - [[rules-engineering-quality]] - **Q1-Q4** : Mandat de la meilleure approche (anti-bricolage), verifier l'existant avant de creer (grep + Supabase information_schema), esprit de modernisation continue. Regles meta qui s'appliquent AVANT toute autre regle (T*, G*, AP*).
+
+## Engineering Definition of Done (DoD)
+
+- [[rules-engineering-definition-of-done]] - **DoD1-DoD9** : Invariants requis avant qu'une PR puisse passer de REVIEW a MERGED (per ADR-053 state machine). Q gate la qualite initiale, DoD gate l'acceptance merge. Inclut escape hatch `dod-skip-justified` avec 2 approvers + audit trail `__governance_event_log`. Premier livrable Etape 1 du Repository Control Plane Operational (plan 2026-05-19).
 
 ## Agent Exit Contract (AEC)
 
