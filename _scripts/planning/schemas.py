@@ -36,6 +36,18 @@ def load_status(vault_path: Path) -> dict[str, str]:
     return _load(vault_path, "planning-status")["statuses"]
 
 
+def load_worktype(vault_path: Path) -> dict[str, dict[str, Any]]:
+    return _load(vault_path, "planning-worktype")["worktypes"]
+
+
+def load_state_transitions(vault_path: Path) -> dict[str, list[str]]:
+    return _load(vault_path, "planning-state-transitions")["transitions"]
+
+
+def load_state_gates(vault_path: Path) -> dict[str, list[str]]:
+    return _load(vault_path, "planning-state-transitions").get("gates", {})
+
+
 def validate_priority(p: str, vault_path: Path) -> None:
     valid = load_priority(vault_path)
     if p not in valid:
@@ -46,6 +58,29 @@ def validate_itemtype(t: str, vault_path: Path) -> None:
     valid = load_itemtype(vault_path)
     if t not in valid:
         raise SchemaError(f"{t} not in canonical itemtypes {sorted(valid)}")
+
+
+def validate_worktype(w: str, vault_path: Path) -> None:
+    valid = load_worktype(vault_path)
+    if w not in valid:
+        raise SchemaError(f"{w} not in canonical worktypes {sorted(valid)}")
+
+
+def validate_transition(src: str, dst: str, vault_path: Path) -> None:
+    transitions = load_state_transitions(vault_path)
+    statuses = load_status(vault_path)
+    if src not in statuses:
+        raise SchemaError(f"{src} not in canonical statuses {sorted(statuses)}")
+    if dst not in statuses:
+        raise SchemaError(f"{dst} not in canonical statuses {sorted(statuses)}")
+    allowed = transitions.get(src, [])
+    if dst not in allowed:
+        raise SchemaError(f"transition {src}->{dst} not allowed; permitted: {sorted(allowed)}")
+
+
+def required_dod_for_transition(src: str, dst: str, vault_path: Path) -> list[str]:
+    """DoD invariant IDs that must hold before src->dst is permitted ([] if none)."""
+    return load_state_gates(vault_path).get(f"{src}->{dst}", [])
 
 
 def build_canonical_id(item_type: str, **kwargs: Any) -> str:

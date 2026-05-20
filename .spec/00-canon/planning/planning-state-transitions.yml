@@ -1,0 +1,28 @@
+version: 1.0.0
+canonical: true
+adr_link: ADR-053
+schema_version: planning.v1
+dod_link: rules-engineering-definition-of-done
+# Allowed transitions between the canonical statuses defined in planning-status.yml.
+# This file adds the DAG that planning-status.yml intentionally omits (it lists
+# valid states, not valid moves). Single state vocabulary — NO parallel states.
+#
+# Finer merge gating (CI-green, drift-zero, T+48h observation) is NOT modeled as
+# extra states; it is expressed as DoD invariants required on a transition (see
+# `gates` below + rules-engineering-definition-of-done.md). One source of truth
+# for "what state is this work in" = planning-status.yml.
+transitions:
+  todo:        [in-progress, blocked, cancelled]
+  in-progress: [review, blocked, cancelled]
+  review:      [done, in-progress, blocked, cancelled]   # back to in-progress if changes requested
+  blocked:     [in-progress, todo, cancelled]
+  done:        [in-progress]                              # reopen only on rollback/regression
+  cancelled:   []                                         # terminal
+# DoD invariants that MUST hold before a transition is permitted. Consumed by the
+# monorepo gate pr-dod-gate.yml (Etape 1 PR-CP-2). Absent key = no DoD gate.
+gates:
+  "in-progress->review": [DoD2, DoD8, DoD9]   # ownership set, no orphan TODO, no silent skip
+  "review->done":        [DoD1, DoD3, DoD5, DoD6, DoD7]  # CI green, rollback, drift-zero, docs, monitoring armed
+# Reopening done->in-progress requires an incident/regression reference (audit
+# trail in __governance_event_log, same mechanism as dod-skip-justified).
+reopen_requires_evidence: true

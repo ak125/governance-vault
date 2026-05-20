@@ -1,0 +1,45 @@
+version: 1.0.0
+canonical: true
+adr_link: ADR-053
+schema_version: planning.v1
+dod_link: rules-engineering-definition-of-done
+# Work type classification. Each type maps to a default priority (SLA lives in
+# planning-priority.yml — NOT duplicated here) and the DoD invariants it must
+# satisfy before status=done (see rules-engineering-definition-of-done.md DoD1..DoD9).
+worktypes:
+  runtime-critical:
+    auto_priority: P0
+    requires: [DoD1, DoD2, DoD3, DoD4, DoD7]
+    notes: "Prod-path code (payments, auth, order, SSR critical). Full DoD."
+  emergency:
+    auto_priority: P0
+    requires: [DoD3, DoD7]
+    notes: "Hotfix for in-flight incident. Rollback + monitoring mandatory; remaining DoD backfilled post-merge < 48h via dod-skip-justified."
+  governance:
+    auto_priority: P2
+    requires: [DoD2, DoD6]
+    notes: "ADRs, vault rules, policies. No runtime impact."
+  seo-runtime:
+    auto_priority: P1
+    requires: [DoD1, DoD4, DoD7]
+    notes: "SEO pipelines/guards/scorers. Must register in .spec/00-canon/seo-runtime (ADR-058)."
+  observability:
+    auto_priority: P2
+    requires: [DoD4, DoD6]
+    notes: "Logs, metrics, dashboards, alerts."
+  cleanup:
+    auto_priority: P3
+    requires: [DoD1]
+    notes: "Dead code, stale branches, PR zombies. NOT treated as migration."
+  migration:
+    auto_priority: P1
+    requires: [DoD1, DoD3, DoD5, DoD7]
+    notes: "DB schema, data, breaking API. E2E test precondition (DoD5 drift-zero)."
+  debt:
+    auto_priority: P3
+    requires: [DoD1, DoD6]
+    notes: "Tech debt paydown."
+  experiment:
+    auto_priority: P6
+    requires: [DoD3]
+    notes: "Spike/prototype. Rollback mandatory (risk). TTL: cancel if stale > 14d."

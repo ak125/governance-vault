@@ -7,7 +7,9 @@ Schemas YAML versionnés gouvernant le système Planning Live (ADR-053).
 - `planning-priority.yml` — taxonomie P0..P8 + SLA
 - `planning-itemtype.yml` — types items (PR/ADR/ROADMAP/INCIDENT/EPIC) + canonical_id pattern
 - `planning-blocked-reason.yml` — reasons valides quand status=blocked
-- `planning-status.yml` — lifecycle items
+- `planning-status.yml` — lifecycle items (vocabulaire d'état unique)
+- `planning-worktype.yml` — classification du travail (runtime-critical/governance/seo-runtime/observability/cleanup/migration/debt/experiment/emergency) → auto_priority + DoD requires
+- `planning-state-transitions.yml` — DAG des transitions autorisées entre statuts + DoD gates par transition
 
 ## Versioning
 
