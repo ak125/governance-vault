@@ -17,6 +17,7 @@ Index des incidents et post-mortems. Cette MOC est la porte d'entree pour tout e
 
 | ID | Date | Severite | Titre | Status |
 |----|------|----------|-------|--------|
+| [[2026-05-23-pieces-media-img-corruption\|INC-2026-015]] | 2026-05-23 | P2 | `pieces_media_img` mass corruption — ~50 % rows malformed (`pmi_folder=''` + `pmi_name` sans extension), 357 009 displayed pieces (103 brands incl. VALEO/SKF 100 %, MAGNETI 82 %) avec icône cassée (imgproxy 400 placeholder). Tier C soft-hide (1 107 390 rows / audit table préservée) + 4 gardes structurelles. Tier B (vraie récupération images) différé : files absents partout dans l'infra ([[ADR-078-pieces-media-img-recovery-tier-c\|ADR-078]]). | Contained |
 | [[2026-05-14-INC-2026-005-closure\|INC-2026-005-closure]] | 2026-05-14 | High | GSC email (WNC-10031170) — 30 400 pages 5xx, validation 2026-05-06→2026-05-12 FAILED. Root cause déjà fixée par PR #320. Closure : actions manuelles (CF purge safe + force re-crawl GSC) + invariants AST/lint anti-récidive + smoke v2 (150 URLs seedés) + notify503 port pieces.* | Closed (PR-1 monorepo TBD) |
 | [[2026-05-06-cf-cache-poisoning-pieces-5xx\|INC-2026-005-recurrence]] | 2026-05-06 | High | Cloudflare cache poisoning sur loader-thrown 5xx Remix (`/pieces/*` 47 % 5xx, s-maxage=86400 leak) — PR #320 + tag PROD `v2026.05.06-cf-cache-5xx-fix` + CF purge | Resolved |
 | [[2026-05-02-diagnostic-tool-unsourced-probas\|INC-2026-013]] | 2026-05-02 | High | Probabilités non sourcées dans `__diag_symptom_cause_link` — 162 rows exposées client `/diagnostic-auto/*` | Open |
