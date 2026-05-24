@@ -27,6 +27,7 @@ Les policies decrivent **comment** appliquer les regles (format, template, schem
 | Document | Role |
 |----------|------|
 | [[PROCESS-G1-design]] | Processus de design des bundles (phase G1) |
+| [[exploration-budget]] | Exec contract G10 — scope strict + anti-creep + workflow probe (ADR-081) |
 
 ## Prompts Systeme
 
