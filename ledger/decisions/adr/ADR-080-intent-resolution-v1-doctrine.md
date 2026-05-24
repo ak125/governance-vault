@@ -12,6 +12,7 @@ related_adr: [ADR-013, ADR-027, ADR-032, ADR-058, ADR-070, ADR-077]
 related_rules: [G1, G2, T1]
 related_incidents: []
 reviewed_by: "@fafa"
+updated_at: 2026-05-24
 ---
 
 # ADR-080 : Intent Resolution V1 Doctrine — R5 traffic SEO as runtime operational intelligence layer (V1A.0 ship-first ultra-minimal)
@@ -72,6 +73,20 @@ Architecture layered canon :
 - **INTERDIT** : branches `if intent === X` dans composants frontend. Le payload backend est déclaratif.
 - Couplage SEO ↔ Intent **INTERDIT** : R5 reste rôle canon (acquisition symptôme), Intent reste runtime/observability uniquement
 
+**Boundary non-indexabilité (anti-drift SEO-implicite)** — Intent resolution output est **runtime state session-scoped non-indexable**. L'Intent layer (`intent`, `confidence`, `safety_rail`, `priority_boost`, `recommended_actions[]`) **NE DOIT JAMAIS** :
+
+- muter le contenu SSR canonique de R5 (titre H1, paragraphes, meta_title/desc préservés cf. `feedback_no_touch_meta_h1_if_optimized`)
+- muter ou injecter des balises `<meta>` / Open Graph / Twitter Cards
+- muter ou injecter JSON-LD / structured data / schema.org
+- muter ou influencer les internal linking graphs ou les anchors canoniques
+- générer des variantes HTML crawlables (FAQ dynamique, sections conditionnelles indexées)
+- participer aux décisions d'indexation (`<robots>`, `<link rel=canonical>`, sitemap inclusion)
+- influencer le `catalog_signature` (ADR-066) ni le `R2InternalDifferenceScore` (ADR-070)
+
+Le payload Intent reste **exclusivement** scopé à : rendu CTA runtime, télémétrie funnel, analytics. **JAMAIS** persistant comme HTML indexable. Pattern conforme ADR-068 §"Pas de filtre auto sur ... Score eligibility, Crawl budget perçu" + ADR-059 §runtime-read isolation.
+
+**Garde mécanique** : ast-grep follow-up V1A.0 (track `__seo_*` table mutations from Intent services) — à scoper hors-PR si gap détecté en review code #711.
+
 ### 4. Single canonical event (anti-cardinality, anti double-truth)
 
 `event_type: 'diagnostic_resolution_outcome'` avec 3 outcome_types V1A.0 discriminés par payload :
@@ -98,7 +113,7 @@ Différé V1.1 : `issue_resolved_approx` (north-star approximé via cron 24h pos
 | **V1A.0** | Reactive intent + Actions + Safety rail + Canonical event + 3 Tier 1 KPIs live | ~2-3 sem | resolved_intent_rate ≥ 55%, intent_to_commerce_rate ≥ baseline+20%, human_escalation_uptake_rate mesuré, 0 incident sev2+, golden regression CI 100% pass, 14j prod observation |
 | **V1A.1** | Background outcome job + `commerce_outcome_signal` tagging + `user_affinity_id` + `false_commerce_rate` refined + Negative signals doctrine probabilistic + Confidence calibration audit | ~+1-2 sem après V1A.0 gates | false_commerce_rate ≤ 20%, resolved_intent_rate maintenu, confidence calibration skew < 20%/bucket, 0 sev2+, 14j prod |
 | **V1B** | ResolutionBlock R3 + `resolution_payload` structurel stable IDs + Failure taxonomy runtime tracking + severity_weight + Golden dataset governance workflow + Runtime explainability export + Drift alarms runtime | ~+2-3 sem après V1A.1 gates | resolved_intent_rate ≥ 60%, false_commerce_rate ≤ 15%, intent_to_commerce_rate ≥ baseline+30%, 30j prod, drift alarms stables, intent_quality_score pondéré ≥ 0.7 |
-| **V1.1** | Predictive mode interval-only + Snapshots + Replay deterministic CI + Decision lineage + Triplet versions + ConflictResolver détaillé + Outcome `issue_resolved_approx` + Tier 2 KPIs + Entropy monitoring + Block B Data Enrichment Pipeline scrape→raw→wiki→DB + Snapshot TTL/partition policy + Vehicle coverage heatmap | ~+4 sem après V1B gates | Tous V1.1 KPIs ≥ targets 30j, replay deterministic ≥ 99%, entropy stable, 0 sev2+ |
+| **V1.1** | Predictive mode interval-only + Snapshots + Replay deterministic CI + Decision lineage + Triplet versions + ConflictResolver détaillé + Outcome `issue_resolved_approx` + Tier 2 KPIs + Entropy monitoring + Block B Data Enrichment Pipeline scrape→raw→wiki→DB + Snapshot TTL/partition policy + Vehicle coverage heatmap | ~+4 sem après V1B gates | Tous V1.1 KPIs ≥ targets 30j, replay deterministic ≥ 99%, entropy stable, 0 sev2+, **TOUTES décisions V1A.x émises depuis V1A.0 ship-date replayables depuis inputs immutables (lineage `__diag_resolution_inputs` stocké + `output_hash` = `sha256(canonical(input))` reconstructible, pattern ADR-072 CompositionInput)** |
 | **V1.5+** | Temporal context + ML classifier + Graph engine + AI-assisted human escalation moat + Intelligent human routing + Personnalisation historique + Snapshot S3 archive + ML pipeline + KG primary engine | Indéfini | Décision business + ADR vault signed amendant cet ADR |
 
 **Discipline absolue** : aucune ligne de code V1A.1 écrite tant que V1A.0 pas en prod 14j avec gates verts. Idem pour les versions suivantes. STOP-at-Vx + funnel-as-truth (cf. ADR-077 G9).
@@ -136,6 +151,21 @@ V1.1 cap = 30 (16 codes additionnels `DR_REJECT_*` + `DR_RESOLVED_*`).
 Out-of-range → `RangeError` throw (no silent fallback). `SAFETY_RAIL_THRESHOLD = 0.5`.
 
 V1A.1 ajoutera entropy monitoring (distribution + skew + collapse alert + per-intent drift).
+
+### Determinism guarantee V1A.x (pure-rule scoring discipline)
+
+**Invariant déterministe** : étant donné un input snapshot identique (`EvidencePack` canonique + `VehicleContext` v:1 + `pipeline_version`), la pipeline V1A.x **DOIT** produire un output byte-identique. Pattern canon ADR-072 : `output_hash = sha256(canonical(input + pipeline_version))` via `fast-json-stable-stringify` (cf. mémoire `feedback_deterministic_input_hash_canonical_json`).
+
+**Scoring discipline V1A.x — INTERDIT** :
+- **Adaptive scoring** (poids variables en fonction d'événements passés)
+- **Self-learning weights** (apprentissage en ligne sur outcomes)
+- **Online learning** (mise à jour modèle au runtime)
+- **Probabilistic feedback loops** (boucle outcome → priorité futurs scores)
+- **Heuristique adaptative** (boost comportemental, "petit score dynamique")
+
+Tous scoring V1A.x = **règles déterministes pures**. ML classifier, graph engine, temporal context, AI-assisted routing **explicitement déferrés V1.5+** (cf. §Versions séquencées + ADR-077 STOP-at-V1 G9). Ajout d'une heuristique adaptative en V1A.x = **violation canon = revert immédiat**.
+
+**Garde mécanique** : ast-grep `diagnostic-no-adaptive-scoring-v1ax` follow-up — flag patterns `Math.random`, `score *=`, `weight +=`, `learnedWeights`, `userAffinity`, `boostFactor` dans `intent-classifier.service.ts` / `action-recommender.service.ts` (à compléter au review code #711).
 
 ## Options Considérées
 
