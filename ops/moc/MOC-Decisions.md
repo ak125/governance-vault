@@ -165,6 +165,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-061 | Workspace Governance — frontière, lifecycle, ownership, anti-mini-monorepo | Accepted | 2026-05-13 | [[ADR-061-workspace-governance]] |
 | ADR-062 | Repository Contract System — meta-model (9 concepts canon : Contract / Generator / Derived / Engine / Gate / Ratchet / Owner / SemVer / Anti-parallel-truth) + §0 Lois A/B + Conformity criteria + Tiers de conformance + Cross-contract dependencies | Accepted | 2026-05-14 | [[ADR-062-repository-contract-system-meta-model]] |
 
+| ADR-082 | Global Continuous Improvement Doctrine — lightweight advisory filter, Voie 3 post INC-2026-016 | Accepted | 2026-05-27 | [[ADR-082-global-continuous-improvement-doctrine]] |
 <!-- AUTO-GENERATED:moc-decisions-canonical-index end -->
 
 ## Par Catégorie
