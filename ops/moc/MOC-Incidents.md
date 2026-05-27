@@ -17,6 +17,7 @@ Index des incidents et post-mortems. Cette MOC est la porte d'entree pour tout e
 
 | ID | Date | Severite | Titre | Status |
 |----|------|----------|-------|--------|
+| [[2026-05-27-monorepo-pr765-adr082-authority-drift|INC-2026-016]] | 2026-05-27 | High | Authority drift — PR monorepo #765 a déclaré ADR-082 comme canon avant ratification vault. Voie 3 décidée : ADR-082 amendée en lightweight advisory perpétuel ; blocking futur exige amendement vault G3 séparé. | Open |
 | [[2026-05-23-pieces-media-img-corruption\|INC-2026-015]] | 2026-05-23 | P2 | `pieces_media_img` mass corruption — ~50 % rows malformed (`pmi_folder=''` + `pmi_name` sans extension), 357 009 displayed pieces (103 brands incl. VALEO/SKF 100 %, MAGNETI 82 %) avec icône cassée (imgproxy 400 placeholder). Tier C soft-hide (1 107 390 rows / audit table préservée) + 4 gardes structurelles. Tier B (vraie récupération images) différé : files absents partout dans l'infra ([[ADR-078-pieces-media-img-recovery-tier-c\|ADR-078]]). | Contained |
 | [[2026-05-14-INC-2026-005-closure\|INC-2026-005-closure]] | 2026-05-14 | High | GSC email (WNC-10031170) — 30 400 pages 5xx, validation 2026-05-06→2026-05-12 FAILED. Root cause déjà fixée par PR #320. Closure : actions manuelles (CF purge safe + force re-crawl GSC) + invariants AST/lint anti-récidive + smoke v2 (150 URLs seedés) + notify503 port pieces.* | Closed (PR-1 monorepo TBD) |
 | [[2026-05-06-cf-cache-poisoning-pieces-5xx\|INC-2026-005-recurrence]] | 2026-05-06 | High | Cloudflare cache poisoning sur loader-thrown 5xx Remix (`/pieces/*` 47 % 5xx, s-maxage=86400 leak) — PR #320 + tag PROD `v2026.05.06-cf-cache-5xx-fix` + CF purge | Resolved |
@@ -48,6 +49,7 @@ Index des incidents et post-mortems. Cette MOC est la porte d'entree pour tout e
 
 ### High
 
+- [[2026-05-27-monorepo-pr765-adr082-authority-drift]] — Authority drift : PR monorepo #765 a déclaré "canon ADR-082 vault" avant ratification vault. Remédiation : #771 downgrade experimental, #772 gate warn-only, Voie 3 ADR-082 advisory-only.
 - [[2026-05-06-cf-cache-poisoning-pieces-5xx]] — Récurrence INC-2026-005 sur la chaîne pieces RM V2. Cause CDN : `headers: HeadersFunction = () => ({...})` zero-arg appliquait `s-maxage=86400` à toutes les réponses, y compris loader-thrown 5xx → Cloudflare cache 500 pendant 24h. Sample 930 URLs : 47 % `/pieces/*` en 500 cache HIT. PR #320 : helper `~/utils/cache-control` errorHeaders-aware + 7 tests + lint dual-layer (script bash + ast-grep + step CI blocant + pre-commit).
 - [[2026-05-02-diagnostic-tool-unsourced-probas]] — 162 scores `relative_score` dans `__diag_symptom_cause_link` copiés depuis RAG éditorial non sourcé (`bruits-freinage.md`), exposés côté client `/diagnostic-auto/*`. 4 PRs planifiées (migration DB `is_trusted`, backend, frontend, re-sourcing). ADR-035 proposé.
 - [[2026-04-23-gsc-411k-404-tecdoc-orphans]] — 411 k pages GSC en 404 (TecDoc V1→V2 remap orphans dans `__sitemap_p_link` + shortcut 410 hardcodé). 3 PRs monorepo (#133/#134/#135) + migration N2 (#136) + tag `v2026.04.23-gsc-404-tecdoc-fix`. Sitemap régénéré avec filtre actif (102 395 URLs stable, 0 orphan).
