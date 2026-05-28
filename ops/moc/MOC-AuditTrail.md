@@ -139,4 +139,16 @@ Les rejets Airlock sont journalises pour prouver le fonctionnement du garde-fou.
 
 ---
 
-_Derniere mise a jour: 2026-05-22_
+## Verdicts empiriques (G9 ADR-081)
+
+Verdicts empiriques formalisés sous le mécanisme G9 Sunset Clause (ADR-081). Chaque verdict porte un header YAML obligatoire `measured_at`/`expires_at`/`metric`/`blocks_until_expiry`. Sans renouvellement à `expires_at`, les `DO_NOT_START` qu'il bloque passent à `OPEN_FOR_REVIEW` automatiquement via `scripts/governance/check-verdict-expirations.sh` (cron weekly + alerte `__seo_event_log`).
+
+| measured_at | expires_at | Verdict | Métrique | Valeur | Bloque |
+|---|---|---|---|---|---|
+| 2026-05-20 | 2026-08-12 | [[2026-05-20-conversion-funnel-organic]] (VERDICT-2026-001) | `conversion_funnel_organic` | 0.17% (2308 sessions → 4 cmd) | r5-diagnostic-engine, new-seo-platform, new-meta-architecture-adr |
+
+Voir [[rules-governance-process]] G9 + [[ADR-081-doctrine-agility-amendments]] + [[empirical-verdict-header]] (template).
+
+---
+
+_Derniere mise a jour: 2026-05-24_
