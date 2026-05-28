@@ -1,9 +1,9 @@
 ---
 type: moc
 status: proposed
-updated: 2026-05-26
+updated: 2026-05-28
 schema_version: planning.v1
-semantic_hash: 228f14ff153e40f4
+semantic_hash: 80e7a08d6b2baac1
 adr_link: ADR-053
 ---
 
@@ -20,6 +20,8 @@ adr_link: ADR-053
 | github:ak125/nestjs-remix-monorepo:pr:534 | P2 | PR | review | fix(frontend): wrap fetchPriority in lowercase helper for React 18 runtime |
 | github:ak125/nestjs-remix-monorepo:pr:662 | P2 | PR | review | fix(observability): calibrate Sentry traces sample rate to 2% for free quota |
 | github:ak125/nestjs-remix-monorepo:pr:755 | P2 | PR | review | fix(ops): add 5th drift axis (workspaces) to sync-dev-runtime + unsilence install/build |
+| github:ak125/nestjs-remix-monorepo:pr:761 | P2 | PR | review | fix(r8): single SoT BreadcrumbList JSON-LD (remove duplicate microdata) |
+| github:ak125/nestjs-remix-monorepo:pr:770 | P2 | PR | review | fix(seo): r2 alternatives — surface upstream failure + short-TTL empty (closes #769) |
 | github:ak125/governance-vault:pr:255 | P3 | PR | review | refactor(_scripts): split governance_constants into per-enum-family package |
 | github:ak125/governance-vault:pr:288 | P3 | PR | review | feat(adr): ADR-073 Canonical Fact Graph (L3) + Editorial Evidence Cache (L4) — extension to ADR-070 |
 | github:ak125/nestjs-remix-monorepo:pr:156 | P3 | PR | review | feat(r8): pilier A — enricher motorisation-specific via DB + engine profile |
@@ -53,6 +55,7 @@ adr_link: ADR-053
 | github:ak125/nestjs-remix-monorepo:pr:738 | P3 | PR | review | perf(blog-r3): imgproxy AVIF/WebP picture + responsive preload on conseils hero (LCP) |
 | github:ak125/nestjs-remix-monorepo:pr:739 | P3 | PR | review | perf(blog-r3): content-visibility:auto on conseils below-fold blocks (LCP) |
 | github:ak125/nestjs-remix-monorepo:pr:756 | P3 | PR | review | feat(funnel): r2_add_to_cart capture source_url + unit_price_cents |
+| github:ak125/nestjs-remix-monorepo:pr:774 | P3 | PR | review | feat(governance): vault-canon-exists v1.1 — extend scope to audit/ + docs/ |
 | github:ak125/governance-vault:pr:110 | P5 | PR | review | docs(knowledge): session handoff MVP G6 + ADR-033 alignment 2026-04-30 |
 | github:ak125/governance-vault:pr:114 | P5 | PR | review | docs(audit-trail): consigner session 2026-04-30 — repivot ADR-028 Option C → Option D |
 | github:ak125/governance-vault:pr:116 | P5 | PR | review | knowledge(seo): handoff — 4 follow-up PRs merged/in-flight + PR-D3 deferred to ADR |
@@ -102,8 +105,6 @@ adr_link: ADR-053
 | github:ak125/nestjs-remix-monorepo:pr:679 | P5 | PR | review | chore(gitignore): ignore .claude/worktrees/ |
 | github:ak125/nestjs-remix-monorepo:pr:684 | P5 | PR | review | chore(docs): reconcile RAG references with canon ADR-031/046 + anti-drift guard |
 | github:ak125/nestjs-remix-monorepo:pr:737 | P5 | PR | review | docs(audit): ahrefs link verdicts (internal + external) — empirical, read-only |
-| github:ak125/nestjs-remix-monorepo:pr:749 | P6 | PR | review | chore(deps-dev): bump the vite-ecosystem group across 1 directory with 2 updates |
-| github:ak125/nestjs-remix-monorepo:pr:750 | P6 | PR | review | chore(deps-dev): bump the dev-dependencies group with 6 updates |
 | github:ak125/nestjs-remix-monorepo:pr:751 | P6 | PR | review | chore(deps-dev): bump @commitlint/config-conventional from 20.5.3 to 21.0.1 |
 | github:ak125/nestjs-remix-monorepo:pr:752 | P6 | PR | review | chore(deps): bump nodemailer and @types/nodemailer |
 | github:ak125/nestjs-remix-monorepo:pr:753 | P6 | PR | review | chore(deps): bump meilisearch from 0.52.0 to 0.58.0 |
