@@ -1,9 +1,9 @@
 ---
 type: moc
 status: proposed
-updated: 2026-05-30
+updated: 2026-05-31
 schema_version: planning.v1
-semantic_hash: 2901a5fec41f2488
+semantic_hash: ff9f1ffe2eb43e14
 adr_link: ADR-053
 ---
 
@@ -19,7 +19,7 @@ adr_link: ADR-053
 | github:ak125/nestjs-remix-monorepo:pr:472 | P2 | PR | review | fix(canon): update registries ADR ref to ADR-059 (was ADR-058) |
 | github:ak125/nestjs-remix-monorepo:pr:534 | P2 | PR | review | fix(frontend): wrap fetchPriority in lowercase helper for React 18 runtime |
 | github:ak125/nestjs-remix-monorepo:pr:662 | P2 | PR | review | fix(observability): calibrate Sentry traces sample rate to 2% for free quota |
-| github:ak125/nestjs-remix-monorepo:pr:798 | P2 | PR | review | fix(seo): propagate noindex X-Robots-Tag to 404/410 error pages |
+| github:ak125/nestjs-remix-monorepo:pr:803 | P2 | PR | review | fix(cwv): declare and enable aggregation scheduler flag |
 | github:ak125/governance-vault:pr:255 | P3 | PR | review | refactor(_scripts): split governance_constants into per-enum-family package |
 | github:ak125/nestjs-remix-monorepo:pr:353 | P3 | PR | review | feat(ast-grep): block direct Anthropic SDK import in scripts/seo (PR-B) |
 | github:ak125/nestjs-remix-monorepo:pr:479 | P3 | PR | review | feat(scripts/cron): scheduler systemd + immutable snapshots (pr-5b) |
@@ -46,12 +46,12 @@ adr_link: ADR-053
 | github:ak125/nestjs-remix-monorepo:pr:719 | P3 | PR | review | feat(research): geo-discovery-probe-2026-05 (G10 ADR-081, B1 capture en cours) |
 | github:ak125/nestjs-remix-monorepo:pr:738 | P3 | PR | review | perf(blog-r3): imgproxy AVIF/WebP picture + responsive preload on conseils hero (LCP) |
 | github:ak125/nestjs-remix-monorepo:pr:739 | P3 | PR | review | perf(blog-r3): content-visibility:auto on conseils below-fold blocks (LCP) |
-| github:ak125/nestjs-remix-monorepo:pr:778 | P3 | PR | review | feat(pieces): refresh R2 hero trust strip — direction Confiance + atomic components |
-| github:ak125/nestjs-remix-monorepo:pr:787 | P3 | PR | review | feat(governance): AI Operating Map v1 skeleton (warn-only) |
+| github:ak125/nestjs-remix-monorepo:pr:787 | P3 | PR | in-progress | feat(governance): AI Operating Map v1 skeleton (warn-only) |
 | github:ak125/nestjs-remix-monorepo:pr:795 | P3 | PR | review | feat(env-contract): env-var drift ratchet detector (extends Phase 2) |
 | github:ak125/nestjs-remix-monorepo:pr:796 | P3 | PR | review | feat(diagnostic): PR-1a Result UX — drivability, rapport garage, toggle (kill-switch, OFF par défaut) |
 | github:ak125/nestjs-remix-monorepo:pr:797 | P3 | PR | review | feat(diagnostic): PR-2 knowledge reproducibility (export/check snapshot, anti-perte) |
-| github:ak125/nestjs-remix-monorepo:pr:799 | P3 | PR | review | perf(navbar): native <dialog> drawers for menu+cart (INP /pieces -50%) |
+| github:ak125/nestjs-remix-monorepo:pr:805 | P3 | PR | review | feat(media-factory): Fafa compositions — brand palette align + configurable problem text |
+| github:ak125/nestjs-remix-monorepo:pr:806 | P3 | PR | review | feat(media-factory): Fafa V1 visual lock + pilot DRAFT plaquettes/compatibilité (7 gates PASS) |
 | github:ak125/governance-vault:pr:110 | P5 | PR | review | docs(knowledge): session handoff MVP G6 + ADR-033 alignment 2026-04-30 |
 | github:ak125/governance-vault:pr:114 | P5 | PR | review | docs(audit-trail): consigner session 2026-04-30 — repivot ADR-028 Option C → Option D |
 | github:ak125/governance-vault:pr:116 | P5 | PR | review | knowledge(seo): handoff — 4 follow-up PRs merged/in-flight + PR-D3 deferred to ADR |
