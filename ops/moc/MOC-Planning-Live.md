@@ -1,9 +1,9 @@
 ---
 type: moc
 status: proposed
-updated: 2026-05-31
+updated: 2026-06-01
 schema_version: planning.v1
-semantic_hash: ff9f1ffe2eb43e14
+semantic_hash: e9c3f716f28f8492
 adr_link: ADR-053
 ---
 
@@ -15,7 +15,6 @@ adr_link: ADR-053
 |--------------|----------|-----------|--------|-------|
 | github:ak125/governance-vault:pr:59 | P1 | PR | review | docs(knowledge): investigation R8 enricher vehicle-not-found blocker (ADR-022) |
 | github:ak125/governance-vault:pr:149 | P2 | PR | review | fix(scripts): check-signatures supports git worktrees |
-| github:ak125/nestjs-remix-monorepo:pr:110 | P2 | PR | review | fix(catalog): dedupe + stable mc_sort ordering in catalog hierarchy |
 | github:ak125/nestjs-remix-monorepo:pr:472 | P2 | PR | review | fix(canon): update registries ADR ref to ADR-059 (was ADR-058) |
 | github:ak125/nestjs-remix-monorepo:pr:534 | P2 | PR | review | fix(frontend): wrap fetchPriority in lowercase helper for React 18 runtime |
 | github:ak125/nestjs-remix-monorepo:pr:662 | P2 | PR | review | fix(observability): calibrate Sentry traces sample rate to 2% for free quota |
@@ -85,8 +84,6 @@ adr_link: ADR-053
 | github:ak125/governance-vault:pr:88 | P5 | PR | review | audit: 2026-04-25 fleet advisor + seo monitoring session recap |
 | github:ak125/governance-vault:pr:92 | P5 | PR | review | docs(knowledge): r8 distinct render + scraping canon — session wrap 2026-04-25 |
 | github:ak125/governance-vault:pr:93 | P5 | PR | review | knowledge: ADR-024 R1 cache session debrief 2026-04-27 (phases 1-6a) |
-| github:ak125/nestjs-remix-monorepo:pr:158 | P5 | PR | review | chore(cleanup): remove 3 dead search components (batch 2) |
-| github:ak125/nestjs-remix-monorepo:pr:160 | P5 | PR | review | chore(cleanup): remove 4 dead forms components (batch 3) |
 | github:ak125/nestjs-remix-monorepo:pr:387 | P5 | PR | review | chore(perf): bundle:analyze + bundle:report scripts (Sprint perf PR-1, ADR-051) |
 | github:ak125/nestjs-remix-monorepo:pr:395 | P5 | PR | review | chore(frontend): vendor breakdown audit + 9 anomaly checks (Sprint perf PR-5) |
 | github:ak125/nestjs-remix-monorepo:pr:396 | P5 | PR | review | chore(frontend): Remix hydration payload audit (Sprint perf PR-5bis) |
