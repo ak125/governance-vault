@@ -1,9 +1,9 @@
 ---
 type: moc
 status: proposed
-updated: 2026-06-01
+updated: 2026-06-02
 schema_version: planning.v1
-semantic_hash: e9c3f716f28f8492
+semantic_hash: f64c9f9761f2482c
 adr_link: ADR-053
 ---
 
@@ -18,7 +18,6 @@ adr_link: ADR-053
 | github:ak125/nestjs-remix-monorepo:pr:472 | P2 | PR | review | fix(canon): update registries ADR ref to ADR-059 (was ADR-058) |
 | github:ak125/nestjs-remix-monorepo:pr:534 | P2 | PR | review | fix(frontend): wrap fetchPriority in lowercase helper for React 18 runtime |
 | github:ak125/nestjs-remix-monorepo:pr:662 | P2 | PR | review | fix(observability): calibrate Sentry traces sample rate to 2% for free quota |
-| github:ak125/nestjs-remix-monorepo:pr:803 | P2 | PR | review | fix(cwv): declare and enable aggregation scheduler flag |
 | github:ak125/governance-vault:pr:255 | P3 | PR | review | refactor(_scripts): split governance_constants into per-enum-family package |
 | github:ak125/nestjs-remix-monorepo:pr:353 | P3 | PR | review | feat(ast-grep): block direct Anthropic SDK import in scripts/seo (PR-B) |
 | github:ak125/nestjs-remix-monorepo:pr:479 | P3 | PR | review | feat(scripts/cron): scheduler systemd + immutable snapshots (pr-5b) |
@@ -93,9 +92,11 @@ adr_link: ADR-053
 | github:ak125/nestjs-remix-monorepo:pr:679 | P5 | PR | review | chore(gitignore): ignore .claude/worktrees/ |
 | github:ak125/nestjs-remix-monorepo:pr:684 | P5 | PR | review | chore(docs): reconcile RAG references with canon ADR-031/046 + anti-drift guard |
 | github:ak125/nestjs-remix-monorepo:pr:737 | P5 | PR | review | docs(audit): ahrefs link verdicts (internal + external) — empirical, read-only |
-| github:ak125/nestjs-remix-monorepo:pr:751 | P6 | PR | review | chore(deps-dev): bump @commitlint/config-conventional from 20.5.3 to 21.0.1 |
 | github:ak125/nestjs-remix-monorepo:pr:752 | P6 | PR | review | chore(deps): bump nodemailer and @types/nodemailer |
 | github:ak125/nestjs-remix-monorepo:pr:753 | P6 | PR | review | chore(deps): bump meilisearch from 0.52.0 to 0.58.0 |
+| github:ak125/nestjs-remix-monorepo:pr:815 | P6 | PR | review | chore(deps): bump the tiptap-ecosystem group with 5 updates |
+| github:ak125/nestjs-remix-monorepo:pr:816 | P6 | PR | review | chore(deps-dev): bump the vite-ecosystem group with 2 updates |
+| github:ak125/nestjs-remix-monorepo:pr:817 | P6 | PR | review | chore(deps-dev): bump @commitlint/config-conventional from 20.5.3 to 21.0.2 |
 
 ## Ack block (édition humaine — exception I2)
 
