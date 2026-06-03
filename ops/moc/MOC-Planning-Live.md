@@ -1,9 +1,9 @@
 ---
 type: moc
 status: proposed
-updated: 2026-06-02
+updated: 2026-06-03
 schema_version: planning.v1
-semantic_hash: f64c9f9761f2482c
+semantic_hash: b0a4d14731abd098
 adr_link: ADR-053
 ---
 
@@ -50,6 +50,8 @@ adr_link: ADR-053
 | github:ak125/nestjs-remix-monorepo:pr:797 | P3 | PR | review | feat(diagnostic): PR-2 knowledge reproducibility (export/check snapshot, anti-perte) |
 | github:ak125/nestjs-remix-monorepo:pr:805 | P3 | PR | review | feat(media-factory): Fafa compositions — brand palette align + configurable problem text |
 | github:ak125/nestjs-remix-monorepo:pr:806 | P3 | PR | review | feat(media-factory): Fafa V1 visual lock + pilot DRAFT plaquettes/compatibilité (7 gates PASS) |
+| github:ak125/nestjs-remix-monorepo:pr:824 | P3 | PR | in-progress | feat(merchant-center): GMC price-competitiveness benchmark (inbound, OBSERVE-only) |
+| github:ak125/nestjs-remix-monorepo:pr:828 | P3 | PR | in-progress | feat(supplier-truth): wire CAL connector (read-only sentinel, spl_id 19) |
 | github:ak125/governance-vault:pr:110 | P5 | PR | review | docs(knowledge): session handoff MVP G6 + ADR-033 alignment 2026-04-30 |
 | github:ak125/governance-vault:pr:114 | P5 | PR | review | docs(audit-trail): consigner session 2026-04-30 — repivot ADR-028 Option C → Option D |
 | github:ak125/governance-vault:pr:116 | P5 | PR | review | knowledge(seo): handoff — 4 follow-up PRs merged/in-flight + PR-D3 deferred to ADR |
@@ -94,8 +96,7 @@ adr_link: ADR-053
 | github:ak125/nestjs-remix-monorepo:pr:737 | P5 | PR | review | docs(audit): ahrefs link verdicts (internal + external) — empirical, read-only |
 | github:ak125/nestjs-remix-monorepo:pr:752 | P6 | PR | review | chore(deps): bump nodemailer and @types/nodemailer |
 | github:ak125/nestjs-remix-monorepo:pr:753 | P6 | PR | review | chore(deps): bump meilisearch from 0.52.0 to 0.58.0 |
-| github:ak125/nestjs-remix-monorepo:pr:815 | P6 | PR | review | chore(deps): bump the tiptap-ecosystem group with 5 updates |
-| github:ak125/nestjs-remix-monorepo:pr:816 | P6 | PR | review | chore(deps-dev): bump the vite-ecosystem group with 2 updates |
+| github:ak125/nestjs-remix-monorepo:pr:815 | P6 | PR | review | chore(deps): bump the tiptap-ecosystem group across 1 directory with 5 updates |
 | github:ak125/nestjs-remix-monorepo:pr:817 | P6 | PR | review | chore(deps-dev): bump @commitlint/config-conventional from 20.5.3 to 21.0.2 |
 
 ## Ack block (édition humaine — exception I2)
