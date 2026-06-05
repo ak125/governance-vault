@@ -1,9 +1,9 @@
 ---
 type: moc
 status: proposed
-updated: 2026-06-04
+updated: 2026-06-05
 schema_version: planning.v1
-semantic_hash: 982dc8cdb0f695c9
+semantic_hash: 0bf70f5d6b26544e
 adr_link: ADR-053
 ---
 
@@ -52,6 +52,7 @@ adr_link: ADR-053
 | github:ak125/nestjs-remix-monorepo:pr:806 | P3 | PR | review | feat(media-factory): Fafa V1 visual lock + pilot DRAFT plaquettes/compatibilité (7 gates PASS) |
 | github:ak125/nestjs-remix-monorepo:pr:824 | P3 | PR | in-progress | feat(merchant-center): GMC price-competitiveness benchmark (inbound, OBSERVE-only) |
 | github:ak125/nestjs-remix-monorepo:pr:840 | P3 | PR | review | feat(cwv): pg_cron for RUM aggregation — decouple from dead DEV worker |
+| github:ak125/nestjs-remix-monorepo:pr:858 | P3 | PR | review | feat(seo): read-only multi-role SEO readiness cockpit (/seo-readiness) |
 | github:ak125/governance-vault:pr:110 | P5 | PR | review | docs(knowledge): session handoff MVP G6 + ADR-033 alignment 2026-04-30 |
 | github:ak125/governance-vault:pr:114 | P5 | PR | review | docs(audit-trail): consigner session 2026-04-30 — repivot ADR-028 Option C → Option D |
 | github:ak125/governance-vault:pr:116 | P5 | PR | review | knowledge(seo): handoff — 4 follow-up PRs merged/in-flight + PR-D3 deferred to ADR |
