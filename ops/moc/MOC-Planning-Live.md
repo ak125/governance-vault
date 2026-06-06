@@ -1,9 +1,9 @@
 ---
 type: moc
 status: proposed
-updated: 2026-06-05
+updated: 2026-06-06
 schema_version: planning.v1
-semantic_hash: 0bf70f5d6b26544e
+semantic_hash: bc5a84e4f954ffc4
 adr_link: ADR-053
 ---
 
@@ -19,6 +19,8 @@ adr_link: ADR-053
 | github:ak125/nestjs-remix-monorepo:pr:534 | P2 | PR | review | fix(frontend): wrap fetchPriority in lowercase helper for React 18 runtime |
 | github:ak125/nestjs-remix-monorepo:pr:662 | P2 | PR | review | fix(observability): calibrate Sentry traces sample rate to 2% for free quota |
 | github:ak125/nestjs-remix-monorepo:pr:842 | P2 | PR | review | fix(seo-monitor): scope repeatable-job prune to owned jobs (fixes CWV job eviction) |
+| github:ak125/nestjs-remix-monorepo:pr:860 | P2 | PR | review | fix(seo): scraper writes web corpus to canon RAW repo (path drift) |
+| github:ak125/nestjs-remix-monorepo:pr:863 | P2 | PR | review | fix(seo-roles): wire V-Level invariants without recalculation |
 | github:ak125/governance-vault:pr:255 | P3 | PR | review | refactor(_scripts): split governance_constants into per-enum-family package |
 | github:ak125/nestjs-remix-monorepo:pr:353 | P3 | PR | review | feat(ast-grep): block direct Anthropic SDK import in scripts/seo (PR-B) |
 | github:ak125/nestjs-remix-monorepo:pr:479 | P3 | PR | review | feat(scripts/cron): scheduler systemd + immutable snapshots (pr-5b) |
@@ -52,7 +54,7 @@ adr_link: ADR-053
 | github:ak125/nestjs-remix-monorepo:pr:806 | P3 | PR | review | feat(media-factory): Fafa V1 visual lock + pilot DRAFT plaquettes/compatibilité (7 gates PASS) |
 | github:ak125/nestjs-remix-monorepo:pr:824 | P3 | PR | in-progress | feat(merchant-center): GMC price-competitiveness benchmark (inbound, OBSERVE-only) |
 | github:ak125/nestjs-remix-monorepo:pr:840 | P3 | PR | review | feat(cwv): pg_cron for RUM aggregation — decouple from dead DEV worker |
-| github:ak125/nestjs-remix-monorepo:pr:858 | P3 | PR | review | feat(seo): read-only multi-role SEO readiness cockpit (/seo-readiness) |
+| github:ak125/nestjs-remix-monorepo:pr:862 | P3 | PR | review | feat(content): add deterministic RAW evidence inventory |
 | github:ak125/governance-vault:pr:110 | P5 | PR | review | docs(knowledge): session handoff MVP G6 + ADR-033 alignment 2026-04-30 |
 | github:ak125/governance-vault:pr:114 | P5 | PR | review | docs(audit-trail): consigner session 2026-04-30 — repivot ADR-028 Option C → Option D |
 | github:ak125/governance-vault:pr:116 | P5 | PR | review | knowledge(seo): handoff — 4 follow-up PRs merged/in-flight + PR-D3 deferred to ADR |
