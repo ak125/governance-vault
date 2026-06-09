@@ -1,9 +1,9 @@
 ---
 type: moc
 status: proposed
-updated: 2026-06-08
+updated: 2026-06-09
 schema_version: planning.v1
-semantic_hash: 02a0c5396eaae54b
+semantic_hash: 4ed10415d01e38b8
 adr_link: ADR-053
 ---
 
@@ -53,6 +53,9 @@ adr_link: ADR-053
 | github:ak125/nestjs-remix-monorepo:pr:806 | P3 | PR | review | feat(media-factory): Fafa V1 visual lock + pilot DRAFT plaquettes/compatibilité (7 gates PASS) |
 | github:ak125/nestjs-remix-monorepo:pr:824 | P3 | PR | in-progress | feat(merchant-center): GMC price-competitiveness benchmark (inbound, OBSERVE-only) |
 | github:ak125/nestjs-remix-monorepo:pr:840 | P3 | PR | review | feat(cwv): pg_cron for RUM aggregation — decouple from dead DEV worker |
+| github:ak125/nestjs-remix-monorepo:pr:901 | P3 | PR | review | feat(pricing): catalog activation plan (T1) — read-only orphan/activation classifier |
+| github:ak125/nestjs-remix-monorepo:pr:905 | P3 | PR | review | feat(catalog): 'Produits universels' section (T2b, flag OFF, noindex) |
+| github:ak125/nestjs-remix-monorepo:pr:908 | P3 | PR | review | feat(supplier): generic full-feed availability classifier — consolidate the efficient bulk-search method |
 | github:ak125/governance-vault:pr:110 | P5 | PR | review | docs(knowledge): session handoff MVP G6 + ADR-033 alignment 2026-04-30 |
 | github:ak125/governance-vault:pr:114 | P5 | PR | review | docs(audit-trail): consigner session 2026-04-30 — repivot ADR-028 Option C → Option D |
 | github:ak125/governance-vault:pr:116 | P5 | PR | review | knowledge(seo): handoff — 4 follow-up PRs merged/in-flight + PR-D3 deferred to ADR |
@@ -98,10 +101,12 @@ adr_link: ADR-053
 | github:ak125/nestjs-remix-monorepo:pr:838 | P5 | PR | review | docs(runtime): record R2 cache header drift evidence |
 | github:ak125/nestjs-remix-monorepo:pr:864 | P5 | PR | review | audit(seo): add G3 V-Level dry-run for plaquette-de-frein |
 | github:ak125/nestjs-remix-monorepo:pr:887 | P5 | PR | review | chore(claude): move agent-method-patterns rule to knowledge/ (−2.3K tokens/turn, on-demand) |
+| github:ak125/nestjs-remix-monorepo:pr:900 | P5 | PR | review | chore(catalog): revert accessory-link bricolage (#889 #892) — rtp_pg_pid already covers it |
 | github:ak125/nestjs-remix-monorepo:pr:752 | P6 | PR | review | chore(deps): bump nodemailer and @types/nodemailer |
 | github:ak125/nestjs-remix-monorepo:pr:753 | P6 | PR | review | chore(deps): bump meilisearch from 0.52.0 to 0.58.0 |
 | github:ak125/nestjs-remix-monorepo:pr:815 | P6 | PR | review | chore(deps): bump the tiptap-ecosystem group across 1 directory with 5 updates |
 | github:ak125/nestjs-remix-monorepo:pr:817 | P6 | PR | review | chore(deps-dev): bump @commitlint/config-conventional from 20.5.3 to 21.0.2 |
+| github:ak125/nestjs-remix-monorepo:pr:897 | P6 | PR | review | chore(deps-dev): bump eslint-import-resolver-typescript from 3.10.1 to 4.4.5 |
 
 ## Ack block (édition humaine — exception I2)
 
