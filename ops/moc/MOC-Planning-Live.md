@@ -1,9 +1,9 @@
 ---
 type: moc
 status: proposed
-updated: 2026-06-09
+updated: 2026-06-10
 schema_version: planning.v1
-semantic_hash: 4ed10415d01e38b8
+semantic_hash: 4f460e904eaf59b5
 adr_link: ADR-053
 ---
 
@@ -15,26 +15,11 @@ adr_link: ADR-053
 |--------------|----------|-----------|--------|-------|
 | github:ak125/governance-vault:pr:59 | P1 | PR | review | docs(knowledge): investigation R8 enricher vehicle-not-found blocker (ADR-022) |
 | github:ak125/governance-vault:pr:149 | P2 | PR | review | fix(scripts): check-signatures supports git worktrees |
-| github:ak125/nestjs-remix-monorepo:pr:472 | P2 | PR | review | fix(canon): update registries ADR ref to ADR-059 (was ADR-058) |
-| github:ak125/nestjs-remix-monorepo:pr:534 | P2 | PR | review | fix(frontend): wrap fetchPriority in lowercase helper for React 18 runtime |
 | github:ak125/nestjs-remix-monorepo:pr:662 | P2 | PR | review | fix(observability): calibrate Sentry traces sample rate to 2% for free quota |
 | github:ak125/nestjs-remix-monorepo:pr:842 | P2 | PR | review | fix(seo-monitor): scope repeatable-job prune to owned jobs (fixes CWV job eviction) |
 | github:ak125/nestjs-remix-monorepo:pr:860 | P2 | PR | review | fix(seo): scraper writes web corpus to canon RAW repo (path drift) |
 | github:ak125/governance-vault:pr:255 | P3 | PR | review | refactor(_scripts): split governance_constants into per-enum-family package |
-| github:ak125/nestjs-remix-monorepo:pr:353 | P3 | PR | review | feat(ast-grep): block direct Anthropic SDK import in scripts/seo (PR-B) |
-| github:ak125/nestjs-remix-monorepo:pr:479 | P3 | PR | review | feat(scripts/cron): scheduler systemd + immutable snapshots (pr-5b) |
-| github:ak125/nestjs-remix-monorepo:pr:481 | P3 | PR | review | feat(db): migrations seo projection 7 tables + 2 mvs (pr-6a) |
-| github:ak125/nestjs-remix-monorepo:pr:483 | P3 | PR | review | feat(seo/projection): bullmq workers + contract check (pr-6b) |
-| github:ak125/nestjs-remix-monorepo:pr:485 | P3 | PR | review | feat(seo/projection): read rpc + adapter (pr-7a) |
-| github:ak125/nestjs-remix-monorepo:pr:486 | P3 | PR | review | feat(seo/projection): frontend wiring + rollout + guards (pr-7b) |
-| github:ak125/nestjs-remix-monorepo:pr:532 | P3 | PR | review | feat(seo): pr-a1 h1 forensic audit (read-only, zéro ddl) |
-| github:ak125/nestjs-remix-monorepo:pr:533 | P3 | PR | review | feat(seo): pr-a2 audit persistence (__seo_content_audit, append-only) |
-| github:ak125/nestjs-remix-monorepo:pr:535 | P3 | PR | review | feat(seo): pr-b field authority registry (yaml canon + json projection) |
-| github:ak125/nestjs-remix-monorepo:pr:536 | P3 | PR | review | feat(rm): PR-RM-1 cache observability for rm_get_page_complete_v2 |
 | github:ak125/nestjs-remix-monorepo:pr:538 | P3 | PR | review | feat(seo): pr-c opa write gateway + scanner anti-bypass (single write path) |
-| github:ak125/nestjs-remix-monorepo:pr:539 | P3 | PR | review | feat(seo): pr-d event store minimal (atomic update + event in 1 transaction) |
-| github:ak125/nestjs-remix-monorepo:pr:541 | P3 | PR | review | feat(seo): pr-e recovery rollout (orchestration only, no write path bypass) |
-| github:ak125/nestjs-remix-monorepo:pr:542 | P3 | PR | review | feat(seo): pr-e+1 wire real deps (growthbook sdk + bullmq scheduler + fetch + gsc) |
 | github:ak125/nestjs-remix-monorepo:pr:639 | P3 | PR | review | feat(governance): evidence-gates registry — Diagnostic CP V1 V1.5 deferral lock (ADR-077) |
 | github:ak125/nestjs-remix-monorepo:pr:641 | P3 | PR | review | feat(env-contract): enforce SUPABASE_ANON_KEY publishable-shape regex |
 | github:ak125/nestjs-remix-monorepo:pr:643 | P3 | PR | review | feat(rm): hoist soft-404 cache constants + declarative TTL invariants |
@@ -89,12 +74,6 @@ adr_link: ADR-053
 | github:ak125/governance-vault:pr:88 | P5 | PR | review | audit: 2026-04-25 fleet advisor + seo monitoring session recap |
 | github:ak125/governance-vault:pr:92 | P5 | PR | review | docs(knowledge): r8 distinct render + scraping canon — session wrap 2026-04-25 |
 | github:ak125/governance-vault:pr:93 | P5 | PR | review | knowledge: ADR-024 R1 cache session debrief 2026-04-27 (phases 1-6a) |
-| github:ak125/nestjs-remix-monorepo:pr:387 | P5 | PR | review | chore(perf): bundle:analyze + bundle:report scripts (Sprint perf PR-1, ADR-051) |
-| github:ak125/nestjs-remix-monorepo:pr:395 | P5 | PR | review | chore(frontend): vendor breakdown audit + 9 anomaly checks (Sprint perf PR-5) |
-| github:ak125/nestjs-remix-monorepo:pr:396 | P5 | PR | review | chore(frontend): Remix hydration payload audit (Sprint perf PR-5bis) |
-| github:ak125/nestjs-remix-monorepo:pr:397 | P5 | PR | review | chore(ci): bundle freshness check + budget README matrix (Sprint perf PR-6) |
-| github:ak125/nestjs-remix-monorepo:pr:489 | P5 | PR | review | docs(cleanup): substitution http_live retention pivot — formalize PR #466 lesson |
-| github:ak125/nestjs-remix-monorepo:pr:499 | P5 | PR | review | chore(cleanup): drop 5 frontend dead API services (PR-4 batch 3) |
 | github:ak125/nestjs-remix-monorepo:pr:679 | P5 | PR | review | chore(gitignore): ignore .claude/worktrees/ |
 | github:ak125/nestjs-remix-monorepo:pr:684 | P5 | PR | review | chore(docs): reconcile RAG references with canon ADR-031/046 + anti-drift guard |
 | github:ak125/nestjs-remix-monorepo:pr:737 | P5 | PR | review | docs(audit): ahrefs link verdicts (internal + external) — empirical, read-only |
