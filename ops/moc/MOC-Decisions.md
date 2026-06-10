@@ -173,6 +173,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-062 | Repository Contract System — meta-model (9 concepts canon : Contract / Generator / Derived / Engine / Gate / Ratchet / Owner / SemVer / Anti-parallel-truth) + §0 Lois A/B + Conformity criteria + Tiers de conformance + Cross-contract dependencies | Accepted | 2026-05-14 | [[ADR-062-repository-contract-system-meta-model]] |
 
 | ADR-082 | Global Continuous Improvement Doctrine — lightweight advisory filter, Voie 3 post INC-2026-016 | Accepted | 2026-05-27 | [[ADR-082-global-continuous-improvement-doctrine]] |
+| ADR-083 | **Promotion WIKI auto-tiered** — auto-approve high-confidence sourcé (5 gates PASS + confidence >=0.80 + truth_level L1/L2 + 0 safety/contradiction) ; human-required pour le résidu risqué. Amende ADR-033 (autorité de promotion), réf. ADR-059 (build_exports_seo inchangé, no-op THRESHOLD=1.01). | Proposed | 2026-06-10 | [[ADR-083-tiered-wiki-promotion]] |
 <!-- AUTO-GENERATED:moc-decisions-canonical-index end -->
 
 ## Par Catégorie
