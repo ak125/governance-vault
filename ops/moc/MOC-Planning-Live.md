@@ -1,9 +1,9 @@
 ---
 type: moc
 status: proposed
-updated: 2026-06-11
+updated: 2026-06-12
 schema_version: planning.v1
-semantic_hash: 7b0d92fd73b53faf
+semantic_hash: 3692939caa269229
 adr_link: ADR-053
 ---
 
@@ -45,8 +45,10 @@ adr_link: ADR-053
 | github:ak125/nestjs-remix-monorepo:pr:916 | P3 | PR | review | feat(seo): R2 noindex when 0 sellable on catalog gammes (flag OFF) |
 | github:ak125/nestjs-remix-monorepo:pr:917 | P3 | PR | review | feat(seo): additive R1 kw-promotion noindex→index (flag OFF) |
 | github:ak125/nestjs-remix-monorepo:pr:927 | P3 | PR | review | feat(seo): exclusion sitemap des satellites consolidés R4+R6 (flags, inerte) — prépa activation |
-| github:ak125/nestjs-remix-monorepo:pr:930 | P3 | PR | review | feat(command-center): Phase 2 PR3 — SEO per-URL next_step (advisory) |
 | github:ak125/nestjs-remix-monorepo:pr:931 | P3 | PR | review | feat(seo): consolidation R4→R3 inerte (flag OFF) — 301 self-gaté référence → conseils |
+| github:ak125/nestjs-remix-monorepo:pr:940 | P3 | PR | review | refactor(gamme-rest): bascule SSR maillage R1 sur cache ADR-024 Phase 5 — zéro lecture RAG fs |
+| github:ak125/nestjs-remix-monorepo:pr:941 | P3 | PR | review | feat(seo): mode batch/ranking dans seo-readiness — port du mode flotte de gamme-readiness.py (salvage pré-purge RAG) |
+| github:ak125/nestjs-remix-monorepo:pr:943 | P3 | PR | review | feat(admin): port heuristiques image-prompts R3 vers r1-image-prompt-builders (salvage pré-purge RAG) |
 | github:ak125/governance-vault:pr:110 | P5 | PR | review | docs(knowledge): session handoff MVP G6 + ADR-033 alignment 2026-04-30 |
 | github:ak125/governance-vault:pr:114 | P5 | PR | review | docs(audit-trail): consigner session 2026-04-30 — repivot ADR-028 Option C → Option D |
 | github:ak125/governance-vault:pr:116 | P5 | PR | review | knowledge(seo): handoff — 4 follow-up PRs merged/in-flight + PR-D3 deferred to ADR |
@@ -89,6 +91,8 @@ adr_link: ADR-053
 | github:ak125/nestjs-remix-monorepo:pr:900 | P5 | PR | review | chore(catalog): revert accessory-link bricolage (#889 #892) — rtp_pg_pid already covers it |
 | github:ak125/nestjs-remix-monorepo:pr:923 | P5 | PR | review | chore(seo): garde ast-grep — RAG ≠ source de contenu (flag le content-RAG legacy) |
 | github:ak125/nestjs-remix-monorepo:pr:928 | P5 | PR | review | chore(governance): resync rpc_allowlist racine ← backend (drift 12 entrées) |
+| github:ak125/nestjs-remix-monorepo:pr:938 | P5 | PR | review | chore(claude-rules): allège les 2 rules auto-chargées les plus lourdes (−5.5KB/session) |
+| github:ak125/nestjs-remix-monorepo:pr:939 | P5 | PR | review | chore(frontend): purge écrans admin RAG-pipeline morts (endpoints 404) — RAG=chatbot only (ADR-031/046) |
 | github:ak125/nestjs-remix-monorepo:pr:752 | P6 | PR | review | chore(deps): bump nodemailer and @types/nodemailer |
 | github:ak125/nestjs-remix-monorepo:pr:753 | P6 | PR | review | chore(deps): bump meilisearch from 0.52.0 to 0.58.0 |
 | github:ak125/nestjs-remix-monorepo:pr:815 | P6 | PR | review | chore(deps): bump the tiptap-ecosystem group across 1 directory with 5 updates |
