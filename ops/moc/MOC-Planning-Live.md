@@ -1,9 +1,9 @@
 ---
 type: moc
 status: proposed
-updated: 2026-06-12
+updated: 2026-06-13
 schema_version: planning.v1
-semantic_hash: 3692939caa269229
+semantic_hash: 3055ce968fbd00d6
 adr_link: ADR-053
 ---
 
@@ -20,6 +20,7 @@ adr_link: ADR-053
 | github:ak125/nestjs-remix-monorepo:pr:842 | P2 | PR | review | fix(seo-monitor): scope repeatable-job prune to owned jobs (fixes CWV job eviction) |
 | github:ak125/nestjs-remix-monorepo:pr:860 | P2 | PR | review | fix(seo): scraper writes web corpus to canon RAW repo (path drift) |
 | github:ak125/nestjs-remix-monorepo:pr:918 | P2 | PR | review | fix(seo): R2 noindex,follow quand 0 produit vendable (flag SEO_R2_SELLABLE_NOINDEX, OFF) |
+| github:ak125/nestjs-remix-monorepo:pr:951 | P2 | PR | review | fix(hooks): pre-push registry gate rebase-safe — base origin/main, parité CI |
 | github:ak125/governance-vault:pr:255 | P3 | PR | review | refactor(_scripts): split governance_constants into per-enum-family package |
 | github:ak125/nestjs-remix-monorepo:pr:538 | P3 | PR | review | feat(seo): pr-c opa write gateway + scanner anti-bypass (single write path) |
 | github:ak125/nestjs-remix-monorepo:pr:639 | P3 | PR | review | feat(governance): evidence-gates registry — Diagnostic CP V1 V1.5 deferral lock (ADR-077) |
@@ -28,7 +29,6 @@ adr_link: ADR-053
 | github:ak125/nestjs-remix-monorepo:pr:645 | P3 | PR | review | feat(ci): add Supabase live-probe to preflight (catch disabled anon keys) |
 | github:ak125/nestjs-remix-monorepo:pr:652 | P3 | PR | review | feat(seo-audit): Reality Audit Phase 0.5 — verdict conversion_funnel (0.17%) |
 | github:ak125/nestjs-remix-monorepo:pr:655 | P3 | PR | review | feat(seo-audit): GSC Cannibalization Audit — verdict intra-R2 (84%) |
-| github:ak125/nestjs-remix-monorepo:pr:670 | P3 | PR | review | feat(seo-kw): canonical KW classification — end the hand-rolled drift (88% R1 → R2/R5 separated) |
 | github:ak125/nestjs-remix-monorepo:pr:715 | P3 | PR | review | feat(diagnostic): V1A.0 post-merge hardening guards (ADR-080 amendment follow-up) |
 | github:ak125/nestjs-remix-monorepo:pr:719 | P3 | PR | review | feat(research): geo-discovery-probe-2026-05 (G10 ADR-081, B1 capture en cours) |
 | github:ak125/nestjs-remix-monorepo:pr:738 | P3 | PR | review | perf(blog-r3): imgproxy AVIF/WebP picture + responsive preload on conseils hero (LCP) |
@@ -46,9 +46,10 @@ adr_link: ADR-053
 | github:ak125/nestjs-remix-monorepo:pr:917 | P3 | PR | review | feat(seo): additive R1 kw-promotion noindex→index (flag OFF) |
 | github:ak125/nestjs-remix-monorepo:pr:927 | P3 | PR | review | feat(seo): exclusion sitemap des satellites consolidés R4+R6 (flags, inerte) — prépa activation |
 | github:ak125/nestjs-remix-monorepo:pr:931 | P3 | PR | review | feat(seo): consolidation R4→R3 inerte (flag OFF) — 301 self-gaté référence → conseils |
-| github:ak125/nestjs-remix-monorepo:pr:940 | P3 | PR | review | refactor(gamme-rest): bascule SSR maillage R1 sur cache ADR-024 Phase 5 — zéro lecture RAG fs |
-| github:ak125/nestjs-remix-monorepo:pr:941 | P3 | PR | review | feat(seo): mode batch/ranking dans seo-readiness — port du mode flotte de gamme-readiness.py (salvage pré-purge RAG) |
-| github:ak125/nestjs-remix-monorepo:pr:943 | P3 | PR | review | feat(admin): port heuristiques image-prompts R3 vers r1-image-prompt-builders (salvage pré-purge RAG) |
+| github:ak125/nestjs-remix-monorepo:pr:946 | P3 | PR | review | feat(quality): soft-penalties sémantiques R3_guide (D1/D2/D3) via get_page_quality_features — salvage pré-purge RAG |
+| github:ak125/nestjs-remix-monorepo:pr:947 | P3 | PR | review | feat(contracts): port résiduel cross-rôle content-section-policy + budgets GateC vers page-contracts — salvage pré-purge RAG |
+| github:ak125/nestjs-remix-monorepo:pr:950 | P3 | PR | review | feat(rag-proxy): endpoints read-only webhook audit/stats + repoint admin.rag.webhook-monitor (B7) |
+| github:ak125/nestjs-remix-monorepo:pr:958 | P3 | PR | review | feat(content): générateurs DB-first vehicle+diagnostic (modes create/merge, dry-run owner PR-D.0) |
 | github:ak125/governance-vault:pr:110 | P5 | PR | review | docs(knowledge): session handoff MVP G6 + ADR-033 alignment 2026-04-30 |
 | github:ak125/governance-vault:pr:114 | P5 | PR | review | docs(audit-trail): consigner session 2026-04-30 — repivot ADR-028 Option C → Option D |
 | github:ak125/governance-vault:pr:116 | P5 | PR | review | knowledge(seo): handoff — 4 follow-up PRs merged/in-flight + PR-D3 deferred to ADR |
@@ -82,8 +83,6 @@ adr_link: ADR-053
 | github:ak125/governance-vault:pr:88 | P5 | PR | review | audit: 2026-04-25 fleet advisor + seo monitoring session recap |
 | github:ak125/governance-vault:pr:92 | P5 | PR | review | docs(knowledge): r8 distinct render + scraping canon — session wrap 2026-04-25 |
 | github:ak125/governance-vault:pr:93 | P5 | PR | review | knowledge: ADR-024 R1 cache session debrief 2026-04-27 (phases 1-6a) |
-| github:ak125/nestjs-remix-monorepo:pr:679 | P5 | PR | review | chore(gitignore): ignore .claude/worktrees/ |
-| github:ak125/nestjs-remix-monorepo:pr:684 | P5 | PR | review | chore(docs): reconcile RAG references with canon ADR-031/046 + anti-drift guard |
 | github:ak125/nestjs-remix-monorepo:pr:737 | P5 | PR | review | docs(audit): ahrefs link verdicts (internal + external) — empirical, read-only |
 | github:ak125/nestjs-remix-monorepo:pr:838 | P5 | PR | review | docs(runtime): record R2 cache header drift evidence |
 | github:ak125/nestjs-remix-monorepo:pr:864 | P5 | PR | review | audit(seo): add G3 V-Level dry-run for plaquette-de-frein |
@@ -91,8 +90,11 @@ adr_link: ADR-053
 | github:ak125/nestjs-remix-monorepo:pr:900 | P5 | PR | review | chore(catalog): revert accessory-link bricolage (#889 #892) — rtp_pg_pid already covers it |
 | github:ak125/nestjs-remix-monorepo:pr:923 | P5 | PR | review | chore(seo): garde ast-grep — RAG ≠ source de contenu (flag le content-RAG legacy) |
 | github:ak125/nestjs-remix-monorepo:pr:928 | P5 | PR | review | chore(governance): resync rpc_allowlist racine ← backend (drift 12 entrées) |
-| github:ak125/nestjs-remix-monorepo:pr:938 | P5 | PR | review | chore(claude-rules): allège les 2 rules auto-chargées les plus lourdes (−5.5KB/session) |
-| github:ak125/nestjs-remix-monorepo:pr:939 | P5 | PR | review | chore(frontend): purge écrans admin RAG-pipeline morts (endpoints 404) — RAG=chatbot only (ADR-031/046) |
+| github:ak125/nestjs-remix-monorepo:pr:949 | P5 | PR | review | chore(hooks): versionne le hook UserPromptSubmit context-push (PULL→PUSH) déjà actif |
+| github:ak125/nestjs-remix-monorepo:pr:952 | P5 | PR | review | chore(seo): strip génération RAG de reference/diagnostic — lecture/CRUD intacts (ADR-031/046) |
+| github:ak125/nestjs-remix-monorepo:pr:954 | P5 | PR | review | chore(scripts): exécute le sunset PR-V (archive generate-content-r1) + bannières DEPRECATED salvage-first |
+| github:ak125/nestjs-remix-monorepo:pr:956 | P5 | PR | review | chore(frontend): purge composants orphelins (salvage-first) + e2e fail-loud (retrait skipIf404) |
+| github:ak125/nestjs-remix-monorepo:pr:957 | P5 | PR | review | chore(backend): purge 4 services orphelins (salvage-first) + garde ast-grep @Cron + param mort |
 | github:ak125/nestjs-remix-monorepo:pr:752 | P6 | PR | review | chore(deps): bump nodemailer and @types/nodemailer |
 | github:ak125/nestjs-remix-monorepo:pr:753 | P6 | PR | review | chore(deps): bump meilisearch from 0.52.0 to 0.58.0 |
 | github:ak125/nestjs-remix-monorepo:pr:815 | P6 | PR | review | chore(deps): bump the tiptap-ecosystem group across 1 directory with 5 updates |
@@ -112,6 +114,8 @@ ack:
   github:ak125/governance-vault:pr:9:
     acked_at: '2026-05-18T13:06:48Z'
     acked_by: ak125
+  github:ak125/nestjs-remix-monorepo:pr:924:
+    last_alert_at: '2026-06-13T06:00:03.220554+00:00'
 ```
 
 ## See also
