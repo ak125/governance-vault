@@ -328,3 +328,6 @@ _Derniere mise a jour: 2026-05-02_
 _Synchronisé manuellement vs frontmatter ADR le 2026-05-02. Q4 follow-up :
 auto-générer cette table depuis `_scripts/sync-moc-decisions.py` (à créer)
 pour éviter dérive future._
+
+- [[ADR-084-pieces-price-write-governance]] — gouvernance écriture pieces_price + visibilité storefront
+- [[ADR-085-supplier-availability-surfaces]] — architecture 3 surfaces de disponibilité fournisseur
