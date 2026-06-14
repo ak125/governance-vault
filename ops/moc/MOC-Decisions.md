@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-05-14
+updated: 2026-06-14
 ---
 
 # MOC: Decisions
@@ -108,7 +108,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 > Projection mécanique du frontmatter ADR (PR-3 sync_moc_decisions).
 > Toute édition manuelle entre les markers est écrasée à chaque sync.
 > Pour annoter, éditer le frontmatter ADR ou la table « ADR Actifs » ci-dessus.
-> Dernier sync : 2026-05-13.
+> Dernier sync : 2026-06-14.
 
 | ID | Titre | Statut canonique | Date | Fichier |
 |----|-------|------------------|------|---------|
@@ -167,13 +167,30 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-056 | R7 Brand Runtime Completion (ExecutionRouter dispatch canonique) | Accepted | 2026-05-09 | [[ADR-056-r7-brand-runtime-completion]] |
 | ADR-057 | marketingskills (coreyhaines31) — pattern d'adoption wrapper canon-bound | Proposed | 2026-05-09 | [[ADR-057-marketingskills-adoption-pattern]] |
 | ADR-058 | Repository Control Plane — registry canonique 3 couches (data auto + overlay manuel + projection) | Proposed | 2026-05-13 | [[ADR-058-repository-control-plane]] |
-| ADR-059 | SEO Runtime Projection Architecture — wiki/exports/seo → DB versionnée → Pages R0-R8 (supplements ADR-031) | Accepted | 2026-05-13 | [[ADR-059-seo-runtime-projection]] |
+| ADR-059 | SEO Runtime Projection Architecture — wiki/exports/seo → DB versionnée → Pages R0-R8 | Accepted | 2026-05-13 | [[ADR-059-seo-runtime-projection]] |
 | ADR-060 | Doctrine des rôles repositories — 5 acteurs canon (vault / wiki / raw / monorepo / rag) | Accepted | 2026-05-13 | [[ADR-060-repository-roles-doctrine]] |
 | ADR-061 | Workspace Governance — frontière, lifecycle, ownership, anti-mini-monorepo | Accepted | 2026-05-13 | [[ADR-061-workspace-governance]] |
-| ADR-062 | Repository Contract System — meta-model (9 concepts canon : Contract / Generator / Derived / Engine / Gate / Ratchet / Owner / SemVer / Anti-parallel-truth) + §0 Lois A/B + Conformity criteria + Tiers de conformance + Cross-contract dependencies | Accepted | 2026-05-14 | [[ADR-062-repository-contract-system-meta-model]] |
+| ADR-062 | Repository Contract System — meta-model (9 concepts canon) | Accepted | 2026-05-14 | [[ADR-062-repository-contract-system-meta-model]] |
+| ADR-063 | CWV Monitoring PROD via CrUX API (field data 28j) | Accepted | 2026-05-14 | [[ADR-063-cwv-monitoring-prod-crux-api]] |
+| ADR-064 | SEO Production Control Plane (4-layer Collectors/Evaluators/Actions/Governance) | Proposed | 2026-05-14 | [[ADR-064-seo-production-control-plane]] |
+| ADR-065 | Migration Safety Gate — grep → squawk (SQL AST linter) | Accepted | 2026-05-14 | [[ADR-065-migration-safety-via-squawk]] |
+| ADR-066 | R2 Content Composition v2 — Per-Motorisation Variation with Eligibility Gate, Catalog-First Diversity, SUPPRESSED Canonical | Accepted | 2026-05-15 | [[ADR-066-r2-content-composition-v2]] |
+| ADR-067 | R2 Content Composition — Doctrine pivot : SUPPRESSED automatique INTERDIT, compatibilité pièce prime sur similarité texte | Accepted | 2026-05-15 | [[ADR-067-r2-no-auto-suppression]] |
+| ADR-068 | R2 — Doctrine STRICT : 4 actions auto INTERDITES (suppress + désindex + canonical sibling + sitemap exclusion). Une page valide DOIT rester candidate INDEX. | Accepted | 2026-05-16 | [[ADR-068-r2-doctrine-strict-no-auto-deindex]] |
+| ADR-070 | R2 — R8+R1 first, R2 second : formule canon `R2Content = render(R8 + R1 + KG + WIKI)`, INTERNAL DIFFERENCE EXHAUSTION, technical criteria = evidence | Accepted | 2026-05-16 | [[ADR-070-r8-r1-first-r2-second-active-disambiguation]] |
+| ADR-072 | R2 — Paradigme architectural industry-standard : CQRS + DDD bounded contexts + Published Snapshot Artifact + Outbox pattern + Schema Registry + OpenTelemetry canon + GitOps publication | Accepted | 2026-05-16 | [[ADR-072-r2-cqrs-ddd-snapshot-artifact]] |
+| ADR-073 |  | Proposed | 2026-05-17 | [[ADR-073-fact-graph-l3-l4-extension-to-adr-070]] |
+| ADR-074 | Unified Indexability Decision Plane (UIDP) V1 | Proposed | 2026-05-18 | [[ADR-074-unified-indexability-decision-plane]] |
+| ADR-076 | Soft-404 R2-PRODUIT — Multi-tier alternatives + JSON-LD ItemList + append-only telemetry | Accepted | 2026-05-18 | [[ADR-076-soft-404-r2-strategy]] |
+| ADR-077 | Diagnostic Control Plane V1 — Evidence-Gated V1.5 Registry (10 deferral gates G1..G10) | Accepted | 2026-05-19 | [[ADR-077-diagnostic-cp-v1-evidence-gates]] |
+| ADR-078 | pieces_media_img mass corruption recovery — Tier C soft-hide + structural guards, brand-media ingestion deferred | Accepted | 2026-05-23 | [[ADR-078-pieces-media-img-recovery-tier-c]] |
+| ADR-079 | Product Media Control Plane — Operational Asset Truth Layer (extension ADR-058) | Accepted | 2026-05-23 | [[ADR-079-product-media-control-plane]] |
+| ADR-080 | Intent Resolution V1 Doctrine — R5 traffic SEO as runtime operational intelligence layer (V1A.0 ship-first ultra-minimal) | Accepted | 2026-05-23 | [[ADR-080-intent-resolution-v1-doctrine]] |
+| ADR-081 | Doctrine Agility Amendments — Sunset Clause + Exploration Budget | Proposed | 2026-05-24 | [[ADR-081-doctrine-agility-amendments]] |
+| ADR-082 | Doctrine d'amélioration continue globale — lightweight advisory filter (amended Voie 3 post INC-2026-016) | Proposed | 2026-05-27 | [[ADR-082-global-continuous-improvement-doctrine]] |
+| ADR-083 |  | Unknown |  | [[ADR-083-tiered-wiki-promotion]] |
+| ADR-086 | Content Excellence Contract — loi de composition R2 = R1 ⊕ R8 : enrichir R1 (gamme) + R8 (par motorisation) depuis le WIKI ; R2 est leur combinaison, jamais écrit séparément | Proposed | 2026-06-13 | [[ADR-086-encyclopedia-editorial-content-contract]] |
 
-| ADR-082 | Global Continuous Improvement Doctrine — lightweight advisory filter, Voie 3 post INC-2026-016 | Accepted | 2026-05-27 | [[ADR-082-global-continuous-improvement-doctrine]] |
-| ADR-083 | **Promotion WIKI auto-tiered** — auto-approve high-confidence sourcé (5 gates PASS + confidence >=0.80 + truth_level L1/L2 + 0 safety/contradiction) ; human-required pour le résidu risqué. Amende ADR-033 (autorité de promotion), réf. ADR-059 (build_exports_seo inchangé, no-op THRESHOLD=1.01). | Proposed | 2026-06-10 | [[ADR-083-tiered-wiki-promotion]] |
 <!-- AUTO-GENERATED:moc-decisions-canonical-index end -->
 
 ## Par Catégorie
