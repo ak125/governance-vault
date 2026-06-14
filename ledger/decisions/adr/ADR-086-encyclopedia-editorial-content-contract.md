@@ -1,18 +1,17 @@
 ---
 id: ADR-086
-title: "Content Excellence Contract — loi de composition R2 = R1 ⊕ R8 : enrichir R1 (gamme) + R8 (par motorisation) depuis le WIKI ; R2 est leur combinaison, jamais écrit séparément"
+title: "Content Excellence Contract — loi de composition R2 = R1 ⊕ R8 : enrichir R1 (gamme) + R8 (par motorisation) depuis le WIKI ; R2 est leur combinaison, non écrit séparément"
 status: proposed
-date: 2026-06-13
-decision_date: 2026-06-13
+date: "2026-06-13"
+decision_date: "2026-06-13"
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
 amends: ["ADR-083"]
-supplements: ["ADR-059", "ADR-031", "ADR-066"]
+extends: ["ADR-059", "ADR-031", "ADR-066"]
+related_adr: ["ADR-031", "ADR-033", "ADR-046", "ADR-059", "ADR-066", "ADR-083"]
 related_rules: ["G1", "AI1", "T1"]
 related_incidents: []
-related_adr: ["ADR-031", "ADR-033", "ADR-046", "ADR-059", "ADR-066", "ADR-083"]
-reviewed_by: "@fafa"
 ---
 
 # ADR-086 : Content Excellence Contract (loi de composition R2 = R1 ⊕ R8)
@@ -30,7 +29,7 @@ code, registre et en test bout-en-bout :
    pilotes promues (`filtre-a-air` / `filtre-a-carburant` / `filtre-d-habitacle`) avaient `facts:[]`
    et `blocks:[]` → export **structurellement valide mais vide de contenu**. Le mapping
    `dimensions → facts/blocks` a été prouvé (PR `feat/export-contract-dimensions-to-blocks`,
-   `schema_version 1.1.0`, 32 tests, negative test zéro filler) — mais le contenu projeté restait
+   `schema_version 1.1.0`, 32 tests, negative test 0 filler) — mais le contenu projeté restait
    **mince** (compatibilité + 1 ligne entretien) : insuffisant pour du SEO excellent et pour
    différencier des pages quasi-identiques sans tomber dans le duplicate.
 
@@ -63,14 +62,14 @@ surfaces ancrées** et **R2 en est la combinaison déterministe** :
   intervalles d'entretien, références **de CE moteur**. **Écrite par motorisation**
   (`fuel:` → `engine_family:`), consommatrice du **canon véhicule**.
 - **R2 (produit, transactionnel) = projection(canon gamme) ⊕ projection(canon véhicule pour la
-  motorisation de CETTE page)** — **composé**, **jamais authored**. Reste structural-first
+  motorisation de CETTE page)** — **composé**, **non authored**. Reste structural-first
   (**ADR-066**) : R2 ne porte pas ses propres blocs éditoriaux ; il **joint** le cluster gamme et
   la couche R8. L'URL R2 (`gamme × marque × modèle × motorisation`) encode littéralement cette
   jointure R1 × R8.
 
 **Pourquoi cette loi résout le duplicate à l'échelle.** Le catalogue produit des pages R2
 quasi-identiques (même gamme, véhicules voisins). L'unicité ne vient **pas** d'une prose réécrite
-par page (impossible + pénalisé : Helpful Content / duplicate). Elle vient de la **composante R8
+par page (irréaliste + pénalisé : Helpful Content / duplicate). Elle vient de la **composante R8
 par motorisation** : deux R2 de la même gamme diffèrent parce que leur **moteur** diffère (pannes
 du K9K, intervalle du 1.5 dCi, réf OEM propres). Le cluster gamme partagé **ne crée pas** de
 duplicate **parce que** R8 différencie chaque R2. La richesse de R2 est exactement
@@ -89,18 +88,18 @@ humain-lisible, la représentation **machine-projetable** d'ADR-059 :
   **role-aware**, reformulé non-verbatim. `truth_level ∈ {db_owned, sourced, inferred, editorial}`.
 
 La **prose** reste l'artefact humain-lisible ; les **blocs/facts** sont la **SoT projetable** (ce
-que `build_exports_seo` lit). **R2 ne porte aucun bloc propre** : il consomme les blocs gamme + R8.
+que `build_exports_seo` lit). **R2 ne porte pas de bloc propre** : il consomme les blocs gamme + R8.
 
 **Définition d'un BLOC VALIDE** (le gate, sinon on ne pose rien) : `role` ∈ enum · `section` ∈ enum
 contrôlé par rôle · `content_md` non-vide, **FR, non-générique** · `source_ids[]` **préfixés**
 (≥1 ; un bloc `db_owned` peut être `db:` seul) · `truth_level` renseigné · **reformulé
-non-verbatim**. Échec → **aucun bloc émis** (pas de filler), jamais un bloc inventé.
+non-verbatim**. Échec → **pas de bloc émis** (pas de filler), pas de bloc inventé.
 
 ### 2bis. Standard du canon GAMME (R1) — taxonomie de sections + barre tierée
 
-Le canon gamme couvre **100 % des pages** (toute R2 = une gamme ⊕ véhicule) ; **232 unités** =
+Le canon gamme couvre **l'intégralité des pages** (toute R2 = une gamme ⊕ véhicule) ; **232 unités** =
 priorité contenu #1, devant la long-tail moteur (évidence : curer 150 familles moteur ≈ 44 % des
-12 062 types indexables ; 232 gammes = 100 %). Le canon gamme porte un **enum de sections contrôlé
+12 062 types indexables ; 232 gammes = couverture totale). Le canon gamme porte un **enum de sections contrôlé
 par rôle** :
 
 | Section (`role/section`) | Tier | Source |
@@ -129,46 +128,46 @@ dispo + **≥2 sources indépendantes sur ≥50 % des blocs**. Les 3 sections d�
 (`{slot, purpose, alt_text, source, license, status}`) avec `status ∈ {AVAILABLE, DEFERRED}` —
 `hero` AVAILABLE depuis `db:pieces_gamme.pg_pic` ; diagrammes/comparatifs DEFERRED. **Le contrat
 média est défini ici ; l'acquisition/optimisation d'images (pipeline asset, LCP/CWV, licences) est
-un chantier séparé** — zéro couplage, zéro repeinte. Aucune image n'est une condition de projection.
+un chantier séparé** — sans couplage ni repeinte. Aucune image n'est requise pour la projection.
 
 ### 3. Modèle d'enrichissement — RAW + WIKI + DB + KW (les 4 intrants, rôles STRICTS)
 
 - **RAW = faits sourcés (preuve)** : `facts` atomiques **reformulés non-verbatim**, provenance +
   confidence par fait. Jamais de copie longue (un fait n'est pas protégeable, son expression l'est).
-  **RAW lit la DB (SELECT) mais n'écrit JAMAIS en DB.**
+  **RAW lit la DB (SELECT) et n'y écrit pas.**
 - **WIKI = canon validé + blocs** : couche **humain-validée** ; les `blocks` role-aware sont la
-  **SoT projetable**. Le **RAG ne sert JAMAIS de source contenu** (chatbot/retrieval only,
+  **SoT projetable**. Le **RAG ne sert pas de source contenu** (chatbot/retrieval only,
   **ADR-031 / ADR-046**) — interdit comme voie de génération.
 - **DB = structure catalogue (faits possédés)** : cluster gamme (R1/compat) + véhicule (R8) +
   motorisation + `catalog_signature` (**ADR-066**) — le squelette factuel **vehicle-aware** qui
   rend chaque R2 unique.
-- **KW = signal de DEMANDE / INTENTION, GATÉ** (jamais du vocabulaire) :
+- **KW = signal de DEMANDE / INTENTION, GATÉ** (pas du vocabulaire) :
   - `__seo_keywords` est **CONTAMINÉ** (mapping keyword→gamme non fiable : « disque » mappé sur
     `plaquette-de-frein`…). → **seule l'EXISTENCE / le COMPTAGE** de kw (avec seuil) est
-    exploitable, comme signal « recherche préparée / demande » — **jamais la valeur brute**.
-  - **Terme produit = `pieces_gamme.pg_name` autoritaire**, JAMAIS le top-kw brut.
+    exploitable, comme signal « recherche préparée / demande » — **pas la valeur brute**.
+  - **Terme produit = `pieces_gamme.pg_name` autoritaire**, pas le top-kw brut.
   - Un keyword n'enrichit le texte **que s'il contient TOUS les mots-cœur de la gamme** (gate
     `pickGammeKeywordModifier`) ; sinon rejet. **KW pilote l'angle/la priorité, pas le lexique.**
   - Couverture réelle : **19/232 gammes** (filtration + freinage). Gamme sans kw → **signal ABSENT,
-    jamais fabriqué** ; l'intent retombe sur le rôle (`classifyKeywordToRole`), pas sur un kw absent.
+    non fabriqué** ; l'intent retombe sur le rôle (`classifyKeywordToRole`), pas sur un kw absent.
 
 ### 4. Barre d'excellence + axe motorisation (la clé de jointure R2)
 
 **Barre d'excellence (tier OR)** — un contenu est excellent **ssi** : (a) **sourcé** (≥2 sources
 distinctes + provenance) ; (b) **vehicle-aware / motorisation-aware** (la couche R8 porte des faits
 réels par moteur, pas du générique) ; (c) **non-dupliqué** (la composante R8 différencie le R2 ;
-`catalog_signature` + diversité structurale **ADR-066**, zéro filler) ; (d) **demand-targeted**
+`catalog_signature` + diversité structurale **ADR-066**, sans filler) ; (d) **demand-targeted**
 (angle aligné au signal KW gaté) ; (e) **reformulé non-verbatim**. Filler générique / duplicate
 amplifié / kw-brut comme terme = **interdit**.
 
 **Axe motorisation = la clé de jointure qui différencie R2.** Clés normalisées `fuel:` /
 `fuel_displacement:` / `engine_family:` + `axis_key_type` explicite. **BRONZE** = regroupement par
 **carburant** (DB-fiable, `auto_type.type_fuel`) ; **ARGENT/OR** = raffinement **famille-moteur**
-(N47, K9K…) par évidence sourcée — AJOUTÉ, jamais inventé. **`engine_family:*` n'écrase JAMAIS
+(N47, K9K…) par évidence sourcée — AJOUTÉ, non inventé. **`engine_family:*` ne remplace pas
 `fuel:*`** (DB-owned/high) ; il enrichit une sous-clé et ne devient canon que si ≥2 sources
 cohérentes OU backfill DB. Les codes moteur EXISTENT (`cars_engine`, dérivation
 `__seo_r8_pages.engine_family_key`, `kg_engine_families`) ; le pont par-type `auto_type_motor_code`
-est vide (backfill ultérieur) — `engine_code` null **honnête**, jamais deviné.
+est vide (backfill ultérieur) — `engine_code` null **honnête**, non deviné.
 
 ### 5. Amendement ADR-083 : la promotion produit les blocs
 
@@ -184,24 +183,24 @@ source/claim/contradiction/risk/confidence + `confidence_score ≥ seuil` + `tru
   Identique = le flux (générateurs DB-first, RAW→WIKI→porte ADR-083, gates, axe motorisation,
   fail-closed). Différent = profils de complétude + sections par entité. R-roles = consommateurs
   uniformes (cluster gamme ← gamme · R8 ← véhicule · R7 ← constructeur · diagnostic ← diagnostic) —
-  flux **ADR-031**, zéro exception, zéro usine séparée.
+  flux **ADR-031**, sans exception ni usine séparée.
 - **Internal DB first** : seed l'éditorial depuis la connaissance interne curée
   (`kg_engine_families.common_issues`) AVANT scraping ; multi-source = **pondération de confiance**
   (constructeur/OEM > équipementier > fournisseur > presse > forums), **pas exclusion** ; valeurs
   prescriptives exactes à risque physique (couples, pressions, fluides) = **fail-closed**.
 - **kg = PROJECTION, pas SoT parallèle** : le diagnostic engine (kg) est un **consommateur** généré
-  de l'encyclopédie, jamais curé en parallèle. Nourrir sa DONNÉE est autorisé même si le MOTEUR
-  (r5) est paused — via voie gouvernée, **jamais d'INSERT direct** (anti-pattern `__rag_knowledge`).
+  de l'encyclopédie, non curé en parallèle. Nourrir sa DONNÉE est autorisé même si le MOTEUR
+  (r5) est paused — via voie gouvernée, **pas d'INSERT direct** (anti-pattern `__rag_knowledge`).
 
 ### 7. Invariants stricts
 
 - **RAW ≠ DB-write.** Flux : `RAW(faits) → WIKI(canon humain-validé + blocs) → exports →
   projection → pages/consommateurs`. Aucun consommateur runtime ne lit RAW.
-- **AUCUN noindex de contenu.** ADR-086 **n'introduit aucun déclencheur noindex / suppression de
-  page**. Une page sans Couche R8 riche **rend ce qui est vrai** (faits DB) + **zéro bloc
+- **Pas de noindex de contenu.** ADR-086 **n'introduit pas de déclencheur noindex / suppression de
+  page**. Une page sans Couche R8 riche **rend ce qui est vrai** (faits DB) + **sans bloc
   fabriqué** ; elle **reste indexée**. L'indexabilité demeure gouvernée **exclusivement** par les
   signaux existants déjà validés (vendabilité — R2 noindex `<1` vendable, PR #916 ; `pg_relfollow` ;
-  suppression **manuelle**) — jamais par une heuristique de richesse éditoriale.
+  suppression **manuelle**) — pas par une heuristique de richesse éditoriale.
 - **URLs intouchables.** Aucune modification de canonical / routes / slugs (hors périmètre, gelé).
 
 ## § Conséquences
@@ -222,9 +221,9 @@ source/claim/contradiction/risk/confidence + `confidence_score ≥ seuil` + `tru
 |--------|------------|
 | Sur-structuration | BRONZE DB-first suffit pour démarrer ; profondeur OR = enrichissement sourcé ultérieur |
 | Prose et blocs divergent | Blocs = SoT projetable ; prose = vue humaine ; gate de cohérence en promotion |
-| Tentation d'écrire R2 directement | Contrat : R2 = `gamme ⊕ R8`, jamais de blocs propres (ADR-066) |
+| Tentation d'écrire R2 directement | Contrat : R2 = `gamme ⊕ R8`, pas de blocs propres (ADR-066) |
 | Couche gamme partagée perçue comme duplicate | La composante R8 par motorisation différencie chaque R2 ; `catalog_signature` le mesure |
-| `engine_family` sur-appliqué (ex. « K9K » sur toutes les Clio) | `engine_family` n'écrase jamais `fuel:` ; canon ssi ≥2 sources OU backfill DB |
+| `engine_family` sur-appliqué (ex. « K9K » sur toutes les Clio) | `engine_family` ne remplace pas `fuel:` ; canon ssi ≥2 sources OU backfill DB |
 
 ## § Séquence (post-signature)
 
@@ -251,7 +250,7 @@ source/claim/contradiction/risk/confidence + `confidence_score ≥ seuil` + `tru
   [ADR-046 RAG = retrieval chatbot only](ADR-046-rag-retrieval-chatbot-only.md) (RAG ≠ source contenu) ·
   [ADR-033 Wiki Gamme Diagnostic Relations](ADR-033-wiki-gamme-diagnostic-relations.md).
 - Preuve de contrat : PR `automecanik-wiki` `feat/export-contract-dimensions-to-blocks` (#43) —
-  `dimensions → facts/blocks`, schema v1.1.0, negative test zéro filler.
+  `dimensions → facts/blocks`, schema v1.1.0, negative test 0 filler.
 - Contrat opérationnel : `automecanik-raw/docs/encyclopedia-contract.md` (à linker au canon).
 - Mémoires agent liées (monorepo, hors wikilink vault) :
   `feedback_encyclopedia_entity_architecture_motorization_axis`,
