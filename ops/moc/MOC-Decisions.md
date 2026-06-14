@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-05-14
+updated: 2026-05-29
 ---
 
 # MOC: Decisions
@@ -315,6 +315,16 @@ Voir [[adr-template]] dans `_templates/`.
 
 ---
 
+## Revues planifiées ADR
+
+Traçabilité des revues post-merge inscrites dans §Revue planifiée de chaque ADR.
+
+| ADR | Échéance | Rapport | Verdict |
+|-----|----------|---------|---------|
+| [[ADR-033-wiki-gamme-diagnostic-relations-contract]] | 2026-05-29 (J+30) | [[AUDIT-2026-05-adr-033-j30-review]] (`ledger/audits/2026/`) | 1 FAIL · 1 PARTIAL · 2 PASS → **proposed** maintenu |
+
+---
+
 ## Voir aussi
 
 - [[MOC-Rules]] - Règles canoniques T/G/AI/V
@@ -323,7 +333,7 @@ Voir [[adr-template]] dans `_templates/`.
 
 ---
 
-_Derniere mise a jour: 2026-05-02_
+_Derniere mise a jour: 2026-05-29_
 
 _Synchronisé manuellement vs frontmatter ADR le 2026-05-02. Q4 follow-up :
 auto-générer cette table depuis `_scripts/sync-moc-decisions.py` (à créer)
