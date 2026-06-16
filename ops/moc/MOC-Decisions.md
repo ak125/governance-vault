@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-06-14
+updated: 2026-06-16
 ---
 
 # MOC: Decisions
@@ -108,7 +108,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 > Projection mécanique du frontmatter ADR (PR-3 sync_moc_decisions).
 > Toute édition manuelle entre les markers est écrasée à chaque sync.
 > Pour annoter, éditer le frontmatter ADR ou la table « ADR Actifs » ci-dessus.
-> Dernier sync : 2026-06-14.
+> Dernier sync : 2026-06-16.
 
 | ID | Titre | Statut canonique | Date | Fichier |
 |----|-------|------------------|------|---------|
@@ -189,7 +189,8 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-081 | Doctrine Agility Amendments — Sunset Clause + Exploration Budget | Proposed | 2026-05-24 | [[ADR-081-doctrine-agility-amendments]] |
 | ADR-082 | Doctrine d'amélioration continue globale — lightweight advisory filter (amended Voie 3 post INC-2026-016) | Proposed | 2026-05-27 | [[ADR-082-global-continuous-improvement-doctrine]] |
 | ADR-083 |  | Unknown |  | [[ADR-083-tiered-wiki-promotion]] |
-| ADR-086 | Content Excellence Contract — loi de composition R2 = R1 ⊕ R8 : enrichir R1 (gamme) + R8 (par motorisation) depuis le WIKI ; R2 est leur combinaison, jamais écrit séparément | Proposed | 2026-06-13 | [[ADR-086-encyclopedia-editorial-content-contract]] |
+| ADR-085 | Numérotation interne véhicule : séquence globale Massdoc + allocateur gouverné (auto_type.type_id) | Proposed | 2026-06-15 | [[ADR-085-massdoc-sequential-type-id-invariant]] |
+| ADR-086 | Content Excellence Contract — loi de composition R2 = R1 ⊕ R8 : enrichir R1 (gamme) + R8 (par motorisation) depuis le WIKI ; R2 est leur combinaison, non écrit séparément | Proposed | 2026-06-13 | [[ADR-086-encyclopedia-editorial-content-contract]] |
 
 <!-- AUTO-GENERATED:moc-decisions-canonical-index end -->
 
