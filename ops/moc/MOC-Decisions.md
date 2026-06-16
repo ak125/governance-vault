@@ -191,6 +191,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-083 |  | Unknown |  | [[ADR-083-tiered-wiki-promotion]] |
 | ADR-085 | Numérotation interne véhicule : séquence globale Massdoc + allocateur gouverné (auto_type.type_id) | Proposed | 2026-06-15 | [[ADR-085-massdoc-sequential-type-id-invariant]] |
 | ADR-086 | Content Excellence Contract — loi de composition R2 = R1 ⊕ R8 : enrichir R1 (gamme) + R8 (par motorisation) depuis le WIKI ; R2 est leur combinaison, non écrit séparément | Proposed | 2026-06-13 | [[ADR-086-encyclopedia-editorial-content-contract]] |
+| ADR-087 | Command Center — observatoire advisory vers orchestration gouvernée (lift ciblé de la pause new-control-plane) | Proposed | 2026-06-16 | [[ADR-087-command-center-orchestration]] |
 
 <!-- AUTO-GENERATED:moc-decisions-canonical-index end -->
 
