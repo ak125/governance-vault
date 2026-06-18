@@ -159,6 +159,26 @@ boucle SCRAPING-LARGE**, pas par ce gate (plancher, pas plafond).
 
 ---
 
+## Précisions issues de la revue adversariale (2026-06-17)
+Quatre angles morts — ils **ne contredisent pas la décision, ils la durcissent** :
+
+1. **Planchers ENTITY-TYPE-AWARE** (sinon on bloque du contenu légitime non-véhicule — le défaut même qu'on
+   combat) : les planchers héritent des **profils par entité d'ADR-086 §2bis**. Le plancher **B (granularité
+   moteur) ne s'applique qu'aux `vehicle`** ; **D (commerce) aux `vehicle`/`gamme`** ; `constructeur` /
+   `diagnostic` / `support` ont leur propre profil. Une dimension **non applicable à un type est neutralisée**
+   (exclue du total ET des planchers, le total étant **renormalisé sur les dimensions applicables**), jamais
+   comptée 0.
+2. **Séquençage = gel de promotion assumé** : A se calcule depuis la coverage-map ; tant qu'elles ne sont pas
+   générées, A≈0 → **auto-promotion ~0 au cutover (INTENTIONNEL, pas un bug)**. Prérequis dur : génération des
+   coverage-maps + migration du corpus **AVANT** d'abaisser le seuil. À acter pour éviter la surprise.
+3. **Manifest reality-check = fraîcheur garantie** : le manifest engine_codes/gammes doit être **régénérable +
+   freshness-checké** (job de refresh + garde anti-stale) ; rejet UNIQUEMENT sur **absence confirmée**, jamais sur
+   manifest périmé (sinon faux négatifs sur des codes réels récents).
+4. **Critère de cutover shadow MESURABLE** (« dry-run vert » étant subjectif) : bascule autorisée seulement si,
+   sur le corpus : (i) **nouvelles auto-promotions ⊆ anciennes** (v2 ne promeut rien que v1 bloquait) ; (ii) les
+   fiches known-bad (Golf 5) tombent en TIER B/C ; (iii) après migration **≥1 fiche atteint le nouveau TIER A**
+   (le gate n'est pas inerte en permanence).
+
 ## Questions ouvertes (à trancher par l'owner en signant)
 1. **Un ADR ou deux ?** Regroupé ici car le score B (granularité) dépend de l'engineBlock enrichi. Scinder
    possible (083-bis « score à planchers » + 086-bis « engineBlock factuel ») si granularité gouvernance voulue.
