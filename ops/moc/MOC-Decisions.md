@@ -194,6 +194,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-087 | Command Center — observatoire advisory vers orchestration gouvernée (lift ciblé de la pause new-control-plane) | Proposed | 2026-06-16 | [[ADR-087-command-center-orchestration]] |
 | ADR-088 | Gate de promotion de substance — score à planchers (6-dim/100) + engineBlock factuel : amende ADR-083 (formule de score) et ADR-086 (contrat de contenu structuré) | Accepted | 2026-06-17 | [[ADR-088-promotion-gate-substance-scoring]] |
 | ADR-089 | Content Coverage-Map Canon — claim↔source artefact gouverné (_meta/schema/coverage-map.schema.json), backing de la dimension A du score de substance ADR-088 | Proposed | 2026-06-19 | [[ADR-089-content-coverage-map-canon]] |
+| ADR-090 | SEO Projection Forward Writer Canon — ratifie les contrats §C1-C4 (outbox refresh-trigger, payload R1 block-taxonomy, 2-gate writer wouldRegress) dont dépend le writer exports/seo→DB : amende ADR-059 | Accepted | 2026-06-19 | [[ADR-090-seo-projection-forward-writer-canon]] |
 
 <!-- AUTO-GENERATED:moc-decisions-canonical-index end -->
 
