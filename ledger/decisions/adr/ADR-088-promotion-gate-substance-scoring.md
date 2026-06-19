@@ -1,7 +1,7 @@
 ---
 id: ADR-088
 title: "Gate de promotion de substance — score à planchers (6-dim/100) + engineBlock factuel : amende ADR-083 (formule de score) et ADR-086 (contrat de contenu structuré)"
-status: proposed
+status: accepted
 date: "2026-06-17"
 decision_date: "2026-06-17"
 decision_makers: ["@fafa"]
@@ -23,7 +23,7 @@ version: "1.0.0"
 > **ADR-059** (projection), **ADR-033** (sas wiki), `source-policy §9.1` — sans les abroger.
 > Owner décide. Rien n'est écrit dans le vault par l'assistant.
 
-- **Statut** : Proposed
+- **Statut** : Accepted
 - **Date** : 2026-06-17
 - **Amende** : **ADR-083** (§Décision — formule `confidence_score` + bar TIER A) · **ADR-086** (§2 contrat structuré + §5 amendement promotion) — **n'abroge pas**, **durcit**
 - **Référence inchangée** : ADR-059 (`build_exports_seo.py` approved-only, 0 LLM/0 DB/0 enrichissement) · `source-policy.md §9.1` (type→max_confidence) · coverage-map = `_meta/schema/coverage-map.schema.json` (schéma wiki existant — **backing vault à établir**, voir §C)

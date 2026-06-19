@@ -1,7 +1,7 @@
 ---
 id: ADR-086
 title: "Content Excellence Contract — loi de composition R2 = R1 ⊕ R8 : enrichir R1 (gamme) + R8 (par motorisation) depuis le WIKI ; R2 est leur combinaison, non écrit séparément"
-status: proposed
+status: accepted
 date: "2026-06-13"
 decision_date: "2026-06-13"
 decision_makers: ["@fafa"]

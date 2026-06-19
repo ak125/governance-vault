@@ -1,3 +1,20 @@
+---
+id: ADR-083
+title: "Promotion WIKI auto-tiered — porte déterministe TIER A (auto) / TIER B (humain) composant les gates existants, amende ADR-033, 0 LLM/0 DB/0 enrichissement"
+status: accepted
+date: "2026-06-10"
+decision_date: "2026-06-10"
+decision_makers: ["@fafa"]
+supersedes: []
+superseded_by: []
+amends: ["ADR-033"]
+extends: ["ADR-059"]
+related_adr: ["ADR-033", "ADR-046", "ADR-059", "ADR-086", "ADR-088"]
+related_rules: ["G1", "AI1", "T1"]
+related_incidents: []
+version: "1.0.0"
+---
+
 # ADR-083 (PROPOSÉ — numéro à confirmer au vault) : Promotion WIKI auto-tiered
 
 > **DRAFT vault — préparé en /tmp, NON appliqué.** À porter dans `ak125/governance-vault`
@@ -5,7 +22,7 @@
 > promotion) et référence **ADR-059** (SEO Runtime Projection) sans le modifier.
 > Owner décide. Rien n'est écrit dans le vault par l'assistant.
 
-- **Statut** : Proposed
+- **Statut** : Accepted
 - **Date** : 2026-06-10
 - **Amende** : ADR-033 §promotion (review_status: approved = humain) — **n'abroge pas**, **étend l'autorité**
 - **Référence inchangée** : ADR-059 (`build_exports_seo.py` reste « approved-only », 0 LLM / 0 DB / 0 enrichissement)

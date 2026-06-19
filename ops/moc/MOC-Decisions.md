@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-06-18
+updated: 2026-06-19
 ---
 
 # MOC: Decisions
@@ -108,7 +108,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 > Projection mécanique du frontmatter ADR (PR-3 sync_moc_decisions).
 > Toute édition manuelle entre les markers est écrasée à chaque sync.
 > Pour annoter, éditer le frontmatter ADR ou la table « ADR Actifs » ci-dessus.
-> Dernier sync : 2026-06-18.
+> Dernier sync : 2026-06-19.
 
 | ID | Titre | Statut canonique | Date | Fichier |
 |----|-------|------------------|------|---------|
@@ -188,11 +188,12 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-080 | Intent Resolution V1 Doctrine — R5 traffic SEO as runtime operational intelligence layer (V1A.0 ship-first ultra-minimal) | Accepted | 2026-05-23 | [[ADR-080-intent-resolution-v1-doctrine]] |
 | ADR-081 | Doctrine Agility Amendments — Sunset Clause + Exploration Budget | Proposed | 2026-05-24 | [[ADR-081-doctrine-agility-amendments]] |
 | ADR-082 | Doctrine d'amélioration continue globale — lightweight advisory filter (amended Voie 3 post INC-2026-016) | Proposed | 2026-05-27 | [[ADR-082-global-continuous-improvement-doctrine]] |
-| ADR-083 |  | Unknown |  | [[ADR-083-tiered-wiki-promotion]] |
+| ADR-083 | Promotion WIKI auto-tiered — porte déterministe TIER A (auto) / TIER B (humain) composant les gates existants, amende ADR-033, 0 LLM/0 DB/0 enrichissement | Accepted | 2026-06-10 | [[ADR-083-tiered-wiki-promotion]] |
 | ADR-085 | Numérotation interne véhicule : séquence globale Massdoc + allocateur gouverné (auto_type.type_id) | Proposed | 2026-06-15 | [[ADR-085-massdoc-sequential-type-id-invariant]] |
-| ADR-086 | Content Excellence Contract — loi de composition R2 = R1 ⊕ R8 : enrichir R1 (gamme) + R8 (par motorisation) depuis le WIKI ; R2 est leur combinaison, non écrit séparément | Proposed | 2026-06-13 | [[ADR-086-encyclopedia-editorial-content-contract]] |
+| ADR-086 | Content Excellence Contract — loi de composition R2 = R1 ⊕ R8 : enrichir R1 (gamme) + R8 (par motorisation) depuis le WIKI ; R2 est leur combinaison, non écrit séparément | Accepted | 2026-06-13 | [[ADR-086-encyclopedia-editorial-content-contract]] |
 | ADR-087 | Command Center — observatoire advisory vers orchestration gouvernée (lift ciblé de la pause new-control-plane) | Proposed | 2026-06-16 | [[ADR-087-command-center-orchestration]] |
-| ADR-088 | Gate de promotion de substance — score à planchers (6-dim/100) + engineBlock factuel : amende ADR-083 (formule de score) et ADR-086 (contrat de contenu structuré) | Proposed | 2026-06-17 | [[ADR-088-promotion-gate-substance-scoring]] |
+| ADR-088 | Gate de promotion de substance — score à planchers (6-dim/100) + engineBlock factuel : amende ADR-083 (formule de score) et ADR-086 (contrat de contenu structuré) | Accepted | 2026-06-17 | [[ADR-088-promotion-gate-substance-scoring]] |
+| ADR-089 | Content Coverage-Map Canon — claim↔source artefact gouverné (_meta/schema/coverage-map.schema.json), backing de la dimension A du score de substance ADR-088 | Proposed | 2026-06-19 | [[ADR-089-content-coverage-map-canon]] |
 
 <!-- AUTO-GENERATED:moc-decisions-canonical-index end -->
 
