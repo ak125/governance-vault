@@ -119,3 +119,5 @@ Base de connaissances architecturale.
 ## Knowledge Sous-Dossier Diagnostics
 
 - [[2026-02-payment-fixes]] - Index des correctifs paiement fevrier 2026
+
+- [[ADR-091-wiki-score-recalibration]] — recalibrage confidence_score wiki (vérité>conformité)
