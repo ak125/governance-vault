@@ -1,15 +1,21 @@
 ---
-id: ADR-NNN            # ← remplacer NNN par le prochain numéro (cf. commande étape 2)
-title: Recalibrage du confidence_score wiki (vérité > conformité) + activation tiered du gate de régression
-status: proposed       # proposed → accepted (après revue G3 + gate verdict APPROVE)
-date: 2026-06-20
-deciders: [Fafa]
-relates_to: [ADR-033, ADR-059, ADR-083, ADR-088]
+id: ADR-091
+title: "Recalibrage du confidence_score wiki (vérité > conformité) + activation tiered du gate de régression"
+status: proposed
+date: "2026-06-20"
+decision_date: ""
+decision_makers: ["@fafa"]
 supersedes: []
-tags: [wiki, scoring, promotion, anti-inflation]
+superseded_by: []
+amends: []
+extends: ["ADR-083"]
+related_adr: ["ADR-033", "ADR-046", "ADR-059", "ADR-083", "ADR-088"]
+related_rules: []
+related_incidents: []
+version: "1.0.0"
 ---
 
-# ADR-NNN — Recalibrage du confidence_score wiki + activation tiered du gate de régression
+# ADR-091 — Recalibrage du confidence_score wiki + activation tiered du gate de régression
 
 ## Statut
 
@@ -43,26 +49,26 @@ il compare une fiche à sa version git précédente (NEW/IMPROVED/NEUTRAL/REGRES
    les sources OE du scrape).
 2. **Exiger des titres de sections canoniques** (template gamme) pour le décompte sections.
 3. **Activer le gate de régression en bloquant** (`--fail-on-regression`, tolérance 0.0)
-   APRÈS recalibrage + **baseline-resync** de tout le corpus (≈14 fiches).
+   après recalibrage + **baseline-resync** de tout le corpus (≈14 fiches).
 4. **Activer la promotion auto** : seuil `promote.py` **1.01 → 0.80** pour les pièces
-   **NON-sécurité** ; les pièces **sécurité** (freinage, direction, airbag, suspension)
-   restent **HUMAN_SPOT_CHECK** — invariant déjà gravé (`auto_review_wiki_proposal.py`),
-   inchangé.
+   **NON-sécurité** (extends ADR-083) ; les pièces **sécurité** (freinage, direction,
+   airbag, suspension) restent **HUMAN_SPOT_CHECK** — invariant déjà gravé
+   (`auto_review_wiki_proposal.py`), inchangé.
 
 ## Conséquences
 
-- Le score change pour **toutes** les fiches → **baseline-resync obligatoire** (commit
-  audité `compute-confidence-score.py --fix` sur tout le corpus) AVANT tout passage bloquant.
+- Le score change pour l'ensemble des fiches (≈14) → **baseline-resync obligatoire** (commit
+  audité `compute-confidence-score.py --fix` sur le corpus) avant tout passage bloquant.
 - Rollout par paliers réversibles : report-only (fait) → observer → resync → bloquant →
   activer promote (non-sécurité).
-- Aucune pièce de sécurité n'est jamais publiée sans humain (principe « no auto-approval »).
-- N'affecte ni URLs, ni schéma, ni module payments.
+- Aucune pièce de sécurité n'est publiée sans revue humaine (principe « no auto-approval »).
+- N'affecte ni URLs, ni schéma de fiches, ni module payments.
 
 ## Alternatives écartées
 
 - Marquer `confidence: high` à la main sur les fiches = bricolage (l'incitation perverse
-  que la PR #49 dénonce) → rejeté.
-- Garder le score tel quel et activer le gate bloquant = punirait le bon contenu OE → rejeté.
+  que la PR #49 dénonce) → écarté.
+- Garder le score tel quel et activer le gate bloquant = punirait le bon contenu OE → écarté.
 
 ## Rollout & rollback
 
@@ -71,6 +77,7 @@ il compare une fiche à sa version git précédente (NEW/IMPROVED/NEUTRAL/REGRES
 
 ## Références
 
-- Brouillon de décision : `/tmp/wiki-score-gate-phaseBC-decision-brief.md`
-- Gate Phase A : ak125/automecanik-wiki PR #60 (mergé).
-- ADR-083 (promotion tiered), ADR-033 (schéma fiches), ADR-059 (projection), ADR-088 (shadow score).
+- Gate Phase A : `ak125/automecanik-wiki` PR #60 (mergé) — `_scripts/compare-proposal-versions.py`.
+- ADR-083 (promotion tiered, seuil dormant activé), ADR-033 (schéma fiches),
+  ADR-059 (projection SEO), ADR-088 (gate substance shadow).
+  (Relations structurées : voir `related_adr` / `extends` dans le frontmatter.)
