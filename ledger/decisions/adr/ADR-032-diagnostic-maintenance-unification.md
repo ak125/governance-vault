@@ -280,3 +280,40 @@ PR-7 à PR-11 : suppression des 800+ lignes de constants TypeScript, remplacemen
 - **Mémoires Claude Code** : `diag-maintenance-canon-decisions.md`, `seed-20260321-silent-fail.md`.
 - **Audit ghost tables seed** : pattern réutilisable (`INSERT … ON CONFLICT DO NOTHING` non précédé de `CREATE TABLE` correspondant).
 - **Si futur enrichissement `auto_type_motor_code`** : ouvrir RFC séparée, ne pas amender ADR-032.
+
+## Amendement 2026-06-21 — D7 reconciliation-by-adapter (`maintenance_priority`)
+
+**Contexte runtime (audit `runtime-truth-p0`, 2026-06-21).** Les 2 RPC maintenance
+de la Phase 1 PR-1 (`kg_get_smart_maintenance_schedule`,
+`kg_get_maintenance_alerts_by_milestone`, migration
+`20260429_diag_maintenance_via_kg.sql`) étaient **absentes de `pg_proc`** sur
+`cxpojprgwgubzjyqzmoq` : la migration n'avait **jamais été appliquée** (malgré
+`implementation_status: phases-0-4-shipped`, **inexact**). Appliquée le 2026-06-21
+(recorded `20260621200101`, PR monorepo **#1084**) après réconciliation au schéma réel.
+
+**Divergence D7 résolue.** D7 prévoit `maintenance_priority` **français 3 niveaux**
+`{critique,important,normal}`. Réalité DB : la colonne **préexiste** (`kg_v3_maintenance`,
+appliquée **2026-01-26**, soit **antérieure à cet ADR**) avec une taxonomie **canon
+anglaise 4 niveaux** `{critical,important,recommended,optional}` (CHECK
+`kg_nodes_maintenance_priority_check`), 13 nodes déjà backfillés. D7 a été écrit sans
+connaître l'existant.
+
+**Décision : reconciliation-by-adapter** (pas de mutation du canon).
+- Canon DB (anglais 4 niveaux) **inchangé** : aucun remap, aucun DROP CHECK.
+- Les 6 nouveaux `MaintenanceInterval` insérés en anglais.
+- Mapping **anglais→français** (`critical→critique`, `important→important`,
+  `recommended/optional→normal`) fait **à la sortie des RPC**, pour honorer le contrat
+  TS/frontend de D7 sans toucher au canon.
+- Rationale : blast radius minimal (vs migrer la colonne = remap data + frontend +
+  autres consumers kg). Réversible (`DROP FUNCTION`).
+
+**Drifts mineurs corrigés (migration stale vs schéma live).** `interval_type` →
+`{km,months,both}` ; `source_type` → `oem` ; `validation_status` → `pending` ; index
+unique **partiel** `uq_kg_nodes_maintenance_alias WHERE node_type='MaintenanceInterval'`
+(pour le `ON CONFLICT` — `node_alias` n'est pas unique globalement) ; `SET search_path=public`
+sur les 3 RPC + vue `v_dtc_lookup` en `security_invoker`.
+
+**Statut.** Amendement d'implémentation — ne modifie pas les décisions D1–D9. À acter par
+@fafa (decision gate) si l'on veut **figer l'adapter comme canon D7** (alternative :
+migrer la colonne en français, blast radius supérieur). `implementation_status` à corriger
+(les RPC maintenance n'étaient pas réellement shipped avant 2026-06-21).
