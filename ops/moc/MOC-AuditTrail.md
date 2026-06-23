@@ -152,6 +152,3 @@ Voir [[rules-governance-process]] G9 + [[ADR-081-doctrine-agility-amendments]] +
 ---
 
 _Derniere mise a jour: 2026-05-24_
-
-- [[ADR-092-rank1-content-gate]] — Rank-#1 content quality gate (PROPOSED)
-- [[ADR-093-auto-review-earn-gate]] — Auto-review earn-gate (PROPOSED)

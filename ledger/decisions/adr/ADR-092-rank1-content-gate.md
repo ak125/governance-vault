@@ -3,6 +3,7 @@ id: ADR-092
 title: "Gate terminal « rank-#1 capable » pour la boucle contenu (le score manquant)"
 status: PROPOSED
 version: 0.1.0
+date: "2026-06-22"
 decision_date: 2026-06-22
 decision_makers:
   - Fafa (owner, automecanik.seo@gmail.com)

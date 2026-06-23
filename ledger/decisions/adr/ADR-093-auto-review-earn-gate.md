@@ -1,8 +1,9 @@
 ---
-title: "ADR-093 (à attribuer): auto-review à barre de preuve vérifiable remplace la revue humaine obligatoire (WIKI auto-promotion)"
+title: "auto-review à barre de preuve vérifiable remplace la revue humaine obligatoire (WIKI auto-promotion)"
 id: ADR-093
 status: PROPOSED
 version: 1.0.0
+date: "2026-06-22"
 decision_date: 2026-06-22
 decision_makers: ["@ak125"]
 related_adr: ["ADR-083", "ADR-086", "ADR-091", "ADR-088", "ADR-033", "ADR-059", "ADR-090"]
@@ -11,7 +12,7 @@ created: 2026-06-20
 updated: 2026-06-22
 ---
 
-# ADR-093 (à attribuer): auto-review à barre de preuve vérifiable remplace la revue humaine obligatoire (WIKI auto-promotion)
+# ADR-093 — auto-review à barre de preuve vérifiable remplace la revue humaine obligatoire (WIKI auto-promotion)
 
 > Brouillon préparé en lecture seule, hors vault. La ratification = PR signée par l'owner dans `ak125/governance-vault` (commit signé SSH, single write point DEV). L'agent n'écrit JAMAIS au vault et ne s'auto-approuve pas (mainteneur solo).
 
