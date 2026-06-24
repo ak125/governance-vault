@@ -1,10 +1,10 @@
 ---
 id: ADR-092
 title: "Gate terminal « rank-#1 capable » pour la boucle contenu (le score manquant)"
-status: PROPOSED
-version: 0.1.0
+status: accepted
+version: "1.0.0"
 date: "2026-06-22"
-decision_date: 2026-06-22
+decision_date: "2026-06-24"
 decision_makers:
   - Fafa (owner, automecanik.seo@gmail.com)
 related_adr:
@@ -22,8 +22,6 @@ extends:
 
 # ADR-092 — Gate terminal « rank-#1 capable » pour la boucle contenu (le score manquant)
 
-> **Statut** : PROPOSED. Brouillon vault-ready. Ratification = PR signée OWNER dans `ak125/governance-vault` (G3). L'agent n'écrit pas au vault.
-> ADR-092 à attribuer par l'owner à l'ouverture de la PR vault.
 
 **Fichiers étendus / touchés (détail body, pas frontmatter) :**
 - `_scripts/shadow_score.py` — moteur 6-dim SHADOW (extension G/H + affinage A/B).
@@ -322,4 +320,4 @@ Le LLM peut **proposer/enrichir** (advisory) mais n'est **JAMAIS** juge de promo
 
 ---
 
-_ADR-092 à attribuer. Ratification = PR vault signée OWNER (G3). L'agent n'écrit pas au vault._
+_Ratifié par PR vault signée OWNER (G3) le 2026-06-24. L'agent n'écrit pas au vault._
