@@ -195,9 +195,10 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-088 | Gate de promotion de substance — score à planchers (6-dim/100) + engineBlock factuel : amende ADR-083 (formule de score) et ADR-086 (contrat de contenu structuré) | Accepted | 2026-06-17 | [[ADR-088-promotion-gate-substance-scoring]] |
 | ADR-089 | Content Coverage-Map Canon — claim↔source artefact gouverné (_meta/schema/coverage-map.schema.json), backing de la dimension A du score de substance ADR-088 | Proposed | 2026-06-19 | [[ADR-089-content-coverage-map-canon]] |
 | ADR-090 | SEO Projection Forward Writer Canon — ratifie les contrats §C1-C4 (outbox refresh-trigger, payload R1 block-taxonomy, 2-gate writer wouldRegress) dont dépend le writer exports/seo→DB : amende ADR-059 | Accepted | 2026-06-19 | [[ADR-090-seo-projection-forward-writer-canon]] |
-| ADR-091 | Recalibrage du confidence_score wiki (vérité > conformité) + activation tiered du gate de régression | Proposed | 2026-06-20 | [[ADR-091-wiki-score-recalibration]] |
-| ADR-092 | Gate terminal « rank-#1 capable » pour la boucle contenu (le score manquant) | Proposed | 2026-06-22 | [[ADR-092-rank1-content-gate]] |
+| ADR-091 | Recalibrage du confidence_score wiki (vérité > conformité) + activation tiered du gate de régression | Accepted | 2026-06-24 | [[ADR-091-wiki-score-recalibration]] |
+| ADR-092 | Gate terminal « rank-#1 capable » pour la boucle contenu (le score manquant) | Accepted | 2026-06-24 | [[ADR-092-rank1-content-gate]] |
 | ADR-093 | auto-review à barre de preuve vérifiable remplace la revue humaine obligatoire (WIKI auto-promotion) | Proposed | 2026-06-22 | [[ADR-093-auto-review-earn-gate]] |
+| ADR-094 | Gate cross-domaine page-quality (composite) : substance WIKI ⊗ surface ⊗ runtime ⊗ diversité ⊗ lineage | Proposed | 2026-06-24 | [[ADR-094-page-quality-composite-gate]] |
 
 <!-- AUTO-GENERATED:moc-decisions-canonical-index end -->
 

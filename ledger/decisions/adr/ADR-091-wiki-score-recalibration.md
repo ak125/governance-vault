@@ -1,9 +1,9 @@
 ---
 id: ADR-091
 title: "Recalibrage du confidence_score wiki (vérité > conformité) + activation tiered du gate de régression"
-status: proposed
+status: accepted
 date: "2026-06-20"
-decision_date: ""
+decision_date: "2026-06-24"
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
@@ -19,7 +19,7 @@ version: "1.0.0"
 
 ## Statut
 
-Proposed.
+Accepted.
 
 ## Contexte
 
