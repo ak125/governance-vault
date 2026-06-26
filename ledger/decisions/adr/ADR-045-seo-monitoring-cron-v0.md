@@ -169,6 +169,43 @@ Nouvelle route **`GET /api/admin/seo-monitoring/cron/health`** dans le controlle
 - **Pas d'OTel/Prometheus en V0.A** : observabilité limitée aux logs Sentry +
   `__seo_event_log` query. Acceptable pour V0, OTel ajouté en V0-bis.
 
+> **Amendement 2026-06-26 — Orchestration par sous-système : pg_cron (DB-local) vs Bull/BullMQ (I/O externe)**
+>
+> L'anti-pattern ci-dessous « ❌ `Cron` decorator NestJS au lieu de BullMQ » visait les
+> **fetchers à I/O externe** (GSC/GA4/Links : HTTP authentifié, secrets, retry applicatif)
+> — pour eux la queue `seo-monitor` BullMQ reste le bon orchestrateur. Il **ne préjuge pas**
+> du travail **idempotent local à la donnée** (SQL/RPC), pour lequel **pg_cron** est supérieur :
+> il tourne là où vit la donnée, survit aux restarts/déploiements, et ne dépend d'aucun
+> worker applicatif.
+>
+> **Doctrine de placement (un travail = un seul orchestrateur)** :
+> - **pg_cron** — SQL/RPC déterministe DB-local : agrégation CWV RUM
+>   `__seo_cwv_raw → __seo_cwv_hourly → __seo_cwv_daily_rum` (RPCs `aggregate_cwv_hourly` /
+>   `aggregate_cwv_daily_rum` ; jobs `cwv-hourly-aggregation` @ `:05` /
+>   `cwv-daily-rum-aggregation` @ `00:15` UTC) + rotations de partitions.
+> - **Bull/BullMQ** (queue `seo-monitor`) — travail à I/O externe (fetchers GSC/GA4/Links).
+>
+> **Bascule d'orchestrateur = nettoyage d'état obligatoire.** Le chemin CWV était auparavant
+> un scheduler **Bull v4** (`@nestjs/bull` + `bull@4`, `CwvAggregationSchedulerService`) sur
+> un worker **DEV** ; son `onModuleInit` retournait sur flag-off *avant*
+> `removeStaleRepeatables()`. Une chaîne de données PROD ne doit jamais dépendre du poste
+> DEV (`.claude/rules/deployment.md`). Résultat : agrégation **figée 2026-06-03 → 2026-06-23**
+> (~20 j de RUM perdus, raw TTL ~48 h). Migrer Bull → pg_cron impose de **supprimer l'état
+> persistant** de l'ancien orchestrateur (repeatables Redis), sinon double orchestrateur
+> silencieux.
+>
+> **Présence repo ≠ preuve runtime.** Un job déclaré (migration committée) n'est « actif »
+> qu'avec un run `succeeded` dans `cron.job_run_details` (`cron.log_run = on`) **postérieur**
+> à l'application, une sortie réelle produite, et un consommateur qui l'observe. Audit
+> outillé : skill `runtime-truth-audit` → check `scheduled-orchestrator-drift` + probe
+> `scripts/audit/runtime-truth/bull-repeatable-drift.ts`.
+>
+> Implémentation : migration `20260626_seo_cwv_aggregation_cron` (monorepo #1165, exact-match
+> / fail-closed + marqueur de provenance + `.down` ciblé) ; retrait du code Bull v4 + du flag
+> `SEO_CWV_AGGREGATION_ENABLED` (#1166) ; détecteur de couverture
+> `detect_cwv_aggregation_coverage_gap()` (#811 + tune) auto-résolvant OPEN→RESOLVED.
+> Incident lié : `web-vitals-attribution-unstable`.
+
 ## Anti-patterns à rejeter (futurs)
 
 - ❌ Modifier `SeoMonitorProcessor` existant pour y ajouter le daily-fetch =
