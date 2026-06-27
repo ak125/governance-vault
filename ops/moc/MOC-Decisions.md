@@ -199,6 +199,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-092 | Gate terminal « rank-#1 capable » pour la boucle contenu (le score manquant) | Accepted | 2026-06-22 | [[ADR-092-rank1-content-gate]] |
 | ADR-093 | auto-review à barre de preuve vérifiable remplace la revue humaine obligatoire (WIKI auto-promotion) | Proposed | 2026-06-22 | [[ADR-093-auto-review-earn-gate]] |
 | ADR-094 | Gate cross-domaine page-quality (composite) : orchestre substance WIKI ⊗ surface rendue ⊗ runtime ⊗ diversité ⊗ lineage | Proposed | 2026-06-24 | [[ADR-094-page-quality-composite-gate]] |
+- [[ADR-095-balise-anti-duplicate-hard-gate]] — Gate dure anti-duplicate balises R0→R8 (P-PRECOND.1)
 
 <!-- AUTO-GENERATED:moc-decisions-canonical-index end -->
 
