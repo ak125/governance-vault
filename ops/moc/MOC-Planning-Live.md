@@ -1,9 +1,9 @@
 ---
 type: moc
 status: proposed
-updated: 2026-06-20
+updated: 2026-06-27
 schema_version: planning.v1
-semantic_hash: b385d477b3c3e790
+semantic_hash: 450fa682c1538838
 adr_link: ADR-053
 ---
 
@@ -18,21 +18,16 @@ adr_link: ADR-053
 | github:ak125/governance-vault:pr:59 | P1 | PR | review | docs(knowledge): investigation R8 enricher vehicle-not-found blocker (ADR-022) |
 | github:ak125/nestjs-remix-monorepo:pr:1018 | P1 | PR | review | fix(security): trace + close anon EXECUTE on 4 order/payment atomics (post-#1012) |
 | github:ak125/governance-vault:pr:149 | P2 | PR | review | fix(scripts): check-signatures supports git worktrees |
-| github:ak125/nestjs-remix-monorepo:pr:1035 | P2 | PR | review | fix(agents): seo-content AGENTS.md — contenu via WIKI (pas RAG) + garde anti-RAG-source |
-| github:ak125/nestjs-remix-monorepo:pr:842 | P2 | PR | review | fix(seo-monitor): scope repeatable-job prune to owned jobs (fixes CWV job eviction) |
+| github:ak125/nestjs-remix-monorepo:pr:1148 | P2 | PR | review | fix(substitution): fail-OPEN on RPC error — stop intermittent 404 on valid R1 pages |
 | github:ak125/nestjs-remix-monorepo:pr:860 | P2 | PR | review | fix(seo): scraper writes web corpus to canon RAW repo (path drift) |
 | github:ak125/governance-vault:pr:255 | P3 | PR | review | refactor(_scripts): split governance_constants into per-enum-family package |
 | github:ak125/nestjs-remix-monorepo:pr:1020 | P3 | PR | review | feat(command-center): action_id en menu déroulant (catalogue API) |
 | github:ak125/nestjs-remix-monorepo:pr:1025 | P3 | PR | in-progress | feat(seo-observability): boucle OBSERVE — attribution + mesure + restitution (DRAFT, owner-gated) |
 | github:ak125/nestjs-remix-monorepo:pr:1026 | P3 | PR | review | feat(seo): import-gads-kp RAG-free + V-Level-safe modes (--no-rag/--emit/--no-write) |
 | github:ak125/nestjs-remix-monorepo:pr:1033 | P3 | PR | review | feat(seo-projection): PR-6c — refresh RPC + R1 feeder + wire AppModule (ADR-059/090) |
-| github:ak125/nestjs-remix-monorepo:pr:795 | P3 | PR | review | feat(env-contract): env-var drift ratchet detector (extends Phase 2) |
-| github:ak125/nestjs-remix-monorepo:pr:796 | P3 | PR | review | feat(diagnostic): PR-1a Result UX — drivability, rapport garage, toggle (kill-switch, OFF par défaut) |
-| github:ak125/nestjs-remix-monorepo:pr:797 | P3 | PR | review | feat(diagnostic): PR-2 knowledge reproducibility (export/check snapshot, anti-perte) |
-| github:ak125/nestjs-remix-monorepo:pr:805 | P3 | PR | review | feat(media-factory): Fafa compositions — brand palette align + configurable problem text |
-| github:ak125/nestjs-remix-monorepo:pr:806 | P3 | PR | review | feat(media-factory): Fafa V1 visual lock + pilot DRAFT plaquettes/compatibilité (7 gates PASS) |
+| github:ak125/nestjs-remix-monorepo:pr:1040 | P3 | PR | review | feat(seo-projection): PR-7a — get_active_seo_projection read RPC (backend-proxied, service_role) |
+| github:ak125/nestjs-remix-monorepo:pr:1164 | P3 | PR | review | refactor(seo-cp): retire synthetic-probe rate-limit exemption — self-pacing supersedes it (PR2) |
 | github:ak125/nestjs-remix-monorepo:pr:824 | P3 | PR | in-progress | feat(merchant-center): GMC price-competitiveness benchmark (inbound, OBSERVE-only) |
-| github:ak125/nestjs-remix-monorepo:pr:840 | P3 | PR | review | feat(cwv): pg_cron for RUM aggregation — decouple from dead DEV worker |
 | github:ak125/nestjs-remix-monorepo:pr:901 | P3 | PR | review | feat(pricing): catalog activation plan (T1) — read-only orphan/activation classifier |
 | github:ak125/nestjs-remix-monorepo:pr:905 | P3 | PR | review | feat(catalog): 'Produits universels' section (T2b, flag OFF, noindex) |
 | github:ak125/nestjs-remix-monorepo:pr:917 | P3 | PR | review | feat(seo): additive R1 kw-promotion noindex→index (flag OFF) |
@@ -75,19 +70,22 @@ adr_link: ADR-053
 | github:ak125/governance-vault:pr:88 | P5 | PR | review | audit: 2026-04-25 fleet advisor + seo monitoring session recap |
 | github:ak125/governance-vault:pr:92 | P5 | PR | review | docs(knowledge): r8 distinct render + scraping canon — session wrap 2026-04-25 |
 | github:ak125/governance-vault:pr:93 | P5 | PR | review | knowledge: ADR-024 R1 cache session debrief 2026-04-27 (phases 1-6a) |
-| github:ak125/nestjs-remix-monorepo:pr:838 | P5 | PR | review | docs(runtime): record R2 cache header drift evidence |
+| github:ak125/nestjs-remix-monorepo:pr:1048 | P5 | PR | review | chore(canon): repo-map.md soustraction |
+| github:ak125/nestjs-remix-monorepo:pr:1156 | P5 | PR | in-progress | [ROLLBACK DRILL — DO NOT MERGE] Revert PR-9f NestJS 11→10 / Express 5 |
+| github:ak125/nestjs-remix-monorepo:pr:1168 | P5 | PR | review | chore(canon): cwv-rum-aggregation in automation-reality + skills registry regen (F3) |
 | github:ak125/nestjs-remix-monorepo:pr:864 | P5 | PR | review | audit(seo): add G3 V-Level dry-run for plaquette-de-frein |
 | github:ak125/nestjs-remix-monorepo:pr:887 | P5 | PR | review | chore(claude): move agent-method-patterns rule to knowledge/ (−2.3K tokens/turn, on-demand) |
 | github:ak125/nestjs-remix-monorepo:pr:900 | P5 | PR | review | chore(catalog): revert accessory-link bricolage (#889 #892) — rtp_pg_pid already covers it |
 | github:ak125/nestjs-remix-monorepo:pr:928 | P5 | PR | review | chore(governance): resync rpc_allowlist racine ← backend (drift 12 entrées) |
-| github:ak125/nestjs-remix-monorepo:pr:949 | P5 | PR | review | chore(hooks): versionne le hook UserPromptSubmit context-push (PULL→PUSH) déjà actif |
 | github:ak125/nestjs-remix-monorepo:pr:954 | P5 | PR | review | chore(scripts): exécute le sunset PR-V (archive generate-content-r1) + bannières DEPRECATED salvage-first |
 | github:ak125/nestjs-remix-monorepo:pr:956 | P5 | PR | review | chore(frontend): purge composants orphelins (salvage-first) + e2e fail-loud (retrait skipIf404) |
 | github:ak125/nestjs-remix-monorepo:pr:957 | P5 | PR | review | chore(backend): purge 4 services orphelins (salvage-first) + garde ast-grep @Cron + param mort |
+| github:ak125/nestjs-remix-monorepo:pr:1101 | P6 | PR | review | chore(deps-dev): bump eslint-plugin-jest from 28.14.0 to 29.15.3 |
+| github:ak125/nestjs-remix-monorepo:pr:1102 | P6 | PR | review | chore(deps): bump nodemailer from 8.0.11 to 9.0.1 |
+| github:ak125/nestjs-remix-monorepo:pr:1134 | P6 | PR | review | chore(deps): re-baseline PR-9e auth-session-passport overlay + PR-9f.0 errata |
 | github:ak125/nestjs-remix-monorepo:pr:753 | P6 | PR | review | chore(deps): bump meilisearch from 0.52.0 to 0.58.0 |
-| github:ak125/nestjs-remix-monorepo:pr:817 | P6 | PR | review | chore(deps-dev): bump @commitlint/config-conventional from 20.5.3 to 21.0.2 |
+| github:ak125/nestjs-remix-monorepo:pr:817 | P6 | PR | review | chore(deps-dev): bump @commitlint/config-conventional from 20.5.3 to 21.1.0 |
 | github:ak125/nestjs-remix-monorepo:pr:897 | P6 | PR | review | chore(deps-dev): bump eslint-import-resolver-typescript from 3.10.1 to 4.4.5 |
-| github:ak125/nestjs-remix-monorepo:pr:987 | P6 | PR | review | chore(deps): bump nodemailer from 8.0.7 to 9.0.0 |
 
 ## Ack block (édition humaine — exception I2)
 
@@ -103,9 +101,9 @@ ack:
     acked_at: '2026-05-18T13:06:48Z'
     acked_by: ak125
   github:ak125/nestjs-remix-monorepo:pr:924:
-    last_alert_at: '2026-06-20T06:00:02.612618+00:00'
+    last_alert_at: '2026-06-27T06:00:03.267571+00:00'
   github:ak125/nestjs-remix-monorepo:pr:992:
-    last_alert_at: '2026-06-20T06:00:02.612618+00:00'
+    last_alert_at: '2026-06-27T06:00:03.267571+00:00'
 ```
 
 ## See also
