@@ -1,9 +1,9 @@
 ---
 type: moc
 status: proposed
-updated: 2026-06-27
+updated: 2026-06-28
 schema_version: planning.v1
-semantic_hash: 450fa682c1538838
+semantic_hash: 13dafcd653f06b0b
 adr_link: ADR-053
 ---
 
@@ -19,14 +19,11 @@ adr_link: ADR-053
 | github:ak125/nestjs-remix-monorepo:pr:1018 | P1 | PR | review | fix(security): trace + close anon EXECUTE on 4 order/payment atomics (post-#1012) |
 | github:ak125/governance-vault:pr:149 | P2 | PR | review | fix(scripts): check-signatures supports git worktrees |
 | github:ak125/nestjs-remix-monorepo:pr:1148 | P2 | PR | review | fix(substitution): fail-OPEN on RPC error — stop intermittent 404 on valid R1 pages |
-| github:ak125/nestjs-remix-monorepo:pr:860 | P2 | PR | review | fix(seo): scraper writes web corpus to canon RAW repo (path drift) |
+| github:ak125/nestjs-remix-monorepo:pr:1187 | P2 | PR | review | fix(home): translate="no" sur widgets interactifs — stoppe le crash removeChild (traduction navigateur) |
 | github:ak125/governance-vault:pr:255 | P3 | PR | review | refactor(_scripts): split governance_constants into per-enum-family package |
 | github:ak125/nestjs-remix-monorepo:pr:1020 | P3 | PR | review | feat(command-center): action_id en menu déroulant (catalogue API) |
 | github:ak125/nestjs-remix-monorepo:pr:1025 | P3 | PR | in-progress | feat(seo-observability): boucle OBSERVE — attribution + mesure + restitution (DRAFT, owner-gated) |
 | github:ak125/nestjs-remix-monorepo:pr:1026 | P3 | PR | review | feat(seo): import-gads-kp RAG-free + V-Level-safe modes (--no-rag/--emit/--no-write) |
-| github:ak125/nestjs-remix-monorepo:pr:1033 | P3 | PR | review | feat(seo-projection): PR-6c — refresh RPC + R1 feeder + wire AppModule (ADR-059/090) |
-| github:ak125/nestjs-remix-monorepo:pr:1040 | P3 | PR | review | feat(seo-projection): PR-7a — get_active_seo_projection read RPC (backend-proxied, service_role) |
-| github:ak125/nestjs-remix-monorepo:pr:1164 | P3 | PR | review | refactor(seo-cp): retire synthetic-probe rate-limit exemption — self-pacing supersedes it (PR2) |
 | github:ak125/nestjs-remix-monorepo:pr:824 | P3 | PR | in-progress | feat(merchant-center): GMC price-competitiveness benchmark (inbound, OBSERVE-only) |
 | github:ak125/nestjs-remix-monorepo:pr:901 | P3 | PR | review | feat(pricing): catalog activation plan (T1) — read-only orphan/activation classifier |
 | github:ak125/nestjs-remix-monorepo:pr:905 | P3 | PR | review | feat(catalog): 'Produits universels' section (T2b, flag OFF, noindex) |
@@ -63,6 +60,7 @@ adr_link: ADR-053
 | github:ak125/governance-vault:pr:311 | P5 | PR | review | audit: ADR-033 J+30 review 2026-05-29 — PARTIAL |
 | github:ak125/governance-vault:pr:312 | P5 | PR | review | audit(adr-033): revue J+30 — verdict FAIL_PARTIAL, proposed maintenu |
 | github:ak125/governance-vault:pr:315 | P5 | PR | review | docs(adr): ADR-084 + ADR-085 — gouvernance tarif fournisseur |
+| github:ak125/governance-vault:pr:331 | P5 | PR | review | ADR-095 — Gate dure anti-duplicate balises R0→R8 (P-PRECOND.1) |
 | github:ak125/governance-vault:pr:64 | P5 | PR | review | docs(adr): ADR-024 Claude Session Timeline Logging via log.md + Auto-Commit Hook |
 | github:ak125/governance-vault:pr:70 | P5 | PR | review | docs(knowledge): vehicle-selector Radix Select + grouped fuel pattern |
 | github:ak125/governance-vault:pr:72 | P5 | PR | review | docs(r8): debrief honnête Stage 1 vehicle enrichment |
@@ -72,7 +70,6 @@ adr_link: ADR-053
 | github:ak125/governance-vault:pr:93 | P5 | PR | review | knowledge: ADR-024 R1 cache session debrief 2026-04-27 (phases 1-6a) |
 | github:ak125/nestjs-remix-monorepo:pr:1048 | P5 | PR | review | chore(canon): repo-map.md soustraction |
 | github:ak125/nestjs-remix-monorepo:pr:1156 | P5 | PR | in-progress | [ROLLBACK DRILL — DO NOT MERGE] Revert PR-9f NestJS 11→10 / Express 5 |
-| github:ak125/nestjs-remix-monorepo:pr:1168 | P5 | PR | review | chore(canon): cwv-rum-aggregation in automation-reality + skills registry regen (F3) |
 | github:ak125/nestjs-remix-monorepo:pr:864 | P5 | PR | review | audit(seo): add G3 V-Level dry-run for plaquette-de-frein |
 | github:ak125/nestjs-remix-monorepo:pr:887 | P5 | PR | review | chore(claude): move agent-method-patterns rule to knowledge/ (−2.3K tokens/turn, on-demand) |
 | github:ak125/nestjs-remix-monorepo:pr:900 | P5 | PR | review | chore(catalog): revert accessory-link bricolage (#889 #892) — rtp_pg_pid already covers it |
@@ -101,9 +98,9 @@ ack:
     acked_at: '2026-05-18T13:06:48Z'
     acked_by: ak125
   github:ak125/nestjs-remix-monorepo:pr:924:
-    last_alert_at: '2026-06-27T06:00:03.267571+00:00'
+    last_alert_at: '2026-06-28T06:00:03.138869+00:00'
   github:ak125/nestjs-remix-monorepo:pr:992:
-    last_alert_at: '2026-06-27T06:00:03.267571+00:00'
+    last_alert_at: '2026-06-28T06:00:03.138869+00:00'
 ```
 
 ## See also
