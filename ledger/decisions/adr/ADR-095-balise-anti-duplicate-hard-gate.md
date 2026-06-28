@@ -1,8 +1,7 @@
 ---
-# ⚠️ BROUILLON — adapter au template/front-matter exact du vault + numéro ADR libre
-id: ADR-0XX
+id: ADR-095
 title: Gate dure anti-duplicate balises R0→R8
-status: Proposed
+status: Accepted
 date: 2026-06-27
 deciders: [Fafa]
 supersedes: []
@@ -10,7 +9,7 @@ amends: [ADR-066]      # gate structurel catalog_signature — la balise est la 
 tags: [seo, balise, anti-duplicate, R8, R2, hard-gate]
 ---
 
-# ADR-0XX — Gate dure anti-duplicate des balises émises (R0→R8)
+# ADR-095 — Gate dure anti-duplicate des balises émises (R0→R8)
 
 ## Statut
 Proposed — débloque **D-3** (hard-gate `indexable_effective`) du plan balises. D-0/D-1/D-2
