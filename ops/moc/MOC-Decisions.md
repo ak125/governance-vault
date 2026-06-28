@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-06-24
+updated: 2026-06-28
 ---
 
 # MOC: Decisions
@@ -108,7 +108,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 > Projection mécanique du frontmatter ADR (PR-3 sync_moc_decisions).
 > Toute édition manuelle entre les markers est écrasée à chaque sync.
 > Pour annoter, éditer le frontmatter ADR ou la table « ADR Actifs » ci-dessus.
-> Dernier sync : 2026-06-24.
+> Dernier sync : 2026-06-28.
 
 | ID | Titre | Statut canonique | Date | Fichier |
 |----|-------|------------------|------|---------|
@@ -193,7 +193,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-086 | Content Excellence Contract — loi de composition R2 = R1 ⊕ R8 : enrichir R1 (gamme) + R8 (par motorisation) depuis le WIKI ; R2 est leur combinaison, non écrit séparément | Accepted | 2026-06-13 | [[ADR-086-encyclopedia-editorial-content-contract]] |
 | ADR-087 | Command Center — observatoire advisory vers orchestration gouvernée (lift ciblé de la pause new-control-plane) | Proposed | 2026-06-16 | [[ADR-087-command-center-orchestration]] |
 | ADR-088 | Gate de promotion de substance — score à planchers (6-dim/100) + engineBlock factuel : amende ADR-083 (formule de score) et ADR-086 (contrat de contenu structuré) | Accepted | 2026-06-17 | [[ADR-088-promotion-gate-substance-scoring]] |
-| ADR-089 | Content Coverage-Map Canon — claim↔source artefact gouverné (_meta/schema/coverage-map.schema.json), backing de la dimension A du score de substance ADR-088 | Proposed | 2026-06-19 | [[ADR-089-content-coverage-map-canon]] |
+| ADR-089 | Content Coverage-Map Canon — claim↔source artefact gouverné (_meta/schema/coverage-map.schema.json), backing de la dimension A du score de substance ADR-088 | Accepted | 2026-06-19 | [[ADR-089-content-coverage-map-canon]] |
 | ADR-090 | SEO Projection Forward Writer Canon — ratifie les contrats §C1-C4 (outbox refresh-trigger, payload R1 block-taxonomy, 2-gate writer wouldRegress) dont dépend le writer exports/seo→DB : amende ADR-059 | Accepted | 2026-06-19 | [[ADR-090-seo-projection-forward-writer-canon]] |
 | ADR-091 | Recalibrage du confidence_score wiki (vérité > conformité) + activation tiered du gate de régression | Accepted | 2026-06-20 | [[ADR-091-wiki-score-recalibration]] |
 | ADR-092 | Gate terminal « rank-#1 capable » pour la boucle contenu (le score manquant) | Accepted | 2026-06-22 | [[ADR-092-rank1-content-gate]] |

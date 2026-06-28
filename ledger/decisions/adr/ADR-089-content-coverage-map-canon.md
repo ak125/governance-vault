@@ -1,7 +1,7 @@
 ---
 id: ADR-089
 title: "Content Coverage-Map Canon — claim↔source artefact gouverné (_meta/schema/coverage-map.schema.json), backing de la dimension A du score de substance ADR-088"
-status: proposed
+status: accepted
 date: "2026-06-19"
 decision_date: "2026-06-19"
 decision_makers: ["@fafa"]
@@ -15,14 +15,14 @@ related_incidents: []
 version: "1.0.0"
 ---
 
-# ADR-089 (PROPOSÉ — numéro à confirmer au vault) : Content Coverage-Map Canon (claim ↔ source, backing de la dim A ADR-088)
+# ADR-089 : Content Coverage-Map Canon (claim ↔ source, backing de la dim A ADR-088)
 
-> **DRAFT vault — préparé en /tmp, NON appliqué.** À porter dans `ak125/governance-vault`
-> via PR signée G3 (single-write-point Deploy VPS). **N'abroge aucun ADR.** Établit le
-> backing de gouvernance manquant que **ADR-088 §C / §Questions-ouvertes Q2** signale comme
-> absent. Owner décide. Rien n'est écrit dans le vault par l'assistant.
+> **Accepté.** Établit le backing de gouvernance que **ADR-088 §C / §Q2** signalait absent :
+> la coverage-map (`_meta/schema/coverage-map.schema.json`, repo wiki) est désormais canon.
+> Validateur : `check-coverage-map.py` (wiki PR — FK strict source-catalog, report-only).
+> **N'abroge aucun ADR.**
 
-- **Statut** : Proposed
+- **Statut** : Accepted
 - **Date** : 2026-06-19
 - **Établit** : l'autorité canon de `_meta/schema/coverage-map.schema.json` (repo `automecanik-wiki`)
 - **Référence inchangée** : ADR-059 (`build_exports_seo.py` approved-only) · ADR-040 (SEO Roles Canon TS — **ce n'est PAS** la coverage-map malgré le titre du schéma) · ADR-048 (canon-enforcement-coverage — audit canon, **différent**)
