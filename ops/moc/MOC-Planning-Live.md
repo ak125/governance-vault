@@ -1,9 +1,9 @@
 ---
 type: moc
 status: proposed
-updated: 2026-06-29
+updated: 2026-06-30
 schema_version: planning.v1
-semantic_hash: bcec848b841052c3
+semantic_hash: ab1d10d7158f50ed
 adr_link: ADR-053
 ---
 
@@ -24,8 +24,6 @@ adr_link: ADR-053
 | github:ak125/nestjs-remix-monorepo:pr:1025 | P3 | PR | in-progress | feat(seo-observability): boucle OBSERVE — attribution + mesure + restitution (DRAFT, owner-gated) |
 | github:ak125/nestjs-remix-monorepo:pr:1026 | P3 | PR | review | feat(seo): import-gads-kp RAG-free + V-Level-safe modes (--no-rag/--emit/--no-write) |
 | github:ak125/nestjs-remix-monorepo:pr:824 | P3 | PR | in-progress | feat(merchant-center): GMC price-competitiveness benchmark (inbound, OBSERVE-only) |
-| github:ak125/nestjs-remix-monorepo:pr:901 | P3 | PR | review | feat(pricing): catalog activation plan (T1) — read-only orphan/activation classifier |
-| github:ak125/nestjs-remix-monorepo:pr:905 | P3 | PR | review | feat(catalog): 'Produits universels' section (T2b, flag OFF, noindex) |
 | github:ak125/nestjs-remix-monorepo:pr:917 | P3 | PR | review | feat(seo): additive R1 kw-promotion noindex→index (flag OFF) |
 | github:ak125/nestjs-remix-monorepo:pr:927 | P3 | PR | review | feat(seo): exclusion sitemap des satellites consolidés R4+R6 (flags, inerte) — prépa activation |
 | github:ak125/nestjs-remix-monorepo:pr:931 | P3 | PR | review | feat(seo): consolidation R4→R3 inerte (flag OFF) — 301 self-gaté référence → conseils |
@@ -68,8 +66,6 @@ adr_link: ADR-053
 | github:ak125/governance-vault:pr:93 | P5 | PR | review | knowledge: ADR-024 R1 cache session debrief 2026-04-27 (phases 1-6a) |
 | github:ak125/nestjs-remix-monorepo:pr:1048 | P5 | PR | review | chore(canon): repo-map.md soustraction |
 | github:ak125/nestjs-remix-monorepo:pr:1156 | P5 | PR | in-progress | [ROLLBACK DRILL — DO NOT MERGE] Revert PR-9f NestJS 11→10 / Express 5 |
-| github:ak125/nestjs-remix-monorepo:pr:887 | P5 | PR | review | chore(claude): move agent-method-patterns rule to knowledge/ (−2.3K tokens/turn, on-demand) |
-| github:ak125/nestjs-remix-monorepo:pr:900 | P5 | PR | review | chore(catalog): revert accessory-link bricolage (#889 #892) — rtp_pg_pid already covers it |
 | github:ak125/nestjs-remix-monorepo:pr:928 | P5 | PR | review | chore(governance): resync rpc_allowlist racine ← backend (drift 12 entrées) |
 | github:ak125/nestjs-remix-monorepo:pr:954 | P5 | PR | review | chore(scripts): exécute le sunset PR-V (archive generate-content-r1) + bannières DEPRECATED salvage-first |
 | github:ak125/nestjs-remix-monorepo:pr:956 | P5 | PR | review | chore(frontend): purge composants orphelins (salvage-first) + e2e fail-loud (retrait skipIf404) |
@@ -95,9 +91,7 @@ ack:
     acked_at: '2026-05-18T13:06:48Z'
     acked_by: ak125
   github:ak125/nestjs-remix-monorepo:pr:924:
-    last_alert_at: '2026-06-29T06:00:02.548517+00:00'
-  github:ak125/nestjs-remix-monorepo:pr:992:
-    last_alert_at: '2026-06-29T06:00:02.548517+00:00'
+    last_alert_at: '2026-06-30T06:00:03.198458+00:00'
 ```
 
 ## See also
