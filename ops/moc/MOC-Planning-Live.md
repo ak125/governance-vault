@@ -1,9 +1,9 @@
 ---
 type: moc
 status: proposed
-updated: 2026-06-30
+updated: 2026-07-02
 schema_version: planning.v1
-semantic_hash: ab1d10d7158f50ed
+semantic_hash: 5d60f25d91d009fd
 adr_link: ADR-053
 ---
 
@@ -20,7 +20,6 @@ adr_link: ADR-053
 | github:ak125/governance-vault:pr:149 | P2 | PR | review | fix(scripts): check-signatures supports git worktrees |
 | github:ak125/nestjs-remix-monorepo:pr:1148 | P2 | PR | review | fix(substitution): fail-OPEN on RPC error — stop intermittent 404 on valid R1 pages |
 | github:ak125/governance-vault:pr:255 | P3 | PR | review | refactor(_scripts): split governance_constants into per-enum-family package |
-| github:ak125/nestjs-remix-monorepo:pr:1020 | P3 | PR | review | feat(command-center): action_id en menu déroulant (catalogue API) |
 | github:ak125/nestjs-remix-monorepo:pr:1025 | P3 | PR | in-progress | feat(seo-observability): boucle OBSERVE — attribution + mesure + restitution (DRAFT, owner-gated) |
 | github:ak125/nestjs-remix-monorepo:pr:1026 | P3 | PR | review | feat(seo): import-gads-kp RAG-free + V-Level-safe modes (--no-rag/--emit/--no-write) |
 | github:ak125/nestjs-remix-monorepo:pr:824 | P3 | PR | in-progress | feat(merchant-center): GMC price-competitiveness benchmark (inbound, OBSERVE-only) |
@@ -70,11 +69,11 @@ adr_link: ADR-053
 | github:ak125/nestjs-remix-monorepo:pr:954 | P5 | PR | review | chore(scripts): exécute le sunset PR-V (archive generate-content-r1) + bannières DEPRECATED salvage-first |
 | github:ak125/nestjs-remix-monorepo:pr:956 | P5 | PR | review | chore(frontend): purge composants orphelins (salvage-first) + e2e fail-loud (retrait skipIf404) |
 | github:ak125/nestjs-remix-monorepo:pr:957 | P5 | PR | review | chore(backend): purge 4 services orphelins (salvage-first) + garde ast-grep @Cron + param mort |
-| github:ak125/nestjs-remix-monorepo:pr:1101 | P6 | PR | review | chore(deps-dev): bump eslint-plugin-jest from 28.14.0 to 29.15.3 |
-| github:ak125/nestjs-remix-monorepo:pr:1102 | P6 | PR | review | chore(deps): bump nodemailer from 8.0.11 to 9.0.1 |
+| github:ak125/nestjs-remix-monorepo:pr:1101 | P6 | PR | review | chore(deps-dev): bump eslint-plugin-jest from 28.14.0 to 29.15.4 |
+| github:ak125/nestjs-remix-monorepo:pr:1102 | P6 | PR | review | chore(deps): bump nodemailer from 8.0.11 to 9.0.3 |
 | github:ak125/nestjs-remix-monorepo:pr:1134 | P6 | PR | review | chore(deps): re-baseline PR-9e auth-session-passport overlay + PR-9f.0 errata |
 | github:ak125/nestjs-remix-monorepo:pr:753 | P6 | PR | review | chore(deps): bump meilisearch from 0.52.0 to 0.58.0 |
-| github:ak125/nestjs-remix-monorepo:pr:817 | P6 | PR | review | chore(deps-dev): bump @commitlint/config-conventional from 20.5.3 to 21.1.0 |
+| github:ak125/nestjs-remix-monorepo:pr:817 | P6 | PR | review | chore(deps-dev): bump @commitlint/config-conventional from 20.5.3 to 21.2.0 |
 | github:ak125/nestjs-remix-monorepo:pr:897 | P6 | PR | review | chore(deps-dev): bump eslint-import-resolver-typescript from 3.10.1 to 4.4.5 |
 
 ## Ack block (édition humaine — exception I2)
@@ -91,9 +90,9 @@ ack:
     acked_at: '2026-05-18T13:06:48Z'
     acked_by: ak125
   github:ak125/nestjs-remix-monorepo:pr:924:
-    last_alert_at: '2026-07-01T06:00:03.757189+00:00'
+    last_alert_at: '2026-07-02T06:00:04.024007+00:00'
   github:ak125/nestjs-remix-monorepo:pr:992:
-    last_alert_at: '2026-07-01T06:00:03.757189+00:00'
+    last_alert_at: '2026-07-02T06:00:04.024007+00:00'
 ```
 
 ## See also
