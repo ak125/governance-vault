@@ -1,15 +1,15 @@
 ---
 title: "auto-review à barre de preuve vérifiable remplace la revue humaine obligatoire (WIKI auto-promotion)"
 id: ADR-093
-status: PROPOSED
+status: accepted
 version: 1.0.0
 date: "2026-06-22"
-decision_date: 2026-06-22
+decision_date: "2026-07-03"
 decision_makers: ["@ak125"]
 related_adr: ["ADR-083", "ADR-086", "ADR-091", "ADR-088", "ADR-033", "ADR-059", "ADR-090"]
 extends: ["ADR-083"]
 created: 2026-06-20
-updated: 2026-06-22
+updated: 2026-07-03
 ---
 
 # ADR-093 — auto-review à barre de preuve vérifiable remplace la revue humaine obligatoire (WIKI auto-promotion)
