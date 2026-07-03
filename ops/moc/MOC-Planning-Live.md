@@ -1,9 +1,9 @@
 ---
 type: moc
 status: proposed
-updated: 2026-07-02
+updated: 2026-07-03
 schema_version: planning.v1
-semantic_hash: 5d60f25d91d009fd
+semantic_hash: 0c4ae0782165f1ff
 adr_link: ADR-053
 ---
 
@@ -23,9 +23,6 @@ adr_link: ADR-053
 | github:ak125/nestjs-remix-monorepo:pr:1025 | P3 | PR | in-progress | feat(seo-observability): boucle OBSERVE — attribution + mesure + restitution (DRAFT, owner-gated) |
 | github:ak125/nestjs-remix-monorepo:pr:1026 | P3 | PR | review | feat(seo): import-gads-kp RAG-free + V-Level-safe modes (--no-rag/--emit/--no-write) |
 | github:ak125/nestjs-remix-monorepo:pr:824 | P3 | PR | in-progress | feat(merchant-center): GMC price-competitiveness benchmark (inbound, OBSERVE-only) |
-| github:ak125/nestjs-remix-monorepo:pr:917 | P3 | PR | review | feat(seo): additive R1 kw-promotion noindex→index (flag OFF) |
-| github:ak125/nestjs-remix-monorepo:pr:927 | P3 | PR | review | feat(seo): exclusion sitemap des satellites consolidés R4+R6 (flags, inerte) — prépa activation |
-| github:ak125/nestjs-remix-monorepo:pr:931 | P3 | PR | review | feat(seo): consolidation R4→R3 inerte (flag OFF) — 301 self-gaté référence → conseils |
 | github:ak125/nestjs-remix-monorepo:pr:958 | P3 | PR | review | feat(content): générateurs DB-first vehicle+diagnostic (modes create/merge, dry-run owner PR-D.0) |
 | github:ak125/nestjs-remix-monorepo:pr:963 | P3 | PR | review | feat(dev): robust DEV:3000 supervision — systemd (structural) + watcher reaper |
 | github:ak125/nestjs-remix-monorepo:pr:966 | P3 | PR | in-progress | feat(catalog): PR1 — vérité canonique de vendabilité (rollup type×gamme) |
@@ -65,7 +62,6 @@ adr_link: ADR-053
 | github:ak125/governance-vault:pr:93 | P5 | PR | review | knowledge: ADR-024 R1 cache session debrief 2026-04-27 (phases 1-6a) |
 | github:ak125/nestjs-remix-monorepo:pr:1048 | P5 | PR | review | chore(canon): repo-map.md soustraction |
 | github:ak125/nestjs-remix-monorepo:pr:1156 | P5 | PR | in-progress | [ROLLBACK DRILL — DO NOT MERGE] Revert PR-9f NestJS 11→10 / Express 5 |
-| github:ak125/nestjs-remix-monorepo:pr:928 | P5 | PR | review | chore(governance): resync rpc_allowlist racine ← backend (drift 12 entrées) |
 | github:ak125/nestjs-remix-monorepo:pr:954 | P5 | PR | review | chore(scripts): exécute le sunset PR-V (archive generate-content-r1) + bannières DEPRECATED salvage-first |
 | github:ak125/nestjs-remix-monorepo:pr:956 | P5 | PR | review | chore(frontend): purge composants orphelins (salvage-first) + e2e fail-loud (retrait skipIf404) |
 | github:ak125/nestjs-remix-monorepo:pr:957 | P5 | PR | review | chore(backend): purge 4 services orphelins (salvage-first) + garde ast-grep @Cron + param mort |
@@ -90,9 +86,9 @@ ack:
     acked_at: '2026-05-18T13:06:48Z'
     acked_by: ak125
   github:ak125/nestjs-remix-monorepo:pr:924:
-    last_alert_at: '2026-07-02T06:00:04.024007+00:00'
+    last_alert_at: '2026-07-03T06:00:02.800455+00:00'
   github:ak125/nestjs-remix-monorepo:pr:992:
-    last_alert_at: '2026-07-02T06:00:04.024007+00:00'
+    last_alert_at: '2026-07-03T06:00:02.800455+00:00'
 ```
 
 ## See also
