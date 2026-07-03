@@ -197,7 +197,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-090 | SEO Projection Forward Writer Canon — ratifie les contrats §C1-C4 (outbox refresh-trigger, payload R1 block-taxonomy, 2-gate writer wouldRegress) dont dépend le writer exports/seo→DB : amende ADR-059 | Accepted | 2026-06-19 | [[ADR-090-seo-projection-forward-writer-canon]] |
 | ADR-091 | Recalibrage du confidence_score wiki (vérité > conformité) + activation tiered du gate de régression | Accepted | 2026-06-20 | [[ADR-091-wiki-score-recalibration]] |
 | ADR-092 | Gate terminal « rank-#1 capable » pour la boucle contenu (le score manquant) | Accepted | 2026-06-22 | [[ADR-092-rank1-content-gate]] |
-| ADR-093 | auto-review à barre de preuve vérifiable remplace la revue humaine obligatoire (WIKI auto-promotion) | Proposed | 2026-06-22 | [[ADR-093-auto-review-earn-gate]] |
+| ADR-093 | auto-review à barre de preuve vérifiable remplace la revue humaine obligatoire (WIKI auto-promotion) | Accepted | 2026-07-03 | [[ADR-093-auto-review-earn-gate]] |
 | ADR-094 | Gate cross-domaine page-quality (composite) : orchestre substance WIKI ⊗ surface rendue ⊗ runtime ⊗ diversité ⊗ lineage | Proposed | 2026-06-24 | [[ADR-094-page-quality-composite-gate]] |
 - [[ADR-095-balise-anti-duplicate-hard-gate]] — Gate dure anti-duplicate balises R0→R8 (P-PRECOND.1)
 
