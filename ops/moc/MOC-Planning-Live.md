@@ -1,9 +1,9 @@
 ---
 type: moc
 status: proposed
-updated: 2026-07-03
+updated: 2026-07-04
 schema_version: planning.v1
-semantic_hash: 0c4ae0782165f1ff
+semantic_hash: 5bf717c5297dd8ee
 adr_link: ADR-053
 ---
 
@@ -13,10 +13,7 @@ adr_link: ADR-053
 
 | canonical_id | priority | item_type | status | title |
 |--------------|----------|-----------|--------|-------|
-| github:ak125/nestjs-remix-monorepo:pr:924 | P0 | PR | review | feat(recovery): rack-images brand recovery — runbook + getArticles ingester (INC-2026-015) |
-| github:ak125/nestjs-remix-monorepo:pr:992 | P0 | PR | review | feat(monitoring): order-creation health rule — close the 24-day silent-outage blind spot |
 | github:ak125/governance-vault:pr:59 | P1 | PR | review | docs(knowledge): investigation R8 enricher vehicle-not-found blocker (ADR-022) |
-| github:ak125/nestjs-remix-monorepo:pr:1018 | P1 | PR | review | fix(security): trace + close anon EXECUTE on 4 order/payment atomics (post-#1012) |
 | github:ak125/governance-vault:pr:149 | P2 | PR | review | fix(scripts): check-signatures supports git worktrees |
 | github:ak125/nestjs-remix-monorepo:pr:1148 | P2 | PR | review | fix(substitution): fail-OPEN on RPC error — stop intermittent 404 on valid R1 pages |
 | github:ak125/governance-vault:pr:255 | P3 | PR | review | refactor(_scripts): split governance_constants into per-enum-family package |
@@ -85,10 +82,6 @@ ack:
   github:ak125/governance-vault:pr:9:
     acked_at: '2026-05-18T13:06:48Z'
     acked_by: ak125
-  github:ak125/nestjs-remix-monorepo:pr:924:
-    last_alert_at: '2026-07-03T06:00:02.800455+00:00'
-  github:ak125/nestjs-remix-monorepo:pr:992:
-    last_alert_at: '2026-07-03T06:00:02.800455+00:00'
 ```
 
 ## See also
