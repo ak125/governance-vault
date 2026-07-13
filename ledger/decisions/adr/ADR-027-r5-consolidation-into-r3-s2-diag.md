@@ -93,6 +93,10 @@ avec quatre piliers et un plan de mise en œuvre en deux phases.
    - Cible : ≥95% des gammes R3 publiées (245+/259 actuelles), avec
      `sgc_quality_score ≥ 70`
 
+> **⚠ SUPERSEDED 2026-07-07** — voir `## Correction 2026-07-07` ci-dessous. L'ordre de priorité
+> P1 RAG primary / P2 `__diag_*` / P3 observable **n'est plus canonique**. RAG sort **entièrement** de
+> la liste des sources autorisées de S2_DIAG.
+
 4. **Trois sources d'enrichissement S2_DIAG, par ordre de priorité**
    - **P1 (canon)** — RAG primary : déclenché si la gamme `.md` a
      `≥2 symptoms AND ≥2 quick_checks` dans son frontmatter `diagnostic.*`
@@ -105,6 +109,47 @@ avec quatre piliers et un plan de mise en œuvre en deux phases.
    - **P3 (legacy, déprécié)** — Observable fallback existant
      (`buildS2DiagFromObservable`, RPC `get_observable_symptoms_for_gamme`)
      conservé tant que P2 n'est pas livré, puis archivé
+
+## Correction 2026-07-07 — Autorité de source S2_DIAG (supersede §Décision pilier 4)
+
+Le pilier #4 « Trois sources d'enrichissement S2_DIAG, par ordre de priorité » (P1 RAG primary /
+P2 `__diag_*` / P3 observable) est **superseded en totalité**. Motif : contradiction directe avec
+**ADR-080** (accepted — « RAG = chatbot uniquement ; RagEnrichmentEngine legacy à neutraliser ») et
+**ADR-086** (accepted — 4 intrants RAW/WIKI/DB/KW ; RAG **absent** des sources de contenu).
+
+**Contrat d'autorité S2_DIAG (remplace le modèle de priorité P1/P2/P3 du pilier 4) :**
+
+- **SURFACE** — S2_DIAG reste une section de **R3** *(inchangé — pilier #3 préservé)*.
+- **AUTHORITATIVE INPUT A** — `__diag_*` : vérité **symptôme / système / cause**.
+- **AUTHORITATIVE INPUT B** — WIKI `diagnostic_relations[]` (ADR-033) : relation typée **pièce ↔ symptôme**.
+- **S2_DIAG = composition déterministe de A + B** (projection servie). **A et B sont des entrées
+  COMPLÉMENTAIRES, pas des alternatives** : on ne « choisit » pas l'une ou l'autre, on ne concatène pas
+  ad hoc — la composition est déterministe.
+- **AUCUNE hiérarchie de fallback.** Entrée autoritaire manquante ⇒ pas de nouvelle S2_DIAG canonique
+  (voir « Autorité ≠ readiness »).
+
+**Tombstone (audit trail) :**
+> Le modèle de priorité de sources **P1/P2/P3** (pilier #4) est **superseded**. **RAG est retiré
+> ENTIÈREMENT de l'autorité de contenu** (ni source, ni repli, ni rang). `__seo_observable` reste
+> **historique / legacy uniquement** (déjà non-canonique, pilier #1). Entrée autoritaire manquante ⇒
+> **aucune nouvelle S2_DIAG canonique** ⇒ **jamais** de fallback RAG **ni** observable.
+
+**Éléments du « Plan de mise en œuvre » également superseded par cette Correction** (marqués superseded,
+non supprimés) : **Phase C — Batch RAG enrichissement** (runner `batch-enrich-s2-diag.ts` →
+`ConseilEnricherService.enrichGamme`, cible 51 %→≥85 % couverture) ; la clause **Phase D** « *Pour le résidu
+(gammes sans RAG suffisant) après Phase C* » (le moteur `__diag_*` est l'**INPUT A autoritaire** pour
+**toutes** les gammes, pas un simple traitement du résidu post-RAG) ; le **Rollback Phase C**
+(`sgc_enriched_by = 'batch-rag-runner'`) ; et le **Rollback Phase D** (flag
+`S2_DIAG_SOURCE=observable|diag_engine` — `observable` n'est plus une source active/switchable).
+**Préservés** (non superseded) : le **mécanisme Phase D** (`__diag_gamme_system_map` +
+`buildS2DiagFromDiagEngine` = désormais le chemin **canonique, INPUT A**), **Phase E** (archivage legacy
+observable), **Phase B** (instrumentation `__diag_session`), et les piliers #1/#2/#3.
+
+**Autorité canonique ≠ readiness technique.** Tant que le mapping `__diag_* → gamme`
+(`__diag_gamme_system_map`) est incomplet : **input autoritaire absent ⇒ aucune nouvelle S2_DIAG canonique
+produite ; JAMAIS de fallback RAG.** Le contenu S2_DIAG existant peut **rester servi statiquement** pendant
+le cutover, mais **aucune nouvelle vérité ne naît du RAG.** La migration curée des symptômes legacy vers
+`diagnostic_relations[]` (ADR-033 Phase 4, différée) reste un re-source gouverné — jamais une écriture RAG.
 
 ### Plan de mise en œuvre
 
@@ -124,6 +169,8 @@ diagnostic → achat à terme.
   `selector_complete`)
 - View SQL `v_diag_funnel` : sessions × orders agrégées par jour/semaine
 
+> ⚠ SUPERSEDED 2026-07-07 — voir § Correction (RAG retiré des sources S2_DIAG).
+
 **Phase C — Batch RAG enrichissement (B3 dans plan exécution)**
 
 - Audit `scripts/audit/audit-rag-coverage-s2diag.py` sur les 126 gammes
@@ -135,6 +182,8 @@ diagnostic → achat à terme.
 - Cible : passer de 51% → ≥85% couverture S2_DIAG
 
 **Phase D — Refonte RPC moteur __diag_* (B2 dans plan exécution)**
+
+> ⚠ SUPERSEDED 2026-07-07 — voir § Correction (RAG retiré des sources S2_DIAG).
 
 Pour le résidu (gammes sans RAG suffisant) après Phase C.
 
@@ -206,7 +255,9 @@ Pour le résidu (gammes sans RAG suffisant) après Phase C.
   (polluerait S2_DIAG avec ~80-chars stubs)
 - ❌ Re-créer des pages `/diagnostic-auto/{slug}` indexables (revient sur
   la décision data-driven de mars 2026)
-- ❌ Doubler les sources : choisir P1 ou P2 par gamme, pas concaténer
+- ❌ Traiter A (`__diag_*`) et B (`diagnostic_relations[]`) comme des **alternatives** (choisir l'une, ou
+  concaténer ad hoc). Ce sont des **entrées complémentaires** d'une composition déterministe (§ Correction
+  2026-07-07). *(supersede l'ancien « choisir P1 ou P2 par gamme, pas concaténer ».)*
 
 ## Métriques de succès
 
@@ -219,13 +270,24 @@ Pour le résidu (gammes sans RAG suffisant) après Phase C.
 | D | Couverture finale S2_DIAG | ≥95% (245+/259) | idem |
 | GSC J+30 post-C | Impressions pages conseil avec S2_DIAG | +20% vs baseline | GSC API |
 
+> **SUPERSEDED HISTORICAL METRICS 2026-07-07** — les cibles Phase C RAG-batch ci-dessus (S2_DIAG nouvelles
+> **+80/126**, quality **avg ≥70**, **GSC J+30 post-C +20 %**) sont **conservées pour audit trail
+> uniquement** ; ce ne sont **plus des cibles d'exécution** (Phase C superseded, § Correction). La couverture
+> « finale ≥95 % » (Phase D) et toute cible de couverture canonique S2_DIAG ne se **mesurent qu'une fois la
+> projection déterministe DB (`__diag_*`) + WIKI (`diagnostic_relations[]`) en place** — **aucun nouveau seuil
+> chiffré n'est fixé ici**. Les métriques **B** (instrumentation `customer_id`, GA4) restent actives.
+
 ## Rollback
 
 - **Phase B (instrumentation)** : `ALTER TABLE __diag_session DROP COLUMN
   customer_id` ; suppression event GA4 (no-op côté backend)
+> ⚠ SUPERSEDED 2026-07-07 — voir § Correction (RAG retiré des sources S2_DIAG).
+
 - **Phase C (batch RAG)** : si quality < 70 ou pollution détectée →
   `DELETE FROM __seo_gamme_conseil WHERE sgc_section_type = 'S2_DIAG' AND
   sgc_enriched_at > 'YYYY-MM-DD' AND sgc_enriched_by = 'batch-rag-runner'`
+> ⚠ SUPERSEDED 2026-07-07 — voir § Correction (RAG retiré des sources S2_DIAG).
+
 - **Phase D (RPC moteur)** : conserver l'ancien `buildS2DiagFromObservable`
   jusqu'à validation Phase D ; switch via flag env
   `S2_DIAG_SOURCE=observable|diag_engine`
