@@ -116,6 +116,10 @@ par rôle** :
 | `R3_CONSEILS/replacement_guidance` | R | éditorial (prescriptif=fail-closed) |
 | `R4_REFERENCE/related_parts` | R | déterministe (DB) |
 | `R3_CONSEILS/faq` | R | éditorial sourcé |
+| `R3_CONSEILS/removal_procedure`      | — | éditorial sourcé (procédure dépose) |
+| `R3_CONSEILS/installation_procedure` | — | éditorial sourcé (procédure repose) |
+| `R3_CONSEILS/post_install_checks`    | — | éditorial sourcé (contrôles post-montage) |
+| `R3_CONSEILS/safety_warnings`        | — | éditorial sourcé (sécurité, conditionnel) |
 
 **M** = obligatoire (plancher) · **R** = recommandée. **Barre tierée déterministe** : **BRONZE** =
 7/7 obligatoires valides · **ARGENT** = +≥3 recommandées · **OR** = 5/5 recommandées + média hero
@@ -123,6 +127,32 @@ dispo + **≥2 sources indépendantes sur ≥50 % des blocs**. Les 3 sections d�
 (`vehicle_selector`, `compatibility`, `related_parts`) sont **gratuites sur les 232 gammes** ; les 9
 éditoriales sont la curation (et le passage ARGENT→OR = sourcing ≥2 sources/bloc, pas plus de prose).
 *(Mêmes principes, profils différents pour véhicule/diagnostic/constructeur — « même pipeline ».)*
+
+**Sections optionnelles hors scoring.** `removal_procedure`, `installation_procedure`,
+`post_install_checks`, `safety_warnings` sont **optionnelles hors scoring** : **ni M ni R**, elles
+n'entrent dans **aucune** barre (BRONZE / ARGENT / OR **inchangées**) et **hors du décompte « 9
+éditoriales »** de la barre tierée. Absence = **aucun bloc** (pas de filler, pas de bloc inventé — cf.
+§2 « BLOC VALIDE »). La connaissance vit dans le WIKI sous ces noms **sémantiques** ; toute projection
+ultérieure vers la taxonomie servie relève d'une responsabilité de projection **existante** — **hors
+périmètre de cette PR, aucun code d'export ouvert ici** (ADR-086 §5 : `build_exports_seo` « inchangé,
+approved-only, 0 LLM / 0 DB / 0 enrichissement »).
+
+**Exclusions déterministes (jamais un bloc éditorial WIKI).** Ne se rédigent pas ; produites par
+projection/DB : `S2_DIAG` (projection déterministe `__diag_*` + relations typées WIKI
+`diagnostic_relations[]`, cf. ADR-027 §Correction 2026-07-07 + ADR-033) · `related_parts` / `S7`
+(déterministe DB) · `S_GARAGE` (composition UI déterministe) · `compatibility` / `S3` (déterministe DB).
+Aucune de ces surfaces n'a de section éditoriale ; les ajouter en éditorial est interdit.
+
+**`truth_level` verrouillé (procédures + sécurité).** Pour `removal_procedure`, `installation_procedure`,
+`post_install_checks`, `safety_warnings` : **`truth_level = sourced` UNIQUEMENT** — `inferred` **et**
+`editorial` **INTERDITS**. Le gate §2 « BLOC VALIDE » autorise `truth_level ∈ {db_owned, sourced, inferred,
+editorial}` ; ces 4 sections **restreignent l'énum à `sourced`** pour fermer toute voie d'inférence
+procédurale/sécurité (ex. interdire `installation_procedure: truth_level: inferred` sur une gamme freinage).
+Ce n'est **ni une nouvelle couche ni un nouveau scorer** — juste une contrainte de l'énum additif.
+
+**`safety_warnings` — règle renforcée (la plus stricte).** `truth_level = sourced` uniquement · **alerte
+réelle uniquement** · **aucune cible de couverture** · **aucun filler** · **absence = valide** · gouvernance
+des familles safety (**ADR-091**) **inchangée**.
 
 **Couture MÉDIA (image-ready, chantier image gouverné À PART).** Le canon **déclare** `media[]`
 (`{slot, purpose, alt_text, source, license, status}`) avec `status ∈ {AVAILABLE, DEFERRED}` —

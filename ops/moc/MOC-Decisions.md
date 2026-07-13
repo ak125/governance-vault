@@ -53,7 +53,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-030 | npm ci --ignore-scripts permanent dans Dockerfile (Alpine musl + @ast-grep/cli) | Accepted | 2026-04-30 | [[ADR-030-npm-ignore-scripts-alpine-musl]] |
 | ADR-031 | Four-Layer Content Architecture — Raw / Wiki / Exports / Consumers (Unified Flow All R0-R8) | Accepted | 2026-04-28 | [[ADR-031-four-layer-content-architecture]] |
 | ADR-032 | Diagnostic & Maintenance Unification — kg_* canon (maintenance/DTC) + content via wiki/exports per ADR-031 | Proposed | 2026-04-29 | [[ADR-032-diagnostic-maintenance-unification]] |
-| ADR-033 | Wiki Gamme Diagnostic Relations Contract — references-only from R3/R4 to `__diag_symptom` / `__diag_system` | Proposed | 2026-04-29 | [[ADR-033-wiki-gamme-diagnostic-relations-contract]] |
+| ADR-033 | Wiki Gamme Diagnostic Relations Contract — references-only from R3/R4 to `__diag_symptom` / `__diag_system` | Accepted | 2026-04-29 | [[ADR-033-wiki-gamme-diagnostic-relations-contract]] |
 | ADR-034 | AI-COS Operating Contract — Observatory + Single-Trigger Routines + AP-12 anti-bricolage | Proposed | 2026-04-30 | [[ADR-034-aicos-operating-contract]] |
 | ADR-035 | Diagnostic Tool Source Trust Flag — is_trusted + source_origin sur __diag_symptom_cause_link | Proposed | 2026-05-02 | [[ADR-035-diagnostic-tool-source-trust-flag]] |
 | ADR-036 | Marketing Operating Layer — 3 agents G1 (LEAD/LOCAL/RETENTION) + business_unit séparé ECOMMERCE/LOCAL/HYBRID + canon brand voice | Accepted | 2026-04-30 | [[ADR-036-marketing-operating-layer]] |
