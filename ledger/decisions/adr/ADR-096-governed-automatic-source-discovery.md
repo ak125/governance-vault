@@ -1,8 +1,10 @@
 ---
 id: ADR-096
 title: "Governed Automatic Source Discovery, Scoring & Capture (RAW intelligent scraper — 4 entity types)"
-status: Proposed
+status: accepted
 date: 2026-07-15
+decision_date: "2026-07-16"
+version: "1.0.0"
 deciders: [Fafa]
 decision_makers: ["@fafa"]
 supersedes: []
@@ -11,7 +13,7 @@ amends: ["ADR-031"]
 related_adr: ["ADR-031", "ADR-058", "ADR-060", "ADR-062", "ADR-083", "ADR-088", "ADR-089", "ADR-091", "ADR-093"]
 related_rules: ["G1", "G2", "G3", "AP-10", "AP-11"]
 related_incidents: []
-reviewed_by: ""
+reviewed_by: "@fafa"
 tags: [raw, scraping, source-discovery, source-score, capture, governed-autonomy, adr-031-amendment]
 ---
 
@@ -19,10 +21,11 @@ tags: [raw, scraping, source-discovery, source-score, capture, governed-autonomy
 
 ## Statut
 
-**Proposed** — GO owner nominatif 2026-07-15. Débloque la construction du **scraper intelligent
-gouverné** sur 4 types d'entité (gamme, vehicle, diagnostic, constructeur). **Rien n'est
-implémenté ni canonique tant que cet ADR n'est pas `Accepted` (signé G3 par l'owner).** Cet ADR
-autorise et CADRE le chantier ; l'engin reste NON construit jusqu'à acceptation.
+**Accepted** — 2026-07-16, revue owner `@fafa` (architecture APPROVE + 4 corrections intégrées :
+robots.txt en zone isolée §D2, seuils opérationnels versionnés ADR-062, frontière humain/Tier A §D6
+alignée sur §D5, ligne MOC). Débloque la construction du **scraper intelligent gouverné** sur 4 types
+d'entité (gamme, vehicle, diagnostic, constructeur). **L'engin reste NON construit** : cet ADR autorise
+et CADRE le chantier ; l'implémentation (étape B) et les 4 pilotes font l'objet de **GO owner séparés**.
 
 ## Contexte
 
@@ -65,11 +68,16 @@ vehicle référence un **véhicule canonique existant** (jamais un `vehicle.slug
 Le contrôle de sécurité **ne peut pas** être unique : certains critères (hash, doublon, pertinence,
 MIME, prompt-injection) exigent d'avoir déjà les octets. On définit **deux portes** :
 
-**Porte 1 — AVANT toute requête réseau** (aucun octet distant lu) :
-schéma **HTTPS** obligatoire · résolution **DNS + validation IP/SSRF** (rejet IP privées /
-link-local / loopback / metadata cloud) · **robots.txt** respecté · **redirections re-validées à
-chaque saut** (pas de bypass SSRF via redirect) · **authentification/paywall** = skip · **domaine**
-(allow/deny) · **rate-limit** · **budget par run** (requêtes/temps/octets).
+**Porte 1 — AVANT le fetch de la ressource CIBLE** (aucun octet de la cible lu) :
+schéma **HTTPS** obligatoire · résolution **DNS + validation IP/SSRF** sur la cible (rejet IP privées /
+link-local / loopback / metadata cloud) · **redirections re-validées à chaque saut** (pas de bypass
+SSRF via redirect) · **authentification/paywall** = skip · **domaine** (allow/deny) · **rate-limit** ·
+**budget par run** (requêtes/temps/octets).
+
+**robots.txt** : avant tout fetch de la ressource cible, **récupération éventuelle de `robots.txt` en
+zone isolée**, soumise aux **mêmes contrôles SSRF / redirections** que la cible — `robots.txt` est
+lui-même une requête réseau, donc **jamais « avant toute requête réseau »**. La directive est ensuite
+**respectée** (chemin interdit → skip de la cible).
 
 **Fetch en zone ÉPHÉMÈRE ISOLÉE** : les octets récupérés **n'écrivent RIEN en RAW** à ce stade.
 
@@ -147,8 +155,9 @@ ADR-083/088/091/093** :
 - Pas de `vehicle.slug` libre → **référence à un véhicule canonique existant**.
 - Diagnostic basé sur `__diag_system` / `__diag_symptom` **existants**.
 - Déduplication par **URL canonique + hash de contenu**.
-- Humain = décision finale d'autorité (source inconnue) + contradictions majeures + valeurs
-  sécurité/numériques + autorisation de promotion WIKI/SEO.
+- Humain pour **autorité des sources inconnues**, **contradictions majeures**, **sécurité/numérique**
+  et **flip `exportable.seo`** ; la **promotion WIKI Tier A reste inchangée selon §D5** (ADR-083, non
+  supprimée par cet ADR).
 
 ### D7 — Rollout progressif + arrêt d'urgence (obligatoire)
 
@@ -201,7 +210,13 @@ Le scraper n'est déclaré opérationnel qu'après **4 pilotes réels (1 par typ
 manuellement**, prouvant **la découverte ET la qualité du classement** :
 
 - découverte réelle + **capture RAW** + **provenance complète** (§D4) ;
-- **comparaison du classement avec une référence humaine** (calibration du ranking) ;
+- **mesure de découverte des sources de référence** (recall : le moteur retrouve-t-il les sources de
+  référence attendues pour la facette ?) ;
+- **mesure de qualité du classement** vs référence humaine (le bon ordre, pas seulement « un » score) ;
+- **seuils de réussite VERSIONNÉS par type ET facette dans le contrat ADR-062** (un seuil de découverte
+  + un seuil de classement) ;
+- **chaque pilote franchit SON PROPRE plancher** — aucune moyenne inter-types ne peut masquer un type
+  en échec (un pilote sous son plancher ⇒ NON opérationnel pour ce type) ;
 - **ventilation acceptés/rejetés avec reason codes** ; **≥ 1 rejet de sécurité correctement
   bloqué** ;
 - **tests** : SSRF, redirection privée, robots, taille, MIME, doublon, injection ;
