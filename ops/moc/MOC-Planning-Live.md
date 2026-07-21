@@ -86,6 +86,8 @@ ack:
   github:ak125/governance-vault:pr:9:
     acked_at: '2026-05-18T13:06:48Z'
     acked_by: ak125
+  github:ak125/nestjs-remix-monorepo:pr:1305:
+    last_alert_at: '2026-07-21T06:00:03.677498+00:00'
 ```
 
 ## See also
