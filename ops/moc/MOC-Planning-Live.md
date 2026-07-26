@@ -1,9 +1,9 @@
 ---
 type: moc
 status: proposed
-updated: 2026-07-20
+updated: 2026-07-26
 schema_version: planning.v1
-semantic_hash: 7ccdb09afffb902c
+semantic_hash: 9416e7d90876632b
 adr_link: ADR-053
 ---
 
@@ -24,7 +24,6 @@ adr_link: ADR-053
 | github:ak125/nestjs-remix-monorepo:pr:1025 | P3 | PR | in-progress | feat(seo-observability): boucle OBSERVE — attribution + mesure + restitution (DRAFT, owner-gated) |
 | github:ak125/nestjs-remix-monorepo:pr:1232 | P3 | PR | review | feat(audit): attribution-write-gap runtime-truth runner + __gov_m11 RPC (#695 class) |
 | github:ak125/nestjs-remix-monorepo:pr:1274 | P3 | PR | review | feat(seo): ADR-059 projection-read dark-launch controls (PR-E1) |
-| github:ak125/nestjs-remix-monorepo:pr:1297 | P3 | PR | review | refactor(seo-r1): remove RAG→R1 write authorities (Tranche-B R1, ADR-031/046) |
 | github:ak125/nestjs-remix-monorepo:pr:824 | P3 | PR | in-progress | feat(merchant-center): GMC price-competitiveness benchmark (inbound, OBSERVE-only) |
 | github:ak125/nestjs-remix-monorepo:pr:966 | P3 | PR | in-progress | feat(catalog): PR1 — vérité canonique de vendabilité (rollup type×gamme) |
 | github:ak125/governance-vault:pr:110 | P5 | PR | review | docs(knowledge): session handoff MVP G6 + ADR-033 alignment 2026-04-30 |
@@ -68,9 +67,9 @@ adr_link: ADR-053
 | github:ak125/nestjs-remix-monorepo:pr:1275 | P5 | PR | review | chore(rpc-gate): root allowlist parity for get_active_seo_projection (PR-E2) |
 | github:ak125/nestjs-remix-monorepo:pr:1308 | P5 | PR | review | chore(seo-batch): neutralize r4-content-batch (RAG→indexed-SEO writer, slice) |
 | github:ak125/nestjs-remix-monorepo:pr:1251 | P6 | PR | review | chore(deps): bump nodemailer from 8.0.11 to 9.0.3 |
-| github:ak125/nestjs-remix-monorepo:pr:1252 | P6 | PR | review | chore(deps): bump meilisearch from 0.52.0 to 0.59.0 |
+| github:ak125/nestjs-remix-monorepo:pr:1252 | P6 | PR | review | chore(deps): bump meilisearch from 0.52.0 to 0.60.0 |
 | github:ak125/nestjs-remix-monorepo:pr:1253 | P6 | PR | review | chore(deps-dev): bump @commitlint/config-conventional from 20.5.3 to 21.2.0 |
-| github:ak125/nestjs-remix-monorepo:pr:1295 | P6 | PR | review | chore(deps-dev): bump the dev-dependencies group across 1 directory with 22 updates |
+| github:ak125/nestjs-remix-monorepo:pr:1317 | P6 | PR | review | chore(deps-dev): bump the dev-dependencies group across 1 directory with 24 updates |
 | github:ak125/nestjs-remix-monorepo:pr:897 | P6 | PR | review | chore(deps-dev): bump eslint-import-resolver-typescript from 3.10.1 to 4.4.5 |
 
 ## Ack block (édition humaine — exception I2)
@@ -87,7 +86,7 @@ ack:
     acked_at: '2026-05-18T13:06:48Z'
     acked_by: ak125
   github:ak125/nestjs-remix-monorepo:pr:1305:
-    last_alert_at: '2026-07-25T06:00:02.614990+00:00'
+    last_alert_at: '2026-07-26T06:00:03.303850+00:00'
 ```
 
 ## See also
