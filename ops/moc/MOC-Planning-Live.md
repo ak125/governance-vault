@@ -1,9 +1,9 @@
 ---
 type: moc
 status: proposed
-updated: 2026-07-26
+updated: 2026-07-27
 schema_version: planning.v1
-semantic_hash: 9416e7d90876632b
+semantic_hash: 93294a47baf01f53
 adr_link: ADR-053
 ---
 
@@ -20,9 +20,9 @@ adr_link: ADR-053
 | github:ak125/nestjs-remix-monorepo:pr:1227 | P2 | PR | in-progress | fix(registry): top-level-only RPC scanner + fresh L1 registry catch-up (PR-E) |
 | github:ak125/nestjs-remix-monorepo:pr:1276 | P2 | PR | review | fix(media-factory): corrige artifact.bytes du manifest pilote (metadata-only) + gitignore handoffs |
 | github:ak125/nestjs-remix-monorepo:pr:1302 | P2 | PR | review | fix(deploy): prod-ssr-probe SIGPIPE false-negative on large SSR pages (stacks on #1301) |
+| github:ak125/nestjs-remix-monorepo:pr:1319 | P2 | PR | review | fix(perf): make the initial-load budget measure the real initial load |
 | github:ak125/governance-vault:pr:255 | P3 | PR | review | refactor(_scripts): split governance_constants into per-enum-family package |
 | github:ak125/nestjs-remix-monorepo:pr:1025 | P3 | PR | in-progress | feat(seo-observability): boucle OBSERVE — attribution + mesure + restitution (DRAFT, owner-gated) |
-| github:ak125/nestjs-remix-monorepo:pr:1232 | P3 | PR | review | feat(audit): attribution-write-gap runtime-truth runner + __gov_m11 RPC (#695 class) |
 | github:ak125/nestjs-remix-monorepo:pr:1274 | P3 | PR | review | feat(seo): ADR-059 projection-read dark-launch controls (PR-E1) |
 | github:ak125/nestjs-remix-monorepo:pr:824 | P3 | PR | in-progress | feat(merchant-center): GMC price-competitiveness benchmark (inbound, OBSERVE-only) |
 | github:ak125/nestjs-remix-monorepo:pr:966 | P3 | PR | in-progress | feat(catalog): PR1 — vérité canonique de vendabilité (rollup type×gamme) |
@@ -63,9 +63,9 @@ adr_link: ADR-053
 | github:ak125/governance-vault:pr:93 | P5 | PR | review | knowledge: ADR-024 R1 cache session debrief 2026-04-27 (phases 1-6a) |
 | github:ak125/nestjs-remix-monorepo:pr:1156 | P5 | PR | in-progress | [ROLLBACK DRILL — DO NOT MERGE] Revert PR-9f NestJS 11→10 / Express 5 |
 | github:ak125/nestjs-remix-monorepo:pr:1229 | P5 | PR | in-progress | ci(registry): warn-only canonical committed-freshness gate (PR-F) |
-| github:ak125/nestjs-remix-monorepo:pr:1233 | P5 | PR | review | docs(skills): fix obsolete governance-vault-ops flow/paths + ADR-082 banner (audit obsolescence) |
 | github:ak125/nestjs-remix-monorepo:pr:1275 | P5 | PR | review | chore(rpc-gate): root allowlist parity for get_active_seo_projection (PR-E2) |
 | github:ak125/nestjs-remix-monorepo:pr:1308 | P5 | PR | review | chore(seo-batch): neutralize r4-content-batch (RAG→indexed-SEO writer, slice) |
+| github:ak125/nestjs-remix-monorepo:pr:1318 | P5 | PR | review | chore(audit): ts6/ts7 shadow parity harness, observation-only, 0 lockfile mutation |
 | github:ak125/nestjs-remix-monorepo:pr:1251 | P6 | PR | review | chore(deps): bump nodemailer from 8.0.11 to 9.0.3 |
 | github:ak125/nestjs-remix-monorepo:pr:1252 | P6 | PR | review | chore(deps): bump meilisearch from 0.52.0 to 0.60.0 |
 | github:ak125/nestjs-remix-monorepo:pr:1253 | P6 | PR | review | chore(deps-dev): bump @commitlint/config-conventional from 20.5.3 to 21.2.0 |
@@ -86,7 +86,7 @@ ack:
     acked_at: '2026-05-18T13:06:48Z'
     acked_by: ak125
   github:ak125/nestjs-remix-monorepo:pr:1305:
-    last_alert_at: '2026-07-26T06:00:03.303850+00:00'
+    last_alert_at: '2026-07-27T06:00:03.403525+00:00'
 ```
 
 ## See also
