@@ -1,9 +1,9 @@
 ---
 type: moc
 status: proposed
-updated: 2026-07-28
+updated: 2026-08-02
 schema_version: planning.v1
-semantic_hash: 2fd8c317189bfd97
+semantic_hash: 604f8e6ee6180f99
 adr_link: ADR-053
 ---
 
@@ -67,6 +67,9 @@ adr_link: ADR-053
 | github:ak125/nestjs-remix-monorepo:pr:1252 | P6 | PR | review | chore(deps): bump meilisearch from 0.52.0 to 0.60.0 |
 | github:ak125/nestjs-remix-monorepo:pr:1253 | P6 | PR | review | chore(deps-dev): bump @commitlint/config-conventional from 20.5.3 to 21.2.0 |
 | github:ak125/nestjs-remix-monorepo:pr:1317 | P6 | PR | review | chore(deps-dev): bump the dev-dependencies group across 1 directory with 24 updates |
+| github:ak125/nestjs-remix-monorepo:pr:1327 | P6 | PR | review | chore(deps): bump gitleaks/gitleaks-action from 2 to 3 |
+| github:ak125/nestjs-remix-monorepo:pr:1328 | P6 | PR | review | chore(deps): bump peter-evans/create-pull-request from 6 to 8 |
+| github:ak125/nestjs-remix-monorepo:pr:1329 | P6 | PR | review | chore(deps): bump trufflesecurity/trufflehog from 3.83.7 to 3.96.0 |
 | github:ak125/nestjs-remix-monorepo:pr:897 | P6 | PR | review | chore(deps-dev): bump eslint-import-resolver-typescript from 3.10.1 to 4.4.5 |
 | github:ak125/nestjs-remix-monorepo:pr:1156 | P7 | PR | in-progress | [ROLLBACK DRILL — DO NOT MERGE] Revert PR-9f NestJS 11→10 / Express 5 |
 
@@ -84,7 +87,7 @@ ack:
     acked_at: '2026-05-18T13:06:48Z'
     acked_by: ak125
   github:ak125/nestjs-remix-monorepo:pr:1305:
-    last_alert_at: '2026-08-01T06:00:03.412345+00:00'
+    last_alert_at: '2026-08-02T06:00:02.700232+00:00'
 ```
 
 ## See also
