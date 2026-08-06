@@ -1,9 +1,9 @@
 ---
 type: moc
 status: proposed
-updated: 2026-08-05
+updated: 2026-08-06
 schema_version: planning.v1
-semantic_hash: 08289ada975d37c5
+semantic_hash: defc7fc5d3e4f189
 adr_link: ADR-053
 ---
 
@@ -19,7 +19,6 @@ adr_link: ADR-053
 | github:ak125/nestjs-remix-monorepo:pr:1225 | P2 | PR | in-progress | fix(registry): atomic occurrences[] + independent semantic-fidelity gate (dependency truth) |
 | github:ak125/nestjs-remix-monorepo:pr:1227 | P2 | PR | in-progress | fix(registry): top-level-only RPC scanner + fresh L1 registry catch-up (PR-E) |
 | github:ak125/nestjs-remix-monorepo:pr:1302 | P2 | PR | review | fix(deploy): prod-ssr-probe SIGPIPE false-negative on large SSR pages (stacks on #1301) |
-| github:ak125/nestjs-remix-monorepo:pr:1332 | P2 | PR | review | fix(frontend): defer sort/view/navigate state updates to unblock mobile INP on /pieces/* |
 | github:ak125/governance-vault:pr:255 | P3 | PR | review | refactor(_scripts): split governance_constants into per-enum-family package |
 | github:ak125/nestjs-remix-monorepo:pr:1025 | P3 | PR | in-progress | feat(seo-observability): boucle OBSERVE — attribution + mesure + restitution (DRAFT, owner-gated) |
 | github:ak125/nestjs-remix-monorepo:pr:824 | P3 | PR | in-progress | feat(merchant-center): GMC price-competitiveness benchmark (inbound, OBSERVE-only) |
@@ -85,7 +84,7 @@ ack:
     acked_at: '2026-05-18T13:06:48Z'
     acked_by: ak125
   github:ak125/nestjs-remix-monorepo:pr:1305:
-    last_alert_at: '2026-08-05T06:00:03.039158+00:00'
+    last_alert_at: '2026-08-06T06:00:03.456403+00:00'
 ```
 
 ## See also
