@@ -84,7 +84,7 @@ ack:
     acked_at: '2026-05-18T13:06:48Z'
     acked_by: ak125
   github:ak125/nestjs-remix-monorepo:pr:1305:
-    last_alert_at: '2026-08-08T06:00:03.948418+00:00'
+    last_alert_at: '2026-08-10T06:00:03.483368+00:00'
 ```
 
 ## See also
