@@ -1,9 +1,9 @@
 ---
 type: moc
 status: proposed
-updated: 2026-08-11
+updated: 2026-08-12
 schema_version: planning.v1
-semantic_hash: b194660c579658a1
+semantic_hash: c87b9522909822cc
 adr_link: ADR-053
 ---
 
@@ -17,6 +17,7 @@ adr_link: ADR-053
 | github:ak125/governance-vault:pr:149 | P2 | PR | review | fix(scripts): check-signatures supports git worktrees |
 | github:ak125/nestjs-remix-monorepo:pr:1225 | P2 | PR | in-progress | fix(registry): atomic occurrences[] + independent semantic-fidelity gate (dependency truth) |
 | github:ak125/nestjs-remix-monorepo:pr:1227 | P2 | PR | in-progress | fix(registry): top-level-only RPC scanner + fresh L1 registry catch-up (PR-E) |
+| github:ak125/nestjs-remix-monorepo:pr:1344 | P2 | PR | review | fix(seo): guard R8 vehicle-page transform against null part/family names (GSC 5xx) |
 | github:ak125/governance-vault:pr:255 | P3 | PR | review | refactor(_scripts): split governance_constants into per-enum-family package |
 | github:ak125/nestjs-remix-monorepo:pr:1025 | P3 | PR | in-progress | feat(seo-observability): boucle OBSERVE — attribution + mesure + restitution (DRAFT, owner-gated) |
 | github:ak125/nestjs-remix-monorepo:pr:824 | P3 | PR | in-progress | feat(merchant-center): GMC price-competitiveness benchmark (inbound, OBSERVE-only) |
