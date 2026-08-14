@@ -73,6 +73,24 @@ mêle un fait documentable et un maillage interne.
 
 ### `profiles` — `entity_type` × `discovery_facet`
 
+Le schéma RAW rend `profile_ref` **obligatoire** sans en contraindre la forme. Le contrat la
+fixe, en **une seule syntaxe** :
+
+```
+profile_ref := "<entity_type>/<discovery_facet>"
+
+gamme/bloc_diagnostic · vehicle/recalls_official
+diagnostic/wear_windows_km_age · constructeur/brand_aliases      … 18 valeurs
+```
+
+Cette forme reprend celle qu'emploie **déjà** la fixture RAW — seule la *valeur* y était hors
+contrat : `gamme/editorial`, où `editorial` n'est pas une facette. Les identifiants proviennent
+exclusivement de `_schemas/completeness/<type>.yaml`. La fixture devra être alignée dans la même
+PR que le scorer.
+
+Un `profile_ref` hors liste est un **rejet**, jamais un repli sur un profil par défaut : un
+repli silencieux ferait scorer une facette avec les planchers d'une autre.
+
 Mécanique reprise de `automecanik-wiki/_scripts/shadow_score.py`, dont le framework est éprouvé
 et testé :
 
@@ -90,10 +108,35 @@ Ce qui n'est **pas** repris de `shadow_score` : ses poids sont codés en dur dan
 `source_type_authority` associe une autorité brute à chacune des 9 valeurs de l'enum fermé
 partagé par `ingestion-allowlist.schema.json` et `auto-capture-frontmatter.schema.json`.
 
-`unknown_source_cap` plafonne un domaine hors allowlist à **9 points**, soit **sous le plancher
-de la dimension autorité (11)**. Conséquence mécanique : une source inconnue échoue toujours son
-plancher d'autorité et ne peut jamais atteindre le rang d'une source déjà validée — sans qu'un
-seuil supplémentaire soit nécessaire.
+### Domaine non approuvé ≠ source inconnue
+
+Deux notions qu'il est facile de confondre, et que la révision 1 confondait.
+
+Un domaine **hors allowlist** n'atteint jamais le `source_score` final : §D3 place ce score en
+**Porte 2**, donc *après* le fetch isolé — et un domaine non approuvé n'est jamais fetché
+(décision B0-r2). Le cap d'autorité ne peut donc pas s'y appliquer.
+
+```
+UNAPPROVED_DOMAIN   domaine absent de l'allowlist de fetch
+                    → DISCOVERED_UNAPPROVED_DOMAIN, report-only
+                    → aucun fetch · aucun source_score final
+                    → DOMAIN_REVIEW_REQUIRED avant tout fetch
+                    → en amont de la Porte 1
+
+UNKNOWN_SOURCE      domaine DÉJÀ autorisé au fetch,
+                    page pas encore validée humainement
+                    → le cap d'autorité s'applique
+                    → capture possible, rang plafonné
+                    → Porte 2, au calcul du score
+```
+
+Un domaine explicitement `deny` reste `deny` : sa présence dans un corpus de référence ne vaut
+pas demande de réouverture.
+
+`unknown_source_cap` plafonne une **source inconnue** — au sens ci-dessus — à **9 points**, soit
+**sous le plancher de la dimension autorité (11)**. Conséquence mécanique : elle échoue toujours
+son plancher et ne peut jamais atteindre le rang d'une source déjà validée, sans qu'un seuil
+supplémentaire soit nécessaire.
 
 ## Calibration — séparée de la stabilité du framework
 
@@ -114,10 +157,9 @@ préexistante. Elle calibre **les profils gamme uniquement**. Elle ne valide ni 
 Un profil `shadow_unvalidated` peut produire un score en **report-only**. Il ne doit pas servir
 de critère de sélection pour une capture durable.
 
-## Projection — mécanisme existant, à étendre
+## Projection — l'infrastructure existe, la sémantique de hash JSON manque
 
-Aucun système de projection n'est à construire. Le vault publie déjà des hashes canoniques
-consommés par les dépôts aval :
+Le vault publie déjà des hashes canoniques consommés par les dépôts aval :
 
 ```
 99-meta/canon-hashes.json          clé actuelle : aec
@@ -127,12 +169,35 @@ automecanik-raw
    _scripts/check-aec-hash.sh      push · PR · cron · dispatch · manuel
 ```
 
-Après acceptation de ce contrat : ajouter une clé `source-score-weights` via
-`_scripts/compute-canon-hashes.py` — le fichier de hashes est **généré, jamais édité à la
-main** — et poser côté RAW un vérificateur calqué sur `check-aec-hash.sh`.
+**Mais « ajouter une seconde clé » ne suffit pas.** Mesuré :
+`_scripts/compute-canon-hashes.py` calcule `sha256_text(text)` et, pour
+`distribution_sha256`, retire un frontmatter YAML *par regex*. Appliqué à du JSON, ce strip ne
+retire **rien** — `distribution_sha256` vaudrait le hash des octets bruts, pas le JCS que ce
+contrat déclare.
 
-`metadata.distribution_sha256` reste `null` dans ce document : il est rempli par la projection,
-pas par l'auteur.
+Ajouter simplement `CANONS["source-score-weights"]` produirait donc **deux empreintes calculées
+selon deux algorithmes différents**, et l'écart ne se verrait qu'au moment où RAW comparerait.
+C'est exactement la classe de défaut que ce contrat existe pour éviter.
+
+Le contrat porte donc une section `metadata.projection_requirements`, bloquante :
+
+```
+hash_mode        json_jcs
+excluded_paths   [metadata.distribution_sha256]
+applies_to       les entrées CANONS dont canon_path se termine par .json
+backward_compat  les entrées existantes restent en text_sha256 ;
+                 le mode est déclaré PAR entrée, jamais global
+```
+
+Plus deux exigences symétriques : le vérificateur RAW doit calculer **exactement la même
+chose** — un vérificateur en sha256 brut face à un publisher en JCS donnerait un rouge
+permanent, et la tentation serait d'assouplir le vérificateur — et un **vecteur de test
+déterministe** doit prouver la parité des deux implémentations.
+
+**Tant que ces trois points ne sont pas livrés, la clé ne doit pas être ajoutée aux CANONS.**
+
+`metadata.distribution_sha256` reste `null` ici : il est rempli par la projection, pas par
+l'auteur.
 
 ## Canonicalisation et hash
 

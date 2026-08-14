@@ -14,7 +14,20 @@
     },
     "hash_algorithm": "sha256",
     "distribution_sha256": null,
-    "distribution_note": "Publie apres acceptation dans 99-meta/canon-hashes.json (cle source-score-weights), calcule par _scripts/compute-canon-hashes.py. NE PAS remplir a la main. Le runtime lit la PROJECTION, jamais ce fichier (ADR-096 D3)."
+    "distribution_note": "Publie apres acceptation dans 99-meta/canon-hashes.json (cle source-score-weights). NE PAS remplir a la main. Le runtime lit la PROJECTION, jamais ce fichier (ADR-096 D3).",
+
+    "projection_requirements": {
+      "_note": "BLOQUANT — a livrer AVANT d ajouter la cle aux CANONS. Mesure : _scripts/compute-canon-hashes.py calcule aujourd hui sha256_text(text) et, pour distribution_sha256, retire un frontmatter YAML par regex. Applique a du JSON, ce strip ne retire RIEN : distribution_sha256 vaudrait le hash des octets bruts, PAS le JCS declare ci-dessus. Ajouter simplement CANONS[source-score-weights] produirait donc deux empreintes calculees selon deux algorithmes differents, et l ecart ne se verrait qu au moment ou RAW comparerait.",
+      "publisher_must_gain": {
+        "hash_mode": "json_jcs",
+        "excluded_paths": ["metadata.distribution_sha256"],
+        "applies_to": "les entrees CANONS dont canon_path se termine par .json",
+        "backward_compat": "les entrees existantes restent en hash_mode text_sha256 ; le mode est declare PAR entree, jamais global."
+      },
+      "consumer_must_match": "Le verificateur cote RAW, calque sur _scripts/check-aec-hash.sh, doit calculer EXACTEMENT la meme chose. Un verificateur en sha256 de fichier brut contre un publisher en JCS produirait un rouge permanent, et la tentation serait alors d assouplir le verificateur.",
+      "test_vector_required": "Un vecteur de test deterministe, versionne, exercant les deux cotes : meme document -> meme empreinte cote publisher et cote verificateur. Sans lui, la parite des deux implementations n est pas prouvee.",
+      "gate": "Tant que ces trois points ne sont pas livres, la cle NE DOIT PAS etre ajoutee aux CANONS."
+    }
   },
 
   "hard_gates": {
@@ -145,6 +158,22 @@
 
   "profiles": {
     "_note": "Un profil par entity_type x discovery_facet. dimensions = sous-ensemble applicable ; une dimension non applicable est NEUTRALISEE (exclue du total ET des planchers) et le total est RENORMALISE sur les dimensions applicables. Mecanique reprise de automecanik-wiki/_scripts/shadow_score.py, dont le framework est eprouve. calibration.status distingue le framework (stable) des nombres (v0).",
+    "_profile_ref_syntax": {
+      "form": "<entity_type>/<discovery_facet>",
+      "note": "UNE seule syntaxe, contractuelle. Elle reprend la forme deja employee par la fixture RAW (test_adr096_contracts.py) plutot que d en inventer une : seule la VALEUR y etait hors contrat.",
+      "valid_values": [
+        "gamme/bloc_domain", "gamme/bloc_selection", "gamme/bloc_diagnostic",
+        "gamme/bloc_maintenance", "gamme/bloc_purchase_guardrails", "gamme/conseil_v5",
+        "gamme/dimensions_compatibility_factors",
+        "vehicle/known_issues_by_engine", "vehicle/maintenance_by_engine",
+        "vehicle/recalls_official", "vehicle/oem_references",
+        "diagnostic/symptoms_complete", "diagnostic/probable_causes_with_gammes",
+        "diagnostic/diagnostic_steps", "diagnostic/wear_windows_km_age",
+        "constructeur/country_iso2", "constructeur/founded_year", "constructeur/brand_aliases"
+      ],
+      "invalid_example": "gamme/editorial — valeur employee par la fixture RAW actuelle. `editorial` n est PAS une facette : les identifiants proviennent exclusivement de _schemas/completeness/<type>.yaml. La fixture devra etre alignee dans la meme PR que le scorer.",
+      "unknown_profile_ref": "Un profile_ref hors de cette liste est un REJET, jamais un repli sur un profil par defaut : un repli silencieux ferait scorer une facette avec les planchers d une autre."
+    },
     "_defaults": {
       "dimensions": [
         "autorite",
@@ -187,8 +216,8 @@
     },
     "constructeur": {
       "_inherits": "_defaults",
-      "dimensions_remove": ["precision_vehicule_moteur_gamme"],
-      "calibration": { "status": "shadow_unvalidated", "reference_set": null }
+      "calibration": { "status": "shadow_unvalidated", "reference_set": null },
+      "_note": "Aucun dimensions_add : precision_vehicule_moteur_gamme n est pas applicable a une fiche marque. La revision 1 portait un dimensions_remove sur cette dimension — c etait un no-op, elle n est pas dans _defaults. Retire."
     }
   },
 
@@ -205,9 +234,24 @@
       "forum_experience_secondary": 4,
       "other": 2
     },
+    "domain_vs_source": {
+      "_note": "DEUX NOTIONS DISTINCTES, longtemps confondues. Un domaine hors allowlist n atteint JAMAIS le source_score final : ADR-096 place source_score en Porte 2, donc APRES le fetch isole, et un domaine non approuve n est jamais fetche (decision B0-r2). Le cap d autorite ne s applique donc PAS a lui — il s applique a une source dont le domaine est deja autorise au fetch mais dont la page n a pas encore ete validee humainement.",
+      "UNAPPROVED_DOMAIN": {
+        "definition": "Domaine absent de l allowlist de fetch.",
+        "traitement": "Signale en report-only sous DISCOVERED_UNAPPROVED_DOMAIN. Aucun fetch. Aucun source_score final. Passe par DOMAIN_REVIEW_REQUIRED avant tout fetch.",
+        "porte": "amont de la Porte 1",
+        "note": "Un domaine explicitement deny reste deny : sa presence dans un corpus de reference ne vaut pas demande de reouverture."
+      },
+      "UNKNOWN_SOURCE": {
+        "definition": "Domaine DEJA autorise au fetch, mais source ou page pas encore validee humainement.",
+        "traitement": "Le cap d autorite ci-dessous s applique. La capture reste possible ; le rang est plafonne.",
+        "porte": "Porte 2, au calcul du source_score"
+      }
+    },
     "unknown_source_cap": {
+      "applies_to": "UNKNOWN_SOURCE uniquement — jamais a UNAPPROVED_DOMAIN, qui n atteint pas ce calcul.",
       "authority_points_max": 9,
-      "rule": "Un domaine absent de l allowlist gouvernee est INCONNU. Son autorite est plafonnee sous le plancher de la dimension autorite (11), donc il ne peut jamais atteindre le rang d une source deja validee.",
+      "rule": "Une source inconnue au sens ci-dessus voit son autorite plafonnee sous le plancher de la dimension autorite (11), donc elle ne peut jamais atteindre le rang d une source deja validee.",
       "consequence": "floor_not_met sur autorite, rang plafonne, capture possible mais jamais en tete de classement."
     },
     "claim_confidence_isolation": {
