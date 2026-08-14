@@ -64,6 +64,11 @@ la raisonne.
 
 ## Décision
 
+> **Portée de l'amendement.** ADR-097 **n'amende pas** l'invariant d'ownership d'ADR-062 ; elle
+> amende **l'implémentation** du gate Phase 2 définie par ADR-058, afin de la remettre en
+> conformité avec cet invariant. L'invariant ne change pas — c'est l'exception locale qui était
+> non conforme.
+
 **Retirer `**/*.test.ts`, `**/*.spec.ts` et `**/__tests__/**` de `EXCEPTION_GLOBS`**, de sorte
 qu'un fichier de test obtienne son ownership **par héritage du glob de son sous-arbre**, comme
 tout autre fichier — et soit refusé à l'admission si ce sous-arbre n'a pas de propriétaire.
