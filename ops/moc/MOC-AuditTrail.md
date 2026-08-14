@@ -17,6 +17,7 @@ Journal chronologique des **evenements de gouvernance** : audits ponctuels, retr
 
 | Date | Document | Type |
 |------|----------|------|
+| 2026-08-14 | [[2026-08-14-adr-096-f5-backend-brave-conditional-go]] | Follow-up decision (ADR-096 F5 — backend de decouverte, CONDITIONAL_GO) |
 | 2026-02-02 | [[2026-02-02-rpc-safety-gate-audit]] | Audit (RPC Safety Gate) |
 | 2026-02-03 | [[2026-02-03_governance-formalization-complete]] | Completion (v1 governance) |
 | 2026-02-03 | [[2026-02-phase4-post-hardening-summary]] | Retrospective (Phase 4) |
