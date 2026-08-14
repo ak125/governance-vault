@@ -21,6 +21,8 @@ Les policies decrivent **comment** appliquer les regles (format, template, schem
 |----------|------|
 | [[BUNDLE-SPEC]] | Specification complete d'un bundle (metadata, structure, contrats) |
 | `bundle.schema.v1.json` | Schema JSON v1 pour validation programmatique |
+| [[SOURCE-SCORE-WEIGHTS-SPEC]] | Contrat de poids source_score (ADR-096 D3) — dimensions, hard gates, profils, calibration |
+| `source-score-weights.v1.json` | Contrat Layer 2 machine-readable, projete vers RAW via canon-hashes |
 
 ## Processus
 
