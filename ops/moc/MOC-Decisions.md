@@ -101,6 +101,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-096 | Governed Automatic Source Discovery, Scoring & Capture (RAW intelligent scraper — gamme/vehicle/diagnostic/constructeur) — amende ADR-031, autorise la découverte+scoring+capture auto gouvernée sous CAPTURED_NEEDS_REVIEW ; 0 capacité de promotion dans le scraper, promotion downstream ADR-083/088/091/093 inchangée | Accepted | 2026-07-16 | [[ADR-096-governed-automatic-source-discovery]] |
 
 ---
+| ADR-097 | Parite de perimetre des gardes d ownership — le gate block-new n exempte plus les fichiers de test ; les tests heritent de l ownership de leur sous-arbre (99,3 pourcent le font deja), sequence PR-1 declaration au grain module puis PR-2 retrait des 3 globs ; interdiction nommee des globs fourre-tout | Proposed | 2026-08-14 | [[ADR-097-ownership-gate-parity-tests]] |
 
 <!-- AUTO-GENERATED:moc-decisions-canonical-index start -->
 
