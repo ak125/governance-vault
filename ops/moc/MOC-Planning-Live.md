@@ -1,9 +1,9 @@
 ---
 type: moc
 status: proposed
-updated: 2026-08-13
+updated: 2026-08-14
 schema_version: planning.v1
-semantic_hash: b194660c579658a1
+semantic_hash: 205ade8c0c693182
 adr_link: ADR-053
 ---
 
@@ -17,8 +17,10 @@ adr_link: ADR-053
 | github:ak125/governance-vault:pr:149 | P2 | PR | review | fix(scripts): check-signatures supports git worktrees |
 | github:ak125/nestjs-remix-monorepo:pr:1225 | P2 | PR | in-progress | fix(registry): atomic occurrences[] + independent semantic-fidelity gate (dependency truth) |
 | github:ak125/nestjs-remix-monorepo:pr:1227 | P2 | PR | in-progress | fix(registry): top-level-only RPC scanner + fresh L1 registry catch-up (PR-E) |
+| github:ak125/nestjs-remix-monorepo:pr:1348 | P2 | PR | review | fix(audit): reproductibilité cross-machine des projections + batch cleanup 5 fichiers |
 | github:ak125/governance-vault:pr:255 | P3 | PR | review | refactor(_scripts): split governance_constants into per-enum-family package |
 | github:ak125/nestjs-remix-monorepo:pr:1025 | P3 | PR | in-progress | feat(seo-observability): boucle OBSERVE — attribution + mesure + restitution (DRAFT, owner-gated) |
+| github:ak125/nestjs-remix-monorepo:pr:1349 | P3 | PR | review | feat(governance): G3 orphan identity ratchet + P2 dead RAG ingestion removal |
 | github:ak125/nestjs-remix-monorepo:pr:824 | P3 | PR | in-progress | feat(merchant-center): GMC price-competitiveness benchmark (inbound, OBSERVE-only) |
 | github:ak125/nestjs-remix-monorepo:pr:966 | P3 | PR | in-progress | feat(catalog): PR1 — vérité canonique de vendabilité (rollup type×gamme) |
 | github:ak125/governance-vault:pr:110 | P5 | PR | review | docs(knowledge): session handoff MVP G6 + ADR-033 alignment 2026-04-30 |
@@ -60,9 +62,6 @@ adr_link: ADR-053
 | github:ak125/nestjs-remix-monorepo:pr:1251 | P6 | PR | review | chore(deps): bump nodemailer from 8.0.11 to 9.0.3 |
 | github:ak125/nestjs-remix-monorepo:pr:1252 | P6 | PR | review | chore(deps): bump meilisearch from 0.52.0 to 0.60.0 |
 | github:ak125/nestjs-remix-monorepo:pr:1253 | P6 | PR | review | chore(deps-dev): bump @commitlint/config-conventional from 20.5.3 to 21.2.0 |
-| github:ak125/nestjs-remix-monorepo:pr:1327 | P6 | PR | review | chore(deps): bump gitleaks/gitleaks-action from 2 to 3 |
-| github:ak125/nestjs-remix-monorepo:pr:1328 | P6 | PR | review | chore(deps): bump peter-evans/create-pull-request from 6 to 8 |
-| github:ak125/nestjs-remix-monorepo:pr:1329 | P6 | PR | review | chore(deps): bump trufflesecurity/trufflehog from 3.83.7 to 3.96.0 |
 | github:ak125/nestjs-remix-monorepo:pr:1342 | P6 | PR | review | chore(deps-dev): bump the dev-dependencies group across 1 directory with 26 updates |
 | github:ak125/nestjs-remix-monorepo:pr:897 | P6 | PR | review | chore(deps-dev): bump eslint-import-resolver-typescript from 3.10.1 to 4.4.5 |
 | github:ak125/nestjs-remix-monorepo:pr:1156 | P7 | PR | in-progress | [ROLLBACK DRILL — DO NOT MERGE] Revert PR-9f NestJS 11→10 / Express 5 |
