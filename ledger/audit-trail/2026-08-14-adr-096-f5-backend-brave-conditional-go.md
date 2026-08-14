@@ -8,6 +8,9 @@ status: conditional
 blocking_precondition: explicit_storage_rights
 parent_adr: ADR-096
 follow_up: "F5 — choix gouverné du backend de recherche web"
+discovery_scope: open_report_only
+capture_scope: approved_domains_only
+unapproved_domain_action: DOMAIN_REVIEW_REQUIRED
 related_prs:
   governance-vault:
     - 346  # source-score-weights@v1 (proposed)
