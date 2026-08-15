@@ -1,0 +1,272 @@
+{
+  "metadata": {
+    "contract_id": "source-score-weights@v1",
+    "schema_version": "1.0.0",
+    "status": "proposed",
+    "adr": "ADR-096",
+    "governance": "ADR-062",
+    "scorer_compat": ">=1.0.0 <2.0.0",
+    "canonicalisation": {
+      "form": "RFC 8785 JSON Canonicalization Scheme",
+      "encoding": "UTF-8",
+      "excluded_from_hash": ["metadata.distribution_sha256"],
+      "note": "Le hash porte sur le document canonicalise PRIVE du champ qui le porte. Toute autre cle, y compris status et les commentaires _note, entre dans le hash : changer une note change le hash, donc la version."
+    },
+    "hash_algorithm": "sha256",
+    "distribution_sha256": null,
+    "distribution_note": "Publie apres acceptation dans 99-meta/canon-hashes.json (cle source-score-weights). NE PAS remplir a la main. Le runtime lit la PROJECTION, jamais ce fichier (ADR-096 D3).",
+
+    "projection_requirements": {
+      "_note": "BLOQUANT — a livrer AVANT d ajouter la cle aux CANONS. Mesure : _scripts/compute-canon-hashes.py calcule aujourd hui sha256_text(text) et, pour distribution_sha256, retire un frontmatter YAML par regex. Applique a du JSON, ce strip ne retire RIEN : distribution_sha256 vaudrait le hash des octets bruts, PAS le JCS declare ci-dessus. Ajouter simplement CANONS[source-score-weights] produirait donc deux empreintes calculees selon deux algorithmes differents, et l ecart ne se verrait qu au moment ou RAW comparerait.",
+      "publisher_must_gain": {
+        "hash_mode": "json_jcs",
+        "excluded_paths": ["metadata.distribution_sha256"],
+        "applies_to": "les entrees CANONS dont canon_path se termine par .json",
+        "backward_compat": "les entrees existantes restent en hash_mode text_sha256 ; le mode est declare PAR entree, jamais global."
+      },
+      "consumer_must_match": "Le verificateur cote RAW, calque sur _scripts/check-aec-hash.sh, doit calculer EXACTEMENT la meme chose. Un verificateur en sha256 de fichier brut contre un publisher en JCS produirait un rouge permanent, et la tentation serait alors d assouplir le verificateur.",
+      "test_vector_required": "Un vecteur de test deterministe, versionne, exercant les deux cotes : meme document -> meme empreinte cote publisher et cote verificateur. Sans lui, la parite des deux implementations n est pas prouvee.",
+      "gate": "Tant que ces trois points ne sont pas livres, la cle NE DOIT PAS etre ajoutee aux CANONS."
+    }
+  },
+
+  "hard_gates": {
+    "_note": "Assertions POSITIVES. Le schema RAW impose hard_gates[].passed const true : une capture persistee ne peut porter qu un gate franchi. Un echec vaut REJET, jamais un plafonnement de score, et aucune dimension ne le compense (ADR-096 D3).",
+    "license_permitted": {
+      "assertion": "La licence constatee autorise la reutilisation documentaire dans RAW.",
+      "reject_reason_code": "LICENSE_RESTRICTED",
+      "gate": 2
+    },
+    "robots_permitted": {
+      "assertion": "robots.txt de la cible autorise le chemin demande pour notre User-Agent.",
+      "reject_reason_code": "ROBOTS_DENIED",
+      "gate": 1
+    },
+    "network_target_safe": {
+      "assertion": "Schema HTTPS, resolution DNS vers une IP publique, et chaque saut de redirection re-valide.",
+      "reject_reason_code": "SSRF_BLOCKED",
+      "gate": 1
+    },
+    "content_safe": {
+      "assertion": "Le contenu recupere ne porte ni charge hostile ni tentative d injection d instructions.",
+      "reject_reason_code": "HOSTILE_CONTENT",
+      "gate": 2,
+      "note": "Le contenu web est une DONNEE, jamais une instruction (ADR-096 D2). Il ne peut modifier ni les poids, ni les outils, ni les URLs suivantes."
+    },
+    "subject_relevant": {
+      "assertion": "La ressource porte sur l entite canonique demandee, pas seulement sur son domaine general.",
+      "reject_reason_code": "OUT_OF_SCOPE",
+      "gate": 2
+    }
+  },
+
+  "dimensions": {
+    "_note": "Les 9 dimensions d ADR-096 D3. weight = contribution maximale. floor = minimum non compensable sur la valeur BRUTE de la dimension ; un plancher non atteint plafonne le rang, il ne rejette pas. cap = maximum atteignable, egal a weight sauf restriction (voir authority_policy). Somme des weight = 100.",
+    "autorite": { "weight": 22, "floor": 11, "cap": 22 },
+    "correspondance_entite": { "weight": 18, "floor": 9, "cap": 18 },
+    "couverture_facette": { "weight": 15, "floor": 5, "cap": 15 },
+    "primaire_vs_secondaire": { "weight": 12, "floor": null, "cap": 12 },
+    "precision_vehicule_moteur_gamme": { "weight": 10, "floor": null, "cap": 10 },
+    "fraicheur_applicabilite": { "weight": 8, "floor": null, "cap": 8 },
+    "licence_reutilisabilite": { "weight": 6, "floor": null, "cap": 6 },
+    "gain_corroboration": { "weight": 5, "floor": null, "cap": 5 },
+    "penalites_duplication_contradiction": {
+      "weight": 4, "floor": null, "cap": 4,
+      "note": "Dimension a polarite inversee : la valeur mesure l ABSENCE de duplication et de contradiction. 4 = aucune penalite."
+    }
+  },
+
+  "facets": {
+    "_note": "Les identifiants proviennent EXCLUSIVEMENT de automecanik-raw/_schemas/completeness/<type>.yaml. Aucun identifiant n est invente. discovery_eligible = facettes qu une source EXTERNE peut documenter. non_discovery = contraintes de structure, de couverture, d identite canonique, de provenance DB interne ou de maillage : le moteur peut chercher le CONTENU qui les remplira, il ne doit jamais scorer une source sur sa capacite a les prouver.",
+    "gamme": {
+      "validated_by_owner": true,
+      "discovery_eligible": [
+        "bloc_domain",
+        "bloc_selection",
+        "bloc_diagnostic",
+        "bloc_maintenance",
+        "bloc_purchase_guardrails",
+        "conseil_v5",
+        "dimensions_compatibility_factors"
+      ],
+      "non_discovery": [
+        { "id": "identity", "reason": "identite canonique" },
+        { "id": "bloc_rendering", "reason": "directive de rendu, non documentaire" },
+        { "id": "evidence_file", "reason": "artefact interne" },
+        { "id": "source_kinds_diversity", "reason": "meta-contrainte sur les sources elles-memes" },
+        { "id": "sections_h2_canon", "reason": "contrainte de couverture et de structure ; scorer une source sur sa capacite a prouver l existence des H2 melangerait qualite de source et completude de la projection WIKI" }
+      ]
+    },
+    "vehicle": {
+      "validated_by_owner": false,
+      "derived_by_rule": true,
+      "discovery_eligible": [
+        "known_issues_by_engine",
+        "maintenance_by_engine",
+        "recalls_official",
+        "oem_references"
+      ],
+      "non_discovery": [
+        { "id": "identity", "reason": "identite canonique" },
+        { "id": "motorizations_db", "reason": "provenance DB interne declaree par le profil" },
+        { "id": "type_id_count", "reason": "compte interne" },
+        { "id": "sections_h2_template", "reason": "contrainte de structure, meme regle que sections_h2_canon" },
+        { "id": "source_kinds_diversity", "reason": "meta-contrainte" },
+        { "id": "validation_notes_resolved", "reason": "etat de processus interne" },
+        { "id": "coverage_major_motorizations", "reason": "contrainte de couverture derivee" }
+      ]
+    },
+    "diagnostic": {
+      "validated_by_owner": false,
+      "derived_by_rule": true,
+      "discovery_eligible": [
+        "symptoms_complete",
+        "probable_causes_with_gammes",
+        "diagnostic_steps",
+        "wear_windows_km_age"
+      ],
+      "non_discovery": [
+        { "id": "system", "reason": "FK __diag_system, identite canonique" },
+        { "id": "severity_audience", "reason": "decision editoriale" },
+        { "id": "sections_template", "reason": "contrainte de structure" },
+        { "id": "audience_distinction", "reason": "decision editoriale" },
+        { "id": "maillage_gammes_complet", "reason": "maillage interne" },
+        { "id": "maillage_vehicules", "reason": "maillage interne" },
+        { "id": "source_kinds_diversity", "reason": "meta-contrainte" },
+        { "id": "evidence_file", "reason": "artefact interne" }
+      ],
+      "open_question": "probable_causes_with_gammes melange un fait documentable (les causes probables) et un maillage interne (le renvoi gammes). Retenue comme eligible sur sa moitie documentaire ; a confirmer ou a scinder en revue."
+    },
+    "constructeur": {
+      "validated_by_owner": false,
+      "derived_by_rule": true,
+      "discovery_eligible": [
+        "country_iso2",
+        "founded_year",
+        "brand_aliases"
+      ],
+      "non_discovery": [
+        { "id": "identity", "reason": "identite canonique" },
+        { "id": "models_canonical", "reason": "exige des slugs vehicle CANONIQUES ; une decouverte externe y inviterait l invention de slug, interdite par ADR-096 D6" },
+        { "id": "tier_business", "reason": "decision business interne" },
+        { "id": "vlevel", "reason": "decision SEO interne" },
+        { "id": "source_kinds_diversity", "reason": "meta-contrainte" },
+        { "id": "evidence_file", "reason": "artefact interne" }
+      ]
+    }
+  },
+
+  "profiles": {
+    "_note": "Un profil par entity_type x discovery_facet. dimensions = sous-ensemble applicable ; une dimension non applicable est NEUTRALISEE (exclue du total ET des planchers) et le total est RENORMALISE sur les dimensions applicables. Mecanique reprise de automecanik-wiki/_scripts/shadow_score.py, dont le framework est eprouve. calibration.status distingue le framework (stable) des nombres (v0).",
+    "_profile_ref_syntax": {
+      "form": "<entity_type>/<discovery_facet>",
+      "note": "UNE seule syntaxe, contractuelle. Elle reprend la forme deja employee par la fixture RAW (test_adr096_contracts.py) plutot que d en inventer une : seule la VALEUR y etait hors contrat.",
+      "valid_values": [
+        "gamme/bloc_domain", "gamme/bloc_selection", "gamme/bloc_diagnostic",
+        "gamme/bloc_maintenance", "gamme/bloc_purchase_guardrails", "gamme/conseil_v5",
+        "gamme/dimensions_compatibility_factors",
+        "vehicle/known_issues_by_engine", "vehicle/maintenance_by_engine",
+        "vehicle/recalls_official", "vehicle/oem_references",
+        "diagnostic/symptoms_complete", "diagnostic/probable_causes_with_gammes",
+        "diagnostic/diagnostic_steps", "diagnostic/wear_windows_km_age",
+        "constructeur/country_iso2", "constructeur/founded_year", "constructeur/brand_aliases"
+      ],
+      "invalid_example": "gamme/editorial — valeur employee par la fixture RAW actuelle. `editorial` n est PAS une facette : les identifiants proviennent exclusivement de _schemas/completeness/<type>.yaml. La fixture devra etre alignee dans la meme PR que le scorer.",
+      "unknown_profile_ref": "Un profile_ref hors de cette liste est un REJET, jamais un repli sur un profil par defaut : un repli silencieux ferait scorer une facette avec les planchers d une autre."
+    },
+    "_defaults": {
+      "dimensions": [
+        "autorite",
+        "correspondance_entite",
+        "couverture_facette",
+        "primaire_vs_secondaire",
+        "fraicheur_applicabilite",
+        "licence_reutilisabilite",
+        "gain_corroboration",
+        "penalites_duplication_contradiction"
+      ],
+      "calibration": { "status": "shadow_unvalidated", "reference_set": null }
+    },
+    "gamme": {
+      "_inherits": "_defaults",
+      "dimensions_add": ["precision_vehicule_moteur_gamme"],
+      "calibration": {
+        "status": "shadow_calibration",
+        "reference_set": "plaquette-de-frein-reference-v1",
+        "scope_note": "Cette reference calibre les profils GAMME uniquement. Elle ne valide ni vehicle, ni diagnostic, ni constructeur."
+      },
+      "facet_overrides": {
+        "bloc_maintenance": { "floors": { "fraicheur_applicabilite": 4 } },
+        "bloc_purchase_guardrails": { "floors": { "autorite": 15 } },
+        "dimensions_compatibility_factors": { "floors": { "precision_vehicule_moteur_gamme": 6 } }
+      }
+    },
+    "vehicle": {
+      "_inherits": "_defaults",
+      "dimensions_add": ["precision_vehicule_moteur_gamme"],
+      "calibration": { "status": "shadow_unvalidated", "reference_set": null },
+      "facet_overrides": {
+        "recalls_official": { "floors": { "autorite": 18 }, "note": "Un rappel officiel n a de valeur que depuis une source officielle." },
+        "oem_references": { "floors": { "precision_vehicule_moteur_gamme": 6 } }
+      }
+    },
+    "diagnostic": {
+      "_inherits": "_defaults",
+      "calibration": { "status": "shadow_unvalidated", "reference_set": null }
+    },
+    "constructeur": {
+      "_inherits": "_defaults",
+      "calibration": { "status": "shadow_unvalidated", "reference_set": null },
+      "_note": "Aucun dimensions_add : precision_vehicule_moteur_gamme n est pas applicable a une fiche marque. La revision 1 portait un dimensions_remove sur cette dimension — c etait un no-op, elle n est pas dans _defaults. Retire."
+    }
+  },
+
+  "authority_policy": {
+    "_note": "source_type provient de l enum FERME partage par ingestion-allowlist.schema.json et auto-capture-frontmatter.schema.json (9 valeurs). authority_points est la valeur BRUTE de la dimension autorite, plafonnee par dimensions.autorite.cap.",
+    "source_type_authority": {
+      "manufacturer_maintenance": 22,
+      "technical_datasheet": 20,
+      "product_catalog": 16,
+      "diagnostic_reference": 14,
+      "known_issue_reference": 12,
+      "workshop_guidance": 10,
+      "editorial_howto": 7,
+      "forum_experience_secondary": 4,
+      "other": 2
+    },
+    "domain_vs_source": {
+      "_note": "DEUX NOTIONS DISTINCTES, longtemps confondues. Un domaine hors allowlist n atteint JAMAIS le source_score final : ADR-096 place source_score en Porte 2, donc APRES le fetch isole, et un domaine non approuve n est jamais fetche (decision B0-r2). Le cap d autorite ne s applique donc PAS a lui — il s applique a une source dont le domaine est deja autorise au fetch mais dont la page n a pas encore ete validee humainement.",
+      "UNAPPROVED_DOMAIN": {
+        "definition": "Domaine absent de l allowlist de fetch.",
+        "traitement": "Signale en report-only sous DISCOVERED_UNAPPROVED_DOMAIN. Aucun fetch. Aucun source_score final. Passe par DOMAIN_REVIEW_REQUIRED avant tout fetch.",
+        "porte": "amont de la Porte 1",
+        "note": "Un domaine explicitement deny reste deny : sa presence dans un corpus de reference ne vaut pas demande de reouverture."
+      },
+      "UNKNOWN_SOURCE": {
+        "definition": "Domaine DEJA autorise au fetch, mais source ou page pas encore validee humainement.",
+        "traitement": "Le cap d autorite ci-dessous s applique. La capture reste possible ; le rang est plafonne.",
+        "porte": "Porte 2, au calcul du source_score"
+      }
+    },
+    "unknown_source_cap": {
+      "applies_to": "UNKNOWN_SOURCE uniquement — jamais a UNAPPROVED_DOMAIN, qui n atteint pas ce calcul.",
+      "authority_points_max": 9,
+      "rule": "Une source inconnue au sens ci-dessus voit son autorite plafonnee sous le plancher de la dimension autorite (11), donc elle ne peut jamais atteindre le rang d une source deja validee.",
+      "consequence": "floor_not_met sur autorite, rang plafonne, capture possible mais jamais en tete de classement."
+    },
+    "claim_confidence_isolation": {
+      "rule": "Une source inconnue ne contribue PAS a claim_confidence avant validation humaine (ADR-096 D3).",
+      "note": "source_score classe une SOURCE. Il ne certifie AUCUN fait. Un bon source_score ne prouve jamais qu un claim est vrai."
+    }
+  },
+
+  "runtime_constraints": {
+    "neutralisation": "Une dimension hors du profil est exclue du total ET des planchers. Elle ne compte jamais comme un zero.",
+    "renormalisation": "final_score = round(somme_brute / somme_des_weight_applicables * 100). Un type a peu de dimensions n est pas desavantage.",
+    "floor_is_not_a_hard_gate": "Un plancher non atteint PLAFONNE le rang et emet floor_not_met:<dimension>. Un hard gate non franchi REJETTE. Les deux mecaniques ne doivent jamais etre confondues ni interchangees.",
+    "claim_confidence_boundary": "Aucune contribution a claim_confidence avant revue humaine pour une source inconnue.",
+    "weights_hash_required": "Chaque capture porte scorer_version, weights_contract_ref et weights_hash. Un scorer qui ne peut pas produire weights_hash ne doit pas ecrire de capture.",
+    "projection_only": "Le runtime lit la projection publiee, jamais ce fichier ni le vault directement (ADR-096 D3, Non-goals).",
+    "report_only_until_calibrated": "Un profil en calibration.status = shadow_unvalidated peut produire un score en REPORT-ONLY. Il ne doit pas servir de critere de selection pour une capture durable."
+  }
+}
