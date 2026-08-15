@@ -2,7 +2,7 @@
   "$comment": "Vecteur de parite JCS — contrat entre le publisher du vault et tout verificateur aval (ADR-096 F2c). Un verificateur qui ne reproduit pas expected_sha256 sur document + excluded_paths n est pas symetrique. NE PAS reserialiser ce fichier avec sort_keys : l ordre volontairement desordonne de document est ce qui exerce le tri.",
   "version": "1.0.0",
   "hash_mode": "json_jcs",
-  "subset": "RFC 8785, restreint aux cles ASCII et aux nombres entiers ; hors sous-ensemble = REFUS, jamais approximation",
+  "subset": "RFC 8785 restreint — cles d objet ASCII uniquement ; aucune propriete dupliquee (refus AU PARSING, invisible apres) ; nombres ENTIERS dans la plage suremement exacte en IEEE-754 double, |n| <= 2^53-1 ; flottants refuses ; booleens, null, chaines et tableaux serialises a l identique. Hors sous-ensemble = REFUS, jamais approximation. Limite connue non couverte : surrogates isoles dans les chaines.",
   "document": {
     "metadata": {
       "contract_id": "parity-vector@v1",
