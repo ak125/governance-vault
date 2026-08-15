@@ -33,11 +33,23 @@ sur lequel Python et ECMAScript coincident exactement, et on REFUSE le reste plu
 de produire une empreinte plausible mais divergente :
   - cles d'objet ASCII uniquement — RFC 8785 trie par unites de code UTF-16, Python par
     point de code ; les deux ordres ne divergent que hors BMP ;
-  - nombres ENTIERS uniquement — le formatage ECMAScript des flottants differe de repr()
-    Python sur certains cas ;
+  - AUCUNE propriete dupliquee — RFC 8785 l'interdit, mais json.loads accepte
+    {"a":1,"a":2} et ne garde que la derniere valeur : la duplication devient invisible
+    APRES parsing. Le refus doit donc avoir lieu AU PARSING (strict_json_loads), pas
+    dans le guard ;
+  - nombres ENTIERS uniquement, et dans la plage SUREMENT representable en IEEE-754
+    double : |n| <= 2^53 - 1. Un int Python est de precision arbitraire ; un Number
+    ECMAScript ne l'est pas. 9007199254740993 est exact en Python et ne l'est pas en JS.
+    La borne retenue est plus restrictive que le maximum theorique IEEE-754, mais elle
+    est garantie et simple ;
+  - flottants REFUSES — le formatage ECMAScript differe de repr() Python sur certains cas ;
   - booleens, null, chaines et tableaux : serialisation identique.
 Tout document hors de ce sous-ensemble est REFUSE (exit non-zero), jamais serialise au
 mieux. La limite est mecanique, pas documentaire.
+
+Limite connue et assumee : les chaines contenant des surrogates isoles ne sont pas
+rejetees explicitement — l'encodage UTF-8 echoue deja dans la plupart de ces cas.
+Durcissement secondaire, non livre ici.
 
 === GATE DE STATUT, FAIL-CLOSED (F2c) ===
 
@@ -130,6 +142,31 @@ class JcsUnsupported(Exception):
     """Document hors du sous-ensemble JCS supporte — refuse, jamais approxime."""
 
 
+# Plage d'entiers SUREMENT exacte en IEEE-754 double, donc en Number ECMAScript.
+SAFE_INT_MAX = 2**53 - 1
+
+
+def _reject_duplicate_keys(pairs: list[tuple[str, object]]) -> dict:
+    """object_pairs_hook : RFC 8785 interdit les proprietes dupliquees. json.loads les
+    accepte et ne garde que la derniere — la duplication devient invisible apres
+    parsing, donc le refus doit avoir lieu ICI."""
+    seen: set[str] = set()
+    for key, _ in pairs:
+        if key in seen:
+            raise JcsUnsupported(
+                f"propriete dupliquee '{key}' — RFC 8785 l'interdit, et json.loads "
+                f"n'en garderait silencieusement que la derniere valeur"
+            )
+        seen.add(key)
+    return dict(pairs)
+
+
+def strict_json_loads(text: str):
+    """Parse JSON en refusant les proprietes dupliquees. Utilise partout ou un document
+    JSON est lu pour etre hache ou pour declarer un statut."""
+    return json.loads(text, object_pairs_hook=_reject_duplicate_keys)
+
+
 def _jcs_guard(node, path: str = "$") -> None:
     if isinstance(node, dict):
         for key, value in node.items():
@@ -147,6 +184,12 @@ def _jcs_guard(node, path: str = "$") -> None:
     elif isinstance(node, bool) or node is None or isinstance(node, str):
         return
     elif isinstance(node, int):
+        if not -SAFE_INT_MAX <= node <= SAFE_INT_MAX:
+            raise JcsUnsupported(
+                f"{path}: entier hors de la plage suremement exacte en IEEE-754 double "
+                f"(|n| <= 2^53-1). Un int Python est de precision arbitraire, un Number "
+                f"ECMAScript non : les deux serialisations divergeraient"
+            )
         return
     elif isinstance(node, float):
         raise JcsUnsupported(
@@ -184,7 +227,7 @@ def declared_status(path: Path, text: str) -> str | None:
     """Statut declare par le document lui-meme. None si absent."""
     if path.suffix == ".json":
         try:
-            return (json.loads(text).get("metadata") or {}).get("status")
+            return (strict_json_loads(text).get("metadata") or {}).get("status")
         except json.JSONDecodeError:
             return None
     if text.startswith("---"):
@@ -233,16 +276,21 @@ def compute() -> dict:
             )
         text = canon_file.read_text(encoding="utf-8")
 
-        enforce_publishable(key, meta, canon_file, text)
+        try:
+            enforce_publishable(key, meta, canon_file, text)
+        except JcsUnsupported as exc:
+            sys.exit(f"ERROR: canon '{key}' illisible strictement — {exc}")
 
         mode = meta.get("hash_mode", "text_sha256")
         if mode == "text_sha256":
             distribution = sha256_text(strip_frontmatter(text))
         elif mode == "json_jcs":
             try:
-                doc = json.loads(text)
+                doc = strict_json_loads(text)
             except json.JSONDecodeError as exc:
                 sys.exit(f"ERROR: canon '{key}' hash_mode=json_jcs mais JSON invalide: {exc}")
+            except JcsUnsupported as exc:
+                sys.exit(f"ERROR: canon '{key}' refuse au parsing — {exc}")
             try:
                 distribution = sha256_text(
                     canonical_json(doc, meta.get("excluded_paths") or [])

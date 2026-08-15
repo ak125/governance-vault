@@ -108,6 +108,54 @@ def test_non_ascii_string_value_is_allowed():
 
 
 # --------------------------------------------------------------------------- #
+# 2bis. Bornes des entiers — un int Python n'est pas un Number ECMAScript
+# --------------------------------------------------------------------------- #
+def test_max_safe_integer_is_accepted():
+    assert cch.canonical_json({"n": 9007199254740991}, []) == '{"n":9007199254740991}'
+
+
+def test_negative_max_safe_integer_is_accepted():
+    assert cch.canonical_json({"n": -9007199254740991}, []) == '{"n":-9007199254740991}'
+
+
+@pytest.mark.parametrize("n", [9007199254740992, 9007199254740993, -9007199254740992, 2**64])
+def test_integer_beyond_ieee754_safe_range_is_refused(n):
+    """9007199254740993 est exact en Python et ne l'est PAS en Number ECMAScript.
+    Accepter cet entier rendrait fausse l'affirmation « les deux coincident »."""
+    with pytest.raises(cch.JcsUnsupported, match="IEEE-754"):
+        cch.canonical_json({"n": n}, [])
+
+
+def test_deep_oversized_integer_is_refused():
+    with pytest.raises(cch.JcsUnsupported, match="IEEE-754"):
+        cch.canonical_json({"a": {"b": [1, 2**53]}}, [])
+
+
+# --------------------------------------------------------------------------- #
+# 2ter. Proprietes dupliquees — invisibles apres parsing, donc refusees AU parsing
+# --------------------------------------------------------------------------- #
+def test_duplicate_key_is_refused_at_parse_time():
+    """json.loads accepterait ce document et ne garderait que weight=22 : la
+    duplication serait invisible pour le guard. Le refus doit donc etre au parsing."""
+    with pytest.raises(cch.JcsUnsupported, match="dupliquee"):
+        cch.strict_json_loads('{"weight": 10, "weight": 22}')
+
+
+def test_duplicate_key_nested_is_refused():
+    with pytest.raises(cch.JcsUnsupported, match="dupliquee"):
+        cch.strict_json_loads('{"a": {"b": 1, "b": 2}}')
+
+
+def test_plain_json_loads_would_have_swallowed_it():
+    """Preuve du besoin : le parseur standard ne signale rien."""
+    assert json.loads('{"weight": 10, "weight": 22}') == {"weight": 22}
+
+
+def test_strict_loads_accepts_a_clean_document():
+    assert cch.strict_json_loads('{"a": 1, "b": {"c": 2}}') == {"a": 1, "b": {"c": 2}}
+
+
+# --------------------------------------------------------------------------- #
 # 3. Gate de statut — fail-closed
 # --------------------------------------------------------------------------- #
 def _entry(**over):
