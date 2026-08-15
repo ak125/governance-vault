@@ -1,0 +1,38 @@
+{
+  "$comment": "Vecteur de parite JCS — contrat entre le publisher du vault et tout verificateur aval (ADR-096 F2c). Un verificateur qui ne reproduit pas expected_sha256 sur document + excluded_paths n est pas symetrique. NE PAS reserialiser ce fichier avec sort_keys : l ordre volontairement desordonne de document est ce qui exerce le tri.",
+  "version": "1.0.0",
+  "hash_mode": "json_jcs",
+  "subset": "RFC 8785, restreint aux cles ASCII et aux nombres entiers ; hors sous-ensemble = REFUS, jamais approximation",
+  "document": {
+    "metadata": {
+      "contract_id": "parity-vector@v1",
+      "status": "accepted",
+      "distribution_sha256": "sha256:REMPLI-PAR-LA-PROJECTION-NE-DOIT-PAS-ENTRER-DANS-LE-HASH"
+    },
+    "dimensions": {
+      "autorite": {
+        "weight": 22,
+        "floor": 11
+      },
+      "z_last": {
+        "weight": 1
+      }
+    },
+    "flags": {
+      "enabled": true,
+      "disabled": false,
+      "absent": null
+    },
+    "liste": [
+      3,
+      1,
+      2
+    ],
+    "texte": "accentue : e-acute, guillemets \"doubles\", barre oblique inverse \\"
+  },
+  "excluded_paths": [
+    "metadata.distribution_sha256"
+  ],
+  "canonical_form": "{\"dimensions\":{\"autorite\":{\"floor\":11,\"weight\":22},\"z_last\":{\"weight\":1}},\"flags\":{\"absent\":null,\"disabled\":false,\"enabled\":true},\"liste\":[3,1,2],\"metadata\":{\"contract_id\":\"parity-vector@v1\",\"status\":\"accepted\"},\"texte\":\"accentue : e-acute, guillemets \\\"doubles\\\", barre oblique inverse \\\\\"}",
+  "expected_sha256": "4f20bb60c47fe414065e7659781c34ed738533f7aaf7c7f77b1a9e1c98d818b1"
+}
