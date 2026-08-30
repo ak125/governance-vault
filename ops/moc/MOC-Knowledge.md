@@ -42,6 +42,10 @@ Base de connaissances architecturale.
 - [[seo-operating-matrix-and-nonblocking-bootstrap-20260430]] - SEO Operating Matrix (matrice agents × registry × catalog read-only, PR #222) + non-blocking `onModuleInit` pattern verrouillé par ast-grep (PR #224, exit-124 cascade debrief)
 - [[tti-home-multilayer-ssr-fix-20260430]] - Plan TTI home multi-couches (FCP 10.7s → 2.7s = −75 % ; PRs #227/#229/#230/#235) — patterns warmCache audit, RemixApiService DI direct (no HTTP loopback), diagnostic FCP≈LCP≈TTI = SSR-bound, audit `v3_singleFetch` pre-flip
 
+### Frontend / Design Pack Methodology
+- [[design-pack-handling-canon-20260507]] - Canon : design pack = vocabulaire visuel à appliquer aux composants V4 existants, jamais créer un parcours parallèle. URLs SEO sacrées, funnel commercial intouchable. Pattern preview noindex + migration in-place. Précédents : PR #360 rejetée, PR #368 correcte.
+- [[2026-05-07-design-pack-mobile-v5-pivot|Audit-trail design pack mobile-V5 pivot 2026-05-07]] — session pivot : PR #360 rejetée → PR #368 preview noindex correcte ; livraison ship 1 documentée + ship 2 planifié (migration in-place V4).
+
 ## SEO
 
 - [[seo-hub-refactoring]] - Refactoring SEO Hub
