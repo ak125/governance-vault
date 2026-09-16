@@ -1,0 +1,33 @@
+{
+  "nest_client_to_raw_media_cli": "PASS",
+  "receipts": [
+    {
+      "ext": "mp4",
+      "size_bytes": 2210,
+      "duration_sec": 1,
+      "duplicate": true
+    },
+    {
+      "ext": "webm",
+      "size_bytes": 1071,
+      "duration_sec": 1,
+      "duplicate": true
+    }
+  ],
+  "real_components": [
+    "Nest client",
+    "GNU timeout process group",
+    "RAW CLI",
+    "native allowlist",
+    "ffprobe in unshare network namespace",
+    "gitleaks",
+    "Gate J",
+    "native manifests"
+  ],
+  "simulated_components": [
+    "external media HTTP fetch; local synthetic MP4/WebM"
+  ],
+  "database_calls": 0,
+  "network_requests": 0,
+  "durable_runtime_changes": 0
+}

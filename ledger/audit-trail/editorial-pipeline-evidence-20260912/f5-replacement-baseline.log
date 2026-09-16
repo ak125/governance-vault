@@ -1,0 +1,74 @@
+...FFFF                                                                  [100%]
+=================================== FAILURES ===================================
+______ test_new_version_retires_previous_hash_and_preserves_other_sources ______
+
+pipeline = (PosixPath('/tmp/pytest-of-deploy/pytest-396/test_new_version_retires_previ0/wiki/exports/rag/gamme/plaquette-de-frein...bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'source_path': 'exports/rag/gamme/plaquette-de-frein.md'}])
+
+    def test_new_version_retires_previous_hash_and_preserves_other_sources(pipeline):
+        path, rows, _ = pipeline
+        run()
+        untouched = dict(rows[0], source_path='exports/rag/gamme/disque-de-frein.md')
+        rows.append(untouched)
+        post = frontmatter.load(path)
+        post['content_hash'] = 'b' * 64
+        post.content = 'Version remplaçante validée.'
+        path.write_text(frontmatter.dumps(post))
+        result = run()
+>       assert result['retired_replaced'] == 1
+E       KeyError: 'retired_replaced'
+
+tests/test_f5_import_body.py:95: KeyError
+__________ test_replay_finishes_retirement_after_interrupted_cleanup ___________
+
+pipeline = (PosixPath('/tmp/pytest-of-deploy/pytest-396/test_replay_finishes_retiremen0/wiki/exports/rag/gamme/plaquette-de-frein...ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc', 'source_path': 'exports/rag/gamme/plaquette-de-frein.md'}])
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fc076a5baf0>
+
+    def test_replay_finishes_retirement_after_interrupted_cleanup(pipeline, monkeypatch):
+        path, rows, _ = pipeline
+        run()
+        post = frontmatter.load(path)
+        post['content_hash'] = 'c' * 64
+        path.write_text(frontmatter.dumps(post))
+        reconcile = importer.retire_replaced_versions
+        def interrupted(*args, **kwargs):
+            raise OSError('simulated index interruption')
+        monkeypatch.setattr(importer, 'retire_replaced_versions', interrupted)
+        result = run()
+>       assert result['errors'] == 1 and not result['success']
+E       assert (0 == 1)
+
+tests/test_f5_import_body.py:113: AssertionError
+___________ test_absent_or_rejected_export_is_not_a_bulk_retirement ____________
+
+pipeline = (PosixPath('/tmp/pytest-of-deploy/pytest-396/test_absent_or_rejected_export0/wiki/exports/rag/gamme/plaquette-de-frein...234567890abcdef1234567890abcdef1234567890abcdef1234567890', 'source_path': 'exports/rag/gamme/plaquette-de-frein.md'}])
+
+    def test_absent_or_rejected_export_is_not_a_bulk_retirement(pipeline):
+        path, rows, _ = pipeline
+        run()
+        post = frontmatter.load(path)
+        post['review_status'] = 'rejected'
+        path.write_text(frontmatter.dumps(post))
+        result = run()
+>       assert not result['success'] and len(rows) == 1
+E       KeyError: 'success'
+
+tests/test_f5_import_body.py:128: KeyError
+____________ test_force_reembedding_cannot_append_duplicate_objects ____________
+
+pipeline = (PosixPath('/tmp/pytest-of-deploy/pytest-396/test_force_reembedding_cannot_0/wiki/exports/rag/gamme/plaquette-de-frein...234567890abcdef1234567890abcdef1234567890abcdef1234567890', 'source_path': 'exports/rag/gamme/plaquette-de-frein.md'}])
+
+    def test_force_reembedding_cannot_append_duplicate_objects(pipeline):
+        _, rows, _ = pipeline
+        run()
+        result = importer.run(apply=True, entity_filter=None, limit=None, force_reembedding=True)
+>       assert result['errors'] == 1 and not result['success']
+E       assert (0 == 1)
+
+tests/test_f5_import_body.py:138: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_f5_import_body.py::test_new_version_retires_previous_hash_and_preserves_other_sources
+FAILED tests/test_f5_import_body.py::test_replay_finishes_retirement_after_interrupted_cleanup
+FAILED tests/test_f5_import_body.py::test_absent_or_rejected_export_is_not_a_bulk_retirement
+FAILED tests/test_f5_import_body.py::test_force_reembedding_cannot_append_duplicate_objects
+4 failed, 3 passed in 0.12s
+EXIT_CODE=1

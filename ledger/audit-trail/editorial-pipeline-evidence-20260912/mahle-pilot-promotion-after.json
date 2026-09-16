@@ -1,0 +1,183 @@
+{
+  "threshold": 0.85,
+  "apply": false,
+  "apply_failures": 0,
+  "tier_A": 0,
+  "tier_B": 1,
+  "eligible": 0,
+  "blocked": 1,
+  "unknown_fail_closed": 0,
+  "report": [
+    {
+      "file": "proposals/filtre-a-huile.md",
+      "schema_version": "promotion-decision/v1",
+      "substance_tier": "B",
+      "promotion_status": "BLOCKED",
+      "eligible": false,
+      "blocking_reasons": [
+        {
+          "code": "SUBSTANCE_SCORE",
+          "owner_stage": "SUBSTANCE",
+          "detector_stage": "PROMOTE_EVALUATE_TIER",
+          "evidence": {
+            "score": 0.46,
+            "threshold": 0.85,
+            "engine": "legacy"
+          }
+        }
+      ],
+      "evaluation": {
+        "tier": "B",
+        "confidence_score": 0.46,
+        "score_details": {
+          "score": 0.46,
+          "components": {
+            "sources": {
+              "weight": 0.4,
+              "ratio": 0.6,
+              "reference_count": 10,
+              "defaulted_confidence_indices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9
+              ],
+              "points": 0.24
+            },
+            "sections": {
+              "weight": 0.3,
+              "ratio": 0.4,
+              "required": [
+                "Définition",
+                "Fonctionnement",
+                "Symptômes d'usure",
+                "Choix selon véhicule",
+                "FAQ"
+              ],
+              "filled": [
+                "Fonctionnement",
+                "FAQ"
+              ],
+              "unmatched_required": [
+                "Définition",
+                "Symptômes d'usure",
+                "Choix selon véhicule"
+              ],
+              "points": 0.12
+            },
+            "internal_links": {
+              "weight": 0.2,
+              "ratio": 0.0,
+              "resolved": 0,
+              "total": 0,
+              "unresolved": [],
+              "points": 0.0
+            },
+            "source_kinds": {
+              "weight": 0.1,
+              "ratio": 1.0,
+              "distinct_count": 2,
+              "points": 0.1
+            }
+          },
+          "scope": "metadata_structure_proxy_not_factual_or_seo_validation"
+        },
+        "gate_engine": "legacy",
+        "gate_status": {
+          "source": "pass",
+          "claim": "pass",
+          "contradiction": "pass",
+          "risk": "pass",
+          "confidence": "pass"
+        },
+        "shadow_score": {
+          "shadow_tier": "B",
+          "shadow_total": 82,
+          "shadow_dims": {
+            "D": 15.0,
+            "F": 1.0,
+            "E": 10.0,
+            "A": 19.8,
+            "C": 20.0
+          },
+          "shadow_applicable": [
+            "A",
+            "C",
+            "D",
+            "E",
+            "F"
+          ],
+          "shadow_floors_failed": [
+            "A<22"
+          ],
+          "shadow_blocked": [
+            "FLOOR_NOT_MET:A<22"
+          ],
+          "shadow_notes": [
+            "reality-check SKIPPÉ (manifest status=stale)",
+            "A:page_unproven=12 (confidence capped at medium)"
+          ],
+          "manifest_status": "stale",
+          "scorer": "shadow_score.score@6dim-v0"
+        }
+      },
+      "inputs": {
+        "schema_version": "promotion-decision/v1",
+        "input_manifest": [
+          {
+            "role": "candidate",
+            "path": "proposals/filtre-a-huile.md",
+            "sha256": "4a62b8d91baf393492ccddfcd72d77ff12f42b3c3f2d6dad865ba23fd06488c1"
+          },
+          {
+            "role": "canon_target",
+            "path": "wiki/gamme/filtre-a-huile.md",
+            "sha256": null
+          },
+          {
+            "role": "coverage_map",
+            "path": "proposals/_coverage/filtre-a-huile.coverage.yaml",
+            "sha256": "62d3ddd2017f76456a0ace4c6048dc868c2f98811b5b397051e651a46a792183"
+          },
+          {
+            "role": "coverage_schema",
+            "path": "_meta/schema/coverage-map.schema.json",
+            "sha256": "b1d4e60efd19643c0978001cca6736b6bb61d86e3ecfd337c966ac882aeeca5d"
+          },
+          {
+            "role": "raw_checksums",
+            "path": "manifests/checksums.json",
+            "sha256": "5aa73c5303abeed293fecf09af6357348f41ed8db7342f51c278d07d0a1c47c3"
+          },
+          {
+            "role": "raw_inventory",
+            "path": "manifests/source-inventory.csv",
+            "sha256": "8e3ea4b99c368d3f9387616fb2a886a91df83e26d2a7cd4d790c980b9f3d9cc6"
+          },
+          {
+            "role": "reality_manifest",
+            "path": "_meta/reality-manifest.json",
+            "sha256": "8d38fe921b908d1dbf1b67f6f50c97ab2ee31c714a1aa2367a84dc5a7bbe1c7f"
+          },
+          {
+            "role": "source_catalog",
+            "path": "_meta/source-catalog.yaml",
+            "sha256": "43d1623a0334b0f04ac6d945d6a988c5c713e708e9b812ef22cfde9f0d411149"
+          }
+        ],
+        "wiki_revision": "01cea8d-dirty",
+        "raw_revision": "7565934-dirty",
+        "evaluation_engine_revision": "69447657ba3fa79d0d92c6cd46e0b522d97693f4983322749dfb2e43576636ed",
+        "decision_engine_revision": "6a6cbaf7fbc195b52a557c50ea8cbe535c0ecfd4281dfcca30de877c35497097"
+      },
+      "tier": "B",
+      "confidence_score": 0.46
+    }
+  ]
+}

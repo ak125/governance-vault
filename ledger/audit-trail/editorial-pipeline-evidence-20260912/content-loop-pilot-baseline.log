@@ -1,0 +1,59 @@
+...FFFF...                                                               [100%]
+=================================== FAILURES ===================================
+______________________ test_stage_raw_counts_md_and_index ______________________
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-422/test_stage_raw_counts_md_and_i0')
+
+    def test_stage_raw_counts_md_and_index(tmp_path):
+        d = tmp_path / "sources" / "web-research" / "x"
+        d.mkdir(parents=True)
+        (d / "a.md").write_text("x", encoding="utf-8")
+        (d / "b.md").write_text("y", encoding="utf-8")
+        (d / "deep-source-index.json").write_text("{}", encoding="utf-8")
+        r = lp.stage_raw("x", tmp_path)
+>       assert r["ok"] and r["md_files"] == 2 and r["has_source_index"]
+E       KeyError: 'ok'
+
+_scripts/test_raw_to_wiki_content_loop_pilot.py:41: KeyError
+_______________________ test_stage_raw_absent_is_not_ok ________________________
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-422/test_stage_raw_absent_is_not_o0')
+
+    def test_stage_raw_absent_is_not_ok(tmp_path):
+        r = lp.stage_raw("inexistant", tmp_path)
+>       assert not r["ok"] and r["md_files"] == 0
+E       KeyError: 'ok'
+
+_scripts/test_raw_to_wiki_content_loop_pilot.py:46: KeyError
+__________________ test_stage_consumer_replay_only_is_blocked __________________
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-422/test_stage_consumer_replay_onl0')
+
+    def test_stage_consumer_replay_only_is_blocked(tmp_path):
+        # un repo monorepo avec SEULEMENT replay_projection.py → pas de writer forward → bloqué.
+        proj = tmp_path / "scripts" / "seo-projection"
+        proj.mkdir(parents=True)
+        (proj / "replay_projection.py").write_text("# exports/seo replay only, no INSERT", encoding="utf-8")
+>       r = lp.stage_consumer("plaquette-de-frein", tmp_path)
+E       AttributeError: module 'loop_pilot' has no attribute 'stage_consumer'
+
+_scripts/test_raw_to_wiki_content_loop_pilot.py:54: AttributeError
+__________________ test_stage_consumer_detects_forward_writer __________________
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-422/test_stage_consumer_detects_fo0')
+
+    def test_stage_consumer_detects_forward_writer(tmp_path):
+        proj = tmp_path / "scripts" / "seo-projection"
+        proj.mkdir(parents=True)
+        (proj / "project_exports.py").write_text(
+            "# reads exports/seo and writes\nq = 'INSERT INTO __seo_entity_facts ...'\n", encoding="utf-8")
+>       r = lp.stage_consumer("plaquette-de-frein", tmp_path)
+E       AttributeError: module 'loop_pilot' has no attribute 'stage_consumer'
+
+_scripts/test_raw_to_wiki_content_loop_pilot.py:63: AttributeError
+=========================== short test summary info ============================
+FAILED _scripts/test_raw_to_wiki_content_loop_pilot.py::test_stage_raw_counts_md_and_index
+FAILED _scripts/test_raw_to_wiki_content_loop_pilot.py::test_stage_raw_absent_is_not_ok
+FAILED _scripts/test_raw_to_wiki_content_loop_pilot.py::test_stage_consumer_replay_only_is_blocked
+FAILED _scripts/test_raw_to_wiki_content_loop_pilot.py::test_stage_consumer_detects_forward_writer
+4 failed, 6 passed in 0.12s

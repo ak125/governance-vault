@@ -1,0 +1,31 @@
+PASS src/modules/seo-projection/seo-projection-writer.test.ts (10.046 s)
+  ● Console
+
+    console.log
+      ◇ injected env (0) from .env.test // tip: ⌘ suppress logs { quiet: true }
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+PASS src/modules/seo-projection/seo-projection-writer-role-scope.test.ts
+  ● Console
+
+    console.log
+      ◇ injected env (0) from .env.test // tip: ⌘ suppress logs { quiet: true }
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+PASS src/modules/seo-projection/seo-projection-snapshot.test.ts
+  ● Console
+
+    console.log
+      ◇ injected env (0) from .env.test // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+
+Test Suites: 3 passed, 3 total
+Tests:       52 passed, 52 total
+Snapshots:   0 total
+Time:        10.47 s, estimated 11 s
+Ran all test suites within paths "src/modules/seo-projection/seo-projection-writer.test.ts", "src/modules/seo-projection/seo-projection-writer-role-scope.test.ts", "src/modules/seo-projection/seo-projection-snapshot.test.ts".
+EXIT_CODE=0

@@ -1,0 +1,73 @@
+{
+  "before_mapper_sha256": "fb95464411037d656ecbd569bad6980ddca395269b0d676ad3b04fd4eefe75ef",
+  "after_mapper_sha256": "38ba3bf3866d827f77674e2f7b7d7d8cb9db7b034d9cbf196782463605b9c863",
+  "input_files_rechecked": 58,
+  "changed_source_files": [],
+  "identical_block_counts": true,
+  "logical_collision_groups_before": 2,
+  "collision_groups_after": 0,
+  "actual_scenic_ids_after": [
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/renault-scenic-ii.md",
+      "stage": "native-transform-preview-proposals",
+      "review_status": "proposed",
+      "eligible": false,
+      "entity_id": "vehicle:renault-scenic-ii",
+      "index": 0,
+      "role": "R8_VEHICLE",
+      "section": "known_issues",
+      "usefulness_target": "engine_family:f4r",
+      "blockId": "vehicle:renault-scenic-ii#R8_VEHICLE#known-issues#engine_family%3Af4r",
+      "contentHash": "afb4b9877ac6ce4992ba616524f8c8189aefa70dc90449b413baac233577e4b4",
+      "textHash": "446f254189654437b0b809fae12b9a37f8c3876958607c324ff55c5fee4bcff1"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/renault-scenic-ii.md",
+      "stage": "native-transform-preview-proposals",
+      "review_status": "proposed",
+      "eligible": false,
+      "entity_id": "vehicle:renault-scenic-ii",
+      "index": 1,
+      "role": "R8_VEHICLE",
+      "section": "known_issues",
+      "usefulness_target": "engine_family:k9k",
+      "blockId": "vehicle:renault-scenic-ii#R8_VEHICLE#known-issues#engine_family%3Ak9k",
+      "contentHash": "3c6c075dddcc185aa25bf749b6883759a503b5c657a1d99fea35d823757c7987",
+      "textHash": "b7f6b2d180ec5d8abfd3616a3b5f7e241194e0ed295f92ff4ac403ddcae21533"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/renault-scenic-ii.md",
+      "stage": "native-transform-preview-proposals",
+      "review_status": "proposed",
+      "eligible": false,
+      "entity_id": "vehicle:renault-scenic-ii",
+      "index": 2,
+      "role": "R8_VEHICLE",
+      "section": "maintenance",
+      "usefulness_target": "fuel:diesel",
+      "blockId": "vehicle:renault-scenic-ii#R8_VEHICLE#maintenance#fuel%3Adiesel",
+      "contentHash": "45f5a129b939c415f291d786ee0f07fa8e870940c2b98a639b40ca2f752da36e",
+      "textHash": "4266cc0ef1ec48f07c8de5e40bf3d1f124f88c714d101d2dfa379a90f39f0d14"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/renault-scenic-ii.md",
+      "stage": "native-transform-preview-proposals",
+      "review_status": "proposed",
+      "eligible": false,
+      "entity_id": "vehicle:renault-scenic-ii",
+      "index": 3,
+      "role": "R8_VEHICLE",
+      "section": "maintenance",
+      "usefulness_target": "fuel:essence",
+      "blockId": "vehicle:renault-scenic-ii#R8_VEHICLE#maintenance#fuel%3Aessence",
+      "contentHash": "51acd5d04a15232dc5c2dd0e88cec6aaf598e2dfee75fbad9040dfc8a6677277",
+      "textHash": "1b0e954ec6b4521cd2a52f53f3edbef8ae4e34181026bd985e338ff5b21c4f7b"
+    }
+  ],
+  "limitations": [
+    "two checkout copies, not two independent corpora",
+    "proposal simulation is not promotion or public serving",
+    "navigation indexes excluded explicitly",
+    "separate SELECT counts only: both projection tables empty; no database writes"
+  ]
+}

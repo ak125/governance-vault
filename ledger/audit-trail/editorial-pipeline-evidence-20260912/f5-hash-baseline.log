@@ -1,0 +1,21 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+____ test_declared_hash_must_match_body_before_replacing_any_index_version _____
+
+pipeline = (PosixPath('/tmp/pytest-of-deploy/pytest-403/test_declared_hash_must_match_0/wiki/exports/rag/gamme/plaquette-de-frein...eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee', 'source_path': 'exports/rag/gamme/plaquette-de-frein.md'}])
+
+    def test_declared_hash_must_match_body_before_replacing_any_index_version(pipeline):
+        path, rows, _ = pipeline
+        run()
+        post = frontmatter.load(path)
+        post['content_hash'] = 'e' * 64
+        path.write_text(frontmatter.dumps(post))
+        result = run()
+>       assert not result['success'] and result['errors'] == 1
+E       assert (not True)
+
+tests/test_f5_import_body.py:154: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_f5_import_body.py::test_declared_hash_must_match_body_before_replacing_any_index_version
+1 failed, 7 deselected in 0.11s
+EXIT_CODE=1

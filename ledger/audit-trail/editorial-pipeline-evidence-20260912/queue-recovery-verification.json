@@ -1,0 +1,58 @@
+{
+  "scope": "Recover existing projection singleton after native completion and worker startup",
+  "branch": "codex/editorial-pipeline-provenance-20260912",
+  "head": "0c31807c8453c251d70c7575eafcc973f04eed14",
+  "pipeline_version": "1.2.1",
+  "runner_version": "1.0.4",
+  "files": {
+    "backend/src/modules/seo-projection/seo-projection-refresh.processor.ts": "1ce7c77935ea7fdd43829d8034700c5762e689d0e66ff53e817c57a4dd325ad7",
+    "backend/src/modules/seo-projection/seo-projection-refresh.processor.test.ts": "afbae58ad3a270bc35dfbf0a665879a9c8f5c912cadfd9d779e095285519d971",
+    "backend/src/modules/seo-projection/seo-projection-refresh-recovery.test.ts": "86449ee35c5f464d758cbdea9132647ca2ba460171217f2ba7e376d0fb17c848",
+    "backend/src/modules/seo-projection/seo-projection-refresh-redis.test.ts": "5e78e7d5a2d958a65254c5bdd25a9f47fb11776d69654f65644aef2557d6310b",
+    "backend/src/modules/seo-projection/seo-projection-write.processor.ts": "609c359e50fc28b52362bd148500c97c38e8df1f3fe08691ac8519a2e046536c",
+    "backend/src/modules/seo-projection/seo-projection.types.ts": "1be50d9ef8011841c246821250b206b60a69812c0615c9ce6970bcd6b0044ac6"
+  },
+  "application_patch_sha256": "92f837afa8c7e8abf66dafbe8a1d7428a79e6873d0d2f75c05e50ff8305419b8",
+  "validation": {
+    "jest_passed": 119,
+    "jest_suites": 6,
+    "redis_tests": 7,
+    "redis_fixture": "existing @testcontainers/redis pattern, redis:7-alpine, isolated temporary server; test fixture stopped, no shared Redis used",
+    "bull_version": "4.16.5",
+    "nest_hooks": "real BullModule provider/processor registration, completed event and onModuleInit lifecycle",
+    "timing": "5-second production debounce asserted before test-only promote(); retry count remains 3, failure backoff shortened to 20ms in fixture only",
+    "eslint": "PASS six changed TypeScript files",
+    "backend_typecheck": "PASS",
+    "staged_diff_check": "PASS",
+    "sql_reused": {
+      "previous_passed": 24,
+      "not_rerun": true,
+      "verified_hashes": {
+        "backend/supabase/migrations/20260912231807_seo_projection_refresh_ack.sql": "6c84602f708d044c4aab91b80cba56d8ada306ec14c3d1cf9957a773a7ad4e34",
+        "scripts/seo-projection/test_block_outbox_transaction.py": "3df8f48c009821c1aa30f9590b52ca13349910627ea1d88cd72c84e7c5ef7af2",
+        "backend/supabase/migrations/20260912212340_seo_projection_block_outbox.sql": "f3c5ecc0853535551059eee0965ee096c3475193032e1344c9c1cca3f8251acf"
+      },
+      "reason": "both candidate migrations and PostgreSQL harness unchanged; no SQL fixture/config/dependency change"
+    },
+    "first_test_run": "32 passed, 2 fixture failures: stale Job object observed after singleton ID reuse, and closing a fixture before native worker readiness; corrected using fresh delayed-job predicate and getWorkers readiness, no forced test exit",
+    "open_handles_debug": "subsequent Redis diagnostic run passed and exited normally; final full test run also exited normally"
+  },
+  "counterproofs": [
+    "Witness without completion hook: native add(active singleton) produces no successor and leaves simulated DB event pending",
+    "Native completion hook creates a delayed successor after original job removal, and consumes the late event",
+    "A producer after the completion lookup can enqueue the freed singleton without losing its event",
+    "Healthy worker restart detects pending DB event even with no existing job/new writer execution",
+    "A persisted waiting job is consumed once after reconnect; startup coalesces with it",
+    "RPC failure uses native retry; persistent failure stops after three attempts with backlog preserved",
+    "READ_ONLY startup does not access DB or queue; lookup/enqueue hook failures are logged without unhandled rejection"
+  ],
+  "limits": [
+    "Recovery after successful completion and healthy worker restart is wired; failure of the lifecycle pending lookup/enqueue is logged and needs a later lifecycle/writer opportunity. No independent periodic relay.",
+    "After native retry exhaustion, the event remains pending. Terminal failures are not automatically re-enqueued in an unbounded loop; operator action or a later restart/writer run is required.",
+    "Redis proof uses isolated testcontainers with real Bull 4.16.5 and Nest wiring; DB/outbox transport is simulated. Reconnect/startup is tested, not OS SIGKILL, Redis host data loss or an integrated PostgreSQL/PostgREST/Redis chain.",
+    "ACK and recovery cover explicit block replace/withdraw projection events only, not global consumer completion. Explicit accepted WIKI withdrawal mapping and other consumer ACKs remain unwired.",
+    "Legacy facts/creation independent writes, uncertain acknowledgments, late closeRun/conflict persistence failures and end-to-end source lineage remain outside the proven scope.",
+    "No shared DB migration/write, runtime flag activation, public browser evidence, CI, load/lock-duration proof, commit, push, merge or deployment. External outbox client compatibility still needs assessment."
+  ],
+  "final_status": "PARTIAL_COVERAGE"
+}

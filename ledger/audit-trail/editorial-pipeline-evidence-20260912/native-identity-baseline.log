@@ -1,0 +1,53 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+_ test_explicit_native_withdrawal_removes_only_document_and_replay_is_idempotent _
+
+service = (<retirement_knowledge_fixture.KnowledgeService object at 0x7f53aa8bc6d0>, KnowledgeDocument(id='gamme.a', title='A', ...d': 'gamme.b', 'source_path': 'gamme/b.md'}], {'failed': False, 'ghost': False, 'partial': False}, ['delete_document'])
+
+    def test_explicit_native_withdrawal_removes_only_document_and_replay_is_idempotent(service):
+        svc, doc, path, rows, _, guards = service
+        assert svc.delete_document(doc.id)
+>       assert not path.exists() and rows == [{'parent_id': 'gamme.b', 'source_path': 'gamme/b.md'}]
+E       AssertionError: assert (not False and [{'parent_id'...'gamme/b.md'}] == [{'parent_id'...'gamme/b.md'}]
+E        +  where False = exists()
+E        +    where exists = PosixPath('/tmp/pytest-of-deploy/pytest-405/test_explicit_native_withdrawa0/gamme/a.md').exists
+E         
+E         At index 0 diff: {'parent_id': 'da41b0911f5a618720d210ed1edf3fdba2018501e728d95669a319dd06c3d39c', 'source_path': 'gamme/a.md'} != {'parent_id': 'gamme.b', 'source_path': 'gamme/b.md'}
+E         Left contains one more item: {'parent_id': 'gamme.b', 'source_path': 'gamme/b.md'}
+E         Use -v to get more diff)
+
+tests/test_editorial_retirement.py:118: AssertionError
+____ test_native_withdrawal_keeps_retry_material_when_index_is_unavailable _____
+
+service = (<retirement_knowledge_fixture.KnowledgeService object at 0x7f53aa906470>, KnowledgeDocument(id='gamme.a', title='A', ...id': 'gamme.b', 'source_path': 'gamme/b.md'}], {'failed': True, 'ghost': False, 'partial': False}, ['delete_document'])
+
+    def test_native_withdrawal_keeps_retry_material_when_index_is_unavailable(service):
+        svc, doc, path, rows, state, _ = service
+        state['failed'] = True
+>       assert not svc.delete_document(doc.id)
+E       AssertionError: assert not True
+E        +  where True = delete_document('gamme.a')
+E        +    where delete_document = <retirement_knowledge_fixture.KnowledgeService object at 0x7f53aa906470>.delete_document
+E        +    and   'gamme.a' = KnowledgeDocument(id='gamme.a', title='A', content='body', source_type='gamme', category='gamme', doc_family='knowledg...ation_status='unverified', source_path='gamme/a.md', source_uri='fixture://source-a', created_at=None, updated_at=None).id
+
+tests/test_editorial_retirement.py:128: AssertionError
+________ test_native_withdrawal_cannot_acknowledge_residual_index_rows _________
+
+service = (<retirement_knowledge_fixture.KnowledgeService object at 0x7f53aa71f040>, KnowledgeDocument(id='gamme.a', title='A', ...id': 'gamme.b', 'source_path': 'gamme/b.md'}], {'failed': False, 'ghost': True, 'partial': False}, ['delete_document'])
+
+    def test_native_withdrawal_cannot_acknowledge_residual_index_rows(service):
+        svc, doc, path, rows, state, _ = service
+        state['ghost'] = True
+>       assert not svc.delete_document(doc.id)
+E       AssertionError: assert not True
+E        +  where True = delete_document('gamme.a')
+E        +    where delete_document = <retirement_knowledge_fixture.KnowledgeService object at 0x7f53aa71f040>.delete_document
+E        +    and   'gamme.a' = KnowledgeDocument(id='gamme.a', title='A', content='body', source_type='gamme', category='gamme', doc_family='knowledg...ation_status='unverified', source_path='gamme/a.md', source_uri='fixture://source-a', created_at=None, updated_at=None).id
+
+tests/test_editorial_retirement.py:138: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_editorial_retirement.py::test_explicit_native_withdrawal_removes_only_document_and_replay_is_idempotent
+FAILED tests/test_editorial_retirement.py::test_native_withdrawal_keeps_retry_material_when_index_is_unavailable
+FAILED tests/test_editorial_retirement.py::test_native_withdrawal_cannot_acknowledge_residual_index_rows
+3 failed, 8 deselected in 0.12s
+EXIT_CODE=1

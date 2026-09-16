@@ -1,0 +1,467 @@
+..........FF.FFFFFFFFFF.                                                 [100%]
+=================================== FAILURES ===================================
+_ test_text_anchor_is_present_in_its_real_section[## Fonctionnement\nAutre texte.\n## FAQ\nAffirmation ailleurs.\n-Affirmation ailleurs.-## Fonctionnement-FAIL] _
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-460/test_text_anchor_is_present_in3')
+body = '## Fonctionnement\nAutre texte.\n## FAQ\nAffirmation ailleurs.\n'
+anchor = 'Affirmation ailleurs.', section = '## Fonctionnement'
+expected = 'FAIL'
+
+    @pytest.mark.parametrize("body,anchor,section,expected", [
+        ("## Fonctionnement\nLe **filtre** retient les particules.\n", "Le filtre retient les particules.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\nLe filtre\nretient les particules.\n", "Le filtre retient les particules.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\nMédia prévu.\n", "Me\u0301dia prévu.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\nAutre texte.\n## FAQ\nAffirmation ailleurs.\n", "Affirmation ailleurs.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\nAncienne phrase modifiée.\n", "Affirmation supprimée.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\ntexte\n### Enfant\nAffirmation enfant.\n", "Affirmation enfant.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\n### Enfant\ntexte\n### Voisin\nAffirmation ailleurs.\n", "Affirmation ailleurs.", "### Enfant", "FAIL"),
+        ("## Fonctionnement\nLe filtre retient\n\nles particules.\n", "Le filtre retient les particules.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\n<!-- Affirmation cachee. -->\n", "Affirmation cachee.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\n```\nAffirmation exemple.\n```\n", "Affirmation exemple.", "## Fonctionnement", "FAIL"),
+        ("```\n## Fonctionnement\nAffirmation exemple.\n```\n", "Affirmation exemple.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\n[Source](https://example.test/affirmation-inventee)\n", "affirmation-inventee", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\ntexte\n## Fonctionnement\nAffirmation ambigue.\n", "Affirmation ambigue.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\nLe filtre ne convient pas.\n", "Le filtre convient.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\nValeur 40 bar.\n", "Valeur 4 bar.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\ntexte\n", "   ", "## Fonctionnement", "FAIL"),
+    ])
+    def test_text_anchor_is_present_in_its_real_section(tmp_path, body, anchor, section, expected):
+        entry = {**_valid_entry(section=section), "text_anchor": anchor}
+        root = _make_wiki(tmp_path, catalog_slugs=["oem_x"], fiche_body=body,
+                          coverage={"fiche": "demo", "schema_version": "1.0.0", "coverage_entries": [entry]})
+        result = _check(root)
+>       assert result["status"] == expected, result
+E       AssertionError: {'coverage_entries': 1, 'fails': [], 'h2_sections': 2, 'slug': 'demo', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_scripts/tests/test_check_coverage_map.py:159: AssertionError
+_ test_text_anchor_is_present_in_its_real_section[## Fonctionnement\nAncienne phrase modifi\xe9e.\n-Affirmation supprim\xe9e.-## Fonctionnement-FAIL] _
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-460/test_text_anchor_is_present_in4')
+body = '## Fonctionnement\nAncienne phrase modifiée.\n'
+anchor = 'Affirmation supprimée.', section = '## Fonctionnement'
+expected = 'FAIL'
+
+    @pytest.mark.parametrize("body,anchor,section,expected", [
+        ("## Fonctionnement\nLe **filtre** retient les particules.\n", "Le filtre retient les particules.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\nLe filtre\nretient les particules.\n", "Le filtre retient les particules.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\nMédia prévu.\n", "Me\u0301dia prévu.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\nAutre texte.\n## FAQ\nAffirmation ailleurs.\n", "Affirmation ailleurs.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\nAncienne phrase modifiée.\n", "Affirmation supprimée.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\ntexte\n### Enfant\nAffirmation enfant.\n", "Affirmation enfant.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\n### Enfant\ntexte\n### Voisin\nAffirmation ailleurs.\n", "Affirmation ailleurs.", "### Enfant", "FAIL"),
+        ("## Fonctionnement\nLe filtre retient\n\nles particules.\n", "Le filtre retient les particules.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\n<!-- Affirmation cachee. -->\n", "Affirmation cachee.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\n```\nAffirmation exemple.\n```\n", "Affirmation exemple.", "## Fonctionnement", "FAIL"),
+        ("```\n## Fonctionnement\nAffirmation exemple.\n```\n", "Affirmation exemple.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\n[Source](https://example.test/affirmation-inventee)\n", "affirmation-inventee", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\ntexte\n## Fonctionnement\nAffirmation ambigue.\n", "Affirmation ambigue.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\nLe filtre ne convient pas.\n", "Le filtre convient.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\nValeur 40 bar.\n", "Valeur 4 bar.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\ntexte\n", "   ", "## Fonctionnement", "FAIL"),
+    ])
+    def test_text_anchor_is_present_in_its_real_section(tmp_path, body, anchor, section, expected):
+        entry = {**_valid_entry(section=section), "text_anchor": anchor}
+        root = _make_wiki(tmp_path, catalog_slugs=["oem_x"], fiche_body=body,
+                          coverage={"fiche": "demo", "schema_version": "1.0.0", "coverage_entries": [entry]})
+        result = _check(root)
+>       assert result["status"] == expected, result
+E       AssertionError: {'coverage_entries': 1, 'fails': [], 'h2_sections': 1, 'slug': 'demo', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_scripts/tests/test_check_coverage_map.py:159: AssertionError
+_ test_text_anchor_is_present_in_its_real_section[## Fonctionnement\n### Enfant\ntexte\n### Voisin\nAffirmation ailleurs.\n-Affirmation ailleurs.-### Enfant-FAIL] _
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-460/test_text_anchor_is_present_in6')
+body = '## Fonctionnement\n### Enfant\ntexte\n### Voisin\nAffirmation ailleurs.\n'
+anchor = 'Affirmation ailleurs.', section = '### Enfant', expected = 'FAIL'
+
+    @pytest.mark.parametrize("body,anchor,section,expected", [
+        ("## Fonctionnement\nLe **filtre** retient les particules.\n", "Le filtre retient les particules.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\nLe filtre\nretient les particules.\n", "Le filtre retient les particules.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\nMédia prévu.\n", "Me\u0301dia prévu.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\nAutre texte.\n## FAQ\nAffirmation ailleurs.\n", "Affirmation ailleurs.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\nAncienne phrase modifiée.\n", "Affirmation supprimée.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\ntexte\n### Enfant\nAffirmation enfant.\n", "Affirmation enfant.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\n### Enfant\ntexte\n### Voisin\nAffirmation ailleurs.\n", "Affirmation ailleurs.", "### Enfant", "FAIL"),
+        ("## Fonctionnement\nLe filtre retient\n\nles particules.\n", "Le filtre retient les particules.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\n<!-- Affirmation cachee. -->\n", "Affirmation cachee.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\n```\nAffirmation exemple.\n```\n", "Affirmation exemple.", "## Fonctionnement", "FAIL"),
+        ("```\n## Fonctionnement\nAffirmation exemple.\n```\n", "Affirmation exemple.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\n[Source](https://example.test/affirmation-inventee)\n", "affirmation-inventee", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\ntexte\n## Fonctionnement\nAffirmation ambigue.\n", "Affirmation ambigue.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\nLe filtre ne convient pas.\n", "Le filtre convient.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\nValeur 40 bar.\n", "Valeur 4 bar.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\ntexte\n", "   ", "## Fonctionnement", "FAIL"),
+    ])
+    def test_text_anchor_is_present_in_its_real_section(tmp_path, body, anchor, section, expected):
+        entry = {**_valid_entry(section=section), "text_anchor": anchor}
+        root = _make_wiki(tmp_path, catalog_slugs=["oem_x"], fiche_body=body,
+                          coverage={"fiche": "demo", "schema_version": "1.0.0", "coverage_entries": [entry]})
+        result = _check(root)
+>       assert result["status"] == expected, result
+E       AssertionError: {'coverage_entries': 1, 'fails': [], 'h2_sections': 1, 'slug': 'demo', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_scripts/tests/test_check_coverage_map.py:159: AssertionError
+_ test_text_anchor_is_present_in_its_real_section[## Fonctionnement\nLe filtre retient\n\nles particules.\n-Le filtre retient les particules.-## Fonctionnement-FAIL] _
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-460/test_text_anchor_is_present_in7')
+body = '## Fonctionnement\nLe filtre retient\n\nles particules.\n'
+anchor = 'Le filtre retient les particules.', section = '## Fonctionnement'
+expected = 'FAIL'
+
+    @pytest.mark.parametrize("body,anchor,section,expected", [
+        ("## Fonctionnement\nLe **filtre** retient les particules.\n", "Le filtre retient les particules.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\nLe filtre\nretient les particules.\n", "Le filtre retient les particules.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\nMédia prévu.\n", "Me\u0301dia prévu.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\nAutre texte.\n## FAQ\nAffirmation ailleurs.\n", "Affirmation ailleurs.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\nAncienne phrase modifiée.\n", "Affirmation supprimée.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\ntexte\n### Enfant\nAffirmation enfant.\n", "Affirmation enfant.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\n### Enfant\ntexte\n### Voisin\nAffirmation ailleurs.\n", "Affirmation ailleurs.", "### Enfant", "FAIL"),
+        ("## Fonctionnement\nLe filtre retient\n\nles particules.\n", "Le filtre retient les particules.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\n<!-- Affirmation cachee. -->\n", "Affirmation cachee.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\n```\nAffirmation exemple.\n```\n", "Affirmation exemple.", "## Fonctionnement", "FAIL"),
+        ("```\n## Fonctionnement\nAffirmation exemple.\n```\n", "Affirmation exemple.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\n[Source](https://example.test/affirmation-inventee)\n", "affirmation-inventee", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\ntexte\n## Fonctionnement\nAffirmation ambigue.\n", "Affirmation ambigue.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\nLe filtre ne convient pas.\n", "Le filtre convient.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\nValeur 40 bar.\n", "Valeur 4 bar.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\ntexte\n", "   ", "## Fonctionnement", "FAIL"),
+    ])
+    def test_text_anchor_is_present_in_its_real_section(tmp_path, body, anchor, section, expected):
+        entry = {**_valid_entry(section=section), "text_anchor": anchor}
+        root = _make_wiki(tmp_path, catalog_slugs=["oem_x"], fiche_body=body,
+                          coverage={"fiche": "demo", "schema_version": "1.0.0", "coverage_entries": [entry]})
+        result = _check(root)
+>       assert result["status"] == expected, result
+E       AssertionError: {'coverage_entries': 1, 'fails': [], 'h2_sections': 1, 'slug': 'demo', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_scripts/tests/test_check_coverage_map.py:159: AssertionError
+_ test_text_anchor_is_present_in_its_real_section[## Fonctionnement\n<!-- Affirmation cachee. -->\n-Affirmation cachee.-## Fonctionnement-FAIL] _
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-460/test_text_anchor_is_present_in8')
+body = '## Fonctionnement\n<!-- Affirmation cachee. -->\n'
+anchor = 'Affirmation cachee.', section = '## Fonctionnement', expected = 'FAIL'
+
+    @pytest.mark.parametrize("body,anchor,section,expected", [
+        ("## Fonctionnement\nLe **filtre** retient les particules.\n", "Le filtre retient les particules.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\nLe filtre\nretient les particules.\n", "Le filtre retient les particules.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\nMédia prévu.\n", "Me\u0301dia prévu.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\nAutre texte.\n## FAQ\nAffirmation ailleurs.\n", "Affirmation ailleurs.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\nAncienne phrase modifiée.\n", "Affirmation supprimée.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\ntexte\n### Enfant\nAffirmation enfant.\n", "Affirmation enfant.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\n### Enfant\ntexte\n### Voisin\nAffirmation ailleurs.\n", "Affirmation ailleurs.", "### Enfant", "FAIL"),
+        ("## Fonctionnement\nLe filtre retient\n\nles particules.\n", "Le filtre retient les particules.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\n<!-- Affirmation cachee. -->\n", "Affirmation cachee.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\n```\nAffirmation exemple.\n```\n", "Affirmation exemple.", "## Fonctionnement", "FAIL"),
+        ("```\n## Fonctionnement\nAffirmation exemple.\n```\n", "Affirmation exemple.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\n[Source](https://example.test/affirmation-inventee)\n", "affirmation-inventee", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\ntexte\n## Fonctionnement\nAffirmation ambigue.\n", "Affirmation ambigue.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\nLe filtre ne convient pas.\n", "Le filtre convient.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\nValeur 40 bar.\n", "Valeur 4 bar.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\ntexte\n", "   ", "## Fonctionnement", "FAIL"),
+    ])
+    def test_text_anchor_is_present_in_its_real_section(tmp_path, body, anchor, section, expected):
+        entry = {**_valid_entry(section=section), "text_anchor": anchor}
+        root = _make_wiki(tmp_path, catalog_slugs=["oem_x"], fiche_body=body,
+                          coverage={"fiche": "demo", "schema_version": "1.0.0", "coverage_entries": [entry]})
+        result = _check(root)
+>       assert result["status"] == expected, result
+E       AssertionError: {'coverage_entries': 1, 'fails': [], 'h2_sections': 1, 'slug': 'demo', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_scripts/tests/test_check_coverage_map.py:159: AssertionError
+_ test_text_anchor_is_present_in_its_real_section[## Fonctionnement\n```\nAffirmation exemple.\n```\n-Affirmation exemple.-## Fonctionnement-FAIL] _
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-460/test_text_anchor_is_present_in9')
+body = '## Fonctionnement\n```\nAffirmation exemple.\n```\n'
+anchor = 'Affirmation exemple.', section = '## Fonctionnement'
+expected = 'FAIL'
+
+    @pytest.mark.parametrize("body,anchor,section,expected", [
+        ("## Fonctionnement\nLe **filtre** retient les particules.\n", "Le filtre retient les particules.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\nLe filtre\nretient les particules.\n", "Le filtre retient les particules.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\nMédia prévu.\n", "Me\u0301dia prévu.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\nAutre texte.\n## FAQ\nAffirmation ailleurs.\n", "Affirmation ailleurs.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\nAncienne phrase modifiée.\n", "Affirmation supprimée.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\ntexte\n### Enfant\nAffirmation enfant.\n", "Affirmation enfant.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\n### Enfant\ntexte\n### Voisin\nAffirmation ailleurs.\n", "Affirmation ailleurs.", "### Enfant", "FAIL"),
+        ("## Fonctionnement\nLe filtre retient\n\nles particules.\n", "Le filtre retient les particules.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\n<!-- Affirmation cachee. -->\n", "Affirmation cachee.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\n```\nAffirmation exemple.\n```\n", "Affirmation exemple.", "## Fonctionnement", "FAIL"),
+        ("```\n## Fonctionnement\nAffirmation exemple.\n```\n", "Affirmation exemple.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\n[Source](https://example.test/affirmation-inventee)\n", "affirmation-inventee", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\ntexte\n## Fonctionnement\nAffirmation ambigue.\n", "Affirmation ambigue.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\nLe filtre ne convient pas.\n", "Le filtre convient.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\nValeur 40 bar.\n", "Valeur 4 bar.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\ntexte\n", "   ", "## Fonctionnement", "FAIL"),
+    ])
+    def test_text_anchor_is_present_in_its_real_section(tmp_path, body, anchor, section, expected):
+        entry = {**_valid_entry(section=section), "text_anchor": anchor}
+        root = _make_wiki(tmp_path, catalog_slugs=["oem_x"], fiche_body=body,
+                          coverage={"fiche": "demo", "schema_version": "1.0.0", "coverage_entries": [entry]})
+        result = _check(root)
+>       assert result["status"] == expected, result
+E       AssertionError: {'coverage_entries': 1, 'fails': [], 'h2_sections': 1, 'slug': 'demo', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_scripts/tests/test_check_coverage_map.py:159: AssertionError
+_ test_text_anchor_is_present_in_its_real_section[```\n## Fonctionnement\nAffirmation exemple.\n```\n-Affirmation exemple.-## Fonctionnement-FAIL] _
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-460/test_text_anchor_is_present_in10')
+body = '```\n## Fonctionnement\nAffirmation exemple.\n```\n'
+anchor = 'Affirmation exemple.', section = '## Fonctionnement'
+expected = 'FAIL'
+
+    @pytest.mark.parametrize("body,anchor,section,expected", [
+        ("## Fonctionnement\nLe **filtre** retient les particules.\n", "Le filtre retient les particules.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\nLe filtre\nretient les particules.\n", "Le filtre retient les particules.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\nMédia prévu.\n", "Me\u0301dia prévu.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\nAutre texte.\n## FAQ\nAffirmation ailleurs.\n", "Affirmation ailleurs.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\nAncienne phrase modifiée.\n", "Affirmation supprimée.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\ntexte\n### Enfant\nAffirmation enfant.\n", "Affirmation enfant.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\n### Enfant\ntexte\n### Voisin\nAffirmation ailleurs.\n", "Affirmation ailleurs.", "### Enfant", "FAIL"),
+        ("## Fonctionnement\nLe filtre retient\n\nles particules.\n", "Le filtre retient les particules.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\n<!-- Affirmation cachee. -->\n", "Affirmation cachee.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\n```\nAffirmation exemple.\n```\n", "Affirmation exemple.", "## Fonctionnement", "FAIL"),
+        ("```\n## Fonctionnement\nAffirmation exemple.\n```\n", "Affirmation exemple.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\n[Source](https://example.test/affirmation-inventee)\n", "affirmation-inventee", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\ntexte\n## Fonctionnement\nAffirmation ambigue.\n", "Affirmation ambigue.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\nLe filtre ne convient pas.\n", "Le filtre convient.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\nValeur 40 bar.\n", "Valeur 4 bar.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\ntexte\n", "   ", "## Fonctionnement", "FAIL"),
+    ])
+    def test_text_anchor_is_present_in_its_real_section(tmp_path, body, anchor, section, expected):
+        entry = {**_valid_entry(section=section), "text_anchor": anchor}
+        root = _make_wiki(tmp_path, catalog_slugs=["oem_x"], fiche_body=body,
+                          coverage={"fiche": "demo", "schema_version": "1.0.0", "coverage_entries": [entry]})
+        result = _check(root)
+>       assert result["status"] == expected, result
+E       AssertionError: {'coverage_entries': 1, 'fails': [], 'h2_sections': 1, 'slug': 'demo', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_scripts/tests/test_check_coverage_map.py:159: AssertionError
+_ test_text_anchor_is_present_in_its_real_section[## Fonctionnement\n[Source](https://example.test/affirmation-inventee)\n-affirmation-inventee-## Fonctionnement-FAIL] _
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-460/test_text_anchor_is_present_in11')
+body = '## Fonctionnement\n[Source](https://example.test/affirmation-inventee)\n'
+anchor = 'affirmation-inventee', section = '## Fonctionnement'
+expected = 'FAIL'
+
+    @pytest.mark.parametrize("body,anchor,section,expected", [
+        ("## Fonctionnement\nLe **filtre** retient les particules.\n", "Le filtre retient les particules.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\nLe filtre\nretient les particules.\n", "Le filtre retient les particules.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\nMédia prévu.\n", "Me\u0301dia prévu.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\nAutre texte.\n## FAQ\nAffirmation ailleurs.\n", "Affirmation ailleurs.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\nAncienne phrase modifiée.\n", "Affirmation supprimée.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\ntexte\n### Enfant\nAffirmation enfant.\n", "Affirmation enfant.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\n### Enfant\ntexte\n### Voisin\nAffirmation ailleurs.\n", "Affirmation ailleurs.", "### Enfant", "FAIL"),
+        ("## Fonctionnement\nLe filtre retient\n\nles particules.\n", "Le filtre retient les particules.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\n<!-- Affirmation cachee. -->\n", "Affirmation cachee.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\n```\nAffirmation exemple.\n```\n", "Affirmation exemple.", "## Fonctionnement", "FAIL"),
+        ("```\n## Fonctionnement\nAffirmation exemple.\n```\n", "Affirmation exemple.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\n[Source](https://example.test/affirmation-inventee)\n", "affirmation-inventee", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\ntexte\n## Fonctionnement\nAffirmation ambigue.\n", "Affirmation ambigue.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\nLe filtre ne convient pas.\n", "Le filtre convient.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\nValeur 40 bar.\n", "Valeur 4 bar.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\ntexte\n", "   ", "## Fonctionnement", "FAIL"),
+    ])
+    def test_text_anchor_is_present_in_its_real_section(tmp_path, body, anchor, section, expected):
+        entry = {**_valid_entry(section=section), "text_anchor": anchor}
+        root = _make_wiki(tmp_path, catalog_slugs=["oem_x"], fiche_body=body,
+                          coverage={"fiche": "demo", "schema_version": "1.0.0", "coverage_entries": [entry]})
+        result = _check(root)
+>       assert result["status"] == expected, result
+E       AssertionError: {'coverage_entries': 1, 'fails': [], 'h2_sections': 1, 'slug': 'demo', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_scripts/tests/test_check_coverage_map.py:159: AssertionError
+_ test_text_anchor_is_present_in_its_real_section[## Fonctionnement\ntexte\n## Fonctionnement\nAffirmation ambigue.\n-Affirmation ambigue.-## Fonctionnement-FAIL] _
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-460/test_text_anchor_is_present_in12')
+body = '## Fonctionnement\ntexte\n## Fonctionnement\nAffirmation ambigue.\n'
+anchor = 'Affirmation ambigue.', section = '## Fonctionnement'
+expected = 'FAIL'
+
+    @pytest.mark.parametrize("body,anchor,section,expected", [
+        ("## Fonctionnement\nLe **filtre** retient les particules.\n", "Le filtre retient les particules.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\nLe filtre\nretient les particules.\n", "Le filtre retient les particules.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\nMédia prévu.\n", "Me\u0301dia prévu.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\nAutre texte.\n## FAQ\nAffirmation ailleurs.\n", "Affirmation ailleurs.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\nAncienne phrase modifiée.\n", "Affirmation supprimée.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\ntexte\n### Enfant\nAffirmation enfant.\n", "Affirmation enfant.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\n### Enfant\ntexte\n### Voisin\nAffirmation ailleurs.\n", "Affirmation ailleurs.", "### Enfant", "FAIL"),
+        ("## Fonctionnement\nLe filtre retient\n\nles particules.\n", "Le filtre retient les particules.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\n<!-- Affirmation cachee. -->\n", "Affirmation cachee.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\n```\nAffirmation exemple.\n```\n", "Affirmation exemple.", "## Fonctionnement", "FAIL"),
+        ("```\n## Fonctionnement\nAffirmation exemple.\n```\n", "Affirmation exemple.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\n[Source](https://example.test/affirmation-inventee)\n", "affirmation-inventee", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\ntexte\n## Fonctionnement\nAffirmation ambigue.\n", "Affirmation ambigue.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\nLe filtre ne convient pas.\n", "Le filtre convient.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\nValeur 40 bar.\n", "Valeur 4 bar.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\ntexte\n", "   ", "## Fonctionnement", "FAIL"),
+    ])
+    def test_text_anchor_is_present_in_its_real_section(tmp_path, body, anchor, section, expected):
+        entry = {**_valid_entry(section=section), "text_anchor": anchor}
+        root = _make_wiki(tmp_path, catalog_slugs=["oem_x"], fiche_body=body,
+                          coverage={"fiche": "demo", "schema_version": "1.0.0", "coverage_entries": [entry]})
+        result = _check(root)
+>       assert result["status"] == expected, result
+E       AssertionError: {'coverage_entries': 1, 'fails': [], 'h2_sections': 1, 'slug': 'demo', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_scripts/tests/test_check_coverage_map.py:159: AssertionError
+_ test_text_anchor_is_present_in_its_real_section[## Fonctionnement\nLe filtre ne convient pas.\n-Le filtre convient.-## Fonctionnement-FAIL] _
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-460/test_text_anchor_is_present_in13')
+body = '## Fonctionnement\nLe filtre ne convient pas.\n'
+anchor = 'Le filtre convient.', section = '## Fonctionnement', expected = 'FAIL'
+
+    @pytest.mark.parametrize("body,anchor,section,expected", [
+        ("## Fonctionnement\nLe **filtre** retient les particules.\n", "Le filtre retient les particules.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\nLe filtre\nretient les particules.\n", "Le filtre retient les particules.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\nMédia prévu.\n", "Me\u0301dia prévu.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\nAutre texte.\n## FAQ\nAffirmation ailleurs.\n", "Affirmation ailleurs.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\nAncienne phrase modifiée.\n", "Affirmation supprimée.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\ntexte\n### Enfant\nAffirmation enfant.\n", "Affirmation enfant.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\n### Enfant\ntexte\n### Voisin\nAffirmation ailleurs.\n", "Affirmation ailleurs.", "### Enfant", "FAIL"),
+        ("## Fonctionnement\nLe filtre retient\n\nles particules.\n", "Le filtre retient les particules.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\n<!-- Affirmation cachee. -->\n", "Affirmation cachee.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\n```\nAffirmation exemple.\n```\n", "Affirmation exemple.", "## Fonctionnement", "FAIL"),
+        ("```\n## Fonctionnement\nAffirmation exemple.\n```\n", "Affirmation exemple.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\n[Source](https://example.test/affirmation-inventee)\n", "affirmation-inventee", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\ntexte\n## Fonctionnement\nAffirmation ambigue.\n", "Affirmation ambigue.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\nLe filtre ne convient pas.\n", "Le filtre convient.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\nValeur 40 bar.\n", "Valeur 4 bar.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\ntexte\n", "   ", "## Fonctionnement", "FAIL"),
+    ])
+    def test_text_anchor_is_present_in_its_real_section(tmp_path, body, anchor, section, expected):
+        entry = {**_valid_entry(section=section), "text_anchor": anchor}
+        root = _make_wiki(tmp_path, catalog_slugs=["oem_x"], fiche_body=body,
+                          coverage={"fiche": "demo", "schema_version": "1.0.0", "coverage_entries": [entry]})
+        result = _check(root)
+>       assert result["status"] == expected, result
+E       AssertionError: {'coverage_entries': 1, 'fails': [], 'h2_sections': 1, 'slug': 'demo', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_scripts/tests/test_check_coverage_map.py:159: AssertionError
+_ test_text_anchor_is_present_in_its_real_section[## Fonctionnement\nValeur 40 bar.\n-Valeur 4 bar.-## Fonctionnement-FAIL] _
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-460/test_text_anchor_is_present_in14')
+body = '## Fonctionnement\nValeur 40 bar.\n', anchor = 'Valeur 4 bar.'
+section = '## Fonctionnement', expected = 'FAIL'
+
+    @pytest.mark.parametrize("body,anchor,section,expected", [
+        ("## Fonctionnement\nLe **filtre** retient les particules.\n", "Le filtre retient les particules.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\nLe filtre\nretient les particules.\n", "Le filtre retient les particules.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\nMédia prévu.\n", "Me\u0301dia prévu.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\nAutre texte.\n## FAQ\nAffirmation ailleurs.\n", "Affirmation ailleurs.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\nAncienne phrase modifiée.\n", "Affirmation supprimée.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\ntexte\n### Enfant\nAffirmation enfant.\n", "Affirmation enfant.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\n### Enfant\ntexte\n### Voisin\nAffirmation ailleurs.\n", "Affirmation ailleurs.", "### Enfant", "FAIL"),
+        ("## Fonctionnement\nLe filtre retient\n\nles particules.\n", "Le filtre retient les particules.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\n<!-- Affirmation cachee. -->\n", "Affirmation cachee.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\n```\nAffirmation exemple.\n```\n", "Affirmation exemple.", "## Fonctionnement", "FAIL"),
+        ("```\n## Fonctionnement\nAffirmation exemple.\n```\n", "Affirmation exemple.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\n[Source](https://example.test/affirmation-inventee)\n", "affirmation-inventee", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\ntexte\n## Fonctionnement\nAffirmation ambigue.\n", "Affirmation ambigue.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\nLe filtre ne convient pas.\n", "Le filtre convient.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\nValeur 40 bar.\n", "Valeur 4 bar.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\ntexte\n", "   ", "## Fonctionnement", "FAIL"),
+    ])
+    def test_text_anchor_is_present_in_its_real_section(tmp_path, body, anchor, section, expected):
+        entry = {**_valid_entry(section=section), "text_anchor": anchor}
+        root = _make_wiki(tmp_path, catalog_slugs=["oem_x"], fiche_body=body,
+                          coverage={"fiche": "demo", "schema_version": "1.0.0", "coverage_entries": [entry]})
+        result = _check(root)
+>       assert result["status"] == expected, result
+E       AssertionError: {'coverage_entries': 1, 'fails': [], 'h2_sections': 1, 'slug': 'demo', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_scripts/tests/test_check_coverage_map.py:159: AssertionError
+_ test_text_anchor_is_present_in_its_real_section[## Fonctionnement\ntexte\n-   -## Fonctionnement-FAIL] _
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-460/test_text_anchor_is_present_in15')
+body = '## Fonctionnement\ntexte\n', anchor = '   '
+section = '## Fonctionnement', expected = 'FAIL'
+
+    @pytest.mark.parametrize("body,anchor,section,expected", [
+        ("## Fonctionnement\nLe **filtre** retient les particules.\n", "Le filtre retient les particules.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\nLe filtre\nretient les particules.\n", "Le filtre retient les particules.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\nMédia prévu.\n", "Me\u0301dia prévu.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\nAutre texte.\n## FAQ\nAffirmation ailleurs.\n", "Affirmation ailleurs.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\nAncienne phrase modifiée.\n", "Affirmation supprimée.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\ntexte\n### Enfant\nAffirmation enfant.\n", "Affirmation enfant.", "## Fonctionnement", "PASS"),
+        ("## Fonctionnement\n### Enfant\ntexte\n### Voisin\nAffirmation ailleurs.\n", "Affirmation ailleurs.", "### Enfant", "FAIL"),
+        ("## Fonctionnement\nLe filtre retient\n\nles particules.\n", "Le filtre retient les particules.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\n<!-- Affirmation cachee. -->\n", "Affirmation cachee.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\n```\nAffirmation exemple.\n```\n", "Affirmation exemple.", "## Fonctionnement", "FAIL"),
+        ("```\n## Fonctionnement\nAffirmation exemple.\n```\n", "Affirmation exemple.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\n[Source](https://example.test/affirmation-inventee)\n", "affirmation-inventee", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\ntexte\n## Fonctionnement\nAffirmation ambigue.\n", "Affirmation ambigue.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\nLe filtre ne convient pas.\n", "Le filtre convient.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\nValeur 40 bar.\n", "Valeur 4 bar.", "## Fonctionnement", "FAIL"),
+        ("## Fonctionnement\ntexte\n", "   ", "## Fonctionnement", "FAIL"),
+    ])
+    def test_text_anchor_is_present_in_its_real_section(tmp_path, body, anchor, section, expected):
+        entry = {**_valid_entry(section=section), "text_anchor": anchor}
+        root = _make_wiki(tmp_path, catalog_slugs=["oem_x"], fiche_body=body,
+                          coverage={"fiche": "demo", "schema_version": "1.0.0", "coverage_entries": [entry]})
+        result = _check(root)
+>       assert result["status"] == expected, result
+E       AssertionError: {'coverage_entries': 1, 'fails': [], 'h2_sections': 1, 'slug': 'demo', ...}
+E       assert 'PASS' == 'FAIL'
+E         
+E         - FAIL
+E         + PASS
+
+_scripts/tests/test_check_coverage_map.py:159: AssertionError
+=========================== short test summary info ============================
+FAILED _scripts/tests/test_check_coverage_map.py::test_text_anchor_is_present_in_its_real_section[## Fonctionnement\nAutre texte.\n## FAQ\nAffirmation ailleurs.\n-Affirmation ailleurs.-## Fonctionnement-FAIL]
+FAILED _scripts/tests/test_check_coverage_map.py::test_text_anchor_is_present_in_its_real_section[## Fonctionnement\nAncienne phrase modifi\xe9e.\n-Affirmation supprim\xe9e.-## Fonctionnement-FAIL]
+FAILED _scripts/tests/test_check_coverage_map.py::test_text_anchor_is_present_in_its_real_section[## Fonctionnement\n### Enfant\ntexte\n### Voisin\nAffirmation ailleurs.\n-Affirmation ailleurs.-### Enfant-FAIL]
+FAILED _scripts/tests/test_check_coverage_map.py::test_text_anchor_is_present_in_its_real_section[## Fonctionnement\nLe filtre retient\n\nles particules.\n-Le filtre retient les particules.-## Fonctionnement-FAIL]
+FAILED _scripts/tests/test_check_coverage_map.py::test_text_anchor_is_present_in_its_real_section[## Fonctionnement\n<!-- Affirmation cachee. -->\n-Affirmation cachee.-## Fonctionnement-FAIL]
+FAILED _scripts/tests/test_check_coverage_map.py::test_text_anchor_is_present_in_its_real_section[## Fonctionnement\n```\nAffirmation exemple.\n```\n-Affirmation exemple.-## Fonctionnement-FAIL]
+FAILED _scripts/tests/test_check_coverage_map.py::test_text_anchor_is_present_in_its_real_section[```\n## Fonctionnement\nAffirmation exemple.\n```\n-Affirmation exemple.-## Fonctionnement-FAIL]
+FAILED _scripts/tests/test_check_coverage_map.py::test_text_anchor_is_present_in_its_real_section[## Fonctionnement\n[Source](https://example.test/affirmation-inventee)\n-affirmation-inventee-## Fonctionnement-FAIL]
+FAILED _scripts/tests/test_check_coverage_map.py::test_text_anchor_is_present_in_its_real_section[## Fonctionnement\ntexte\n## Fonctionnement\nAffirmation ambigue.\n-Affirmation ambigue.-## Fonctionnement-FAIL]
+FAILED _scripts/tests/test_check_coverage_map.py::test_text_anchor_is_present_in_its_real_section[## Fonctionnement\nLe filtre ne convient pas.\n-Le filtre convient.-## Fonctionnement-FAIL]
+FAILED _scripts/tests/test_check_coverage_map.py::test_text_anchor_is_present_in_its_real_section[## Fonctionnement\nValeur 40 bar.\n-Valeur 4 bar.-## Fonctionnement-FAIL]
+FAILED _scripts/tests/test_check_coverage_map.py::test_text_anchor_is_present_in_its_real_section[## Fonctionnement\ntexte\n-   -## Fonctionnement-FAIL]
+12 failed, 12 passed in 0.28s

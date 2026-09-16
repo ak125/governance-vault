@@ -1,0 +1,203 @@
+{
+  "threshold": 0.85,
+  "apply": false,
+  "apply_failures": 0,
+  "tier_A": 0,
+  "tier_B": 1,
+  "eligible": 0,
+  "blocked": 1,
+  "unknown_fail_closed": 0,
+  "report": [
+    {
+      "file": "proposals/filtre-a-huile.md",
+      "schema_version": "promotion-decision/v1",
+      "substance_tier": "B",
+      "promotion_status": "BLOCKED",
+      "eligible": false,
+      "blocking_reasons": [
+        {
+          "code": "COVERAGE_STRICT_FAIL",
+          "owner_stage": "COVERAGE",
+          "detector_stage": "COVERAGE_MAP",
+          "evidence": {
+            "fails": [
+              "entry[1].text_anchor absent de la prose de '## Critères de choix selon le véhicule' (claim_id=filtre-huile-efficacite-iso-4548-12)",
+              "entry[2].text_anchor absent de la prose de '## Fonctionnement' (claim_id=filtre-huile-bypass-clapet-iso-4548-2)",
+              "entry[3].text_anchor absent de la prose de '## Fonctionnement' (claim_id=filtre-huile-anti-retour-iso-4548-9)",
+              "entry[6].text_anchor absent de la prose de '## Critères de choix selon le véhicule' (claim_id=filtre-huile-cartouche-vs-spinon-type-moteur)",
+              "entry[7].text_anchor absent de la prose de '## Fonctionnement' (claim_id=filtre-huile-anti-retour-orientation)",
+              "entry[8].text_anchor absent de la prose de '## Symptômes & diagnostic' (claim_id=filtre-huile-bypass-huile-non-filtree)",
+              "entry[9].text_anchor absent de la prose de '## Marques & qualité' (claim_id=filtre-huile-trois-niveaux-qualite-oe-oes-equivalent)",
+              "entry[10].text_anchor absent de la prose de '## Marques & qualité' (claim_id=filtre-huile-oes-droit-rechange)",
+              "entry[12].text_anchor absent de la prose de '## Critères de choix selon le véhicule' (claim_id=filtre-huile-clapets-cartouche-dans-boitier)",
+              "entry[13].text_anchor absent de la prose de '## Fonctionnement' (claim_id=filtre-huile-bypass-pression-engine-tied)"
+            ],
+            "warns": []
+          }
+        },
+        {
+          "code": "SUBSTANCE_SCORE",
+          "owner_stage": "SUBSTANCE",
+          "detector_stage": "PROMOTE_EVALUATE_TIER",
+          "evidence": {
+            "score": 0.46,
+            "threshold": 0.85,
+            "engine": "legacy"
+          }
+        }
+      ],
+      "evaluation": {
+        "tier": "B",
+        "confidence_score": 0.46,
+        "score_details": {
+          "score": 0.46,
+          "components": {
+            "sources": {
+              "weight": 0.4,
+              "ratio": 0.6,
+              "reference_count": 10,
+              "defaulted_confidence_indices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9
+              ],
+              "points": 0.24
+            },
+            "sections": {
+              "weight": 0.3,
+              "ratio": 0.4,
+              "required": [
+                "Définition",
+                "Fonctionnement",
+                "Symptômes d'usure",
+                "Choix selon véhicule",
+                "FAQ"
+              ],
+              "filled": [
+                "Fonctionnement",
+                "FAQ"
+              ],
+              "unmatched_required": [
+                "Définition",
+                "Symptômes d'usure",
+                "Choix selon véhicule"
+              ],
+              "points": 0.12
+            },
+            "internal_links": {
+              "weight": 0.2,
+              "ratio": 0.0,
+              "resolved": 0,
+              "total": 0,
+              "unresolved": [],
+              "points": 0.0
+            },
+            "source_kinds": {
+              "weight": 0.1,
+              "ratio": 1.0,
+              "distinct_count": 2,
+              "points": 0.1
+            }
+          },
+          "scope": "metadata_structure_proxy_not_factual_or_seo_validation"
+        },
+        "gate_engine": "legacy",
+        "gate_status": {
+          "source": "pass",
+          "claim": "pass",
+          "contradiction": "pass",
+          "risk": "pass",
+          "confidence": "pass"
+        },
+        "shadow_score": {
+          "shadow_tier": "B",
+          "shadow_total": 83,
+          "shadow_dims": {
+            "C": 20.0,
+            "F": 1.0,
+            "D": 15.0,
+            "E": 10.0,
+            "A": 20.8
+          },
+          "shadow_applicable": [
+            "A",
+            "C",
+            "D",
+            "E",
+            "F"
+          ],
+          "shadow_floors_failed": [
+            "A<22"
+          ],
+          "shadow_blocked": [
+            "FLOOR_NOT_MET:A<22"
+          ],
+          "shadow_notes": [
+            "reality-check SKIPPÉ (manifest status=stale)",
+            "A:page_unproven=10 (confidence capped at medium)"
+          ],
+          "manifest_status": "stale",
+          "scorer": "shadow_score.score@6dim-v0"
+        }
+      },
+      "inputs": {
+        "schema_version": "promotion-decision/v1",
+        "input_manifest": [
+          {
+            "role": "candidate",
+            "path": "proposals/filtre-a-huile.md",
+            "sha256": "8d93f1f93f7759ee2fe0ed0c29f38b4ea1fbca3166a344c6bc4225f350ff5e81"
+          },
+          {
+            "role": "canon_target",
+            "path": "wiki/gamme/filtre-a-huile.md",
+            "sha256": null
+          },
+          {
+            "role": "coverage_map",
+            "path": "proposals/_coverage/filtre-a-huile.coverage.yaml",
+            "sha256": "14c090a6465e48f6a87062d4ef2f565d0ac7cec98bb893ad850158692416e846"
+          },
+          {
+            "role": "coverage_schema",
+            "path": "_meta/schema/coverage-map.schema.json",
+            "sha256": "b1d4e60efd19643c0978001cca6736b6bb61d86e3ecfd337c966ac882aeeca5d"
+          },
+          {
+            "role": "raw_checksums",
+            "path": "manifests/checksums.json",
+            "sha256": "5aa73c5303abeed293fecf09af6357348f41ed8db7342f51c278d07d0a1c47c3"
+          },
+          {
+            "role": "raw_inventory",
+            "path": "manifests/source-inventory.csv",
+            "sha256": "8e3ea4b99c368d3f9387616fb2a886a91df83e26d2a7cd4d790c980b9f3d9cc6"
+          },
+          {
+            "role": "reality_manifest",
+            "path": "_meta/reality-manifest.json",
+            "sha256": "8d38fe921b908d1dbf1b67f6f50c97ab2ee31c714a1aa2367a84dc5a7bbe1c7f"
+          },
+          {
+            "role": "source_catalog",
+            "path": "_meta/source-catalog.yaml",
+            "sha256": "50c9255885f60c0bbbe9bf063ca7aa8554d007ca3efdd062ca0758dcdda2ebb5"
+          }
+        ],
+        "wiki_revision": "01cea8d-dirty",
+        "raw_revision": "7565934-dirty",
+        "evaluation_engine_revision": "34365741b0ceda62b9a5d6639a2415fd1df620b14c977feedf4c1dc0564da92f",
+        "decision_engine_revision": "6a6cbaf7fbc195b52a557c50ea8cbe535c0ecfd4281dfcca30de877c35497097"
+      },
+      "tier": "B",
+      "confidence_score": 0.46
+    }
+  ]
+}

@@ -1,0 +1,196 @@
+--- a/_meta/source-catalog.yaml
++++ b/_meta/source-catalog.yaml
+@@ -483,12 +483,10 @@
+     status: to_capture
+     license: normative_reference_only
+     notes: |
+-      Série normative ISO 4548 référencée comme autorité (existence des méthodes
+-      d'essai bypass / anti-retour / efficacité de filtration). URLs ISO.org en
+-      403 au fetch automatisé → la NORME est citée comme référence d'autorité,
+-      JAMAIS comme source de chiffres internes (cf. risques faq-symptoms.md /
+-      compatibility-technical.md). STATUS to_capture : périmètre établi via
+-      abstracts/catalogues, texte normatif intégral non lu.
++      Entree historique de serie, non archivee ; conservee pour les references
++      diagnostiques existantes non qualifiees. Ne prouve ni diagnostic, ni
++      performance, ni certification. Les trois mentions generales ISO du guide
++      utilisent desormais les notices par edition ci-dessous, toutes to_capture.
+ 
+   - slug: mann_filter_oem_filtre_huile
+     title: 'MANN-FILTER / MANN+HUMMEL — documentation technique filtres à huile (média, clapets, datasheet HU 711/51 x)'
+@@ -673,3 +671,53 @@
+       → témoin lumineux). Extraite dans le proposal plaquette-de-frein (## Critères de
+       choix). STATUS to_capture : page référencée par URL
+       (delphiautoparts.com/.../ce-quil-faut-savoir-sur-les-temoins-dusure-...), archive à matérialiser.
++
++  # Lot ISO : notices distinctes, preuve RAW manquante explicite.
++  - slug: iso_4548_2_1997_notice
++    title: ISO 4548-2:1997 — notice publique de la méthode d’essai
++    type: normative_standard
++    publisher: ISO
++    year: 1997
++    url: https://www.iso.org/standard/21712.html
++    raw_ref:
++      repo: automecanik-raw
++      manifest_id: iso_4548_2_1997_notice
++      expected_sha256: null
++    status: to_capture
++    license: normative_reference_only
++    notes: 'Notice publique consultee le 2026-09-14 ; norme integrale non acquise/non lue. Edition 1997 et perimetre
++      general seulement, pas de certification ni resultat produit. Capture native -2 refusee HTTP403 ; autres
++      notices non tentees ensuite. Statut publie observe, non perpetuel. Edition confirmee en 2024 sur la notice. '
++  - slug: iso_4548_9_2008_notice
++    title: ISO 4548-9:2008 — notice publique de la méthode d’essai
++    type: normative_standard
++    publisher: ISO
++    year: 2008
++    url: https://www.iso.org/standard/44520.html
++    raw_ref:
++      repo: automecanik-raw
++      manifest_id: iso_4548_9_2008_notice
++      expected_sha256: null
++    status: to_capture
++    license: normative_reference_only
++    notes: 'Notice publique consultee le 2026-09-14 ; norme integrale non acquise/non lue. Edition 2008 et perimetre
++      general seulement, pas de certification ni resultat produit. Capture native -2 refusee HTTP403 ; autres
++      notices non tentees ensuite. Statut publie observe, non perpetuel. Edition en revision ; ne pas traiter
++      le projet comme une norme publiee. Le resume ISO indique 2007 mais le titre et les metadonnees indiquent
++      2008 ; ne pas inventer une autre edition. '
++  - slug: iso_4548_12_2017_notice
++    title: ISO 4548-12:2017 — notice publique de la méthode d’essai
++    type: normative_standard
++    publisher: ISO
++    year: 2017
++    url: https://www.iso.org/standard/62763.html
++    raw_ref:
++      repo: automecanik-raw
++      manifest_id: iso_4548_12_2017_notice
++      expected_sha256: null
++    status: to_capture
++    license: normative_reference_only
++    notes: 'Notice publique consultee le 2026-09-14 ; norme integrale non acquise/non lue. Edition 2017 et perimetre
++      general seulement, pas de certification ni resultat produit. Capture native -2 refusee HTTP403 ; autres
++      notices non tentees ensuite. Statut publie observe, non perpetuel. Edition en revision ; ne pas traiter
++      le projet comme une norme publiee. '
+--- a/log.md
++++ b/log.md
+@@ -142,3 +142,10 @@
+ - Anti-retour lié à l'orientation sans généraliser une position ambiguë ; by-pass expliqué sur colmatage/froid selon FILTRON. Réglage selon moteur rattaché à MAHLE, sans chiffres ou extrapolation diagnostique validés.
+ - Quatre déclarations ciblées reliées aux passages des archives existantes ; aucune capture ni mutation RAW. Carte14déclarations,8captured,0verified ;6ancres encore en échec (ISO3, réglementaire2, diagnostic1).
+ - Schéma, calcul0.46, SHA et raw_ref cibles PASS. Promotion native BLOCKED : COVERAGE_STRICT_FAIL et SUBSTANCE_SCORE. Shadow89/tierA ne vaut pas publication :6page_unproven et reality stale. Code/test/dépendance du lot197tests précédent inchangés par hash ; validations de données rejouées.
++
++## 2026-09-14 — candidat iso-pilot : portée des méthodes d'essai
++
++- Trois mentions ISO reliées aux notices officielles par édition ; section de lecture des résultats et bloc structuré alignés. Retrait des formules normalisée et du raccourci bêta non étayé dans le bloc.
++- Les notices établissent des objets d'essai, pas une certification, une compatibilité ou une performance produit. Texte intégral des normes non lu. Ambiguïté 2007/2008 du résumé ISO-9 tracée, édition du titre conservée.
++- Capture native de la première notice : HTTP403 ; aucun contournement ou archive fabriquée. Les trois déclarations restent pending_capture et les sources to_capture. Demandes de capture préparées uniquement dans le candidat RAW.
++- Résultats et limites : iso-pilot-* dans le dossier de preuves du vault. Pas de promotion ou export appliqué.
+--- a/proposals/_coverage/filtre-a-huile.coverage.yaml
++++ b/proposals/_coverage/filtre-a-huile.coverage.yaml
+@@ -13,27 +13,29 @@
+ 
+   # --- claims sourcés normatif ISO (séries 4548) → high (§9.1 normative_standard) ---
+   - claim_id: filtre-huile-efficacite-iso-4548-12
+-    section: "## Critères de choix selon le véhicule"
+-    text_anchor: "efficacité de filtration mesurée par comptage de particules (multipasse)"
+-    source_slug: iso_4548_filtre_huile_serie
++    section: "## Lire les références aux normes d'essai"
++    text_anchor: "ISO 4548-12:2017 décrit un essai multipasse par comptage de particules, en régime\
++  \ stable."
++    source_slug: iso_4548_12_2017_notice
+     evidence_type: normative_standard_scope
+     confidence: high
+     source_policy: 1_high
+     source_status: pending_capture
+ 
+   - claim_id: filtre-huile-bypass-clapet-iso-4548-2
+-    section: "## Fonctionnement"
+-    text_anchor: "clapet de dérivation (by-pass) calibré, testé à deux viscosités"
+-    source_slug: iso_4548_filtre_huile_serie
++    section: "## Lire les références aux normes d'essai"
++    text_anchor: "ISO 4548-2:1997 concerne les essais des caractéristiques du clapet de dérivation"
++    source_slug: iso_4548_2_1997_notice
+     evidence_type: normative_standard_scope
+     confidence: high
+     source_policy: 1_high
+     source_status: pending_capture
+ 
+   - claim_id: filtre-huile-anti-retour-iso-4548-9
+-    section: "## Fonctionnement"
+-    text_anchor: "clapet anti-retour (anti-drain-back) — composant fonctionnel normalisé"
+-    source_slug: iso_4548_filtre_huile_serie
++    section: "## Lire les références aux normes d'essai"
++    text_anchor: "ISO 4548-9:2008 décrit la mesure d'efficacité des clapets anti-retour d'entrée ou\
++  \ de sortie"
++    source_slug: iso_4548_9_2008_notice
+     evidence_type: normative_standard_scope
+     confidence: high
+     source_policy: 1_high
+@@ -134,6 +136,12 @@
+     source_status: captured
+ 
+ notes: |
++  Lot iso-pilot 2026-09-14 : trois mentions bornees aux notices officielles
++  4548-2:1997, -9:2008 et -12:2017, consultation web tracee dans le rapport.
++  Ancres et bloc structure alignes ; aucune certification ou performance produit
++  deduite. La capture native de -2 echoue HTTP403, -9/-12 non tentees ensuite.
++  Trois statuts pending_capture conserves ; consultation ne vaut pas archive.
++  Retrait du raccourci beta universel non etaye par ces notices.
+   Lot architecture-pilot 2026-09-14 : architectures, orientation anti-retour et
+   difference de reglage du by-pass rattachees aux captures existantes MAHLE/FILTRON.
+   Trois anciennes declarations remplacees par des formulations bornees a ces
+--- a/proposals/filtre-a-huile.md
++++ b/proposals/filtre-a-huile.md
+@@ -181,11 +181,12 @@
+       truth_level: sourced
+     standards_norms:
+       content_md: >-
+-        La filtration à plein débit est encadrée par la série de normes ISO 4548 (méthodes d'essai :
+-        caractéristique débit/perte de charge, clapet de dérivation, clapets anti-retour, efficacité par
+-        comptage de particules). L'efficacité réelle s'exprime par le ratio bêta à une taille de particule
+-        donnée — un seuil « X microns » seul ne suffit pas sans le bêta associé.
+-      source_ids: [raw:filtre-a-huile-compatibility, normative:iso-4548, web:donaldson-beta]
++        Les notices ISO distinguent les essais du clapet de dérivation (4548-2:1997), des clapets
++        anti-retour lorsqu'ils équipent les filtres concernés (4548-9:2008), et la mesure multipasse
++        de filtration en régime stable par comptage de particules (4548-12:2017). Pour comparer
++        des filtres, demander les résultats et les conditions d'essai propres aux références ;
++        la seule citation d'une norme ne démontre pas leur performance ou leur compatibilité.
++      source_ids: [iso_4548_2_1997_notice, iso_4548_9_2008_notice, iso_4548_12_2017_notice]
+       truth_level: sourced
+     quality_tiers:
+       content_md: >-
+@@ -252,8 +253,8 @@
+ 
+ La présence des clapets dépend de la conception du filtre et du moteur. Sur les filtres vissés, FILTRON décrit trois fonctions possibles : anti-retour, dérivation (by-pass) et anti-siphon. Elles ne sont pas nécessairement toutes présentes sur chaque filtre. La présence d'un clapet ne constitue donc pas, à elle seule, un critère de compatibilité ([Filtron](https://filtron.eu/en/insights/filter-guide/spin-on-oil-filter-valves.html)).
+ 
+-- **Clapet anti-retour (anti-drain-back)** — souvent constitué d'une membrane en caoutchouc, il empêche l'huile de s'échapper du filtre à l'arrêt. La nécessité de l'anti-retour dépend notamment de l'orientation du filtre, comme l'explique FILTRON ([Filtron](https://filtron.eu/en/insights/filter-guide/spin-on-oil-filter-valves.html)). Sa méthode d'essai est normalisée par **ISO 4548-9**.
+-- **Clapet de dérivation (by-pass)** — il permet de maintenir le passage d'huile lorsque le filtre est colmaté ou que l'huile est froide et visqueuse. L'huile peut alors contourner le média filtrant pour préserver l'alimentation du moteur ([Filtron](https://filtron.eu/en/insights/filter-guide/spin-on-oil-filter-valves.html)). Le réglage du by-pass peut différer selon le moteur ([MAHLE](https://www.mahle-aftermarket.com/na/en/products-and-services/filters/oil-filters/)). Sa caractéristique est normalisée par **ISO 4548-2**.
++- **Clapet anti-retour (anti-drain-back)** — souvent constitué d'une membrane en caoutchouc, il empêche l'huile de s'échapper du filtre à l'arrêt. La nécessité de l'anti-retour dépend notamment de l'orientation du filtre, comme l'explique FILTRON ([Filtron](https://filtron.eu/en/insights/filter-guide/spin-on-oil-filter-valves.html)).
++- **Clapet de dérivation (by-pass)** — il permet de maintenir le passage d'huile lorsque le filtre est colmaté ou que l'huile est froide et visqueuse. L'huile peut alors contourner le média filtrant pour préserver l'alimentation du moteur ([Filtron](https://filtron.eu/en/insights/filter-guide/spin-on-oil-filter-valves.html)). Le réglage du by-pass peut différer selon le moteur ([MAHLE](https://www.mahle-aftermarket.com/na/en/products-and-services/filters/oil-filters/)).
+ 
+ > _Les valeurs chiffrées de pression d'ouverture du by-pass (issues de forums techniques, confidence faible) ne sont pas reproduites ici : elles dépendent du moteur et relèvent de la référence d'origine + de la revue humaine._
+ 
+@@ -276,6 +277,16 @@
+ 5. **Programme d'entretien** — respecter les échéances de remplacement du filtre indiquées par le constructeur du véhicule. Le programme d'entretien applicable permet de déterminer quand remplacer le filtre ([MAHLE](https://www.mahle-aftermarket.com/na/en/products-and-services/filters/oil-filters/)).
+ 6. **Référence d'origine du moteur** — l'indicateur d'interchangeabilité le plus fiable : commander par référence OE / véhicule, jamais par dimension approximative ([MANN-FILTER](https://www.mann-filter.com/en.html)).
+ 
++## Lire les références aux normes d'essai
++
++Les notices ISO distinguent plusieurs méthodes d'essai des filtres à huile à plein débit :
++
++- **ISO 4548-2:1997** concerne les essais des caractéristiques du clapet de dérivation ([notice ISO](https://www.iso.org/standard/21712.html)).
++- **ISO 4548-9:2008** décrit la mesure d'efficacité des clapets anti-retour d'entrée ou de sortie, lorsqu'ils équipent les filtres vissés ou à remplacement rapide concernés ([notice ISO](https://www.iso.org/standard/44520.html)).
++- **ISO 4548-12:2017** décrit un essai multipasse par comptage de particules, en régime stable. Son périmètre ne couvre pas les variations de débit ([notice ISO](https://www.iso.org/standard/62763.html)).
++
++Pour comparer deux références, rechercher les résultats mesurés et leurs conditions d'essai. La seule mention « ISO 4548 » sur une fiche ne permet pas de conclure à une performance, à une certification ou à une compatibilité véhicule. Ce repère de lecture ne remplace pas les données du fabricant pour la référence choisie.
++
+ ## Entretien & bonnes pratiques de montage
+ 
+ - **Échéance de remplacement** : respecter les échéances de remplacement du filtre indiquées par le constructeur du véhicule ([MAHLE](https://www.mahle-aftermarket.com/na/en/products-and-services/filters/oil-filters/)). Consulter son programme d'entretien ; ne pas déduire une durée universelle du seul type d'huile.
+@@ -303,6 +314,6 @@
+ 
+ La reconstruction du 27 juin 2026 s'appuyait sur le dossier web-research `automecanik-raw/sources/web-research/filtre-a-huile/`. Ses compteurs historiques (59 sources, 29 déclarées primary) ne prouvent ni l'archivage ni l'appui de chaque affirmation.
+ 
+-Révision candidate du 14 septembre 2026 : passages FILTRON sur les clapets et MAHLE sur les différences de conception reliés à leurs captures RAW immuables, empreintes et entrées de couverture. Les critères de choix et leur version structurée ne reprennent plus la hiérarchie de médias issue d'une source transmission. L'échéance d'entretien renvoie désormais au programme du constructeur, sur la base du passage MAHLE déjà archivé. Les architectures et les principes des clapets sont précisés à partir de passages identifiés ; la généralisation sur les clapets des cartouches dans le boîtier moteur a été retirée faute d'appui dans ces sources. Les autres affirmations, notamment normes, diagnostic, montage, réutilisation et équivalence OE/OES, restent à qualifier séparément.
++Révision candidate du 14 septembre 2026 : passages FILTRON sur les clapets et MAHLE sur les différences de conception reliés à leurs captures RAW immuables, empreintes et entrées de couverture. Les critères de choix et leur version structurée ne reprennent plus la hiérarchie de médias issue d'une source transmission. L'échéance d'entretien renvoie désormais au programme du constructeur, sur la base du passage MAHLE déjà archivé. Les architectures et les principes des clapets sont précisés à partir de passages identifiés ; la généralisation sur les clapets des cartouches dans le boîtier moteur a été retirée faute d'appui dans ces sources. Les mentions ISO ont été bornées au périmètre des notices officielles consultées ; leur capture RAW reste indisponible après un refus HTTP 403 du collecteur natif. Elles restent en attente de preuve archivée, sans certification ni performance produit inférée. Le diagnostic, le montage, la réutilisation et l'équivalence OE/OES restent à qualifier séparément.
+ 
+ `review_status: proposed`, exports désactivés. L'archivage ne vaut pas validation : la décision de promotion appartient au moteur WIKI natif et à ses contrôles de preuve et de droits. Les captures à licence inconnue restent destinées à l'examen interne. Les relations diagnostiques conservent `reviewed: false` et `diagnostic_safe: false`.

@@ -1,0 +1,50 @@
+{
+  "scope": "preserve successful per-entity progress when a later block fails; refresh partial effects before failing write job",
+  "head": "0c31807c8453c251d70c7575eafcc973f04eed14",
+  "branch": "codex/editorial-pipeline-provenance-20260912",
+  "pipeline_version": "1.2.1",
+  "runner_version": "1.0.2",
+  "files": {
+    "backend/src/modules/seo-projection/seo-projection-writer.service.ts": "ad0b257c0a68a7421f9e5f6ce677c6a072b9c9f89777a81656f70c5ffa6feb44",
+    "backend/src/modules/seo-projection/seo-projection-write.processor.ts": "8337ca3d60ef65e4107409edd0bfdcbd5b9b5a18a22d8d4deb13a41e6ef64e30",
+    "backend/src/modules/seo-projection/seo-projection-writer-role-scope.test.ts": "62be4c04319e5155d399484f15877cd4a5c0084be889d07cb585ad9c3d02241d",
+    "backend/src/modules/seo-projection/seo-projection.types.ts": "55e0bcdd6a16494b4d30931e459ad36e44bd305668b3e858ca6f7a8898f40238"
+  },
+  "application_patch_sha256": "7c7cd5b25eeebc5b1e8326fd3c441aac7b68916791660880cd5b7449027e0b61",
+  "validation": {
+    "baseline_failed": 5,
+    "baseline_passed": 59,
+    "latest_passed": 97,
+    "latest_suites": 4,
+    "eslint": "PASS four files",
+    "backend_typecheck": "PASS",
+    "staged_diff_check": "PASS",
+    "bull": "native processJob with simulated state transitions/timers; partial write classified failed, never completed",
+    "writer": "public projectExports, real archive I/O, simulated database and queue transports",
+    "sql_reused": {
+      "previous_passed": 18,
+      "not_rerun": true,
+      "reason": "SQL function and Python harness hashes unchanged; no dependency or fixture changes",
+      "verified_hashes": {
+        "backend/supabase/migrations/20260912212340_seo_projection_block_outbox.sql": "f3c5ecc0853535551059eee0965ee096c3475193032e1344c9c1cca3f8251acf",
+        "scripts/seo-projection/test_block_outbox_transaction.py": "b2111dfce0199ba23721d32ed3ac835de8ec6d809d1237bc68f5021541681dc0"
+      }
+    }
+  },
+  "counterproofs": [
+    "facts success followed by block failure preserves entitiesWritten and failed run metadata",
+    "first transactional block success followed by second failure preserves blocksWritten while roleOutcome remains blocked",
+    "write_error conflict preserves factsOutcome/factsVersionId/blocksWritten",
+    "partial effects trigger one refresh enqueue before Bull failure",
+    "blocked run, snapshot failure and open-run failure are not completed jobs",
+    "read-only, empty input and valid noop do not trigger refresh or fail"
+  ],
+  "limits": [
+    "No Redis persistence/retry-time proof or real PostgREST integration",
+    "Legacy facts and initial block creation retain independent DB writes; individual statement failures and uncertain acknowledgments remain outside this lot",
+    "Late closeRun/conflict persistence failure and crash before enqueue still need durable reconciliation",
+    "Outbox relay, consumer ACK and explicit WIKI withdrawal mapping remain unwired",
+    "No shared database write, migration, CI, browser proof or deployment"
+  ],
+  "final_status": "PARTIAL_COVERAGE"
+}

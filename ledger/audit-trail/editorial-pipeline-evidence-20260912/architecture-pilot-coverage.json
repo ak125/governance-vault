@@ -1,0 +1,70 @@
+{
+  "scope_requested": "Continuer la correction robuste des contenus et des preuves du guide filtre-a-huile.",
+  "scope_actually_scanned": "Architecture visse/cartouche, orientation anti-retour, fonctionnement et reglage du by-pass ; formulations Markdown et variants structures, captures MAHLE/FILTRON deja presentes.",
+  "files_read_count": 6,
+  "files_read": [
+    "/opt/automecanik/wiki-editorial-qualification-20260912/CLAUDE.md",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/filtre-a-huile.md",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/_coverage/filtre-a-huile.coverage.yaml",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_meta/source-catalog.yaml",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/sources/auto-captures/filtre-a-huile/filtron-eu-wl-filtre-a-huile-clapets-b8431d6f.md",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/sources/auto-captures/filtre-a-huile/mahle-aftermarket-com-wl-filtre-a-huile-conception-media-fa488c04.md"
+  ],
+  "read_depth": "CLAUDE et proposition entiers ; coverage entiere ; catalogue et captures par passages utiles, hashes complets recalcules.",
+  "excluded_paths": [
+    "Code des moteurs, dependances et tests inchanges",
+    "Autres propositions et corpus RAW",
+    "Application et documents seo-batch utilisateur",
+    "Infra/cron/secrets/DB/exports"
+  ],
+  "unscanned_zones": [
+    "Verification documentaire ISO, reglementation OE/OES et diagnostic",
+    "Montage/reutilisation et autres affirmations non couvertes par ces quatre claims",
+    "Contenu actuellement servi et CI distante"
+  ],
+  "corrections_proposed": [
+    "Trois anciens claims remplaces par formulations bornees aux sources",
+    "Ajout du principe by-pass colmatage/froid",
+    "Retrait de la generalisation clapets-cartouche dans boitier, trace separee",
+    "Alignement texte/resume/variants et provenance native"
+  ],
+  "corrections_applied": {
+    "authorization": "Instructions utilisateur corriger/ameliorer/continuer ; candidat isole uniquement",
+    "files": [
+      "proposals/filtre-a-huile.md",
+      "proposals/_coverage/filtre-a-huile.coverage.yaml",
+      "_meta/source-catalog.yaml",
+      "log.md"
+    ]
+  },
+  "validation_executed": [
+    "Schema frontmatter PASS",
+    "Ancre de chacun des quatre claims presente dans sa section native",
+    "SHA corps et fichiers RAW inchanges ; gate natif raw_ref MAHLE/FILTRON zero erreur/avertissement",
+    "Anciennes formulations retirees absentes du corps et du frontmatter",
+    "Score natif calcule0.46 PASS",
+    "Coverage native FAIL avec six anciens rattachements restants",
+    "Promotion native BLOCKED avec COVERAGE_STRICT_FAIL et SUBSTANCE_SCORE",
+    "Reutilisation des197tests precedents: code, test et dependance du validateur identiques par hash ; pas de nouveau code modifie"
+  ],
+  "validation_limits": [
+    "Captured = archive disponible et rattachee ; aucune declaration verified ni approbation factuelle globale",
+    "Reglage by-pass desormais qualitatif ; changement de confidence low vers high accompagne une nouvelle formulation/source, pas une validation de pressions",
+    "Retrait d une assertion insuffisamment etayee ne compte pas comme nouvelle preuve",
+    "Score shadow89/tierA alors que6page_unproven et reality stale : pas validation de publication",
+    "Les autres14propositions n ont pas ete rescanees sur un etat inchange"
+  ],
+  "remaining_unknowns": [
+    "Six anciens rattachements a resoudre : ISO3, reglementaire2, diagnostic1",
+    "Qualite du texte hors couverture et droits de publication",
+    "Rendu effectif, DB, CI distante et resultats SEO"
+  ],
+  "candidate_sha256": {
+    "proposals/filtre-a-huile.md": "92748204f083a864a940de473b54ae1bca7020b274467e4a75a83f28dcb80e56",
+    "proposals/_coverage/filtre-a-huile.coverage.yaml": "c6313eadcb9472ea4108418e3341e3c266107eebfd15d482bcd0b8999e108112",
+    "_meta/source-catalog.yaml": "fb4ab11bfba4ba8445f11b9e796f5d23f4848b058039f50b23f5db1897b92936",
+    "log.md": "77b4d65bb17e51c72b85aa4137b9947f0de0911474d21e09dd731b0deccb7e39"
+  },
+  "final_status": "PARTIAL_COVERAGE",
+  "bounded_validation": "VALIDATED_FOR_SCOPE_ONLY"
+}

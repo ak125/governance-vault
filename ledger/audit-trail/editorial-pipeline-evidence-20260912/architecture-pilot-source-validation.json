@@ -1,0 +1,90 @@
+{
+  "status": "VALIDATED_FOR_SCOPE_ONLY",
+  "archives": {
+    "mahle_oem_conception_filtre_huile": {
+      "file_sha256": "sha256:8358e439faddebc32395175c9fb161ee7d9abce755ead940aeadb7b6ddc5f589",
+      "body_sha256": "sha256:fa488c047addedba6909fc86d9a4c3d1b6529dc93c7039a84f0589342fc0a77b",
+      "captured_at": "2026-09-13T22:40:47Z",
+      "license_status": "unknown",
+      "passages": [
+        {
+          "start_heading": "Oil filter cartridges",
+          "end_heading_exclusive": "Hydraulic spin-on filters",
+          "sha256": "82d301f6507866c00157191342de791d53d592eb354b67bb5d6a96800576b2e1"
+        },
+        {
+          "start_heading": "Spin-on oil filter mix up?",
+          "end_heading_exclusive": "Expertise in new media",
+          "sha256": "3549d1ba98336ca9a01d0da7792226f53add3b14392d79e8cb5f7339030e0348"
+        }
+      ]
+    },
+    "filtron_oem_clapets_filtre_huile": {
+      "file_sha256": "sha256:809c3efd864a3be850c5e63ba2d400064b61dcd4090342b171d45ceba11c0178",
+      "body_sha256": "sha256:b8431d6ff4d46f8f4e7acf118fa89b3679683572706f59d159e6ab5e1c01ba6f",
+      "captured_at": "2026-09-13T21:43:09Z",
+      "license_status": "unknown",
+      "passages": [
+        {
+          "start_heading": "Anti-drainback valve",
+          "end_heading_exclusive": "Bypass valve",
+          "sha256": "5bdf17d8ed08421339d5a94ca78d1fc6691ac36ec91e93766be6d77ff18e21ec"
+        },
+        {
+          "start_heading": "Bypass valve",
+          "end_heading_exclusive": "Anti-syphon valve",
+          "sha256": "48f90de1dd58a18cdd2432ff3e8decdafbee791555c730b2d4835a7d6d3dec35"
+        }
+      ]
+    }
+  },
+  "raw_ref_failures": [],
+  "raw_ref_warnings": [],
+  "changed_claim_checks": [
+    {
+      "claim_id": "filtre-huile-cartouche-vs-spinon-type-moteur",
+      "source_slug": "mahle_oem_conception_filtre_huile",
+      "section": "## Critères de choix selon le véhicule",
+      "anchor_present": true,
+      "status": "captured_not_verified"
+    },
+    {
+      "claim_id": "filtre-huile-anti-retour-orientation",
+      "source_slug": "filtron_oem_clapets_filtre_huile",
+      "section": "## Fonctionnement",
+      "anchor_present": true,
+      "status": "captured_not_verified"
+    },
+    {
+      "claim_id": "filtre-huile-bypass-pression-engine-tied",
+      "source_slug": "mahle_oem_conception_filtre_huile",
+      "section": "## Fonctionnement",
+      "anchor_present": true,
+      "status": "captured_not_verified"
+    },
+    {
+      "claim_id": "filtre-huile-bypass-colmatage-froid",
+      "source_slug": "filtron_oem_clapets_filtre_huile",
+      "section": "## Fonctionnement",
+      "anchor_present": true,
+      "status": "captured_not_verified"
+    }
+  ],
+  "coverage_entries": 14,
+  "captured_entries": 8,
+  "verified_entries": 0,
+  "new_captures": 0,
+  "retired_claim": "filtre-huile-clapets-cartouche-dans-boitier",
+  "reused_test_scope_hashes_unchanged": {
+    "_scripts/check-coverage-map.py": true,
+    "_scripts/tests/test_check_coverage_map.py": true,
+    "_scripts/tests/requirements-dev.txt": true
+  },
+  "limits": [
+    "4 claims checked at passage level; no global factual approval.",
+    "General advice to keep vehicle architecture is editorial inference.",
+    "Retired housing/valves claim is not counted as a new proof.",
+    "ISO sentences and diagnostic causality remain unqualified, source capture does not prove them.",
+    "Pressure claim now qualitative; no numeric calibration verified."
+  ]
+}

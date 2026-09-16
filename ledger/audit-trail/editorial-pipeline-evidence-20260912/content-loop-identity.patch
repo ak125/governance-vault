@@ -1,0 +1,117 @@
+diff --git a/_scripts/promote.py b/_scripts/promote.py
+index 0d629b9..f37c77e 100644
+--- a/_scripts/promote.py
++++ b/_scripts/promote.py
+@@ -85,14 +85,14 @@ def _candidate_files(wiki_root: Path, target: str | None, entity_id: str | None)
+     files = sorted(proposals.glob("*.md")) if proposals.is_dir() else []
+     if entity_id:
+         slug = entity_id.split(":", 1)[-1]
+-        files = [f for f in files if slug in f.stem]
++        files = [f for f in files if slug == f.stem]
+     return files
+ 
+ 
+ @click.command()
+ @click.option("--wiki-root", type=click.Path(exists=True, file_okay=False, path_type=Path), required=True)
+ @click.option("--target", default=None, help="Une proposal précise (relatif au wiki-root).")
+-@click.option("--entity-id", default=None, help="Filtre par slug (ex: gamme:colonne-de-direction).")
++@click.option("--entity-id", default=None, help="Identité exacte (type:slug, ou slug seul pour compatibilité).")
+ @click.option("--all", "scan_all", is_flag=True, help="Scanner toutes les proposals/.")
+ @click.option("--threshold", type=click.FloatRange(min=AUTO_PROMOTE_THRESHOLD, max=1.0),
+               default=AUTO_PROMOTE_THRESHOLD, show_default=True,
+@@ -129,6 +129,20 @@ def main(wiki_root: Path, target: str | None, entity_id: str | None, scan_all: b
+     for f in files:
+         try:
+             fm, body = _parse_markdown(f)
++            if entity_id:
++                requested_type, separator, requested_slug = entity_id.partition(":")
++                if not separator:
++                    requested_slug, requested_type = requested_type, None
++                if fm.get("slug") != requested_slug or (
++                        requested_type is not None and fm.get("entity_type") != requested_type):
++                    report.append({"file": str(f), "tier": "B", "promotion_status": "BLOCKED",
++                                   "eligible": False,
++                                   "blocking_reasons": [{"code": "ENTITY_ID_MISMATCH", "evidence": {
++                                       "requested": entity_id,
++                                       "actual_type": fm.get("entity_type"),
++                                       "actual_slug": fm.get("slug"),
++                                   }}]})
++                    continue
+             if fm.get("review_status") not in PROMOTABLE_INPUT_STATUSES:
+                 report.append({"file": str(f), "tier": "skip", "promotion_status": "SKIP",
+                                "eligible": False,
+diff --git a/_scripts/raw_to_wiki_content_loop_pilot.py b/_scripts/raw_to_wiki_content_loop_pilot.py
+index f9f8ff0..50f5475 100644
+--- a/_scripts/raw_to_wiki_content_loop_pilot.py
++++ b/_scripts/raw_to_wiki_content_loop_pilot.py
+@@ -404,6 +404,12 @@ def run(entity_id: str, wiki_root: Path, raw_root: Path, monorepo_root: Path,
+         "seo_export": export,
+         "static_proofs": static,
+         "runtime_proofs": runtime,
++        "verdict_scope": {
++            "projection_operational": "static wiring and supplied projection runtime evidence only",
++            "business_loop_closed": "projection_operational and supplied outcome evidence only",
++            "loop_closed": "legacy alias of business_loop_closed; not editorial quality approval",
++            "editorial_limits": "inspect remaining_blockers, pending, unknown and page_quality_ready separately",
++        },
+         "verdicts": {
+             "projection_operational": projection_operational,
+             "outcome_status": outcome_status,
+diff --git a/_scripts/test_promote.py b/_scripts/test_promote.py
+index 2038583..c161ae1 100644
+--- a/_scripts/test_promote.py
++++ b/_scripts/test_promote.py
+@@ -766,3 +766,53 @@ def test_cli_apply_failure_has_nonzero_exit_and_visible_error(tmp_path, monkeypa
+     assert result.exit_code == 1
+     assert 'PROMOTION_BUSY' in result.stdout
+     assert source.exists()
++
++
++def test_entity_selection_is_exact_not_substring(tmp_path):
++    mod = _load_promote()
++    proposals = tmp_path / 'proposals'
++    proposals.mkdir()
++    for slug in ('filtre', 'filtre-a-air', 'support-filtre'):
++        (proposals / f'{slug}.md').write_text('fixture')
++    assert mod._candidate_files(tmp_path, None, 'gamme:filtre') == [proposals / 'filtre.md']
++    assert mod._candidate_files(tmp_path, None, 'filtre') == [proposals / 'filtre.md']
++
++
++def test_entity_selection_does_not_replace_missing_entity_by_neighbor(tmp_path):
++    mod = _load_promote()
++    proposals = tmp_path / 'proposals'
++    proposals.mkdir()
++    (proposals / 'filtre-a-air.md').write_text('fixture')
++    assert mod._candidate_files(tmp_path, None, 'gamme:filtre') == []
++
++
++@pytest.mark.parametrize('kind,slug', [('vehicle', 'filtre'), ('gamme', 'autre')])
++def test_cli_blocks_entity_identity_mismatch_before_evaluation(tmp_path, monkeypatch, kind, slug):
++    from click.testing import CliRunner
++    mod = _load_promote()
++    proposals = tmp_path / 'proposals'
++    proposals.mkdir()
++    proposal = proposals / 'filtre.md'
++    proposal.write_text(f'---\nentity_type: {kind}\nslug: {slug}\nreview_status: in_review\n---\nFixture.\n')
++    before = proposal.read_bytes()
++    def must_not_evaluate(*args, **kwargs):
++        pytest.fail('The requested identity must be checked before evaluating another entity')
++    monkeypatch.setattr(mod, 'canonical_promotion_decision', must_not_evaluate)
++    result = CliRunner().invoke(mod.main, ['--wiki-root', str(tmp_path), '--entity-id', 'gamme:filtre', '--dry-run', '--format', 'json'])
++    assert result.exit_code == 0, result.output
++    row = json.loads(result.output)['report'][0]
++    assert row['promotion_status'] == 'BLOCKED' and row['eligible'] is False
++    assert row['blocking_reasons'][0]['code'] == 'ENTITY_ID_MISMATCH'
++    assert proposal.read_bytes() == before
++    assert not (tmp_path / 'wiki').exists()
++
++
++def test_explicit_target_cannot_override_requested_entity_identity(tmp_path):
++    from click.testing import CliRunner
++    mod = _load_promote()
++    proposals = tmp_path / 'proposals'
++    proposals.mkdir()
++    (proposals / 'autre.md').write_text('---\nentity_type: gamme\nslug: autre\nreview_status: approved\n---\nFixture.\n')
++    result = CliRunner().invoke(mod.main, ['--wiki-root', str(tmp_path), '--target', 'proposals/autre.md', '--entity-id', 'gamme:filtre', '--dry-run', '--format', 'json'])
++    assert result.exit_code == 0, result.output
++    assert json.loads(result.output)['report'][0]['promotion_status'] == 'BLOCKED'

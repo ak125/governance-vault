@@ -1,0 +1,23 @@
+PASS tests/unit/buying-guide-data.service.test.ts (11.457 s)
+PASS src/modules/admin/services/buying-guide-enricher.quality.test.ts
+[32m[Nest] 1114943  - [39m14/09/2026 00:05:07 [32m    LOG[39m [38;5;3m[BuyingGuideEnricherService] [39m[32mEnriching pgId=7 (Filtre à huile, family=filtration) dryRun=true[39m
+[32m[Nest] 1114943  - [39m14/09/2026 00:05:07 [32m    LOG[39m [38;5;3m[BuyingGuideEnricherService] [39m[32mEnriching pgId=7 (Filtre à huile, family=filtration) dryRun=false[39m
+[33m[Nest] 1114943  - [39m14/09/2026 00:05:07 [33m   WARN[39m [38;5;3m[BuyingGuideEnricherService] [39m[33mQUALITY_GATE_BLOCKED: pgId=7, score=100, reasons=GUIDANCE_COPIES_LABEL (rows: 1, 2, 3, 4, 5)[39m
+[32m[Nest] 1114943  - [39m14/09/2026 00:05:07 [32m    LOG[39m [38;5;3m[BuyingGuideEnricherService] [39m[32mEnriching pgId=7 (Filtre à huile, family=filtration) dryRun=true[39m
+[32m[Nest] 1114943  - [39m14/09/2026 00:05:07 [32m    LOG[39m [38;5;3m[BuyingGuideEnricherService] [39m[32mEnriching pgId=7 (Filtre à huile, family=filtration) dryRun=false[39m
+[33m[Nest] 1114943  - [39m14/09/2026 00:05:07 [33m   WARN[39m [38;5;3m[BuyingGuideEnricherService] [39m[33mQUALITY_GATE_BLOCKED: pgId=7, score=41, reasons=GENERIC_PHRASES | MISSING_REQUIRED_TERMS | TOO_SHORT | CONTENT_OVERLAP[39m
+[32m[Nest] 1114943  - [39m14/09/2026 00:05:07 [32m    LOG[39m [38;5;3m[BuyingGuideEnricherService] [39m[32mEnriching pgId=7 (Filtre à huile, family=filtration) dryRun=true[39m
+[32m[Nest] 1114943  - [39m14/09/2026 00:05:07 [32m    LOG[39m [38;5;3m[BuyingGuideEnricherService] [39m[32mEnriching pgId=7 (Filtre à huile, family=filtration) dryRun=false[39m
+[33m[Nest] 1114943  - [39m14/09/2026 00:05:07 [33m   WARN[39m [38;5;3m[BuyingGuideEnricherService] [39m[33mQUALITY_GATE_BLOCKED: pgId=7, score=100, reasons=DUPLICATE_SELECTION_CRITERIA (rows: 2)[39m
+[32m[Nest] 1114943  - [39m14/09/2026 00:05:07 [32m    LOG[39m [38;5;3m[BuyingGuideEnricherService] [39m[32mEnriching pgId=7 (Filtre à huile, family=filtration) dryRun=true[39m
+[32m[Nest] 1114943  - [39m14/09/2026 00:05:07 [32m    LOG[39m [38;5;3m[BuyingGuideEnricherService] [39m[32mEnriching pgId=7 (Filtre à huile, family=filtration) dryRun=false[39m
+[32m[Nest] 1114943  - [39m14/09/2026 00:05:07 [32m    LOG[39m [38;5;3m[BuyingGuideEnricherService] [39m[32mGatekeeper-only write for pgId=7 (all sections skipped, RAG-incomplete cluster)[39m
+[32m[Nest] 1114943  - [39m14/09/2026 00:05:07 [32m    LOG[39m [38;5;3m[BuyingGuideEnricherService] [39m[32mEnriching pgId=7 (Filtre à huile, family=filtration) dryRun=true[39m
+[32m[Nest] 1114943  - [39m14/09/2026 00:05:07 [32m    LOG[39m [38;5;3m[BuyingGuideEnricherService] [39m[32mEnriching pgId=7 (Filtre à huile, family=filtration) dryRun=false[39m
+[32m[Nest] 1114943  - [39m14/09/2026 00:05:07 [32m    LOG[39m [38;5;3m[BuyingGuideEnricherService] [39m[32msg_content_draft SKIPPED for pgId=7 — R1 content managed by R1ContentPipelineService[39m
+PASS src/modules/blog/services/r6-guide.service.redirect.test.ts
+
+Test Suites: 3 passed, 3 total
+Tests:       24 passed, 24 total
+Snapshots:   0 total
+Time:        12.7 s, estimated 13 s

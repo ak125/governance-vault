@@ -1,0 +1,114 @@
+{
+  "scope_requested": "Continuer les corrections robustes des contenus, sources et scores des pages R.",
+  "scope_actually_scanned": "Guide filtre-a-huile : criteres de conception/media, passage MAHLE, archive et rattachement RAW-WIKI. Lecture des fichiers de contenu ; extraits des scripts, pas audit de leur integralite.",
+  "files_read_count": 12,
+  "files_read": [
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/CLAUDE.md",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/docs/agent-capture-policy.md",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/manifests/ingestion-allowlist.yaml",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/manifests/ingestion-worklist.yaml",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/_scripts/auto-capture-runner.py",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/sources/auto-captures/filtre-a-huile/mahle-aftermarket-com-wl-filtre-a-huile-conception-media-fa488c04.md",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/CLAUDE.md",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/filtre-a-huile.md",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/_coverage/filtre-a-huile.coverage.yaml",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_meta/source-catalog.yaml",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/quality-gates.py",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/check-coverage-map.py"
+  ],
+  "context_reads": [
+    "AEC monorepo integral",
+    "Rapport principal et checkpoint precedents",
+    "r6-contract-coverage.json",
+    "Page primaire MAHLE oil-filters via web"
+  ],
+  "directories_scanned": [
+    "RAW manifests et sources/auto-captures/filtre-a-huile (cible)",
+    "WIKI proposals, proposals/_coverage, _meta et _scripts (fichiers cibles)"
+  ],
+  "excluded_paths": [
+    "Autres gammes",
+    "Code applicatif",
+    "Documents seo-batch utilisateur",
+    "Corpus 7000 contenus non rescane",
+    "Infrastructure, cron, secrets, DB"
+  ],
+  "unscanned_zones": [
+    "Normes, droit OE/OES, entretien et diagnostic du guide : non requalifies ce lot",
+    "Contenu actuellement servi, caches et DB",
+    "Droits de publication de la source",
+    "Moteurs de score complets et CI"
+  ],
+  "corrections_proposed": [
+    "Remplacer la hierarchie universelle des medias par le besoin de conception moteur",
+    "Expliquer la ressemblance insuffisante",
+    "Aligner la representation structuree et retirer le claim obsolete",
+    "Distinguer les compteurs historiques de la preuve actuelle"
+  ],
+  "corrections_applied": {
+    "authorization": "Instructions utilisateur corriger/ameliorer/continuer, candidats isoles seulement",
+    "files": {
+      "raw": [
+        "/home/deploy/worktrees/raw-filtre-pilot-20260913/manifests/ingestion-allowlist.yaml",
+        "/home/deploy/worktrees/raw-filtre-pilot-20260913/manifests/ingestion-worklist.yaml",
+        "/home/deploy/worktrees/raw-filtre-pilot-20260913/manifests/checksums.json",
+        "/home/deploy/worktrees/raw-filtre-pilot-20260913/manifests/source-inventory.csv",
+        "/home/deploy/worktrees/raw-filtre-pilot-20260913/manifests/lineage-map.json",
+        "/home/deploy/worktrees/raw-filtre-pilot-20260913/sources/auto-captures/filtre-a-huile/mahle-aftermarket-com-wl-filtre-a-huile-conception-media-fa488c04.md"
+      ],
+      "wiki": [
+        "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/filtre-a-huile.md",
+        "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/_coverage/filtre-a-huile.coverage.yaml",
+        "/opt/automecanik/wiki-editorial-qualification-20260912/_meta/source-catalog.yaml",
+        "/opt/automecanik/wiki-editorial-qualification-20260912/log.md"
+      ]
+    }
+  },
+  "validation_executed": [
+    "Capture native et scan secrets avant ecriture",
+    "Replay SKIP duplicate_content_hash",
+    "Gates RAW I et J PASS",
+    "Frontmatter et coverage native strict PASS (15 declarations, 9 H2)",
+    "Controle natif catalogue RAW refs : zero erreur/avertissement pour MAHLE",
+    "Recalcul SHA corps/fichier et existence des deux ancres dans la section cible PASS",
+    "Absence des formulations et de la source transmission retirees PASS",
+    "Score natif check PASS a 0.46",
+    "Promotion dry-run avant/apres BLOCKED, aucune application"
+  ],
+  "validation_limits": [
+    "Coverage natif valide schema/FK/titres, pas toutes les affirmations",
+    "Appui semantique examine uniquement pour le passage technique MAHLE retenu",
+    "Captured ne signifie pas verified ; high declare dans coverage est borne par les controles natifs",
+    "Source composite : aucun chiffre hydraulique/marketing/intervalle extrait dans les criteres",
+    "Decision legacy bloque au score et ne prouve pas une execution exhaustive des gates downstream"
+  ],
+  "remaining_unknowns": [
+    "12 affirmations page_unproven dans le score shadow ; leurs lacunes restent ouvertes",
+    "Reality manifest stale",
+    "Compatibilite de references et droits de publication non etablis",
+    "Qualite reelle du contenu deja en DB",
+    "Fiabilite et calibration des scores face a la pertinence visiteur et aux resultats Google"
+  ],
+  "score_after": {
+    "legacy": 0.46,
+    "shadow": 82,
+    "shadow_dimension_A": 19.8,
+    "shadow_floor_A": 22,
+    "shadow_page_unproven": 12,
+    "promotion": "BLOCKED"
+  },
+  "candidate_sha256": {
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/manifests/ingestion-allowlist.yaml": "0b047d688f3e2ac3b8f58d4f5073b44888cd6367d48fac1ae96388d02d02f032",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/manifests/ingestion-worklist.yaml": "af98d7e8452a6a595bb488a6f4dbaf89d74fd2b5228eb40a7082be29414bbb6e",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/manifests/checksums.json": "5aa73c5303abeed293fecf09af6357348f41ed8db7342f51c278d07d0a1c47c3",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/manifests/source-inventory.csv": "8e3ea4b99c368d3f9387616fb2a886a91df83e26d2a7cd4d790c980b9f3d9cc6",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/manifests/lineage-map.json": "47f729f09a454f223a565bcb7e6320f17e0bc3d0310ec33246fd58ab6517607c",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/sources/auto-captures/filtre-a-huile/mahle-aftermarket-com-wl-filtre-a-huile-conception-media-fa488c04.md": "8358e439faddebc32395175c9fb161ee7d9abce755ead940aeadb7b6ddc5f589",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/filtre-a-huile.md": "4a62b8d91baf393492ccddfcd72d77ff12f42b3c3f2d6dad865ba23fd06488c1",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/_coverage/filtre-a-huile.coverage.yaml": "62d3ddd2017f76456a0ace4c6048dc868c2f98811b5b397051e651a46a792183",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_meta/source-catalog.yaml": "43d1623a0334b0f04ac6d945d6a988c5c713e708e9b812ef22cfde9f0d411149",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/log.md": "aa5b7a2c3b02a5bf5400817c83c4c17c5e3d4e65056f97409775a7ce6e2a0de9"
+  },
+  "final_status": "PARTIAL_COVERAGE",
+  "bounded_validation": "VALIDATED_FOR_SCOPE_ONLY"
+}

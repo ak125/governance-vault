@@ -1,0 +1,10 @@
+
+/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/blog/interfaces/r6-guide.interfaces.ts
+  196:13  warning  ⚠️ Legacy SEO role literal in OUTPUT context. Use normalizeRoleId() / @repo/seo-roles canonical RoleId. (Legacy values OK in inputs, tests, fixtures, mappings de référence.)  no-restricted-syntax
+
+/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/blog/services/r6-guide.service.ts
+  439:17  warning  ⚠️ Legacy SEO role literal in OUTPUT context. Use normalizeRoleId() / @repo/seo-roles canonical RoleId. (Legacy values OK in inputs, tests, fixtures, mappings de référence.)  no-restricted-syntax
+  521:17  warning  ⚠️ Legacy SEO role literal in OUTPUT context. Use normalizeRoleId() / @repo/seo-roles canonical RoleId. (Legacy values OK in inputs, tests, fixtures, mappings de référence.)  no-restricted-syntax
+
+✖ 3 problems (0 errors, 3 warnings)
+

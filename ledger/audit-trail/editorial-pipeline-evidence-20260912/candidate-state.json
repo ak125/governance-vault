@@ -1,0 +1,30 @@
+[
+  {
+    "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912",
+    "branch": "codex/editorial-pipeline-provenance-20260912",
+    "head": "0c31807c8453c251d70c7575eafcc973f04eed14",
+    "status": "A  backend/src/modules/admin/services/r7-brand-enricher.editorial.test.ts\nM  backend/src/modules/admin/services/r7-brand-enricher.service.ts\nM  backend/src/modules/rag-proxy/rag-proxy.controller.ts\nM  backend/src/modules/rag-proxy/rag-proxy.module.ts\nA  backend/src/modules/rag-proxy/rag-proxy.raw-acquisition.test.ts\nM  backend/src/modules/rag-proxy/services/rag-video-management.service.ts\nA  backend/src/modules/rag-proxy/services/raw-acquisition-client.service.test.ts\nA  backend/src/modules/rag-proxy/services/raw-acquisition-client.service.ts\nA  backend/src/modules/seo-projection/seo-projection-refresh-recovery.test.ts\nA  backend/src/modules/seo-projection/seo-projection-refresh-redis.test.ts\nA  backend/src/modules/seo-projection/seo-projection-refresh.processor.test.ts\nM  backend/src/modules/seo-projection/seo-projection-refresh.processor.ts\nM  backend/src/modules/seo-projection/seo-projection-snapshot.test.ts\nM  backend/src/modules/seo-projection/seo-projection-snapshot.ts\nM  backend/src/modules/seo-projection/seo-projection-write.processor.ts\nM  backend/src/modules/seo-projection/seo-projection-writer-role-scope.test.ts\nM  backend/src/modules/seo-projection/seo-projection-writer.service.ts\nM  backend/src/modules/seo-projection/seo-projection-writer.test.ts\nM  backend/src/modules/seo-projection/seo-projection.types.ts\nA  backend/supabase/migrations/20260912212340_seo_projection_block_outbox.sql\nA  backend/supabase/migrations/20260912231807_seo_projection_refresh_ack.sql\nM  scripts/cron/sync-rag-from-wiki.sh\nM  scripts/rag-sync/README.md\nM  scripts/rag-sync/sync-wiki-exports-to-rag.py\nA  scripts/rag-sync/test_sync_wiki_exports_to_rag.py\nA  scripts/seo-projection/test_block_outbox_transaction.py",
+    "staged_diff_sha256": "92f837afa8c7e8abf66dafbe8a1d7428a79e6873d0d2f75c05e50ff8305419b8"
+  },
+  {
+    "path": "/home/deploy/worktrees/raw-capture-network-20260912",
+    "branch": "codex/raw-capture-network-20260912",
+    "head": "90e901ca20d82323d5faa9f1025d80dc064a7c06",
+    "status": "M  .gitattributes\nM  _scripts/auto-capture-runner.py\nA  _scripts/capture_http.py\nA  _scripts/tests/test_admin_submission.py\nA  _scripts/tests/test_admin_video.py\nM  _scripts/tests/test_auto_capture_runner.py\nA  _scripts/tests/test_capture_http.py",
+    "staged_diff_sha256": "ec45b07ef761f0679e0c9f0d8f7f2e0bb4ca8df7853912717a9e5950e33ab81a"
+  },
+  {
+    "path": "/opt/automecanik/wiki-editorial-qualification-20260912",
+    "branch": "codex/editorial-substance-sections-20260912",
+    "head": "01cea8deda48d84b6a2993cd4bdefe8280082c0b",
+    "status": "M  _scripts/README-build-exports-seo.md\nM  _scripts/build_exports_seo.py\nM  _scripts/compute-confidence-score.py\nM  _scripts/promote.py\nM  _scripts/promotion_decision.py\nM  _scripts/test_build_exports_seo.py\nM  _scripts/test_promote.py\nM  _scripts/test_promotion_decision.py\nM  _scripts/tests/test_confidence_schema_contract.py",
+    "staged_diff_sha256": "cc48ac2164a8bcaa4b2591a879e977f87a0d0870fde04c54eea7fb90ad32e1b2"
+  },
+  {
+    "path": "/home/deploy/worktrees/rag-editorial-consumption-20260912",
+    "branch": "codex/editorial-consumption-20260912",
+    "head": "1dfea97ffcde8d7491b53ea7be00a138576636f7",
+    "status": "A  app/services/index_retirement.py\nM  app/services/knowledge_service.py\nA  docs/editorial-retirement.md\nM  scripts/importers/import_wiki_exports.py\nA  tests/test_editorial_retirement.py\nA  tests/test_f5_import_body.py",
+    "staged_diff_sha256": "fa69a4815135e2b0400aff8aabffa60ce0f07ad1139d632f83bbc25678ed2139"
+  }
+]

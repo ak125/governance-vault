@@ -1,0 +1,130 @@
+FFFFFFF.                                                                 [100%]
+=================================== FAILURES ===================================
+_________ test_high_score_cannot_replace_archived_claim_proof[pending] _________
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-470/test_high_score_cannot_replace0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f2533165660>
+state = 'pending'
+
+    @pytest.mark.parametrize("state", ["pending", "false_captured", "false_verified", "no_hash", "no_anchor", "empty_map", "missing_map"])
+    def test_high_score_cannot_replace_archived_claim_proof(tmp_path, monkeypatch, state):
+        dec, cand, raw = _proof_candidate(tmp_path, monkeypatch, state)
+        decision = dec.canonical_promotion_decision(
+            cand, tmp_path, raw_root=raw, gates=_gates(), compute_score=lambda *a: 0.99)
+        assert decision["evaluation"]["confidence_score"] == 0.99
+>       assert decision["eligible"] is False, decision
+E       AssertionError: {'blocking_reasons': [], 'eligible': True, 'evaluation': {'confidence_score': 0.99, 'gate_engine': 'legacy', 'gate_sta...a256': '54b63f57f64f1feb4764ee621060ee61585dfa342812d38aefc0c05e080f9238'}, ...], 'raw_revision': 'unknown', ...}, ...}
+E       assert True is False
+
+_scripts/test_promotion_decision.py:809: AssertionError
+_____ test_high_score_cannot_replace_archived_claim_proof[false_captured] ______
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-470/test_high_score_cannot_replace1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f2531e73ee0>
+state = 'false_captured'
+
+    @pytest.mark.parametrize("state", ["pending", "false_captured", "false_verified", "no_hash", "no_anchor", "empty_map", "missing_map"])
+    def test_high_score_cannot_replace_archived_claim_proof(tmp_path, monkeypatch, state):
+        dec, cand, raw = _proof_candidate(tmp_path, monkeypatch, state)
+        decision = dec.canonical_promotion_decision(
+            cand, tmp_path, raw_root=raw, gates=_gates(), compute_score=lambda *a: 0.99)
+        assert decision["evaluation"]["confidence_score"] == 0.99
+>       assert decision["eligible"] is False, decision
+E       AssertionError: {'blocking_reasons': [], 'eligible': True, 'evaluation': {'confidence_score': 0.99, 'gate_engine': 'legacy', 'gate_sta...a256': '54b63f57f64f1feb4764ee621060ee61585dfa342812d38aefc0c05e080f9238'}, ...], 'raw_revision': 'unknown', ...}, ...}
+E       assert True is False
+
+_scripts/test_promotion_decision.py:809: AssertionError
+_____ test_high_score_cannot_replace_archived_claim_proof[false_verified] ______
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-470/test_high_score_cannot_replace2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f2531e73ca0>
+state = 'false_verified'
+
+    @pytest.mark.parametrize("state", ["pending", "false_captured", "false_verified", "no_hash", "no_anchor", "empty_map", "missing_map"])
+    def test_high_score_cannot_replace_archived_claim_proof(tmp_path, monkeypatch, state):
+        dec, cand, raw = _proof_candidate(tmp_path, monkeypatch, state)
+        decision = dec.canonical_promotion_decision(
+            cand, tmp_path, raw_root=raw, gates=_gates(), compute_score=lambda *a: 0.99)
+        assert decision["evaluation"]["confidence_score"] == 0.99
+>       assert decision["eligible"] is False, decision
+E       AssertionError: {'blocking_reasons': [], 'eligible': True, 'evaluation': {'confidence_score': 0.99, 'gate_engine': 'legacy', 'gate_sta...a256': '54b63f57f64f1feb4764ee621060ee61585dfa342812d38aefc0c05e080f9238'}, ...], 'raw_revision': 'unknown', ...}, ...}
+E       assert True is False
+
+_scripts/test_promotion_decision.py:809: AssertionError
+_________ test_high_score_cannot_replace_archived_claim_proof[no_hash] _________
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-470/test_high_score_cannot_replace3')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f253212a620>
+state = 'no_hash'
+
+    @pytest.mark.parametrize("state", ["pending", "false_captured", "false_verified", "no_hash", "no_anchor", "empty_map", "missing_map"])
+    def test_high_score_cannot_replace_archived_claim_proof(tmp_path, monkeypatch, state):
+        dec, cand, raw = _proof_candidate(tmp_path, monkeypatch, state)
+        decision = dec.canonical_promotion_decision(
+            cand, tmp_path, raw_root=raw, gates=_gates(), compute_score=lambda *a: 0.99)
+        assert decision["evaluation"]["confidence_score"] == 0.99
+>       assert decision["eligible"] is False, decision
+E       AssertionError: {'blocking_reasons': [], 'eligible': True, 'evaluation': {'confidence_score': 0.99, 'gate_engine': 'legacy', 'gate_sta...a256': '54b63f57f64f1feb4764ee621060ee61585dfa342812d38aefc0c05e080f9238'}, ...], 'raw_revision': 'unknown', ...}, ...}
+E       assert True is False
+
+_scripts/test_promotion_decision.py:809: AssertionError
+________ test_high_score_cannot_replace_archived_claim_proof[no_anchor] ________
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-470/test_high_score_cannot_replace4')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f2531bd2680>
+state = 'no_anchor'
+
+    @pytest.mark.parametrize("state", ["pending", "false_captured", "false_verified", "no_hash", "no_anchor", "empty_map", "missing_map"])
+    def test_high_score_cannot_replace_archived_claim_proof(tmp_path, monkeypatch, state):
+        dec, cand, raw = _proof_candidate(tmp_path, monkeypatch, state)
+        decision = dec.canonical_promotion_decision(
+            cand, tmp_path, raw_root=raw, gates=_gates(), compute_score=lambda *a: 0.99)
+        assert decision["evaluation"]["confidence_score"] == 0.99
+>       assert decision["eligible"] is False, decision
+E       AssertionError: {'blocking_reasons': [], 'eligible': True, 'evaluation': {'confidence_score': 0.99, 'gate_engine': 'legacy', 'gate_sta...a256': '54b63f57f64f1feb4764ee621060ee61585dfa342812d38aefc0c05e080f9238'}, ...], 'raw_revision': 'unknown', ...}, ...}
+E       assert True is False
+
+_scripts/test_promotion_decision.py:809: AssertionError
+________ test_high_score_cannot_replace_archived_claim_proof[empty_map] ________
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-470/test_high_score_cannot_replace5')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f2531e491e0>
+state = 'empty_map'
+
+    @pytest.mark.parametrize("state", ["pending", "false_captured", "false_verified", "no_hash", "no_anchor", "empty_map", "missing_map"])
+    def test_high_score_cannot_replace_archived_claim_proof(tmp_path, monkeypatch, state):
+        dec, cand, raw = _proof_candidate(tmp_path, monkeypatch, state)
+        decision = dec.canonical_promotion_decision(
+            cand, tmp_path, raw_root=raw, gates=_gates(), compute_score=lambda *a: 0.99)
+        assert decision["evaluation"]["confidence_score"] == 0.99
+>       assert decision["eligible"] is False, decision
+E       AssertionError: {'blocking_reasons': [], 'eligible': True, 'evaluation': {'confidence_score': 0.99, 'gate_engine': 'legacy', 'gate_sta...a256': '54b63f57f64f1feb4764ee621060ee61585dfa342812d38aefc0c05e080f9238'}, ...], 'raw_revision': 'unknown', ...}, ...}
+E       assert True is False
+
+_scripts/test_promotion_decision.py:809: AssertionError
+_______ test_high_score_cannot_replace_archived_claim_proof[missing_map] _______
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-470/test_high_score_cannot_replace6')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f2531c0df30>
+state = 'missing_map'
+
+    @pytest.mark.parametrize("state", ["pending", "false_captured", "false_verified", "no_hash", "no_anchor", "empty_map", "missing_map"])
+    def test_high_score_cannot_replace_archived_claim_proof(tmp_path, monkeypatch, state):
+        dec, cand, raw = _proof_candidate(tmp_path, monkeypatch, state)
+        decision = dec.canonical_promotion_decision(
+            cand, tmp_path, raw_root=raw, gates=_gates(), compute_score=lambda *a: 0.99)
+        assert decision["evaluation"]["confidence_score"] == 0.99
+>       assert decision["eligible"] is False, decision
+E       AssertionError: {'blocking_reasons': [], 'eligible': True, 'evaluation': {'confidence_score': 0.99, 'gate_engine': 'legacy', 'gate_sta...a256': '54b63f57f64f1feb4764ee621060ee61585dfa342812d38aefc0c05e080f9238'}, ...], 'raw_revision': 'unknown', ...}, ...}
+E       assert True is False
+
+_scripts/test_promotion_decision.py:809: AssertionError
+=========================== short test summary info ============================
+FAILED _scripts/test_promotion_decision.py::test_high_score_cannot_replace_archived_claim_proof[pending]
+FAILED _scripts/test_promotion_decision.py::test_high_score_cannot_replace_archived_claim_proof[false_captured]
+FAILED _scripts/test_promotion_decision.py::test_high_score_cannot_replace_archived_claim_proof[false_verified]
+FAILED _scripts/test_promotion_decision.py::test_high_score_cannot_replace_archived_claim_proof[no_hash]
+FAILED _scripts/test_promotion_decision.py::test_high_score_cannot_replace_archived_claim_proof[no_anchor]
+FAILED _scripts/test_promotion_decision.py::test_high_score_cannot_replace_archived_claim_proof[empty_map]
+FAILED _scripts/test_promotion_decision.py::test_high_score_cannot_replace_archived_claim_proof[missing_map]
+7 failed, 1 passed, 53 deselected in 1.83s

@@ -1,0 +1,209 @@
+FFFFFFFFF                                                                [100%]
+=================================== FAILURES ===================================
+______ test_native_target_change_during_evaluation_blocks_decision[edit] _______
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-411/test_native_target_change_duri0')
+change = 'edit'
+
+    @pytest.mark.parametrize('change', ['edit', 'remove', 'create'])
+    def test_native_target_change_during_evaluation_blocks_decision(tmp_path, change):
+        dec = _load_decision()
+        candidate, target = _target_fixture(tmp_path)
+        if change == 'create':
+            target.unlink()
+        substance = _clean_substance(tmp_path)
+        def runner(*args):
+            if change == 'remove':
+                target.unlink()
+            else:
+                target.write_text("---\nreview_status: deprecated\n---\nchanged canon\n")
+            return substance, {"status": "PASS"}, {"verdict": "NEW"}, ([], []), True
+        decision = dec.canonical_promotion_decision(candidate, tmp_path, run_evaluators=runner)
+>       assert decision['eligible'] is False
+E       assert True is False
+
+_scripts/test_promotion_decision.py:667: AssertionError
+_____ test_native_target_change_during_evaluation_blocks_decision[remove] ______
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-411/test_native_target_change_duri1')
+change = 'remove'
+
+    @pytest.mark.parametrize('change', ['edit', 'remove', 'create'])
+    def test_native_target_change_during_evaluation_blocks_decision(tmp_path, change):
+        dec = _load_decision()
+        candidate, target = _target_fixture(tmp_path)
+        if change == 'create':
+            target.unlink()
+        substance = _clean_substance(tmp_path)
+        def runner(*args):
+            if change == 'remove':
+                target.unlink()
+            else:
+                target.write_text("---\nreview_status: deprecated\n---\nchanged canon\n")
+            return substance, {"status": "PASS"}, {"verdict": "NEW"}, ([], []), True
+        decision = dec.canonical_promotion_decision(candidate, tmp_path, run_evaluators=runner)
+>       assert decision['eligible'] is False
+E       assert True is False
+
+_scripts/test_promotion_decision.py:667: AssertionError
+_____ test_native_target_change_during_evaluation_blocks_decision[create] ______
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-411/test_native_target_change_duri2')
+change = 'create'
+
+    @pytest.mark.parametrize('change', ['edit', 'remove', 'create'])
+    def test_native_target_change_during_evaluation_blocks_decision(tmp_path, change):
+        dec = _load_decision()
+        candidate, target = _target_fixture(tmp_path)
+        if change == 'create':
+            target.unlink()
+        substance = _clean_substance(tmp_path)
+        def runner(*args):
+            if change == 'remove':
+                target.unlink()
+            else:
+                target.write_text("---\nreview_status: deprecated\n---\nchanged canon\n")
+            return substance, {"status": "PASS"}, {"verdict": "NEW"}, ([], []), True
+        decision = dec.canonical_promotion_decision(candidate, tmp_path, run_evaluators=runner)
+>       assert decision['eligible'] is False
+E       assert True is False
+
+_scripts/test_promotion_decision.py:667: AssertionError
+_____ test_native_target_change_before_apply_refuses_stale_decision[edit] ______
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-411/test_native_target_change_befo0')
+change = 'edit'
+
+    @pytest.mark.parametrize('change', ['edit', 'remove', 'create'])
+    def test_native_target_change_before_apply_refuses_stale_decision(tmp_path, change):
+        dec = _load_decision()
+        candidate, target = _target_fixture(tmp_path)
+        if change == 'create':
+            target.unlink()
+        decision = _decide_with_inputs(dec, candidate, tmp_path, _clean_substance(tmp_path))
+        if change == 'remove':
+            target.unlink()
+        else:
+            target.write_text("---\nreview_status: deprecated\n---\nchanged canon\n")
+        allowed, refusal = dec.authorize_apply(decision, candidate, tmp_path)
+>       assert allowed is False
+E       assert True is False
+
+_scripts/test_promotion_decision.py:683: AssertionError
+____ test_native_target_change_before_apply_refuses_stale_decision[remove] _____
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-411/test_native_target_change_befo1')
+change = 'remove'
+
+    @pytest.mark.parametrize('change', ['edit', 'remove', 'create'])
+    def test_native_target_change_before_apply_refuses_stale_decision(tmp_path, change):
+        dec = _load_decision()
+        candidate, target = _target_fixture(tmp_path)
+        if change == 'create':
+            target.unlink()
+        decision = _decide_with_inputs(dec, candidate, tmp_path, _clean_substance(tmp_path))
+        if change == 'remove':
+            target.unlink()
+        else:
+            target.write_text("---\nreview_status: deprecated\n---\nchanged canon\n")
+        allowed, refusal = dec.authorize_apply(decision, candidate, tmp_path)
+>       assert allowed is False
+E       assert True is False
+
+_scripts/test_promotion_decision.py:683: AssertionError
+____ test_native_target_change_before_apply_refuses_stale_decision[create] _____
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-411/test_native_target_change_befo2')
+change = 'create'
+
+    @pytest.mark.parametrize('change', ['edit', 'remove', 'create'])
+    def test_native_target_change_before_apply_refuses_stale_decision(tmp_path, change):
+        dec = _load_decision()
+        candidate, target = _target_fixture(tmp_path)
+        if change == 'create':
+            target.unlink()
+        decision = _decide_with_inputs(dec, candidate, tmp_path, _clean_substance(tmp_path))
+        if change == 'remove':
+            target.unlink()
+        else:
+            target.write_text("---\nreview_status: deprecated\n---\nchanged canon\n")
+        allowed, refusal = dec.authorize_apply(decision, candidate, tmp_path)
+>       assert allowed is False
+E       assert True is False
+
+_scripts/test_promotion_decision.py:683: AssertionError
+_____ test_native_target_is_captured_even_with_an_explicit_other_baseline ______
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-411/test_native_target_is_captured0')
+
+    def test_native_target_is_captured_even_with_an_explicit_other_baseline(tmp_path):
+        import hashlib
+        dec = _load_decision()
+        candidate, target = _target_fixture(tmp_path)
+        baseline = tmp_path / 'previous.md'
+        baseline.write_text('historical comparison fixture')
+        manifest = dec.capture_input_manifest(candidate, tmp_path, None, baseline)
+        entries = {e['role']: e for e in manifest['input_manifest']}
+>       assert entries['canon_target']['path'] == 'wiki/gamme/filtre-a-huile.md'
+E       KeyError: 'canon_target'
+
+_scripts/test_promotion_decision.py:695: KeyError
+_ test_engine_change_during_evaluation_blocks_immediate_decision[evaluation_engine_revision] _
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-411/test_engine_change_during_eval0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f13b4092650>
+engine = 'evaluation_engine_revision'
+
+    @pytest.mark.parametrize('engine', ['evaluation_engine_revision', 'decision_engine_revision'])
+    def test_engine_change_during_evaluation_blocks_immediate_decision(tmp_path, monkeypatch, engine):
+        dec = _load_decision()
+        candidate, _ = _target_fixture(tmp_path)
+        capture = dec.capture_input_manifest
+        calls = []
+        def changed(*args):
+            result = capture(*args)
+            if calls:
+                result[engine] = 'changed engine fixture'
+            calls.append(1)
+            return result
+        monkeypatch.setattr(dec, 'capture_input_manifest', changed)
+        decision = _decide_with_inputs(dec, candidate, tmp_path, _clean_substance(tmp_path))
+>       assert decision['eligible'] is False
+E       assert True is False
+
+_scripts/test_promotion_decision.py:714: AssertionError
+_ test_engine_change_during_evaluation_blocks_immediate_decision[decision_engine_revision] _
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-411/test_engine_change_during_eval1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f13b4253550>
+engine = 'decision_engine_revision'
+
+    @pytest.mark.parametrize('engine', ['evaluation_engine_revision', 'decision_engine_revision'])
+    def test_engine_change_during_evaluation_blocks_immediate_decision(tmp_path, monkeypatch, engine):
+        dec = _load_decision()
+        candidate, _ = _target_fixture(tmp_path)
+        capture = dec.capture_input_manifest
+        calls = []
+        def changed(*args):
+            result = capture(*args)
+            if calls:
+                result[engine] = 'changed engine fixture'
+            calls.append(1)
+            return result
+        monkeypatch.setattr(dec, 'capture_input_manifest', changed)
+        decision = _decide_with_inputs(dec, candidate, tmp_path, _clean_substance(tmp_path))
+>       assert decision['eligible'] is False
+E       assert True is False
+
+_scripts/test_promotion_decision.py:714: AssertionError
+=========================== short test summary info ============================
+FAILED _scripts/test_promotion_decision.py::test_native_target_change_during_evaluation_blocks_decision[edit]
+FAILED _scripts/test_promotion_decision.py::test_native_target_change_during_evaluation_blocks_decision[remove]
+FAILED _scripts/test_promotion_decision.py::test_native_target_change_during_evaluation_blocks_decision[create]
+FAILED _scripts/test_promotion_decision.py::test_native_target_change_before_apply_refuses_stale_decision[edit]
+FAILED _scripts/test_promotion_decision.py::test_native_target_change_before_apply_refuses_stale_decision[remove]
+FAILED _scripts/test_promotion_decision.py::test_native_target_change_before_apply_refuses_stale_decision[create]
+FAILED _scripts/test_promotion_decision.py::test_native_target_is_captured_even_with_an_explicit_other_baseline
+FAILED _scripts/test_promotion_decision.py::test_engine_change_during_evaluation_blocks_immediate_decision[evaluation_engine_revision]
+FAILED _scripts/test_promotion_decision.py::test_engine_change_during_evaluation_blocks_immediate_decision[decision_engine_revision]
+9 failed, 35 deselected in 0.31s

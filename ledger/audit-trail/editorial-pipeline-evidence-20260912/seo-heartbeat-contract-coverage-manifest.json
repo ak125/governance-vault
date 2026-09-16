@@ -1,0 +1,78 @@
+{
+  "observed_date": "2026-09-13",
+  "scope_requested": "Continuer la boucle editoriale fiable, collecte utile, scores et anti-doublons",
+  "scope_actually_scanned": "Contrat documentaire IA-SEO Master et API coverage; controles R3 precedents reutilises",
+  "files_read_count": 13,
+  "files": [
+    "app:CLAUDE.md",
+    "app:.claude/rules/deployment.md",
+    "app:.claude/canon-mirrors/agent-exit-contract.md",
+    "app:audit/registry/canonical.json (jq filtre)",
+    "app:.claude/knowledge/REPO_MAP.md (extraits)",
+    "app:.claude/knowledge/modules/admin.md",
+    "app:log.md (80 dernieres lignes)",
+    "app:agents/seo-content/AGENTS.md",
+    "app:agents/cmo/AGENTS.md (extraits)",
+    "app:backend/src/modules/admin/controllers/internal-seo-audit.controller.ts",
+    "app:backend/src/modules/admin/controllers/internal-seo-audit.coverage.test.ts",
+    "app:backend/src/database/types/database.types.ts (colonnes utilisees)",
+    "app:scripts/agents/validate-agents-md.sh"
+  ],
+  "count_basis": "Fichiers applicatifs du perimetre identifie, extraits inclus; journaux et rapports exclus du compte. Regles backend, guardrails, security-hooks et agent-doc-search deja lues au lot precedent, inchangees et reutilisees.",
+  "roots": {
+    "app": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912",
+    "vault": "/opt/automecanik/governance-editorial-pipeline-20260912"
+  },
+  "authorization": "Poursuite et corrections demandees; candidat isole uniquement",
+  "corrections_applied": [
+    "Instructions IA-SEO alignees sur les vrais champs; WIKI non evalue explicite; audit des contenus existants et reprise du parcours",
+    "Liste complete des candidats R3 avec pg_id; retrait des exclusions documentaires RAG de cet inventaire",
+    "Cinq lectures paginees avec comptage exact, ordre stable et erreur explicite si lecture incomplete ou total change",
+    "Presence de contenu stocke non vide independante du marqueur enrichissement",
+    "9 tests de regression de couverture"
+  ],
+  "corrections_proposed": [
+    "Verifier les instructions effectivement chargees et les endpoints disponibles avant raccordement runtime",
+    "Completer collecte utile et qualification WIKI puis preuve du contenu projete servi"
+  ],
+  "validation_executed": {
+    "before": "9 echecs /9 dans nouvelle suite avant correction",
+    "after": "22 PASS /2 suites: 9 coverage et 13 HTTP R3",
+    "database": "Client Supabase installe, transport en memoire; aucune base partagee",
+    "lint": "ESLint 2 fichiers PASS",
+    "docs": "Validateur AGENTS 0 blocage /0 avertissement apres restauration des rubriques obligatoires",
+    "diff": "Diff-check cible PASS",
+    "runtime": "Non inspecte ni active; instructions du depot ne prouvent pas instructions chargees"
+  },
+  "excluded_paths": [
+    "Autres fichiers preexistants modifies du worktree",
+    "DB et corpus partages",
+    "Configuration effective Paperclip, crons et queues",
+    "Rendu public et URLs indexees"
+  ],
+  "unscanned_zones": [
+    "Boucle active en service",
+    "Performances et privileges de la base reelle",
+    "Preuves documentaires du catalogue",
+    "Classement Google"
+  ],
+  "remaining_unknowns": [
+    "Presence de texte stocke ne prouve ni contenu visible ni completude",
+    "Pagination non transactionnelle: modifications concurrentes a total constant non detectees",
+    "Lecture globale des cinq tables; cout sur volume reel non mesure",
+    "API candidate non deployee; docs non confirmees chargees",
+    "Compteurs p1/p2 historiques conserves pour compatibilite; aucun verdict WIKI",
+    "Qualite factuelle et contenu projete servi a verifier separement"
+  ],
+  "patch_sha256": "7c8cf37709bb83c5af555e796df374c298717206fbd24249aba6ea4c6e7d9a63",
+  "patch_scope": "Delta sur index du lot R3 API precedent + nouveau test; pas un patch autonome depuis HEAD",
+  "evidence": [
+    "seo-heartbeat-contract.patch",
+    "seo-heartbeat-contract-before.log",
+    "seo-heartbeat-contract-after.log",
+    "seo-heartbeat-contract-agent-lint.log",
+    "seo-heartbeat-contract-lint.log",
+    "seo-heartbeat-contract-diffcheck.log"
+  ],
+  "final_status": "PARTIAL_COVERAGE"
+}

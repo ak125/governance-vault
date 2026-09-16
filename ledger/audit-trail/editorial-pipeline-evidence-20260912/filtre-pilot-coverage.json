@@ -1,0 +1,126 @@
+{
+  "scope_requested": "Continuer la boucle par un manque utile du pilote filtre a huile",
+  "scope_actually_scanned": "Guide achat R6 servi en DEV, proposition WIKI filtre-a-huile, coverage et source catalogue, source technique FILTRON et passage MANN+HUMMEL transmission, capture et qualification natives du candidat",
+  "files_read_count": 39,
+  "count_basis": "Explicit file reads, including indicated excerpts; automatic validator reads and Git object comparisons excluded from this count.",
+  "excluded_paths": [
+    "DB writes",
+    "contenus indexes",
+    "prix/stock",
+    "canon changes",
+    "runtime schedules",
+    "ancien candidat RAW",
+    "autres proposals"
+  ],
+  "unscanned_zones": [
+    "rendu public actuel (403)",
+    "toutes les autres pages R",
+    "exactitude de tous les faits restants du pilote",
+    "droits de publication de la capture",
+    "projection et rendu du nouveau passage"
+  ],
+  "corrections_proposed": [
+    "Remplacer generalisation anti-retour obligatoire par presence selon conception",
+    "Rattacher affirmation au passage capture et inventaire RAW natif",
+    "Exclure les donnees de transmission comme preuve directe du filtre moteur"
+  ],
+  "corrections_applied": [
+    "Demandes owner corriger/ameliorer/continuer: candidat RAW courant isole, domaine FILTRON niveau2 et intention WIKI pg_id7, une capture immutable",
+    "Proposition/coverage/source-catalog WIKI candidat modifies; aucune promotion"
+  ],
+  "validation_executed": [
+    "Schemas natifs allowlist/worklist PASS",
+    "Controle de secrets 8.18.4 du depot, archive officielle et checksum verifies; executable local uniquement",
+    "Gate I PASS et Gate J PASS dans deux executions distinctes",
+    "Repetition collecte: SKIP duplicate_content_hash, un seul fichier",
+    "Frontmatter et coverage-map strict PASS",
+    "Gate natif raw_ref sur la seule source FILTRON: zero echec/warning; hash fichier/body recalcules",
+    "Formule confidence_score check PASS 0.46; promoteur dry-run BLOCKED avant et apres",
+    "git diff --check sur trois fichiers WIKI PASS"
+  ],
+  "remaining_unknowns": [
+    "Score 0.46 bloque avant evaluation exhaustive: ne pas conclure autres gates PASS",
+    "Licence inconnue, CAPTURED_NEEDS_REVIEW; WIKI proposed, tous exports false",
+    "Le texte servi en DEV est celui observe, pas la revision candidate",
+    "La correction ciblee ne ferme pas les autres affirmations du pilote"
+  ],
+  "page_evidence": {
+    "url": "http://127.0.0.1:3000/blog-pieces-auto/guide-achat/filtre-a-huile",
+    "environment": "DEV",
+    "http_status": 200,
+    "capture_file_written_at": "2026-09-13T21:38:18.282705+00:00",
+    "html_sha256": "fb2d6b2aefec9ee242a42546b99cea89b86bd57baf0dc80238dda62a2297fea8",
+    "public_reads": {
+      "guide": "403",
+      "conseils": "403"
+    },
+    "role": "R6_GUIDE_ACHAT",
+    "role_basis": "route guide-achat et rapport role-lifecycle precedent, pas nouvelle classification globale"
+  },
+  "source_link": {
+    "source_slug": "filtron_oem_clapets_filtre_huile",
+    "native_cross_repo_gate_failures": [],
+    "native_cross_repo_gate_warnings": [],
+    "raw_file_sha256": "sha256:809c3efd864a3be850c5e63ba2d400064b61dcd4090342b171d45ceba11c0178",
+    "extracted_body_sha256": "sha256:b8431d6ff4d46f8f4e7acf118fa89b3679683572706f59d159e6ab5e1c01ba6f",
+    "capture_status": "CAPTURED_NEEDS_REVIEW",
+    "license_status": "unknown",
+    "claim_anchor_in_proposal": true,
+    "proposal_review_status": "proposed",
+    "exportable": {
+      "rag": false,
+      "seo": false,
+      "support": false
+    },
+    "semantic_validation": "not_granted"
+  },
+  "candidate_roots": {
+    "wiki": "/opt/automecanik/wiki-editorial-qualification-20260912",
+    "raw": "/home/deploy/worktrees/raw-filtre-pilot-20260913"
+  },
+  "raw_base": "7565934186fced370f78ea64d7616b912a0c9a6c",
+  "wiki_base": "01cea8deda48d84b6a2993cd4bdefe8280082c0b",
+  "final_status": "PARTIAL_COVERAGE",
+  "bounded_status": "VALIDATED_FOR_SCOPE_ONLY",
+  "files": [
+    "app:CLAUDE.md",
+    "app:audit/registry/canonical.json (filtered jq)",
+    "app:.claude/knowledge/REPO_MAP.md (excerpt)",
+    "app:log.md (tail)",
+    "app:workspaces/seo-batch/.claude/rules/seo-batch.md",
+    "app:workspaces/seo-batch/.claude/skills/seo-content-loop/SKILL.md",
+    "app:scripts/ops/check-repo-freshness.sh",
+    "catalogue:LECTURE-EDITORIALE.md",
+    "catalogue:current-manifest.json (filtered metadata)",
+    "collection:object 39c43f8db35d0686d976633f139a410c5f0c7aed765df26c568f2c3bc62936f6",
+    "wiki:CLAUDE.md",
+    "wiki:_scripts/raw_to_wiki_content_loop_pilot.py (excerpt)",
+    "wiki:proposals/filtre-a-huile.md",
+    "wiki:proposals/_coverage/filtre-a-huile.coverage.yaml",
+    "wiki:_meta/source-policy.md (9.3)",
+    "wiki:_meta/source-catalog.yaml (target entry)",
+    "wiki:_meta/schema/source-catalog-entry.schema.json",
+    "wiki:_meta/schema/coverage-map.schema.json",
+    "wiki:_scripts/gates/claim_gate.py",
+    "wiki:_scripts/gates/source_gate.py",
+    "wiki:_scripts/promotion_decision.py (targeted search)",
+    "wiki:_scripts/promote.py (CLI flags)",
+    "wiki:_scripts/check-coverage-map.py",
+    "wiki:_scripts/quality-gates.py (native cross-repo gate)",
+    "wiki:_scripts/validate-frontmatter.py",
+    "wiki:_scripts/compute-confidence-score.py (excerpt)",
+    "raw:CLAUDE.md",
+    "raw:docs/agent-capture-policy.md",
+    "raw:_scripts/auto-capture-runner.py (relevant functions and upstream diff)",
+    "raw:_schemas/ingestion-worklist.schema.json",
+    "raw:manifests/ingestion-allowlist.yaml",
+    "raw:manifests/ingestion-worklist.yaml",
+    "raw:manifests/checksums.json (one lookup)",
+    "raw:manifests/source-inventory.csv (one lookup)",
+    "raw:.pre-commit-config.yaml (version pin)",
+    "raw:.github/workflows/lint.yml (targeted search)",
+    "raw:captured FILTRON source",
+    "vault:ops/moc/MOC-Decisions.md (targeted status)",
+    "DEV:/tmp/filtre-guide-dev.html"
+  ]
+}

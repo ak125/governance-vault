@@ -1,0 +1,21 @@
+ERROR
+
+======================================================================
+ERROR: setUpClass (__main__.BlockOutboxTransactionTest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/scripts/seo-projection/test_block_outbox_transaction.py", line 70, in setUpClass
+    cls.sql(LEGACY_FIXTURE)
+  File "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/scripts/seo-projection/test_block_outbox_transaction.py", line 88, in sql
+    raise AssertionError(result.stderr)
+AssertionError: FATAL:  terminating connection due to administrator command
+server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+connection to server was lost
+
+
+----------------------------------------------------------------------
+Ran 0 tests in 1.296s
+
+FAILED (errors=1)

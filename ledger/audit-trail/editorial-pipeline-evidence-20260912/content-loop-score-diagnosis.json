@@ -1,0 +1,989 @@
+{
+  "observed_at": "2026-09-13T08:29:06.403065+00:00",
+  "scope_requested": "Diagnose editorial control loop, score validity and useful-source acquisition",
+  "scope_actually_scanned": "Targeted VPS code and schedules, latest daily report, bounded legacy log tail, two scalar-score counterexamples",
+  "files_read_count": 40,
+  "files": [
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/CLAUDE.md",
+      "sha256": "e21a7597ff6b35dabf9c9a2d54b0596b352fd951b65dd63cc862ef4fbe6e401e",
+      "read_scope": "targeted excerpts or filtered fields; not necessarily whole file"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/scripts/ops/check-repo-freshness.sh",
+      "sha256": "e506afcf3e1cf51335816e3f58a50720033ffbca1a202aed88f2fe9a3127bc30",
+      "read_scope": "targeted excerpts or filtered fields; not necessarily whole file"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/audit/registry/canonical.json",
+      "sha256": "683d14cb8cda9fbc309c29b4f40f9339398d8c4934865eb1bd71b106326f2955",
+      "read_scope": "targeted excerpts or filtered fields; not necessarily whole file"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/.claude/knowledge/REPO_MAP.md",
+      "sha256": "f77131828864e0c96f7c1e648ac9b9f0c3fad912ec809d0e3973f6806acaeb80",
+      "read_scope": "targeted excerpts or filtered fields; not necessarily whole file"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/.claude/knowledge/README.md",
+      "sha256": "8985d5067f27b0271b7f997515299855ccce13b4360defb27173e3c4f4404412",
+      "read_scope": "targeted excerpts or filtered fields; not necessarily whole file"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/.claude/knowledge/modules/admin.md",
+      "sha256": "e7e3b0351b47b8299d8b064229f66fe9a39509f9bc1fd16136f87eea85c2fede",
+      "read_scope": "targeted excerpts or filtered fields; not necessarily whole file"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/.claude/knowledge/modules/seo-monitoring.md",
+      "sha256": "6a28bb7f700aed4e08b72fcf90ee72d5a508fed3b165d2230cc7ff5c18252642",
+      "read_scope": "targeted excerpts or filtered fields; not necessarily whole file"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/log.md",
+      "sha256": "4262296714233cd728c5e1222fdfc430e2c5e896913a505d00e3eea646b9ce0f",
+      "read_scope": "targeted excerpts or filtered fields; not necessarily whole file"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/admin/services/conseil-quality-scorer.service.ts",
+      "sha256": "58986712b581e4cbcae53e8cb2d96ca9204adbf7ec5d475a37649b5c2f18f7a0",
+      "read_scope": "targeted excerpts or filtered fields; not necessarily whole file"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/admin/services/quality-scoring-engine.service.ts",
+      "sha256": "4af94977c484fa0af342f602bfac14dbd04d0aa1a5dd80edf98d9560a3e18629",
+      "read_scope": "targeted excerpts or filtered fields; not necessarily whole file"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/config/conseil-pack.constants.ts",
+      "sha256": "9e752c5ce8ef0fb1b8b67fda51dc177b1a59eaa25ca2c0d43c036578b15ad303",
+      "read_scope": "targeted excerpts or filtered fields; not necessarily whole file"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/workspaces/seo-batch/.claude/skills/seo-content-loop/SKILL.md",
+      "sha256": "6faf530e0ef2eb074822068aa576dd3fb30e8f7343be00a987c61fd6c1601e58",
+      "read_scope": "targeted excerpts or filtered fields; not necessarily whole file"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/CLAUDE.md",
+      "sha256": "507ec6e1bc8141d6d8f8ec3d05b6057480895052c9878dd7300e1b1225b4c615",
+      "read_scope": "targeted excerpts or filtered fields; not necessarily whole file"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/compute-confidence-score.py",
+      "sha256": "9653c2a16256ab5da0cf930ff38853ddac9246b676099ae26e957139e999c7b7",
+      "read_scope": "targeted excerpts or filtered fields; not necessarily whole file"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/shadow_score.py",
+      "sha256": "86a3df86e525c4f07e0cccc880682f53042e8e7b2b0a1c4416c810fecdccf776",
+      "read_scope": "targeted excerpts or filtered fields; not necessarily whole file"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/raw_to_wiki_content_loop_pilot.py",
+      "sha256": "090ffa59a11b605b0417831adf835b90305c4101c9e43c0510d2ea3d40e82d6e",
+      "read_scope": "targeted excerpts or filtered fields; not necessarily whole file"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/promote.py",
+      "sha256": "9cd8455dbf0786295fa4381809bc0316c23ce3d45862227e18525f69097dffcb",
+      "read_scope": "targeted excerpts or filtered fields; not necessarily whole file"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/promotion_decision.py",
+      "sha256": "ad4d21a7122a9f00dd2ee347719e315ea19d5882e1586dff33b6aeea77337c90",
+      "read_scope": "targeted excerpts or filtered fields; not necessarily whole file"
+    },
+    {
+      "path": "/home/deploy/worktrees/raw-capture-network-20260912/CLAUDE.md",
+      "sha256": "b3b5abe469eb53ee870820c40499c5b963a9fdd14bf86e5f6f3e2964fa3517bf",
+      "read_scope": "targeted excerpts or filtered fields; not necessarily whole file"
+    },
+    {
+      "path": "/home/deploy/worktrees/raw-capture-network-20260912/docs/agent-capture-policy.md",
+      "sha256": "60fb0fe5be1767d32351c7d0a31fcaabfbab95e3e916a7d025906dca702c0c45",
+      "read_scope": "targeted excerpts or filtered fields; not necessarily whole file"
+    },
+    {
+      "path": "/home/deploy/worktrees/raw-capture-network-20260912/_scripts/auto-capture-runner.py",
+      "sha256": "91c975d021796382708160467991ad2803d65996165cd3ca7381cad7f61f0f96",
+      "read_scope": "targeted excerpts or filtered fields; not necessarily whole file"
+    },
+    {
+      "path": "/opt/automecanik/governance-editorial-pipeline-20260912/CLAUDE.md",
+      "sha256": "6cd7f1d8b1c9318a4f98322c96476af3c3339f4934f473c0e5feae3297a0eb76",
+      "read_scope": "targeted excerpts or filtered fields; not necessarily whole file"
+    },
+    {
+      "path": "/opt/automecanik/governance-editorial-pipeline-20260912/ledger/decisions/adr/ADR-091-wiki-score-recalibration.md",
+      "sha256": "41be2a922f3887b675389eb7240af692432fc2c99d40a99c497911b138f14446",
+      "read_scope": "targeted excerpts or filtered fields; not necessarily whole file"
+    },
+    {
+      "path": "/opt/automecanik/governance-editorial-pipeline-20260912/ledger/decisions/adr/ADR-096-governed-automatic-source-discovery.md",
+      "sha256": "3a2ace8b27f916946aaf813f5dd119e72a4286c94c2721d2b416f25312ae8c6f",
+      "read_scope": "targeted excerpts or filtered fields; not necessarily whole file"
+    },
+    {
+      "path": "/opt/automecanik/rag/scripts/pipeline/auto-enrich-pipeline.sh",
+      "sha256": "1828062a1cb52273625f4ef99616cab850ae591e2623e216d5c785edae1fc302",
+      "read_scope": "targeted excerpts or filtered fields; not necessarily whole file"
+    },
+    {
+      "path": "/opt/automecanik/rag/scripts/watch-inbox.sh",
+      "sha256": "f14dca2e69e6b93f81869acd28e974d03bbd571232d956f0afe3abb6b1aaa3ac",
+      "read_scope": "targeted excerpts or filtered fields; not necessarily whole file"
+    },
+    {
+      "path": "/opt/automecanik/rag/logs/auto-enrich.log",
+      "sha256": "aa4dc85a4433f66ffd6f80165277642ef2c39c214e9586ad69e20d9bef27a3fd",
+      "read_scope": "targeted excerpts or filtered fields; not necessarily whole file"
+    },
+    {
+      "path": "/home/deploy/.local/lib/knowledge-jobs/run.py",
+      "sha256": "e4bfc17d126877beb1e8670f6310571f7397a0ce084212d5aa4a517ee76965dc",
+      "read_scope": "targeted excerpts or filtered fields; not necessarily whole file"
+    },
+    {
+      "path": "/home/deploy/.local/lib/knowledge-jobs/collection/collect.py",
+      "sha256": "3c7654c9f825159f691e5425cb66d45fa024bf9874befd4d687c4c0b33448daa",
+      "read_scope": "targeted excerpts or filtered fields; not necessarily whole file"
+    },
+    {
+      "path": "/home/deploy/.local/lib/knowledge-jobs/collection/sources.json",
+      "sha256": "0b7ed4abdc040305e5296c792570a12ed0a2c1acd34a593104afdca828b8bc79",
+      "read_scope": "targeted excerpts or filtered fields; not necessarily whole file"
+    },
+    {
+      "path": "/home/deploy/.local/state/knowledge-jobs/latest.json",
+      "sha256": "baadc756ea5d52c396d1075b2629d8fba15c69f64ccf43077d8c4cdec29474ce",
+      "read_scope": "targeted excerpts or filtered fields; not necessarily whole file"
+    },
+    {
+      "path": "/home/deploy/.config/systemd/user/knowledge-jobs.service",
+      "sha256": "b6f60c921cc6b854aebbe12cdfeeba3414ffef4a3a5cd6c6efa19d9e5766641a",
+      "read_scope": "targeted excerpts or filtered fields; not necessarily whole file"
+    },
+    {
+      "path": "/home/deploy/.config/systemd/user/knowledge-jobs.timer",
+      "sha256": "7f1314446c31e107e8d4ee41390ce572fd0788f2d7304574c1825adbbcb1c675",
+      "read_scope": "targeted excerpts or filtered fields; not necessarily whole file"
+    },
+    {
+      "path": "/home/deploy/.config/systemd/user/rag-watcher.service",
+      "sha256": "a6bd6b1513e58fb9c40a5639987fa7ed9cd99f61e6f0330d181092d3692861d5",
+      "read_scope": "targeted excerpts or filtered fields; not necessarily whole file"
+    },
+    {
+      "path": "/etc/systemd/system/paperclip-seo-lead.service",
+      "sha256": "2065fa36cb7c0970125a7b24e66329b7343f739922b68ce3009ec44b47ab79bc",
+      "read_scope": "targeted excerpts or filtered fields; not necessarily whole file"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/seo/r2/services/r2-commercial-distinctiveness.service.ts",
+      "ref": "origin/main",
+      "sha256": "a993fed5486c7e9d51f7091ba087925ce2498f8f63ace16ab12b383786f81cfc",
+      "read_scope": "targeted excerpts"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/seo/validation/quality-validator.service.ts",
+      "ref": "origin/main",
+      "sha256": "235c36ef17bbb11a6eebd68ddc9919a3e3c73f503f6a161f8ac99e3cb5fae21b",
+      "read_scope": "targeted excerpts"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/seo/validation/page-role-validator.service.ts",
+      "ref": "origin/main",
+      "sha256": "e65a4644791f30825d6d8ac0c04500a29aadf749a290323305455fe90fc1ddb8",
+      "read_scope": "targeted excerpts"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/admin/services/r8-owned-editorial.composer.ts",
+      "ref": "origin/main",
+      "sha256": "29f0ac7539a78993aae13be83efdf9f9dee74680c8cbc9b956eab7144a4b312b",
+      "read_scope": "targeted excerpts"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/scripts/qa/r8-diversity-check.py",
+      "ref": "origin/main",
+      "sha256": "f20843cafda0027afc63b901bce9849790a9e0103254c68acc5f1a7f78e6edad",
+      "read_scope": "targeted excerpts"
+    }
+  ],
+  "app_head": "0c31807c8453c251d70c7575eafcc973f04eed14",
+  "app_origin_main": "d1457bf0424177e6995d84aee791ac09f4fb5285",
+  "app_scoring_files_vs_main": "no diff for both services and scoring/conseil configs; app candidate overall 10 commits behind main",
+  "wiki_head": "01cea8deda48d84b6a2993cd4bdefe8280082c0b",
+  "counterexamples": {
+    "app": {
+      "scope": "scoreSection only; no DB, no publication",
+      "section": "S1",
+      "content": "banane repeated 60 times",
+      "sources": "not-a-source",
+      "result": {
+        "score": 100,
+        "penalties": []
+      },
+      "no_sources_result": {
+        "score": 85,
+        "penalties": [
+          {
+            "flag": "NO_SOURCES",
+            "points": 15
+          }
+        ]
+      }
+    },
+    "wiki": {
+      "scope": "compute_score only; full gates not exercised",
+      "content": "banane repeated 10 times per required section",
+      "sources": "unverified confidence declarations",
+      "score": 1.0
+    }
+  },
+  "daily_runtime": {
+    "at": "20260913T060059.292712Z",
+    "errors": {},
+    "collection": {
+      "checked_at": "2026-09-13T06:00:59.385679+00:00",
+      "collector_sha256": "411dd503963a633626b7b002c4309064b2a1f0d794f23c8da980df151063e2d9",
+      "changed_sources": [
+        "github-nestjs",
+        "github-alliance",
+        "github-auto-pieces",
+        "vps-nestjs",
+        "vps-vault"
+      ],
+      "documents": 16998,
+      "unique_contents": 7343,
+      "duplicate_occurrences": 9655,
+      "source_errors": {},
+      "github_reused": 4,
+      "model_calls": 0,
+      "navigation": "/home/deploy/.local/lib/knowledge-jobs/collection/data/navigation/README.md"
+    },
+    "wiki": {
+      "eligible": 0,
+      "promoted": 0,
+      "blocked": 15,
+      "status": "validated"
+    },
+    "blocker_counts": {
+      "SOURCE_DIVERSITY": 14,
+      "SUBSTANCE_SCORE": 15,
+      "TRUTH_LEVEL": 7,
+      "SAFETY_HUMAN_REVIEW": 3,
+      "GATE_RISK": 3,
+      "NUMERIC_HIGH_HARM": 1
+    }
+  },
+  "legacy_runtime": {
+    "scheduled": "every 30 minutes; also PDF watcher",
+    "last_observed_run_local": "2026-09-13T10:00:01+02:00",
+    "error": "INTERNAL_API_KEY not set",
+    "action_taken": "none"
+  },
+  "corrections_proposed": [
+    "Calibrate existing scores against independently assessed useful content; separate structural completeness, evidence and actual outcomes",
+    "Wire unresolved editorial questions to governed source discovery and claim-specific acquisition; extend existing RAW path",
+    "Keep document inventory distinct from editorial improvement; expose no progress and unresolved blockers",
+    "Reconcile obsolete skill guidance with current automatic WIKI decision and replace rank-1-certification language",
+    "Treat stale legacy RAG scheduling separately; do not enable by adding credentials",
+    "Integrate existing SEO role/catalogue/diversity gates and rendered-page/inter-page duplicate checks into calibration; do not infer usefulness from unique text fingerprints"
+  ],
+  "corrections_applied": [],
+  "validation_executed": [
+    "Native scoring counterexamples, with isolated inputs only",
+    "Current remote refs/freshness and targeted source diff",
+    "Read-only systemd timer and service status, latest runtime summary, bounded log tail",
+    "Vault orphan/link checks passed",
+    "Changed Markdown whitespace check passed"
+  ],
+  "excluded_paths": [
+    "Secrets, credentials, private source document contents, shared DB and indexes"
+  ],
+  "unscanned_zones": [
+    "Production rendered pages and browser flows",
+    "Search Console query/page outcomes and competitor SERPs",
+    "All alternative orchestrators and schedules on other hosts",
+    "Full RAW and WIKI content corpus and factual claim accuracy",
+    "End-to-end execution of discovery, extraction, publication and downstream consumption"
+  ],
+  "remaining_unknowns": [
+    "Which public pages are underperforming and their search intents",
+    "Calibration error rates on real editorial samples",
+    "Whether a separate source-discovery executor operates outside inspected surfaces",
+    "Whether candidates with high misleading scalar scores pass every other publication gate",
+    "Effective wiring of SEO/duplicate controls and observed results on rendered sibling and cross-role pages"
+  ],
+  "final_status": "PARTIAL_COVERAGE",
+  "seo_anti_duplicate_addendum": {
+    "requested": true,
+    "code_reads": [
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/seo/r2/services/r2-commercial-distinctiveness.service.ts",
+        "ref": "origin/main",
+        "sha256": "a993fed5486c7e9d51f7091ba087925ce2498f8f63ace16ab12b383786f81cfc",
+        "read_scope": "targeted excerpts"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/seo/validation/quality-validator.service.ts",
+        "ref": "origin/main",
+        "sha256": "235c36ef17bbb11a6eebd68ddc9919a3e3c73f503f6a161f8ac99e3cb5fae21b",
+        "read_scope": "targeted excerpts"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/seo/validation/page-role-validator.service.ts",
+        "ref": "origin/main",
+        "sha256": "e65a4644791f30825d6d8ac0c04500a29aadf749a290323305455fe90fc1ddb8",
+        "read_scope": "targeted excerpts"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/admin/services/r8-owned-editorial.composer.ts",
+        "ref": "origin/main",
+        "sha256": "29f0ac7539a78993aae13be83efdf9f9dee74680c8cbc9b956eab7144a4b312b",
+        "read_scope": "targeted excerpts"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/scripts/qa/r8-diversity-check.py",
+        "ref": "origin/main",
+        "sha256": "f20843cafda0027afc63b901bce9849790a9e0103254c68acc5f1a7f78e6edad",
+        "read_scope": "targeted excerpts"
+      }
+    ],
+    "required_checks": [
+      "canonical section identity",
+      "within-page editorial repetition",
+      "useful differences between sibling pages",
+      "page role and search intent",
+      "post-composition rendered content",
+      "inter-page canonical and link contracts",
+      "visible content versus structured data",
+      "observed query/page outcomes"
+    ],
+    "caveats": [
+      "Text fingerprint uniqueness is not information gain",
+      "Similar facts or shared necessary warnings may legitimately repeat",
+      "No universal duplication threshold assumed",
+      "No automatic indexed SEO mutations or page retirement"
+    ],
+    "status": "requirements documented; runtime not verified"
+  },
+  "rules_review_20260913": {
+    "observed_at": "2026-09-13T08:48:04.868965+00:00",
+    "scope_requested": "Reverifier les regles avant validation et corriger ou ameliorer si necessaire",
+    "scope_actually_scanned": "Statuts de 20 ADRs, extraits normatifs pertinents, instructions du workspace et decision WIKI ; correction de trois documents derives uniquement",
+    "files_read_count": 33,
+    "files": [
+      {
+        "path": "/opt/automecanik/governance-editorial-pipeline-20260912/ledger/decisions/adr/ADR-031-four-layer-content-architecture.md",
+        "sha256": "ab0d1c7d1fcdfdf7845d52b65d87103b1cf88598893a1cef7b7297768a27de37",
+        "status": "accepted",
+        "superseded_by": [],
+        "read_scope": "frontmatter and headings; targeted body excerpts where relevant, not an exhaustive body audit"
+      },
+      {
+        "path": "/opt/automecanik/governance-editorial-pipeline-20260912/ledger/decisions/adr/ADR-039-wiki-frontmatter-zod-canon.md",
+        "sha256": "81c5e4ac4f27e7eb95619371fd3d8ee082e8b3cd2373f9c5f55a82c85582331c",
+        "status": "accepted",
+        "superseded_by": [],
+        "read_scope": "frontmatter and headings; targeted body excerpts where relevant, not an exhaustive body audit"
+      },
+      {
+        "path": "/opt/automecanik/governance-editorial-pipeline-20260912/ledger/decisions/adr/ADR-046-r-stack-single-generator-and-layers.md",
+        "sha256": "b17c88da6c21d3be468c8f8b193505f41d6538b58e6883c81cb4c58de973f4b8",
+        "status": "accepted",
+        "superseded_by": [],
+        "read_scope": "frontmatter and headings; targeted body excerpts where relevant, not an exhaustive body audit"
+      },
+      {
+        "path": "/opt/automecanik/governance-editorial-pipeline-20260912/ledger/decisions/adr/ADR-047-seo-role-contracts-as-code.md",
+        "sha256": "a02e5450c65f7f407e148cc07c3eb6d3b24466ffc291881f3d44e8bcb6aa4360",
+        "status": "accepted",
+        "superseded_by": [],
+        "read_scope": "frontmatter and headings; targeted body excerpts where relevant, not an exhaustive body audit"
+      },
+      {
+        "path": "/opt/automecanik/governance-editorial-pipeline-20260912/ledger/decisions/adr/ADR-059-seo-runtime-projection.md",
+        "sha256": "8633d123d04994d2a9fbc24a3c6dea6d6d2f9a9577c8b09be39e3848413db737",
+        "status": "accepted",
+        "superseded_by": [],
+        "read_scope": "frontmatter and headings; targeted body excerpts where relevant, not an exhaustive body audit"
+      },
+      {
+        "path": "/opt/automecanik/governance-editorial-pipeline-20260912/ledger/decisions/adr/ADR-062-repository-contract-system-meta-model.md",
+        "sha256": "82543b8a84d916432c84b56eafc45700e545374eaee4866fdf659cba23099115",
+        "status": "accepted",
+        "superseded_by": [],
+        "read_scope": "frontmatter and headings; targeted body excerpts where relevant, not an exhaustive body audit"
+      },
+      {
+        "path": "/opt/automecanik/governance-editorial-pipeline-20260912/ledger/decisions/adr/ADR-066-r2-content-composition-v2.md",
+        "sha256": "ae4ecb3c1be9de1e12057e0c6368e5269cb5bf0ca148b1ac77095a1f7f63d519",
+        "status": "accepted",
+        "superseded_by": [],
+        "read_scope": "frontmatter and headings; targeted body excerpts where relevant, not an exhaustive body audit"
+      },
+      {
+        "path": "/opt/automecanik/governance-editorial-pipeline-20260912/ledger/decisions/adr/ADR-067-r2-no-auto-suppression.md",
+        "sha256": "0ee1bef51a60298a2ffb4f386af55493e1a592e917660b2bb884939d0375da21",
+        "status": "accepted",
+        "superseded_by": [],
+        "read_scope": "frontmatter and headings; targeted body excerpts where relevant, not an exhaustive body audit"
+      },
+      {
+        "path": "/opt/automecanik/governance-editorial-pipeline-20260912/ledger/decisions/adr/ADR-070-r8-r1-first-r2-second-active-disambiguation.md",
+        "sha256": "d0961cfdb9e661023d5aecbabafb4b9a1ee97b08bf702d36b34fbe6aee09e4e3",
+        "status": "accepted",
+        "superseded_by": [],
+        "read_scope": "frontmatter and headings; targeted body excerpts where relevant, not an exhaustive body audit"
+      },
+      {
+        "path": "/opt/automecanik/governance-editorial-pipeline-20260912/ledger/decisions/adr/ADR-083-tiered-wiki-promotion.md",
+        "sha256": "99679c4ce98376cc532ba85f9ac72d26678bc715030dee22cc2330db088232a9",
+        "status": "accepted",
+        "superseded_by": [],
+        "read_scope": "frontmatter and headings; targeted body excerpts where relevant, not an exhaustive body audit"
+      },
+      {
+        "path": "/opt/automecanik/governance-editorial-pipeline-20260912/ledger/decisions/adr/ADR-086-encyclopedia-editorial-content-contract.md",
+        "sha256": "0286f323d4083069897f27e37e0137072f6308bfe07cdd99b7d290c40bc3e33d",
+        "status": "accepted",
+        "superseded_by": [],
+        "read_scope": "frontmatter and headings; targeted body excerpts where relevant, not an exhaustive body audit"
+      },
+      {
+        "path": "/opt/automecanik/governance-editorial-pipeline-20260912/ledger/decisions/adr/ADR-088-promotion-gate-substance-scoring.md",
+        "sha256": "63e414f22be86f65abd6c05cbb0f8eb88f0103dcfb1dc591c7491f67463c1af4",
+        "status": "accepted",
+        "superseded_by": [],
+        "read_scope": "frontmatter and headings; targeted body excerpts where relevant, not an exhaustive body audit"
+      },
+      {
+        "path": "/opt/automecanik/governance-editorial-pipeline-20260912/ledger/decisions/adr/ADR-089-content-coverage-map-canon.md",
+        "sha256": "43f272001e83fee3547689775996a74a149e5c942b4d1a6d02a0089cae3b7deb",
+        "status": "accepted",
+        "superseded_by": [],
+        "read_scope": "frontmatter and headings; targeted body excerpts where relevant, not an exhaustive body audit"
+      },
+      {
+        "path": "/opt/automecanik/governance-editorial-pipeline-20260912/ledger/decisions/adr/ADR-090-seo-projection-forward-writer-canon.md",
+        "sha256": "b23c29e89e765eb74eb1dc7058207e423649025bc1c6643cc4b90271fcb85c58",
+        "status": "accepted",
+        "superseded_by": [],
+        "read_scope": "frontmatter and headings; targeted body excerpts where relevant, not an exhaustive body audit"
+      },
+      {
+        "path": "/opt/automecanik/governance-editorial-pipeline-20260912/ledger/decisions/adr/ADR-091-wiki-score-recalibration.md",
+        "sha256": "41be2a922f3887b675389eb7240af692432fc2c99d40a99c497911b138f14446",
+        "status": "accepted",
+        "superseded_by": [],
+        "read_scope": "frontmatter and headings; targeted body excerpts where relevant, not an exhaustive body audit"
+      },
+      {
+        "path": "/opt/automecanik/governance-editorial-pipeline-20260912/ledger/decisions/adr/ADR-092-rank1-content-gate.md",
+        "sha256": "08042d62a17f0f6743a6ac884b663751cbb6c2d8672c9530be08650d3928140a",
+        "status": "accepted",
+        "superseded_by": null,
+        "read_scope": "frontmatter and headings; targeted body excerpts where relevant, not an exhaustive body audit"
+      },
+      {
+        "path": "/opt/automecanik/governance-editorial-pipeline-20260912/ledger/decisions/adr/ADR-093-auto-review-earn-gate.md",
+        "sha256": "27ca974aa033dc91e311fc54d85a72104e294e147aef24f203d91eb1266b7dbb",
+        "status": "accepted",
+        "superseded_by": null,
+        "read_scope": "frontmatter and headings; targeted body excerpts where relevant, not an exhaustive body audit"
+      },
+      {
+        "path": "/opt/automecanik/governance-editorial-pipeline-20260912/ledger/decisions/adr/ADR-094-page-quality-composite-gate.md",
+        "sha256": "0e2b1578b9d6d66033668ec05c60c3f2eb901ac64e70f6209e6f648374f68b6a",
+        "status": "proposed",
+        "superseded_by": [],
+        "read_scope": "frontmatter and headings; targeted body excerpts where relevant, not an exhaustive body audit"
+      },
+      {
+        "path": "/opt/automecanik/governance-editorial-pipeline-20260912/ledger/decisions/adr/ADR-095-balise-anti-duplicate-hard-gate.md",
+        "sha256": "343531dfcfe987a08f46394f24633568987bb5611a19a5bd86650e573423cb4e",
+        "status": "Accepted",
+        "superseded_by": null,
+        "read_scope": "frontmatter and headings; targeted body excerpts where relevant, not an exhaustive body audit"
+      },
+      {
+        "path": "/opt/automecanik/governance-editorial-pipeline-20260912/ledger/decisions/adr/ADR-096-governed-automatic-source-discovery.md",
+        "sha256": "3a2ace8b27f916946aaf813f5dd119e72a4286c94c2721d2b416f25312ae8c6f",
+        "status": "accepted",
+        "superseded_by": [],
+        "read_scope": "frontmatter and headings; targeted body excerpts where relevant, not an exhaustive body audit"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/CLAUDE.md",
+        "sha256": "e21a7597ff6b35dabf9c9a2d54b0596b352fd951b65dd63cc862ef4fbe6e401e",
+        "read_scope": "full"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/workspaces/seo-batch/AGENTS.md",
+        "sha256": "229b550c4df16a486d2e91986b150b0b917ebbcb18b7445b56410753f30bf5df",
+        "read_scope": "full"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/.claude/rules/guardrails.md",
+        "sha256": "5af4ece823cb5581fb71d20156a9832f89e58a646ecb944979570f79d8746e13",
+        "read_scope": "full"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/.claude/rules/security-hooks.md",
+        "sha256": "360f42d6d9e09ff50ddbe03546067677bf38a031db71a85aaf791abeec258172",
+        "read_scope": "full"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/.claude/canon-mirrors/agent-exit-contract.md",
+        "sha256": "65d51c022ce438ddd27146b6da132d2e83d161a8e2dc2f30c90f339eb24dea21",
+        "read_scope": "full"
+      },
+      {
+        "path": "/opt/automecanik/wiki-editorial-qualification-20260912/_meta/source-policy.md",
+        "sha256": "18eb81965f2a64699b40ea59fa01198041b4cfee33c58f46ae36dd9d481da062",
+        "read_scope": "section 9 and 9.3"
+      },
+      {
+        "path": "/opt/automecanik/wiki-editorial-qualification-20260912/_meta/quality-gates.md",
+        "sha256": "709f135c9ec1cedb9d9e3e532fbb4c6f15b8a3c25057ff9a04f2ba42d164e4d1",
+        "read_scope": "sections 1-8; excerpts beyond"
+      },
+      {
+        "path": "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/shadow_score.py",
+        "sha256": "86a3df86e525c4f07e0cccc880682f53042e8e7b2b0a1c4416c810fecdccf776",
+        "read_scope": "header"
+      },
+      {
+        "path": "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/promotion_decision.py",
+        "sha256": "ad4d21a7122a9f00dd2ee347719e315ea19d5882e1586dff33b6aeea77337c90",
+        "read_scope": "engine references and targeted decision excerpts"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/scripts/agents/validate-agents-md.sh",
+        "sha256": "6b4c1679084c8eebc3e98faa0d2d4be1bd3bd9e2d198a70526f42d6c12d9c477",
+        "read_scope": "first 160 lines"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/workspaces/seo-batch/.claude/skills/seo-content-loop/SKILL.md",
+        "sha256": "03047e1ca212ffdd65c23098ae8647a560b3f77c10468848b08554d909c14929",
+        "read_scope": "full before and after"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/workspaces/seo-batch/CLAUDE.md",
+        "sha256": "a86c385bafd26b6af0b3c5f4647159fcc7eae16e856f7877413fc5594296754c",
+        "read_scope": "full before and after"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/workspaces/seo-batch/.claude/rules/seo-batch.md",
+        "sha256": "520165f15fbadd7a86b142834aa3297ed0fdee7e9958ae4974db6acca94d34af",
+        "read_scope": "full before and after"
+      }
+    ],
+    "corrections_applied": [
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/workspaces/seo-batch/.claude/skills/seo-content-loop/SKILL.md",
+        "authorization": "Demandes utilisateur corriger, ameliorer et continuer ; candidat isole, aucune publication"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/workspaces/seo-batch/CLAUDE.md",
+        "authorization": "Demandes utilisateur corriger, ameliorer et continuer ; candidat isole, aucune publication"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/workspaces/seo-batch/.claude/rules/seo-batch.md",
+        "authorization": "Demandes utilisateur corriger, ameliorer et continuer ; candidat isole, aucune publication"
+      }
+    ],
+    "patch": {
+      "path": "/opt/automecanik/governance-editorial-pipeline-20260912/ledger/audit-trail/editorial-pipeline-evidence-20260912/seo-content-loop-rules.patch",
+      "sha256": "3b476165c2cfc8cfe90a3c9fac0f6a55ca2b07e1258986458b4d289120123252"
+    },
+    "validation_executed": [
+      {
+        "check": "git diff --check sur les trois documents",
+        "result": "PASS"
+      },
+      {
+        "check": "validate-agents-md.sh --file workspaces/seo-batch/CLAUDE.md",
+        "result": "PASS, 1 file, 0 block, 0 warning"
+      },
+      {
+        "check": "YAML natif et preservation des champs hors description/version, lien AEC",
+        "result": "PASS"
+      },
+      {
+        "check": "skill-creator quick_validate.py sur candidat et HEAD",
+        "result": "INCOMPATIBLE_FORMAT: exit1 identique sur les deux, champs Claude argument-hint/disable-model-invocation/version non supportes ; pas de validation complete revendiquee"
+      },
+      {
+        "check": "vault check-orphans.sh, check-broken-links.sh, git diff --check Markdown",
+        "result": "PASS exit0"
+      }
+    ],
+    "remaining_unknowns": [
+      "ADR-095: Accepted en frontmatter, Proposed dans le corps ; resolution canonique non effectuee",
+      "ADR-094 propose, non active",
+      "Corps et amendements de toutes les ADRs non relus exhaustivement",
+      "Cablage effectif de tous les controles SEO et pages servies non verifie",
+      "Calibration representative des scores et moteur de decouverte utile encore a realiser",
+      "Instructions legacy des autres skills et agents du workspace non corrigees dans ce lot",
+      "Commentaire shadow_score report-only historique alors que branchement conditionnel existe"
+    ],
+    "excluded_paths": [
+      "DB et corpus partages",
+      "services/timers/cron",
+      "canon mirrors et semantique des ADRs",
+      "autres skills/agents du workspace",
+      "SEO indexe et diagnostic LIVE"
+    ],
+    "unscanned_zones": [
+      "Donnees Search Console",
+      "rendu reel et comparaisons corpus",
+      "corps complets de tous les contrats references"
+    ],
+    "final_status": "PARTIAL_COVERAGE"
+  },
+  "pack_quality_correction_20260913": {
+    "observed_at": "2026-09-13T08:59:33.294732+00:00",
+    "scope_requested": "Poursuivre la correction de la boucle et de la fiabilite des scores apres revue des regles",
+    "scope_actually_scanned": "Qualification et moyenne du pack Conseil, appelant HTTP admin et controles de doublons/sources existants ; aucun audit exhaustif des scorers",
+    "files_read_count": 19,
+    "files": [
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/CLAUDE.md",
+        "sha256": "e21a7597ff6b35dabf9c9a2d54b0596b352fd951b65dd63cc862ef4fbe6e401e",
+        "read_scope": "full or targeted excerpts; registry filtered via jq, log last80 only"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/.claude/rules/backend.md",
+        "sha256": "212cb11f1b06e33a6c837431edf94fc5005b8463070d6dd2c43ef82b58c9203d",
+        "read_scope": "full or targeted excerpts; registry filtered via jq, log last80 only"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/.claude/rules/guardrails.md",
+        "sha256": "5af4ece823cb5581fb71d20156a9832f89e58a646ecb944979570f79d8746e13",
+        "read_scope": "full or targeted excerpts; registry filtered via jq, log last80 only"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/audit/registry/canonical.json",
+        "sha256": "683d14cb8cda9fbc309c29b4f40f9339398d8c4934865eb1bd71b106326f2955",
+        "read_scope": "full or targeted excerpts; registry filtered via jq, log last80 only"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/.claude/knowledge/REPO_MAP.md",
+        "sha256": "f77131828864e0c96f7c1e648ac9b9f0c3fad912ec809d0e3973f6806acaeb80",
+        "read_scope": "full or targeted excerpts; registry filtered via jq, log last80 only"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/.claude/knowledge/modules/admin.md",
+        "sha256": "e7e3b0351b47b8299d8b064229f66fe9a39509f9bc1fd16136f87eea85c2fede",
+        "read_scope": "full or targeted excerpts; registry filtered via jq, log last80 only"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/log.md",
+        "sha256": "4262296714233cd728c5e1222fdfc430e2c5e896913a505d00e3eea646b9ce0f",
+        "read_scope": "full or targeted excerpts; registry filtered via jq, log last80 only"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/admin/services/conseil-quality-scorer.service.ts",
+        "sha256": "d71c16888f2ad4df06fd577fb3493cf893a399569a45bc39e622e8577d68a676",
+        "read_scope": "full or targeted excerpts; registry filtered via jq, log last80 only"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/admin/services/conseil-quality-scorer.service.test.ts",
+        "sha256": "f25516f0e3583144698450173ebf5c259f84603d49c27cc5eb6fa8277abbf710",
+        "read_scope": "full or targeted excerpts; registry filtered via jq, log last80 only"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/config/conseil-pack.constants.ts",
+        "sha256": "9e752c5ce8ef0fb1b8b67fda51dc177b1a59eaa25ca2c0d43c036578b15ad303",
+        "read_scope": "full or targeted excerpts; registry filtered via jq, log last80 only"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/tests/unit/quality-scoring-semantic-penalties.test.ts",
+        "sha256": "9d8e15d2bfdc524c0ba4f6ac436a6d1fb7ef34459673e92f9b5aff90a3da18d1",
+        "read_scope": "full or targeted excerpts; registry filtered via jq, log last80 only"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/admin/services/brief-gates.service.ts",
+        "sha256": "19f1e0aec11d52795884c9b8ebfc4add220d5b4edb806770ec94c1938bc64524",
+        "read_scope": "full or targeted excerpts; registry filtered via jq, log last80 only"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/admin/services/keyword-plan-gates.service.ts",
+        "sha256": "0d8db21d4b1172db2b04f5586b29f3739115190ca16c6bdc0b5169faf8ab5dfc",
+        "read_scope": "full or targeted excerpts; registry filtered via jq, log last80 only"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/admin/controllers/admin-conseil.controller.ts",
+        "sha256": "ae92071f1015b22dce2b4320f142e8887b2fd88ddfe51f81921f247dbd677b12",
+        "read_scope": "full or targeted excerpts; registry filtered via jq, log last80 only"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/blog/utils/source-provenance.util.ts",
+        "sha256": "f0c76c8ac907d9a12852ef88af9ccf42f11745c4097cf4a13e7c07007a7e5a89",
+        "read_scope": "full or targeted excerpts; registry filtered via jq, log last80 only"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/jest.config.js",
+        "sha256": "d49024e34f0462ae847135bc9a3b97baccb33e8d7bf697c3cbe93300dc61951f",
+        "read_scope": "full or targeted excerpts; registry filtered via jq, log last80 only"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/tests/setup.ts",
+        "sha256": "7662f13dc356e12003e0fb6c2744ba1cade4a55326105161a22f3432dc10cfe7",
+        "read_scope": "full or targeted excerpts; registry filtered via jq, log last80 only"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/admin/services/r7-brand-enricher.editorial.test.ts",
+        "sha256": "560e98f1cd4f10c1abaf6707df87d0e0f7e1017bc7ce66059d2396e222d98b8b",
+        "read_scope": "full or targeted excerpts; registry filtered via jq, log last80 only"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/package.json",
+        "sha256": "12ec08df11b677fecc893d72f3bc5364106c2b6277ae9714aedff8f40032d381",
+        "read_scope": "full or targeted excerpts; registry filtered via jq, log last80 only"
+      }
+    ],
+    "head": "0c31807c8453c251d70c7575eafcc973f04eed14",
+    "origin_main": "848fe821dd70cd646043023628dfe35b7814bffb",
+    "freshness": "11 commits behind origin/main; target service and constants compared, no upstream diff before edits",
+    "corrections_applied": [
+      "backend/src/modules/admin/services/conseil-quality-scorer.service.ts",
+      "backend/src/modules/admin/services/conseil-quality-scorer.service.test.ts"
+    ],
+    "authorization": "Utilisateur demande corrections et poursuite ; candidat isole uniquement",
+    "validation_executed": {
+      "before": "13 assertions failed on previous implementation, including avgQuality80 with missing required score",
+      "after": "29 tests PASS, 2 suites (13 new pack cases + 16 existing semantic checks)",
+      "eslint": "PASS exit0 both files",
+      "git_diff_check": "PASS",
+      "db_network": "Not invoked, in-memory read adapter"
+    },
+    "patch": {
+      "file": "conseil-pack-quality.patch",
+      "sha256": "4dc774b76ebb09d532e568d6043819a69b7ce760d6150396aa73783add6bc6f7"
+    },
+    "excluded_paths": [
+      "DB shared data and schema",
+      "frontend rendered pages",
+      "services/crons",
+      "WIKI/RAW/RAG runtime",
+      "SEO indexed surfaces"
+    ],
+    "unscanned_zones": [
+      "All score consumers outside scoped static searches",
+      "Production API behavior",
+      "Real content corpus and Search Console"
+    ],
+    "remaining_unknowns": [
+      "Section score still rewards repetitive or inadequately sourced content; no semantic calibration performed",
+      "qualityStatus measures configured numeric thresholds only; not factual excellence",
+      "Duplicate section identities detected here by stored section ID, not free-text heading aliases",
+      "No activation in periodic loop proven",
+      "Existing backfill offset over shrinking NULL selection deserves separate test and correction"
+    ],
+    "final_status": "PARTIAL_COVERAGE"
+  },
+  "section_sources_correction_20260913": {
+    "observed_at": "2026-09-13T09:09:17.268039+00:00",
+    "scope_requested": "Continuer la fiabilisation des scores individuels et de la boucle",
+    "scope_actually_scanned": "Declaration de sources, mesure du texte et routage GA5 vers audit/skip, recherches ciblees des appelants",
+    "files_read_count": 11,
+    "files": [
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/blog/utils/source-provenance.util.ts",
+        "sha256": "58fd3432fa9cd11b162c92f967b568a5be9753da4f6c5d1593814dfeea013927",
+        "read_scope": "full or targeted excerpts; changes and tests fully inspected"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/admin/services/conseil-quality-scorer.service.ts",
+        "sha256": "dee6547cbc3b82eb12e865b45b5d55e5e958bf390001c5ddff40295102e8a029",
+        "read_scope": "full or targeted excerpts; changes and tests fully inspected"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/admin/services/conseil-quality-scorer.service.test.ts",
+        "sha256": "dfb378ba6441566e9f9d4ef2952c692bfa287239ff7e9cf59085280889b5f92c",
+        "read_scope": "full or targeted excerpts; changes and tests fully inspected"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/admin/services/keyword-plan-gates.service.ts",
+        "sha256": "e92aa973fc0ed162e964d24c8ba28d26d5efe7f3e098a686cdb9938acc220fb5",
+        "read_scope": "full or targeted excerpts; changes and tests fully inspected"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/admin/services/keyword-plan-gates.sources.test.ts",
+        "sha256": "76e2b025d98d66ddea9d39696ff750dea4eaa8601e589841177820890eb16f41",
+        "read_scope": "full or targeted excerpts; changes and tests fully inspected"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/blog/services/blog-seo.service.ts",
+        "sha256": "2398686c103c77fcd41452de3efe76bd4e6eaa912fd15681c591e4e5c24c08b2",
+        "read_scope": "full or targeted excerpts; changes and tests fully inspected"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/blog/utils/html-normalize.utils.ts",
+        "sha256": "af2436d9081982dc140c9db9d1c3422a559fc5a3e0e0c2285584e7d94ed887aa",
+        "read_scope": "full or targeted excerpts; changes and tests fully inspected"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/blog/utils/blog-text.utils.ts",
+        "sha256": "d4df8ad6444705cd430238dfa2f84c3c06dc62fcefa4033265a0c1321f33ce96",
+        "read_scope": "full or targeted excerpts; changes and tests fully inspected"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/admin/services/enricher-text-utils.service.ts",
+        "sha256": "1c3bed7de0d067c6e0ba7ac9e92d970e548fc1c5d8e102bc883b2b0e2e8d05e9",
+        "read_scope": "full or targeted excerpts; changes and tests fully inspected"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/utils/html-entities.ts",
+        "sha256": "8ceed31d6586d7e4422937117401777442b7f3893d8afc81dacd3ae1427677aa",
+        "read_scope": "full or targeted excerpts; changes and tests fully inspected"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/config/source-provenance.constants.ts",
+        "sha256": "f49148ee22740fb7668148fd407a03707e82f4f6fa0e27888434e6fc04ac776f",
+        "read_scope": "full or targeted excerpts; changes and tests fully inspected"
+      }
+    ],
+    "corrections_applied": [
+      "backend/src/modules/blog/utils/source-provenance.util.ts",
+      "backend/src/modules/admin/services/conseil-quality-scorer.service.ts",
+      "backend/src/modules/admin/services/conseil-quality-scorer.service.test.ts",
+      "backend/src/modules/admin/services/keyword-plan-gates.service.ts",
+      "backend/src/modules/admin/services/keyword-plan-gates.sources.test.ts"
+    ],
+    "authorization": "Corrections et poursuite demandees par utilisateur, candidats isoles uniquement",
+    "validation_executed": {
+      "before": "17 failures and22 passes across39 cases before fix (before adding2 audit/skip chain tests)",
+      "after": "57 tests PASS across3 suites, including prior13 pack tests and16 existing semantic tests",
+      "eslint": "PASS for5 files; last modified test rechecked",
+      "diff": "PASS",
+      "native_counterexample": "Actual scoreSection replay:100->50, existing penalties20+15+15; no sources85->50",
+      "io": "No DB/network/service execution; read adapter only"
+    },
+    "patch": {
+      "file": "conseil-source-measurement.patch",
+      "sha256": "a2aa62cbbe8b68b191644517d3fd0bfa49c5868cc68d84fe58488f7147fa32ca",
+      "scope": "Cumulative HEAD diff on5 files, includes previous pack correction in service/test"
+    },
+    "excluded_paths": [
+      "Shared DB/corpus",
+      "Runtime timers and workers",
+      "Frontend content and provenance labels",
+      "WIKI scoring/promotion",
+      "Cross-page duplicate enforcement"
+    ],
+    "unscanned_zones": [
+      "Live invocation of audit chain",
+      "Independent representative factual evaluation corpus",
+      "All HTML parsing edge cases and semantic repetition variants"
+    ],
+    "remaining_unknowns": [
+      "Well-formed source reference does not establish existence/relevance/truth; WIKI proof required",
+      "Consecutive-word normalizer reused as-is; not a semantic duplicate detector",
+      "scoreSection remains heuristic, no calibration certification",
+      "No application caller of auditFromSections/runAuditGates found in backend/src beyond implementation and tests; external operator callers not excluded",
+      "Backfill skip bug and useful source discovery still pending"
+    ],
+    "final_status": "PARTIAL_COVERAGE"
+  },
+  "backfill_correction_20260913": {
+    "observed_at": "2026-09-13T09:21:44.706758+00:00",
+    "scope_requested": "Continuer la fiabilisation de la boucle et verifier les regles avant validation",
+    "scope_actually_scanned": "Parcours backfill des scores NULL, appelant admin, selection de priorite; recherche textuelle des appelants audit dans backend/src, scripts et workspaces",
+    "files_read_count": 6,
+    "files": [
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/admin/services/conseil-quality-scorer.service.ts",
+        "read_scope": "backfill implementation, result type, diff; previous scoring audit reused",
+        "sha256": "b2459fd6fb8e610ff3b3b2afd99c772a0e700363996fae8c648964fb65255929"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/admin/services/conseil-quality-backfill.test.ts",
+        "read_scope": "full",
+        "sha256": "cc72782605102155bbc6aaa0dd797fa745ee4528d29cdd8bd8934e70890cf727"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/admin/controllers/admin-conseil.controller.ts",
+        "read_scope": "backfill caller and response",
+        "sha256": "ae92071f1015b22dce2b4320f142e8887b2fd88ddfe51f81921f247dbd677b12"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/admin/services/conseil-priority.service.ts",
+        "read_scope": "full priority fallback and RPC call",
+        "sha256": "063eb85800598c3f1a550bbc4b3ad49c342e8e8d01179830418930190ee9f520"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/database/types/database.types.ts",
+        "read_scope": "__seo_gamme_conseil type excerpt",
+        "sha256": "1610070879245c636ec7bcfda4a21567e0d3a93f01f67c438a10a647fc45c40a"
+      },
+      {
+        "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/.claude/canon-mirrors/agent-exit-contract.md",
+        "read_scope": "full; other applicable rules reused from preceding lots",
+        "sha256": "65d51c022ce438ddd27146b6da132d2e83d161a8e2dc2f30c90f339eb24dea21"
+      }
+    ],
+    "additional_searches": "Extraits migrations et specifications sur sgc_id; anciennes specifications INTEGER/SERIAL divergent du type string et de la migration mentionnant UUID. Pas de validation du schema vivant.",
+    "authorization": "Corrections demandees par utilisateur; worktree isole seulement",
+    "corrections_proposed": [
+      "Raccorder audit et file de correction au chemin effectivement execute apres identification de son owner; qualification factuelle et decouverte de sources restent ouvertes"
+    ],
+    "corrections_applied": [
+      "backend/src/modules/admin/services/conseil-quality-scorer.service.ts",
+      "backend/src/modules/admin/services/conseil-quality-backfill.test.ts"
+    ],
+    "validation_executed": {
+      "before": "5 tests failing; fixture of250 NULL rows updated only150 with offset; persisted log",
+      "after": "62 tests PASS /4 suites including5 new backfill cases and57 previous scorer/gate/semantic cases",
+      "lint": "ESLint PASS on2 modified files; formatting and staged/unstaged diff-check PASS",
+      "io": "Actual installed Supabase client and PostgREST query builder, memory HTTP transport; no external request, database mutation or live PostgreSQL validation",
+      "cases": [
+        "all250 traversed",
+        "first100 failures do not prevent150 later writes",
+        "concurrent populated score preserved and counted skipped",
+        "read failure rejects instead of inventing100 failed rows",
+        "existing scores preserved and rerun idempotent"
+      ]
+    },
+    "evidence": [
+      "backfill-before.log",
+      "backfill-after.log",
+      "backfill-lint.log",
+      "backfill-callers.txt"
+    ],
+    "patch": {
+      "file": "conseil-backfill-traversal.patch",
+      "sha256": "8c26e768fd31f851793e91dfb00d430acb1e9a64e75546299f73f58dc9dde33f",
+      "scope": "Cumulative HEAD diff on2 files; service includes previous pack/source/measurement lots"
+    },
+    "official_references": [
+      "https://supabase.com/docs/reference/javascript/using-filters-gt",
+      "https://supabase.com/docs/reference/javascript/using-modifiers-order"
+    ],
+    "excluded_paths": [
+      "Shared database and corpus",
+      "Live timers and workers",
+      "Frontend/indexed SEO fields",
+      "WIKI scoring and promotion",
+      "RAG service configuration"
+    ],
+    "unscanned_zones": [
+      "Live schema constraints, PostgREST/RLS behaviour and query plan",
+      "External operator callers",
+      "Concurrent content edits while score remains NULL",
+      "Source discovery implementation outside searched paths"
+    ],
+    "remaining_unknowns": [
+      "Audit helper has no application caller found in searched paths beyond definitions/tests; not proof of absence everywhere",
+      "Priority fallback selects missing sections, not content quality; RPC actual implementation not audited in this lot",
+      "Traversal is not a snapshot: concurrent inserts behind cursor require a later run",
+      "No actual database backfill executed; old non-NULL scores are not recalculated by this endpoint",
+      "Factual correctness, semantic duplicates and ranking are not validated by passing scores"
+    ],
+    "final_status": "PARTIAL_COVERAGE"
+  }
+}

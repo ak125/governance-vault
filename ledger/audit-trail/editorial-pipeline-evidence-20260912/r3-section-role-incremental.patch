@@ -1,0 +1,343 @@
+--- a/backend/src/modules/seo/validation/page-role-validator.service.ts
++++ b/backend/src/modules/seo/validation/page-role-validator.service.ts
+@@ -587,7 +587,7 @@
+   /**
+    * Valide une page R3/conseils (How-To)
+    * GATES: pas de contenu encyclopédique, pas de vocabulaire commercial,
+-   * liens R4/R5 requis, phrases génériques détectées
++   * liens R4 requis, phrases génériques détectées
+    *
+    * Phase 1: tous WARNING sauf ENCYCLOPEDIC_OVERLAP (ERROR immédiat)
+    */
+@@ -670,18 +670,70 @@
+       });
+     }
+ 
+-    // GATE: NO_LINK_TO_R5 (WARNING Phase 1)
+-    if (!lowerContent.includes('/diagnostic-auto/')) {
+-      violations.push({
+-        type: 'missing_element',
+-        message:
+-          'R3/conseils: aucun lien vers /diagnostic-auto/ (maillage R5 manquant)',
+-        severity: 'warning',
+-        details: { flag: 'NO_LINK_TO_R5' },
+-      });
+-    }
++    // ADR-027: diagnostic details live in R3/S2_DIAG. Requiring a link to a
++    // retired R5 detail would send the editor back to the former architecture.
+ 
+     return violations;
++  }
++
++  /**
++   * Validate stored R3 sections before composition (ADR-027).
++   * S2_DIAG uses the existing diagnostic checks; this grants no exception to
++   * other R3 sections and makes no claim about the final HTML or redirect.
++   */
++  validateR3Sections(
++    url: string,
++    sections: ReadonlyArray<{
++      sectionType: string;
++      title?: string | null;
++      content: string;
++    }>,
++  ): PageValidationResult {
++    if (
++      getPageRoleFromUrl(url) !== PageRole.R3_BLOG ||
++      getR3SubRoleFromUrl(url) !== 'conseils'
++    ) {
++      return {
++        url,
++        detectedRole: getPageRoleFromUrl(url),
++        declaredRole: PageRole.R3_BLOG,
++        isValid: false,
++        violations: [
++          {
++            type: 'role_mismatch',
++            severity: 'error',
++            message: 'R3 section validation requires a conseils page',
++          },
++        ],
++      };
++    }
++    const sectionText = (section: (typeof sections)[number]) =>
++      `${section.title ?? ''}\n${section.content}`;
++    const result = this.validatePage(
++      url,
++      sections
++        .filter((section) => section.sectionType !== 'S2_DIAG')
++        .map(sectionText)
++        .join('\n'),
++      PageRole.R3_BLOG,
++    );
++    for (const section of sections) {
++      if (section.sectionType !== 'S2_DIAG') continue;
++      const content = sectionText(section);
++      const violations = [
++        ...this.validateR5Diagnostic(content),
++        ...this.validateExclusiveVocabulary(content, PageRole.R5_DIAGNOSTIC),
++      ];
++      result.violations.push(
++        ...violations.map((violation) => ({
++          ...violation,
++          message: `R3/S2_DIAG: ${violation.message}`,
++          details: { ...violation.details, sectionType: 'S2_DIAG' },
++        })),
++      );
++    }
++    result.isValid = !result.violations.some((v) => v.severity === 'error');
++    return result;
+   }
+ 
+   /**
+--- a/backend/src/modules/admin/services/conseil-quality-scorer.service.ts
++++ b/backend/src/modules/admin/services/conseil-quality-scorer.service.ts
+@@ -11,6 +11,7 @@
+ } from '@nestjs/common';
+ import { ConfigService } from '@nestjs/config';
+ import { z } from 'zod';
++import { PageRoleValidatorService } from '../../seo/validation/page-role-validator.service';
+ import {
+   KeywordPlanGatesService,
+   type ConseilSectionRow,
+@@ -84,6 +85,7 @@
+   constructor(
+     configService: ConfigService,
+     private readonly auditGates: KeywordPlanGatesService,
++    private readonly roleValidator: PageRoleValidatorService,
+   ) {
+     super(configService);
+   }
+@@ -160,11 +162,47 @@
+       };
+     });
+     const audit = this.auditGates.auditFromSections(auditRows, packLevel);
++    const roleValidation = this.roleValidator.validateR3Sections(
++      `/blog-pieces-auto/conseils/${gamme.pg_alias}`,
++      auditRows.map((row) => ({
++        sectionType: row.section_type,
++        title: row.title,
++        content: row.content ?? '',
++      })),
++    );
++    const roleSectionsToReview = new Set<string>();
++    for (const violation of roleValidation.violations) {
++      if (violation.severity !== 'error') continue;
++      const sectionType = violation.details?.sectionType;
++      if (typeof sectionType === 'string') {
++        roleSectionsToReview.add(sectionType);
++      } else {
++        // A page-level R3 finding cannot attribute blame to one section.
++        // Keep the ordinary sections for review instead of guessing a winner.
++        for (const row of auditRows) {
++          if (row.section_type !== 'S2_DIAG')
++            roleSectionsToReview.add(row.section_type);
++        }
++      }
++    }
++    for (const section of roleSectionsToReview) {
++      audit.priority_fixes.push({
++        section,
++        issue: 'role_violation',
++        current_score: audit.section_scores[section] ?? null,
++        fix_type: 'improve',
++      });
++      if (!audit.sections_to_improve.includes(section))
++        audit.sections_to_improve.push(section);
++    }
++    if (roleSectionsToReview.size > 0)
++      audit.audit_summary += `, role_review=${roleSectionsToReview.size}`;
+     return {
+       pgId,
+       pgAlias: gamme.pg_alias,
+       pack: packLevel,
+       scoreBasis: 'recomputed_heuristic' as const,
++      roleValidation: { ...roleValidation, scope: 'stored_sections' as const },
+       sections,
+       unmappedSectionIds,
+       duplicateSections: [...duplicates].sort(),
+@@ -173,6 +211,7 @@
+       canSkip:
+         unmappedSectionIds.length === 0 &&
+         duplicates.size === 0 &&
++        roleValidation.isValid &&
+         this.auditGates.shouldSkipGamme(audit, packLevel),
+     };
+   }
+--- a/backend/src/modules/admin/controllers/internal-seo-audit.r3.test.ts
++++ b/backend/src/modules/admin/controllers/internal-seo-audit.r3.test.ts
+@@ -1,4 +1,5 @@
+ import { Test } from '@nestjs/testing';
++import { PageRoleValidatorService } from '../../seo/validation/page-role-validator.service';
+ import { ConfigService } from '@nestjs/config';
+ import type { INestApplication } from '@nestjs/common';
+ import { createClient } from '@supabase/supabase-js';
+@@ -96,6 +97,7 @@
+         },
+         ConseilQualityScorerService,
+         KeywordPlanGatesService,
++        PageRoleValidatorService,
+       ],
+     }).compile();
+     Object.defineProperty(module.get(ConseilQualityScorerService), 'client', {
+@@ -161,6 +163,51 @@
+   it('does not certify an audit when the selected title column is absent', async () => {
+     Reflect.deleteProperty(stored[0], 'sgc_title');
+     await audit().expect(503);
++  });
++  it('validates the integrated diagnostic without classifying the entire page as R5', async () => {
++    stored.push({
++      ...stored[0],
++      sgc_id: '90',
++      sgc_section_type: 'S2_DIAG',
++      sgc_title: 'Diagnostic rapide',
++      sgc_content: 'Symptômes et code DTC : verifier le signal.',
++    });
++    const response = await audit().expect(200);
++    expect(response.body.data.roleValidation).toMatchObject({
++      scope: 'stored_sections',
++      detectedRole: 'R3',
++      isValid: true,
++    });
++  });
++  it('keeps role violations visible and prevents skipping the page', async () => {
++    stored.push({
++      ...stored[0],
++      sgc_id: '90',
++      sgc_section_type: 'S2_DIAG',
++      sgc_title: 'Diagnostic rapide',
++      sgc_content: 'Symptômes : ajouter au panier au meilleur prix.',
++    });
++    const response = await audit().expect(200);
++    expect(response.body.data.roleValidation.isValid).toBe(false);
++    expect(response.body.data.audit.sections_to_improve).toContain('S2_DIAG');
++    expect(response.body.data.audit.priority_fixes).toEqual(
++      expect.arrayContaining([
++        expect.objectContaining({
++          section: 'S2_DIAG',
++          issue: 'role_violation',
++          fix_type: 'improve',
++        }),
++      ]),
++    );
++    expect(response.body.data.roleValidation.violations).toEqual(
++      expect.arrayContaining([
++        expect.objectContaining({
++          severity: 'error',
++          details: expect.objectContaining({ sectionType: 'S2_DIAG' }),
++        }),
++      ]),
++    );
++    expect(response.body.data.canSkip).toBe(false);
+   });
+   it('does not pass unknown identities or duplicate section rows silently', async () => {
+     stored.push(
+--- a/backend/src/modules/seo/validation/page-role-sections.test.ts
++++ b/backend/src/modules/seo/validation/page-role-sections.test.ts
+@@ -0,0 +1,96 @@
++import { PageRoleValidatorService } from './page-role-validator.service';
++import { PageRole } from '../types/page-role.types';
++
++const validator = new PageRoleValidatorService();
++const url = '/blog-pieces-auto/conseils/disque-de-frein';
++const procedure = {
++  sectionType: 'S4_DEPOSE',
++  title: 'Procedure',
++  content: 'Les outils nécessaires pour le démontage.',
++};
++const diagnostic = {
++  sectionType: 'S2_DIAG',
++  title: 'Diagnostic rapide',
++  content: 'Symptômes : bruit anormal, code DTC. Vérifier le signal.',
++};
++
++describe('R3 stored sections — ADR-027 diagnostic integration', () => {
++  it('accepts diagnostic vocabulary only within S2_DIAG', () => {
++    const result = validator.validateR3Sections(url, [procedure, diagnostic]);
++    expect(result.detectedRole).toBe(PageRole.R3_BLOG);
++    expect(result.isValid).toBe(true);
++    expect(
++      result.violations.some((v) => v.details?.flag === 'NO_LINK_TO_R5'),
++    ).toBe(false);
++  });
++  it('does not require a link to retired R5 details on R3 conseils', () => {
++    expect(
++      validator
++        .validateR3Conseils(procedure.content, url)
++        .some((v) => v.details?.flag === 'NO_LINK_TO_R5'),
++    ).toBe(false);
++  });
++  it('still requires the existing R4 linkage check', () => {
++    expect(
++      validator
++        .validateR3Conseils(procedure.content, url)
++        .some((v) => v.details?.flag === 'NO_LINK_TO_R4'),
++    ).toBe(true);
++  });
++  it.each(['S1', 'S3', 'S2_DIAGNOSTIC'])(
++    'rejects diagnostic pollution in %s',
++    (sectionType) => {
++      expect(
++        validator.validateR3Sections(url, [
++          procedure,
++          { ...diagnostic, sectionType },
++        ]).isValid,
++      ).toBe(false);
++    },
++  );
++  it('keeps commercial restrictions on the diagnostic section', () => {
++    const result = validator.validateR3Sections(url, [
++      procedure,
++      {
++        ...diagnostic,
++        content: 'Symptômes : ajouter au panier au meilleur prix.',
++      },
++    ]);
++    expect(result.isValid).toBe(false);
++    expect(result.violations).toEqual(
++      expect.arrayContaining([
++        expect.objectContaining({
++          severity: 'error',
++          details: expect.objectContaining({ sectionType: 'S2_DIAG' }),
++        }),
++      ]),
++    );
++  });
++  it('keeps procedural content out of the diagnostic section', () => {
++    expect(
++      validator.validateR3Sections(url, [
++        {
++          ...diagnostic,
++          content:
++            'Symptômes puis étapes de remplacement et couple de serrage.',
++        },
++      ]).isValid,
++    ).toBe(false);
++  });
++  it('does not hide pollution in ordinary sections when S2_DIAG is present', () => {
++    expect(
++      validator.validateR3Sections(url, [
++        diagnostic,
++        { ...procedure, content: 'Symptômes et diagnostic partout.' },
++      ]).isValid,
++    ).toBe(false);
++  });
++  it('refuses this scoped validation for a guide achat URL', () => {
++    expect(
++      validator.validateR3Sections(
++        '/blog-pieces-auto/guide-achat/disque-de-frein',
++        [diagnostic],
++      ).isValid,
++    ).toBe(false);
++  });
++});
+--- a/backend/src/config/keyword-plan.constants.ts
++++ b/backend/src/config/keyword-plan.constants.ts
+@@ -325,6 +325,7 @@
+     | 'weak_phrases'
+     | 'no_sources'
+     | 'duplicate_content'
++    | 'role_violation'
+     | 'rag_stale'
+     | 'rag_insufficient';
+   current_score: number | null;

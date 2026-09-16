@@ -1,0 +1,77 @@
+...............................................................FFFF.     [100%]
+=================================== FAILURES ===================================
+_________ test_cli_refuses_retained_export_after_approval_loss[False] __________
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-394/test_cli_refuses_retained_expo0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f42311d9810>
+single = False
+
+    @pytest.mark.parametrize('single', [False, True])
+    def test_cli_refuses_retained_export_after_approval_loss(tmp_path, monkeypatch, single):
+        _write_wiki_fiche(tmp_path, 'gamme', 'fixture-old', review_status='pending')
+        old = tmp_path / 'exports/seo/gamme/fixture-old.json'
+        old.parent.mkdir(parents=True)
+        old.write_text('historical export evidence')
+        args = ['--entity-id', 'gamme:fixture-old'] if single else []
+        result = _invoke_fixture_builder(tmp_path, monkeypatch, args)
+>       assert result.exit_code != 0
+E       assert 0 != 0
+E        +  where 0 = <Result okay>.exit_code
+
+_scripts/test_build_exports_seo.py:808: AssertionError
+__________ test_cli_refuses_retained_export_after_approval_loss[True] __________
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-394/test_cli_refuses_retained_expo1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f4230eafaf0>
+single = True
+
+    @pytest.mark.parametrize('single', [False, True])
+    def test_cli_refuses_retained_export_after_approval_loss(tmp_path, monkeypatch, single):
+        _write_wiki_fiche(tmp_path, 'gamme', 'fixture-old', review_status='pending')
+        old = tmp_path / 'exports/seo/gamme/fixture-old.json'
+        old.parent.mkdir(parents=True)
+        old.write_text('historical export evidence')
+        args = ['--entity-id', 'gamme:fixture-old'] if single else []
+        result = _invoke_fixture_builder(tmp_path, monkeypatch, args)
+>       assert result.exit_code != 0
+E       assert 0 != 0
+E        +  where 0 = <Result okay>.exit_code
+
+_scripts/test_build_exports_seo.py:808: AssertionError
+________ test_cli_refuses_orphan_export_before_writing_other_candidates ________
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-394/test_cli_refuses_orphan_export0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f4230dff790>
+
+    def test_cli_refuses_orphan_export_before_writing_other_candidates(tmp_path, monkeypatch):
+        _write_wiki_fiche(tmp_path, 'gamme', 'fixture-new')
+        old = tmp_path / 'exports/seo/gamme/fixture-removed.json'
+        old.parent.mkdir(parents=True)
+        old.write_text('preserved withdrawal evidence')
+        result = _invoke_fixture_builder(tmp_path, monkeypatch)
+>       assert result.exit_code != 0
+E       assert 0 != 0
+E        +  where 0 = <Result okay>.exit_code
+
+_scripts/test_build_exports_seo.py:819: AssertionError
+_________ test_cli_dry_run_reports_unreconciled_export_without_writing _________
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-394/test_cli_dry_run_reports_unrec0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f4230eaef80>
+
+    def test_cli_dry_run_reports_unreconciled_export_without_writing(tmp_path, monkeypatch):
+        old = tmp_path / 'exports/seo/constructeur/fixture-removed.json'
+        old.parent.mkdir(parents=True)
+        old.write_text('preserved')
+        result = _invoke_fixture_builder(tmp_path, monkeypatch, ['--dry-run'])
+>       assert result.exit_code != 0
+E       assert 0 != 0
+E        +  where 0 = <Result okay>.exit_code
+
+_scripts/test_build_exports_seo.py:830: AssertionError
+=========================== short test summary info ============================
+FAILED _scripts/test_build_exports_seo.py::test_cli_refuses_retained_export_after_approval_loss[False]
+FAILED _scripts/test_build_exports_seo.py::test_cli_refuses_retained_export_after_approval_loss[True]
+FAILED _scripts/test_build_exports_seo.py::test_cli_refuses_orphan_export_before_writing_other_candidates
+FAILED _scripts/test_build_exports_seo.py::test_cli_dry_run_reports_unreconciled_export_without_writing
+4 failed, 64 passed in 0.38s

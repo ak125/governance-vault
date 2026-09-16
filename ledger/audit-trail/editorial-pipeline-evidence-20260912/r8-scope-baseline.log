@@ -1,0 +1,69 @@
+FAIL src/modules/seo-projection/seo-projection-writer.test.ts (9.789 s)
+  ● Console
+
+    console.log
+      ◇ injected env (0) from .env.test // tip: ⌘ override existing { override: true }
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+  ● identité R8 par axe moteur natif › conserve deux blocs de même section pour engine_family:f4r et engine_family:k9k
+
+    expect(received).not.toBe(expected) // Object.is equality
+
+    Expected: not "vehicle:renault-scenic-ii#R8_VEHICLE#known-issues"
+
+      154 |       1,
+      155 |     );
+    > 156 |     expect(a.blockId).not.toBe(b.blockId);
+          |                           ^
+      157 |     expect(a.blockKind).toBe(b.blockKind);
+      158 |     expect(a.content.usefulness_target).toBe(left);
+      159 |     expect(b.content.usefulness_target).toBe(right);
+
+      at src/modules/seo-projection/seo-projection-writer.test.ts:156:27
+
+  ● identité R8 par axe moteur natif › conserve deux blocs de même section pour fuel:diesel et fuel:essence
+
+    expect(received).not.toBe(expected) // Object.is equality
+
+    Expected: not "vehicle:renault-scenic-ii#R8_VEHICLE#known-issues"
+
+      154 |       1,
+      155 |     );
+    > 156 |     expect(a.blockId).not.toBe(b.blockId);
+          |                           ^
+      157 |     expect(a.blockKind).toBe(b.blockKind);
+      158 |     expect(a.content.usefulness_target).toBe(left);
+      159 |     expect(b.content.usefulness_target).toBe(right);
+
+      at src/modules/seo-projection/seo-projection-writer.test.ts:156:27
+
+FAIL src/modules/seo-projection/seo-projection-writer-role-scope.test.ts
+  ● Console
+
+    console.log
+      ◇ injected env (0) from .env.test // tip: ◈ encrypted .env [www.dotenvx.com]
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+  ● R8 Scénic : quatre axes/sections distincts sont conservés et rejouables sans doublon
+
+    ambiguous block identity: vehicle:renault-scenic-ii#R8_VEHICLE#known-issues
+
+      435 |     for (const row of rows) {
+      436 |       if (seen.has(row.blockId) && selectedIds.has(row.blockId)) {
+    > 437 |         throw new Error(`ambiguous block identity: ${row.blockId}`);
+          |               ^
+      438 |       }
+      439 |       seen.add(row.blockId);
+      440 |     }
+
+      at SeoProjectionWriterService.writeEntity (src/modules/seo-projection/seo-projection-writer.service.ts:437:15)
+      at Object.<anonymous> (src/modules/seo-projection/seo-projection-writer-role-scope.test.ts:827:49)
+
+Test Suites: 2 failed, 2 total
+Tests:       3 failed, 41 passed, 44 total
+Snapshots:   0 total
+Time:        10.26 s, estimated 11 s
+Ran all test suites within paths "src/modules/seo-projection/seo-projection-writer.test.ts", "src/modules/seo-projection/seo-projection-writer-role-scope.test.ts".
+EXIT_CODE=1

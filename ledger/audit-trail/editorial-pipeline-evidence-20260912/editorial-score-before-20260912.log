@@ -1,0 +1,46 @@
+........F.F.F.                                                           [100%]
+=================================== FAILURES ===================================
+_______________ test_long_heading_without_body_is_not_substance ________________
+
+    def test_long_heading_without_body_is_not_substance():
+        body = '\n'.join(
+            f"## {heading} avec un titre artificiellement tres long sans explication\n"
+            for heading in SCORER.SECTIONS_REQUIRED['gamme']
+        )
+>       assert SCORER.count_filled_sections(body, SCORER.SECTIONS_REQUIRED['gamme']) == 0
+E       assert 5 == 0
+E        +  where 5 = <function count_filled_sections at 0x7f365686e050>('## Définition avec un titre artificiellement tres long sans explication\n\n## Fonctionnement avec un titre artificiel...itre artificiellement tres long sans explication\n\n## FAQ avec un titre artificiellement tres long sans explication\n', ['Définition', 'Fonctionnement', "Symptômes d'usure", 'Choix selon véhicule', 'FAQ'])
+E        +    where <function count_filled_sections at 0x7f365686e050> = SCORER.count_filled_sections
+
+_scripts/tests/test_confidence_schema_contract.py:73: AssertionError
+_ test_substance_boundary_excludes_heading_and_whitespace[xxxxxxxxxxxxxxxxxxx-0] _
+
+content = 'xxxxxxxxxxxxxxxxxxx', expected = 0
+
+    @pytest.mark.parametrize('content, expected', [('x' * 19, 0), ('x' * 20, 1), (' \n\t', 0)])
+    def test_substance_boundary_excludes_heading_and_whitespace(content, expected):
+        body = f'## Definition with a long explanatory-looking heading\n{content}\n'
+>       assert SCORER.count_filled_sections(body, ['Definition']) == expected
+E       AssertionError: assert 1 == 0
+E        +  where 1 = <function count_filled_sections at 0x7f365686e050>('## Definition with a long explanatory-looking heading\nxxxxxxxxxxxxxxxxxxx\n', ['Definition'])
+E        +    where <function count_filled_sections at 0x7f365686e050> = SCORER.count_filled_sections
+
+_scripts/tests/test_confidence_schema_contract.py:84: AssertionError
+_______ test_substance_boundary_excludes_heading_and_whitespace[ \n\t-0] _______
+
+content = ' \n\t', expected = 0
+
+    @pytest.mark.parametrize('content, expected', [('x' * 19, 0), ('x' * 20, 1), (' \n\t', 0)])
+    def test_substance_boundary_excludes_heading_and_whitespace(content, expected):
+        body = f'## Definition with a long explanatory-looking heading\n{content}\n'
+>       assert SCORER.count_filled_sections(body, ['Definition']) == expected
+E       AssertionError: assert 1 == 0
+E        +  where 1 = <function count_filled_sections at 0x7f365686e050>('## Definition with a long explanatory-looking heading\n \n\t\n', ['Definition'])
+E        +    where <function count_filled_sections at 0x7f365686e050> = SCORER.count_filled_sections
+
+_scripts/tests/test_confidence_schema_contract.py:84: AssertionError
+=========================== short test summary info ============================
+FAILED _scripts/tests/test_confidence_schema_contract.py::test_long_heading_without_body_is_not_substance
+FAILED _scripts/tests/test_confidence_schema_contract.py::test_substance_boundary_excludes_heading_and_whitespace[xxxxxxxxxxxxxxxxxxx-0]
+FAILED _scripts/tests/test_confidence_schema_contract.py::test_substance_boundary_excludes_heading_and_whitespace[ \n\t-0]
+3 failed, 11 passed in 0.18s

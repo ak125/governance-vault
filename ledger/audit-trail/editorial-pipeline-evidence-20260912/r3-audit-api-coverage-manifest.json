@@ -1,0 +1,109 @@
+{
+  "observed_date": "2026-09-13",
+  "scope_requested": "Continuer la boucle editoriale fiable jusqu au contenu servi",
+  "scope_actually_scanned": "Contrat de decision/rendu R3 puis raccordement de l audit interne a la lecture et aux controles existants",
+  "files_read_count": 39,
+  "files": [
+    "app:CLAUDE.md",
+    "app:.claude/rules/backend.md",
+    "app:.claude/rules/frontend.md",
+    "app:.claude/rules/guardrails.md",
+    "app:.claude/rules/security-hooks.md",
+    "app:.claude/rules/agent-doc-search.md",
+    "app:.claude/rules/context7.md",
+    "app:.claude/canon-mirrors/agent-exit-contract.md",
+    "app:audit/registry/canonical.json (jq filtre)",
+    "app:.claude/knowledge/REPO_MAP.md",
+    "app:.claude/knowledge/README.md",
+    "app:.claude/knowledge/modules/blog.md",
+    "app:log.md (80 dernieres lignes)",
+    "app:backend/src/modules/blog/services/r3-guide.service.ts (extraits et diff amont)",
+    "app:backend/src/modules/blog/services/r3-guide.service.test.ts (diff amont)",
+    "app:backend/src/modules/blog/services/r3-projection-decision.service.ts",
+    "app:backend/src/modules/blog/interfaces/r3-guide.interfaces.ts",
+    "app:backend/src/modules/seo-projection/projection-r3.mapper.ts",
+    "app:backend/src/modules/blog/services/html-content-sanitizer.service.ts",
+    "app:backend/src/modules/admin/controllers/internal-pipeline.controller.ts",
+    "app:backend/src/modules/admin/controllers/admin-conseil.controller.ts",
+    "app:backend/src/modules/admin/controllers/admin-keyword-planner.controller.ts (extrait)",
+    "app:backend/src/modules/admin/controllers/internal-seo-audit.controller.ts",
+    "app:backend/src/modules/admin/services/conseil-quality-scorer.service.ts (extraits et changement)",
+    "app:backend/src/modules/admin/services/keyword-plan-gates.service.ts (extraits)",
+    "app:backend/src/modules/admin/services/conseil-priority.service.ts (extrait)",
+    "app:backend/src/modules/admin/services/conseil-quality-scorer.service.test.ts (extrait)",
+    "app:backend/src/modules/admin/services/conseil-quality-backfill.test.ts (extrait)",
+    "app:backend/src/modules/admin/services/keyword-plan-gates.dedup.test.ts (extrait)",
+    "app:backend/src/modules/admin/controllers/internal-seo-audit.r3.test.ts (nouveau test)",
+    "app:backend/src/database/services/supabase-base.service.ts (constructeur)",
+    "app:backend/src/auth/internal-api-key.guard.ts",
+    "app:backend/src/config/keyword-plan.constants.ts (sections)",
+    "app:backend/src/modules/admin/admin.module.ts (providers)",
+    "app:backend/jest.config.js (extrait)",
+    "app:workspaces/seo-batch/.claude/agents/r3-keyword-planner.md",
+    "app:workspaces/seo-batch/.claude/skills/seo-content-loop/SKILL.md (extraits)",
+    "vault:ops/moc/MOC-Decisions.md (ADR059)",
+    "vault:ledger/decisions/adr/ADR-059-seo-runtime-projection.md (statut et extraits)"
+  ],
+  "roots": {
+    "app": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912",
+    "vault": "/opt/automecanik/governance-editorial-pipeline-20260912"
+  },
+  "freshness": "App HEAD 0c31807c, 12 commits amont. Pas de modification amont des trois proprietaires audit. R3GuideService et ses tests different en amont (filtre META), non modifies dans ce lot.",
+  "authorization": "Corrections et poursuite demandees; candidat isole uniquement",
+  "corrections_applied": [
+    "Endpoint GET interne audit/r3/:pgId sous garde existante",
+    "Service auditGamme: lecture complete, recalcul sans ecriture, gates existants, anomalies explicites",
+    "13 tests HTTP avec DI reelle et transport Supabase memoire",
+    "Instructions planner raccordees au point entree candidat"
+  ],
+  "corrections_proposed": [
+    "Brancher le consommateur de boucle apres validation du candidat",
+    "Completer collecte utile et qualification des preuves",
+    "Rendu md vers HTML conforme au contrat R3 puis preuve du contenu servi"
+  ],
+  "validation_executed": {
+    "before": "Endpoint absent: assertions HTTP echouent sur 404",
+    "after": "13 tests HTTP PASS avec vraie DI NestJS, garde et client Supabase; 59 tests voisins PASS (72 tests distincts /6 suites, deux commandes)",
+    "lint": "ESLint 3 fichiers PASS; second lint du test final PASS",
+    "docs": "Validateur planner 0 blocage/0 avertissement et YAML PASS",
+    "diff": "Diff-check des fichiers modifies PASS",
+    "database": "Requetes du client Supabase executees sur transport en memoire; aucune DB partagee",
+    "runtime": "Non active; aucune preuve de scheduler ou page publique"
+  },
+  "excluded_paths": [
+    "DB et corpus partages",
+    "Flags, queues et crons actifs",
+    "Rendu public, metadonnees indexees, URLs",
+    "RAG et autres roles"
+  ],
+  "unscanned_zones": [
+    "Authentification reseau de environnement reel",
+    "Schema et privileges DB live",
+    "Appel effectif du scheduler",
+    "Sources primaires et classement SEO",
+    "Renderer R3 futur"
+  ],
+  "remaining_unknowns": [
+    "Sources declarees ne prouvent pas les faits",
+    "API candidate non deployee et boucle active non raccordee",
+    "Identites non canoniques signalees sans fusion",
+    "Lecture tronquee refusee, pas de pagination volumineuse de cet endpoint par gamme",
+    "Anciennes notes conservees en DB; read audit ne les remplace pas",
+    "Pack complet ne prouve pas rendu public"
+  ],
+  "patch_sha256": "ef10658dc2f4e00e3bd3d59b385f7ebec9852585225583644a5fa2ae46eadbd9",
+  "patch_scope": "Delta de ce tour sur index precedent plus nouveau test; les corrections de score anterieures restent prerequisites",
+  "evidence": [
+    "r3-audit-api.patch",
+    "r3-audit-api-before.log",
+    "r3-audit-api-after.log",
+    "r3-audit-api-http-final.log",
+    "r3-audit-api-lint.log",
+    "r3-audit-api-http-lint.log"
+  ],
+  "docs_checked": [
+    "https://supabase.com/changelog.md",
+    "https://supabase.com/docs/reference/javascript/select"
+  ],
+  "final_status": "PARTIAL_COVERAGE"
+}

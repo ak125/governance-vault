@@ -1,0 +1,181 @@
+{
+  "pass": 1,
+  "warn": 6,
+  "fail": 8,
+  "results": [
+    {
+      "slug": "citroen-c3",
+      "status": "PASS",
+      "fails": [],
+      "warns": [],
+      "coverage_entries": 5,
+      "h2_sections": 7
+    },
+    {
+      "slug": "courroie-d-accessoire",
+      "status": "WARN",
+      "fails": [],
+      "warns": [
+        "coverage_map_absente: aucune proposals/_coverage/courroie-d-accessoire.coverage.yaml (la fiche a 8 sections H2 sourçables → dim A du score = 0)"
+      ],
+      "coverage_entries": 0,
+      "h2_sections": 8
+    },
+    {
+      "slug": "dacia",
+      "status": "FAIL",
+      "fails": [
+        "entry[3].text_anchor absent de la prose de '## Gamme actuelle' (claim_id=dacia-gamme-actuelle-2024)"
+      ],
+      "warns": [],
+      "coverage_entries": 5,
+      "h2_sections": 6
+    },
+    {
+      "slug": "disque-de-frein",
+      "status": "WARN",
+      "fails": [],
+      "warns": [
+        "coverage_map_absente: aucune proposals/_coverage/disque-de-frein.coverage.yaml (la fiche a 14 sections H2 sourçables → dim A du score = 0)"
+      ],
+      "coverage_entries": 0,
+      "h2_sections": 14
+    },
+    {
+      "slug": "filtre-a-huile",
+      "status": "FAIL",
+      "fails": [
+        "entry[1].text_anchor absent de la prose de '## Critères de choix selon le véhicule' (claim_id=filtre-huile-efficacite-iso-4548-12)",
+        "entry[2].text_anchor absent de la prose de '## Fonctionnement' (claim_id=filtre-huile-bypass-clapet-iso-4548-2)",
+        "entry[3].text_anchor absent de la prose de '## Fonctionnement' (claim_id=filtre-huile-anti-retour-iso-4548-9)",
+        "entry[6].text_anchor absent de la prose de '## Critères de choix selon le véhicule' (claim_id=filtre-huile-cartouche-vs-spinon-type-moteur)",
+        "entry[7].text_anchor absent de la prose de '## Fonctionnement' (claim_id=filtre-huile-anti-retour-orientation)",
+        "entry[8].text_anchor absent de la prose de '## Symptômes & diagnostic' (claim_id=filtre-huile-bypass-huile-non-filtree)",
+        "entry[9].text_anchor absent de la prose de '## Marques & qualité' (claim_id=filtre-huile-trois-niveaux-qualite-oe-oes-equivalent)",
+        "entry[10].text_anchor absent de la prose de '## Marques & qualité' (claim_id=filtre-huile-oes-droit-rechange)",
+        "entry[12].text_anchor absent de la prose de '## Critères de choix selon le véhicule' (claim_id=filtre-huile-clapets-cartouche-dans-boitier)",
+        "entry[13].text_anchor absent de la prose de '## Fonctionnement' (claim_id=filtre-huile-bypass-pression-engine-tied)"
+      ],
+      "warns": [],
+      "coverage_entries": 14,
+      "h2_sections": 9
+    },
+    {
+      "slug": "ford-focus-3",
+      "status": "FAIL",
+      "fails": [
+        "entry[0].text_anchor absent de la prose de '## Présentation' (claim_id=focus-3-c346-2011-2018)",
+        "entry[1].text_anchor absent de la prose de '## Particularités d'entretien' (claim_id=focus-3-rs-mk3-350ch-4wd-drift)",
+        "entry[3].text_anchor absent de la prose de '## Particularités d'entretien' (claim_id=focus-3-powershift-dct-usure)",
+        "entry[4].text_anchor absent de la prose de '## Particularités d'entretien' (claim_id=focus-3-vidange-powershift-50000km)"
+      ],
+      "warns": [],
+      "coverage_entries": 5,
+      "h2_sections": 7
+    },
+    {
+      "slug": "peugeot-206",
+      "status": "FAIL",
+      "fails": [
+        "entry[0].text_anchor absent de la prose de '## Présentation' (claim_id=206-1998-2013-9m-unites)",
+        "entry[1].text_anchor absent de la prose de '## Présentation' (claim_id=206-3-phases-1-2-plus)",
+        "entry[2].text_anchor absent de la prose de '## Particularités d'entretien' (claim_id=206-rc-177ch-rfk-ew10j4s)"
+      ],
+      "warns": [],
+      "coverage_entries": 5,
+      "h2_sections": 7
+    },
+    {
+      "slug": "plaquette-de-frein",
+      "status": "FAIL",
+      "fails": [
+        "entry[5].text_anchor absent de la prose de '## Définition' (claim_id=plaquette-etrier-flottant-vs-fixe)",
+        "entry[7].text_anchor absent de la prose de '## Critères de choix' (claim_id=plaquette-sens-montage-cote-piston)",
+        "entry[8].text_anchor absent de la prose de '## Critères de choix' (claim_id=plaquette-temoin-usure-types)",
+        "entry[9].text_anchor absent de la prose de '## Critères de choix' (claim_id=plaquette-rodage-200km)",
+        "entry[10].text_anchor absent de la prose de '## Critères de choix' (claim_id=plaquette-dix-criteres-oe-vs-equivalent)",
+        "entry[11].text_anchor absent de la prose de '## Critères de choix' (claim_id=plaquette-temoin-usure-delphi)"
+      ],
+      "warns": [],
+      "coverage_entries": 12,
+      "h2_sections": 9
+    },
+    {
+      "slug": "renault-clio-3",
+      "status": "FAIL",
+      "fails": [
+        "entry[0].text_anchor absent de la prose de '## Présentation' (claim_id=clio-3-iii-br-cr-2005-2014)",
+        "entry[1].text_anchor absent de la prose de '## Présentation' (claim_id=clio-3-caracteristiques-techniques-2009)",
+        "entry[3].text_anchor absent de la prose de '## Particularités d'entretien' (claim_id=clio-3-rappel-platine-fusibles)",
+        "entry[6].text_anchor absent de la prose de '## Présentation' (claim_id=clio-3-vehicules-proches-modus-twingo-sandero)"
+      ],
+      "warns": [],
+      "coverage_entries": 7,
+      "h2_sections": 7
+    },
+    {
+      "slug": "renault-megane-3",
+      "status": "FAIL",
+      "fails": [
+        "entry[0].text_anchor absent de la prose de '## Présentation' (claim_id=megane-3-iii-2008-2016)",
+        "entry[1].text_anchor absent de la prose de '## Particularités d'entretien' (claim_id=megane-3-rs-trophy-265ch-record-nurburgring)",
+        "entry[4].text_anchor absent de la prose de '## Particularités d'entretien' (claim_id=megane-3-edc-vidange-60000km)"
+      ],
+      "warns": [],
+      "coverage_entries": 5,
+      "h2_sections": 7
+    },
+    {
+      "slug": "renault-scenic-ii",
+      "status": "WARN",
+      "fails": [],
+      "warns": [
+        "coverage_map_absente: aucune proposals/_coverage/renault-scenic-ii.coverage.yaml (la fiche a 6 sections H2 sourçables → dim A du score = 0)"
+      ],
+      "coverage_entries": 0,
+      "h2_sections": 6
+    },
+    {
+      "slug": "support-moteur",
+      "status": "WARN",
+      "fails": [],
+      "warns": [
+        "coverage_map_absente: aucune proposals/_coverage/support-moteur.coverage.yaml (la fiche a 8 sections H2 sourçables → dim A du score = 0)"
+      ],
+      "coverage_entries": 0,
+      "h2_sections": 8
+    },
+    {
+      "slug": "thermostat",
+      "status": "WARN",
+      "fails": [],
+      "warns": [
+        "coverage_map_absente: aucune proposals/_coverage/thermostat.coverage.yaml (la fiche a 8 sections H2 sourçables → dim A du score = 0)"
+      ],
+      "coverage_entries": 0,
+      "h2_sections": 8
+    },
+    {
+      "slug": "vanne-egr",
+      "status": "WARN",
+      "fails": [],
+      "warns": [
+        "coverage_map_absente: aucune proposals/_coverage/vanne-egr.coverage.yaml (la fiche a 9 sections H2 sourçables → dim A du score = 0)"
+      ],
+      "coverage_entries": 0,
+      "h2_sections": 9
+    },
+    {
+      "slug": "volkswagen-golf-6",
+      "status": "FAIL",
+      "fails": [
+        "entry[0].text_anchor absent de la prose de '## Présentation' (claim_id=golf-6-vi-5k-2008-2012)",
+        "entry[4].text_anchor absent de la prose de '## Particularités d'entretien' (claim_id=golf-6-dsg-vidange-60000km-mecatronique)",
+        "entry[5].text_anchor absent de la prose de '## Particularités d'entretien' (claim_id=golf-6-r-mk6-270ch-4motion-haldex)"
+      ],
+      "warns": [],
+      "coverage_entries": 6,
+      "h2_sections": 7
+    }
+  ]
+}

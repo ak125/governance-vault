@@ -1,0 +1,36 @@
+
+/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/config/scoring-profiles.config.ts
+   24:5   warning  ⚠️ Legacy SEO role literal in OUTPUT context. Use normalizeRoleId() / @repo/seo-roles canonical RoleId. (Legacy values OK in inputs, tests, fixtures, mappings de référence.)  no-restricted-syntax
+   26:5   warning  ⚠️ Legacy SEO role literal in OUTPUT context. Use normalizeRoleId() / @repo/seo-roles canonical RoleId. (Legacy values OK in inputs, tests, fixtures, mappings de référence.)  no-restricted-syntax
+   27:5   warning  ⚠️ Legacy SEO role literal in OUTPUT context. Use normalizeRoleId() / @repo/seo-roles canonical RoleId. (Legacy values OK in inputs, tests, fixtures, mappings de référence.)  no-restricted-syntax
+   96:3   warning  ⚠️ Legacy SEO role literal in OUTPUT context. Use normalizeRoleId() / @repo/seo-roles canonical RoleId. (Legacy values OK in inputs, tests, fixtures, mappings de référence.)  no-restricted-syntax
+   98:3   warning  ⚠️ Legacy SEO role literal in OUTPUT context. Use normalizeRoleId() / @repo/seo-roles canonical RoleId. (Legacy values OK in inputs, tests, fixtures, mappings de référence.)  no-restricted-syntax
+  102:56  warning  ⚠️ Legacy SEO role literal in OUTPUT context. Use normalizeRoleId() / @repo/seo-roles canonical RoleId. (Legacy values OK in inputs, tests, fixtures, mappings de référence.)  no-restricted-syntax
+  207:15  warning  ⚠️ Legacy SEO role literal in OUTPUT context. Use normalizeRoleId() / @repo/seo-roles canonical RoleId. (Legacy values OK in inputs, tests, fixtures, mappings de référence.)  no-restricted-syntax
+  325:15  warning  ⚠️ Legacy SEO role literal in OUTPUT context. Use normalizeRoleId() / @repo/seo-roles canonical RoleId. (Legacy values OK in inputs, tests, fixtures, mappings de référence.)  no-restricted-syntax
+  365:15  warning  ⚠️ Legacy SEO role literal in OUTPUT context. Use normalizeRoleId() / @repo/seo-roles canonical RoleId. (Legacy values OK in inputs, tests, fixtures, mappings de référence.)  no-restricted-syntax
+
+/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/admin/services/quality-scoring-engine.service.ts
+   235:16  warning  ⚠️ Legacy SEO role literal in OUTPUT context. Use normalizeRoleId() / @repo/seo-roles canonical RoleId. (Legacy values OK in inputs, tests, fixtures, mappings de référence.)  no-restricted-syntax
+   236:38  warning  ⚠️ Legacy SEO role literal in OUTPUT context. Use normalizeRoleId() / @repo/seo-roles canonical RoleId. (Legacy values OK in inputs, tests, fixtures, mappings de référence.)  no-restricted-syntax
+   238:40  warning  ⚠️ Legacy SEO role literal in OUTPUT context. Use normalizeRoleId() / @repo/seo-roles canonical RoleId. (Legacy values OK in inputs, tests, fixtures, mappings de référence.)  no-restricted-syntax
+   376:12  warning  ⚠️ Legacy SEO role literal in OUTPUT context. Use normalizeRoleId() / @repo/seo-roles canonical RoleId. (Legacy values OK in inputs, tests, fixtures, mappings de référence.)  no-restricted-syntax
+   518:12  warning  ⚠️ Legacy SEO role literal in OUTPUT context. Use normalizeRoleId() / @repo/seo-roles canonical RoleId. (Legacy values OK in inputs, tests, fixtures, mappings de référence.)  no-restricted-syntax
+   545:12  warning  ⚠️ Legacy SEO role literal in OUTPUT context. Use normalizeRoleId() / @repo/seo-roles canonical RoleId. (Legacy values OK in inputs, tests, fixtures, mappings de référence.)  no-restricted-syntax
+   567:22  warning  ⚠️ Legacy SEO role literal in OUTPUT context. Use normalizeRoleId() / @repo/seo-roles canonical RoleId. (Legacy values OK in inputs, tests, fixtures, mappings de référence.)  no-restricted-syntax
+   643:22  warning  ⚠️ Legacy SEO role literal in OUTPUT context. Use normalizeRoleId() / @repo/seo-roles canonical RoleId. (Legacy values OK in inputs, tests, fixtures, mappings de référence.)  no-restricted-syntax
+   661:12  warning  ⚠️ Legacy SEO role literal in OUTPUT context. Use normalizeRoleId() / @repo/seo-roles canonical RoleId. (Legacy values OK in inputs, tests, fixtures, mappings de référence.)  no-restricted-syntax
+   667:12  warning  ⚠️ Legacy SEO role literal in OUTPUT context. Use normalizeRoleId() / @repo/seo-roles canonical RoleId. (Legacy values OK in inputs, tests, fixtures, mappings de référence.)  no-restricted-syntax
+   670:12  warning  ⚠️ Legacy SEO role literal in OUTPUT context. Use normalizeRoleId() / @repo/seo-roles canonical RoleId. (Legacy values OK in inputs, tests, fixtures, mappings de référence.)  no-restricted-syntax
+   803:29  warning  ⚠️ Legacy SEO role literal in OUTPUT context. Use normalizeRoleId() / @repo/seo-roles canonical RoleId. (Legacy values OK in inputs, tests, fixtures, mappings de référence.)  no-restricted-syntax
+   845:12  warning  ⚠️ Legacy SEO role literal in OUTPUT context. Use normalizeRoleId() / @repo/seo-roles canonical RoleId. (Legacy values OK in inputs, tests, fixtures, mappings de référence.)  no-restricted-syntax
+   860:12  warning  ⚠️ Legacy SEO role literal in OUTPUT context. Use normalizeRoleId() / @repo/seo-roles canonical RoleId. (Legacy values OK in inputs, tests, fixtures, mappings de référence.)  no-restricted-syntax
+   865:12  warning  ⚠️ Legacy SEO role literal in OUTPUT context. Use normalizeRoleId() / @repo/seo-roles canonical RoleId. (Legacy values OK in inputs, tests, fixtures, mappings de référence.)  no-restricted-syntax
+   892:22  warning  ⚠️ Legacy SEO role literal in OUTPUT context. Use normalizeRoleId() / @repo/seo-roles canonical RoleId. (Legacy values OK in inputs, tests, fixtures, mappings de référence.)  no-restricted-syntax
+   922:22  warning  ⚠️ Legacy SEO role literal in OUTPUT context. Use normalizeRoleId() / @repo/seo-roles canonical RoleId. (Legacy values OK in inputs, tests, fixtures, mappings de référence.)  no-restricted-syntax
+   971:12  warning  ⚠️ Legacy SEO role literal in OUTPUT context. Use normalizeRoleId() / @repo/seo-roles canonical RoleId. (Legacy values OK in inputs, tests, fixtures, mappings de référence.)  no-restricted-syntax
+  1000:12  warning  ⚠️ Legacy SEO role literal in OUTPUT context. Use normalizeRoleId() / @repo/seo-roles canonical RoleId. (Legacy values OK in inputs, tests, fixtures, mappings de référence.)  no-restricted-syntax
+  1007:12  warning  ⚠️ Legacy SEO role literal in OUTPUT context. Use normalizeRoleId() / @repo/seo-roles canonical RoleId. (Legacy values OK in inputs, tests, fixtures, mappings de référence.)  no-restricted-syntax
+
+✖ 29 problems (0 errors, 29 warnings)
+

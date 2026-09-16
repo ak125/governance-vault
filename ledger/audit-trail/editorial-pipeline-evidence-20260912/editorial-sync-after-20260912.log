@@ -1,0 +1,20 @@
+sync-from-wiki: 1 export files, written=0, skipped=0, failed=0 (dry-run; pass --apply to commit)
+.sync-from-wiki: no export files under /tmp/tmpkrn7m3m4/wiki-repo/exports/rag; mirror not refreshed
+.FAIL  gammes/oil.md: write failed: disk unavailable
+sync-from-wiki: 1 export files, written=0, skipped=0, failed=1
+.sync-from-wiki: 1 export files, written=1, skipped=0, failed=0
+manifest write FAILED: manifest unavailable
+.sync-from-wiki: source unavailable: /tmp/tmp2iov0u3t/wiki-repo/exports/rag
+.....sync-from-wiki: 1 export files, written=1, skipped=0, failed=0
+manifest written: /tmp/tmp2t38h353/rag-repo/knowledge/.last-sync.json
+sync-from-wiki: 1 export files, written=0, skipped=1, failed=0
+manifest written: /tmp/tmp2t38h353/rag-repo/knowledge/.last-sync.json
+.
+----------------------------------------------------------------------
+Ran 10 tests in 0.017s
+
+OK
+DRY   gammes/oil.md → /tmp/tmp2kntp1go/rag-repo/knowledge/gammes/oil.md
+WRITE gammes/oil.md
+WRITE gammes/oil.md
+SKIP  gammes/oil.md (sha256 match)

@@ -1,0 +1,79 @@
+{
+  "scope_requested": "Continuer la correction robuste du systeme de preuve editorial.",
+  "scope_actually_scanned": "Admission de claims sans archive au score eleve ; integrite des octets et fraicheur avant application.",
+  "files_read_count": 17,
+  "files_read": [
+    "/opt/automecanik/wiki-editorial-qualification-20260912/CLAUDE.md",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_meta/agent-exit-contract.md",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/promotion_decision.py",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/shadow_score.py",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/test_promotion_decision.py",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/gen_coverage_map.py",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/check-coverage-map.py",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/quality-gates.py",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/tests/test_check_coverage_map.py",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_meta/schema/coverage-map.schema.json",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/tests/test_source_catalog_raw_refs.py",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/manifests/source-inventory.csv",
+    "/opt/automecanik/governance-editorial-pipeline-20260912/ledger/audit-trail/editorial-pipeline-evidence-20260912/proof-gate-tests-before.log",
+    "/opt/automecanik/governance-editorial-pipeline-20260912/ledger/audit-trail/editorial-pipeline-evidence-20260912/proof-gate-tests-after.log",
+    "/opt/automecanik/governance-editorial-pipeline-20260912/ledger/audit-trail/editorial-pipeline-evidence-20260912/proof-gate-archive-before.log",
+    "/opt/automecanik/governance-editorial-pipeline-20260912/ledger/audit-trail/editorial-pipeline-evidence-20260912/proof-gate-regression.log",
+    "/opt/automecanik/governance-editorial-pipeline-20260912/ledger/audit-trail/editorial-pipeline-evidence-20260912/proof-gate-promotion.json"
+  ],
+  "read_depth": "Lectures ciblees des fonctions, contrats et tests ; inventaire RAW limite a entete/exemple pour lecture manuelle, charge par les controles natifs. Logs de contre-preuves et de validation consultes.",
+  "automated_validation": {
+    "pytest_cases_passed": 232,
+    "new_cases": 23,
+    "guide_dry_runs": 1,
+    "guide_structural_check": 1
+  },
+  "excluded_paths": [
+    "Application, trois documents seo-batch utilisateur",
+    "Autres propositions et corpus de contenus",
+    "RAW sources non referencees par la carte",
+    "Runtime/infra/DB/cron/secrets/exports"
+  ],
+  "unscanned_zones": [
+    "Verification semantique source-vers-affirmation",
+    "Exhaustivite de la carte et droits de publication",
+    "Contenu servi, CI et metriques SEO"
+  ],
+  "corrections_proposed": [
+    "Verifier la disponibilite des preuves sans compensation par score",
+    "Verifier les octets des archives referencees",
+    "Inclure ces archives dans le controle de fraicheur de decision"
+  ],
+  "corrections_applied": {
+    "authorization": "Demandes utilisateur de corriger, ameliorer et continuer ; candidat isole seulement",
+    "files": [
+      "_scripts/check-coverage-map.py",
+      "_scripts/quality-gates.py",
+      "_scripts/promotion_decision.py",
+      "_scripts/test_promotion_decision.py",
+      "log.md"
+    ]
+  },
+  "validation_executed": [
+    "Sept contre-exemples rouges avant premier correctif",
+    "Quatre contre-exemples archives rouges avant second correctif",
+    "232 tests cibles PASS sur etat final du code",
+    "py_compile PASS",
+    "Guide natif BLOCKED avec 6 preuves pending explicites et 3 ancres",
+    "Diff cible sans erreur de whitespace"
+  ],
+  "remaining_unknowns": [
+    "Appui semantique des passages et exhaustivite du guide",
+    "ISO capture403, OE/OES, diagnostic, montage/reutilisation",
+    "Reality manifest stale et aucun controle site/CI distante"
+  ],
+  "candidate_sha256": {
+    "_scripts/check-coverage-map.py": "62747f44973d62c8f1a978d20d31814ac6e8350d888dd14f92857d7288f1b0ec",
+    "_scripts/quality-gates.py": "9e1a7f24057aa5fdf5205397a82f7a04555ae360e3b151f68522f3140a548ab1",
+    "_scripts/promotion_decision.py": "a0b4d08358970fd959dae91229073f5894c36f53625341c142e0a72686e9f41b",
+    "_scripts/test_promotion_decision.py": "078426250a5e18c36a7be7ff13f9cbf34dfb431ee2928a75ca4f916400ee7959",
+    "log.md": "3a4d355b88a743d2dddf307c0beda0654712f97c5b2bceeab73d2d6e594190dd"
+  },
+  "final_status": "PARTIAL_COVERAGE",
+  "bounded_validation": "VALIDATED_FOR_SCOPE_ONLY"
+}

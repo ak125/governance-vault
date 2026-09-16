@@ -1,0 +1,8 @@
+PASS src/modules/seo-projection/seo-projection-writer-role-scope.test.ts (17.224 s)
+PASS src/modules/seo-projection/seo-projection-writer.test.ts
+PASS src/modules/seo-projection/seo-projection-snapshot.test.ts
+
+Test Suites: 3 passed, 3 total
+Tests:       58 passed, 58 total
+Snapshots:   0 total
+Time:        18.043 s, estimated 20 s

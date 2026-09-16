@@ -1,0 +1,40 @@
+{
+  "scope": "scoreSection only; no DB, no publication",
+  "section": "S1",
+  "content": "banane repeated 60 times",
+  "sources": "not-a-source",
+  "result": {
+    "score": 50,
+    "penalties": [
+      {
+        "flag": "CONTENT_TOO_SHORT",
+        "points": 20
+      },
+      {
+        "flag": "WORD_COUNT_LOW",
+        "points": 15
+      },
+      {
+        "flag": "NO_SOURCES",
+        "points": 15
+      }
+    ]
+  },
+  "no_sources_result": {
+    "score": 50,
+    "penalties": [
+      {
+        "flag": "CONTENT_TOO_SHORT",
+        "points": 20
+      },
+      {
+        "flag": "WORD_COUNT_LOW",
+        "points": 15
+      },
+      {
+        "flag": "NO_SOURCES",
+        "points": 15
+      }
+    ]
+  }
+}

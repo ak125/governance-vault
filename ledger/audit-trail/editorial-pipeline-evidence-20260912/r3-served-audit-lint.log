@@ -1,0 +1,6 @@
+
+/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/seo/interceptors/page-role-validation.interceptor.ts
+  70:71  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 1 problem (0 errors, 1 warning)
+

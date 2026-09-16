@@ -1,0 +1,555 @@
+diff --git a/backend/src/modules/admin/services/conseil-quality-scorer.service.test.ts b/backend/src/modules/admin/services/conseil-quality-scorer.service.test.ts
+new file mode 100644
+index 000000000..605ade55d
+--- /dev/null
++++ b/backend/src/modules/admin/services/conseil-quality-scorer.service.test.ts
+@@ -0,0 +1,228 @@
++import { ConseilQualityScorerService } from './conseil-quality-scorer.service';
++import { PACK_DEFINITIONS } from '../../../config/conseil-pack.constants';
++
++type SectionRow = {
++  sgc_section_type: string;
++  sgc_quality_score: number | null;
++};
++
++const standardRows = (score: number | null = 80): SectionRow[] =>
++  PACK_DEFINITIONS.standard.requiredSections.map((section) => ({
++    sgc_section_type: section,
++    sgc_quality_score: score,
++  }));
++
++// Exercise the public coverage path with an in-memory read adapter. No service
++// constructor, database, network, backfill or publication is invoked.
++async function coverage(rows: SectionRow[]) {
++  const read = {
++    select: jest.fn().mockReturnThis(),
++    eq: jest.fn().mockReturnThis(),
++    not: jest.fn().mockResolvedValue({ data: rows, error: null }),
++    single: jest.fn().mockResolvedValue({ data: { pg_alias: 'fixture' } }),
++  };
++  const service = Object.create(
++    ConseilQualityScorerService.prototype,
++  ) as ConseilQualityScorerService;
++  Object.defineProperty(service, 'client', {
++    value: { from: jest.fn().mockReturnValue(read) },
++  });
++  return service.computeGammeCoverage('1');
++}
++
++describe('Conseil pack coverage: presence is distinct from score qualification', () => {
++  it('keeps structural completeness but exposes missing scores, without a misleading average', async () => {
++    const rows = standardRows();
++    rows[0].sgc_quality_score = null;
++    expect((await coverage(rows)).standard).toEqual(
++      expect.objectContaining({
++        packComplete: true,
++        coverage: 1,
++        avgQuality: null,
++        qualityStatus: 'not_evaluable',
++        unscoredSections: ['S1'],
++      }),
++    );
++  });
++
++  it('does not hide a section below its floor behind a high pack average', async () => {
++    const rows = standardRows(100);
++    rows[0].sgc_quality_score = 59;
++    expect((await coverage(rows)).standard).toEqual(
++      expect.objectContaining({
++        packComplete: true,
++        qualityStatus: 'below_threshold',
++        lowQualitySections: ['S1'],
++      }),
++    );
++  });
++
++  it('applies the pack threshold even when every section reaches its floor', async () => {
++    expect((await coverage(standardRows(60))).standard).toEqual(
++      expect.objectContaining({
++        qualityStatus: 'below_threshold',
++        lowQualitySections: [],
++      }),
++    );
++  });
++
++  it('does not round a score up into acceptance', async () => {
++    const rows = standardRows(70);
++    rows[0].sgc_quality_score = 69;
++    expect((await coverage(rows)).standard).toEqual(
++      expect.objectContaining({
++        avgQuality: 70,
++        qualityStatus: 'below_threshold',
++      }),
++    );
++  });
++
++  it('accepts the configured pack threshold exactly, without certifying factual excellence', async () => {
++    expect((await coverage(standardRows(70))).standard).toEqual(
++      expect.objectContaining({
++        avgQuality: 70,
++        qualityStatus: 'meets_thresholds',
++      }),
++    );
++  });
++
++  it('does not weight a duplicated section more heavily or silently select one copy', async () => {
++    const rows = standardRows(70);
++    rows.push({ sgc_section_type: 'S1', sgc_quality_score: 100 });
++    expect((await coverage(rows)).standard).toEqual(
++      expect.objectContaining({
++        coverage: 1,
++        packComplete: true,
++        avgQuality: null,
++        qualityStatus: 'not_evaluable',
++        duplicateSections: ['S1'],
++      }),
++    );
++  });
++
++  it.each([-1, 101, Number.NaN, Number.POSITIVE_INFINITY])(
++    'rejects invalid stored score %s without clamping it into a valid score',
++    async (score) => {
++      const rows = standardRows();
++      rows[0].sgc_quality_score = score;
++      expect((await coverage(rows)).standard).toEqual(
++        expect.objectContaining({
++          avgQuality: null,
++          qualityStatus: 'not_evaluable',
++          invalidScoreSections: ['S1'],
++        }),
++      );
++    },
++  );
++
++  it('does not give an incomplete pack the average of its only scored section', async () => {
++    expect((await coverage(standardRows(100).slice(0, 1))).standard).toEqual(
++      expect.objectContaining({
++        packComplete: false,
++        avgQuality: null,
++        qualityStatus: 'not_evaluable',
++      }),
++    );
++  });
++
++  it('does not count optional or unknown sections towards the required-pack average', async () => {
++    const rows = standardRows(70);
++    rows.push({ sgc_section_type: 'S7', sgc_quality_score: null });
++    rows.push({ sgc_section_type: 'UNKNOWN', sgc_quality_score: 100 });
++    expect((await coverage(rows)).standard).toEqual(
++      expect.objectContaining({
++        avgQuality: 70,
++        qualityStatus: 'meets_thresholds',
++      }),
++    );
++  });
++
++  it('uses each pack own thresholds', async () => {
++    const rows = PACK_DEFINITIONS.eeat.requiredSections.map((section) => ({
++      sgc_section_type: section,
++      sgc_quality_score: 80,
++    }));
++    const result = await coverage(rows);
++    expect(result.standard).toEqual(
++      expect.objectContaining({ qualityStatus: 'meets_thresholds' }),
++    );
++    expect(result.pro).toEqual(
++      expect.objectContaining({ qualityStatus: 'meets_thresholds' }),
++    );
++    expect(result.eeat).toEqual(
++      expect.objectContaining({ qualityStatus: 'below_threshold' }),
++    );
++  });
++});
++
++describe('Conseil section measurement and declared references', () => {
++  const scorer = Object.create(
++    ConseilQualityScorerService.prototype,
++  ) as ConseilQualityScorerService;
++  const text =
++    'Le filtre retient les impuretés transportées par le lubrifiant. Son élément filtrant doit correspondre au montage prévu pour le véhicule. Un modèle vissé comprend un boîtier complet alors qu’une cartouche remplaçable se loge dans un support conservé. Le choix nécessite de vérifier la compatibilité dans le catalogue et les prescriptions applicables au véhicule concerné.';
++
++  it.each([
++    null,
++    '',
++    '   ',
++    'not-a-source',
++    'null',
++    '{}',
++    '[]',
++    '[null]',
++    '[42]',
++    '[{}]',
++    '[""]',
++    '["   "]',
++    '[{"ref":42}]',
++  ])(
++    'does not credit missing or malformed source references: %s',
++    (sources) => {
++      expect(scorer.scoreSection('S1', text, sources).penalties).toContainEqual(
++        { flag: 'NO_SOURCES', points: 15 },
++      );
++    },
++  );
++
++  it.each([
++    '["wiki/gammes/filtre.md"]',
++    '[{"type":"wiki","ref":"wiki/gammes/filtre.md"}]',
++  ])(
++    'preserves supported declared reference formats without certifying their truth: %s',
++    (sources) => {
++      expect(
++        scorer.scoreSection('S1', text, sources).penalties,
++      ).not.toContainEqual({ flag: 'NO_SOURCES', points: 15 });
++    },
++  );
++
++  it('does not let long HTML attributes satisfy the content-length criterion', () => {
++    const result = scorer.scoreSection(
++      'S1',
++      `<p class="${'padding '.repeat(60)}">Filtre.</p>`,
++      null,
++    );
++    expect(result.penalties).toContainEqual({
++      flag: 'CONTENT_TOO_SHORT',
++      points: 20,
++    });
++  });
++
++  it('does not reward a run of the same word as additional substance', () => {
++    const once = scorer.scoreSection('S1', '<p>banane</p>', 'not-a-source');
++    const repeated = scorer.scoreSection(
++      'S1',
++      `<p>${'banane '.repeat(60)}</p>`,
++      'not-a-source',
++    );
++    expect(repeated).toEqual(once);
++    expect(repeated.score).toBe(50);
++  });
++
++  it('keeps the score of ordinary prose with repeated technical terms unchanged', () => {
++    expect(
++      scorer.scoreSection('S1', text, '["wiki/gammes/filtre.md"]').score,
++    ).toBe(100);
++  });
++});
+diff --git a/backend/src/modules/admin/services/conseil-quality-scorer.service.ts b/backend/src/modules/admin/services/conseil-quality-scorer.service.ts
+index c071b9578..3d6784df3 100644
+--- a/backend/src/modules/admin/services/conseil-quality-scorer.service.ts
++++ b/backend/src/modules/admin/services/conseil-quality-scorer.service.ts
+@@ -5,6 +5,8 @@
+ 
+ import { Injectable, Logger } from '@nestjs/common';
+ import { SupabaseBaseService } from '@database/services/supabase-base.service';
++import { hasDeclaredSourceReferences } from '../../blog/utils/source-provenance.util';
++import { deduplicateWords } from '../../blog/utils/html-normalize.utils';
+ import {
+   type PackLevel,
+   PACK_DEFINITIONS,
+@@ -26,8 +28,16 @@ export interface PackCoverageResult {
+   presentSections: string[];
+   missingSections: string[];
+   coverage: number;
++  /** Average of exactly one valid score per required section, otherwise null. */
+   avgQuality: number | null;
++  /** Structural presence only; does not imply score qualification. */
+   packComplete: boolean;
++  /** Existing score thresholds only, not a factual or SEO ranking verdict. */
++  qualityStatus: 'not_evaluable' | 'below_threshold' | 'meets_thresholds';
++  unscoredSections: string[];
++  invalidScoreSections: string[];
++  duplicateSections: string[];
++  lowQualitySections: string[];
+ }
+ 
+ export interface GammeCoverageResult {
+@@ -50,7 +60,7 @@ export class ConseilQualityScorerService extends SupabaseBaseService {
+   // ── Public API ───────────────────────────────────────────
+ 
+   /**
+-   * Score a single section (0-100) based on content quality criteria.
++   * Heuristic section score (0-100), not a verdict on factual truth or ranking.
+    */
+   scoreSection(
+     sectionType: string,
+@@ -63,11 +73,18 @@ export class ConseilQualityScorerService extends SupabaseBaseService {
+     let score = 100;
+     const penalties: Array<{ flag: string; points: number }> = [];
+ 
+-    const stripped = this.stripHtml(content);
++    // Measure text, not markup or accidental consecutive word padding. Reuse
++    // the existing normalizer to its fixed point without rewriting the content.
++    let stripped = this.stripHtml(content);
++    let deduplicated = deduplicateWords(stripped);
++    while (deduplicated !== stripped) {
++      stripped = deduplicated;
++      deduplicated = deduplicateWords(stripped);
++    }
+     const wordCount = stripped.split(/\s+/).filter(Boolean).length;
+ 
+     // Content length
+-    if (content.length < criteria.minContentLength) {
++    if (stripped.length < criteria.minContentLength) {
+       const p = 20;
+       score -= p;
+       penalties.push({ flag: 'CONTENT_TOO_SHORT', points: p });
+@@ -148,8 +165,8 @@ export class ConseilQualityScorerService extends SupabaseBaseService {
+       }
+     }
+ 
+-    // Sources
+-    if (!sources || sources === '[]' || sources === 'null') {
++    // Declared references only; evidence qualification belongs to WIKI gates.
++    if (!hasDeclaredSourceReferences(sources)) {
+       const p = 15;
+       score -= p;
+       penalties.push({ flag: 'NO_SOURCES', points: p });
+@@ -200,16 +217,49 @@ export class ConseilQualityScorerService extends SupabaseBaseService {
+         (t) => !presentTypes.has(t),
+       );
+ 
+-      const scores = sections
+-        .filter(
+-          (s) =>
+-            // `sgc_section_type` est une chaîne DB arbitraire testée pour appartenance à la
+-            // liste canonique : on élargit le RÉCEPTEUR, sans affaiblir le type du pack.
+-            (pack.requiredSections as readonly string[]).includes(
+-              s.sgc_section_type,
+-            ) && s.sgc_quality_score !== null,
+-        )
+-        .map((s) => s.sgc_quality_score!);
++      const unscoredSections: string[] = [];
++      const invalidScoreSections: string[] = [];
++      const duplicateSections: string[] = [];
++      const lowQualitySections: string[] = [];
++      const scores: number[] = [];
++
++      for (const sectionType of pack.requiredSections) {
++        const rows = sections.filter((s) => s.sgc_section_type === sectionType);
++        if (rows.length === 0) continue;
++        if (rows.length > 1) duplicateSections.push(sectionType);
++        if (rows.some((s) => s.sgc_quality_score === null)) {
++          unscoredSections.push(sectionType);
++        }
++        if (
++          rows.some(
++            (s) =>
++              s.sgc_quality_score !== null &&
++              (!Number.isFinite(s.sgc_quality_score) ||
++                s.sgc_quality_score < 0 ||
++                s.sgc_quality_score > 100),
++          )
++        ) {
++          invalidScoreSections.push(sectionType);
++        }
++        // No arbitrary selection/weighting when several rows claim the same section.
++        if (rows.length !== 1) continue;
++        const score = rows[0].sgc_quality_score;
++        if (
++          score === null ||
++          !Number.isFinite(score) ||
++          score < 0 ||
++          score > 100
++        ) {
++          continue;
++        }
++        scores.push(score);
++        if (score < pack.minSectionScore) lowQualitySections.push(sectionType);
++      }
++
++      const evaluable = scores.length === pack.requiredSections.length;
++      const average = evaluable
++        ? scores.reduce((sum, score) => sum + score, 0) / scores.length
++        : null;
+ 
+       return {
+         packLevel,
+@@ -217,11 +267,18 @@ export class ConseilQualityScorerService extends SupabaseBaseService {
+         presentSections,
+         missingSections,
+         coverage: presentSections.length / pack.requiredSections.length,
+-        avgQuality:
+-          scores.length > 0
+-            ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
+-            : null,
++        avgQuality: average === null ? null : Math.round(average),
+         packComplete: missingSections.length === 0,
++        qualityStatus:
++          average === null
++            ? 'not_evaluable'
++            : lowQualitySections.length === 0 && average >= pack.minPackScore
++              ? 'meets_thresholds'
++              : 'below_threshold',
++        unscoredSections,
++        invalidScoreSections,
++        duplicateSections,
++        lowQualitySections,
+       };
+     };
+ 
+diff --git a/backend/src/modules/admin/services/keyword-plan-gates.service.ts b/backend/src/modules/admin/services/keyword-plan-gates.service.ts
+index 708118e12..e1b605f81 100644
+--- a/backend/src/modules/admin/services/keyword-plan-gates.service.ts
++++ b/backend/src/modules/admin/services/keyword-plan-gates.service.ts
+@@ -13,6 +13,7 @@
+  */
+ 
+ import { Injectable, Logger } from '@nestjs/common';
++import { hasDeclaredSourceReferences } from '../../blog/utils/source-provenance.util';
+ import {
+   type GateResult,
+   type AuditResult,
+@@ -662,7 +663,12 @@ export class KeywordPlanGatesService {
+     const sectionsToCreate = ga1.fixes
+       .filter((f) => f.fix_type === 'create')
+       .map((f) => f.section);
+-    const sectionsToImprove = [...ga2.fixes, ...ga4.fixes, ...ga6.fixes]
++    const sectionsToImprove = [
++      ...ga2.fixes,
++      ...ga4.fixes,
++      ...ga5.fixes,
++      ...ga6.fixes,
++    ]
+       .filter((f) => f.fix_type === 'improve')
+       .map((f) => f.section)
+       .filter((s, i, arr) => arr.indexOf(s) === i);
+@@ -903,15 +909,9 @@ export class KeywordPlanGatesService {
+     result: GateResult;
+     fixes: PriorityFix[];
+   } {
+-    const noSource = sections.filter((s) => {
+-      if (!s.sources || s.sources.trim().length === 0) return true;
+-      try {
+-        const parsed = JSON.parse(s.sources);
+-        return !Array.isArray(parsed) || parsed.length === 0;
+-      } catch {
+-        return true;
+-      }
+-    });
++    const noSource = sections.filter(
++      (s) => !hasDeclaredSourceReferences(s.sources),
++    );
+     const fixes: PriorityFix[] = noSource.map((s) => ({
+       section: s.section_type,
+       issue: 'no_sources' as const,
+@@ -924,7 +924,7 @@ export class KeywordPlanGatesService {
+         status: noSource.length === 0 ? 'pass' : 'warn',
+         message:
+           noSource.length === 0
+-            ? 'All sections have E-E-A-T sources'
++            ? 'All sections declare source references (evidence not verified here)'
+             : `${noSource.length} sections missing sources: ${noSource.map((s) => s.section_type).join(', ')}`,
+       },
+       fixes,
+diff --git a/backend/src/modules/admin/services/keyword-plan-gates.sources.test.ts b/backend/src/modules/admin/services/keyword-plan-gates.sources.test.ts
+new file mode 100644
+index 000000000..adc63d6d1
+--- /dev/null
++++ b/backend/src/modules/admin/services/keyword-plan-gates.sources.test.ts
+@@ -0,0 +1,70 @@
++import { KeywordPlanGatesService } from './keyword-plan-gates.service';
++
++// Pure audit path; no database, network or publication.
++const gates = new KeywordPlanGatesService();
++const audit = (sources: string | null) =>
++  gates.runAuditGates([
++    {
++      section_type: 'S1',
++      quality_score: 100,
++      content_len: 1000,
++      content: 'Le filtre retient les impuretés présentes dans le lubrifiant.',
++      sources,
++    },
++  ]);
++
++describe('GA5 declared sources and correction routing', () => {
++  it('routes a missing source to sectionsToImprove even with a score of 100', () => {
++    const result = audit(null);
++    expect(result.gateReport.GA5_EEAT_SOURCES.status).toBe('warn');
++    expect(result.sectionsToImprove).toContain('S1');
++    expect(result.priorityFixes).toContainEqual(
++      expect.objectContaining({
++        section: 'S1',
++        issue: 'no_sources',
++        fix_type: 'improve',
++      }),
++    );
++  });
++
++  it.each(['[null]', '[{}]', '[42]', '[" "]', '[{"ref":false}]'])(
++    'does not accept an array containing no usable reference: %s',
++    (raw) => {
++      expect(audit(raw).gateReport.GA5_EEAT_SOURCES.status).toBe('warn');
++    },
++  );
++
++  it.each([
++    '["wiki/gammes/filtre.md"]',
++    '[{"type":"wiki","ref":"wiki/gammes/filtre.md"}]',
++  ])('retains supported reference shape: %s', (raw) => {
++    expect(audit(raw).gateReport.GA5_EEAT_SOURCES.status).toBe('pass');
++    expect(audit(raw).sectionsToImprove).not.toContain('S1');
++  });
++});
++
++// Regression through the audit/skip chain, not only the individual GA5 report.
++describe('Conseil audit skip decision', () => {
++  const rows = () =>
++    ['S1', 'S2', 'S3', 'S4_DEPOSE', 'S5', 'S6', 'S8'].map((section) => ({
++      section_type: section,
++      quality_score: 100,
++      content_len: 1000,
++      content: '',
++      sources: '["wiki/gammes/filtre.md"]' as string | null,
++    }));
++
++  it('does not skip an otherwise healthy pack whose source needs correction', () => {
++    const sections = rows();
++    sections[0].sources = null;
++    const result = gates.auditFromSections(sections);
++    expect(result.sections_to_improve).toContain('S1');
++    expect(gates.shouldSkipGamme(result)).toBe(false);
++  });
++
++  it('preserves the existing skip decision when all configured checks pass', () => {
++    const result = gates.auditFromSections(rows());
++    expect(result.sections_to_improve).toEqual([]);
++    expect(gates.shouldSkipGamme(result)).toBe(true);
++  });
++});
+diff --git a/backend/src/modules/blog/utils/source-provenance.util.ts b/backend/src/modules/blog/utils/source-provenance.util.ts
+index e1973687c..55d2d0e1d 100644
+--- a/backend/src/modules/blog/utils/source-provenance.util.ts
++++ b/backend/src/modules/blog/utils/source-provenance.util.ts
+@@ -43,3 +43,32 @@ export function humanizeProvenanceRef(ref: string): string {
+   if (ref.endsWith('.pdf')) return 'Documentation technique';
+   return ref;
+ }
++
++/**
++ * Validate the declared sgc_sources shape shared by section scoring and GA5.
++ * Accept the existing string-ref or object-with-ref formats. This checks the
++ * declaration only: it does not resolve the reference or verify any claim.
++ */
++export function hasDeclaredSourceReferences(
++  raw: string | null | undefined,
++): boolean {
++  if (!raw) return false;
++  try {
++    const parsed: unknown = JSON.parse(raw);
++    return (
++      Array.isArray(parsed) &&
++      parsed.length > 0 &&
++      parsed.every((entry: unknown) => {
++        const ref =
++          typeof entry === 'string'
++            ? entry
++            : entry !== null && typeof entry === 'object' && 'ref' in entry
++              ? entry.ref
++              : undefined;
++        return typeof ref === 'string' && ref.trim().length > 0;
++      })
++    );
++  } catch {
++    return false;
++  }
++}

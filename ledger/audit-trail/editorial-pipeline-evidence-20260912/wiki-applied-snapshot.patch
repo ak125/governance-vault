@@ -1,0 +1,1269 @@
+diff --git a/_scripts/README-build-exports-seo.md b/_scripts/README-build-exports-seo.md
+index bbdc0bc..9702ca3 100644
+--- a/_scripts/README-build-exports-seo.md
++++ b/_scripts/README-build-exports-seo.md
+@@ -28,7 +28,7 @@ automecanik-wiki/wiki/<entity_type_singular>/<slug>.md (review_status: approved,
+ > touche pas `wiki/`, donc ces champs ne bougent pas). `source_wiki_commit` est
+ > informational-only (audit) per ADR-059 — autorité de replay = `exports_snapshot_hash`.
+ 
+-## 9 garde-fous verrouillés (vérifiés par 49 tests Pytest)
++## 9 garde-fous verrouillés (vérifiés par Pytest)
+ 
+ | #     | Verrou                                                             | Mécanisme                                              |
+ | ----- | ------------------------------------------------------------------ | ------------------------------------------------------ |
+@@ -70,7 +70,7 @@ python3 _scripts/build_exports_seo.py \
+ python3 _scripts/build_exports_seo.py --wiki-root ... --dry-run
+ ```
+ 
+-## Tests (49/49 PASS)
++## Tests
+ 
+ ```bash
+ cd _scripts
+@@ -104,3 +104,55 @@ canon wiki puis régénérer.
+ - **PR-7** : RPC `get_active_seo_projection` + GRANT anon + adapter pages.
+ 
+ Ces composants attendent l'instruction explicite séparée (owner-gated : apply migration, GRANT, flag, deploy).
++
++## Retrait et perte d'approbation
++
++Le builder prépare le périmètre demandé avant d'écrire. Si un ancien export JSON
++n'a plus de source éligible (fiche retirée, approbation perdue ou export SEO refusé),
++la commande termine en erreur `UNRECONCILED` et conserve l'export comme preuve.
++Aucun autre export du lot n'est écrit avant cette vérification. Le mode `--entity-id`
++ne contrôle que l'export de cette entité ; le mode complet contrôle les répertoires
++SEO des types supportés. Le dry-run rapporte la même incohérence sans écrire.
++
++Ce garde ne constitue pas un tombstone ni une autorisation de supprimer : le retrait
++aval, ses dépendances et l'invalidation DB/cache/index restent à réconcilier par le
++parcours gouverné avant publication. Un échec de builder ne doit pas être annoncé
++comme un snapshot complet fraîchement publiable.
++
++### Observations de réconciliation en JSON
++
++```bash
++python3 _scripts/build_exports_seo.py --wiki-root <checkout-wiki> \
++  --entity-id gamme:filtre-a-huile --dry-run --format json
++```
++
++Le format texte reste le défaut. En JSON, un build cohérent rend `status: OK`,
++`planned` et `written` (zéro en dry-run). Un export historique sans source éligible
++rend `status: UNRECONCILED`, `written: 0` et une liste `observations` sur stdout,
++avec un code de sortie non nul et le diagnostic texte sur stderr. Les erreurs
++préalables (racine, Git, parsing ou argument invalide) gardent le comportement
++Click existant ; elles ne garantissent pas une réponse JSON.
++
++Chaque observation contient l'identité attendue depuis le chemin de l'export,
++le chemin source dérivé, les empreintes SHA-256 des octets effectivement lus et
++les déclarations observées dans l'export et le frontmatter. Le chemin `wiki_path`
++déclaré dans le JSON n'est jamais suivi ; les liens sortant du périmètre sont
++refusés. Le hash source et ses métadonnées proviennent de la même lecture.
++`source_file_sha256` désigne le fichier entier ; `observed_source.content_hash`
++reste la déclaration du hash du corps, sans équivalence supposée entre les deux.
++`observed_export.blocks` conserve les coordonnées natives des blocs ; il ne
++calcule pas leurs identifiants DB et ne vérifie pas les consommateurs.
++
++Les motifs principaux distinguent `SOURCE_MISSING`,
++`SOURCE_PRESENT_WITHOUT_ELIGIBLE_EXPORT` et
++`SOURCE_DEPRECATED_WITHOUT_WITHDRAWAL_DECISION`. Les chemins hors périmètre,
++les fichiers illisibles et les métadonnées non représentables en JSON restent
++signalés sans écrire ni supprimer les exports historiques.
++
++Ces observations sont des déclarations non validées, pas une décision de retrait.
++`withdrawal_authorized` reste toujours `false`. La validation/promotion WIKI est
++automatique selon le moteur existant `promotion_decision.py` ; ce moteur ne
++produit actuellement aucun contrat de transition de retrait. Le seul statut
++`deprecated`, l'absence d'une fiche ou la perte de son gate SEO ne peuvent pas
++remplacer cette décision, ni autoriser la purge des consommateurs. Le diagnostic
++prépare leur réconciliation sans ajouter de moteur de décision parallèle.
+diff --git a/_scripts/build_exports_seo.py b/_scripts/build_exports_seo.py
+index 1953d5b..4ac55bc 100644
+--- a/_scripts/build_exports_seo.py
++++ b/_scripts/build_exports_seo.py
+@@ -73,9 +73,10 @@ CONSUMERS_BY_ENTITY_TYPE_DEFAULT: dict[str, list[str]] = {
+ }
+ 
+ 
+-def _parse_markdown(path: Path) -> tuple[dict[str, Any], str]:
++def _parse_markdown(path: Path, *, source_bytes: bytes | None = None) -> tuple[dict[str, Any], str]:
+     """Retourne (frontmatter, body)."""
+-    text = path.read_text(encoding="utf-8")
++    text = (path.read_text(encoding="utf-8") if source_bytes is None
++            else source_bytes.decode("utf-8").replace("\r\n", "\n").replace("\r", "\n"))
+     if not text.startswith(FRONTMATTER_SEPARATOR):
+         raise click.ClickException(f"wiki source lacks frontmatter: {path}")
+     parts = text.split(f"\n{FRONTMATTER_SEPARATOR}\n", 1)
+@@ -619,6 +620,82 @@ def _iter_canon_files(wiki_root: Path) -> list[Path]:
+     return candidates
+ 
+ 
++def _unreconciled_export_evidence(export_path: Path, wiki_root: Path) -> dict:
++    """Read-only observations, never a withdrawal command or a dependency registry.
++
++    Derive the source locator from the scoped export path, not from untrusted JSON.
++    Hash the exact observed bytes; the source body hash and file hash are distinct.
++    """
++    relative = export_path.relative_to(wiki_root)
++    kind, slug = export_path.parent.name, export_path.stem
++    source = wiki_root / "wiki" / kind / f"{slug}.md"
++    evidence = {
++        "export_path": relative.as_posix(),
++        "expected_entity_id": f"{kind}:{slug}",
++        "source_path": source.relative_to(wiki_root).as_posix(),
++        "withdrawal_authorized": False,
++        "reason": "SOURCE_MISSING",
++        "export_sha256": None,
++        "source_file_sha256": None,
++        "observed_export": None,
++        "observed_source": None,
++    }
++    # Do not turn diagnostics into an arbitrary-file reader through symlinks.
++    try:
++        _enforce_output_path_strict(export_path, wiki_root)
++    except click.ClickException:
++        evidence["reason"] = "EXPORT_PATH_OUTSIDE_SCOPE"
++        return evidence
++    try:
++        export_bytes = export_path.read_bytes()
++        evidence["export_sha256"] = hashlib.sha256(export_bytes).hexdigest()
++        old = json.loads(export_bytes)
++        if not isinstance(old, dict):
++            raise ValueError("export must be an object")
++        # Python accepts NaN/Infinity on input; the diagnostic must remain JSON.
++        json.dumps(old, allow_nan=False)
++        evidence["observed_export"] = {
++            "entity_id": old.get("entity_id"),
++            "wiki_path": old.get("wiki_path"),
++            "source_wiki_commit": old.get("source_wiki_commit"),
++            "source_content_hash": old.get("content_hash"),
++            "identity_matches_path": old.get("entity_id") == f"{kind}:{slug}"
++                and old.get("wiki_path") == evidence["source_path"],
++            "blocks": [
++                {key: block.get(key) for key in ("role", "section", "axis_key_type", "axis_key")}
++                for block in old.get("blocks", []) if isinstance(block, dict)
++            ] if isinstance(old.get("blocks"), list) else [],
++        }
++    except (OSError, UnicodeError, ValueError):
++        evidence["export_error"] = "EXPORT_UNREADABLE_OR_INVALID_JSON"
++    try:
++        source.resolve().relative_to(wiki_root.resolve() / "wiki")
++    except ValueError:
++        evidence["reason"] = "SOURCE_PATH_OUTSIDE_SCOPE"
++        return evidence
++    if source.is_file():
++        try:
++            source_bytes = source.read_bytes()
++            evidence["source_file_sha256"] = hashlib.sha256(source_bytes).hexdigest()
++            fm, _ = _parse_markdown(source, source_bytes=source_bytes)
++            observed_source = {
++                key: fm.get(key) for key in
++                ("lineage_id", "content_hash", "review_status", "validation_mode", "exportable")
++            }
++            # YAML dates/sets and non-finite numbers cannot enter a JSON report.
++            # Reject the observation without fabricating normalized metadata.
++            json.dumps(observed_source, allow_nan=False)
++            evidence["observed_source"] = observed_source
++            evidence["reason"] = (
++                "SOURCE_DEPRECATED_WITHOUT_WITHDRAWAL_DECISION"
++                if fm.get("review_status") == "deprecated"
++                else "SOURCE_PRESENT_WITHOUT_ELIGIBLE_EXPORT"
++            )
++        except (OSError, UnicodeError, ValueError, TypeError, yaml.YAMLError, click.ClickException):
++            evidence["reason"] = "SOURCE_UNREADABLE_OR_INVALID"
++    return evidence
++
++
+ @click.command()
+ @click.option(
+     "--wiki-root",
+@@ -637,7 +714,9 @@ def _iter_canon_files(wiki_root: Path) -> list[Path]:
+     default=False,
+     help="N'écrit rien sur disque, affiche ce qui serait écrit",
+ )
+-def main(wiki_root: Path, entity_id: str | None, dry_run: bool) -> None:
++@click.option("--format", "output_format", type=click.Choice(["text", "json"]), default="text",
++              help="Format du résultat de build et des observations de réconciliation.")
++def main(wiki_root: Path, entity_id: str | None, dry_run: bool, output_format: str) -> None:
+     """
+     Filter + transform wiki canon approved → exports/seo/<entity_type>/<slug>.json.
+ 
+@@ -659,30 +738,80 @@ def main(wiki_root: Path, entity_id: str | None, dry_run: bool) -> None:
+             raise click.ClickException(f"--entity-id invalid: {entity_id!r}")
+         entity_type, slug = m.group(1), m.group(2)
+         source = wiki_root / "wiki" / entity_type / f"{slug}.md"
+-        if not source.exists():
++        if not source.exists() and not (wiki_root / "exports" / "seo" / entity_type / f"{slug}.json").exists():
+             raise click.ClickException(f"canon source absent: {source}")
+-        candidates = [source]
++        candidates = [source] if source.exists() else []
+     else:
+         candidates = _iter_canon_files(wiki_root)
+ 
+-    written = 0
++    # Plan the whole requested scope before writing. A rejected/deleted source
++    # must not leave a formerly approved export while the run reports success.
++    # Its absence is not deletion authority: preserve it for governed withdrawal.
++    payloads: list[dict] = []
+     skipped = 0
+     for src in candidates:
++        try:
++            src.resolve().relative_to(wiki_root.resolve() / "wiki")
++        except ValueError as exc:
++            raise click.ClickException(f"canon source outside wiki scope: {src}") from exc
+         commit_sha, commit_date = _wiki_file_commit_meta(wiki_root, src)
+         payload = build_export(src, wiki_root, commit_sha, commit_date)
+         if payload is None:
+             skipped += 1
+-            continue
++        else:
++            payloads.append(payload)
++
++    exports_root = wiki_root / "exports" / "seo"
++    expected = {
++        exports_root / p["entity_type"] / f"{p['entity_id'].split(':', 1)[1]}.json"
++        for p in payloads
++    }
++    if entity_id:
++        scoped_export = exports_root / entity_type / f"{slug}.json"
++        existing = {scoped_export} if scoped_export.exists() else set()
++    else:
++        existing = {
++            path
++            for kind in SEO_ENTITY_TYPES_BASE | {DIAGNOSTIC_CONDITIONAL_TYPE}
++            for path in (exports_root / kind).glob("*.json")
++            if path.is_file()
++        }
++    unreconciled = sorted(existing - expected)
++    if unreconciled:
++        if output_format == "json":
++            click.echo(json.dumps({
++                "status": "UNRECONCILED", "dry_run": dry_run,
++                "scope_entity_id": entity_id, "written": 0,
++                "observations": [_unreconciled_export_evidence(p, wiki_root) for p in unreconciled],
++            }, ensure_ascii=False, indent=2, sort_keys=True))
++        for path in unreconciled:
++            click.echo(f"UNRECONCILED {path.relative_to(wiki_root)} (preserved)", err=True)
++        raise click.ClickException(
++            "Retained SEO exports have no eligible source in the requested scope; "
++            "governed withdrawal reconciliation required before publication."
++        )
++
++    written = 0
++    for payload in payloads:
+         if dry_run:
+-            click.echo(
+-                f"DRY_RUN would-write exports/seo/{payload['entity_type']}/{payload['entity_id'].split(':', 1)[1]}.json"
+-            )
++            if output_format == "text":
++                click.echo(
++                    f"DRY_RUN would-write exports/seo/{payload['entity_type']}/{payload['entity_id'].split(':', 1)[1]}.json"
++                )
+         else:
+             out = _write_export(payload, wiki_root)
+-            click.echo(f"OK {out.relative_to(wiki_root)}")
++            if output_format == "text":
++                click.echo(f"OK {out.relative_to(wiki_root)}")
+         written += 1
+ 
+-    click.echo(f"\ntotal: candidates={len(candidates)} written={written} skipped={skipped}")
++    if output_format == "json":
++        click.echo(json.dumps({
++            "status": "OK", "dry_run": dry_run, "scope_entity_id": entity_id,
++            "candidates": len(candidates), "written": 0 if dry_run else written,
++            "planned": written, "skipped": skipped, "observations": [],
++        }, ensure_ascii=False, indent=2, sort_keys=True))
++    else:
++        click.echo(f"\ntotal: candidates={len(candidates)} written={written} skipped={skipped}")
+     sys.exit(0)
+ 
+ 
+diff --git a/_scripts/compute-confidence-score.py b/_scripts/compute-confidence-score.py
+index 35697de..cc8368d 100755
+--- a/_scripts/compute-confidence-score.py
++++ b/_scripts/compute-confidence-score.py
+@@ -66,20 +66,22 @@ def split_frontmatter(text: str) -> tuple[str, str]:
+ 
+ 
+ def count_filled_sections(body: str, required: list[str]) -> int:
+-    headings = [h.lower() for h in H2_RE.findall(body)]
++    headings = list(H2_RE.finditer(body))
+     filled = 0
+     for sec in required:
+         sec_low = sec.lower()
+-        if any(sec_low in h or h in sec_low for h in headings):
+-            # Check section has content (≥ 20 non-whitespace chars after heading)
+-            pattern = re.compile(rf"^##\s+.*{re.escape(sec[:8])}", re.MULTILINE | re.IGNORECASE)
+-            m = pattern.search(body)
+-            if m:
+-                start = m.end()
+-                next_h2 = H2_RE.search(body, start)
+-                section_body = body[start : next_h2.start() if next_h2 else len(body)]
+-                if len(re.sub(r"\s+", "", section_body)) >= 20:
+-                    filled += 1
++        for index, heading in enumerate(headings):
++            title = heading.group(1).lower()
++            if sec_low not in title and title not in sec_low:
++                continue
++            # Only the body after the COMPLETE heading contributes substance.
++            # Matching the first eight title characters counted the remaining
++            # title as content and let empty sections pass the 20-char floor.
++            end = headings[index + 1].start() if index + 1 < len(headings) else len(body)
++            section_body = body[heading.end():end]
++            if len(re.sub(r"\s+", "", section_body)) >= 20:
++                filled += 1
++                break
+     return filled
+ 
+ 
+diff --git a/_scripts/promote.py b/_scripts/promote.py
+index 823518d..2c60120 100644
+--- a/_scripts/promote.py
++++ b/_scripts/promote.py
+@@ -63,6 +63,7 @@ from promotion_decision import (  # noqa: E402 — import après sys.path (adapt
+     AUTO_PROMOTE_THRESHOLD,
+     AUTO_PROMOTE_TRUTH_LEVELS,  # noqa: F401 — ré-exporté (contrat test_promote)
+     PromotionInputError,
++    PROMOTABLE_INPUT_STATUSES,
+     _canon_already_approved,
+     _compute_shadow,  # noqa: F401 — ré-exporté (contrat test_promote)
+     _load_confidence_fn,
+@@ -75,10 +76,6 @@ from promotion_decision import (  # noqa: E402 — import après sys.path (adapt
+     evaluate_tier,  # noqa: F401 — ré-exporté (contrat test_promote / test_promotion_decision)
+ )
+ 
+-# Statuts d'entrée promouvables — scope du scan CLI uniquement (pas de logique métier).
+-PROMOTABLE_INPUT_STATUSES = {"proposed", "in_review"}
+-
+-
+ # --- CLI ----------------------------------------------------------------------
+ def _candidate_files(wiki_root: Path, target: str | None, entity_id: str | None) -> list[Path]:
+     proposals = wiki_root / "proposals"
+@@ -164,7 +161,7 @@ def main(wiki_root: Path, target: str | None, entity_id: str | None, scan_all: b
+             if ok:
+                 try:
+                     # apply_promotion = DUMB EXECUTOR : stampe l'évidence déjà décidée + déplace.
+-                    out = apply_promotion(f, fm, body, wiki_root, evaluation)
++                    out = apply_promotion(f, wiki_root, decision, raw_root=raw_root)
+                     entry["promoted_to"] = str(out)
+                 except Exception as exc:  # fail-closed
+                     entry["tier"] = "B"
+diff --git a/_scripts/promotion_decision.py b/_scripts/promotion_decision.py
+index db72519..57c2192 100644
+--- a/_scripts/promotion_decision.py
++++ b/_scripts/promotion_decision.py
+@@ -43,6 +43,8 @@ SCRIPTS_DIR = Path(__file__).resolve().parent
+ 
+ SCHEMA_VERSION = "promotion-decision/v1"
+ 
++PROMOTABLE_INPUT_STATUSES = {"proposed", "in_review"}
++
+ STATUS_ELIGIBLE = "ELIGIBLE"
+ STATUS_BLOCKED = "BLOCKED"
+ STATUS_UNKNOWN_FAIL_CLOSED = "UNKNOWN_FAIL_CLOSED"
+@@ -327,6 +329,11 @@ def capture_input_manifest(candidate_path, wiki_root, raw_root, baseline_path) -
+                         "sha256": _sha256_file(p)})
+ 
+     add("candidate", candidate_path)
++    # The native evaluator can resolve its baseline without a caller override.
++    # Capture the actual destination (including absence) independently: another
++    # baseline must never hide a concurrent change to the canonical fiche.
++    fm, _ = _parse_markdown(Path(candidate_path))
++    add("canon_target", _promotion_target_path(wiki_root, fm))
+     if baseline_path is not None:
+         add("baseline", baseline_path)
+     add("source_catalog", wiki_root / "_meta" / "source-catalog.yaml")
+@@ -467,8 +474,9 @@ def _load_confidence_fn():
+     return mod.compute_score
+ 
+ 
+-def _parse_markdown(path: Path) -> tuple[dict[str, Any], str]:
+-    text = path.read_text(encoding="utf-8")
++def _parse_markdown(path: Path, *, source_bytes: bytes | None = None) -> tuple[dict[str, Any], str]:
++    text = (path.read_text(encoding="utf-8") if source_bytes is None else
++            source_bytes.decode("utf-8").replace("\r\n", "\n").replace("\r", "\n"))
+     if not text.startswith(FRONTMATTER_SEPARATOR):
+         raise PromotionInputError(f"proposal sans frontmatter: {path}")
+     parts = text.split(f"\n{FRONTMATTER_SEPARATOR}\n", 1)
+@@ -713,8 +721,8 @@ def _canon_already_approved(wiki_root: Path, fm: dict) -> bool:
+     return existing_fm.get("review_status") == "approved"
+ 
+ 
+-def apply_promotion(target: Path, fm: dict, body: str, wiki_root: Path,
+-                    decision: dict) -> Path:
++def apply_promotion(target: Path, wiki_root: Path, decision: dict, *,
++                    raw_root=None, baseline_path=None) -> Path:
+     """Déplace la proposal vers le canon wiki approved (TIER A uniquement). 0 enrichissement.
+ 
+     Move-semantics (invariant `check-slug-uniqueness`) : une gamme promue ne peut
+@@ -723,6 +731,23 @@ def apply_promotion(target: Path, fm: dict, body: str, wiki_root: Path,
+     + l'historique git. Fail-safe : la proposal n'est supprimée qu'APRÈS écriture d'un
+     canon non-vide, et seulement si elle vit bien sous `proposals/`.
+     """
++    # The executor accepts the full canonical decision, never caller-cached
++    # frontmatter/body or a bare score. Parse the exact bytes matched to its input.
++    target, wiki_root = Path(target), Path(wiki_root)
++    ok, refusal = authorize_apply(decision, target, wiki_root,
++                                  raw_root=raw_root, baseline_path=baseline_path)
++    if not ok:
++        raise PromotionInputError(f"refus application: {refusal}")
++    source_bytes = target.read_bytes()
++    source_hash = hashlib.sha256(source_bytes).hexdigest()
++    candidates = [entry for entry in decision["inputs"]["input_manifest"]
++                  if entry.get("role") == "candidate"]
++    if len(candidates) != 1 or candidates[0].get("sha256") != source_hash:
++        raise PromotionInputError("STALE_DECISION: candidate bytes differ from evaluated input")
++    fm, body = _parse_markdown(target, source_bytes=source_bytes)
++    if fm.get("review_status") not in PROMOTABLE_INPUT_STATUSES:
++        raise PromotionInputError(f"source non promouvable: {fm.get('review_status')}")
++    evaluation = decision.get("evaluation") or {}
+     now = datetime.now(timezone.utc).isoformat(timespec="seconds")
+     sha = _wiki_commit_sha(wiki_root)
+     out_path = _promotion_target_path(wiki_root, fm)
+@@ -738,14 +763,14 @@ def apply_promotion(target: Path, fm: dict, body: str, wiki_root: Path,
+     new_fm["validation_mode"] = "automatic"
+     new_fm["promotion_tier"] = "A"
+     new_fm["promotion_evidence"] = {
+-        "gate_status": decision["gate_status"],
+-        "confidence_score": decision["confidence_score"],
++        "gate_status": evaluation["gate_status"],
++        "confidence_score": evaluation["confidence_score"],
+         "promoter": f"{PROMOTER_ID}@{sha}",
+         "promoted_at": now,
+     }
+     # SHADOW (ADR-088 §F) : trace le tier 6-dim si calculé, pour rendre les 3 critères
+     # de cutover mesurables sur le chemin réel. .get → rétro-compat (decision sans shadow).
+-    shadow = decision.get("shadow_score")
++    shadow = evaluation.get("shadow_score")
+     if shadow is not None:
+         new_fm["promotion_evidence"]["shadow_score"] = shadow
+     exportable = dict(new_fm.get("exportable") or {})
+@@ -762,6 +787,12 @@ def apply_promotion(target: Path, fm: dict, body: str, wiki_root: Path,
+         f"{yaml.safe_dump(new_fm, allow_unicode=True, sort_keys=False)}"
+         f"{FRONTMATTER_SEPARATOR}\n{body}"
+     )
++    # Reverify after rendering and immediately before the effect. This is a
++    # freshness guard, not an atomic compare-and-swap against external writers.
++    ok, refusal = authorize_apply(decision, target, wiki_root,
++                                  raw_root=raw_root, baseline_path=baseline_path)
++    if not ok:
++        raise PromotionInputError(f"refus application avant écriture: {refusal}")
+     out_path.write_text(rendered, encoding="utf-8")
+ 
+     # Move-semantics : supprimer la proposal source APRÈS écriture du canon. Gardes :
+@@ -776,6 +807,9 @@ def apply_promotion(target: Path, fm: dict, body: str, wiki_root: Path,
+         and out_path.is_file()
+         and out_path.stat().st_size > 0
+     ):
++        if target.read_bytes() != source_bytes:
++            raise PromotionInputError(
++                f"canon écrit: {out_path}; proposal modifiée pendant écriture, conservée: {target}")
+         target.unlink()
+ 
+     return out_path
+@@ -866,9 +900,25 @@ def canonical_promotion_decision(candidate_path, wiki_root, *, raw_root=None,
+     manifest_before = capture_input_manifest(candidate_path, wiki_root, raw_root, baseline_path)
+     substance, cov_raw, reg_raw, prov_raw, raw_avail = runner(
+         candidate_path, wiki_root, raw_root, baseline_path, threshold, gates, compute_score)
+-    manifest_after = capture_input_manifest(candidate_path, wiki_root, raw_root, baseline_path)
++    try:
++        manifest_after = capture_input_manifest(candidate_path, wiki_root, raw_root, baseline_path)
++    except (OSError, UnicodeError, yaml.YAMLError, PromotionInputError) as exc:
++        return {
++            "schema_version": SCHEMA_VERSION,
++            "substance_tier": _substance_tier(substance or {}),
++            "promotion_status": STATUS_UNKNOWN_FAIL_CLOSED,
++            "eligible": False,
++            "blocking_reasons": [blocking_reason(
++                "STALE_DURING_EVALUATION", "SNAPSHOT", "SNAPSHOT_GUARD",
++                {"recapture_error": str(exc)})],
++            "evaluation": _evaluation_passthrough(substance),
++            "inputs": manifest_before,
++        }
+ 
+-    if manifest_before["input_manifest"] != manifest_after["input_manifest"]:
++    # Engine changes during evaluation invalidate even a dry-run decision.
++    # Git revision is provenance only; compare the actual captured file hashes.
++    compared_keys = ("input_manifest", "evaluation_engine_revision", "decision_engine_revision")
++    if any(manifest_before[k] != manifest_after[k] for k in compared_keys):
+         return {
+             "schema_version": SCHEMA_VERSION,
+             "substance_tier": _substance_tier(substance or {}),
+@@ -876,8 +926,8 @@ def canonical_promotion_decision(candidate_path, wiki_root, *, raw_root=None,
+             "eligible": False,
+             "blocking_reasons": [blocking_reason(
+                 "STALE_DURING_EVALUATION", "SNAPSHOT", "SNAPSHOT_GUARD",
+-                {"before": manifest_before["input_manifest"],
+-                 "after": manifest_after["input_manifest"]})],
++                {"before": {k: manifest_before[k] for k in compared_keys},
++                 "after": {k: manifest_after[k] for k in compared_keys}})],
+             "evaluation": _evaluation_passthrough(substance),
+             "inputs": manifest_after,
+         }
+@@ -902,7 +952,11 @@ def reverify_inputs(decision, candidate_path, wiki_root, *, raw_root=None,
+     revisions) — pas seulement candidate/baseline (contrat A3d). Aucune redécision.
+     """
+     captured = (decision or {}).get("inputs") or {}
+-    fresh = capture_input_manifest(candidate_path, wiki_root, raw_root, baseline_path)
++    try:
++        fresh = capture_input_manifest(candidate_path, wiki_root, raw_root, baseline_path)
++    except (OSError, UnicodeError, yaml.YAMLError, PromotionInputError) as exc:
++        return blocking_reason("STALE_DECISION", "SNAPSHOT", _APPLY_GUARD,
++                               {"recapture_error": str(exc)})
+     drift: dict = {}
+     if captured.get("input_manifest") != fresh.get("input_manifest"):
+         drift["input_manifest"] = {"before": captured.get("input_manifest"),
+diff --git a/_scripts/test_build_exports_seo.py b/_scripts/test_build_exports_seo.py
+index da22829..b3ffecc 100644
+--- a/_scripts/test_build_exports_seo.py
++++ b/_scripts/test_build_exports_seo.py
+@@ -733,3 +733,260 @@ def test_entity_data_vehicle_engine_maps_validate_against_schema() -> None:
+     schema = json.loads(VEHICLE_SCHEMA_PATH.read_text(encoding="utf-8"))
+     ed = _vehicle_fm_with_engine_maps()["entity_data"]
+     jsonschema.validate(ed, schema)  # conforme vehicle.schema v1.1.0
++
++
++# Explicit structured content for every requested public role. These test the
++# export boundary, not source truth or live publication; roles are declared by
++# the fixture rather than inferred from an arbitrary article body.
++EDITORIAL_ROLE_CASES = [
++    ('gamme', 'R1_ROUTER'), ('gamme', 'R2_PRODUCT'),
++    ('gamme', 'R3_CONSEILS'), ('gamme', 'R6_GUIDE_ACHAT'),
++    ('constructeur', 'R7_BRAND'), ('vehicle', 'R8_VEHICLE'),
++]
++
++
++@pytest.mark.parametrize('entity_type,role', EDITORIAL_ROLE_CASES)
++def test_explicit_editorial_role_preserves_structured_evidence(tmp_path, entity_type, role):
++    content = f'Fixture éditoriale {role} sans affirmation mécanique.'
++    src = _write_wiki_fiche(
++        tmp_path, entity_type, 'fixture-editorial', roles_allowed=[role],
++        extra_fm={
++            'source_refs': [{'id': 'oem:fixture', 'type': 'oem'}],
++            'entity_data': {'blocks': [{
++                'role': role, 'section': 'fixture', 'content_md': content,
++                'source_ids': ['oem:fixture'], 'truth_level': 'sourced',
++            }]},
++        },
++    )
++    payload = builder.build_export(src, tmp_path, 'a' * 40)
++    assert payload is not None
++    _validate(payload)
++    assert payload['roles_allowed'] == [role]
++    assert len(payload['blocks']) == 1
++    assert payload['blocks'][0]['content_md'] == content
++    assert payload['blocks'][0]['source_ids'] == ['oem:fixture']
++    assert payload['blocks'][0]['role'] == role
++
++
++@pytest.mark.parametrize('entity_type,role', EDITORIAL_ROLE_CASES)
++def test_editorial_role_losing_approval_is_not_exported(tmp_path, entity_type, role):
++    src = _write_wiki_fiche(
++        tmp_path, entity_type, 'fixture-editorial', roles_allowed=[role],
++        review_status='pending',
++    )
++    assert builder.build_export(src, tmp_path, 'a' * 40) is None
++
++
++def test_r9_is_not_silently_promoted_to_public_editorial_contract():
++    import jsonschema
++    payload = _valid_payload()
++    payload['roles_allowed'] = ['R9_GOVERNANCE']
++    with pytest.raises(jsonschema.ValidationError):
++        _validate(payload)
++
++
++def _invoke_fixture_builder(tmp_path, monkeypatch, extra_args=()):
++    from click.testing import CliRunner
++    schema = tmp_path / '_meta/schema/exports-seo.schema.json'
++    schema.parent.mkdir(parents=True, exist_ok=True)
++    schema.write_bytes(SCHEMA_PATH.read_bytes())
++    # Git metadata resolution is separately tested; no real repository/commit
++    # mutations are necessary to exercise output reconciliation.
++    monkeypatch.setattr(builder, '_assert_full_clone', lambda root: None)
++    monkeypatch.setattr(builder, '_wiki_file_commit_meta', lambda root, src: ('a' * 40, '2026-09-12T00:00:00Z'))
++    return CliRunner().invoke(builder.main, ['--wiki-root', str(tmp_path), *extra_args])
++
++
++@pytest.mark.parametrize('single', [False, True])
++def test_cli_refuses_retained_export_after_approval_loss(tmp_path, monkeypatch, single):
++    _write_wiki_fiche(tmp_path, 'gamme', 'fixture-old', review_status='pending')
++    old = tmp_path / 'exports/seo/gamme/fixture-old.json'
++    old.parent.mkdir(parents=True)
++    old.write_text('historical export evidence')
++    args = ['--entity-id', 'gamme:fixture-old'] if single else []
++    result = _invoke_fixture_builder(tmp_path, monkeypatch, args)
++    assert result.exit_code != 0
++    assert 'UNRECONCILED' in result.output
++    assert old.read_text() == 'historical export evidence'
++
++
++def test_cli_refuses_orphan_export_before_writing_other_candidates(tmp_path, monkeypatch):
++    _write_wiki_fiche(tmp_path, 'gamme', 'fixture-new')
++    old = tmp_path / 'exports/seo/gamme/fixture-removed.json'
++    old.parent.mkdir(parents=True)
++    old.write_text('preserved withdrawal evidence')
++    result = _invoke_fixture_builder(tmp_path, monkeypatch)
++    assert result.exit_code != 0
++    assert 'UNRECONCILED' in result.output
++    assert old.read_text() == 'preserved withdrawal evidence'
++    assert not (old.parent / 'fixture-new.json').exists()
++
++
++def test_cli_dry_run_reports_unreconciled_export_without_writing(tmp_path, monkeypatch):
++    old = tmp_path / 'exports/seo/constructeur/fixture-removed.json'
++    old.parent.mkdir(parents=True)
++    old.write_text('preserved')
++    result = _invoke_fixture_builder(tmp_path, monkeypatch, ['--dry-run'])
++    assert result.exit_code != 0
++    assert 'UNRECONCILED' in result.output
++    assert old.read_text() == 'preserved'
++
++
++def test_cli_coherent_export_succeeds_and_replays_identically(tmp_path, monkeypatch):
++    _write_wiki_fiche(tmp_path, 'gamme', 'fixture-new')
++    result = _invoke_fixture_builder(tmp_path, monkeypatch)
++    assert result.exit_code == 0, result.output
++    out = tmp_path / 'exports/seo/gamme/fixture-new.json'
++    before = out.read_bytes()
++    result = _invoke_fixture_builder(tmp_path, monkeypatch)
++    assert result.exit_code == 0, result.output
++    assert out.read_bytes() == before
++
++
++def _retained_export(root, kind='gamme', slug='fixture-old', **overrides):
++    out = root / 'exports' / 'seo' / kind / f'{slug}.json'
++    out.parent.mkdir(parents=True, exist_ok=True)
++    payload = _valid_payload()
++    payload.update(entity_type=kind, entity_id=f'{kind}:{slug}',
++                   wiki_path=f'wiki/{kind}/{slug}.md', **overrides)
++    out.write_text(json.dumps(payload), encoding='utf-8')
++    return out
++
++
++@pytest.mark.parametrize('status', ['deprecated', 'in_review', 'draft'])
++@pytest.mark.parametrize('single', [False, True])
++def test_reconciliation_json_describes_status_without_authorizing_withdrawal(tmp_path, monkeypatch, status, single):
++    import hashlib
++    src = _write_wiki_fiche(tmp_path, 'gamme', 'fixture-old', review_status=status)
++    out = _retained_export(tmp_path)
++    before = out.read_bytes()
++    args = ['--format', 'json', '--dry-run']
++    if single:
++        args += ['--entity-id', 'gamme:fixture-old']
++    result = _invoke_fixture_builder(tmp_path, monkeypatch, args)
++    assert result.exit_code != 0
++    report = json.loads(result.stdout)
++    assert report['status'] == 'UNRECONCILED' and report['written'] == 0
++    row, = report['observations']
++    assert row['withdrawal_authorized'] is False
++    assert row['observed_source']['review_status'] == status
++    assert row['observed_export']['identity_matches_path'] is True
++    assert row['export_sha256'] == hashlib.sha256(before).hexdigest()
++    assert row['source_file_sha256'] == hashlib.sha256(src.read_bytes()).hexdigest()
++    assert row['reason'] == ('SOURCE_DEPRECATED_WITHOUT_WITHDRAWAL_DECISION' if status == 'deprecated'
++                             else 'SOURCE_PRESENT_WITHOUT_ELIGIBLE_EXPORT')
++    assert out.read_bytes() == before
++
++
++def test_single_missing_source_reports_existing_export_without_touching_other_scope(tmp_path, monkeypatch):
++    out = _retained_export(tmp_path)
++    _retained_export(tmp_path, slug='unrelated')
++    _write_wiki_fiche(tmp_path, 'gamme', 'fixture-new')
++    result = _invoke_fixture_builder(tmp_path, monkeypatch, ['--format', 'json', '--entity-id', 'gamme:fixture-old'])
++    assert result.exit_code != 0
++    row, = json.loads(result.stdout)['observations']
++    assert row['reason'] == 'SOURCE_MISSING'
++    assert row['expected_entity_id'] == 'gamme:fixture-old'
++    assert row['withdrawal_authorized'] is False
++    assert out.exists()
++    assert not (out.parent / 'fixture-new.json').exists()
++
++
++def test_untrusted_old_export_identity_is_observed_not_followed(tmp_path):
++    out = _retained_export(tmp_path)
++    payload = json.loads(out.read_text())
++    payload.update(entity_id='gamme:different', wiki_path='../../outside.md')
++    out.write_text(json.dumps(payload))
++    row = builder._unreconciled_export_evidence(out, tmp_path)
++    assert row['observed_export']['identity_matches_path'] is False
++    assert row['source_path'] == 'wiki/gamme/fixture-old.md'
++    assert row['withdrawal_authorized'] is False
++
++
++def test_invalid_historical_json_keeps_hash_and_file(tmp_path, monkeypatch):
++    import hashlib
++    out = _retained_export(tmp_path)
++    out.write_bytes(b'invalid retained export')
++    result = _invoke_fixture_builder(tmp_path, monkeypatch, ['--format', 'json'])
++    row, = json.loads(result.stdout)['observations']
++    assert result.exit_code != 0
++    assert row['export_error'] == 'EXPORT_UNREADABLE_OR_INVALID_JSON'
++    assert row['export_sha256'] == hashlib.sha256(out.read_bytes()).hexdigest()
++    assert out.read_bytes() == b'invalid retained export'
++
++
++@pytest.mark.parametrize('which', ['export', 'source'])
++def test_reconciliation_does_not_follow_outside_symlinks(tmp_path, which):
++    root = tmp_path / 'wiki-root'
++    out = _retained_export(root)
++    outside = tmp_path / 'outside.txt'
++    outside.write_text('private fixture bytes')
++    if which == 'export':
++        out.unlink()
++        out.symlink_to(outside)
++    else:
++        source = root / 'wiki/gamme/fixture-old.md'
++        source.parent.mkdir(parents=True)
++        source.symlink_to(outside)
++    row = builder._unreconciled_export_evidence(out, root)
++    assert row['reason'] == f'{which.upper()}_PATH_OUTSIDE_SCOPE'
++    assert row[f'{which}_sha256' if which == 'export' else 'source_file_sha256'] is None
++    assert 'private fixture bytes' not in json.dumps(row)
++
++
++@pytest.mark.parametrize('dry_run', [True, False])
++def test_json_success_distinguishes_planned_from_written(tmp_path, monkeypatch, dry_run):
++    _write_wiki_fiche(tmp_path, 'gamme', 'fixture-new')
++    args = ['--format', 'json'] + (['--dry-run'] if dry_run else [])
++    result = _invoke_fixture_builder(tmp_path, monkeypatch, args)
++    assert result.exit_code == 0, result.output
++    report = json.loads(result.stdout)
++    assert report['status'] == 'OK'
++    assert report['planned'] == 1
++    assert report['written'] == (0 if dry_run else 1)
++    assert report['observations'] == []
++    assert (tmp_path / 'exports/seo/gamme/fixture-new.json').exists() is not dry_run
++
++
++def test_source_observation_uses_the_same_bytes_for_hash_and_frontmatter(tmp_path, monkeypatch):
++    import hashlib
++    src = _write_wiki_fiche(tmp_path, 'gamme', 'fixture-old', review_status='deprecated')
++    before = src.read_bytes()
++    out = _retained_export(tmp_path)
++    parse = builder._parse_markdown
++    def changed(path, **kwargs):
++        path.write_bytes(before.replace(b'deprecated', b'approved'))
++        return parse(path, **kwargs)
++    monkeypatch.setattr(builder, '_parse_markdown', changed)
++    row = builder._unreconciled_export_evidence(out, tmp_path)
++    assert row['source_file_sha256'] == hashlib.sha256(before).hexdigest()
++    assert row['observed_source']['review_status'] == 'deprecated'
++
++
++@pytest.mark.parametrize('value', ['2026-09-13', '!!set {invalid: null}', '.nan'])
++def test_non_json_source_metadata_reports_invalid_without_losing_export(tmp_path, monkeypatch, value):
++    src = _write_wiki_fiche(tmp_path, 'gamme', 'fixture-old', review_status='deprecated')
++    src.write_text(src.read_text().replace('---\n', f'---\nlineage_id: {value}\n', 1))
++    out = _retained_export(tmp_path)
++    before = out.read_bytes()
++    result = _invoke_fixture_builder(tmp_path, monkeypatch, ['--format', 'json'])
++    assert result.exit_code != 0
++    row, = json.loads(result.stdout)['observations']
++    assert row['reason'] == 'SOURCE_UNREADABLE_OR_INVALID'
++    assert row['observed_source'] is None
++    assert row['source_file_sha256'] is not None
++    assert row['withdrawal_authorized'] is False
++    assert out.read_bytes() == before
++
++
++@pytest.mark.parametrize('constant', ['NaN', 'Infinity', '-Infinity'])
++def test_non_json_historical_numbers_are_preserved_but_not_reported_as_valid(tmp_path, constant):
++    out = _retained_export(tmp_path)
++    out.write_text('{"entity_id": ' + constant + '}')
++    before = out.read_bytes()
++    row = builder._unreconciled_export_evidence(out, tmp_path)
++    assert row['export_error'] == 'EXPORT_UNREADABLE_OR_INVALID_JSON'
++    assert row['observed_export'] is None
++    assert row['withdrawal_authorized'] is False
++    json.dumps(row, allow_nan=False)
++    assert out.read_bytes() == before
+diff --git a/_scripts/test_promote.py b/_scripts/test_promote.py
+index dff75dc..05d6efc 100644
+--- a/_scripts/test_promote.py
++++ b/_scripts/test_promote.py
+@@ -35,10 +35,11 @@ def test_promoted_full_document_matches_frontmatter_schema(tmp_path, with_shadow
+     mod = _load_promote()
+     fixture = PROMOTE_PATH.parent / "tests/fixtures/valid-non-safety-filtre.md"
+     fm, body = mod._parse_markdown(fixture)
++    fm["review_status"] = "in_review"  # schema fixture starts draft; executor requires submission
+     decision = {"gate_status": {}, "confidence_score": 0.9}
+     if with_shadow:
+         decision["shadow_score"] = mod._compute_shadow(fm, body, fixture, PROMOTE_PATH.parent.parent)
+-    out = mod.apply_promotion(tmp_path / "proposals/test.md", fm, body, tmp_path, decision)
++    out = _apply_fixture(mod, tmp_path / "proposals/test.md", fm, body, tmp_path, decision)
+     saved, _ = mod._parse_markdown(out)
+     schema_path = PROMOTE_PATH.parent.parent / "_meta/schema/frontmatter.schema.json"
+     schema = json.loads(schema_path.read_text(encoding="utf-8"))
+@@ -215,7 +216,7 @@ def test_cli_refuses_quality_floor_bypass(threshold, tmp_path):
+ def test_human_metadata_is_replaced_on_automatic_validation(tmp_path):
+     mod = _load_promote()
+     fm = {**FM_OK,'validation_mode':'human_required','reviewed_by':'old-reviewer'}
+-    out = mod.apply_promotion(tmp_path/'proposals'/'x.md',fm,'body',tmp_path,
++    out = _apply_fixture(mod, tmp_path/'proposals'/'x.md',fm,'body',tmp_path,
+                               {'gate_status':{},'confidence_score':0.9})
+     saved,_ = mod._parse_markdown(out)
+     assert saved['validation_mode'] == 'automatic'
+@@ -234,7 +235,7 @@ def test_fail_closed_on_score_exception(tmp_path):
+ def test_apply_writes_only_under_wiki_entity_dir(tmp_path):
+     mod = _load_promote()
+     (tmp_path / "wiki" / "gamme").mkdir(parents=True)
+-    out = mod.apply_promotion(tmp_path / "proposals" / "x.md", FM_OK, "body", tmp_path,
++    out = _apply_fixture(mod, tmp_path / "proposals" / "x.md", FM_OK, "body", tmp_path,
+                               {"gate_status": {}, "confidence_score": 0.9})
+     assert out == (tmp_path / "wiki" / "gamme" / "filtre-a-huile.md").resolve()
+     written = out.read_text(encoding="utf-8")
+@@ -282,7 +283,7 @@ def test_apply_refuses_overwrite_of_approved_canon(tmp_path):
+     mod = _load_promote()
+     _write_canon(tmp_path, "filtre-a-huile", "approved")
+     with pytest.raises(Exception):
+-        mod.apply_promotion(tmp_path / "proposals" / "x.md", FM_OK, "body", tmp_path,
++        _apply_fixture(mod, tmp_path / "proposals" / "x.md", FM_OK, "body", tmp_path,
+                             {"gate_status": {}, "confidence_score": 0.9})
+ 
+ 
+@@ -296,7 +297,7 @@ def test_apply_deletes_source_proposal_after_promotion(tmp_path):
+         "---\nentity_type: gamme\nslug: filtre-a-huile\nreview_status: proposed\n---\nbody\n",
+         encoding="utf-8",
+     )
+-    out = mod.apply_promotion(prop, FM_OK, "body", tmp_path,
++    out = _apply_fixture(mod, prop, FM_OK, "body", tmp_path,
+                               {"gate_status": {}, "confidence_score": 0.9})
+     assert out.is_file()                         # canon écrit
+     assert "review_status: approved" in out.read_text(encoding="utf-8")
+@@ -310,7 +311,7 @@ def test_apply_never_deletes_source_outside_proposals(tmp_path):
+     stray.parent.mkdir(parents=True)
+     stray.write_text("---\nentity_type: gamme\nslug: filtre-a-huile\n---\nx\n",
+                      encoding="utf-8")
+-    out = mod.apply_promotion(stray, FM_OK, "body", tmp_path,
++    out = _apply_fixture(mod, stray, FM_OK, "body", tmp_path,
+                               {"gate_status": {}, "confidence_score": 0.9})
+     assert out.is_file()
+     assert stray.exists()                        # hors proposals/ → conservé
+@@ -359,7 +360,7 @@ def test_shadow_recorded_in_promotion_evidence(tmp_path):
+     (tmp_path / "wiki" / "gamme").mkdir(parents=True)
+     decision = {"gate_status": {}, "confidence_score": 0.9,
+                 "shadow_score": {"shadow_tier": "B", "shadow_total": 55}}
+-    out = mod.apply_promotion(tmp_path / "proposals" / "x.md", FM_OK, "body", tmp_path, decision)
++    out = _apply_fixture(mod, tmp_path / "proposals" / "x.md", FM_OK, "body", tmp_path, decision)
+     written = out.read_text(encoding="utf-8")
+     assert "shadow_score" in written
+     assert "shadow_tier" in written
+@@ -369,7 +370,7 @@ def test_shadow_evidence_omitted_when_none(tmp_path):
+     """Rétro-compat : decision sans shadow (ou shadow=None) → promotion_evidence inchangée."""
+     mod = _load_promote()
+     (tmp_path / "wiki" / "gamme").mkdir(parents=True)
+-    out = mod.apply_promotion(tmp_path / "proposals" / "x.md", FM_OK, "body", tmp_path,
++    out = _apply_fixture(mod, tmp_path / "proposals" / "x.md", FM_OK, "body", tmp_path,
+                               {"gate_status": {}, "confidence_score": 0.9})  # pas de clé shadow
+     written = out.read_text(encoding="utf-8")
+     assert "shadow_score" not in written  # rien d'ajouté, comportement legacy
+@@ -473,3 +474,156 @@ def test_gate_engine_adr088_fail_closed_on_shadow_error(tmp_path, monkeypatch):
+                           threshold=0.80, gates=_gates(True), compute_score=lambda *a: 0.99)
+     assert d["tier"] == "B"
+     assert any("boom" in r or "indéterminable" in r for r in d["blocking_reasons"])
++
++
++
++def _cli_snapshot_fixture(tmp_path, monkeypatch):
++    import yaml
++    from click.testing import CliRunner
++    mod = _load_promote()
++    source = tmp_path / 'proposals/filtre-a-huile.md'
++    source.parent.mkdir(parents=True)
++    def document(slug, body):
++        return '---\n' + yaml.safe_dump({**FM_OK, 'slug': slug}) + '---\n' + body
++    source.write_text(document('filtre-a-huile', 'PRELOADED BODY'))
++    monkeypatch.setattr(mod, '_load_gates', lambda: [])
++    monkeypatch.setattr(mod, '_load_confidence_fn', lambda: lambda *a: 0.9)
++    canonical = mod.canonical_promotion_decision
++    def decide(*args, **kwargs):
++        return canonical(*args, **kwargs, run_evaluators=lambda *a: (
++            {'tier': 'A', 'confidence_score': .9, 'gate_status': {}, 'checks': []},
++            {'status': 'PASS'}, {'verdict': 'NEW'}, ([], []), True))
++    monkeypatch.setattr(mod, 'canonical_promotion_decision', decide)
++    def invoke():
++        return CliRunner().invoke(mod.main, ['--wiki-root', str(tmp_path),
++            '--target', str(source), '--apply', '--format', 'json'])
++    return mod, source, document, decide, invoke
++
++
++@pytest.mark.parametrize('slug', ['filtre-a-huile', 'filtre-revise'])
++def test_cli_applies_content_and_identity_from_evaluated_snapshot(tmp_path, monkeypatch, slug):
++    mod, source, document, decide, invoke = _cli_snapshot_fixture(tmp_path, monkeypatch)
++    def changed_before_capture(*args, **kwargs):
++        source.write_text(document(slug, 'EVALUATED BODY'))
++        return decide(*args, **kwargs)
++    monkeypatch.setattr(mod, 'canonical_promotion_decision', changed_before_capture)
++    result = invoke()
++    assert result.exit_code == 0, result.output
++    entry, = json.loads(result.stdout)['report']
++    assert 'promoted_to' in entry, entry
++    output = tmp_path / 'wiki/gamme' / f'{slug}.md'
++    assert output.exists()
++    fm, body = mod._parse_markdown(output)
++    assert fm['slug'] == slug
++    assert body == 'EVALUATED BODY'
++    if slug != 'filtre-a-huile':
++        assert not (output.parent / 'filtre-a-huile.md').exists()
++
++
++def test_cli_refuses_source_changed_inside_executor_before_write(tmp_path, monkeypatch):
++    mod, source, document, _, invoke = _cli_snapshot_fixture(tmp_path, monkeypatch)
++    import promotion_decision as core
++    def mutate(root):
++        source.write_text(document('filtre-a-huile', 'CONCURRENT BODY'))
++        return 'fixture'
++    monkeypatch.setattr(core, '_wiki_commit_sha', mutate)
++    result = invoke()
++    assert result.exit_code == 0, result.output
++    entry, = json.loads(result.stdout)['report']
++    assert 'apply_error' in entry or 'apply_refused' in entry
++    assert source.exists() and 'CONCURRENT BODY' in source.read_text()
++    assert not (tmp_path / 'wiki/gamme/filtre-a-huile.md').exists()
++
++
++
++def _apply_fixture(mod, source, fm, body, root, evaluation):
++    import yaml
++    import promotion_decision as core
++    source.parent.mkdir(parents=True, exist_ok=True)
++    source.write_text('---\n' + yaml.safe_dump(fm) + '---\n' + body)
++    decision = {'eligible': True, 'promotion_status': 'ELIGIBLE',
++                'evaluation': evaluation,
++                'inputs': core.capture_input_manifest(source, root, None, None)}
++    return mod.apply_promotion(source, root, decision)
++
++
++
++def test_executor_preserves_proposal_changed_during_canonical_write(tmp_path, monkeypatch):
++    mod, source, document, _, invoke = _cli_snapshot_fixture(tmp_path, monkeypatch)
++    write = Path.write_text
++    out = tmp_path / 'wiki/gamme/filtre-a-huile.md'
++    def changed(path, content, *args, **kwargs):
++        result = write(path, content, *args, **kwargs)
++        if path == out:
++            write(source, document('filtre-a-huile', 'CONCURRENT PROPOSAL'))
++        return result
++    monkeypatch.setattr(Path, 'write_text', changed)
++    result = invoke()
++    assert result.exit_code == 0, result.output
++    entry, = json.loads(result.stdout)['report']
++    assert 'apply_error' in entry and 'conservée' in entry['apply_error']
++    assert 'promoted_to' not in entry
++    assert source.exists() and 'CONCURRENT PROPOSAL' in source.read_text()
++    assert mod._parse_markdown(out)[1] == 'PRELOADED BODY'
++
++
++@pytest.mark.parametrize('status', ['draft', 'approved', 'deprecated'])
++def test_executor_rechecks_status_of_actual_evaluated_source(tmp_path, monkeypatch, status):
++    mod, source, document, decide, invoke = _cli_snapshot_fixture(tmp_path, monkeypatch)
++    def changed_before_capture(*args, **kwargs):
++        content = document('filtre-a-huile', 'EVALUATED BODY')
++        source.write_text(content.replace('review_status: in_review', 'review_status: ' + status))
++        return decide(*args, **kwargs)
++    monkeypatch.setattr(mod, 'canonical_promotion_decision', changed_before_capture)
++    result = invoke()
++    assert result.exit_code == 0, result.output
++    entry, = json.loads(result.stdout)['report']
++    assert 'apply_error' in entry and 'non promouvable' in entry['apply_error']
++    assert source.exists()
++    assert not (tmp_path / 'wiki/gamme/filtre-a-huile.md').exists()
++
++
++def test_executor_refuses_bare_evaluation_without_canonical_decision(tmp_path):
++    mod = _load_promote()
++    source = tmp_path / 'proposal.md'
++    source.write_text('preserved fixture')
++    with pytest.raises(mod.PromotionInputError, match='APPLY_NOT_ELIGIBLE'):
++        mod.apply_promotion(source, tmp_path, {'gate_status': {}, 'confidence_score': .9})
++    assert source.read_text() == 'preserved fixture'
++    assert not (tmp_path / 'wiki').exists()
++
++
++def test_executor_hash_check_catches_change_after_first_authorization(tmp_path, monkeypatch):
++    mod, source, document, decide, _ = _cli_snapshot_fixture(tmp_path, monkeypatch)
++    import promotion_decision as core
++    decision = decide(source, tmp_path)
++    authorize = core.authorize_apply
++    def changed(*args, **kwargs):
++        result = authorize(*args, **kwargs)
++        source.write_text(document('filtre-a-huile', 'CHANGED AFTER CHECK'))
++        return result
++    monkeypatch.setattr(core, 'authorize_apply', changed)
++    with pytest.raises(mod.PromotionInputError, match='candidate bytes differ'):
++        mod.apply_promotion(source, tmp_path, decision)
++    assert source.exists()
++    assert not (tmp_path / 'wiki/gamme/filtre-a-huile.md').exists()
++
++
++def test_executor_parses_captured_bytes_without_reopening_source(tmp_path, monkeypatch):
++    mod, source, document, decide, _ = _cli_snapshot_fixture(tmp_path, monkeypatch)
++    import promotion_decision as core
++    decision = decide(source, tmp_path)
++    parse = core._parse_markdown
++    def changed(path, **kwargs):
++        if kwargs.get('source_bytes') is not None:
++            source.write_text(document('filtre-revise', 'CHANGED DURING PARSE'))
++            fm, body = parse(path, **kwargs)
++            assert body == 'PRELOADED BODY'
++            assert fm['slug'] == 'filtre-a-huile'
++            return fm, body
++        return parse(path, **kwargs)
++    monkeypatch.setattr(core, '_parse_markdown', changed)
++    with pytest.raises(mod.PromotionInputError, match='STALE_DECISION'):
++        mod.apply_promotion(source, tmp_path, decision)
++    assert source.exists()
++    assert not list((tmp_path / 'wiki').glob('*/*.md'))
+diff --git a/_scripts/test_promotion_decision.py b/_scripts/test_promotion_decision.py
+index 00848f2..cf61bd2 100644
+--- a/_scripts/test_promotion_decision.py
++++ b/_scripts/test_promotion_decision.py
+@@ -19,6 +19,8 @@ import importlib.util
+ from pathlib import Path
+ from types import SimpleNamespace
+ 
++import pytest
++
+ SCRIPTS = Path(__file__).resolve().parent
+ 
+ 
+@@ -368,7 +370,7 @@ def test_assemble_bundle_omitted_evaluators_are_none(tmp_path):
+ 
+ 
+ # --- A3-iv : snapshot manifest + engine revisions + stale detection -----------
+-def _write_candidate(tmp_path, content="---\nslug: filtre-a-huile\n---\nbody\n"):
++def _write_candidate(tmp_path, content="---\nentity_type: gamme\nslug: filtre-a-huile\n---\nbody\n"):
+     (tmp_path / "_meta").mkdir(exist_ok=True)
+     (tmp_path / "_meta" / "source-catalog.yaml").write_text("sources: []\n", encoding="utf-8")
+     cand = tmp_path / "proposals" / "filtre-a-huile.md"
+@@ -398,9 +400,9 @@ def test_capture_input_manifest_is_deterministic_and_canonical(tmp_path):
+ def test_manifest_hash_reflects_actual_content(tmp_path):
+     """Worktree dirty : le hash suit le CONTENU réellement lu, pas seulement la SHA git."""
+     dec = _load_decision()
+-    cand = _write_candidate(tmp_path, "---\nslug: a\n---\nv1\n")
++    cand = _write_candidate(tmp_path, "---\nentity_type: gamme\nslug: a\n---\nv1\n")
+     h1 = dec.capture_input_manifest(cand, tmp_path, None, None)
+-    cand.write_text("---\nslug: a\n---\nv2 CHANGED\n", encoding="utf-8")
++    cand.write_text("---\nentity_type: gamme\nslug: a\n---\nv2 CHANGED\n", encoding="utf-8")
+     h2 = dec.capture_input_manifest(cand, tmp_path, None, None)
+     cand_sha1 = [e["sha256"] for e in h1["input_manifest"] if e["role"] == "candidate"][0]
+     cand_sha2 = [e["sha256"] for e in h2["input_manifest"] if e["role"] == "candidate"][0]
+@@ -425,12 +427,12 @@ def test_stale_during_evaluation_is_fail_closed(tmp_path):
+     """Contrat #1 : si un input change PENDANT l'évaluation (hash-before != after),
+     la décision est UNKNOWN_FAIL_CLOSED / STALE_DURING_EVALUATION."""
+     dec = _load_decision()
+-    cand = _write_candidate(tmp_path, "---\nslug: a\n---\nbefore\n")
++    cand = _write_candidate(tmp_path, "---\nentity_type: gamme\nslug: a\n---\nbefore\n")
+     substance = _clean_substance(tmp_path)
+ 
+     def mutating_run(candidate_path, wiki_root, raw_root, baseline_path, threshold, gates, compute_score):
+         # simule une modif concurrente du candidat pendant l'évaluation
+-        Path(candidate_path).write_text("---\nslug: a\n---\nMUTATED\n", encoding="utf-8")
++        Path(candidate_path).write_text("---\nentity_type: gamme\nslug: a\n---\nMUTATED\n", encoding="utf-8")
+         return substance, {"status": "PASS"}, {"verdict": "NEW"}, ([], []), True
+ 
+     d = dec.canonical_promotion_decision(cand, tmp_path, run_evaluators=mutating_run)
+@@ -473,9 +475,9 @@ def test_reverify_inputs_none_when_unchanged(tmp_path):
+ def test_reverify_inputs_flags_content_drift(tmp_path):
+     """Anti-TOCTOU : un input change APRÈS la décision (hash du contenu) ⇒ STALE_DECISION."""
+     dec = _load_decision()
+-    cand = _write_candidate(tmp_path, "---\nslug: a\n---\nv1\n")
++    cand = _write_candidate(tmp_path, "---\nentity_type: gamme\nslug: a\n---\nv1\n")
+     d = _decide_with_inputs(dec, cand, tmp_path, _clean_substance(tmp_path))
+-    cand.write_text("---\nslug: a\n---\nv2 CHANGED\n", encoding="utf-8")
++    cand.write_text("---\nentity_type: gamme\nslug: a\n---\nv2 CHANGED\n", encoding="utf-8")
+     r = dec.reverify_inputs(d, cand, tmp_path)
+     assert r is not None and r["code"] == "STALE_DECISION"
+     assert "input_manifest" in r["evidence"]
+@@ -517,9 +519,9 @@ def test_authorize_apply_refuses_on_stale(tmp_path):
+     """Éligible à la décision, mais un input dérive avant apply ⇒ refus STALE_DECISION
+     (le --apply n'est JAMAIS un 2ᵉ décideur ; il exige la fraîcheur du manifeste complet)."""
+     dec = _load_decision()
+-    cand = _write_candidate(tmp_path, "---\nslug: a\n---\nv1\n")
++    cand = _write_candidate(tmp_path, "---\nentity_type: gamme\nslug: a\n---\nv1\n")
+     d = _decide_with_inputs(dec, cand, tmp_path, _clean_substance(tmp_path))
+-    cand.write_text("---\nslug: a\n---\nMUTATED\n", encoding="utf-8")
++    cand.write_text("---\nentity_type: gamme\nslug: a\n---\nMUTATED\n", encoding="utf-8")
+     ok, refusal = dec.authorize_apply(d, cand, tmp_path)
+     assert ok is False and refusal["code"] == "STALE_DECISION"
+ 
+@@ -636,3 +638,147 @@ def test_A8_safety_authorize_apply_refuses(tmp_path):
+     assert d["eligible"] is False
+     ok, refusal = dec.authorize_apply(d, cand, tmp_path)
+     assert ok is False and refusal["code"] == "APPLY_NOT_ELIGIBLE"
++
++
++# The canonical target is an input even when no caller supplies baseline_path.
++# No corpus or consumer is mutated here; gates are injected to isolate freshness.
++def _target_fixture(tmp_path):
++    candidate = _write_candidate(tmp_path, "---\nentity_type: gamme\nslug: filtre-a-huile\n---\nproposal\n")
++    target = tmp_path / "wiki/gamme/filtre-a-huile.md"
++    target.parent.mkdir(parents=True)
++    target.write_text("---\nreview_status: deprecated\n---\nold canon\n")
++    return candidate, target
++
++
++@pytest.mark.parametrize('change', ['edit', 'remove', 'create'])
++def test_native_target_change_during_evaluation_blocks_decision(tmp_path, change):
++    dec = _load_decision()
++    candidate, target = _target_fixture(tmp_path)
++    if change == 'create':
++        target.unlink()
++    substance = _clean_substance(tmp_path)
++    def runner(*args):
++        if change == 'remove':
++            target.unlink()
++        else:
++            target.write_text("---\nreview_status: deprecated\n---\nchanged canon\n")
++        return substance, {"status": "PASS"}, {"verdict": "NEW"}, ([], []), True
++    decision = dec.canonical_promotion_decision(candidate, tmp_path, run_evaluators=runner)
++    assert decision['eligible'] is False
++    assert decision['blocking_reasons'][0]['code'] == 'STALE_DURING_EVALUATION'
++
++
++@pytest.mark.parametrize('change', ['edit', 'remove', 'create'])
++def test_native_target_change_before_apply_refuses_stale_decision(tmp_path, change):
++    dec = _load_decision()
++    candidate, target = _target_fixture(tmp_path)
++    if change == 'create':
++        target.unlink()
++    decision = _decide_with_inputs(dec, candidate, tmp_path, _clean_substance(tmp_path))
++    if change == 'remove':
++        target.unlink()
++    else:
++        target.write_text("---\nreview_status: deprecated\n---\nchanged canon\n")
++    allowed, refusal = dec.authorize_apply(decision, candidate, tmp_path)
++    assert allowed is False
++    assert refusal['code'] == 'STALE_DECISION'
++
++
++def test_native_target_is_captured_even_with_an_explicit_other_baseline(tmp_path):
++    import hashlib
++    dec = _load_decision()
++    candidate, target = _target_fixture(tmp_path)
++    baseline = tmp_path / 'previous.md'
++    baseline.write_text('historical comparison fixture')
++    manifest = dec.capture_input_manifest(candidate, tmp_path, None, baseline)
++    entries = {e['role']: e for e in manifest['input_manifest']}
++    assert entries['canon_target']['path'] == 'wiki/gamme/filtre-a-huile.md'
++    assert entries['canon_target']['sha256'] == hashlib.sha256(target.read_bytes()).hexdigest()
++    assert entries['baseline']['sha256'] == hashlib.sha256(baseline.read_bytes()).hexdigest()
++
++
++@pytest.mark.parametrize('engine', ['evaluation_engine_revision', 'decision_engine_revision'])
++def test_engine_change_during_evaluation_blocks_immediate_decision(tmp_path, monkeypatch, engine):
++    dec = _load_decision()
++    candidate, _ = _target_fixture(tmp_path)
++    capture = dec.capture_input_manifest
++    calls = []
++    def changed(*args):
++        result = capture(*args)
++        if calls:
++            result[engine] = 'changed engine fixture'
++        calls.append(1)
++        return result
++    monkeypatch.setattr(dec, 'capture_input_manifest', changed)
++    decision = _decide_with_inputs(dec, candidate, tmp_path, _clean_substance(tmp_path))
++    assert decision['eligible'] is False
++    assert decision['blocking_reasons'][0]['code'] == 'STALE_DURING_EVALUATION'
++
++
++@pytest.mark.parametrize('change', ['missing', 'invalid'])
++@pytest.mark.parametrize('phase', ['evaluation', 'apply'])
++def test_unreadable_candidate_recapture_is_a_typed_refusal(tmp_path, change, phase):
++    dec = _load_decision()
++    candidate, _ = _target_fixture(tmp_path)
++    substance = _clean_substance(tmp_path)
++    def mutate():
++        if change == 'missing':
++            candidate.unlink()
++        else:
++            candidate.write_text('invalid frontmatter fixture')
++    if phase == 'evaluation':
++        def runner(*args):
++            mutate()
++            return substance, {"status": "PASS"}, {"verdict": "NEW"}, ([], []), True
++        decision = dec.canonical_promotion_decision(candidate, tmp_path, run_evaluators=runner)
++        assert decision['eligible'] is False
++        refusal = decision['blocking_reasons'][0]
++        assert refusal['code'] == 'STALE_DURING_EVALUATION'
++    else:
++        decision = _decide_with_inputs(dec, candidate, tmp_path, substance)
++        mutate()
++        allowed, refusal = dec.authorize_apply(decision, candidate, tmp_path)
++        assert allowed is False
++        assert refusal['code'] == 'STALE_DECISION'
++    assert 'recapture_error' in refusal['evidence']
++
++
++def test_unrelated_fiche_change_does_not_invalidate_target_decision(tmp_path):
++    dec = _load_decision()
++    candidate, target = _target_fixture(tmp_path)
++    decision = _decide_with_inputs(dec, candidate, tmp_path, _clean_substance(tmp_path))
++    target.with_name('unrelated.md').write_text('unrelated fixture')
++    assert dec.authorize_apply(decision, candidate, tmp_path) == (True, None)
++
++
++
++def test_native_regression_resolver_target_is_guarded_without_baseline_override(tmp_path, monkeypatch):
++    dec = _load_decision()
++    candidate, target = _target_fixture(tmp_path)
++    target.write_text("---\nreview_status: approved\n---\naccepted predecessor\n")
++    observed = []
++    substance = _clean_substance(tmp_path)
++    monkeypatch.setattr(dec, 'evaluate_tier', lambda *a: substance)
++    def compare(cand, baseline, root):
++        observed.append(baseline)
++        target.write_text("---\nreview_status: approved\n---\nconcurrent predecessor\n")
++        return {"verdict": "NEUTRAL"}
++    def module(name, filename):
++        if filename == 'compare-proposal-versions.py':
++            return SimpleNamespace(compare=compare)
++        if filename == 'check-coverage-map.py':
++            return SimpleNamespace(_load_catalog_slugs=lambda *a: set(),
++                                   _load_schema=lambda *a: {},
++                                   check_fiche=lambda *a: {"status": "PASS"})
++        if filename == 'quality-gates.py':
++            return SimpleNamespace(load_source_catalog=lambda: {},
++                                   load_raw_inventory=lambda: ({'fixture'}, {}, {}, ''),
++                                   gate_source_catalog_raw_refs=lambda *a: ([], []))
++        raise AssertionError(filename)
++    monkeypatch.setattr(dec, '_load_module', module)
++    # Real runner and native automatic baseline resolution; evaluator transports
++    # are injected. This is a decision test, not a CLI overwrite authorization.
++    decision = dec.canonical_promotion_decision(candidate, tmp_path, gates=[], compute_score=lambda *a: 1)
++    assert observed == [target]
++    assert decision['eligible'] is False
++    assert decision['blocking_reasons'][0]['code'] == 'STALE_DURING_EVALUATION'
+diff --git a/_scripts/tests/test_confidence_schema_contract.py b/_scripts/tests/test_confidence_schema_contract.py
+index c436ef1..d56d75a 100644
+--- a/_scripts/tests/test_confidence_schema_contract.py
++++ b/_scripts/tests/test_confidence_schema_contract.py
+@@ -63,3 +63,27 @@ def test_source_metadata_stays_strict():
+     fm["source_refs"][0]["unrecognized_evidence"] = True
+     with pytest.raises(ValidationError):
+         VALIDATOR.validate(fm)
++
++
++def test_long_heading_without_body_is_not_substance():
++    body = '\n'.join(
++        f"## {heading} avec un titre artificiellement tres long sans explication\n"
++        for heading in SCORER.SECTIONS_REQUIRED['gamme']
++    )
++    assert SCORER.count_filled_sections(body, SCORER.SECTIONS_REQUIRED['gamme']) == 0
++
++
++def test_next_heading_cannot_fill_previous_section():
++    body = '## Definition\n\n## Another long heading that contains no explanation\n'
++    assert SCORER.count_filled_sections(body, ['Definition']) == 0
++
++
++@pytest.mark.parametrize('content, expected', [('x' * 19, 0), ('x' * 20, 1), (' \n\t', 0)])
++def test_substance_boundary_excludes_heading_and_whitespace(content, expected):
++    body = f'## Definition with a long explanatory-looking heading\n{content}\n'
++    assert SCORER.count_filled_sections(body, ['Definition']) == expected
++
++
++def test_duplicate_heading_counts_required_section_only_once():
++    body = '## Definition\n' + 'x' * 20 + '\n## Definition\n' + 'y' * 20
++    assert SCORER.count_filled_sections(body, ['Definition']) == 1

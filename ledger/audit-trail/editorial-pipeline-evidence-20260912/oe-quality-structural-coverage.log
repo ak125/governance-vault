@@ -1,0 +1,17 @@
+{
+  "pass": 0,
+  "warn": 0,
+  "fail": 1,
+  "results": [
+    {
+      "slug": "filtre-a-huile",
+      "status": "FAIL",
+      "fails": [
+        "entry[8].text_anchor absent de la prose de '## Symptômes & diagnostic' (claim_id=filtre-huile-bypass-huile-non-filtree)"
+      ],
+      "warns": [],
+      "coverage_entries": 14,
+      "h2_sections": 10
+    }
+  ]
+}

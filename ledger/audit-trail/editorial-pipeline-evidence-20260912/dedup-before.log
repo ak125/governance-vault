@@ -1,0 +1,88 @@
+  console.log
+    ◇ injected env (0) from backend/.env.test // tip: ◈ encrypted .env [www.dotenvx.com]
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+[32m[Nest] 793386  - [39m13/09/2026 11:29:40 [32m    LOG[39m [38;5;3m[KeywordPlanGatesService] [39m[32mAudit: 7/7 sections (100%), avg=100, improve=0, create=0, priority=0[39m
+[32m[Nest] 793386  - [39m13/09/2026 11:29:40 [32m    LOG[39m [38;5;3m[KeywordPlanGatesService] [39m[32mAudit: 7/7 sections (100%), avg=100, improve=0, create=0, priority=0[39m
+[32m[Nest] 793386  - [39m13/09/2026 11:29:40 [32m    LOG[39m [38;5;3m[KeywordPlanGatesService] [39m[32mAudit: 7/7 sections (100%), avg=100, improve=0, create=0, priority=0[39m
+[32m[Nest] 793386  - [39m13/09/2026 11:29:40 [32m    LOG[39m [38;5;3m[KeywordPlanGatesService] [39m[32mAudit: 7/7 sections (100%), avg=100, improve=0, create=0, priority=0[39m
+[32m[Nest] 793386  - [39m13/09/2026 11:29:40 [32m    LOG[39m [38;5;3m[KeywordPlanGatesService] [39m[32mAudit: 7/7 sections (100%), avg=100, improve=0, create=0, priority=0[39m
+[32m[Nest] 793386  - [39m13/09/2026 11:29:40 [32m    LOG[39m [38;5;3m[KeywordPlanGatesService] [39m[32mAudit: 7/7 sections (100%), avg=100, improve=0, create=0, priority=0[39m
+FAIL backend/src/modules/admin/services/keyword-plan-gates.dedup.test.ts (9.713 s)
+  GA3 duplicate finding reaches the audit correction decision
+    ✕ does not skip a full 100-score pack containing a detected duplicate (5 ms)
+    ✕ reports both affected sections independently of input order (3 ms)
+    ✕ emits one duplicate fix per affected section despite repeated matches (1 ms)
+    ✓ keeps GA3 scoped to cross-section matches, without rewriting content (1 ms)
+    ✓ preserves the existing decision for distinct section content
+
+  ● GA3 duplicate finding reaches the audit correction decision › does not skip a full 100-score pack containing a detected duplicate
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      29 |     const report = gates.auditFromSections(duplicated());
+      30 |     expect(report.gate_report?.GA3_CROSS_SECTION_DEDUP.status).toBe('warn');
+    > 31 |     expect(gates.shouldSkipGamme(report)).toBe(false);
+         |                                           ^
+      32 |     expect(report.sections_to_improve.sort()).toEqual(['S1', 'S2']);
+      33 |     expect(report.priority_fixes).toEqual(expect.arrayContaining([
+      34 |       expect.objectContaining({ section: 'S1', issue: 'duplicate_content', fix_type: 'improve', current_score: 100 }),
+
+      at Object.<anonymous> (src/modules/admin/services/keyword-plan-gates.dedup.test.ts:31:43)
+
+  ● GA3 duplicate finding reaches the audit correction decision › reports both affected sections independently of input order
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 4
+    + Received  + 1
+
+    - Array [
+    -   "S1",
+    -   "S2",
+    - ]
+    + Array []
+
+      43 |     const forward = gates.auditFromSections(duplicated());
+      44 |     const reverse = gates.auditFromSections(duplicated().reverse());
+    > 45 |     expect(forward.sections_to_improve.sort()).toEqual(['S1', 'S2']);
+         |                                                ^
+      46 |     expect(reverse.sections_to_improve.sort()).toEqual(forward.sections_to_improve);
+      47 |   });
+      48 |
+
+      at Object.<anonymous> (src/modules/admin/services/keyword-plan-gates.dedup.test.ts:45:48)
+
+  ● GA3 duplicate finding reaches the audit correction decision › emits one duplicate fix per affected section despite repeated matches
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 5
+    + Received  + 1
+
+    - Array [
+    -   "S1",
+    -   "S2",
+    -   "S3",
+    - ]
+    + Array []
+
+      54 |     const report = gates.auditFromSections(sections);
+      55 |     const fixes = report.priority_fixes;
+    > 56 |     expect(fixes.map((fix) => fix.section).sort()).toEqual(['S1', 'S2', 'S3']);
+         |                                                    ^
+      57 |     expect(report.sections_to_improve.sort()).toEqual(['S1', 'S2', 'S3']);
+      58 |   });
+      59 |
+
+      at Object.<anonymous> (src/modules/admin/services/keyword-plan-gates.dedup.test.ts:56:52)
+
+Test Suites: 1 failed, 1 total
+Tests:       3 failed, 2 passed, 5 total
+Snapshots:   0 total
+Time:        9.897 s
+Ran all test suites within paths "backend/src/modules/admin/services/keyword-plan-gates.dedup.test.ts".

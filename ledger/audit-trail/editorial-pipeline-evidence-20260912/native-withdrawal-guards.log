@@ -1,0 +1,20 @@
+
+==================================== ERRORS ====================================
+_________ ERROR collecting tests/test_f5_knowledge_service_readonly.py _________
+ImportError while importing test module '/home/deploy/worktrees/rag-editorial-consumption-20260912/tests/test_f5_knowledge_service_readonly.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.10/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+tests/test_f5_knowledge_service_readonly.py:17: in <module>
+    from app.services import knowledge_service as ks_module
+app/services/knowledge_service.py:15: in <module>
+    from app.config import get_settings
+app/config.py:9: in <module>
+    from pydantic_settings import BaseSettings
+E   ModuleNotFoundError: No module named 'pydantic_settings'
+=========================== short test summary info ============================
+ERROR tests/test_f5_knowledge_service_readonly.py
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+1 error in 0.11s
+EXIT_CODE=2

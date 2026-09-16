@@ -1,0 +1,5 @@
+ACCEPTED_UNSAFE HTTP scheme
+ACCEPTED_UNSAFE private DNS
+ACCEPTED_UNSAFE oversized stream
+ACCEPTED_UNSAFE PDF as HTML
+0/4 unsafe cases refused

@@ -1,0 +1,419 @@
+{
+  "checked_at": "2026-09-13T13:49:40.923097+00:00",
+  "results": [
+    {
+      "environment": "DEV3000",
+      "url": "http://127.0.0.1:3000/api/seo/diagnostic/redirect/voyant-disque-de-frein",
+      "status": 200,
+      "location": null,
+      "truncated": false,
+      "body": {
+        "redirect_to": "/blog-pieces-auto/conseils/disque-de-frein#diagnostic-rapide",
+        "pg_alias": "disque-de-frein"
+      }
+    },
+    {
+      "environment": "DEV3000",
+      "url": "http://127.0.0.1:3000/diagnostic-auto/voyant-disque-de-frein",
+      "status": 301,
+      "location": "/blog-pieces-auto/conseils/disque-de-frein#diagnostic-rapide",
+      "truncated": false
+    },
+    {
+      "environment": "DEV3000",
+      "url": "http://127.0.0.1:3000/blog-pieces-auto/conseils/disque-de-frein",
+      "status": 200,
+      "location": null,
+      "truncated": false,
+      "diagnostic_anchor": false,
+      "headings": [
+        {
+          "tag": "h1",
+          "text": "Changer un disque de frein : guide complet [2026]"
+        },
+        {
+          "tag": "h2",
+          "text": "Fonction du disque de frein"
+        },
+        {
+          "tag": "h2",
+          "text": "L'essentiel en 7 points"
+        },
+        {
+          "tag": "h2",
+          "text": "Quand changer les disque de frein"
+        },
+        {
+          "tag": "h2",
+          "text": "Comment choisir vos disque de frein"
+        },
+        {
+          "tag": "h2",
+          "text": "Procédure de remplacement du disque de frein"
+        },
+        {
+          "tag": "h2",
+          "text": "Remontage des disques de frein"
+        },
+        {
+          "tag": "h2",
+          "text": "Vérifications après remplacement des disques de frein"
+        },
+        {
+          "tag": "h2",
+          "text": "Erreurs à éviter avec les disque de frein"
+        },
+        {
+          "tag": "h2",
+          "text": "Quand confier le remplacement du disque de frein à un professionnel"
+        },
+        {
+          "tag": "h2",
+          "text": "Diagnostic rapide du disque de frein"
+        },
+        {
+          "tag": "h2",
+          "text": "Pièces à contrôler et à remplacer avec les disque de frein"
+        },
+        {
+          "tag": "h2",
+          "text": "Questions fréquentes sur les disque de frein"
+        },
+        {
+          "tag": "h2",
+          "text": "Consulter nos articles sur les disques de frein"
+        },
+        {
+          "tag": "h2",
+          "text": "Continuer la lecture"
+        }
+      ]
+    },
+    {
+      "environment": "DEV3000",
+      "url": "http://127.0.0.1:3000/api/r6-guide/redirect/filtre-a-huile",
+      "status": 200,
+      "location": null,
+      "truncated": false,
+      "body": {
+        "redirect_to": null,
+        "pg_alias": null
+      }
+    },
+    {
+      "environment": "DEV3000",
+      "url": "http://127.0.0.1:3000/blog-pieces-auto/guide-achat/filtre-a-huile",
+      "status": 200,
+      "location": null,
+      "truncated": false,
+      "diagnostic_anchor": false,
+      "headings": [
+        {
+          "tag": "h1",
+          "text": "Filtre à huile de qualité pour votre véhicule"
+        },
+        {
+          "tag": "h2",
+          "text": "Niveaux de qualite — Filtre à huile de qualité pour votre véhicule"
+        },
+        {
+          "tag": "h2",
+          "text": "Compatibilite — Filtre à huile de qualité pour votre véhicule"
+        },
+        {
+          "tag": "h2",
+          "text": "Guide des prix — Filtre à huile de qualité pour votre véhicule"
+        },
+        {
+          "tag": "h2",
+          "text": "Guide des marques — Filtre à huile de qualité pour votre véhicule"
+        },
+        {
+          "tag": "h2",
+          "text": "Pieges a eviter"
+        },
+        {
+          "tag": "h2",
+          "text": "Quand faire appel a un professionnel"
+        },
+        {
+          "tag": "h2",
+          "text": "Questions frequentes"
+        }
+      ]
+    },
+    {
+      "environment": "DEV3000",
+      "url": "http://127.0.0.1:3000/blog-pieces-auto/conseils/filtre-a-huile",
+      "status": 200,
+      "location": null,
+      "truncated": false,
+      "diagnostic_anchor": false,
+      "headings": [
+        {
+          "tag": "h1",
+          "text": "Comment changer un filtre à huile"
+        },
+        {
+          "tag": "h2",
+          "text": "Fonction du filtre à huile"
+        },
+        {
+          "tag": "h2",
+          "text": "L'essentiel en 7 points"
+        },
+        {
+          "tag": "h2",
+          "text": "Quand changer les filtre à huile"
+        },
+        {
+          "tag": "h2",
+          "text": "Comment choisir vos filtre à huile"
+        },
+        {
+          "tag": "h2",
+          "text": "Procédure de remplacement du filtre à huile"
+        },
+        {
+          "tag": "h2",
+          "text": "Remontage d'un filtre à huile"
+        },
+        {
+          "tag": "h2",
+          "text": "Vérifications après remplacement du filtre à huile"
+        },
+        {
+          "tag": "h2",
+          "text": "Erreurs à éviter avec les filtre à huile"
+        },
+        {
+          "tag": "h2",
+          "text": "Quand confier le remplacement du filtre à huile à un professionnel"
+        },
+        {
+          "tag": "h2",
+          "text": "Diagnostic rapide du filtre à huile"
+        },
+        {
+          "tag": "h2",
+          "text": "Pièces à contrôler et à remplacer avec les filtre à huile"
+        },
+        {
+          "tag": "h2",
+          "text": "Questions fréquentes sur les filtre à huile"
+        },
+        {
+          "tag": "h2",
+          "text": "Continuer la lecture"
+        }
+      ]
+    },
+    {
+      "environment": "public",
+      "url": "https://www.automecanik.com/api/seo/diagnostic/redirect/voyant-disque-de-frein",
+      "status": 200,
+      "location": null,
+      "truncated": false,
+      "body": {
+        "redirect_to": "/blog-pieces-auto/conseils/disque-de-frein#diagnostic-rapide",
+        "pg_alias": "disque-de-frein"
+      }
+    },
+    {
+      "environment": "public",
+      "url": "https://www.automecanik.com/diagnostic-auto/voyant-disque-de-frein",
+      "status": 301,
+      "location": "/blog-pieces-auto/conseils/disque-de-frein#diagnostic-rapide",
+      "truncated": false
+    },
+    {
+      "environment": "public",
+      "url": "https://www.automecanik.com/blog-pieces-auto/conseils/disque-de-frein",
+      "status": 200,
+      "location": null,
+      "truncated": false,
+      "diagnostic_anchor": false,
+      "headings": [
+        {
+          "tag": "h1",
+          "text": "Changer un disque de frein : guide complet [2026]"
+        },
+        {
+          "tag": "h2",
+          "text": "Fonction du disque de frein"
+        },
+        {
+          "tag": "h2",
+          "text": "L'essentiel en 7 points"
+        },
+        {
+          "tag": "h2",
+          "text": "Quand changer les disque de frein"
+        },
+        {
+          "tag": "h2",
+          "text": "Comment choisir vos disque de frein"
+        },
+        {
+          "tag": "h2",
+          "text": "Procédure de remplacement du disque de frein"
+        },
+        {
+          "tag": "h2",
+          "text": "Remontage des disques de frein"
+        },
+        {
+          "tag": "h2",
+          "text": "Vérifications après remplacement des disques de frein"
+        },
+        {
+          "tag": "h2",
+          "text": "Erreurs à éviter avec les disque de frein"
+        },
+        {
+          "tag": "h2",
+          "text": "Quand confier le remplacement du disque de frein à un professionnel"
+        },
+        {
+          "tag": "h2",
+          "text": "Diagnostic rapide du disque de frein"
+        },
+        {
+          "tag": "h2",
+          "text": "Pièces à contrôler et à remplacer avec les disque de frein"
+        },
+        {
+          "tag": "h2",
+          "text": "Questions fréquentes sur les disque de frein"
+        },
+        {
+          "tag": "h2",
+          "text": "Consulter nos articles sur les disques de frein"
+        },
+        {
+          "tag": "h2",
+          "text": "Continuer la lecture"
+        }
+      ]
+    },
+    {
+      "environment": "public",
+      "url": "https://www.automecanik.com/api/r6-guide/redirect/filtre-a-huile",
+      "status": 200,
+      "location": null,
+      "truncated": false,
+      "body": {
+        "redirect_to": null,
+        "pg_alias": null
+      }
+    },
+    {
+      "environment": "public",
+      "url": "https://www.automecanik.com/blog-pieces-auto/guide-achat/filtre-a-huile",
+      "status": 200,
+      "location": null,
+      "truncated": false,
+      "diagnostic_anchor": false,
+      "headings": [
+        {
+          "tag": "h1",
+          "text": "Filtre à huile de qualité pour votre véhicule"
+        },
+        {
+          "tag": "h2",
+          "text": "Niveaux de qualite — Filtre à huile de qualité pour votre véhicule"
+        },
+        {
+          "tag": "h2",
+          "text": "Compatibilite — Filtre à huile de qualité pour votre véhicule"
+        },
+        {
+          "tag": "h2",
+          "text": "Guide des prix — Filtre à huile de qualité pour votre véhicule"
+        },
+        {
+          "tag": "h2",
+          "text": "Guide des marques — Filtre à huile de qualité pour votre véhicule"
+        },
+        {
+          "tag": "h2",
+          "text": "Pieges a eviter"
+        },
+        {
+          "tag": "h2",
+          "text": "Quand faire appel a un professionnel"
+        },
+        {
+          "tag": "h2",
+          "text": "Questions frequentes"
+        }
+      ]
+    },
+    {
+      "environment": "public",
+      "url": "https://www.automecanik.com/blog-pieces-auto/conseils/filtre-a-huile",
+      "status": 200,
+      "location": null,
+      "truncated": false,
+      "diagnostic_anchor": false,
+      "headings": [
+        {
+          "tag": "h1",
+          "text": "Comment changer un filtre à huile"
+        },
+        {
+          "tag": "h2",
+          "text": "Fonction du filtre à huile"
+        },
+        {
+          "tag": "h2",
+          "text": "L'essentiel en 7 points"
+        },
+        {
+          "tag": "h2",
+          "text": "Quand changer les filtre à huile"
+        },
+        {
+          "tag": "h2",
+          "text": "Comment choisir vos filtre à huile"
+        },
+        {
+          "tag": "h2",
+          "text": "Procédure de remplacement du filtre à huile"
+        },
+        {
+          "tag": "h2",
+          "text": "Remontage d'un filtre à huile"
+        },
+        {
+          "tag": "h2",
+          "text": "Vérifications après remplacement du filtre à huile"
+        },
+        {
+          "tag": "h2",
+          "text": "Erreurs à éviter avec les filtre à huile"
+        },
+        {
+          "tag": "h2",
+          "text": "Quand confier le remplacement du filtre à huile à un professionnel"
+        },
+        {
+          "tag": "h2",
+          "text": "Diagnostic rapide du filtre à huile"
+        },
+        {
+          "tag": "h2",
+          "text": "Pièces à contrôler et à remplacer avec les filtre à huile"
+        },
+        {
+          "tag": "h2",
+          "text": "Questions fréquentes sur les filtre à huile"
+        },
+        {
+          "tag": "h2",
+          "text": "Continuer la lecture"
+        }
+      ]
+    }
+  ]
+}

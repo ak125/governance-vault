@@ -1,0 +1,29 @@
+{
+  "status": "VALIDATED_FOR_SCOPE_ONLY",
+  "source_slug": "mahle_oem_conception_filtre_huile",
+  "file_sha256": "sha256:8358e439faddebc32395175c9fb161ee7d9abce755ead940aeadb7b6ddc5f589",
+  "body_sha256": "sha256:fa488c047addedba6909fc86d9a4c3d1b6529dc93c7039a84f0589342fc0a77b",
+  "raw_inventory_failures": [],
+  "raw_inventory_warnings": [],
+  "captured_at": "2026-09-13T22:40:47Z",
+  "passage_heading": "Spin-on oil filter mix up?",
+  "passage_end_exclusive": "Expertise in new media",
+  "passage_sha256": "3549d1ba98336ca9a01d0da7792226f53add3b14392d79e8cb5f7339030e0348",
+  "claims": [
+    "filtre-huile-media-selon-moteur",
+    "filtre-huile-ressemblance-non-compatibilite"
+  ],
+  "anchors_present_in_named_section": true,
+  "replay_deduplicated": true,
+  "exports": {
+    "rag": false,
+    "seo": false,
+    "support": false
+  },
+  "limitations": [
+    "Semantic support assessed manually for this passage only.",
+    "Recommendation to check catalogue is an editorial inference, not compatibility proof.",
+    "Unknown public-use rights; no approval or promotion.",
+    "Schema coverage PASS checks headings and source FK, not semantic support of all 15 claims."
+  ]
+}

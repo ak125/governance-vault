@@ -1,0 +1,49 @@
+{
+  "scope": "Single native promoter per checkout and atomic canonical-file publication; process interruption and CLI error visibility",
+  "branch": "codex/editorial-substance-sections-20260912",
+  "head": "01cea8deda48d84b6a2993cd4bdefe8280082c0b",
+  "runtime": {
+    "system": "Linux",
+    "python": "3.10.12"
+  },
+  "files": {
+    "_scripts/promote.py": "9cd8455dbf0786295fa4381809bc0316c23ce3d45862227e18525f69097dffcb",
+    "_scripts/promotion_decision.py": "ad4d21a7122a9f00dd2ee347719e315ea19d5882e1586dff33b6aeea77337c90",
+    "_scripts/test_promote.py": "e4845b90ddf38e656c6cb7d91290fa3ebe768f4d5a316f0cfc0b06ce9b28917a"
+  },
+  "wiki_patch_sha256": "cc48ac2164a8bcaa4b2591a879e977f87a0d0870fde04c54eea7fb90ad32e1b2",
+  "validation": {
+    "pytest_passed": 216,
+    "decision_tests": 50,
+    "promoter_tests": 64,
+    "builder_tests": 88,
+    "score_schema_tests": 14,
+    "new_tests": 7,
+    "baseline_failed": 3,
+    "py_compile": "PASS two production files",
+    "pre_commit": "PASS three changed files",
+    "staged_diff_check": "PASS"
+  },
+  "counterproofs": [
+    "File fsync or os.replace failure preserves previous canonical bytes and source proposal; staged file cleaned on ordinary exception",
+    "Two actual forked processes contend for directory flock: second fails PROMOTION_BUSY while first holds lock, first publishes once",
+    "Actual SIGKILL before os.replace keeps previous canonical file and proposal; OS releases lock, native retry succeeds",
+    "Interrupted temporary .tmp is never treated as canonical Markdown; no automatic purge of remnants",
+    "Parent directory fsync failure after publication reports explicit partial effect and preserves proposal",
+    "CLI apply failure returns exit 1 and visible details in text and JSON, instead of false success"
+  ],
+  "decisions": [
+    "Use native POSIX flock on checkout directory inode; no lockfile registry or new scheduler",
+    "Same-directory temporary file, flush/fsync, final freshness check, os.replace and directory fsync",
+    "Only cooperating native promoters are mutually excluded. Existing approved-target guard retained."
+  ],
+  "limits": [
+    "Directory flock is advisory and scoped to this checkout, not a distributed lock across worktrees or uncooperative authors.",
+    "Proposal authors that bypass the lock can still change source between comparison and unlink; no universal atomic transaction across proposal and canonical files.",
+    "SIGKILL before replacement was tested, not machine power loss or crash at every syscall. A .tmp orphan may remain; it is ignored as content and not silently purged.",
+    "A crash or fsync error after publication can leave canonical file published and source retained; no two-file rollback or automatic recovery journal claimed.",
+    "Complete withdrawal trigger is still undefined in native policy; user clarification requested. No inferred withdrawal, newly accepted contract, executable removal connection or indexed-page deletion.",
+    "No corpus/shared DB write, runtime activation, CI, commit/push/merge or deployment."
+  ],
+  "final_status": "PARTIAL_COVERAGE"
+}

@@ -1,0 +1,76 @@
+{
+  "scope": "entity_data du candidat filtre-a-huile contre gamme.schema.json courant ; verification directe, distincte du validateur frontmatter",
+  "status": "FAIL",
+  "errors": [
+    {
+      "path": "decision_brief/selection_criteria_top",
+      "message": "['Type de filtre prévu : ensemble vissé ou élément en cartouche.', \"Filetage et joint conformes au système de filtration d'origine.\", 'Média défini pour le moteur : son matériau seul ne justifie pas un classement de qualité universel.', 'Clapets selon la conception du filtre et du moteur ; leur présence seule ne prouve pas la compatibilité.'] is too long"
+    },
+    {
+      "path": "decision_brief/selection_criteria_top/2",
+      "message": "'Média défini pour le moteur : son matériau seul ne justifie pas un classement de qualité universel.' is too long"
+    },
+    {
+      "path": "decision_brief/selection_criteria_top/3",
+      "message": "'Clapets selon la conception du filtre et du moteur ; leur présence seule ne prouve pas la compatibilité.' is too long"
+    },
+    {
+      "path": "decision_brief/source_kind",
+      "message": "'web_research_oe' is not one of ['deterministic_transform', 'rag_candidate']"
+    },
+    {
+      "path": "decision_brief/cross_check_status",
+      "message": "'SOURCED_OE' is not one of ['WEB_CONFIRMS_RAG', 'WEB_ONLY', 'RAG_ONLY', 'WEB_DIFFERS_FROM_RAG', 'NEITHER']"
+    },
+    {
+      "path": "editorial/failure_symptoms/source_ids/0",
+      "message": "'renault_clio5p1_alerte_pression_huile' does not match '^(db|web|raw|oem|specialist):'"
+    },
+    {
+      "path": "editorial/failure_symptoms/source_ids/1",
+      "message": "'filtron_oem_clapets_filtre_huile' does not match '^(db|web|raw|oem|specialist):'"
+    },
+    {
+      "path": "editorial/maintenance_interval/source_ids/0",
+      "message": "'mahle_oem_conception_filtre_huile' does not match '^(db|web|raw|oem|specialist):'"
+    },
+    {
+      "path": "editorial/variants/source_ids/0",
+      "message": "'mahle_oem_conception_filtre_huile' does not match '^(db|web|raw|oem|specialist):'"
+    },
+    {
+      "path": "editorial/selection_criteria/source_ids/0",
+      "message": "'mahle_oem_conception_filtre_huile' does not match '^(db|web|raw|oem|specialist):'"
+    },
+    {
+      "path": "editorial/quality_tiers/source_ids/0",
+      "message": "'eu_lignes_directrices_pieces_2023' does not match '^(db|web|raw|oem|specialist):'"
+    },
+    {
+      "path": "editorial/quality_tiers/source_ids/1",
+      "message": "'mahle_oem_conception_filtre_huile' does not match '^(db|web|raw|oem|specialist):'"
+    },
+    {
+      "path": "editorial/standards_norms/source_ids/0",
+      "message": "'iso_4548_2_1997_notice' does not match '^(db|web|raw|oem|specialist):'"
+    },
+    {
+      "path": "editorial/standards_norms/source_ids/1",
+      "message": "'iso_4548_9_2008_notice' does not match '^(db|web|raw|oem|specialist):'"
+    },
+    {
+      "path": "editorial/standards_norms/source_ids/2",
+      "message": "'iso_4548_12_2017_notice' does not match '^(db|web|raw|oem|specialist):'"
+    },
+    {
+      "path": "editorial/faq/source_ids/2",
+      "message": "'renault_clio5p1_alerte_pression_huile' does not match '^(db|web|raw|oem|specialist):'"
+    },
+    {
+      "path": "editorial/faq/source_ids/3",
+      "message": "'mahle_oem_conception_filtre_huile' does not match '^(db|web|raw|oem|specialist):'"
+    }
+  ],
+  "editorial_blocks": 9,
+  "blocks_with_usefulness_target": 0
+}

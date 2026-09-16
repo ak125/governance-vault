@@ -1,0 +1,91 @@
+{
+  "scope_requested": "Poursuivre la fiabilisation du pipeline editorial et des donnees des pages R.",
+  "scope_actually_scanned": "Chemin R6 de selection_criteria : extraction, validation, simulation, ecriture et confusion de rendu V1/V2. Lectures partielles ciblees, pas audit integral de ces modules.",
+  "files_read_count": 19,
+  "files_read": [
+    "backend/src/modules/admin/dto/buying-guide-enrich.dto.ts",
+    "backend/src/modules/admin/services/buying-guide-enricher.service.ts",
+    "backend/src/modules/admin/services/buying-guide/buying-guide-quality-gates.service.ts",
+    "backend/src/modules/admin/services/buying-guide-enricher.quality.test.ts",
+    "backend/src/modules/admin/services/buying-guide/buying-guide-db.service.ts",
+    "backend/src/modules/admin/services/buying-guide/buying-guide-rag-fetcher.service.ts",
+    "backend/src/modules/admin/services/buying-guide/buying-guide-section-extractor.service.ts",
+    "backend/src/modules/admin/services/buying-guide/buying-guide.types.ts",
+    "backend/src/modules/admin/services/buying-guide/index.ts",
+    "backend/src/config/buying-guide-quality.constants.ts",
+    "backend/src/modules/blog/services/r6-guide.service.ts",
+    "backend/src/modules/blog/interfaces/r6-guide.interfaces.ts",
+    "backend/src/modules/blog/services/r6-guide.service.redirect.test.ts",
+    "frontend/app/components/blog/guide-achat/R6QualityTiersTable.tsx",
+    "frontend/app/components/guide/r6-guide-schemas.ts",
+    "packages/seo-roles/src/text-normalize.ts",
+    "backend/jest.config.js",
+    "backend/tests/setup.ts",
+    "backend/package.json"
+  ],
+  "context_reads": [
+    ".claude/rules/backend.md",
+    ".claude/rules/frontend.md",
+    ".claude/canon-mirrors/agent-exit-contract.md",
+    "audit/registry/canonical.json (jq filtre)",
+    ".claude/knowledge/REPO_MAP.md",
+    "log.md (queue seulement)",
+    "rapport et checkpoint du vault"
+  ],
+  "excluded_paths": [
+    "autres modules applicatifs",
+    "runtime WIKI/RAW/knowledge-jobs",
+    "secrets et environnement de production"
+  ],
+  "unscanned_zones": [
+    "Historique DB permettant de prouver quel producteur a cree les lignes DEV",
+    "CI et navigateur",
+    "Audit exhaustif des 7000 contenus",
+    "Verification de toutes les affirmations du guide"
+  ],
+  "corrections_proposed": [
+    "backend/src/modules/admin/dto/buying-guide-enrich.dto.ts",
+    "backend/src/modules/admin/services/buying-guide-enricher.service.ts",
+    "backend/src/modules/admin/services/buying-guide/buying-guide-quality-gates.service.ts",
+    "backend/src/modules/admin/services/buying-guide-enricher.quality.test.ts"
+  ],
+  "corrections_applied": {
+    "authorization": "Demandes utilisateur corriger/ameliorer/continuer; candidat isole seulement",
+    "files": [
+      "backend/src/modules/admin/dto/buying-guide-enrich.dto.ts",
+      "backend/src/modules/admin/services/buying-guide-enricher.service.ts",
+      "backend/src/modules/admin/services/buying-guide/buying-guide-quality-gates.service.ts",
+      "backend/src/modules/admin/services/buying-guide-enricher.quality.test.ts"
+    ]
+  },
+  "validation_executed": [
+    "Reproduction avant: 8 echecs/2 succes sur 10 tests",
+    "Apres: 24/24 tests sur 3 suites dont 12 nouveaux",
+    "tsc --noEmit backend PASS",
+    "ESLint cible 0 erreur, 1 avertissement legacy preexistant",
+    "diff --check cible PASS"
+  ],
+  "validation_limits": [
+    "Tests avec DB et fetcher simules; aucun appel au pipeline reel",
+    "Ancienne exception metadata-only conservee et testee; elle necrit pas de contenu",
+    "Le score reste un diagnostic et ne prouve ni exactitude factuelle ni publication"
+  ],
+  "remaining_unknowns": [
+    "R6QualityTiersTable accepte encore AltTier et R6GuideService caste des criteres V1 en tiers V2; correction de rendu et donnees non livree ici",
+    "sgpg_source_verified legacy depend encore du score/confiance; qualification documentaire a reprendre",
+    "Le parser deduit encore required de la position et peut produire label=guidance; ces lignes sont maintenant bloquantes",
+    "Source MAHLE pertinente trouvee, pas encore capturee ni rattachee au WIKI",
+    "Aucune preuve de causalite historique sur les doublons stockes"
+  ],
+  "head": "0c31807c8453c251d70c7575eafcc973f04eed14",
+  "origin_main": "4b9d2ffd149f74498280b4691cc7daadad4d4f47",
+  "upstream_touched_paths_divergence": "",
+  "candidate_sha256": {
+    "backend/src/modules/admin/dto/buying-guide-enrich.dto.ts": "72808c7617fc83f8526206e9bc7f0162471140f3f614c535a390b67c6f56898c",
+    "backend/src/modules/admin/services/buying-guide-enricher.service.ts": "0ea994d906695ba43f955a97835d2072f2e30269650fad4e725748cde3123627",
+    "backend/src/modules/admin/services/buying-guide/buying-guide-quality-gates.service.ts": "387bd2d5660770ddfa0dd844a15f6504f9a41103c47b0b0c442d070dc52197fe",
+    "backend/src/modules/admin/services/buying-guide-enricher.quality.test.ts": "dee207106892049123a297e134ace31280af9b38adc1fbdf03043287bdac8744"
+  },
+  "final_status": "PARTIAL_COVERAGE",
+  "bounded_validation": "VALIDATED_FOR_SCOPE_ONLY"
+}

@@ -1,0 +1,74 @@
+{
+  "scope_requested": "Continuer les corrections du guide et de son systeme de preuve.",
+  "scope_actually_scanned": "Trois references ISO, representation Markdown/structuree, catalogue et capture native des notices.",
+  "files_read_count": 17,
+  "files_read": [
+    "/opt/automecanik/wiki-editorial-qualification-20260912/CLAUDE.md",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_meta/agent-exit-contract.md",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/filtre-a-huile.md",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/_coverage/filtre-a-huile.coverage.yaml",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_meta/source-catalog.yaml",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_meta/schema/source-catalog-entry.schema.json",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_meta/source-policy.md",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/log.md",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/quality-gates.py",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/CLAUDE.md",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/docs/agent-capture-policy.md",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/manifests/ingestion-allowlist.yaml",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/manifests/ingestion-worklist.yaml",
+    "/opt/automecanik/governance-editorial-pipeline-20260912/ledger/audit-trail/editorial-pipeline-evidence-20260912/CHECKPOINT.md",
+    "/opt/automecanik/governance-editorial-pipeline-20260912/ledger/audit-trail/editorial-pipeline-evidence-20260912/architecture-pilot-source-validation.json",
+    "/opt/automecanik/governance-editorial-pipeline-20260912/ledger/audit-trail/editorial-pipeline-evidence-20260912/claims-pilot-coverage.json",
+    "/opt/automecanik/governance-editorial-pipeline-20260912/ledger/audit-trail/editorial-pipeline-evidence-20260912/architecture-pilot-coverage.json"
+  ],
+  "read_depth": "Lectures manuelles ciblees ; extraits pour catalogue, politique source, moteur raw_ref et preuves precedentes. Guidance WIKI/RAW et AEC lues. Lectures automatiques des validateurs exclues du compte manuel.",
+  "web_sources": [
+    "https://www.iso.org/standard/21712.html",
+    "https://www.iso.org/standard/44520.html",
+    "https://www.iso.org/standard/62763.html"
+  ],
+  "excluded_paths": [
+    "Application et trois documents utilisateur seo-batch",
+    "Autres propositions, sources et catalogue 7343 contenus",
+    "Runtime, infra, DB, cron, secrets, exports"
+  ],
+  "unscanned_zones": [
+    "Normes integrales payantes",
+    "Qualification OE/OES, diagnostic, montage et reutilisation",
+    "Contenu servi, CI et pertinence SEO mesuree"
+  ],
+  "corrections_proposed": [
+    "Borner les trois references aux objets des notices publiques",
+    "Aligner les ancres et le bloc structure",
+    "Declarer les captures manquantes par notice"
+  ],
+  "corrections_applied": {
+    "authorization": "Demandes utilisateur corriger, ameliorer, continuer ; candidats isoles seulement",
+    "files": [
+      "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/filtre-a-huile.md",
+      "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/_coverage/filtre-a-huile.coverage.yaml",
+      "/opt/automecanik/wiki-editorial-qualification-20260912/_meta/source-catalog.yaml",
+      "/opt/automecanik/wiki-editorial-qualification-20260912/log.md",
+      "/home/deploy/worktrees/raw-filtre-pilot-20260913/manifests/ingestion-allowlist.yaml",
+      "/home/deploy/worktrees/raw-filtre-pilot-20260913/manifests/ingestion-worklist.yaml"
+    ]
+  },
+  "validation_executed": [
+    "Frontmatter PASS",
+    "Confidence native 0.46 PASS",
+    "Ancres ISO PASS, coverage globale FAIL3",
+    "Schema source et statut to_capture PASS sans archive",
+    "RAW I/J PASS",
+    "SHA archives anterieures et empreintes code/tests/dependance inchanges",
+    "Promotion dry-run BLOCKED"
+  ],
+  "remaining_unknowns": [
+    "Archive ISO indisponible HTTP403 sur la premiere notice",
+    "6 affirmations sans preuve page archivee, dont 3 ISO",
+    "3 ancres diagnostic/OE-OES en echec",
+    "Independance de la barriere de preuve vis-a-vis des scores a eprouver",
+    "Reality manifest stale et realite du site non revalidee"
+  ],
+  "final_status": "PARTIAL_COVERAGE",
+  "bounded_validation": "VALIDATED_FOR_SCOPE_ONLY"
+}

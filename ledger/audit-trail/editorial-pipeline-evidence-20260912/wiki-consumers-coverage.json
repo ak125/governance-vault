@@ -1,0 +1,45 @@
+{
+  "scope_requested": "WIKI riche, precis et exact pour consommateurs pages R/RAG et clients",
+  "scope_actually_scanned": "Structure gamme, modele, manifestes exports, candidat filtre-a-huile",
+  "files_read_count": 8,
+  "files_read": [
+    "/opt/automecanik/wiki-editorial-qualification-20260912/CLAUDE.md",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_meta/source-policy.md",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_meta/schema/entity-data/gamme.schema.json",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_meta/schema/exports/seo.schema.json",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_meta/schema/exports/rag.schema.json",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_meta/schema/exports/support.schema.json",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_meta/templates/gamme.md",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/filtre-a-huile.md"
+  ],
+  "read_depth": "Lectures ciblees, schema gamme charge integralement par validation directe",
+  "excluded_paths": [
+    "Autres fiches et corpus",
+    "Routeurs applicatifs",
+    "DB/catalogue live",
+    "Gouvernance canon separee",
+    "Runtime et exports generes"
+  ],
+  "unscanned_zones": [
+    "Mapping exact de chaque role R",
+    "Exhaustivite et utilite reelle par consommateur",
+    "Exactitude globale du corpus",
+    "Rendu du site et index RAG"
+  ],
+  "corrections_proposed": [
+    "Corriger divergence contrat entity_data/validation native",
+    "Definir besoins et preuves par usage consommateur",
+    "Rechercher/enrichir depuis les manques utiles"
+  ],
+  "corrections_applied": [],
+  "validation_executed": [
+    "JSON Schema gamme direct : FAIL17",
+    "Inventaire candidat : 9 blocs, 0 usefulness_target renseignes"
+  ],
+  "remaining_unknowns": [
+    "Cause et consumers affectes par divergence des contrats",
+    "Reutilisation effective R/RAG",
+    "Exhaustivite du modele de connaissance"
+  ],
+  "final_status": "PARTIAL_COVERAGE"
+}

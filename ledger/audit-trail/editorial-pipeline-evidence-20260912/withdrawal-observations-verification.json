@@ -1,0 +1,45 @@
+{
+  "scope": "Read-only reconciliation observations in the existing WIKI SEO builder; no withdrawal decision or consumer mutation",
+  "branch": "codex/editorial-substance-sections-20260912",
+  "head": "01cea8deda48d84b6a2993cd4bdefe8280082c0b",
+  "files": {
+    "_scripts/build_exports_seo.py": "f6e268f5c87d3f8d42f0ddd96e336e6bda88f18c165cc3bd9b95255e7461ba92",
+    "_scripts/test_build_exports_seo.py": "a3a34b75a3a4341b8ec4c96a1db145c66fb21010fa0a6ad3457e097b28ee1392",
+    "_scripts/README-build-exports-seo.md": "995eb07731c5eb865219e0a96342806cd4b479d4c9350e0fd8b225ec94dbcbe3"
+  },
+  "wiki_patch_sha256": "e7da91ace9abe9fd37909617655b1fb0901610a2547f886f901004ab06dfd849",
+  "authority_findings": {
+    "wiki_validation": "Automatic per current CLAUDE.md; promotion_decision.py remains the sole existing promotion decision engine",
+    "withdrawal": "deprecated exists in frontmatter enum but promote.py/promotion_decision.py/schema expose no verifiable accepted withdrawal transition for consumers",
+    "effect": "No inferred withdrawal from absence, status or SEO eligibility loss. All observations carry withdrawal_authorized=false."
+  },
+  "validation": {
+    "pytest_passed": 102,
+    "builder_tests": 88,
+    "confidence_schema_tests": 14,
+    "new_builder_tests": 20,
+    "baseline_non_json_metadata_failed": 3,
+    "py_compile": "PASS",
+    "pre_commit": "PASS affected three files; corpus-only hooks skipped normally",
+    "first_pre_commit": "mdformat normalized README; subsequent hooks passed; production/test Python unchanged by formatting",
+    "staged_diff_check": "PASS",
+    "database_or_consumer_transport": "None; isolated filesystem/CLI fixtures"
+  },
+  "counterproofs": [
+    "Source deprecated, draft or in_review in single and full scope remains UNRECONCILED and preserves old export",
+    "Missing single source reports only requested historical export and writes no other candidate",
+    "Historical JSON path/identity mismatch observed, not followed; static outside symlinks rejected before reading",
+    "Source bytes captured once for both hash and frontmatter, including a fixture mutation between capture and parse",
+    "Invalid historical JSON and non-finite numbers preserved but not represented as valid declarations",
+    "YAML date/set/non-finite selected metadata cannot break JSON report; observed_source null with explicit invalid reason",
+    "Successful JSON result distinguishes dry-run plan from actual written files"
+  ],
+  "limits": [
+    "Observations are unverified declarations, not accepted WIKI state or withdrawal instructions. Export identities and body hashes are not authenticated.",
+    "No source-to-consumer DB ID mapping, tombstone, dependency registry, accepted withdrawal event or consumer ACK is produced.",
+    "Early Git/root/parser/argument errors retain native non-JSON failure behavior; JSON output is not guaranteed for every failure.",
+    "Static symlink checks and captured source bytes are tested; no adversarial filesystem race certification.",
+    "No corpus file/export modification, shared DB write, migration, runtime activation, CI, browser proof, commit, push, merge or deployment."
+  ],
+  "final_status": "PARTIAL_COVERAGE"
+}

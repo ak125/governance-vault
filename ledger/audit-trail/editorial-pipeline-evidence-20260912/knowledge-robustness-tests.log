@@ -1,0 +1,36 @@
+test_candidate_and_approved_labels_never_grant_authority (test_collection.CollectionTests) ... ok
+test_configuration_change_invalidates_reuse (test_collection.CollectionTests) ... ok
+test_credentials_and_binary_not_persisted (test_collection.CollectionTests) ... ok
+test_cross_origin_differences_do_not_choose_winner (test_collection.CollectionTests) ... ok
+test_date_only_does_not_trigger_change (test_collection.CollectionTests) ... ok
+test_duplicate_content_stored_once_and_tampering_refused (test_collection.CollectionTests) ... ok
+test_failed_source_is_not_reported_as_document_deletion (test_collection.CollectionTests) ... ok
+test_large_and_non_documentary_files_are_excluded (test_collection.CollectionTests) ... ok
+test_overlapping_collection_is_refused_and_lock_reusable (test_collection.CollectionTests) ... ok
+test_paths_secrets_and_artifacts_are_excluded (test_collection.CollectionTests) ... ok
+test_raw_recycled_quarantine_and_consumer_stay_distinct (test_collection.CollectionTests) ... ok
+test_restart_reads_utf8_manifest_and_releases_lock (test_collection.CollectionTests) ... ok
+test_unchanged_github_revision_reuses_snapshot_without_archive (test_collection.CollectionTests) ... ok
+test_catalogue_identifies_exact_input_snapshots (test_catalogue.CatalogueTests) ... ok
+test_changes_keep_modification_and_reclassification_separate (test_catalogue.CatalogueTests) ... ok
+test_configuration_change_and_first_run_are_not_new_findings (test_catalogue.CatalogueTests) ... ok
+test_duplicate_identity_or_invalid_hash_rejected (test_catalogue.CatalogueTests) ... ok
+test_exclusive_buckets_reconcile_and_projects_do_not_merge (test_catalogue.CatalogueTests) ... ok
+test_failed_or_removed_source_never_becomes_file_deletion (test_catalogue.CatalogueTests) ... ok
+test_identical_body_keeps_multiple_provenances_without_approval (test_catalogue.CatalogueTests) ... ok
+test_invalid_current_digest_is_rejected_before_any_write (test_catalogue.CatalogueTests) ... ok
+test_invalid_method_fingerprint_is_not_a_comparable_baseline (test_catalogue.CatalogueTests) ... ok
+test_late_render_error_keeps_previous_projection_intact (test_catalogue.CatalogueTests) ... ok
+test_policy_or_collector_change_cannot_report_source_deletion (test_catalogue.CatalogueTests) ... ok
+test_render_metadata_only_with_native_base_and_retained_missing_card (test_catalogue.CatalogueTests) ... ok
+test_retry_after_io_failure_converges_and_manifest_is_committed_last (test_catalogue.CatalogueTests) ... ok
+test_same_projection_does_not_rewrite_cards (test_catalogue.CatalogueTests) ... ok
+test_source_failure_retains_observed_rows_with_incomplete_label (test_catalogue.CatalogueTests) ... ok
+test_tampered_previous_card_path_is_refused (test_catalogue.CatalogueTests) ... ok
+test_timestamp_only_does_not_change_document (test_catalogue.CatalogueTests) ... ok
+test_unknown_comparison_method_cannot_report_unchanged (test_catalogue.CatalogueTests) ... ok
+
+----------------------------------------------------------------------
+Ran 31 tests in 0.041s
+
+OK

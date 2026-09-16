@@ -1,0 +1,26 @@
+  console.log
+    ◇ injected env (0) from backend/.env.test // tip: ⌘ enable debugging { debug: true }
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+PASS backend/src/modules/admin/controllers/internal-seo-audit.r3.test.ts (17.834 s)
+  Internal R3 audit — HTTP to real scorer/gates with memory Supabase transport
+    ✓ recomputes existing 100 scores, returns actionable defects and never writes (91 ms)
+    ✓ retains both affected sections for exact cross-section duplicates (9 ms)
+    ✓ does not pass unknown identities or duplicate section rows silently (7 ms)
+    ✓ returns missing sections for an existing gamme with no content (6 ms)
+    ✓ distinguishes an unknown gamme from an empty pack (7 ms)
+    ✓ fails visibly on a read failure or a truncated result (7014 ms)
+    ✓ rejects invalid target or pack before any query: 0 (6 ms)
+    ✓ rejects invalid target or pack before any query: -1 (5 ms)
+    ✓ rejects invalid target or pack before any query: 1junk (5 ms)
+    ✓ rejects invalid target or pack before any query: 1?pack=unknown (5 ms)
+    ✓ applies the requested pack without pretending that standard is sufficient (5 ms)
+    ✓ rejects malformed stored content instead of silently dropping a row (4 ms)
+    ✓ uses the existing internal key guard before reading content (5 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       13 passed, 13 total
+Snapshots:   0 total
+Time:        18.02 s
+Ran all test suites within paths "backend/src/modules/admin/controllers/internal-seo-audit.r3.test.ts".

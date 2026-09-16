@@ -1,0 +1,188 @@
+--- a/collection/collect.py
++++ b/collection/collect.py
+@@ -222,6 +222,17 @@
+              'records':[],'uncompared_sources':[]}
+     old_sources=(previous or {}).get('sources',{})
+     identity_fields=('project','role','repo','host','root')
++    # A changed selection/classification implementation can change the inventory
++    # without any source edit. Do not report such absences as document deletions.
++    method_reason=None
++    if previous:
++        fingerprints=('policy_sha256','collector_sha256')
++        if any(not isinstance(snapshot.get(k),str) or len(snapshot[k])!=64 or any(c not in '0123456789abcdef' for c in snapshot[k]) for snapshot in (previous,run) for k in fingerprints):
++            method_reason='comparison_method_unknown'
++        elif previous['policy_sha256']!=run['policy_sha256']:
++            method_reason='classification_policy_changed'
++        elif previous['collector_sha256']!=run['collector_sha256']:
++            method_reason='collector_implementation_changed'
+     for sid in sorted(run['sources'].keys()|old_sources.keys()):
+         a,b=old_sources.get(sid),run['sources'].get(sid)
+         reason=None
+@@ -229,6 +240,7 @@
+         elif b is None:reason='source_not_in_current_inventory'
+         elif any(s.get('error') or s.get('errors') for s in (a,b)):reason='incomplete_source'
+         elif any(a.get(k)!=b.get(k) for k in identity_fields):reason='source_configuration_changed'
++        elif method_reason:reason=method_reason
+         if reason:
+             changes['uncompared_sources'].append({'source':sid,'reason':reason});continue
+         keys={k for k in current if k[0]==sid}|{k for k in prior if k[0]==sid}
+@@ -243,7 +255,15 @@
+             if state!='unchanged':changes['records'].append({'source':sid,'path':key[1],
+                   'change':state,'before_sha256':old['sha256'] if old else None,
+                   'after_sha256':new['sha256'] if new else None})
++    def manifest_digest(snapshot):
++        return digest(json.dumps(snapshot,ensure_ascii=False,sort_keys=True,separators=(',',':')).encode('utf-8'))
++    provenance={'digest_basis':'canonical_json_utf8_sorted_keys',
++                'current_manifest_sha256':manifest_digest(run),
++                'baseline_manifest_sha256':manifest_digest(previous) if previous else None,
++                'policy_sha256':run.get('policy_sha256'),
++                'collector_sha256':run.get('collector_sha256')}
+     return {'checked_at':run['checked_at'],'scope':'observed_documentary_inventory',
++        'provenance':provenance,
+         'qualification':'not_evaluated','occurrences':len(current),'unique_contents':len(contents),
+         'duplicate_occurrences':len(current)-len(contents),
+         'projects':[{'project':p,'contents':len(v)} for p,v in sorted(projects.items())],
+@@ -258,21 +278,29 @@
+     import html
+     import re
+     base=STORE/'navigation/catalogue'
++    pending={}
+     def text(value):
+         return re.sub(r'([\\`*\[\]{}_|!#])',r'\\\1',html.escape(str(value),quote=False)).replace('\n',' ').replace('\r',' ')
+     def write(path,value):
+         raw=value.encode('utf-8')
+-        if not path.exists() or path.read_bytes()!=raw:atomic(path,raw)
++        pending[path]=raw
+     def fm(props):
+         return '---\n'+'\n'.join(k+': '+json.dumps(v,ensure_ascii=False) for k,v in props.items())+'\n---\n\n'
+     previous_path=base/'catalogue.json'
+     older=json.loads(previous_path.read_bytes()) if previous_path.exists() else {'contents':[]}
++    # Validate every filename before preparing or replacing any output.
++    for group in (older['contents'],index['contents']):
++        seen=set()
++        for card in group:
++            sha=card['sha256']
++            if not isinstance(sha,str) or len(sha)!=64 or any(c not in '0123456789abcdef' for c in sha):
++                raise ValueError('Invalid catalogue digest')
++            if sha in seen:raise ValueError('Duplicate catalogue digest')
++            seen.add(sha)
+     present={c['sha256'] for c in index['contents']}
+     # Preserve older cards as unobserved: absence is not deletion/invalidity of the source.
+     for card in older['contents']:
+         sha = card['sha256']
+-        if len(sha) != 64 or any(c not in '0123456789abcdef' for c in sha):
+-            raise ValueError('Invalid previous catalogue digest')
+         if sha not in present:
+             path=base/'Contenus'/(card['sha256']+'.md')
+             if path.exists():write(path,path.read_text().replace('inventory_state: "observed"','inventory_state: "unobserved"',1))
+@@ -328,7 +356,10 @@
+     changes=index['changes']
+     lines=['# Changements observes','',
+         'Comparaison : '+text(changes['baseline'] or 'aucune base comparable')+' → '+text(index['checked_at']),
+-        'Une modification de fichier ne prouve pas une nouvelle connaissance utile. Une absence de lecture ne vaut pas suppression.','',
++        'Une modification de fichier ne prouve pas une nouvelle connaissance utile. Une absence de lecture ne vaut pas suppression.',
++        'Si la politique ou le collecteur change, les sources ne sont pas comparees : une nouvelle base comparable est necessaire.','',
++        'Empreinte inventaire courant (JSON canonique) : '+index['provenance']['current_manifest_sha256'],
++        'Empreinte inventaire precedent (JSON canonique) : '+(index['provenance']['baseline_manifest_sha256'] or 'aucune'),'',
+         '| Nature | Occurrences |','|---|---:|']
+     for k,v in changes['counts'].items():lines.append('| '+k+' | '+str(v)+' |')
+     lines+=['','## Sources non comparables','']
+@@ -340,6 +371,10 @@
+         lines.append('| '+' | '.join([text(r['source']),text(r['path']),r['change'],link])+' |')
+     write(base/'CHANGEMENTS.md','\n'.join(lines)+'\n')
+     write(previous_path,json.dumps(index,ensure_ascii=False,indent=2)+'\n')
++    # Finish serialization first: malformed metadata must not leave a half-rendered
++    # catalogue. Each replacement is atomic; the directory is not a transaction.
++    for path,raw in pending.items():
++        if not path.exists() or path.read_bytes()!=raw:atomic(path,raw)
+ 
+ 
+ def render(run):
+--- a/collection/test_catalogue.py
++++ b/collection/test_catalogue.py
+@@ -19,7 +19,7 @@
+             'declared':{},'trust':'source_declaration_not_revalidated',
+             'business_pool_admissible':False,**extra}
+ 
+-def run(sources):return {'checked_at':'2026-09-13T06:00:00Z','sources':sources}
++def run(sources):return {'checked_at':'2026-09-13T06:00:00Z','policy_sha256':A,'collector_sha256':B,'sources':sources}
+ 
+ class CatalogueTests(unittest.TestCase):
+     def test_identical_body_keeps_multiple_provenances_without_approval(self):
+@@ -106,3 +106,76 @@
+             path.write_text(json.dumps({'contents':[{'sha256':'../outside'}]}))
+             with self.assertRaises(ValueError):
+                 collect.render_catalogue(collect.catalogue(run({})))
++
++    def test_policy_or_collector_change_cannot_report_source_deletion(self):
++        for field in ('policy_sha256', 'collector_sha256'):
++            with self.subTest(field=field):
++                old=run({'a':source([row()])}); new=run({'a':source([])})
++                new[field]=C
++                changes=collect.catalogue(new,old)['changes']
++                self.assertEqual(changes['counts']['removed'],0)
++                self.assertEqual(len(changes['uncompared_sources']),1)
++
++    def test_unknown_comparison_method_cannot_report_unchanged(self):
++        old=run({'a':source([row()])}); new=copy.deepcopy(old)
++        del old['policy_sha256']
++        changes=collect.catalogue(new,old)['changes']
++        self.assertEqual(changes['counts']['unchanged'],0)
++        self.assertEqual(changes['uncompared_sources'][0]['reason'],'comparison_method_unknown')
++
++    def test_catalogue_identifies_exact_input_snapshots(self):
++        old=run({'a':source([row()])}); new=run({'a':source([row(sha=B)])})
++        result=collect.catalogue(new,old)
++        provenance=result['provenance']
++        self.assertEqual(provenance['policy_sha256'],A)
++        self.assertNotEqual(provenance['current_manifest_sha256'],provenance['baseline_manifest_sha256'])
++        reordered=dict(reversed(list(new.items())))
++        self.assertEqual(collect.catalogue(reordered,old)['provenance'],provenance)
++
++    def test_invalid_current_digest_is_rejected_before_any_write(self):
++        with tempfile.TemporaryDirectory() as d,patch.object(collect,'STORE',Path(d)):
++            index=collect.catalogue(run({'a':source([row()])}))
++            index['contents'][0]['sha256']='../outside'
++            with self.assertRaises(ValueError):collect.render_catalogue(index)
++            self.assertEqual(list(Path(d).rglob('*')),[])
++
++    def test_late_render_error_keeps_previous_projection_intact(self):
++        with tempfile.TemporaryDirectory() as d,patch.object(collect,'STORE',Path(d)):
++            old=collect.catalogue(run({'a':source([row()])}))
++            collect.render_catalogue(old)
++            before={str(p.relative_to(d)):p.read_bytes() for p in Path(d).rglob('*') if p.is_file()}
++            new=collect.catalogue(run({'a':source([row(sha=B),row('c.md',C)])}))
++            new['contents'][1]['titles']=[]
++            with self.assertRaises((ValueError,IndexError)):collect.render_catalogue(new)
++            after={str(p.relative_to(d)):p.read_bytes() for p in Path(d).rglob('*') if p.is_file()}
++            self.assertEqual(before,after)
++
++    def test_invalid_method_fingerprint_is_not_a_comparable_baseline(self):
++        old=run({'a':source([row()])}); old['policy_sha256']='unknown'
++        new=copy.deepcopy(old)
++        changes=collect.catalogue(new,old)['changes']
++        self.assertEqual(changes['counts']['unchanged'],0)
++        self.assertEqual(changes['uncompared_sources'][0]['reason'],'comparison_method_unknown')
++
++    def test_retry_after_io_failure_converges_and_manifest_is_committed_last(self):
++        with tempfile.TemporaryDirectory() as d,patch.object(collect,'STORE',Path(d)):
++            old=collect.catalogue(run({'a':source([row()])}))
++            collect.render_catalogue(old)
++            manifest=Path(d)/'navigation/catalogue/catalogue.json'
++            before=manifest.read_bytes()
++            new=collect.catalogue(run({'a':source([row(sha=B),row('c.md',C)])}))
++            atomic=collect.atomic
++            calls=0
++            def interrupted(path,raw):
++                nonlocal calls
++                calls+=1
++                if calls==2:raise OSError('simulated storage failure')
++                atomic(path,raw)
++            with patch.object(collect,'atomic',side_effect=interrupted):
++                with self.assertRaises(OSError):collect.render_catalogue(new)
++            self.assertEqual(manifest.read_bytes(),before)
++            collect.render_catalogue(new)
++            self.assertEqual(json.loads(manifest.read_bytes()),new)
++            cards=manifest.parent/'Contenus'
++            self.assertIn('inventory_state: "unobserved"',(cards/(A+'.md')).read_text())
++            for sha in (B,C):self.assertIn('inventory_state: "observed"',(cards/(sha+'.md')).read_text())

@@ -1,0 +1,96 @@
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+__ test_promotion_checks_archive_bytes_not_only_declared_status[missing_file] __
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-473/test_promotion_checks_archive_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f8ce81b12a0>
+state = 'missing_file'
+
+    @pytest.mark.parametrize("state", ["missing_file", "changed_file", "inventory_without_hash"])
+    def test_promotion_checks_archive_bytes_not_only_declared_status(tmp_path, monkeypatch, state):
+        dec, cand, raw = _proof_candidate(tmp_path, monkeypatch, "captured", bind_provenance=False)
+        archive = raw / "sources" / "proof.md"
+        if state == "missing_file":
+            archive.unlink()
+        elif state == "changed_file":
+            archive.write_text("Different document, old inventory unchanged.")
+        else:
+            (raw / "manifests" / "source-inventory.csv").write_text(
+                "manifest_id,path,sha256\nsrc-proof,sources/proof.md,\n")
+        decision = dec.canonical_promotion_decision(
+            cand, tmp_path, raw_root=raw, gates=_gates(), compute_score=lambda *a: 0.99)
+>       assert decision["eligible"] is False, decision
+E       AssertionError: {'blocking_reasons': [], 'eligible': True, 'evaluation': {'confidence_score': 0.99, 'gate_engine': 'legacy', 'gate_sta...a256': '54b63f57f64f1feb4764ee621060ee61585dfa342812d38aefc0c05e080f9238'}, ...], 'raw_revision': 'unknown', ...}, ...}
+E       assert True is False
+
+_scripts/test_promotion_decision.py:895: AssertionError
+__ test_promotion_checks_archive_bytes_not_only_declared_status[changed_file] __
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-473/test_promotion_checks_archive_1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f8ce7d66e00>
+state = 'changed_file'
+
+    @pytest.mark.parametrize("state", ["missing_file", "changed_file", "inventory_without_hash"])
+    def test_promotion_checks_archive_bytes_not_only_declared_status(tmp_path, monkeypatch, state):
+        dec, cand, raw = _proof_candidate(tmp_path, monkeypatch, "captured", bind_provenance=False)
+        archive = raw / "sources" / "proof.md"
+        if state == "missing_file":
+            archive.unlink()
+        elif state == "changed_file":
+            archive.write_text("Different document, old inventory unchanged.")
+        else:
+            (raw / "manifests" / "source-inventory.csv").write_text(
+                "manifest_id,path,sha256\nsrc-proof,sources/proof.md,\n")
+        decision = dec.canonical_promotion_decision(
+            cand, tmp_path, raw_root=raw, gates=_gates(), compute_score=lambda *a: 0.99)
+>       assert decision["eligible"] is False, decision
+E       AssertionError: {'blocking_reasons': [], 'eligible': True, 'evaluation': {'confidence_score': 0.99, 'gate_engine': 'legacy', 'gate_sta...a256': '54b63f57f64f1feb4764ee621060ee61585dfa342812d38aefc0c05e080f9238'}, ...], 'raw_revision': 'unknown', ...}, ...}
+E       assert True is False
+
+_scripts/test_promotion_decision.py:895: AssertionError
+_ test_promotion_checks_archive_bytes_not_only_declared_status[inventory_without_hash] _
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-473/test_promotion_checks_archive_2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f8ce7fc9720>
+state = 'inventory_without_hash'
+
+    @pytest.mark.parametrize("state", ["missing_file", "changed_file", "inventory_without_hash"])
+    def test_promotion_checks_archive_bytes_not_only_declared_status(tmp_path, monkeypatch, state):
+        dec, cand, raw = _proof_candidate(tmp_path, monkeypatch, "captured", bind_provenance=False)
+        archive = raw / "sources" / "proof.md"
+        if state == "missing_file":
+            archive.unlink()
+        elif state == "changed_file":
+            archive.write_text("Different document, old inventory unchanged.")
+        else:
+            (raw / "manifests" / "source-inventory.csv").write_text(
+                "manifest_id,path,sha256\nsrc-proof,sources/proof.md,\n")
+        decision = dec.canonical_promotion_decision(
+            cand, tmp_path, raw_root=raw, gates=_gates(), compute_score=lambda *a: 0.99)
+>       assert decision["eligible"] is False, decision
+E       AssertionError: {'blocking_reasons': [], 'eligible': True, 'evaluation': {'confidence_score': 0.99, 'gate_engine': 'legacy', 'gate_sta...a256': 'a0ba0d1bf1097a0e05fc55b38ff08551852fd60a377e4ba9aba651cd8ac42be1'}, ...], 'raw_revision': 'unknown', ...}, ...}
+E       assert True is False
+
+_scripts/test_promotion_decision.py:895: AssertionError
+___________ test_native_proof_roots_and_archive_change_before_apply ____________
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-473/test_native_proof_roots_and_ar0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f8ce81e1930>
+
+    def test_native_proof_roots_and_archive_change_before_apply(tmp_path, monkeypatch):
+        dec, cand, raw = _proof_candidate(tmp_path, monkeypatch, "captured", bind_provenance=False)
+        decision = dec.canonical_promotion_decision(
+            cand, tmp_path, raw_root=raw, gates=_gates(), compute_score=lambda *a: 0.99)
+        assert decision["eligible"] is True, decision
+        (raw / "sources" / "proof.md").write_text("Changed after decision.")
+        ok, refusal = dec.authorize_apply(decision, cand, tmp_path, raw_root=raw)
+>       assert ok is False
+E       assert True is False
+
+_scripts/test_promotion_decision.py:906: AssertionError
+=========================== short test summary info ============================
+FAILED _scripts/test_promotion_decision.py::test_promotion_checks_archive_bytes_not_only_declared_status[missing_file]
+FAILED _scripts/test_promotion_decision.py::test_promotion_checks_archive_bytes_not_only_declared_status[changed_file]
+FAILED _scripts/test_promotion_decision.py::test_promotion_checks_archive_bytes_not_only_declared_status[inventory_without_hash]
+FAILED _scripts/test_promotion_decision.py::test_native_proof_roots_and_archive_change_before_apply
+4 failed, 69 deselected in 0.96s

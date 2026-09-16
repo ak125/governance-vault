@@ -1,0 +1,495 @@
+diff --git a/backend/src/modules/rag-proxy/rag-proxy.controller.ts b/backend/src/modules/rag-proxy/rag-proxy.controller.ts
+index 0ba3948e9..69f4b3a3c 100644
+--- a/backend/src/modules/rag-proxy/rag-proxy.controller.ts
++++ b/backend/src/modules/rag-proxy/rag-proxy.controller.ts
+@@ -303,17 +303,16 @@ export class RagProxyController {
+ 
+   @Post('admin/ingest/video/single')
+   @UseGuards(AuthenticatedGuard, IsAdminGuard)
+-  @ApiOperation({ summary: 'Ingest a video from URL (yt-dlp)' })
++  @ApiOperation({
++    summary: 'Receive an allowlisted direct video URL in RAW for qualification',
++  })
+   async ingestVideoUrl(
+     @Body() body: { url: string; gamme?: string; type?: string },
+   ) {
+-    if (!body.url) {
++    if (!body?.url) {
+       throw new BadRequestException('url is required');
+     }
+-    return this.ragVideoManagementService.ingestVideoUrl(body.url, {
+-      gamme: body.gamme,
+-      type: body.type,
+-    });
++    return this.rawAcquisitionClient.receiveVideo(body);
+   }
+ 
+   @Post('admin/videos/assign')
+diff --git a/backend/src/modules/rag-proxy/rag-proxy.raw-acquisition.test.ts b/backend/src/modules/rag-proxy/rag-proxy.raw-acquisition.test.ts
+index e0de06f54..95826282d 100644
+--- a/backend/src/modules/rag-proxy/rag-proxy.raw-acquisition.test.ts
++++ b/backend/src/modules/rag-proxy/rag-proxy.raw-acquisition.test.ts
+@@ -72,3 +72,42 @@ describe('legacy cleanup/apply delegates source receipt to RAW', () => {
+     ]);
+   });
+ });
++
++describe('video acquisition delegates to RAW', () => {
++  it('never invokes the removed RAG downloader', async () => {
++    const receiveVideo = jest
++      .fn()
++      .mockResolvedValue({ destination: 'raw', status: 'to_verify' });
++    const legacyIngest = jest.fn(() => {
++      throw new Error('RAG acquisition forbidden');
++    });
++    const controller: RagProxyController = Object.assign(
++      Object.create(RagProxyController.prototype),
++      {
++        rawAcquisitionClient: { receiveVideo },
++        ragVideoManagementService: { ingestVideoUrl: legacyIngest },
++      },
++    );
++    const body = { url: 'https://www.bosch.com/video.mp4', gamme: 'freinage' };
++    expect(await controller.ingestVideoUrl(body)).toEqual({
++      destination: 'raw',
++      status: 'to_verify',
++    });
++    expect(receiveVideo).toHaveBeenCalledWith(body);
++    expect(legacyIngest).not.toHaveBeenCalled();
++    await expect(
++      controller.ingestVideoUrl(undefined as never),
++    ).rejects.toMatchObject({ status: 400 });
++  });
++
++  it('preserves the acquisition route and its authentication guards', () => {
++    const method = RagProxyController.prototype.ingestVideoUrl;
++    expect(Reflect.getMetadata(PATH_METADATA, method)).toBe(
++      'admin/ingest/video/single',
++    );
++    expect(Reflect.getMetadata(GUARDS_METADATA, method)).toEqual([
++      AuthenticatedGuard,
++      IsAdminGuard,
++    ]);
++  });
++});
+diff --git a/backend/src/modules/rag-proxy/services/rag-video-management.service.ts b/backend/src/modules/rag-proxy/services/rag-video-management.service.ts
+index 7f0ccc272..19d8c6556 100644
+--- a/backend/src/modules/rag-proxy/services/rag-video-management.service.ts
++++ b/backend/src/modules/rag-proxy/services/rag-video-management.service.ts
+@@ -1,9 +1,4 @@
+-import {
+-  Injectable,
+-  BadRequestException,
+-  NotFoundException,
+-  Logger,
+-} from '@nestjs/common';
++import { Injectable, NotFoundException, Logger } from '@nestjs/common';
+ import { ConfigService } from '@nestjs/config';
+ import { RAG_KNOWLEDGE_PATH } from '../../../config/rag.config';
+ import {
+@@ -14,17 +9,10 @@ import {
+   unlinkSync,
+   existsSync,
+   createReadStream,
+-  mkdirSync,
+-  renameSync,
+ } from 'node:fs';
+ import path from 'node:path';
+-import { createHash } from 'node:crypto';
+-import { execFile } from 'node:child_process';
+-import { promisify } from 'node:util';
+ import type { Response } from 'express';
+ 
+-const execFileAsync = promisify(execFile);
+-
+ const VIDEO_EXTS = new Set(['.mp4', '.webm', '.mkv', '.mov', '.m4v']);
+ 
+ export interface VideoMeta {
+@@ -211,166 +199,4 @@ export class RagVideoManagementService {
+     }
+     return enriched;
+   }
+-
+-  /**
+-   * Ingest a video from URL using yt-dlp.
+-   * Downloads video + extracts metadata → creates .prompt.md sidecar.
+-   * Returns the SHA256 hash of the downloaded file.
+-   */
+-  async ingestVideoUrl(
+-    url: string,
+-    options?: { gamme?: string; type?: string },
+-  ): Promise<{
+-    hash: string;
+-    title: string;
+-    durationSec: number;
+-    ext: string;
+-    promptMdCreated: boolean;
+-  }> {
+-    const dir = this.videoDir;
+-    mkdirSync(dir, { recursive: true });
+-
+-    // 1. Get metadata first (no download)
+-    this.logger.log(`Fetching metadata for: ${url}`);
+-    let metadata: {
+-      title: string;
+-      duration: number;
+-      description: string;
+-      ext: string;
+-    };
+-
+-    try {
+-      const { stdout } = await execFileAsync(
+-        'yt-dlp',
+-        ['--dump-json', '--no-playlist', url],
+-        { timeout: 60_000 },
+-      );
+-      const info = JSON.parse(stdout);
+-      metadata = {
+-        title: info.title || 'Untitled',
+-        duration: Math.round(info.duration || 0),
+-        description: (info.description || '').slice(0, 500),
+-        ext: info.ext || 'mp4',
+-      };
+-    } catch (err) {
+-      throw new BadRequestException(
+-        `Failed to fetch video metadata: ${err instanceof Error ? err.message : String(err)}`,
+-      );
+-    }
+-
+-    this.logger.log(`Metadata: "${metadata.title}" (${metadata.duration}s)`);
+-
+-    // 2. Download video
+-    const tmpName = `dl_${Date.now()}`;
+-    const outTemplate = path.join(dir, `${tmpName}.%(ext)s`);
+-
+-    try {
+-      await execFileAsync(
+-        'yt-dlp',
+-        [
+-          '--no-playlist',
+-          '-f',
+-          'mp4/best[ext=mp4]/best',
+-          '-o',
+-          outTemplate,
+-          url,
+-        ],
+-        { timeout: 600_000 },
+-      ); // 10 min max
+-    } catch (err) {
+-      throw new BadRequestException(
+-        `Video download failed: ${err instanceof Error ? err.message : String(err)}`,
+-      );
+-    }
+-
+-    // Find the downloaded file
+-    const dlFiles = readdirSync(dir).filter((f) => f.startsWith(tmpName + '.'));
+-    if (dlFiles.length === 0) {
+-      throw new BadRequestException('Download produced no output file');
+-    }
+-    const dlFile = dlFiles[0];
+-    const dlPath = path.join(dir, dlFile);
+-
+-    // 3. Compute SHA256 hash
+-    const fileBuffer = readFileSync(dlPath);
+-    const sha256 = createHash('sha256').update(fileBuffer).digest('hex');
+-    const ext = path.extname(dlFile).toLowerCase();
+-    const finalName = `${sha256}${ext}`;
+-    const finalPath = path.join(dir, finalName);
+-
+-    // Rename to hash-based name (skip if already exists = dedup)
+-    if (existsSync(finalPath)) {
+-      unlinkSync(dlPath); // already have this video
+-      this.logger.log(`Video already archived: ${sha256}`);
+-    } else {
+-      renameSync(dlPath, finalPath);
+-      this.logger.log(
+-        `Video archived: ${finalName} (${fileBuffer.length} bytes)`,
+-      );
+-    }
+-
+-    // 4. Generate .prompt.md sidecar
+-    const promptPath = path.join(dir, `${sha256}.prompt.md`);
+-    const promptMdCreated = !existsSync(promptPath);
+-
+-    if (promptMdCreated) {
+-      const videoType = options?.type || this.detectVideoType(metadata.title);
+-      const gamme = options?.gamme || null;
+-
+-      const promptContent = [
+-        '---',
+-        `hash: "${sha256}"`,
+-        `source_url: "${url}"`,
+-        `gamme: ${gamme ? `"${gamme}"` : 'null'}`,
+-        `type: "${videoType}"`,
+-        `usage: "page-gamme"`,
+-        `duration_sec: ${metadata.duration}`,
+-        `title: "${metadata.title.replace(/"/g, "'")}"`,
+-        `described_at: "${new Date().toISOString().slice(0, 10)}"`,
+-        `described_by: "yt-dlp-metadata"`,
+-        '---',
+-        '',
+-        `${metadata.title}`,
+-        '',
+-        metadata.description || `Video ${videoType} automobile.`,
+-      ].join('\n');
+-
+-      writeFileSync(promptPath, promptContent, 'utf-8');
+-      this.logger.log(`Prompt.md created: ${sha256}.prompt.md`);
+-    }
+-
+-    // 5. Also write legacy .json sidecar for compatibility with ingest_videos.py
+-    const jsonPath = path.join(dir, `${sha256}.json`);
+-    if (!existsSync(jsonPath)) {
+-      const jsonMeta = {
+-        sha256,
+-        source_label: metadata.title,
+-        source_url: url,
+-        ingested_at: new Date().toISOString(),
+-        size_bytes: fileBuffer.length,
+-      };
+-      writeFileSync(jsonPath, JSON.stringify(jsonMeta, null, 2), 'utf-8');
+-    }
+-
+-    return {
+-      hash: sha256,
+-      title: metadata.title,
+-      durationSec: metadata.duration,
+-      ext: ext.slice(1),
+-      promptMdCreated,
+-    };
+-  }
+-
+-  /**
+-   * Auto-detect video type from title keywords.
+-   */
+-  private detectVideoType(title: string): string {
+-    const t = title.toLowerCase();
+-    if (/tuto|comment|how.?to|changer|remplacer|monter|demonter/.test(t))
+-      return 'tutoriel';
+-    if (/diagnostic|panne|symptom|bruit|vibra/.test(t)) return 'diagnostic';
+-    if (/compara|vs\b|meilleur|top\s?\d/.test(t)) return 'comparatif';
+-    if (/test|review|avis|essai/.test(t)) return 'test';
+-    return 'presentation';
+-  }
+ }
+diff --git a/backend/src/modules/rag-proxy/services/raw-acquisition-client.service.test.ts b/backend/src/modules/rag-proxy/services/raw-acquisition-client.service.test.ts
+index 5807ff5da..a8ab4f4c8 100644
+--- a/backend/src/modules/rag-proxy/services/raw-acquisition-client.service.test.ts
++++ b/backend/src/modules/rag-proxy/services/raw-acquisition-client.service.test.ts
+@@ -29,6 +29,7 @@ function client(configured = true) {
+             RAW_ACQUISITION_SCRIPT:
+               '/trusted/raw/_scripts/auto-capture-runner.py',
+             RAW_GITLEAKS_BIN: '/trusted/bin/gitleaks',
++            RAW_FFPROBE_BIN: '/trusted/bin/ffprobe',
+           }[name]
+         : undefined,
+   } as unknown as ConfigService);
+@@ -62,7 +63,11 @@ describe('RAW acquisition boundary', () => {
+       }),
+     ).toEqual(receipt);
+     expect(JSON.parse(end.mock.calls[0][0])).toEqual(doc);
++    expect(execute.mock.calls[0][0]).toBe('/usr/bin/timeout');
+     expect(execute.mock.calls[0][1]).toEqual([
++      '--kill-after=5s',
++      '220s',
++      'python3',
+       '/trusted/raw/_scripts/auto-capture-runner.py',
+       '--submission-stdin',
+       '--commit',
+@@ -141,3 +146,62 @@ describe('RAW acquisition boundary', () => {
+     });
+   });
+ });
++
++const mediaReceipt = {
++  ...receipt,
++  raw_path: `sources/auto-captures/media/${id}.md`,
++  media_path: `sources/media/${'c'.repeat(64)}.mp4`,
++  media_hash: `sha256:${'c'.repeat(64)}`,
++  ext: 'mp4',
++  size_bytes: 1000,
++  duration_sec: 1,
++};
++
++describe('RAW direct video boundary', () => {
++  it('routes only source declarations to the native media producer', async () => {
++    const end = result(mediaReceipt);
++    expect(
++      await client().receiveVideo({
++        url: 'https://www.bosch.com/video.mp4',
++        gamme: 'freinage',
++        retrievable: true,
++      }),
++    ).toEqual(mediaReceipt);
++    expect(JSON.parse(end.mock.calls[0][0])).toEqual({
++      url: 'https://www.bosch.com/video.mp4',
++      gamme: 'freinage',
++    });
++    expect(execute.mock.calls[0][1]).toContain('--video-stdin');
++    expect(execute.mock.calls[0][2].env).toEqual({
++      PATH: process.env.PATH,
++      LANG: 'C.UTF-8',
++      RAW_GITLEAKS_BIN: '/trusted/bin/gitleaks',
++      RAW_FFPROBE_BIN: '/trusted/bin/ffprobe',
++    });
++  });
++
++  it('refuses a missing media inspector before spawning a process', async () => {
++    const service = new RawAcquisitionClientService({
++      get: (name: string) =>
++        name === 'RAW_FFPROBE_BIN' ? undefined : '/trusted/producer',
++    } as unknown as ConfigService);
++    await expect(
++      service.receiveVideo({ url: 'https://www.bosch.com/video.mp4' }),
++    ).rejects.toMatchObject({ status: 503 });
++    expect(execute).not.toHaveBeenCalled();
++  });
++
++  it.each([
++    { ...mediaReceipt, media_path: '../escape.mp4' },
++    { ...mediaReceipt, media_hash: `sha256:${'d'.repeat(64)}` },
++    { ...mediaReceipt, duration_sec: 601 },
++    { ...mediaReceipt, size_bytes: 64 * 1024 * 1024 + 1 },
++    { ...mediaReceipt, raw_path: receipt.raw_path },
++    { ...mediaReceipt, retrievable: true },
++  ])('rejects an inconsistent media receipt', async (output) => {
++    result(output);
++    await expect(
++      client().receiveVideo({ url: 'https://www.bosch.com/video.mp4' }),
++    ).rejects.toMatchObject({ status: 503 });
++  });
++});
+diff --git a/backend/src/modules/rag-proxy/services/raw-acquisition-client.service.ts b/backend/src/modules/rag-proxy/services/raw-acquisition-client.service.ts
+index d1b29c809..3ecbc853a 100644
+--- a/backend/src/modules/rag-proxy/services/raw-acquisition-client.service.ts
++++ b/backend/src/modules/rag-proxy/services/raw-acquisition-client.service.ts
+@@ -29,6 +29,28 @@ const receiptSchema = z.object({
+   duplicate: z.boolean(),
+ });
+ 
++const videoSchema = z.object({
++  url: z.string().trim().min(1).max(4000),
++  gamme: z.string().max(200).optional(),
++  type: z.string().max(200).optional(),
++});
++
++const videoReceiptSchema = receiptSchema.extend({
++  raw_path: z
++    .string()
++    .regex(/^sources\/auto-captures\/media\/[a-f0-9]{64}\.md$/),
++  media_path: z.string(),
++  media_hash: z.string().regex(/^sha256:[a-f0-9]{64}$/),
++  ext: z.enum(['mp4', 'mov', 'webm', 'mkv']),
++  size_bytes: z
++    .number()
++    .int()
++    .positive()
++    .max(64 * 1024 * 1024),
++  duration_sec: z.number().positive().max(600),
++});
++
++export type RawVideoAcquisitionReceipt = z.infer<typeof videoReceiptSchema>;
+ export type RawAcquisitionReceipt = z.infer<typeof receiptSchema>;
+ 
+ /**
+@@ -51,8 +73,52 @@ export class RawAcquisitionClientService {
+     if (Buffer.byteLength(body, 'utf8') > 1024 * 1024) {
+       throw new BadRequestException('RAW document submission is too large');
+     }
++    const decoded = await this.invokeProducer(body, '--submission-stdin');
++    const receipt = receiptSchema.safeParse(decoded);
++    if (
++      !receipt.success ||
++      receipt.data.raw_path !==
++        `recycled/admin-submissions/${receipt.data.id}.md`
++    ) {
++      throw new ServiceUnavailableException('Invalid RAW acquisition receipt');
++    }
++    return receipt.data;
++  }
++
++  async receiveVideo(input: unknown): Promise<RawVideoAcquisitionReceipt> {
++    const parsed = videoSchema.safeParse(input);
++    if (!parsed.success) {
++      throw new BadRequestException('Invalid RAW video submission');
++    }
++    const decoded = await this.invokeProducer(
++      JSON.stringify(parsed.data),
++      '--video-stdin',
++    );
++    const receipt = videoReceiptSchema.safeParse(decoded);
++    if (
++      !receipt.success ||
++      receipt.data.raw_path !==
++        `sources/auto-captures/media/${receipt.data.id}.md` ||
++      receipt.data.media_path !==
++        `sources/media/${receipt.data.media_hash.slice(7)}.${receipt.data.ext}`
++    ) {
++      throw new ServiceUnavailableException('Invalid RAW video receipt');
++    }
++    return receipt.data;
++  }
++
++  private async invokeProducer(
++    body: string,
++    mode: '--submission-stdin' | '--video-stdin',
++  ): Promise<unknown> {
+     const script = this.config.get<string>('RAW_ACQUISITION_SCRIPT');
+     const scanner = this.config.get<string>('RAW_GITLEAKS_BIN');
++    const probe = this.config.get<string>('RAW_FFPROBE_BIN');
++    if (mode === '--video-stdin' && (!probe || !isAbsolute(probe))) {
++      throw new ServiceUnavailableException(
++        'RAW media inspector is not configured',
++      );
++    }
+     if (!script || !isAbsolute(script) || !scanner || !isAbsolute(scanner)) {
+       throw new ServiceUnavailableException(
+         'RAW acquisition producer is not configured',
+@@ -64,17 +130,28 @@ export class RawAcquisitionClientService {
+       code: string | number | null;
+     }>((resolve, reject) => {
+       const child = execFile(
+-        'python3',
+-        [script, '--submission-stdin', '--commit', '--json'],
++        '/usr/bin/timeout',
++        [
++          '--kill-after=5s',
++          '220s',
++          'python3',
++          script,
++          mode,
++          '--commit',
++          '--json',
++        ],
+         {
+           encoding: 'utf8',
+-          timeout: 120_000,
++          // GNU timeout owns the subprocess group and terminates descendants.
++          // Network 90s + probe 12s + scanner 15s + manifests 60s fit inside it.
++          timeout: 240_000,
+           maxBuffer: 64 * 1024,
+           // The producer does not inherit database, GitHub or application tokens.
+           env: {
+             PATH: process.env.PATH,
+             LANG: 'C.UTF-8',
+             RAW_GITLEAKS_BIN: scanner,
++            ...(mode === '--video-stdin' ? { RAW_FFPROBE_BIN: probe } : {}),
+           },
+         },
+         (error, stdout) => {
+@@ -122,14 +199,6 @@ export class RawAcquisitionClientService {
+         'RAW acquisition could not be completed',
+       );
+     }
+-    const receipt = receiptSchema.safeParse(decoded);
+-    if (
+-      !receipt.success ||
+-      receipt.data.raw_path !==
+-        `recycled/admin-submissions/${receipt.data.id}.md`
+-    ) {
+-      throw new ServiceUnavailableException('Invalid RAW acquisition receipt');
+-    }
+-    return receipt.data;
++    return decoded;
+   }
+ }

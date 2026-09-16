@@ -1,0 +1,21 @@
+...F                                                                     [100%]
+=================================== FAILURES ===================================
+__________ test_cli_apply_failure_has_nonzero_exit_and_visible_error ___________
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-420/test_cli_apply_failure_has_non0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f2703bb2230>
+
+    def test_cli_apply_failure_has_nonzero_exit_and_visible_error(tmp_path, monkeypatch):
+        mod, source, _, _, invoke = _cli_snapshot_fixture(tmp_path, monkeypatch)
+        def fail(*args, **kwargs):
+            raise mod.PromotionInputError('PROMOTION_BUSY: injected fixture contention')
+        monkeypatch.setattr(mod, 'apply_promotion', fail)
+        result = invoke()
+>       assert result.exit_code == 1
+E       assert 0 == 1
+E        +  where 0 = <Result okay>.exit_code
+
+_scripts/test_promote.py:765: AssertionError
+=========================== short test summary info ============================
+FAILED _scripts/test_promote.py::test_cli_apply_failure_has_nonzero_exit_and_visible_error
+1 failed, 3 passed, 59 deselected in 0.31s

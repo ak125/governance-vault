@@ -1,0 +1,52 @@
+{
+  "scope": "writer hookup for existing active-block replacements; snapshot attachment before any entity writes",
+  "head": "0c31807c8453c251d70c7575eafcc973f04eed14",
+  "branch": "codex/editorial-pipeline-provenance-20260912",
+  "pipeline_version": "1.2.0",
+  "runner_version": "1.0.1",
+  "files": {
+    "backend/src/modules/seo-projection/seo-projection-writer.service.ts": "7f6e1990e93787edd4fb1e4f2c2bcafefe03a392b4aa4059176f84534b6cc70b",
+    "backend/src/modules/seo-projection/seo-projection-writer-role-scope.test.ts": "b2501d1144767250282d1693d856615b82aa44a662147791d07bb769ef182dad",
+    "backend/src/modules/seo-projection/seo-projection.types.ts": "6dc7abeda1afb143bd1c9ab221850e4e72dc51ad3d9a213b06a1e8ae8e6b5408",
+    "backend/supabase/migrations/20260912212340_seo_projection_block_outbox.sql": "f3c5ecc0853535551059eee0965ee096c3475193032e1344c9c1cca3f8251acf",
+    "scripts/seo-projection/test_block_outbox_transaction.py": "b2111dfce0199ba23721d32ed3ac835de8ec6d809d1237bc68f5021541681dc0"
+  },
+  "application_patch_sha256": "9922e2151f676890eae28ba36d83ddebdf51158bf688f8d7cfb6a069c930f1e7",
+  "validation": {
+    "writer_refresh_tests": 89,
+    "writer_refresh_suites": 4,
+    "writer_transport": "in-memory Supabase double with native callRpc wrapper and simulated gate rejection; public projectExports plus real snapshot archive I/O",
+    "postgres_tests": 18,
+    "postgres_version": "17.11",
+    "postgres_test": "real SQL function with updated provenance parameter; native projection migration and reconstructed legacy outbox fixture",
+    "eslint": "PASS three files",
+    "backend_typecheck": "PASS",
+    "sql_lint": "PASS with previously documented two local exceptions",
+    "migration_marker": "PASS",
+    "diff_check": "PASS"
+  },
+  "counterproofs": [
+    "snapshot attachment error or no returned row prevents entity writes",
+    "RPC missing/stale/empty/invalid or lookup error never falls back to direct block writes",
+    "RPC guard BLOCK prevents transport call",
+    "retained inactive block or changed ownership/pointer refuses replacement",
+    "creation uses INSERT and checks collision error",
+    "public writer records transition failure and closes run failed",
+    "SQL preserves original truth-level source_type; prior rollback/concurrency/replay proofs pass again"
+  ],
+  "remaining_test_containers": "",
+  "candidate_writer_replacement_wired": true,
+  "candidate_writer_withdrawal_wired": false,
+  "durable_consumer_acks": false,
+  "shared_database_written": false,
+  "deployed": false,
+  "limits": [
+    "No real writer-to-PostgREST-to-PostgreSQL integration; writer and SQL proved separately",
+    "WIKI acceptance remains upstream native export contract; no new acceptance proof manufactured",
+    "Initial creation, shared facts and regressing drafts retain native paths; not entity-wide atomicity",
+    "Multi-block partial progress and run outcome accounting remain to audit before activation",
+    "Explicit WIKI withdrawal producer, source dependency reconciliation, outbox relay and durable consumer ACK remain unwired",
+    "No shared DB migration, browser/queue proof, CI or activation"
+  ],
+  "final_status": "PARTIAL_COVERAGE"
+}

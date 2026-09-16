@@ -1,0 +1,420 @@
+--- a/backend/src/modules/seo/validation/page-role-validator.service.ts
++++ b/backend/src/modules/seo/validation/page-role-validator.service.ts
+@@ -1,4 +1,5 @@
+ import { Injectable, Logger } from '@nestjs/common';
++import { parseDocument, DomUtils } from 'htmlparser2';
+ import {
+   PageRole,
+   getPageRoleFromUrl,
+@@ -1189,8 +1190,20 @@
+     html: string,
+     declaredRole?: PageRole,
+   ): PageValidationResult {
+-    // Validation standard
+-    const result = this.validatePage(url, content, declaredRole);
++    const isR3Conseils =
++      getPageRoleFromUrl(url) === PageRole.R3_BLOG &&
++      getR3SubRoleFromUrl(url) === 'conseils';
++    const result = isR3Conseils
++      ? this.validateR3Html(url, html)
++      : this.validatePage(url, content, declaredRole);
++    if (isR3Conseils && declaredRole && declaredRole !== PageRole.R3_BLOG) {
++      result.declaredRole = declaredRole;
++      result.violations.push({
++        type: 'role_mismatch',
++        severity: 'error',
++        message: 'Declared role disagrees with the R3 conseils route',
++      });
++    }
+ 
+     // Extraire et valider canonical
+     const canonical = this.extractCanonical(html);
+@@ -1201,6 +1214,150 @@
+     result.isValid =
+       result.violations.filter((v) => v.severity === 'error').length === 0;
+ 
++    return result;
++  }
++
++  /**
++   * Inspect the composed article with the same parser family as HtmlContent.
++   * This is structural/lexical evidence, not CSS visibility or factual review.
++   * Only a uniquely identified diagnostic subtree gets diagnostic rules.
++   */
++  private validateR3Html(url: string, html: string): PageValidationResult {
++    const document = parseDocument(html);
++    const inert = DomUtils.findAll(
++      (node) => ['script', 'style', 'template'].includes(node.name),
++      document.children,
++    );
++    for (const node of inert) DomUtils.removeElement(node);
++    const articles = DomUtils.getElementsByTagName(
++      'article',
++      document.children,
++    );
++    const structural: RoleViolation[] = [];
++    const invalid = (flag: string, message: string) => {
++      structural.push({
++        type: 'missing_element',
++        severity: 'error',
++        message,
++        details: { flag, sectionType: 'S2_DIAG', scope: 'rendered_html' },
++      });
++    };
++    if (articles.length !== 1) {
++      const result = this.validatePage(
++        url,
++        DomUtils.innerText(document),
++        PageRole.R3_BLOG,
++      );
++      result.violations.push({
++        type: 'missing_element',
++        severity: 'error',
++        message: 'R3 HTML requires exactly one article root',
++        details: {
++          flag: 'R3_ARTICLE_AMBIGUOUS',
++          count: articles.length,
++          scope: 'rendered_html',
++        },
++      });
++      result.isValid = false;
++      return result;
++    }
++    const article = articles[0];
++    const markers = DomUtils.findAll(
++      (node) => node.attribs['data-r3-section'] === 'S2_DIAG',
++      document.children,
++    );
++    const anchors = DomUtils.findAll(
++      (node) => node.attribs.id === 'diagnostic-rapide',
++      document.children,
++    );
++    const sections: Array<{ sectionType: string; content: string }> = [];
++    if (markers.length || anchors.length) {
++      const diagnostic = markers[0];
++      const insideArticle =
++        diagnostic &&
++        DomUtils.findAll((node) => node === diagnostic, article.children)
++          .length === 1;
++      if (
++        markers.length !== 1 ||
++        anchors.length !== 1 ||
++        anchors[0] !== diagnostic ||
++        !insideArticle
++      ) {
++        invalid(
++          'R3_DIAGNOSTIC_BOUNDARY',
++          'R3/S2_DIAG requires one marked subtree at #diagnostic-rapide inside the article',
++        );
++      } else {
++        const headings = DomUtils.getElementsByTagName(
++          'h2',
++          diagnostic.children,
++        );
++        const tables = DomUtils.getElementsByTagName(
++          'table',
++          diagnostic.children,
++        );
++        if (headings.length !== 1 || !DomUtils.innerText(headings[0]).trim()) {
++          invalid(
++            'R3_DIAGNOSTIC_HEADING',
++            'R3/S2_DIAG requires a single nonempty H2',
++          );
++        }
++        if (tables.length !== 1) {
++          invalid(
++            'R3_DIAGNOSTIC_TABLE',
++            'R3/S2_DIAG requires one diagnostic table',
++          );
++        } else {
++          const rows = DomUtils.getElementsByTagName('tr', tables[0].children);
++          let dataRows = 0;
++          let malformed = rows.length === 0;
++          for (const row of rows) {
++            const cells = row.children.filter(
++              (node) => 'name' in node && ['th', 'td'].includes(node.name),
++            );
++            const complete =
++              cells.length === 3 &&
++              cells.every(
++                (cell) =>
++                  DomUtils.innerText(cell).trim() &&
++                  (!('attribs' in cell) ||
++                    ((!cell.attribs.colspan || cell.attribs.colspan === '1') &&
++                      (!cell.attribs.rowspan || cell.attribs.rowspan === '1'))),
++              );
++            // A full-width footer does not count as a three-column data row.
++            const footer =
++              cells.length === 1 &&
++              'attribs' in cells[0] &&
++              cells[0].attribs.colspan === '3' &&
++              DomUtils.innerText(cells[0]).trim();
++            if (!complete && !footer) malformed = true;
++            if (
++              complete &&
++              cells.every((cell) => 'name' in cell && cell.name === 'td')
++            )
++              dataRows++;
++          }
++          if (malformed || dataRows === 0) {
++            invalid(
++              'R3_DIAGNOSTIC_COLUMNS',
++              'R3/S2_DIAG requires complete three-column data rows',
++            );
++          }
++        }
++        sections.push({
++          sectionType: 'S2_DIAG',
++          content: DomUtils.innerText(diagnostic),
++        });
++        DomUtils.removeElement(diagnostic);
++      }
++    }
++    sections.unshift({
++      sectionType: 'R3_ARTICLE',
++      content: DomUtils.innerText(article),
++    });
++    const result = this.validateR3Sections(url, sections);
++    result.violations.push(...structural);
++    result.isValid = !result.violations.some((v) => v.severity === 'error');
+     return result;
+   }
+ 
+--- a/backend/src/modules/seo/validation/page-role-html.test.ts
++++ b/backend/src/modules/seo/validation/page-role-html.test.ts
+@@ -0,0 +1,118 @@
++import { PageRoleValidatorService } from './page-role-validator.service';
++import { PageRole } from '../types/page-role.types';
++
++const validator = new PageRoleValidatorService();
++const url = '/blog-pieces-auto/conseils/disque-de-frein';
++const table =
++  '<table><thead><tr><th>Symptome</th><th>Cause</th><th>Action</th></tr></thead><tbody><tr><td>Bruit anormal</td><td>Usure possible</td><td>Verifier le signal</td></tr></tbody></table>';
++const diag = `<div id="diagnostic-rapide" data-r3-section="S2_DIAG"><div><h2>Diagnostic rapide</h2></div>${table}</div>`;
++const html = (body: string, canonical = true) =>
++  `<!doctype html><html><head>${canonical ? `<link rel="canonical" href="${url}">` : ''}</head><body>${body}</body></html>`;
++const audit = (body: string) =>
++  validator.validatePageWithHtml(url, 'Texte fourni incomplet', html(body));
++
++describe('R3 composed HTML — diagnostic section boundary', () => {
++  it('validates nested diagnostic DOM while keeping the page R3', () => {
++    const result = audit(
++      `<article><p>Les outils necessaires au demontage.</p>${diag}</article>`,
++    );
++    expect(result.isValid).toBe(true);
++    expect(result.detectedRole).toBe(PageRole.R3_BLOG);
++  });
++  it('reads actual HTML and does not trust a clean text argument', () => {
++    expect(
++      audit(
++        `<article><p>Diagnostic et bruit anormal ailleurs.</p>${diag}</article>`,
++      ).isValid,
++    ).toBe(false);
++  });
++  it('rejects commercial diagnostic content, including decoded entities', () => {
++    expect(
++      audit(
++        `<article>${diag.replace('Verifier le signal', 'Ajouter au panier : 20 &#8364;')}</article>`,
++      ).isValid,
++    ).toBe(false);
++  });
++  it('rejects procedural content inside diagnostic', () => {
++    expect(
++      audit(
++        `<article>${diag.replace('Verifier le signal', 'Etapes de remplacement et couple de serrage')}</article>`,
++      ).isValid,
++    ).toBe(false);
++  });
++  it('ignores inert scripts/styles/comments and page chrome outside article', () => {
++    expect(
++      audit(
++        `<nav>Ajouter au panier</nav><article><script>prix = 5</script><style>.prix {}</style><!-- diagnostic -->${diag}</article>`,
++      ).isValid,
++    ).toBe(true);
++  });
++  it.each([
++    diag.replace(
++      'data-r3-section="S2_DIAG"',
++      'data-r3-section="S2_DIAGNOSTIC"',
++    ),
++    diag.replace('id="diagnostic-rapide"', 'id="autre-ancre"'),
++    diag + '<div id="diagnostic-rapide"></div>',
++    diag + diag,
++    diag.replace(table, ''),
++    diag.replace('<td>Verifier le signal</td>', ''),
++    diag.replace('<td>Verifier le signal</td>', '<td> </td>'),
++    diag.replace('<h2>Diagnostic rapide</h2>', ''),
++  ])(
++    'rejects ambiguous, missing or incomplete diagnostic structure (%#)',
++    (content) => {
++      const result = audit(`<article>${content}</article>`);
++      expect(result.isValid).toBe(false);
++      expect(result.violations).toEqual(
++        expect.arrayContaining([
++          expect.objectContaining({
++            type: 'missing_element',
++            severity: 'error',
++          }),
++        ]),
++      );
++    },
++  );
++  it('does not grant a diagnostic exemption outside the article', () => {
++    expect(
++      audit(`${diag}<article>Les outils necessaires.</article>`).isValid,
++    ).toBe(false);
++  });
++  it.each([
++    `<div>${diag}</div>`,
++    `<article>${diag}</article><article>Second article</article>`,
++  ])('requires an unambiguous article root (%#)', (content) => {
++    expect(audit(content).isValid).toBe(false);
++  });
++  it('keeps missing canonical invalid even with a valid diagnostic', () => {
++    const result = validator.validatePageWithHtml(
++      url,
++      '',
++      html(`<article>${diag}</article>`, false),
++    );
++    expect(result.violations.some((v) => v.type === 'missing_canonical')).toBe(
++      true,
++    );
++    expect(result.isValid).toBe(false);
++  });
++  it('refuses a declared role that disagrees with the R3 conseils route', () => {
++    const result = validator.validatePageWithHtml(
++      url,
++      '',
++      html(`<article>${diag}</article>`),
++      PageRole.R5_DIAGNOSTIC,
++    );
++    expect(result.violations.some((v) => v.type === 'role_mismatch')).toBe(
++      true,
++    );
++    expect(result.isValid).toBe(false);
++  });
++  it('allows a full-width DTC footer after a complete diagnostic row', () => {
++    expect(
++      audit(
++        `<article>${diag.replace('</tbody>', '<tr><td colspan="3">Code DTC : consulter les limites du signal.</td></tr></tbody>')}</article>`,
++      ).isValid,
++    ).toBe(true);
++  });
++});
+--- a/frontend/app/components/guide/GuideCard.tsx
++++ b/frontend/app/components/guide/GuideCard.tsx
+@@ -11,6 +11,7 @@
+   title: string;
+   anchor?: string;
+   legacyAnchor?: string;
++  sectionType?: string;
+   icon: LucideIcon;
+   label: string;
+   gradient: string;
+@@ -27,6 +28,7 @@
+   title,
+   anchor,
+   legacyAnchor,
++  sectionType,
+   icon: Icon,
+   label,
+   gradient,
+@@ -41,7 +43,7 @@
+   const id = anchor ?? slugifyTitle(title);
+ 
+   const card = (
+-    <div id={id} className="mb-8">
++    <div id={id} data-r3-section={sectionType} className="mb-8">
+       <div
+         className={`rounded-xl border-2 ${border} overflow-hidden shadow-${shadow}`}
+       >
+--- a/frontend/app/components/guide/MiniDiagnosticTable.tsx
++++ b/frontend/app/components/guide/MiniDiagnosticTable.tsx
+@@ -15,6 +15,7 @@
+ export function MiniDiagnosticTable({ section }: MiniDiagnosticTableProps) {
+   return (
+     <GuideCard
++      sectionType="S2_DIAG"
+       title={section.title}
+       anchor={section.anchor}
+       legacyAnchor={section.legacyAnchor}
+--- a/frontend/tests/unit/r3-diagnostic-fragment.test.tsx
++++ b/frontend/tests/unit/r3-diagnostic-fragment.test.tsx
+@@ -1,8 +1,10 @@
+ import { render, cleanup } from "@testing-library/react";
++import { renderToStaticMarkup } from "react-dom/server";
+ import { MemoryRouter } from "react-router";
+ import { afterEach, describe, expect, it } from "vitest";
+ import { type GammeConseil } from "~/components/blog/conseil/section-config";
+ import { MiniDiagnosticTable } from "~/components/guide/MiniDiagnosticTable";
++import { PageRoleValidatorService } from "../../../backend/src/modules/seo/validation/page-role-validator.service";
+ 
+ afterEach(cleanup);
+ 
+@@ -38,6 +40,12 @@
+       expect(nodes[0].querySelector("h2")?.textContent).toBe(diagnostic.title);
+     }
+     expect(container.querySelectorAll("table")).toHaveLength(1);
++    expect(
++      container.querySelectorAll('[data-r3-section="S2_DIAG"]'),
++    ).toHaveLength(1);
++    expect(container.querySelector('[data-r3-section="S2_DIAG"]')?.id).toBe(
++      "diagnostic-rapide",
++    );
+   });
+ 
+   it("ne duplique pas un identifiant deja canonique", () => {
+@@ -61,3 +69,33 @@
+     expect(container.querySelectorAll("table")).toHaveLength(1);
+   });
+ });
++
++// Cross the real renderer/validator boundary: the fixture is sanitized and
++// composed by MiniDiagnosticTable/HtmlContent before the backend sees HTML.
++describe("R3 diagnostic — SSR vers validation HTML", () => {
++  it("valide le vrai rendu a trois colonnes et refuse une destination cassee", () => {
++    const section = {
++      ...diagnostic,
++      content:
++        "<table><thead><tr><th>Symptome</th><th>Cause</th><th>Action</th></tr></thead><tbody><tr><td>Bruit anormal</td><td>Usure possible</td><td>Verifier le signal</td></tr></tbody></table>",
++    };
++    const markup = renderToStaticMarkup(
++      <MemoryRouter>
++        <article>
++          <MiniDiagnosticTable section={section} />
++        </article>
++      </MemoryRouter>,
++    );
++    const url = "/blog-pieces-auto/conseils/disque-de-frein";
++    const html = `<html><head><link rel="canonical" href="${url}"></head><body>${markup}</body></html>`;
++    const validator = new PageRoleValidatorService();
++    expect(validator.validatePageWithHtml(url, "", html).isValid).toBe(true);
++    expect(
++      validator.validatePageWithHtml(
++        url,
++        "",
++        html.replace('id="diagnostic-rapide"', 'id="fragment-casse"'),
++      ).isValid,
++    ).toBe(false);
++  });
++});
+--- a/backend/package.json
++++ b/backend/package.json
+@@ -86,6 +86,7 @@
+     "googleapis": "^164.1.0",
+     "gray-matter": "^4.0.3",
+     "helmet": "^8.1.0",
++    "htmlparser2": "10.1.0",
+     "ioredis": "^5.8.2",
+     "ioredis-mock": "^8.13.1",
+     "jose": "^5.10.0",
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -135,6 +135,7 @@
+         "googleapis": "^164.1.0",
+         "gray-matter": "^4.0.3",
+         "helmet": "^8.1.0",
++        "htmlparser2": "10.1.0",
+         "ioredis": "^5.8.2",
+         "ioredis-mock": "^8.13.1",
+         "jose": "^5.10.0",

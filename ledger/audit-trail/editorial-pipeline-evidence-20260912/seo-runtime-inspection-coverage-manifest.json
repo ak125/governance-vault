@@ -1,0 +1,108 @@
+{
+  "observed_date": "2026-09-13",
+  "recorded_at_utc": "2026-09-13T10:41:49.840865+00:00",
+  "scope_requested": "Verifier le consommateur effectif de la boucle et les endpoints disponibles",
+  "scope_actually_scanned": "DEV checkout principal, artefact compile audit, listeners, processus, health, cron de sync; tentative SSH AI-COS refusee avant connexion",
+  "files_read_count": 12,
+  "files": [
+    "app:CLAUDE.md (contrat lu depuis miroir local)",
+    "app:.claude/rules/deployment.md (miroir local)",
+    "app:.claude/rules/agent-doc-search.md (miroir local)",
+    "app:audit/registry/canonical.json (jq filtre)",
+    "app:.claude/knowledge/REPO_MAP.md (extrait)",
+    "app:.claude/knowledge/modules/admin.md (extrait)",
+    "app:log.md (80 dernieres lignes)",
+    "app:scripts/ops/sync-dev-runtime.sh (extraits candidat puis checkout runtime)",
+    "app:.spec/00-canon/ai-registry/agent-operating-map.yaml (extrait)",
+    "runtime:agents/seo-content/AGENTS.md (presence de champs et hash)",
+    "runtime:backend/dist/modules/admin/controllers/internal-seo-audit.controller.js (presence de champs et hash)",
+    "vault:ops/moc/MOC-Roadmap-2026.md (extraits)"
+  ],
+  "operational_inputs": [
+    "SSH aliases (noms uniquement)",
+    "DEV ss listeners, ps noms de processus, systemctl liste filtree, docker noms/statuts",
+    "DEV /tmp/sync-dev-runtime-cron.log (100 dernieres lignes, 16 evenements du script filtres)",
+    "crontab: presence du seul job sync verifiee sans afficher les commandes",
+    "journal noyau fenetre 09:20-10:15 UTC filtre OOM/segfault (aucun resultat, acces/exhaustivite non etablis)"
+  ],
+  "roots": {
+    "app": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912",
+    "runtime": "/opt/automecanik/app",
+    "vault": "/opt/automecanik/governance-editorial-pipeline-20260912"
+  },
+  "candidate": {
+    "branch": "codex/editorial-pipeline-provenance-20260912",
+    "head": "0c31807c8453c251d70c7575eafcc973f04eed14",
+    "previous_22_tests": "Reutilises pour candidat inchange; pas une preuve runtime"
+  },
+  "runtime": {
+    "branch": "main",
+    "head": "ef84ec4586d73c497d480d805f483b2c0e11ea65",
+    "target_working_tree_diff": "Aucun diff des deux fichiers cibles vs HEAD",
+    "port3000_listener": false,
+    "health_http": "000",
+    "app_supervisor_seen": false,
+    "agents_doc_sha256": "e2d4e1625b18d740bb0806c4d65e05b283c562752d0332d1bcbc86a8281b71e6",
+    "compiled_audit_sha256": "8576d87a0e4963b94517f8511180c9fd216963ad6c598b7cc60171566e9775df",
+    "new_r3_endpoint_in_compiled_artifact": false,
+    "r3_candidates_in_doc": false,
+    "wiki_missing_in_doc": true,
+    "sync_cron_present": true,
+    "sync_log_last_healthy": "2026-09-13T09:20:13Z",
+    "sync_log_down": [
+      "2026-09-13T10:10:11Z",
+      "2026-09-13T10:20:11Z",
+      "2026-09-13T10:30:11Z"
+    ]
+  },
+  "aicos": {
+    "ssh_alias": "aicos",
+    "result": "HOST_KEY_VERIFICATION_FAILED",
+    "presented_ed25519_fingerprint": "SHA256:RIFS6JFy9DM+IsDY1xA2FIkqCEG9hXT+4QOxOLxncQQ",
+    "trusted": false,
+    "remote_command_executed": false,
+    "loaded_instructions": "unknown",
+    "paperclip_service_state": "unknown"
+  },
+  "analysis": [
+    "La voie DEV documentee ne peut servir audit coverage/R3 au moment du controle",
+    "Le code compile du runtime ne contient pas encore endpoint candidat R3",
+    "Le document du checkout principal conserve ancien contrat; cela ne prouve pas son chargement sur AI-COS",
+    "Le controle cron existant signale deja indisponibilite; aucun nouveau moniteur necessaire",
+    "La cause de arret DEV et la raison du changement de cle SSH restent inconnues"
+  ],
+  "corrections_applied": [],
+  "corrections_proposed": [
+    "Authentifier la nouvelle empreinte AI-COS via console fournisseur ou autre canal de confiance avant toute mise a jour known_hosts",
+    "Verifier ensuite service et configuration chargee sur AI-COS sans lancer heartbeat",
+    "Clarifier arret DEV avant remise en route: lancement app peut activer crons/queues",
+    "Publier/raccorder candidat seulement selon perimetre autorise; ne pas substituer worktree au runtime"
+  ],
+  "validation_executed": [
+    "Lectures SSH DEV et health GET uniquement",
+    "Pas de nouveau test applicatif: aucun changement de code dans ce lot",
+    "Copie du diagnostic et checkpoint dans dossier preuves"
+  ],
+  "excluded_paths": [
+    "Secrets/environnements",
+    "Base et corpus partages",
+    "PROD/PREPROD",
+    "Edition known_hosts",
+    "Relance runtime/cron/heartbeat",
+    "Code applicatif"
+  ],
+  "unscanned_zones": [
+    "Instructions chargees AI-COS",
+    "Derniers runs et tickets Paperclip",
+    "Cause arret runtime DEV",
+    "Collecte et qualification en service",
+    "Contenu projete servi"
+  ],
+  "remaining_unknowns": [
+    "Changement cle legitime ou erreur de cible non determine",
+    "Service DEV volontairement arrete ou incident non determine",
+    "Absence resultat noyau ne prouve pas absence crash",
+    "Aucun diagnostic actuel sur classement Google ou qualite factuelle catalogue"
+  ],
+  "final_status": "PARTIAL_COVERAGE"
+}

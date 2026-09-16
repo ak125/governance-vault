@@ -1,0 +1,198 @@
+FAIL src/modules/admin/services/buying-guide-enricher.quality.test.ts (11.715 s)
+  ● Buying guide criteria quality at the write boundary › blocks one copied label even among otherwise valid criteria, ignoring accents and punctuation
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 4
+    + Received  + 2
+
+      Object {
+    -   "ok": false,
+    -   "reasons": Array [
+    -     StringContaining "GUIDANCE_COPIES_LABEL",
+    -   ],
+    +   "ok": true,
+    +   "reasons": Array [],
+      }
+
+      46 |     const sections = fixture();
+      47 |     criteria(sections)[0].guidance = '  MARQUE DU VEHICULE.  ';
+    > 48 |     expect(gates.checkAntiWikiGate(sections)).toEqual({ ok: false, reasons: [expect.stringContaining('GUIDANCE_COPIES_LABEL')] });
+         |                                               ^
+      49 |   });
+      50 |
+      51 |   it('flags accent variants without deleting or merging their different guidance', () => {
+
+      at Object.<anonymous> (src/modules/admin/services/buying-guide-enricher.quality.test.ts:48:47)
+
+  ● Buying guide criteria quality at the write boundary › flags accent variants without deleting or merging their different guidance
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 4
+    + Received  + 2
+
+      Object {
+    -   "ok": false,
+    -   "reasons": Array [
+    -     StringContaining "DUPLICATE_SELECTION_CRITERIA",
+    -   ],
+    +   "ok": true,
+    +   "reasons": Array [],
+      }
+
+      53 |     criteria(sections)[1].label = 'Marque du vehicule';
+      54 |     const before = JSON.stringify(sections);
+    > 55 |     expect(gates.checkAntiWikiGate(sections)).toEqual({ ok: false, reasons: [expect.stringContaining('DUPLICATE_SELECTION_CRITERIA')] });
+         |                                               ^
+      56 |     expect(JSON.stringify(sections)).toBe(before);
+      57 |   });
+      58 |
+
+      at Object.<anonymous> (src/modules/admin/services/buying-guide-enricher.quality.test.ts:55:47)
+
+  ● Buying guide criteria quality at the write boundary › reports malformed criteria instead of crashing or counting them as valid: null
+
+    TypeError: Cannot read properties of null (reading 'guidance')
+
+      210 |       ).filter(
+      211 |         (c) =>
+    > 212 |           c.guidance?.trim() === c.label?.trim() + '.' ||
+          |             ^
+      213 |           c.guidance?.trim() === c.label?.trim(),
+      214 |       );
+      215 |       if (guidanceCopies.length > criteria.content.length / 2) {
+
+      at src/modules/admin/services/buying-guide/buying-guide-quality-gates.service.ts:212:13
+          at Array.filter (<anonymous>)
+      at BuyingGuideQualityGatesService.checkAntiWikiGate (src/modules/admin/services/buying-guide/buying-guide-quality-gates.service.ts:210:9)
+      at src/modules/admin/services/buying-guide-enricher.quality.test.ts:64:18
+
+  ● Buying guide criteria quality at the write boundary › reports malformed criteria instead of crashing or counting them as valid: {"label":42}
+
+    TypeError: c.label?.trim is not a function
+
+      210 |       ).filter(
+      211 |         (c) =>
+    > 212 |           c.guidance?.trim() === c.label?.trim() + '.' ||
+          |                                           ^
+      213 |           c.guidance?.trim() === c.label?.trim(),
+      214 |       );
+      215 |       if (guidanceCopies.length > criteria.content.length / 2) {
+
+      at src/modules/admin/services/buying-guide/buying-guide-quality-gates.service.ts:212:43
+          at Array.filter (<anonymous>)
+      at BuyingGuideQualityGatesService.checkAntiWikiGate (src/modules/admin/services/buying-guide/buying-guide-quality-gates.service.ts:210:9)
+      at src/modules/admin/services/buying-guide-enricher.quality.test.ts:64:18
+
+  ● Buying guide criteria quality at the write boundary › reports malformed criteria instead of crashing or counting them as valid: {"key":"empty","label":"  ","guidance":"  ","priority":"required"}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 4
+    + Received  + 2
+
+      Object {
+    -   "ok": false,
+    -   "reasons": Array [
+    -     StringContaining "INVALID_SELECTION_CRITERIA",
+    -   ],
+    +   "ok": true,
+    +   "reasons": Array [],
+      }
+
+      62 |     const sections = fixture();
+      63 |     (sections.selection_criteria.content as unknown[])[0] = item;
+    > 64 |     expect(gates.checkAntiWikiGate(sections)).toEqual({ ok: false, reasons: [expect.stringContaining('INVALID_SELECTION_CRITERIA')] });
+         |                                               ^
+      65 |   });
+      66 |
+      67 |   it('cannot write a preview-rejected guide even with a score of 100', async () => {
+
+      at src/modules/admin/services/buying-guide-enricher.quality.test.ts:64:47
+
+  ● Buying guide criteria quality at the write boundary › reports malformed criteria instead of crashing or counting them as valid: {"tier_id":"oe","label":"Origine","description":"Pièce d’origine","available":true}
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 4
+    + Received  + 2
+
+      Object {
+    -   "ok": false,
+    -   "reasons": Array [
+    -     StringContaining "INVALID_SELECTION_CRITERIA",
+    -   ],
+    +   "ok": true,
+    +   "reasons": Array [],
+      }
+
+      62 |     const sections = fixture();
+      63 |     (sections.selection_criteria.content as unknown[])[0] = item;
+    > 64 |     expect(gates.checkAntiWikiGate(sections)).toEqual({ ok: false, reasons: [expect.stringContaining('INVALID_SELECTION_CRITERIA')] });
+         |                                               ^
+      65 |   });
+      66 |
+      67 |   it('cannot write a preview-rejected guide even with a score of 100', async () => {
+
+      at src/modules/admin/services/buying-guide-enricher.quality.test.ts:64:47
+
+  ● Buying guide criteria quality at the write boundary › cannot write a preview-rejected guide even with a score of 100
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  - 2
+    + Received  + 2
+
+      Object {
+    -   "sectionsUpdated": 0,
+    -   "updated": false,
+    +   "sectionsUpdated": 3,
+    +   "updated": true,
+      }
+
+      72 |     expect(preview).toMatchObject({ qualityScore: 100, wouldUpdate: false, antiWikiGate: { ok: false } });
+      73 |     const [execution] = await service.enrich(['7'], false);
+    > 74 |     expect(execution).toMatchObject({ updated: false, sectionsUpdated: 0 });
+         |                       ^
+      75 |     expect(db.buildUpdatePayload).not.toHaveBeenCalled();
+      76 |     expect(db.upsertBuyingGuide).not.toHaveBeenCalled();
+      77 |   });
+
+      at Object.<anonymous> (src/modules/admin/services/buying-guide-enricher.quality.test.ts:74:23)
+
+  ● Buying guide criteria quality at the write boundary › blocks low-score content even when the anti-wiki checks pass
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  - 1
+    + Received  + 1
+
+      Object {
+    -   "updated": false,
+    +   "updated": true,
+      }
+
+      84 |     expect(preview).toMatchObject({ wouldUpdate: false, antiWikiGate: { ok: true } });
+      85 |     const [execution] = await service.enrich(['7'], false);
+    > 86 |     expect(execution).toMatchObject({ updated: false });
+         |                       ^
+      87 |     expect(db.upsertBuyingGuide).not.toHaveBeenCalled();
+      88 |   });
+      89 |
+
+      at Object.<anonymous> (src/modules/admin/services/buying-guide-enricher.quality.test.ts:86:23)
+
+[32m[Nest] 1111443  - [39m14/09/2026 00:01:12 [32m    LOG[39m [38;5;3m[BuyingGuideEnricherService] [39m[32mEnriching pgId=7 (Filtre à huile, family=filtration) dryRun=true[39m
+[32m[Nest] 1111443  - [39m14/09/2026 00:01:12 [32m    LOG[39m [38;5;3m[BuyingGuideEnricherService] [39m[32mEnriching pgId=7 (Filtre à huile, family=filtration) dryRun=false[39m
+[32m[Nest] 1111443  - [39m14/09/2026 00:01:12 [32m    LOG[39m [38;5;3m[BuyingGuideEnricherService] [39m[32msg_content_draft SKIPPED for pgId=7 — R1 content managed by R1ContentPipelineService[39m
+[32m[Nest] 1111443  - [39m14/09/2026 00:01:12 [32m    LOG[39m [38;5;3m[BuyingGuideEnricherService] [39m[32mEnriching pgId=7 (Filtre à huile, family=filtration) dryRun=true[39m
+[32m[Nest] 1111443  - [39m14/09/2026 00:01:12 [32m    LOG[39m [38;5;3m[BuyingGuideEnricherService] [39m[32mEnriching pgId=7 (Filtre à huile, family=filtration) dryRun=false[39m
+[32m[Nest] 1111443  - [39m14/09/2026 00:01:12 [32m    LOG[39m [38;5;3m[BuyingGuideEnricherService] [39m[32msg_content_draft SKIPPED for pgId=7 — R1 content managed by R1ContentPipelineService[39m
+[32m[Nest] 1111443  - [39m14/09/2026 00:01:12 [32m    LOG[39m [38;5;3m[BuyingGuideEnricherService] [39m[32mEnriching pgId=7 (Filtre à huile, family=filtration) dryRun=true[39m
+[32m[Nest] 1111443  - [39m14/09/2026 00:01:12 [32m    LOG[39m [38;5;3m[BuyingGuideEnricherService] [39m[32mEnriching pgId=7 (Filtre à huile, family=filtration) dryRun=false[39m
+[32m[Nest] 1111443  - [39m14/09/2026 00:01:12 [32m    LOG[39m [38;5;3m[BuyingGuideEnricherService] [39m[32msg_content_draft SKIPPED for pgId=7 — R1 content managed by R1ContentPipelineService[39m
+Test Suites: 1 failed, 1 total
+Tests:       8 failed, 2 passed, 10 total
+Snapshots:   0 total
+Time:        11.916 s

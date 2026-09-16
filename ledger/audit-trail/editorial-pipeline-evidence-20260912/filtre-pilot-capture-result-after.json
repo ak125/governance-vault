@@ -1,0 +1,21 @@
+{
+  "mode": "commit",
+  "item": "wl-filtre-a-huile-clapets",
+  "gamme": "filtre-a-huile",
+  "urls_total": 1,
+  "reports": [
+    {
+      "url": "https://filtron.eu/en/insights/filter-guide/spin-on-oil-filter-valves.html",
+      "action": "CAPTURED",
+      "detail": "sources/auto-captures/filtre-a-huile/filtron-eu-wl-filtre-a-huile-clapets-b8431d6f.md (CAPTURED_NEEDS_REVIEW, 2666c)",
+      "raw_path": "sources/auto-captures/filtre-a-huile/filtron-eu-wl-filtre-a-huile-clapets-b8431d6f.md",
+      "content_hash": "sha256:b8431d6ff4d46f8f4e7acf118fa89b3679683572706f59d159e6ab5e1c01ba6f",
+      "status": "CAPTURED_NEEDS_REVIEW",
+      "source_type": "manufacturer_maintenance",
+      "license_status": "unknown",
+      "captured_at": "2026-09-13T21:43:09Z"
+    }
+  ],
+  "worklist_updated": "wl-filtre-a-huile-clapets",
+  "next": "python _scripts/gates.py --gate I --gate J"
+}

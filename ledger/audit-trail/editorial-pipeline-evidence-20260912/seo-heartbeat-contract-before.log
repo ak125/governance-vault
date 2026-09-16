@@ -1,0 +1,192 @@
+  console.log
+    ◇ injected env (0) from backend/.env.test // tip: ⌘ enable debugging { debug: true }
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+FAIL backend/src/modules/admin/controllers/internal-seo-audit.coverage.test.ts (45.012 s)
+  SEO heartbeat coverage contract — evidence is not inferred from plans
+    ✕ includes already planned/content-bearing gammes and formerly RAG-excluded gammes in R3 candidates (12 ms)
+    ✕ reads all returned pages despite a server cap and detects content instead of an enrichment marker (4 ms)
+    ✕ fails on pieces_gamme read error instead of issuing false gap counts (7011 ms)
+    ✕ fails on __seo_r3_keyword_plan read error instead of issuing false gap counts (7006 ms)
+    ✕ fails on __seo_r6_keyword_plan read error instead of issuing false gap counts (7018 ms)
+    ✕ fails on __seo_gamme_conseil read error instead of issuing false gap counts (7007 ms)
+    ✕ fails on __seo_keywords read error instead of issuing false gap counts (7010 ms)
+    ✕ refuses incomplete coverage when total count is missing (3 ms)
+    ✕ refuses a changing total instead of mixing pages into a complete inventory (2 ms)
+
+  ● SEO heartbeat coverage contract — evidence is not inferred from plans › includes already planned/content-bearing gammes and formerly RAG-excluded gammes in R3 candidates
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 4
+    Received: 2
+
+      64 |     const { controller, calls } = harness();
+      65 |     const result = await controller.coverage();
+    > 66 |     expect(result.gammes_total).toBe(4);
+         |                                 ^
+      67 |     expect(result).toMatchObject({ wiki_evidence_status: 'not_evaluated' });
+      68 |     expect(result).toHaveProperty('r3_audit_candidates', [
+      69 |       { pg_id: '1', pg_alias: 'fixture-a', pg_name: 'A' },
+
+      at Object.<anonymous> (src/modules/admin/controllers/internal-seo-audit.coverage.test.ts:66:33)
+
+  ● SEO heartbeat coverage contract — evidence is not inferred from plans › reads all returned pages despite a server cap and detects content instead of an enrichment marker
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 3
+    + Received  + 1
+
+    - Array [
+    -   "cable-de-boite-vitesse",
+    - ]
+    + Array []
+
+      78 |     const { controller } = harness();
+      79 |     const result = await controller.coverage();
+    > 80 |     expect(result.kp_r3_missing.map((g) => g.pg_alias)).toEqual(['cable-de-boite-vitesse']);
+         |                                                         ^
+      81 |     expect(result.content_r3_missing.map((g) => g.pg_alias)).toEqual(['fixture-b', 'cable-de-boite-vitesse']);
+      82 |     expect(result.kw_missing.map((g) => g.pg_alias)).toEqual(['cable-de-boite-vitesse']);
+      83 |   });
+
+      at Object.<anonymous> (src/modules/admin/controllers/internal-seo-audit.coverage.test.ts:80:57)
+
+  ● SEO heartbeat coverage contract — evidence is not inferred from plans › fails on pieces_gamme read error instead of issuing false gap counts
+
+    expect(received).rejects.toMatchObject(expected)
+
+    - Expected  - 3
+    + Received  + 1
+
+    - Object {
+    -   "status": 503,
+    - }
+    + [Error: Database error: fixture unavailable]
+
+      83 |   });
+      84 |   it.each<Table>(['pieces_gamme', '__seo_r3_keyword_plan', '__seo_r6_keyword_plan', '__seo_gamme_conseil', '__seo_keywords'])('fails on %s read error instead of issuing false gap counts', async (failTable) => {
+    > 85 |     await expect(harness({ failTable }).controller.coverage()).rejects.toMatchObject({ status: 503 });
+         |                                                                        ^
+      86 |   });
+      87 |   it('refuses incomplete coverage when total count is missing', async () => {
+      88 |     await expect(harness({ omitCount: true }).controller.coverage()).rejects.toMatchObject({ status: 503 });
+
+      at Object.toMatchObject (../../../../node_modules/expect/build/index.js:218:22)
+      at src/modules/admin/controllers/internal-seo-audit.coverage.test.ts:85:72
+
+  ● SEO heartbeat coverage contract — evidence is not inferred from plans › fails on __seo_r3_keyword_plan read error instead of issuing false gap counts
+
+    expect(received).rejects.toMatchObject()
+
+    Received promise resolved instead of rejected
+    Resolved to value: {"content_r3_missing": [{"pg_alias": "fixture-a", "pg_name": "A"}], "content_r3_missing_count": 1, "gammes_total": 2, "kp_r3_missing": [{"pg_alias": "fixture-a", "pg_name": "A"}, {"pg_alias": "fixture-b", "pg_name": "B"}], "kp_r3_missing_count": 2, "kp_r6_missing": [{"pg_alias": "fixture-b", "pg_name": "B"}], "kp_r6_missing_count": 1, "kw_missing": [], "kw_missing_count": 0, "p1_count": 2, "p2_count": 0, "timestamp": "2026-09-13T10:21:16.413Z"}
+
+      83 |   });
+      84 |   it.each<Table>(['pieces_gamme', '__seo_r3_keyword_plan', '__seo_r6_keyword_plan', '__seo_gamme_conseil', '__seo_keywords'])('fails on %s read error instead of issuing false gap counts', async (failTable) => {
+    > 85 |     await expect(harness({ failTable }).controller.coverage()).rejects.toMatchObject({ status: 503 });
+         |           ^
+      86 |   });
+      87 |   it('refuses incomplete coverage when total count is missing', async () => {
+      88 |     await expect(harness({ omitCount: true }).controller.coverage()).rejects.toMatchObject({ status: 503 });
+
+      at expect (../../../../node_modules/expect/build/index.js:113:15)
+      at src/modules/admin/controllers/internal-seo-audit.coverage.test.ts:85:11
+
+  ● SEO heartbeat coverage contract — evidence is not inferred from plans › fails on __seo_r6_keyword_plan read error instead of issuing false gap counts
+
+    expect(received).rejects.toMatchObject()
+
+    Received promise resolved instead of rejected
+    Resolved to value: {"content_r3_missing": [{"pg_alias": "fixture-a", "pg_name": "A"}], "content_r3_missing_count": 1, "gammes_total": 2, "kp_r3_missing": [], "kp_r3_missing_count": 0, "kp_r6_missing": [{"pg_alias": "fixture-a", "pg_name": "A"}, {"pg_alias": "fixture-b", "pg_name": "B"}], "kp_r6_missing_count": 2, "kw_missing": [], "kw_missing_count": 0, "p1_count": 0, "p2_count": 1, "timestamp": "2026-09-13T10:21:23.433Z"}
+
+      83 |   });
+      84 |   it.each<Table>(['pieces_gamme', '__seo_r3_keyword_plan', '__seo_r6_keyword_plan', '__seo_gamme_conseil', '__seo_keywords'])('fails on %s read error instead of issuing false gap counts', async (failTable) => {
+    > 85 |     await expect(harness({ failTable }).controller.coverage()).rejects.toMatchObject({ status: 503 });
+         |           ^
+      86 |   });
+      87 |   it('refuses incomplete coverage when total count is missing', async () => {
+      88 |     await expect(harness({ omitCount: true }).controller.coverage()).rejects.toMatchObject({ status: 503 });
+
+      at expect (../../../../node_modules/expect/build/index.js:113:15)
+      at src/modules/admin/controllers/internal-seo-audit.coverage.test.ts:85:11
+
+  ● SEO heartbeat coverage contract — evidence is not inferred from plans › fails on __seo_gamme_conseil read error instead of issuing false gap counts
+
+    expect(received).rejects.toMatchObject()
+
+    Received promise resolved instead of rejected
+    Resolved to value: {"content_r3_missing": [{"pg_alias": "fixture-a", "pg_name": "A"}, {"pg_alias": "fixture-b", "pg_name": "B"}], "content_r3_missing_count": 2, "gammes_total": 2, "kp_r3_missing": [], "kp_r3_missing_count": 0, "kp_r6_missing": [{"pg_alias": "fixture-b", "pg_name": "B"}], "kp_r6_missing_count": 1, "kw_missing": [], "kw_missing_count": 0, "p1_count": 0, "p2_count": 2, "timestamp": "2026-09-13T10:21:30.440Z"}
+
+      83 |   });
+      84 |   it.each<Table>(['pieces_gamme', '__seo_r3_keyword_plan', '__seo_r6_keyword_plan', '__seo_gamme_conseil', '__seo_keywords'])('fails on %s read error instead of issuing false gap counts', async (failTable) => {
+    > 85 |     await expect(harness({ failTable }).controller.coverage()).rejects.toMatchObject({ status: 503 });
+         |           ^
+      86 |   });
+      87 |   it('refuses incomplete coverage when total count is missing', async () => {
+      88 |     await expect(harness({ omitCount: true }).controller.coverage()).rejects.toMatchObject({ status: 503 });
+
+      at expect (../../../../node_modules/expect/build/index.js:113:15)
+      at src/modules/admin/controllers/internal-seo-audit.coverage.test.ts:85:11
+
+  ● SEO heartbeat coverage contract — evidence is not inferred from plans › fails on __seo_keywords read error instead of issuing false gap counts
+
+    expect(received).rejects.toMatchObject()
+
+    Received promise resolved instead of rejected
+    Resolved to value: {"content_r3_missing": [{"pg_alias": "fixture-a", "pg_name": "A"}], "content_r3_missing_count": 1, "gammes_total": 2, "kp_r3_missing": [], "kp_r3_missing_count": 0, "kp_r6_missing": [{"pg_alias": "fixture-b", "pg_name": "B"}], "kp_r6_missing_count": 1, "kw_missing": [{"pg_alias": "fixture-a", "pg_name": "A"}, {"pg_alias": "fixture-b", "pg_name": "B"}], "kw_missing_count": 2, "p1_count": 0, "p2_count": 1, "timestamp": "2026-09-13T10:21:37.451Z"}
+
+      83 |   });
+      84 |   it.each<Table>(['pieces_gamme', '__seo_r3_keyword_plan', '__seo_r6_keyword_plan', '__seo_gamme_conseil', '__seo_keywords'])('fails on %s read error instead of issuing false gap counts', async (failTable) => {
+    > 85 |     await expect(harness({ failTable }).controller.coverage()).rejects.toMatchObject({ status: 503 });
+         |           ^
+      86 |   });
+      87 |   it('refuses incomplete coverage when total count is missing', async () => {
+      88 |     await expect(harness({ omitCount: true }).controller.coverage()).rejects.toMatchObject({ status: 503 });
+
+      at expect (../../../../node_modules/expect/build/index.js:113:15)
+      at src/modules/admin/controllers/internal-seo-audit.coverage.test.ts:85:11
+
+  ● SEO heartbeat coverage contract — evidence is not inferred from plans › refuses incomplete coverage when total count is missing
+
+    expect(received).rejects.toMatchObject()
+
+    Received promise resolved instead of rejected
+    Resolved to value: {"content_r3_missing": [{"pg_alias": "fixture-a", "pg_name": "A"}], "content_r3_missing_count": 1, "gammes_total": 2, "kp_r3_missing": [], "kp_r3_missing_count": 0, "kp_r6_missing": [{"pg_alias": "fixture-b", "pg_name": "B"}], "kp_r6_missing_count": 1, "kw_missing": [], "kw_missing_count": 0, "p1_count": 0, "p2_count": 1, "timestamp": "2026-09-13T10:21:37.454Z"}
+
+      86 |   });
+      87 |   it('refuses incomplete coverage when total count is missing', async () => {
+    > 88 |     await expect(harness({ omitCount: true }).controller.coverage()).rejects.toMatchObject({ status: 503 });
+         |           ^
+      89 |   });
+      90 |   it('refuses a changing total instead of mixing pages into a complete inventory', async () => {
+      91 |     await expect(harness({ changeCount: true }).controller.coverage()).rejects.toMatchObject({ status: 503 });
+
+      at expect (../../../../node_modules/expect/build/index.js:113:15)
+      at Object.<anonymous> (src/modules/admin/controllers/internal-seo-audit.coverage.test.ts:88:11)
+
+  ● SEO heartbeat coverage contract — evidence is not inferred from plans › refuses a changing total instead of mixing pages into a complete inventory
+
+    expect(received).rejects.toMatchObject()
+
+    Received promise resolved instead of rejected
+    Resolved to value: {"content_r3_missing": [{"pg_alias": "fixture-a", "pg_name": "A"}], "content_r3_missing_count": 1, "gammes_total": 2, "kp_r3_missing": [], "kp_r3_missing_count": 0, "kp_r6_missing": [{"pg_alias": "fixture-b", "pg_name": "B"}], "kp_r6_missing_count": 1, "kw_missing": [], "kw_missing_count": 0, "p1_count": 0, "p2_count": 1, "timestamp": "2026-09-13T10:21:37.458Z"}
+
+      89 |   });
+      90 |   it('refuses a changing total instead of mixing pages into a complete inventory', async () => {
+    > 91 |     await expect(harness({ changeCount: true }).controller.coverage()).rejects.toMatchObject({ status: 503 });
+         |           ^
+      92 |   });
+      93 | });
+      94 |
+
+      at expect (../../../../node_modules/expect/build/index.js:113:15)
+      at Object.<anonymous> (src/modules/admin/controllers/internal-seo-audit.coverage.test.ts:91:11)
+
+Test Suites: 1 failed, 1 total
+Tests:       9 failed, 9 total
+Snapshots:   0 total
+Time:        45.201 s
+Ran all test suites within paths "backend/src/modules/admin/controllers/internal-seo-audit.coverage.test.ts".

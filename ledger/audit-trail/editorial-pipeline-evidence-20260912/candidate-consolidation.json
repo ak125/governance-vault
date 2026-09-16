@@ -1,0 +1,48 @@
+{
+  "candidates": [
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912",
+      "head": "0c31807c8453c251d70c7575eafcc973f04eed14",
+      "staged_diff_sha256": "92f837afa8c7e8abf66dafbe8a1d7428a79e6873d0d2f75c05e50ff8305419b8",
+      "same_as_previous_checkpoint": true,
+      "unstaged_paths": []
+    },
+    {
+      "path": "/home/deploy/worktrees/raw-capture-network-20260912",
+      "head": "90e901ca20d82323d5faa9f1025d80dc064a7c06",
+      "staged_diff_sha256": "ec45b07ef761f0679e0c9f0d8f7f2e0bb4ca8df7853912717a9e5950e33ab81a",
+      "same_as_previous_checkpoint": true,
+      "unstaged_paths": []
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912",
+      "head": "01cea8deda48d84b6a2993cd4bdefe8280082c0b",
+      "staged_diff_sha256": "cc48ac2164a8bcaa4b2591a879e977f87a0d0870fde04c54eea7fb90ad32e1b2",
+      "same_as_previous_checkpoint": false,
+      "unstaged_paths": []
+    },
+    {
+      "path": "/home/deploy/worktrees/rag-editorial-consumption-20260912",
+      "head": "1dfea97ffcde8d7491b53ea7be00a138576636f7",
+      "staged_diff_sha256": "fa69a4815135e2b0400aff8aabffa60ce0f07ad1139d632f83bbc25678ed2139",
+      "same_as_previous_checkpoint": true,
+      "unstaged_paths": []
+    }
+  ],
+  "wiki_current_validation": {
+    "pytest_passed": 216,
+    "decision_tests": 50,
+    "promoter_tests": 64,
+    "builder_tests": 88,
+    "score_schema_tests": 14,
+    "new_tests": 7,
+    "baseline_failed": 3,
+    "py_compile": "PASS two production files",
+    "pre_commit": "PASS three changed files",
+    "staged_diff_check": "PASS"
+  },
+  "other_validation": "Previous evidence retained as historical; identical staged code hashes verified for application, RAW and RAG, with no unstaged source diff. No fresh runtime/CI claim.",
+  "pending_business_input": "Full withdrawal on an explicit version-targeted request, or old-block retirement only after validated replacement; user question pending.",
+  "delivery": "Isolated staged candidates and patches only; no commit, push, merge, shared mutation or deployment.",
+  "final_status": "PARTIAL_COVERAGE"
+}

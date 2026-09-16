@@ -1,0 +1,54 @@
+....FFF                                                                  [100%]
+=================================== FAILURES ===================================
+_ test_explicit_native_withdrawal_removes_only_document_and_replay_is_idempotent _
+
+service = (<retirement_knowledge_fixture.KnowledgeService object at 0x7fc794860a30>, KnowledgeDocument(id='gamme.a', title='A', ...{'parent_id': 'gamme.b'}], {'failed': False, 'ghost': False, 'partial': False}, ['delete_document', 'delete_document'])
+
+    def test_explicit_native_withdrawal_removes_only_document_and_replay_is_idempotent(service):
+        svc, doc, path, rows, _, guards = service
+        assert svc.delete_document(doc.id)
+        assert not path.exists() and rows == [{'parent_id': 'gamme.b'}]
+        assert svc.is_tombstoned(doc.source_uri)
+>       assert svc.delete_document(doc.id)
+E       AssertionError: assert False
+E        +  where False = delete_document('gamme.a')
+E        +    where delete_document = <retirement_knowledge_fixture.KnowledgeService object at 0x7fc794860a30>.delete_document
+E        +    and   'gamme.a' = KnowledgeDocument(id='gamme.a', title='A', content='body', source_type='gamme', category='gamme', doc_family='knowledg...ation_status='unverified', source_path='gamme/a.md', source_uri='fixture://source-a', created_at=None, updated_at=None).id
+
+tests/test_editorial_retirement.py:114: AssertionError
+____ test_native_withdrawal_keeps_retry_material_when_index_is_unavailable _____
+
+service = (<retirement_knowledge_fixture.KnowledgeService object at 0x7fc79482dc30>, KnowledgeDocument(id='gamme.a', title='A', ...nt_id': 'gamme.a'}, {'parent_id': 'gamme.b'}], {'failed': True, 'ghost': False, 'partial': False}, ['delete_document'])
+
+    def test_native_withdrawal_keeps_retry_material_when_index_is_unavailable(service):
+        svc, doc, path, rows, state, _ = service
+        state['failed'] = True
+>       assert not svc.delete_document(doc.id)
+E       AssertionError: assert not True
+E        +  where True = delete_document('gamme.a')
+E        +    where delete_document = <retirement_knowledge_fixture.KnowledgeService object at 0x7fc79482dc30>.delete_document
+E        +    and   'gamme.a' = KnowledgeDocument(id='gamme.a', title='A', content='body', source_type='gamme', category='gamme', doc_family='knowledg...ation_status='unverified', source_path='gamme/a.md', source_uri='fixture://source-a', created_at=None, updated_at=None).id
+
+tests/test_editorial_retirement.py:122: AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  retirement_knowledge_fixture:knowledge_service.py:872 Weaviate chunk cleanup failed: index unavailable
+________ test_native_withdrawal_cannot_acknowledge_residual_index_rows _________
+
+service = (<retirement_knowledge_fixture.KnowledgeService object at 0x7fc794869e10>, KnowledgeDocument(id='gamme.a', title='A', ...ot_0/gamme/a.md'), [{'parent_id': 'gamme.b'}], {'failed': False, 'ghost': True, 'partial': False}, ['delete_document'])
+
+    def test_native_withdrawal_cannot_acknowledge_residual_index_rows(service):
+        svc, doc, path, rows, state, _ = service
+        state['ghost'] = True
+>       assert not svc.delete_document(doc.id)
+E       AssertionError: assert not True
+E        +  where True = delete_document('gamme.a')
+E        +    where delete_document = <retirement_knowledge_fixture.KnowledgeService object at 0x7fc794869e10>.delete_document
+E        +    and   'gamme.a' = KnowledgeDocument(id='gamme.a', title='A', content='body', source_type='gamme', category='gamme', doc_family='knowledg...ation_status='unverified', source_path='gamme/a.md', source_uri='fixture://source-a', created_at=None, updated_at=None).id
+
+tests/test_editorial_retirement.py:132: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_editorial_retirement.py::test_explicit_native_withdrawal_removes_only_document_and_replay_is_idempotent
+FAILED tests/test_editorial_retirement.py::test_native_withdrawal_keeps_retry_material_when_index_is_unavailable
+FAILED tests/test_editorial_retirement.py::test_native_withdrawal_cannot_acknowledge_residual_index_rows
+3 failed, 4 passed in 0.11s
+EXIT_CODE=1

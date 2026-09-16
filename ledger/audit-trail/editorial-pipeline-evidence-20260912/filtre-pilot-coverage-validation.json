@@ -1,0 +1,15 @@
+{
+  "pass": 1,
+  "warn": 0,
+  "fail": 0,
+  "results": [
+    {
+      "slug": "filtre-a-huile",
+      "status": "PASS",
+      "fails": [],
+      "warns": [],
+      "coverage_entries": 14,
+      "h2_sections": 9
+    }
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "scope": [
+    "R1",
+    "R2",
+    "R3",
+    "R6",
+    "R7",
+    "R8",
+    "R9"
+  ],
+  "kind": "audit evidence, not canonical registry",
+  "roles": [
+    {
+      "role": "R1 — trouver la gamme compatible",
+      "sources_admissibles": "Gamme canonique, taxonomie, familles, variantes et critères de compatibilité",
+      "edition_validation": "Contrat router ; slots existants lus via RPC. Contrat indique producteur WIKI→R1 encore à construire. Gate de texte et sélection véhicule examinées.",
+      "projection_indexation": "Writer générique testé pour R1. R1 absent des rôles gamme par défaut du builder et du feeder : pas de raccordement automatique démontré.",
+      "rendu": "`pieces.$slug.tsx` : hero, sélecteur, blocs éditoriaux et ressources associées depuis API/DB.",
+      "fraicheur_retraits": "Garde miroir commune testée ; invalidation des slots/cache depuis source retirée non raccordée par ce lot.",
+      "duplication_interactions": "Séparer navigation R1, transaction R2, choix R6 et intervention R3. Signature catalogue conservée.",
+      "preuves_statut": "E1/E2/E3/E4 ; parcours code repéré, projection mécanique testée ; édition WIKI et rendu du candidat non couverts, activation non vérifiée."
+    },
+    {
+      "role": "R2 — acheter la référence exacte compatible",
+      "sources_admissibles": "Catalogue, compatibilité exacte, références OEM/OES, prix/stock/shipping réels",
+      "edition_validation": "Contrat R2, signature catalogue, éligibilité structurelle. `r2-enricher.service.ts` lit encore le miroir RAG : dette de raccordement à la connaissance qualifiée. Aucune donnée commerciale runtime modifiée.",
+      "projection_indexation": "Writer générique R2 testé ; R2 absent de l'admission gamme par défaut. Conditions d'indexabilité produit distinctes de R8 testées.",
+      "rendu": "Route `pieces.$gamme.$marque.$modele.$type[.]html.tsx` → `piecesVehicleLoader` → grille/liste compatible.",
+      "fraicheur_retraits": "Historique de projection et absence de nouvelles versions au rejeu testés ; retrait source jusqu'au catalogue, cache et rendu non démontré.",
+      "duplication_interactions": "R2/R8 n'est qu'une paire : contrôler aussi R1/R2 et R2/R6. Même catalogue doit conserver sa signature malgré les variations de texte.",
+      "preuves_statut": "E1/E2/E3/E5 ; preuve structurelle isolée, aucun parcours transactionnel live exécuté ; raccordement éditorial et activation non vérifiés."
+    },
+    {
+      "role": "R3 — intervenir correctement",
+      "sources_admissibles": "Procédure validée, sécurité, outils, étapes, anti-erreurs et contrôles post-intervention",
+      "edition_validation": "Qualification WIKI et garde projection ; candidat #86 non promu. Aucun contenu de sécurité n'est fabriqué pour satisfaire le score.",
+      "projection_indexation": "Export gamme/diagnostic S2_DIAG prévu ; writer et canary role-scoped. Tables SEO vides dans l'inventaire lu.",
+      "rendu": "`blog-pieces-auto.conseils.$pg_alias.tsx` ; les 44 tests antérieurs prouvent encore `legacy`, même READY_FOR_RENDER. Renderer P2-R3-E manquant.",
+      "fraicheur_retraits": "Anciennes versions conservées ; retrait causal et caches non raccordés.",
+      "duplication_interactions": "R3/R6 : intervenir vs choisir ; R3/R5 : agir vs orienter un symptôme ; maillage sans absorption de la promesse voisine.",
+      "preuves_statut": "E1/E2/E3/E6 ; frontière de rendu testée, bout en bout WIKI→navigateur non couvert."
+    },
+    {
+      "role": "R6 — choisir avant achat",
+      "sources_admissibles": "Critères, références/compatibilité, niveaux de qualité, comparaisons et pièges d'achat sourcés",
+      "edition_validation": "Contrat guide et quality gates présents. Le fetcher legacy lit encore RAG et fichiers supplémentaires et assigne confidence=1.0 : présence du texte ne prouve pas son autorité. Pas de seuil remplacé arbitrairement.",
+      "projection_indexation": "Blocks R6 `selection_criteria`, `quality_tiers`, `selection` dans le builder. Writer et admission testés ; connexion au lecteur public R6 non démontrée.",
+      "rendu": "`blog-pieces-auto.guide-achat.$pg_alias.tsx` → R6 API → `__seo_gamme_purchase_guide` ; probe de redirection R6→R3 sous flag, testé sans activation.",
+      "fraicheur_retraits": "Rejeu mécanique testé ; retrait de source jusqu'au guide et aux caches non couvert.",
+      "duplication_interactions": "Guide d'achat ≠ listing R2 ; procédure R3 ne remplace pas le guide. Redirection flaggée n'est pas une preuve d'identité éditoriale.",
+      "preuves_statut": "E1/E2/E3/E7 ; mapping export présent/testé ; sources legacy et rendu du candidat restent à raccorder."
+    },
+    {
+      "role": "R7 — entrer par la marque",
+      "sources_admissibles": "Entité marque, modèles, familles, accès véhicules, faits et FAQ curés",
+      "edition_validation": "`BrandEditorialService` DB → composeur R7 → score/gates. Correctif candidat : aucune FAQ inventée ; un score élevé ne lève plus un hard gate. Autres textes génériques du composeur restent à qualifier.",
+      "projection_indexation": "Export constructeur accepte les blocks structurés explicites ; pas de mapper automatique de la FAQ DB vers le WIKI observé. Writer R7 et admission testés.",
+      "rendu": "`constructeurs.$brand[.]html.tsx` → `brandApi.getR7Content` → blocs DB optionnels.",
+      "fraicheur_retraits": "Aucun graphe source→FAQ/blocks/cache actif vérifié. La correction ne retire pas les anciennes FAQ déjà persistées.",
+      "duplication_interactions": "R7/R8 : navigation marque vs identité véhicule ; cross-surface URLs contrôlées par validateur existant ; variantes de marque à comparer sur preuves propres.",
+      "preuves_statut": "E1/E2/E3/E8 ; composition et gate testés, aucun contenu existant republié, activation non vérifiée."
+    },
+    {
+      "role": "R8 — entrer par un véhicule précis",
+      "sources_admissibles": "Identité véhicule, générations/motorisations, catalogue compatible, usure et entretien sourcés par moteur",
+      "edition_validation": "Composeur owned editorial existant, 30 tests antérieurs réutilisables. Enricher legacy peut encore appeler `VehicleRagGeneratorService` : chemin producteur RAG à re-sourcer, pas à réactiver.",
+      "projection_indexation": "Builder véhicule projette les blocs par moteur ; writer/admission R8 testés. Aucune généralisation du consommateur R3.",
+      "rendu": "Wrapper `.html` → `constructeurs.$brand.$model.$type.tsx` → données véhicule et blocs R8.",
+      "fraicheur_retraits": "Rejeu testé ; source moteur retirée → blocks DB/cache/rendu non démontré.",
+      "duplication_interactions": "R7/R8, moteurs frères, R1/R8, R2/R8 ; fiche véhicule sans absorber une liste transactionnelle ni une procédure.",
+      "preuves_statut": "E1/E2/E3/E7 + 30 tests R8 antérieurs ; contenu candidat au navigateur et activation non vérifiés."
+    },
+    {
+      "role": "R9 — dépréciation vers G*",
+      "sources_admissibles": "Canon actuel : données QA, fingerprints, versioning, voisinages, décisions de gates G*",
+      "edition_validation": "Dépréciation vers G* confirmée ; instruction reçue : auditer la transition, sans réactivation.",
+      "projection_indexation": "Page/index R9 non applicable au canon actuel. Aucun nouvel identifiant ni moteur ajouté.",
+      "rendu": "Sorties internes PASS/REVIEW/BLOCK ; aucun renderer public R9 à inventer.",
+      "fraicheur_retraits": "Traces de décision et versions ; couvrir les retraits transversalement.",
+      "duplication_interactions": "Une collision ne se résout pas en créant un rôle public « gouvernance ».",
+      "preuves_statut": "Références enum/legacy/display/operating matrix et tests de rejet examinées ; deux suites74 PASS (pas74 tests R9). Pas de blocage sur clarification."
+    }
+  ],
+  "r9_clarification": "requested, no reply received",
+  "runtime_activation": "not verified by these fixture tests",
+  "verdict": "PARTIAL_COVERAGE",
+  "consolidation": "method-consolidation.md ; retraits index ciblés qualifiés, outbox/retraits WIKI et rendu toujours non raccordés"
+}

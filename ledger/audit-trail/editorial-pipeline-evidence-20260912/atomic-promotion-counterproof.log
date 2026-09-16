@@ -1,0 +1,50 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_ test_atomic_publish_failure_preserves_previous_file_and_proposal[file_fsync] _
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-418/test_atomic_publish_failure_pr0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7ff1d2e0bc70>
+failure = 'file_fsync'
+
+    @pytest.mark.parametrize('failure', ['file_fsync', 'replace'])
+    def test_atomic_publish_failure_preserves_previous_file_and_proposal(tmp_path, monkeypatch, failure):
+        mod, source, _, decide, _ = _cli_snapshot_fixture(tmp_path, monkeypatch)
+        import promotion_decision as core
+        out = tmp_path / 'wiki/gamme/filtre-a-huile.md'
+        out.parent.mkdir(parents=True)
+        before = b'---\nreview_status: in_review\n---\nPREVIOUS COMPLETE BODY'
+        out.write_bytes(before)
+        decision = decide(source, tmp_path)
+        def fail(*args, **kwargs):
+            raise OSError('injected atomic publication failure')
+        monkeypatch.setattr(core.os, 'fsync' if failure == 'file_fsync' else 'replace', fail)
+>       with pytest.raises(OSError, match='injected atomic'):
+E       Failed: DID NOT RAISE <class 'OSError'>
+
+_scripts/test_promote.py:645: Failed
+__ test_atomic_publish_failure_preserves_previous_file_and_proposal[replace] ___
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-418/test_atomic_publish_failure_pr1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7ff1d2c33370>
+failure = 'replace'
+
+    @pytest.mark.parametrize('failure', ['file_fsync', 'replace'])
+    def test_atomic_publish_failure_preserves_previous_file_and_proposal(tmp_path, monkeypatch, failure):
+        mod, source, _, decide, _ = _cli_snapshot_fixture(tmp_path, monkeypatch)
+        import promotion_decision as core
+        out = tmp_path / 'wiki/gamme/filtre-a-huile.md'
+        out.parent.mkdir(parents=True)
+        before = b'---\nreview_status: in_review\n---\nPREVIOUS COMPLETE BODY'
+        out.write_bytes(before)
+        decision = decide(source, tmp_path)
+        def fail(*args, **kwargs):
+            raise OSError('injected atomic publication failure')
+        monkeypatch.setattr(core.os, 'fsync' if failure == 'file_fsync' else 'replace', fail)
+>       with pytest.raises(OSError, match='injected atomic'):
+E       Failed: DID NOT RAISE <class 'OSError'>
+
+_scripts/test_promote.py:645: Failed
+=========================== short test summary info ============================
+FAILED _scripts/test_promote.py::test_atomic_publish_failure_preserves_previous_file_and_proposal[file_fsync]
+FAILED _scripts/test_promote.py::test_atomic_publish_failure_preserves_previous_file_and_proposal[replace]
+2 failed, 57 deselected in 0.23s

@@ -1,0 +1,71 @@
+npm warn Unknown project config "puppeteer-skip-download". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[31m[Nest] 582372  - [39m13/09/2026 01:42:10 [31m  ERROR[39m [38;5;3m[SeoProjectionRefreshProcessor] [39m[31mprojection-refresh job projection-refresh-singleton failed: injected RPC failure[39m
+FAIL src/modules/seo-projection/seo-projection-refresh-redis.test.ts (14.916 s)
+  ● Console
+
+    console.log
+      ◇ injected env (0) from .env.test // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+  ● refresh recovery — real Redis and native Nest/Bull hooks › native completed hook schedules late work after the singleton has been removed
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 5000
+    Received: 0
+
+      124 |     });
+      125 |     const job = recovery as unknown as Job;
+    > 126 |     expect(job.opts.delay).toBe(REFRESH_DEBOUNCE_MS);
+          |                            ^
+      127 |     // Assert the production debounce before advancing this fixture's delayed job.
+      128 |     await job.promote();
+      129 |   }
+
+      at promoteRecovery (src/modules/seo-projection/seo-projection-refresh-redis.test.ts:126:28)
+      at Object.<anonymous> (src/modules/seo-projection/seo-projection-refresh-redis.test.ts:180:5)
+
+  ● refresh recovery — real Redis and native Nest/Bull hooks › boot reconciles committed backlog with no queued job or new writer run
+
+    thrown: undefined
+
+      at _getError (../../../../node_modules/jest-circus/build/utils.js:432:18)
+          at Array.map (<anonymous>)
+
+PASS src/modules/seo-projection/seo-projection-refresh-recovery.test.ts
+  ● Console
+
+    console.log
+      ◇ injected env (0) from .env.test // tip: ⌘ override existing { override: true }
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+[32m[Nest] 582372  - [39m13/09/2026 01:42:11 [32m    LOG[39m [38;5;3m[SeoProjectionWriteProcessor] [39m[32mprojection write run=none facts=0 roles(w/n/b/r)=0/0/0/0 snapshot=none refresh=true[39m
+[32m[Nest] 582372  - [39m13/09/2026 01:42:11 [32m    LOG[39m [38;5;3m[SeoProjectionWriteProcessor] [39m[32mprojection write run=none facts=0 roles(w/n/b/r)=0/0/0/0 snapshot=none refresh=false[39m
+[32m[Nest] 582372  - [39m13/09/2026 01:42:11 [32m    LOG[39m [38;5;3m[SeoProjectionWriteProcessor] [39m[32mprojection write run=none facts=1 roles(w/n/b/r)=0/0/0/0 snapshot=none refresh=true[39m
+[32m[Nest] 582372  - [39m13/09/2026 01:42:11 [32m    LOG[39m [38;5;3m[SeoProjectionWriteProcessor] [39m[32mprojection write run=none facts=0 roles(w/n/b/r)=0/0/0/0 snapshot=none refresh=false [READ_ONLY skipped][39m
+[32m[Nest] 582372  - [39m13/09/2026 01:42:11 [32m    LOG[39m [38;5;3m[SeoProjectionRefreshProcessor] [39m[32mprojection recovery (completed): pending refresh requested[39m
+[32m[Nest] 582372  - [39m13/09/2026 01:42:11 [32m    LOG[39m [38;5;3m[SeoProjectionRefreshProcessor] [39m[32mprojection recovery (startup): pending refresh requested[39m
+[32m[Nest] 582372  - [39m13/09/2026 01:42:11 [32m    LOG[39m [38;5;3m[SeoProjectionRefreshProcessor] [39m[32mprojection refresh (run=refresh-run) → refreshed=false (RPC unavailable)[39m
+[32m[Nest] 582372  - [39m13/09/2026 01:42:11 [32m    LOG[39m [38;5;3m[SeoProjectionRefreshProcessor] [39m[32mprojection refresh (run=refresh-run) → refreshed=true[39m
+[32m[Nest] 582372  - [39m13/09/2026 01:42:11 [32m    LOG[39m [38;5;3m[SeoProjectionRefreshProcessor] [39m[32mprojection refresh (run=refresh-run) → refreshed=false (READ_ONLY)[39m
+[32m[Nest] 582372  - [39m13/09/2026 01:42:11 [32m    LOG[39m [38;5;3m[SeoProjectionRefreshProcessor] [39m[32mprojection refresh (run=refresh-run) → refreshed=false (incomplete projection refresh response)[39m
+PASS src/modules/seo-projection/seo-projection-refresh.processor.test.ts
+  ● Console
+
+    console.log
+      ◇ injected env (0) from .env.test // tip: ◈ encrypted .env [www.dotenvx.com]
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+
+Test Suites: 1 failed, 2 passed, 3 total
+Tests:       2 failed, 32 passed, 34 total
+Snapshots:   0 total
+Time:        15.901 s
+Ran all test suites matching /src\/modules\/seo-projection\/seo-projection-refresh-recovery.test.ts|src\/modules\/seo-projection\/seo-projection-refresh.processor.test.ts|src\/modules\/seo-projection\/seo-projection-refresh-redis.test.ts/i.
+Jest did not exit one second after the test run has completed.
+
+'This usually means that there are asynchronous operations that weren't stopped in your tests. Consider running Jest with `--detectOpenHandles` to troubleshoot this issue.
+Terminated

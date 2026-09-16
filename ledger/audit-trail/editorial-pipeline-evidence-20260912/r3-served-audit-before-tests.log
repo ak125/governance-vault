@@ -1,0 +1,288 @@
+FAIL src/modules/admin/controllers/internal-seo-audit.r3.test.ts (17.972 s)
+  ● Internal R3 audit — HTTP to real scorer/gates with memory Supabase transport › audits served HTML with attribution and never forwards internal credentials
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 1
+    Received number of calls: 0
+
+      244 |   it('audits served HTML with attribution and never forwards internal credentials', async () => {
+      245 |     const response = await audit().expect(200);
+    > 246 |     expect(pageFetch).toHaveBeenCalledTimes(1);
+          |                       ^
+      247 |     const [target, init] = pageFetch.mock.calls[0];
+      248 |     expect(String(target)).toBe(pageUrl);
+      249 |     expect(init).toEqual(expect.objectContaining({ method: 'GET', redirect: 'manual' }));
+
+      at Object.<anonymous> (src/modules/admin/controllers/internal-seo-audit.r3.test.ts:246:23)
+
+  ● Internal R3 audit — HTTP to real scorer/gates with memory Supabase transport › keeps a broken rendered article in the work queue without rewriting stored sections
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: undefined
+
+      265 |     const data = (await audit().expect(200)).body.data;
+      266 |     expect(data.canSkip).toBe(false);
+    > 267 |     expect(data.pageReviewRequired).toBe(true);
+          |                                     ^
+      268 |     expect(data.renderedPage.requiredAction).toBe('review_rendered_page');
+      269 |     expect(data.renderedPage.roleValidation.isValid).toBe(false);
+      270 |     expect(data.audit.sections_to_improve).toEqual(before.audit.sections_to_improve);
+
+      at Object.<anonymous> (src/modules/admin/controllers/internal-seo-audit.r3.test.ts:267:37)
+
+  ● Internal R3 audit — HTTP to real scorer/gates with memory Supabase transport › requires a clean served page even when the stored checks permit skipping
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: undefined
+
+      275 |     pageFetch.mockRejectedValue(new TypeError('fetch failed'));
+      276 |     const data = (await audit().expect(200)).body.data;
+    > 277 |     expect(data.storedCanSkip).toBe(true);
+          |                                ^
+      278 |     expect(data.canSkip).toBe(false);
+      279 |     expect(data.renderedPage).toMatchObject({ status: 'unavailable', requiredAction: 'retry_rendered_audit' });
+      280 |   });
+
+      at Object.<anonymous> (src/modules/admin/controllers/internal-seo-audit.r3.test.ts:277:32)
+
+  ● Internal R3 audit — HTTP to real scorer/gates with memory Supabase transport › surfaces redirect 301 without following it or recreating a retired page
+
+    expect(received).toMatchObject(expected)
+
+    Matcher error: received value must be a non-null object
+
+    Received has value: undefined
+
+      283 |     const data = (await audit().expect(200)).body.data;
+      284 |     expect(data.canSkip).toBe(false);
+    > 285 |     expect(data.renderedPage).toMatchObject({ status: 'redirected', httpStatus: status, location: '/destination#section', requiredAction: 'review_redirect' });
+          |                               ^
+      286 |     expect(pageFetch).toHaveBeenCalledTimes(1);
+      287 |   });
+      288 |   it.each([404, 429, 500])('does not validate an HTTP %s error body as content', async (status) => {
+
+      at src/modules/admin/controllers/internal-seo-audit.r3.test.ts:285:31
+
+  ● Internal R3 audit — HTTP to real scorer/gates with memory Supabase transport › surfaces redirect 302 without following it or recreating a retired page
+
+    expect(received).toMatchObject(expected)
+
+    Matcher error: received value must be a non-null object
+
+    Received has value: undefined
+
+      283 |     const data = (await audit().expect(200)).body.data;
+      284 |     expect(data.canSkip).toBe(false);
+    > 285 |     expect(data.renderedPage).toMatchObject({ status: 'redirected', httpStatus: status, location: '/destination#section', requiredAction: 'review_redirect' });
+          |                               ^
+      286 |     expect(pageFetch).toHaveBeenCalledTimes(1);
+      287 |   });
+      288 |   it.each([404, 429, 500])('does not validate an HTTP %s error body as content', async (status) => {
+
+      at src/modules/admin/controllers/internal-seo-audit.r3.test.ts:285:31
+
+  ● Internal R3 audit — HTTP to real scorer/gates with memory Supabase transport › surfaces redirect 307 without following it or recreating a retired page
+
+    expect(received).toMatchObject(expected)
+
+    Matcher error: received value must be a non-null object
+
+    Received has value: undefined
+
+      283 |     const data = (await audit().expect(200)).body.data;
+      284 |     expect(data.canSkip).toBe(false);
+    > 285 |     expect(data.renderedPage).toMatchObject({ status: 'redirected', httpStatus: status, location: '/destination#section', requiredAction: 'review_redirect' });
+          |                               ^
+      286 |     expect(pageFetch).toHaveBeenCalledTimes(1);
+      287 |   });
+      288 |   it.each([404, 429, 500])('does not validate an HTTP %s error body as content', async (status) => {
+
+      at src/modules/admin/controllers/internal-seo-audit.r3.test.ts:285:31
+
+  ● Internal R3 audit — HTTP to real scorer/gates with memory Supabase transport › surfaces redirect 308 without following it or recreating a retired page
+
+    expect(received).toMatchObject(expected)
+
+    Matcher error: received value must be a non-null object
+
+    Received has value: undefined
+
+      283 |     const data = (await audit().expect(200)).body.data;
+      284 |     expect(data.canSkip).toBe(false);
+    > 285 |     expect(data.renderedPage).toMatchObject({ status: 'redirected', httpStatus: status, location: '/destination#section', requiredAction: 'review_redirect' });
+          |                               ^
+      286 |     expect(pageFetch).toHaveBeenCalledTimes(1);
+      287 |   });
+      288 |   it.each([404, 429, 500])('does not validate an HTTP %s error body as content', async (status) => {
+
+      at src/modules/admin/controllers/internal-seo-audit.r3.test.ts:285:31
+
+  ● Internal R3 audit — HTTP to real scorer/gates with memory Supabase transport › does not validate an HTTP 404 error body as content
+
+    TypeError: Cannot read properties of undefined (reading 'status')
+
+      290 |     const data = (await audit().expect(200)).body.data;
+      291 |     expect(data.canSkip).toBe(false);
+    > 292 |     expect(data.renderedPage.status).toBe('unavailable');
+          |                              ^
+      293 |     expect(data.renderedPage.httpStatus).toBe(status);
+      294 |     expect(data.renderedPage.roleValidation).toBeUndefined();
+      295 |   });
+
+      at src/modules/admin/controllers/internal-seo-audit.r3.test.ts:292:30
+
+  ● Internal R3 audit — HTTP to real scorer/gates with memory Supabase transport › does not validate an HTTP 429 error body as content
+
+    TypeError: Cannot read properties of undefined (reading 'status')
+
+      290 |     const data = (await audit().expect(200)).body.data;
+      291 |     expect(data.canSkip).toBe(false);
+    > 292 |     expect(data.renderedPage.status).toBe('unavailable');
+          |                              ^
+      293 |     expect(data.renderedPage.httpStatus).toBe(status);
+      294 |     expect(data.renderedPage.roleValidation).toBeUndefined();
+      295 |   });
+
+      at src/modules/admin/controllers/internal-seo-audit.r3.test.ts:292:30
+
+  ● Internal R3 audit — HTTP to real scorer/gates with memory Supabase transport › does not validate an HTTP 500 error body as content
+
+    TypeError: Cannot read properties of undefined (reading 'status')
+
+      290 |     const data = (await audit().expect(200)).body.data;
+      291 |     expect(data.canSkip).toBe(false);
+    > 292 |     expect(data.renderedPage.status).toBe('unavailable');
+          |                              ^
+      293 |     expect(data.renderedPage.httpStatus).toBe(status);
+      294 |     expect(data.renderedPage.roleValidation).toBeUndefined();
+      295 |   });
+
+      at src/modules/admin/controllers/internal-seo-audit.r3.test.ts:292:30
+
+  ● Internal R3 audit — HTTP to real scorer/gates with memory Supabase transport › rejects a non-HTML response
+
+    TypeError: Cannot read properties of undefined (reading 'reason')
+
+      297 |     pageFetch.mockImplementation(async () => new Response('{}', { headers: { 'content-type': 'application/json' } }));
+      298 |     const data = (await audit().expect(200)).body.data;
+    > 299 |     expect(data.renderedPage.reason).toBe('non_html_response');
+          |                              ^
+      300 |     expect(data.canSkip).toBe(false);
+      301 |   });
+      302 |   it('rejects oversized HTML without scoring a truncated document', async () => {
+
+      at Object.<anonymous> (src/modules/admin/controllers/internal-seo-audit.r3.test.ts:299:30)
+
+  ● Internal R3 audit — HTTP to real scorer/gates with memory Supabase transport › rejects oversized HTML without scoring a truncated document
+
+    TypeError: Cannot read properties of undefined (reading 'reason')
+
+      303 |     pageFetch.mockImplementation(async () => pageResponse('x'.repeat(2 * 1024 * 1024 + 1)));
+      304 |     const data = (await audit().expect(200)).body.data;
+    > 305 |     expect(data.renderedPage.reason).toBe('html_size_limit');
+          |                              ^
+      306 |     expect(data.renderedPage.roleValidation).toBeUndefined();
+      307 |     expect(data.canSkip).toBe(false);
+      308 |   });
+
+      at Object.<anonymous> (src/modules/admin/controllers/internal-seo-audit.r3.test.ts:305:30)
+
+  ● Internal R3 audit — HTTP to real scorer/gates with memory Supabase transport › requires an explicit, unambiguous environment origin (0)
+
+    expect(received).toMatchObject(expected)
+
+    Matcher error: received value must be a non-null object
+
+    Received has value: undefined
+
+      310 |     baseUrl = value;
+      311 |     const data = (await audit().expect(200)).body.data;
+    > 312 |     expect(data.renderedPage).toMatchObject({ status: 'unavailable', reason: 'invalid_base_url', requiredAction: 'configure_audit_target' });
+          |                               ^
+      313 |     expect(data.canSkip).toBe(false);
+      314 |     expect(pageFetch).not.toHaveBeenCalled();
+      315 |   });
+
+      at src/modules/admin/controllers/internal-seo-audit.r3.test.ts:312:31
+
+  ● Internal R3 audit — HTTP to real scorer/gates with memory Supabase transport › requires an explicit, unambiguous environment origin (1)
+
+    expect(received).toMatchObject(expected)
+
+    Matcher error: received value must be a non-null object
+
+    Received has value: undefined
+
+      310 |     baseUrl = value;
+      311 |     const data = (await audit().expect(200)).body.data;
+    > 312 |     expect(data.renderedPage).toMatchObject({ status: 'unavailable', reason: 'invalid_base_url', requiredAction: 'configure_audit_target' });
+          |                               ^
+      313 |     expect(data.canSkip).toBe(false);
+      314 |     expect(pageFetch).not.toHaveBeenCalled();
+      315 |   });
+
+      at src/modules/admin/controllers/internal-seo-audit.r3.test.ts:312:31
+
+  ● Internal R3 audit — HTTP to real scorer/gates with memory Supabase transport › requires an explicit, unambiguous environment origin (2)
+
+    expect(received).toMatchObject(expected)
+
+    Matcher error: received value must be a non-null object
+
+    Received has value: undefined
+
+      310 |     baseUrl = value;
+      311 |     const data = (await audit().expect(200)).body.data;
+    > 312 |     expect(data.renderedPage).toMatchObject({ status: 'unavailable', reason: 'invalid_base_url', requiredAction: 'configure_audit_target' });
+          |                               ^
+      313 |     expect(data.canSkip).toBe(false);
+      314 |     expect(pageFetch).not.toHaveBeenCalled();
+      315 |   });
+
+      at src/modules/admin/controllers/internal-seo-audit.r3.test.ts:312:31
+
+  ● Internal R3 audit — HTTP to real scorer/gates with memory Supabase transport › requires an explicit, unambiguous environment origin (3)
+
+    expect(received).toMatchObject(expected)
+
+    Matcher error: received value must be a non-null object
+
+    Received has value: undefined
+
+      310 |     baseUrl = value;
+      311 |     const data = (await audit().expect(200)).body.data;
+    > 312 |     expect(data.renderedPage).toMatchObject({ status: 'unavailable', reason: 'invalid_base_url', requiredAction: 'configure_audit_target' });
+          |                               ^
+      313 |     expect(data.canSkip).toBe(false);
+      314 |     expect(pageFetch).not.toHaveBeenCalled();
+      315 |   });
+
+      at src/modules/admin/controllers/internal-seo-audit.r3.test.ts:312:31
+
+  ● Internal R3 audit — HTTP to real scorer/gates with memory Supabase transport › requires an explicit, unambiguous environment origin (4)
+
+    expect(received).toMatchObject(expected)
+
+    Matcher error: received value must be a non-null object
+
+    Received has value: undefined
+
+      310 |     baseUrl = value;
+      311 |     const data = (await audit().expect(200)).body.data;
+    > 312 |     expect(data.renderedPage).toMatchObject({ status: 'unavailable', reason: 'invalid_base_url', requiredAction: 'configure_audit_target' });
+          |                               ^
+      313 |     expect(data.canSkip).toBe(false);
+      314 |     expect(pageFetch).not.toHaveBeenCalled();
+      315 |   });
+
+      at src/modules/admin/controllers/internal-seo-audit.r3.test.ts:312:31
+
+Test Suites: 1 failed, 1 total
+Tests:       17 failed, 17 passed, 34 total
+Snapshots:   0 total
+Time:        18.142 s

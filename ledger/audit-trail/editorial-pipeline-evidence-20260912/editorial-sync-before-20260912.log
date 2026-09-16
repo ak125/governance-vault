@@ -1,0 +1,93 @@
+sync-from-wiki: 1 export files, written=0, skipped=0, failed=0 (dry-run; pass --apply to commit)
+.sync-from-wiki: 0 export files under /tmp/tmp78bbys2p/wiki-repo/exports/rag
+FFAIL  gammes/oil.md: write failed: disk unavailable
+sync-from-wiki: 1 export files, written=0, skipped=0, failed=1
+manifest written: /tmp/tmp6jedi_b_/rag-repo/knowledge/.last-sync.json
+Fsync-from-wiki: 1 export files, written=1, skipped=0, failed=0
+manifest write FAILED: manifest unavailable
+Fsync-from-wiki: nothing to do — source /tmp/tmpg5x5epza/wiki-repo/exports/rag does not exist yet (ADR-031 Phase F.x will populate it)
+Fsync-from-wiki: 1 export files, written=1, skipped=0, failed=0
+manifest written: /tmp/tmp42v5yld0/rag-repo/knowledge/.last-sync.json
+F.sync-from-wiki: 1 export files, written=1, skipped=0, failed=0
+manifest written: /tmp/tmpso30eoaf/rag-repo/knowledge/.last-sync.json
+Fsync-from-wiki: 2 export files, written=2, skipped=0, failed=0
+manifest written: /tmp/tmpxupkrwp6/rag-repo/knowledge/.last-sync.json
+Fsync-from-wiki: 1 export files, written=1, skipped=0, failed=0
+manifest written: /tmp/tmpryvcvpec/rag-repo/knowledge/.last-sync.json
+sync-from-wiki: 1 export files, written=0, skipped=1, failed=0
+manifest written: /tmp/tmpryvcvpec/rag-repo/knowledge/.last-sync.json
+.
+======================================================================
+FAIL: test_empty_exports_fail_without_refreshing (__main__.SyncContractTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/scripts/rag-sync/test_sync_wiki_exports_to_rag.py", line 103, in test_empty_exports_fail_without_refreshing
+    self.assertEqual(self.run_sync(), 1)
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_failed_copy_cannot_refresh_success_timestamp (__main__.SyncContractTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/scripts/rag-sync/test_sync_wiki_exports_to_rag.py", line 110, in test_failed_copy_cannot_refresh_success_timestamp
+    self.assertIn('previous-success', self.manifest.read_text())
+AssertionError: 'previous-success' not found in '{\n  "schema_version": "1.0.0",\n  "synced_at": "2026-09-12T10:43:58.176126+00:00",\n  "source": "/tmp/tmp6jedi_b_/wiki-repo/exports/rag",\n  "stats": {\n    "exports_total": 1,\n    "written": 0,\n    "skipped": 0,\n    "failed": 1\n  },\n  "topic_counts": {\n    "gammes": 0\n  }\n}\n'
+
+======================================================================
+FAIL: test_failed_manifest_is_observable_failure (__main__.SyncContractTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/scripts/rag-sync/test_sync_wiki_exports_to_rag.py", line 115, in test_failed_manifest_is_observable_failure
+    self.assertEqual(self.run_sync(), 1)
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_missing_exports_fail_without_refreshing (__main__.SyncContractTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/scripts/rag-sync/test_sync_wiki_exports_to_rag.py", line 99, in test_missing_exports_fail_without_refreshing
+    self.assertEqual(self.run_sync(), 1)
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_rejects_another_wiki_repository (__main__.SyncContractTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/scripts/rag-sync/test_sync_wiki_exports_to_rag.py", line 62, in test_rejects_another_wiki_repository
+    self.assert_rejected(p)
+  File "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/scripts/rag-sync/test_sync_wiki_exports_to_rag.py", line 47, in assert_rejected
+    with self.assertRaises(SystemExit):
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_rejects_noncontiguous_export_path (__main__.SyncContractTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/scripts/rag-sync/test_sync_wiki_exports_to_rag.py", line 56, in test_rejects_noncontiguous_export_path
+    self.assert_rejected(p)
+  File "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/scripts/rag-sync/test_sync_wiki_exports_to_rag.py", line 47, in assert_rejected
+    with self.assertRaises(SystemExit):
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_rejects_symlink_escape_before_any_copy (__main__.SyncContractTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/scripts/rag-sync/test_sync_wiki_exports_to_rag.py", line 69, in test_rejects_symlink_escape_before_any_copy
+    self.assert_rejected(self.exports)
+  File "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/scripts/rag-sync/test_sync_wiki_exports_to_rag.py", line 47, in assert_rejected
+    with self.assertRaises(SystemExit):
+AssertionError: SystemExit not raised
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.021s
+
+FAILED (failures=7)
+DRY   gammes/oil.md → /tmp/tmpirsa4n9h/rag-repo/knowledge/gammes/oil.md
+WRITE gammes/oil.md
+WRITE unreviewed.md
+WRITE unreviewed.md
+WRITE a-valid.md
+WRITE z-escape.md
+WRITE gammes/oil.md
+SKIP  gammes/oil.md (sha256 match)

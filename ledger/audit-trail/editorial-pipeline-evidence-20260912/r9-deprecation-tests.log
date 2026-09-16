@@ -1,0 +1,31 @@
+PASS src/config/operating-matrix.service.test.ts (9.899 s)
+  ● Console
+
+    console.log
+      ◇ injected env (0) from .env.test // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+[33m[Nest] 359916  - [39m12/09/2026 17:41:06 [33m   WARN[39m [38;5;3m[OperatingMatrixService] [39m[33mOperatingMatrix: cannot hash backend/src/config/execution-registry.constants.ts (ENOENT: no such file or directory, open '/tmp/op-matrix-test-LD6PdT/backend/src/config/execution-registry.constants.ts')[39m
+[33m[Nest] 359916  - [39m12/09/2026 17:41:06 [33m   WARN[39m [38;5;3m[OperatingMatrixService] [39m[33mOperatingMatrix: cannot hash backend/src/config/execution-registry.types.ts (ENOENT: no such file or directory, open '/tmp/op-matrix-test-LD6PdT/backend/src/config/execution-registry.types.ts')[39m
+[33m[Nest] 359916  - [39m12/09/2026 17:41:06 [33m   WARN[39m [38;5;3m[OperatingMatrixService] [39m[33mOperatingMatrix: cannot hash backend/src/config/field-catalog.constants.ts (ENOENT: no such file or directory, open '/tmp/op-matrix-test-LD6PdT/backend/src/config/field-catalog.constants.ts')[39m
+[33m[Nest] 359916  - [39m12/09/2026 17:41:06 [33m   WARN[39m [38;5;3m[OperatingMatrixService] [39m[33mOperatingMatrix: cannot hash backend/src/config/role-ids.ts (ENOENT: no such file or directory, open '/tmp/op-matrix-test-LD6PdT/backend/src/config/role-ids.ts')[39m
+[33m[Nest] 359916  - [39m12/09/2026 17:41:06 [33m   WARN[39m [38;5;3m[OperatingMatrixService] [39m[33mOperatingMatrix: cannot hash backend/src/config/execution-registry.constants.ts (ENOENT: no such file or directory, open '/tmp/op-matrix-test-hGPS0y/backend/src/config/execution-registry.constants.ts')[39m
+[33m[Nest] 359916  - [39m12/09/2026 17:41:06 [33m   WARN[39m [38;5;3m[OperatingMatrixService] [39m[33mOperatingMatrix: cannot hash backend/src/config/execution-registry.types.ts (ENOENT: no such file or directory, open '/tmp/op-matrix-test-hGPS0y/backend/src/config/execution-registry.types.ts')[39m
+[33m[Nest] 359916  - [39m12/09/2026 17:41:06 [33m   WARN[39m [38;5;3m[OperatingMatrixService] [39m[33mOperatingMatrix: cannot hash backend/src/config/field-catalog.constants.ts (ENOENT: no such file or directory, open '/tmp/op-matrix-test-hGPS0y/backend/src/config/field-catalog.constants.ts')[39m
+[33m[Nest] 359916  - [39m12/09/2026 17:41:06 [33m   WARN[39m [38;5;3m[OperatingMatrixService] [39m[33mOperatingMatrix: cannot hash backend/src/config/role-ids.ts (ENOENT: no such file or directory, open '/tmp/op-matrix-test-hGPS0y/backend/src/config/role-ids.ts')[39m
+PASS src/config/role-ids.test.ts
+  ● Console
+
+    console.log
+      ◇ injected env (0) from .env.test // tip: ⌘ enable debugging { debug: true }
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+
+Test Suites: 2 passed, 2 total
+Tests:       74 passed, 74 total
+Snapshots:   0 total
+Time:        10.154 s
+Ran all test suites within paths "src/config/role-ids.test.ts", "src/config/operating-matrix.service.test.ts".
+EXIT_CODE=0

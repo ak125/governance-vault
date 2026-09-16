@@ -1,0 +1,73 @@
+{
+  "scope_requested": "Continuer les corrections sur le HTML compose, diagnostic integre R3 et destination des redirections.",
+  "scope_actually_scanned": "Lectures ciblees des fichiers enumeres (extraits pour certains), validateur HTML et rendu diagnostic ; deux GET publics et tentative DEV, sans audit exhaustif du corpus.",
+  "files_read_count": 16,
+  "files_read": [
+    "backend/src/modules/seo/validation/page-role-validator.service.ts",
+    "backend/src/modules/seo/validation/page-role-html.test.ts",
+    "frontend/app/components/guide/GuideCard.tsx",
+    "frontend/app/components/guide/MiniDiagnosticTable.tsx",
+    "frontend/tests/unit/r3-diagnostic-fragment.test.tsx",
+    "backend/package.json",
+    "package-lock.json",
+    "backend/src/modules/seo/interceptors/page-role-validation.interceptor.ts",
+    "backend/src/modules/seo/validation/page-role-sections.test.ts",
+    "backend/tests/unit/page-role-validator.test.ts",
+    "backend/src/modules/seo-control-plane/collectors/synthetic-crawler/synthetic-crawler.service.ts",
+    "frontend/app/components/seo/HtmlContent.tsx",
+    "frontend/app/utils/sanitize-editorial-html.ts",
+    "frontend/app/routes/blog-pieces-auto.conseils.$pg_alias.tsx",
+    "frontend/vitest.config.ts",
+    "scripts/seo/seo-r3-consolidation-evidence.ts"
+  ],
+  "files_changed": [
+    "backend/src/modules/seo/validation/page-role-validator.service.ts",
+    "backend/src/modules/seo/validation/page-role-html.test.ts",
+    "frontend/app/components/guide/GuideCard.tsx",
+    "frontend/app/components/guide/MiniDiagnosticTable.tsx",
+    "frontend/tests/unit/r3-diagnostic-fragment.test.tsx",
+    "backend/package.json",
+    "package-lock.json"
+  ],
+  "excluded_paths": [
+    "contenus et base partages",
+    "infrastructure et runtime en ecriture",
+    "canon et miroirs verrouilles"
+  ],
+  "unscanned_zones": [
+    "toutes les URL et redirections",
+    "CSS/visibilite navigateur de toutes les sections",
+    "composition de tous les autres roles R",
+    "activation effective du monitor sur toutes reponses SSR"
+  ],
+  "corrections_proposed": [
+    "Borne DOM explicite du diagnostic dans le rendu",
+    "Validation du HTML reel de l article avec diagnostic scope uniquement dans son sous-arbre",
+    "Verification de l ancre unique, H2 et donnees de tableau a trois colonnes"
+  ],
+  "corrections_applied": [
+    "Sept fichiers du candidat modifies selon instruction explicite de correction et poursuite ; aucune publication ou mutation de contenu partage"
+  ],
+  "validation_executed": [
+    "15 tests backend en echec / 4 passent avant correction",
+    "154 tests backend PASS / 8 suites",
+    "4 tests frontend PASS dont vrai SSR MiniDiagnosticTable -> PageRoleValidatorService et contre-exemple ancre cassee",
+    "ESLint cible backend et frontend : zero erreur/warning",
+    "git diff --check et staged diff --check : PASS",
+    "npm package-lock-only : htmlparser2 10.1.0 deja resolu ajoute comme dependance backend directe ; verification JSON : aucune autre entree/version changee",
+    "HTTP PUBLIC 301 vers diagnostic-rapide puis 200 sans cet ID ; DEV3000 ECONNREFUSED"
+  ],
+  "remaining_unknowns": [
+    "Monitoring Nest inchange ; pas de preuve que toutes reponses SSR passent par cet interceptor",
+    "Presence du tableau et de ses cellules ne prouve pas la qualite factuelle ni l autorite des sources",
+    "Semantique des entetes/footer DTC, canonical global existant et visibilite CSS non renforces",
+    "Aucune garantie de conformite du DOM parse a toutes reparations d un navigateur sur HTML malforme",
+    "Typecheck global, CI, installation propre et deploiement non executes",
+    "npm ls voit le repertoire partage par symlink : le manifeste/lock du candidat sont verifies mais ce nest pas une installation isolee",
+    "origin/main contient des evolutions Turbo hors lot dans le lockfile ; pas de merge/rebase"
+  ],
+  "candidate_head": "0c31807c8453c251d70c7575eafcc973f04eed14",
+  "origin_main": "466cc15ce9b385a61503cc0224f40bec700ec41a",
+  "final_status": "PARTIAL_COVERAGE",
+  "bounded_correction_verdict": "VALIDATED_FOR_SCOPE_ONLY"
+}

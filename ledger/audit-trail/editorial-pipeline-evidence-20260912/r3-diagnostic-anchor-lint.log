@@ -1,0 +1,7 @@
+
+/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/blog/services/r3-guide.service.test.ts
+  508:41  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  565:41  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 2 problems (0 errors, 2 warnings)
+

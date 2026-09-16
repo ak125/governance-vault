@@ -1,0 +1,25 @@
+EPHEMERAL_DATABASE=PostgreSQL 17.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit
+CONTAINER=codex-block-outbox-test-e05cdede6e14 network=none tmpfs=true ports=none
+test_competing_transactions_wait_and_only_one_wins (__main__.BlockOutboxTransactionTest) ... ok
+test_event_references_prevent_loss_of_audit_history (__main__.BlockOutboxTransactionTest) ... ok
+test_exact_replay_has_no_effect (__main__.BlockOutboxTransactionTest) ... ok
+test_failed_run_cannot_mutate (__main__.BlockOutboxTransactionTest) ... ok
+test_legacy_null_hash_still_rejected (__main__.BlockOutboxTransactionTest) ... ok
+test_migration_reapply_preserves_populated_history (__main__.BlockOutboxTransactionTest) ... ok
+test_missing_snapshot_cannot_mutate (__main__.BlockOutboxTransactionTest) ... ok
+test_modified_replay_is_rejected (__main__.BlockOutboxTransactionTest) ... ok
+test_new_request_after_withdrawal_cannot_reactivate_old_version (__main__.BlockOutboxTransactionTest) ... ok
+test_null_invalid_and_withdrawal_payloads_are_rejected (__main__.BlockOutboxTransactionTest) ... ok
+test_outbox_failure_rolls_back_version_and_pointer (__main__.BlockOutboxTransactionTest) ... ok
+test_privileges_are_service_role_only (__main__.BlockOutboxTransactionTest) ... ok
+test_regression_and_unchanged_hash_do_not_promote (__main__.BlockOutboxTransactionTest) ... ok
+test_replace_is_atomic_and_retains_history (__main__.BlockOutboxTransactionTest) ... ok
+test_replay_after_withdrawal_never_resurrects (__main__.BlockOutboxTransactionTest) ... ok
+test_scope_and_unknown_identity_are_rejected (__main__.BlockOutboxTransactionTest) ... ok
+test_stale_version_and_stale_predecessor_rejected (__main__.BlockOutboxTransactionTest) ... ok
+test_withdrawal_clears_only_pointer_and_keeps_content (__main__.BlockOutboxTransactionTest) ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 11.728s
+
+OK

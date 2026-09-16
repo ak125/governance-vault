@@ -1,0 +1,17 @@
+{
+  "pass": 0,
+  "warn": 0,
+  "fail": 1,
+  "results": [
+    {
+      "slug": "filtre-a-huile",
+      "status": "FAIL",
+      "fails": [
+        "schema:coverage_entries/8/text_anchor: \"Dans la notice Renault Clio 5 phase 1, l'alerte en roulant accompagnée du témoin d'arrêt impératif et d'un signal sonore impose de s'arrêter en sécurité, de couper le moteur et de ne pas le redémarrer.\" is too long"
+      ],
+      "warns": [],
+      "coverage_entries": 15,
+      "h2_sections": 10
+    }
+  ]
+}

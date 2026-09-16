@@ -1,0 +1,42 @@
+{
+  "scope": "Bind native promotion executor to captured decision bytes, reject stale inputs and preserve changed proposal after write",
+  "branch": "codex/editorial-substance-sections-20260912",
+  "head": "01cea8deda48d84b6a2993cd4bdefe8280082c0b",
+  "files": {
+    "_scripts/promote.py": "a35fef634d34e1bec475cb40e3a7c9e4d75a9f49bf108069b54655f13fe44fcb",
+    "_scripts/promotion_decision.py": "91df86bdcff622014c9a9829c611f9fb42d585789f9a4475e21926dc21de8f47",
+    "_scripts/test_promote.py": "8b7bb0811234a171b86aa69a0bae663554164fc862e6d74b2902d954b23126f2"
+  },
+  "wiki_patch_sha256": "fe89e5d600fc01489a071d6bc25f18f8d5cd22816dd38edd381d6bbcd7524db3",
+  "validation": {
+    "pytest_passed": 209,
+    "decision_tests": 50,
+    "promoter_tests": 57,
+    "builder_tests": 88,
+    "score_schema_tests": 14,
+    "new_tests": 10,
+    "baseline_failed": 3,
+    "py_compile": "PASS two production Python files",
+    "pre_commit": "PASS three changed files",
+    "staged_diff_check": "PASS",
+    "fixture_adjustment": "Two schema serialization fixtures used draft status; explicitly submitted in_review to exercise the new shared executor status guard."
+  },
+  "counterproofs": [
+    "CLI source changed before decision capture: evaluated body and evaluated slug are written, not preloaded values",
+    "Source changed inside executor before write: explicit refusal, source preserved and no canonical file",
+    "Source changed after first authorization: exact-byte hash check refuses",
+    "Source changed during captured-byte parsing: parser uses captured bytes, final recheck refuses stale source",
+    "Source changed during canonical write: canonical output is evaluated content, changed proposal preserved and apply_error reports partial effect",
+    "Actual captured source status draft/approved/deprecated cannot bypass earlier CLI eligibility preflight",
+    "Bare score/evaluation without canonical decision cannot invoke write executor"
+  ],
+  "interface": "Internal apply_promotion(target, wiki_root, full_decision, *, raw_root=None, baseline_path=None). Native CLI updated; no fallback for old caller-supplied fm/body or score-only calls.",
+  "limits": [
+    "No atomic filesystem compare-and-swap against concurrent writers; check/write and check/unlink race windows remain. No crash-safe atomic file replacement proven.",
+    "When proposal changes during canonical write, canonical file may already exist; apply_error states the written destination and preserved source. No rollback or transaction across files is claimed.",
+    "Decision is an in-process trusted canonical result, not an authenticated portable authorization token. No new consumer/HTTP entrypoint accepts supplied decisions.",
+    "Body and identity derive from matching source bytes; YAML and newlines retain native serialization and audit metadata are intentionally stamped, so whole-file byte equality is not claimed.",
+    "No executable complete withdrawal proof, durable acceptance, source-consumer mapping, shared corpus/DB mutation, runtime activation, CI, commit/push/merge or deployment."
+  ],
+  "final_status": "PARTIAL_COVERAGE"
+}

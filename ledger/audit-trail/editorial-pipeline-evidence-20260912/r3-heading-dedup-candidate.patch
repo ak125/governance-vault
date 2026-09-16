@@ -1,0 +1,902 @@
+diff --git a/backend/src/modules/admin/controllers/internal-seo-audit.r3.test.ts b/backend/src/modules/admin/controllers/internal-seo-audit.r3.test.ts
+new file mode 100644
+index 000000000..7f7e3b75e
+--- /dev/null
++++ b/backend/src/modules/admin/controllers/internal-seo-audit.r3.test.ts
+@@ -0,0 +1,220 @@
++import { Test } from '@nestjs/testing';
++import { ConfigService } from '@nestjs/config';
++import type { INestApplication } from '@nestjs/common';
++import { createClient } from '@supabase/supabase-js';
++import request from 'supertest';
++import { InternalSeoAuditController } from './internal-seo-audit.controller';
++import { ConseilQualityScorerService } from '../services/conseil-quality-scorer.service';
++import { KeywordPlanGatesService } from '../services/keyword-plan-gates.service';
++import { PACK_DEFINITIONS } from '../../../config/conseil-pack.constants';
++
++jest.mock('@common/utils', () => ({
++  ...jest.requireActual('@common/utils'),
++  getEffectiveSupabaseKey: () => 'fixture-only-key',
++}));
++
++const KEY = 'fixture-internal-key';
++const rows = () =>
++  PACK_DEFINITIONS.standard.requiredSections.map((section, i) => ({
++    sgc_id: String(i + 1),
++    sgc_section_type: section as string,
++    sgc_title: `Titre ${section}`,
++    sgc_content: 'banane '.repeat(60).trim(),
++    sgc_sources: '["reference non verifiee"]',
++    sgc_quality_score: 100,
++  }));
++
++describe('Internal R3 audit — HTTP to real scorer/gates with memory Supabase transport', () => {
++  let app: INestApplication;
++  let stored = rows();
++  let missing = false;
++  let failRead = false;
++  let truncated = false;
++  let requests: URL[];
++
++  beforeEach(async () => {
++    stored = rows();
++    missing = false;
++    failRead = false;
++    truncated = false;
++    requests = [];
++    const transport = jest.fn(
++      async (input: RequestInfo | URL, init?: RequestInit) => {
++        const url = new URL(String(input));
++        requests.push(url);
++        // Any write is a test failure; use the installed query builder, not a chain mock.
++        expect(init?.method ?? 'GET').toBe('GET');
++        if (url.pathname.endsWith('/pieces_gamme')) {
++          expect(url.searchParams.get('pg_id')).toBe('eq.1');
++          return new Response(
++            JSON.stringify(missing ? [] : [{ pg_id: 1, pg_alias: 'fixture' }]),
++            {
++              status: 200,
++              headers: { 'Content-Type': 'application/json' },
++            },
++          );
++        }
++        expect(url.pathname).toBe('/rest/v1/__seo_gamme_conseil');
++        expect(url.searchParams.get('sgc_pg_id')).toBe('eq.1');
++        expect(url.searchParams.has('sgc_quality_score')).toBe(false);
++        if (failRead)
++          return new Response(
++            JSON.stringify({ message: 'fixture read failed' }),
++            { status: 503 },
++          );
++        const returned = truncated ? stored.slice(0, 1) : stored;
++        return new Response(JSON.stringify(returned), {
++          status: 200,
++          headers: {
++            'Content-Type': 'application/json',
++            'Content-Range': `0-${Math.max(0, returned.length - 1)}/${stored.length}`,
++          },
++        });
++      },
++    );
++    const client = createClient('https://example.invalid', 'fixture-only-key', {
++      global: { fetch: transport },
++      auth: {
++        persistSession: false,
++        autoRefreshToken: false,
++        detectSessionInUrl: false,
++      },
++    });
++    const module = await Test.createTestingModule({
++      controllers: [InternalSeoAuditController],
++      providers: [
++        {
++          provide: ConfigService,
++          useValue: {
++            get: (name: string) =>
++              name === 'INTERNAL_API_KEY'
++                ? KEY
++                : name === 'SUPABASE_URL'
++                  ? 'https://example.invalid'
++                  : 'fixture-only-key',
++          },
++        },
++        ConseilQualityScorerService,
++        KeywordPlanGatesService,
++      ],
++    }).compile();
++    Object.defineProperty(module.get(ConseilQualityScorerService), 'client', {
++      value: client,
++    });
++    app = module.createNestApplication();
++    await app.init();
++  });
++  afterEach(async () => {
++    await app.close();
++  });
++  const audit = (suffix = '1') =>
++    request(app.getHttpServer())
++      .get(`/api/internal/seo/audit/r3/${suffix}`)
++      .set('X-Internal-Key', KEY);
++
++  it('recomputes existing 100 scores, returns actionable defects and never writes', async () => {
++    const before = JSON.stringify(stored);
++    const response = await audit().expect(200);
++    expect(response.body.data.scoreBasis).toBe('recomputed_heuristic');
++    expect(response.body.data.sections[0]).toMatchObject({
++      storedScore: 100,
++      score: 65,
++    });
++    expect(response.body.data.audit.sections_to_improve).toEqual(
++      expect.arrayContaining(PACK_DEFINITIONS.standard.requiredSections),
++    );
++    expect(response.body.data.canSkip).toBe(false);
++    expect(JSON.stringify(stored)).toBe(before);
++    expect(requests).toHaveLength(2);
++  });
++  it('retains both affected sections for exact cross-section duplicates', async () => {
++    const response = await audit().expect(200);
++    expect(
++      response.body.data.audit.priority_fixes.filter(
++        (f: { issue: string }) => f.issue === 'duplicate_content',
++      ).length,
++    ).toBe(stored.length);
++  });
++  it('reads real section titles and routes normalized title duplicates to both sections', async () => {
++    stored.forEach((row) => {
++      row.sgc_content = `Texte distinct ${row.sgc_section_type}`;
++    });
++    stored[0].sgc_title = 'Symptômes';
++    stored[1].sgc_title = 'symptomes';
++    const response = await audit().expect(200);
++    const sectionRead = requests.find((url) =>
++      url.pathname.endsWith('/__seo_gamme_conseil'),
++    );
++    expect(sectionRead?.searchParams.get('select')?.split(',')).toContain(
++      'sgc_title',
++    );
++    const fixes = response.body.data.audit.priority_fixes.filter(
++      (f: { issue: string }) => f.issue === 'duplicate_content',
++    );
++    expect(fixes.map((f: { section: string }) => f.section).sort()).toEqual([
++      'S1',
++      'S2',
++    ]);
++    expect(response.body.data.sections[0].title).toBe('Symptômes');
++    expect(response.body.data.canSkip).toBe(false);
++  });
++  it('does not certify an audit when the selected title column is absent', async () => {
++    Reflect.deleteProperty(stored[0], 'sgc_title');
++    await audit().expect(503);
++  });
++  it('does not pass unknown identities or duplicate section rows silently', async () => {
++    stored.push(
++      { ...stored[0], sgc_id: '80' },
++      { ...stored[0], sgc_id: '81', sgc_section_type: 'symptomes' },
++    );
++    const response = await audit().expect(200);
++    expect(response.body.data.duplicateSections).toEqual(['S1']);
++    expect(response.body.data.unmappedSectionIds).toEqual(['81']);
++    expect(response.body.data.canSkip).toBe(false);
++  });
++  it('returns missing sections for an existing gamme with no content', async () => {
++    stored = [];
++    const response = await audit().expect(200);
++    expect(response.body.data.audit.sections_to_create).toEqual(
++      PACK_DEFINITIONS.standard.requiredSections,
++    );
++    expect(response.body.data.canSkip).toBe(false);
++  });
++  it('distinguishes an unknown gamme from an empty pack', async () => {
++    missing = true;
++    await audit().expect(404);
++    expect(requests).toHaveLength(1);
++  });
++  it('fails visibly on a read failure or a truncated result', async () => {
++    failRead = true;
++    await audit().expect(503);
++    failRead = false;
++    truncated = true;
++    await audit().expect(503);
++  });
++  it.each(['0', '-1', '1junk', '1?pack=unknown'])(
++    'rejects invalid target or pack before any query: %s',
++    async (suffix) => {
++      await audit(suffix).expect(400);
++      expect(requests).toHaveLength(0);
++    },
++  );
++  it('applies the requested pack without pretending that standard is sufficient', async () => {
++    stored = [];
++    const response = await audit('1?pack=pro').expect(200);
++    expect(response.body.data.pack).toBe('pro');
++    expect(response.body.data.audit.sections_to_create).toEqual(
++      PACK_DEFINITIONS.pro.requiredSections,
++    );
++  });
++  it('rejects malformed stored content instead of silently dropping a row', async () => {
++    Object.assign(stored[0], { sgc_content: { invalid: true } });
++    await audit().expect(503);
++  });
++  it('uses the existing internal key guard before reading content', async () => {
++    await request(app.getHttpServer())
++      .get('/api/internal/seo/audit/r3/1')
++      .expect(403);
++    expect(requests).toHaveLength(0);
++  });
++});
+diff --git a/backend/src/modules/admin/services/conseil-quality-scorer.service.ts b/backend/src/modules/admin/services/conseil-quality-scorer.service.ts
+index c071b9578..5ebd9f284 100644
+--- a/backend/src/modules/admin/services/conseil-quality-scorer.service.ts
++++ b/backend/src/modules/admin/services/conseil-quality-scorer.service.ts
+@@ -3,8 +3,22 @@
+  * Populates sgc_quality_score for existing rows (backfill) and new content.
+  */
+ 
+-import { Injectable, Logger } from '@nestjs/common';
++import {
++  Injectable,
++  Logger,
++  NotFoundException,
++  ServiceUnavailableException,
++} from '@nestjs/common';
++import { ConfigService } from '@nestjs/config';
++import { z } from 'zod';
++import {
++  KeywordPlanGatesService,
++  type ConseilSectionRow,
++} from './keyword-plan-gates.service';
++import { PLANNABLE_SECTIONS } from '../../../config/keyword-plan.constants';
+ import { SupabaseBaseService } from '@database/services/supabase-base.service';
++import { hasDeclaredSourceReferences } from '../../blog/utils/source-provenance.util';
++import { deduplicateWords } from '../../blog/utils/html-normalize.utils';
+ import {
+   type PackLevel,
+   PACK_DEFINITIONS,
+@@ -26,8 +40,16 @@ export interface PackCoverageResult {
+   presentSections: string[];
+   missingSections: string[];
+   coverage: number;
++  /** Average of exactly one valid score per required section, otherwise null. */
+   avgQuality: number | null;
++  /** Structural presence only; does not imply score qualification. */
+   packComplete: boolean;
++  /** Existing score thresholds only, not a factual or SEO ranking verdict. */
++  qualityStatus: 'not_evaluable' | 'below_threshold' | 'meets_thresholds';
++  unscoredSections: string[];
++  invalidScoreSections: string[];
++  duplicateSections: string[];
++  lowQualitySections: string[];
+ }
+ 
+ export interface GammeCoverageResult {
+@@ -41,16 +63,124 @@ export interface GammeCoverageResult {
+ export interface BackfillResult {
+   updated: number;
+   failed: number;
++  /** Rows no longer matching the conditional update; not successful writes. */
++  skipped: number;
+ }
+ 
++// Validate the DB boundary before scoring; malformed rows cannot disappear from an audit.
++const AuditSectionSchema = z.object({
++  sgc_id: z.union([z.string(), z.number()]),
++  sgc_section_type: z.string().nullable(),
++  sgc_title: z.string().nullable(),
++  sgc_content: z.string().nullable(),
++  sgc_sources: z.string().nullable(),
++  sgc_quality_score: z.number().nullable(),
++});
++
+ @Injectable()
+ export class ConseilQualityScorerService extends SupabaseBaseService {
+   private readonly log = new Logger(ConseilQualityScorerService.name);
+ 
++  constructor(
++    configService: ConfigService,
++    private readonly auditGates: KeywordPlanGatesService,
++  ) {
++    super(configService);
++  }
++
++  /** Read-only diagnosis of stored R3 content, using fresh heuristic scores and existing gates. */
++  async auditGamme(pgId: string, packLevel: PackLevel = 'standard') {
++    const { data: gamme, error: gammeError } = await this.client
++      .from('pieces_gamme')
++      .select('pg_id, pg_alias')
++      .eq('pg_id', Number(pgId))
++      .maybeSingle();
++    if (gammeError)
++      throw new ServiceUnavailableException('R3 gamme lookup failed');
++    if (!gamme) throw new NotFoundException('R3 gamme not found');
++
++    const { data, error, count } = await this.client
++      .from('__seo_gamme_conseil')
++      .select(
++        'sgc_id, sgc_section_type, sgc_title, sgc_content, sgc_sources, sgc_quality_score',
++        { count: 'exact' },
++      )
++      .eq('sgc_pg_id', pgId)
++      .order('sgc_id', { ascending: true });
++    // PostgREST may cap returned rows. A partial read must never look like a complete audit.
++    if (error || !data || count === null || data.length !== count) {
++      throw new ServiceUnavailableException(
++        'R3 section read failed or incomplete',
++      );
++    }
++    const parsed = z.array(AuditSectionSchema).safeParse(data);
++    if (!parsed.success)
++      throw new ServiceUnavailableException(
++        'R3 section data outside audit contract',
++      );
++
++    const auditRows: ConseilSectionRow[] = [];
++    const unmappedSectionIds: string[] = [];
++    const seen = new Set<string>();
++    const duplicates = new Set<string>();
++    const sections = parsed.data.map((row) => {
++      const section = row.sgc_section_type;
++      const isKnown =
++        section !== null &&
++        (PLANNABLE_SECTIONS as readonly string[]).includes(section);
++      if (!isKnown) {
++        unmappedSectionIds.push(String(row.sgc_id));
++        return {
++          rowId: String(row.sgc_id),
++          sectionType: section,
++          title: row.sgc_title,
++          storedScore: row.sgc_quality_score,
++          score: null,
++          penalties: [],
++        };
++      }
++      if (seen.has(section)) duplicates.add(section);
++      seen.add(section);
++      const content = row.sgc_content ?? '';
++      const result = this.scoreSection(section, content, row.sgc_sources);
++      auditRows.push({
++        section_type: section,
++        title: row.sgc_title,
++        quality_score: result.score,
++        content_len: this.stripHtml(content).length,
++        content,
++        sources: row.sgc_sources,
++      });
++      return {
++        rowId: String(row.sgc_id),
++        sectionType: section,
++        title: row.sgc_title,
++        storedScore: row.sgc_quality_score,
++        ...result,
++      };
++    });
++    const audit = this.auditGates.auditFromSections(auditRows, packLevel);
++    return {
++      pgId,
++      pgAlias: gamme.pg_alias,
++      pack: packLevel,
++      scoreBasis: 'recomputed_heuristic' as const,
++      sections,
++      unmappedSectionIds,
++      duplicateSections: [...duplicates].sort(),
++      audit,
++      // A clean heuristic audit is not factual qualification or publication approval.
++      canSkip:
++        unmappedSectionIds.length === 0 &&
++        duplicates.size === 0 &&
++        this.auditGates.shouldSkipGamme(audit, packLevel),
++    };
++  }
++
+   // ── Public API ───────────────────────────────────────────
+ 
+   /**
+-   * Score a single section (0-100) based on content quality criteria.
++   * Heuristic section score (0-100), not a verdict on factual truth or ranking.
+    */
+   scoreSection(
+     sectionType: string,
+@@ -63,11 +193,18 @@ export class ConseilQualityScorerService extends SupabaseBaseService {
+     let score = 100;
+     const penalties: Array<{ flag: string; points: number }> = [];
+ 
+-    const stripped = this.stripHtml(content);
++    // Measure text, not markup or accidental consecutive word padding. Reuse
++    // the existing normalizer to its fixed point without rewriting the content.
++    let stripped = this.stripHtml(content);
++    let deduplicated = deduplicateWords(stripped);
++    while (deduplicated !== stripped) {
++      stripped = deduplicated;
++      deduplicated = deduplicateWords(stripped);
++    }
+     const wordCount = stripped.split(/\s+/).filter(Boolean).length;
+ 
+     // Content length
+-    if (content.length < criteria.minContentLength) {
++    if (stripped.length < criteria.minContentLength) {
+       const p = 20;
+       score -= p;
+       penalties.push({ flag: 'CONTENT_TOO_SHORT', points: p });
+@@ -148,8 +285,8 @@ export class ConseilQualityScorerService extends SupabaseBaseService {
+       }
+     }
+ 
+-    // Sources
+-    if (!sources || sources === '[]' || sources === 'null') {
++    // Declared references only; evidence qualification belongs to WIKI gates.
++    if (!hasDeclaredSourceReferences(sources)) {
+       const p = 15;
+       score -= p;
+       penalties.push({ flag: 'NO_SOURCES', points: p });
+@@ -200,16 +337,49 @@ export class ConseilQualityScorerService extends SupabaseBaseService {
+         (t) => !presentTypes.has(t),
+       );
+ 
+-      const scores = sections
+-        .filter(
+-          (s) =>
+-            // `sgc_section_type` est une chaîne DB arbitraire testée pour appartenance à la
+-            // liste canonique : on élargit le RÉCEPTEUR, sans affaiblir le type du pack.
+-            (pack.requiredSections as readonly string[]).includes(
+-              s.sgc_section_type,
+-            ) && s.sgc_quality_score !== null,
+-        )
+-        .map((s) => s.sgc_quality_score!);
++      const unscoredSections: string[] = [];
++      const invalidScoreSections: string[] = [];
++      const duplicateSections: string[] = [];
++      const lowQualitySections: string[] = [];
++      const scores: number[] = [];
++
++      for (const sectionType of pack.requiredSections) {
++        const rows = sections.filter((s) => s.sgc_section_type === sectionType);
++        if (rows.length === 0) continue;
++        if (rows.length > 1) duplicateSections.push(sectionType);
++        if (rows.some((s) => s.sgc_quality_score === null)) {
++          unscoredSections.push(sectionType);
++        }
++        if (
++          rows.some(
++            (s) =>
++              s.sgc_quality_score !== null &&
++              (!Number.isFinite(s.sgc_quality_score) ||
++                s.sgc_quality_score < 0 ||
++                s.sgc_quality_score > 100),
++          )
++        ) {
++          invalidScoreSections.push(sectionType);
++        }
++        // No arbitrary selection/weighting when several rows claim the same section.
++        if (rows.length !== 1) continue;
++        const score = rows[0].sgc_quality_score;
++        if (
++          score === null ||
++          !Number.isFinite(score) ||
++          score < 0 ||
++          score > 100
++        ) {
++          continue;
++        }
++        scores.push(score);
++        if (score < pack.minSectionScore) lowQualitySections.push(sectionType);
++      }
++
++      const evaluable = scores.length === pack.requiredSections.length;
++      const average = evaluable
++        ? scores.reduce((sum, score) => sum + score, 0) / scores.length
++        : null;
+ 
+       return {
+         packLevel,
+@@ -217,11 +387,18 @@ export class ConseilQualityScorerService extends SupabaseBaseService {
+         presentSections,
+         missingSections,
+         coverage: presentSections.length / pack.requiredSections.length,
+-        avgQuality:
+-          scores.length > 0
+-            ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
+-            : null,
++        avgQuality: average === null ? null : Math.round(average),
+         packComplete: missingSections.length === 0,
++        qualityStatus:
++          average === null
++            ? 'not_evaluable'
++            : lowQualitySections.length === 0 && average >= pack.minPackScore
++              ? 'meets_thresholds'
++              : 'below_threshold',
++        unscoredSections,
++        invalidScoreSections,
++        duplicateSections,
++        lowQualitySections,
+       };
+     };
+ 
+@@ -243,20 +420,26 @@ export class ConseilQualityScorerService extends SupabaseBaseService {
+ 
+     let updated = 0;
+     let failed = 0;
+-    let offset = 0;
++    let skipped = 0;
++    let lastId: string | null = null;
+     const batchSize = 100;
+ 
+     while (true) {
+-      const { data, error } = await this.client
++      // Successful updates remove rows from this selection. A positional offset
++      // would skip the next batch; traverse stable IDs instead, including failures.
++      let query = this.client
+         .from('__seo_gamme_conseil')
+         .select('sgc_id, sgc_section_type, sgc_content, sgc_sources')
+         .is('sgc_quality_score', null)
+-        .range(offset, offset + batchSize - 1);
++        .order('sgc_id', { ascending: true })
++        .limit(batchSize);
++      if (lastId !== null) query = query.gt('sgc_id', lastId);
++      const { data, error } = await query;
+ 
+       if (error) {
+         this.log.error(`Backfill query error: ${error.message}`);
+-        failed += batchSize;
+-        break;
++        // The unread row count is unknown; do not fabricate per-row failures.
++        throw error;
+       }
+ 
+       if (!data || data.length === 0) break;
+@@ -269,31 +452,37 @@ export class ConseilQualityScorerService extends SupabaseBaseService {
+             row.sgc_sources,
+           );
+ 
+-          const { error: updateError } = await this.client
++          const { data: written, error: updateError } = await this.client
+             .from('__seo_gamme_conseil')
+             .update({ sgc_quality_score: score })
+-            .eq('sgc_id', row.sgc_id);
++            .eq('sgc_id', row.sgc_id)
++            .is('sgc_quality_score', null)
++            .select('sgc_id');
+ 
+           if (updateError) {
+             failed++;
+-          } else {
++          } else if (written?.length === 1) {
+             updated++;
++          } else {
++            skipped++;
+           }
+         } catch {
+           failed++;
+         }
+       }
+ 
++      lastId = data[data.length - 1].sgc_id;
+       this.log.log(
+-        `Backfill progress: ${updated} updated, ${failed} failed (batch at offset ${offset})`,
++        `Backfill progress: ${updated} updated, ${failed} failed, ${skipped} skipped (after ${lastId})`,
+       );
+ 
+       if (data.length < batchSize) break;
+-      offset += batchSize;
+     }
+ 
+-    this.log.log(`Backfill complete: ${updated} updated, ${failed} failed`);
+-    return { updated, failed };
++    this.log.log(
++      `Backfill complete: ${updated} updated, ${failed} failed, ${skipped} skipped`,
++    );
++    return { updated, failed, skipped };
+   }
+ 
+   // ── Private helpers ──────────────────────────────────────
+diff --git a/backend/src/modules/admin/services/keyword-plan-gates.dedup.test.ts b/backend/src/modules/admin/services/keyword-plan-gates.dedup.test.ts
+new file mode 100644
+index 000000000..5364e7163
+--- /dev/null
++++ b/backend/src/modules/admin/services/keyword-plan-gates.dedup.test.ts
+@@ -0,0 +1,164 @@
++import { PACK_DEFINITIONS } from '../../../config/conseil-pack.constants';
++import {
++  KeywordPlanGatesService,
++  type ConseilSectionRow,
++} from './keyword-plan-gates.service';
++
++const gates = new KeywordPlanGatesService();
++const shared =
++  'Le filtre retient les impuretes presentes dans le lubrifiant avant leur circulation';
++const other =
++  'La reference constructeur permet de verifier la compatibilite de la piece avec le vehicule';
++// Report fixtures isolate GA3; they do not certify factual quality or live execution.
++const rows = (): ConseilSectionRow[] =>
++  PACK_DEFINITIONS.standard.requiredSections.map((section) => ({
++    section_type: section,
++    quality_score: 100,
++    content_len: 1000,
++    content: `Texte distinct de la section ${section}`,
++    sources: '["wiki/gammes/filtre.md"]',
++  }));
++
++function duplicated() {
++  const sections = rows();
++  sections[0].content = shared;
++  sections[1].content = `<p>${shared.toUpperCase()}</p>`;
++  return sections;
++}
++
++describe('GA3 duplicate finding reaches the audit correction decision', () => {
++  it('does not skip a full 100-score pack containing a detected duplicate', () => {
++    const report = gates.auditFromSections(duplicated());
++    expect(report.gate_report?.GA3_CROSS_SECTION_DEDUP.status).toBe('warn');
++    expect(gates.shouldSkipGamme(report)).toBe(false);
++    expect(report.sections_to_improve.sort()).toEqual(['S1', 'S2']);
++    expect(report.priority_fixes).toEqual(
++      expect.arrayContaining([
++        expect.objectContaining({
++          section: 'S1',
++          issue: 'duplicate_content',
++          fix_type: 'improve',
++          current_score: 100,
++        }),
++        expect.objectContaining({
++          section: 'S2',
++          issue: 'duplicate_content',
++          fix_type: 'improve',
++          current_score: 100,
++        }),
++      ]),
++    );
++    // Routing work does not invent a new audit weight or alter stored quality scores.
++    expect(report.priority_score).toBe(0);
++    expect(report.section_scores.S1).toBe(100);
++  });
++
++  it('retains work for repeated banane content even with legacy scores of 100', () => {
++    const sections = rows();
++    for (const section of sections)
++      section.content = Array(60).fill('banane').join(' ');
++    const report = gates.auditFromSections(sections);
++    expect(report.sections_to_improve.sort()).toEqual(
++      [...PACK_DEFINITIONS.standard.requiredSections].sort(),
++    );
++    expect(gates.shouldSkipGamme(report)).toBe(false);
++    expect(sections.every((section) => section.quality_score === 100)).toBe(
++      true,
++    );
++  });
++
++  it('reports both affected sections independently of input order', () => {
++    const forward = gates.auditFromSections(duplicated());
++    const reverse = gates.auditFromSections(duplicated().reverse());
++    expect(forward.sections_to_improve.sort()).toEqual(['S1', 'S2']);
++    expect(reverse.sections_to_improve.sort()).toEqual(
++      forward.sections_to_improve,
++    );
++  });
++
++  it('emits one duplicate fix per affected section despite repeated matches', () => {
++    const sections = duplicated();
++    sections[0].content = `${shared}. ${other}`;
++    sections[1].content = `${shared}. ${other}`;
++    sections[2].content = shared;
++    const report = gates.auditFromSections(sections);
++    const fixes = report.priority_fixes;
++    expect(fixes.map((fix) => fix.section).sort()).toEqual(['S1', 'S2', 'S3']);
++    expect(report.sections_to_improve.sort()).toEqual(['S1', 'S2', 'S3']);
++  });
++
++  it('keeps GA3 scoped to cross-section matches, without rewriting content', () => {
++    const sections = rows();
++    sections[0].content = `${shared}. ${shared}`;
++    const before = JSON.stringify(sections);
++    const report = gates.auditFromSections(sections);
++    expect(report.gate_report?.GA3_CROSS_SECTION_DEDUP.status).toBe('pass');
++    expect(report.sections_to_improve).toEqual([]);
++    expect(JSON.stringify(sections)).toBe(before);
++  });
++
++  it('preserves the existing decision for distinct section content', () => {
++    const report = gates.auditFromSections(rows());
++    expect(report.sections_to_improve).toEqual([]);
++    expect(gates.shouldSkipGamme(report)).toBe(true);
++  });
++});
++
++describe('GA3 titles and normalized text', () => {
++  it.each(['symptomes', ' SYMPTÔMES ! ', 'Sympto\u0302mes'])(
++    'detects Symptômes / %s across distinct sections',
++    (variant) => {
++      const sections = rows();
++      Object.assign(sections[0], { title: 'Symptômes' });
++      Object.assign(sections[1], { title: variant });
++      const before = JSON.stringify(sections);
++      const report = gates.auditFromSections(sections);
++      expect(report.gate_report?.GA3_CROSS_SECTION_DEDUP.status).toBe('warn');
++      expect(report.gate_report?.GA3_CROSS_SECTION_DEDUP.message).toContain(
++        'heading',
++      );
++      expect(report.sections_to_improve.sort()).toEqual(['S1', 'S2']);
++      expect(gates.shouldSkipGamme(report)).toBe(false);
++      expect(JSON.stringify(sections)).toBe(before);
++    },
++  );
++
++  it('detects accent and whitespace variants in repeated paragraphs', () => {
++    const sections = rows();
++    sections[0].content =
++      'Le contrôle précis du véhicule nécessite une vérification documentée avant toute intervention';
++    sections[1].content =
++      'LE CONTROLE PRECIS DU VEHICULE   NECESSITE UNE VERIFICATION DOCUMENTEE AVANT TOUTE INTERVENTION';
++    expect(
++      gates.auditFromSections(sections).sections_to_improve.sort(),
++    ).toEqual(['S1', 'S2']);
++  });
++
++  it('does not equate different headings or absent headings', () => {
++    const sections = rows();
++    Object.assign(sections[0], { title: 'Symptômes au démarrage' });
++    Object.assign(sections[1], { title: 'Symptômes au freinage' });
++    Object.assign(sections[2], { title: '   ' });
++    Object.assign(sections[3], { title: null });
++    expect(
++      gates.auditFromSections(sections).gate_report?.GA3_CROSS_SECTION_DEDUP
++        .status,
++    ).toBe('pass');
++  });
++});
++
++it('keeps S2 and the integrated S2_DIAG for review when both have the same heading', () => {
++  const sections = rows();
++  const symptoms = sections.find((section) => section.section_type === 'S2')!;
++  symptoms.title = 'Symptômes';
++  sections.push({
++    ...symptoms,
++    section_type: 'S2_DIAG',
++    title: 'symptomes',
++    content: 'Un autre texte de diagnostic',
++  });
++  const report = gates.auditFromSections(sections);
++  expect(report.sections_to_improve.sort()).toEqual(['S2', 'S2_DIAG']);
++  expect(report.sections_to_create).toEqual([]);
++  expect(gates.shouldSkipGamme(report)).toBe(false);
++});
+diff --git a/backend/src/modules/admin/services/keyword-plan-gates.service.ts b/backend/src/modules/admin/services/keyword-plan-gates.service.ts
+index 708118e12..2e1deee12 100644
+--- a/backend/src/modules/admin/services/keyword-plan-gates.service.ts
++++ b/backend/src/modules/admin/services/keyword-plan-gates.service.ts
+@@ -13,6 +13,8 @@
+  */
+ 
+ import { Injectable, Logger } from '@nestjs/common';
++import { normalizeSeoText } from '@repo/seo-roles';
++import { hasDeclaredSourceReferences } from '../../blog/utils/source-provenance.util';
+ import {
+   type GateResult,
+   type AuditResult,
+@@ -645,6 +647,7 @@ export class KeywordPlanGatesService {
+     const priorityFixes: PriorityFix[] = [
+       ...ga1.fixes,
+       ...ga2.fixes,
++      ...ga3.fixes,
+       ...ga4.fixes,
+       ...ga5.fixes,
+       ...ga6.fixes,
+@@ -662,7 +665,13 @@ export class KeywordPlanGatesService {
+     const sectionsToCreate = ga1.fixes
+       .filter((f) => f.fix_type === 'create')
+       .map((f) => f.section);
+-    const sectionsToImprove = [...ga2.fixes, ...ga4.fixes, ...ga6.fixes]
++    const sectionsToImprove = [
++      ...ga2.fixes,
++      ...ga3.fixes,
++      ...ga4.fixes,
++      ...ga5.fixes,
++      ...ga6.fixes,
++    ]
+       .filter((f) => f.fix_type === 'improve')
+       .map((f) => f.section)
+       .filter((s, i, arr) => arr.indexOf(s) === i);
+@@ -828,23 +837,41 @@ export class KeywordPlanGatesService {
+     result: GateResult;
+     fixes: PriorityFix[];
+   } {
+-    const paragraphMap = new Map<string, string>();
++    const paragraphMap = new Map<string, ConseilSectionRow>();
++    const headingMap = new Map<string, ConseilSectionRow>();
++    const affectedSections = new Map<string, ConseilSectionRow>();
+     let dupCount = 0;
++    let headingDupCount = 0;
+ 
+     for (const row of sections) {
++      // Compare declared section headings, not repeated labels from navigation/TOC.
++      const heading = row.title ? normalizeSeoText(row.title) : '';
++      if (heading) {
++        const existing = headingMap.get(heading);
++        if (existing && existing.section_type !== row.section_type) {
++          headingDupCount++;
++          affectedSections.set(existing.section_type, existing);
++          affectedSections.set(row.section_type, row);
++        } else if (!existing) {
++          headingMap.set(heading, row);
++        }
++      }
+       if (!row.content) continue;
+       const text = this.stripHtml(row.content);
+       const paragraphs = text
+         .split(/\.\s+/)
+-        .map((p) => p.trim().toLowerCase())
++        .map((p) => normalizeSeoText(p))
+         .filter((p) => p.length > 40);
+ 
+       for (const p of paragraphs) {
+         const existing = paragraphMap.get(p);
+-        if (existing && existing !== row.section_type) {
++        if (existing && existing.section_type !== row.section_type) {
+           dupCount++;
++          // Both sections need review; input order does not identify an owner.
++          affectedSections.set(existing.section_type, existing);
++          affectedSections.set(row.section_type, row);
+         } else if (!existing) {
+-          paragraphMap.set(p, row.section_type);
++          paragraphMap.set(p, row);
+         }
+       }
+     }
+@@ -852,13 +879,18 @@ export class KeywordPlanGatesService {
+     return {
+       result: {
+         gate: 'GA3_CROSS_SECTION_DEDUP',
+-        status: dupCount === 0 ? 'pass' : 'warn',
++        status: dupCount === 0 && headingDupCount === 0 ? 'pass' : 'warn',
+         message:
+-          dupCount === 0
+-            ? 'No duplicate paragraphs across sections'
+-            : `${dupCount} duplicate paragraph(s) found across sections`,
++          dupCount === 0 && headingDupCount === 0
++            ? 'No duplicate detected in supplied paragraphs or declared headings across sections'
++            : `${dupCount} duplicate paragraph(s), ${headingDupCount} duplicate heading(s) found across sections`,
+       },
+-      fixes: [],
++      fixes: [...affectedSections.values()].map((row) => ({
++        section: row.section_type,
++        issue: 'duplicate_content',
++        current_score: row.quality_score,
++        fix_type: 'improve',
++      })),
+     };
+   }
+ 
+@@ -903,15 +935,9 @@ export class KeywordPlanGatesService {
+     result: GateResult;
+     fixes: PriorityFix[];
+   } {
+-    const noSource = sections.filter((s) => {
+-      if (!s.sources || s.sources.trim().length === 0) return true;
+-      try {
+-        const parsed = JSON.parse(s.sources);
+-        return !Array.isArray(parsed) || parsed.length === 0;
+-      } catch {
+-        return true;
+-      }
+-    });
++    const noSource = sections.filter(
++      (s) => !hasDeclaredSourceReferences(s.sources),
++    );
+     const fixes: PriorityFix[] = noSource.map((s) => ({
+       section: s.section_type,
+       issue: 'no_sources' as const,
+@@ -924,7 +950,7 @@ export class KeywordPlanGatesService {
+         status: noSource.length === 0 ? 'pass' : 'warn',
+         message:
+           noSource.length === 0
+-            ? 'All sections have E-E-A-T sources'
++            ? 'All sections declare source references (evidence not verified here)'
+             : `${noSource.length} sections missing sources: ${noSource.map((s) => s.section_type).join(', ')}`,
+       },
+       fixes,
+@@ -1006,6 +1032,8 @@ export class KeywordPlanGatesService {
+ 
+ export interface ConseilSectionRow {
+   section_type: string;
++  /** Declared section title; omitted by callers that only supply body text. */
++  title?: string | null;
+   quality_score: number | null;
+   content_len: number | null;
+   content?: string | null;

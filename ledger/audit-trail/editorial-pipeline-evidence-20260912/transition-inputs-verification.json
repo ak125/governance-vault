@@ -1,0 +1,40 @@
+{
+  "scope": "Capture the native canonical promotion target and detect input/engine drift; draft withdrawal transition contract in existing vault design",
+  "branch": "codex/editorial-substance-sections-20260912",
+  "head": "01cea8deda48d84b6a2993cd4bdefe8280082c0b",
+  "files": {
+    "_scripts/promotion_decision.py": "4005bd7bb66523750c20195252ae9c64ae5f732a3a55f94e419bf1b4de9e55fc",
+    "_scripts/test_promotion_decision.py": "177870217402f5a207d5b1f5950877e7bcdcbeaa2426211f054dea42c842da10"
+  },
+  "wiki_patch_sha256": "882e248dd288865fab47e3158ed702013b6a1247a6627285e52fc06cf36f1de2",
+  "validation": {
+    "pytest_passed": 199,
+    "decision_tests": 50,
+    "promoter_tests": 47,
+    "builder_tests": 88,
+    "score_schema_tests": 14,
+    "new_tests": 15,
+    "baseline_failed": 9,
+    "py_compile": "PASS",
+    "pre_commit": "PASS two changed Python files; inapplicable hooks skipped",
+    "staged_diff_check": "PASS"
+  },
+  "counterproofs": [
+    "Implicit canonical target edited, removed or created during evaluation blocks decision",
+    "Implicit canonical target edited, removed or created before authorize_apply refuses stale decision",
+    "Explicit other baseline does not hide canonical target from manifest",
+    "Both engine revisions compared during evaluation, not only at apply",
+    "Missing or malformed candidate during recapture gives typed refusal",
+    "Unrelated fiche changes do not invalidate current decision",
+    "Real native runner resolves approved target as baseline; mutation by injected comparison evaluator is detected"
+  ],
+  "contract_proposal": "withdrawal-outbox-design.md section 18; non-normative REVIEW_REQUIRED, not a new schema or runtime permission",
+  "limits": [
+    "No executable withdrawal proof/decision, durable acceptance, consumer mapping or corpus mutation added. Existing approved-target overwrite guard remains.",
+    "Hash-before/hash-after does not provide atomic filesystem compare-and-swap; no adversarial filesystem race certification.",
+    "Full evaluator input coverage (referenced RAW contents, effective configuration, all gate imports and schemas) is not certified.",
+    "CLI fm/body preloaded before decision are not yet proven identical to applied snapshot bytes; targeted counterproof is next.",
+    "Tests use temporary files and injected evaluators; no actual shared RAW/DB/Redis/consumer transport, CI, deployment, activation, commit, push or merge."
+  ],
+  "final_status": "PARTIAL_COVERAGE"
+}

@@ -1,0 +1,1665 @@
+{
+  "scope_requested": "Editorial pipeline for all roles R1/R2/R3/R6/R7/R8/R9, including transferred RAW acquisitions",
+  "scope_actually_scanned": "Initial code/contract mapping; sync provenance and section arithmetic regressions; targeted R2/R8 and R3 serving; transferred RAW PR status; RAW network producer, policy and adversarial offline transport validation; admin submitted text forwarding and recycled RAW receipt producer; direct video acquisition, shared capture lock and hard DNS/header deadlines; initial source withdrawal consumer paths; native RAG importer body and empty-content handling; mirror/index withdrawal characterization; native score counterexamples and R3 service rendering boundary; read-only Supabase metadata/counts and internal Weaviate schema/counts; canonical all-role contracts, native export mappings and reader/producer/render paths by role; withdrawal reconciliation failure gates; R7 FAQ/hard-gate corrections; role isolation/replay fixtures; method consolidation, actual parent_id/source_path mismatch, explicit native retirement and F5 replacement candidates, bounded exact UUID deletion, read-only live outbox schema/states, R9 residual compatibility and rejection tests; SEO writer immutable-input consistency and archive ambiguity; concrete non-normative withdrawal/outbox representation; native source/reference/block identity mapping, per-file informational commit semantics, role-aware collision refusal before entity writes; actual structured WIKI/proposal/export corpus collision characterization on two checkout copies; native R8 motorization axis identity; live projection table counts only; R8 historical derived-ID replay preflight and native SDK transport failure boundary; refresh consumer acknowledgment, exact RPC two-view result and installed Bull completion/failure boundary; existing-block transactional outbox candidate and real isolated PostgreSQL17 rollback/concurrency/replay/constraints/permissions tests; writer snapshot DB attachment and existing active-block RPC replacement hookup, truth-level SQL preservation, guarded failure and inactive identity checks; per-entity partial write progress and native write processor failure/refresh classification; atomic SEO projection ACK, exact committed-ID capture, real concurrent refresh/late-commit proofs and recovery on existing writer executions; native Bull completion/startup recovery, real Nest/Redis fixture and bounded retries; native WIKI automatic promotion/withdrawal contract mapping and read-only SEO export reconciliation observations, exact-byte diagnostic evidence and malformed metadata counterproofs; native automatic baseline versus captured promotion inputs, target drift and engine drift before eligibility/apply; proposed withdrawal transition contract within existing design; CLI preloaded content versus evaluated bytes and executor write path, stale source/identity, shared status guard and proposal preservation after partial effect; native filesystem atomic replacement/flock patterns, actual promoter process contention and SIGKILL recovery, failure status propagation and four-candidate code-hash consolidation",
+  "files_read_count": 266,
+  "files": [
+    {
+      "path": "/opt/automecanik/app/AGENTS.md",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "0c533ed20a16e2acbd2f7b47b10ba17af2c27e7d0cb91889148c651044a3e455"
+    },
+    {
+      "path": "/opt/automecanik/app/CLAUDE.md",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "e21a7597ff6b35dabf9c9a2d54b0596b352fd951b65dd63cc862ef4fbe6e401e"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/rules/backend.md",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "212cb11f1b06e33a6c837431edf94fc5005b8463070d6dd2c43ef82b58c9203d"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/rules/frontend.md",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "0a569c3dc5e47a9a57e39b9237aeceb920919e48bd6f9cd5f0f299cb4eb09b5a"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/rules/deployment.md",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "9e94c873eb361d9bc9434f3fd966f054e7dd7bd1742de23921ed977396460bb7"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/rules/guardrails.md",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "5af4ece823cb5581fb71d20156a9832f89e58a646ecb944979570f79d8746e13"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/rules/security-hooks.md",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "360f42d6d9e09ff50ddbe03546067677bf38a031db71a85aaf791abeec258172"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/rules/agent-doc-search.md",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "a6c50dae91ff926234b8a55c3532d7897d35b394c3a05464400771b9be2b0871"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/canon-mirrors/agent-exit-contract.md",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "65d51c022ce438ddd27146b6da132d2e83d161a8e2dc2f30c90f339eb24dea21"
+    },
+    {
+      "path": "/opt/automecanik/app/audit/registry/canonical.json",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "683d14cb8cda9fbc309c29b4f40f9339398d8c4934865eb1bd71b106326f2955"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/knowledge/REPO_MAP.md",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "f77131828864e0c96f7c1e648ac9b9f0c3fad912ec809d0e3973f6806acaeb80"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/knowledge/README.md",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "8985d5067f27b0271b7f997515299855ccce13b4360defb27173e3c4f4404412"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/knowledge/modules/rag-proxy.md",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "fcb7b653ddba1b0d98fca7e411b7d62196914e11c378ca4f9a8f3514810c36ff"
+    },
+    {
+      "path": "/opt/automecanik/app/log.md",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "4262296714233cd728c5e1222fdfc430e2c5e896913a505d00e3eea646b9ce0f"
+    },
+    {
+      "path": "/opt/automecanik/app/.spec/00-canon/role-matrix.md",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "25cdef59a94055fe6c0d72c81562f702c30276bc6aa99e92588f4bd816542f5d"
+    },
+    {
+      "path": "/opt/automecanik/app/scripts/ops/check-repo-freshness.sh",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "e506afcf3e1cf51335816e3f58a50720033ffbca1a202aed88f2fe9a3127bc30"
+    },
+    {
+      "path": "/opt/automecanik/app/audit/smart-scraper-raw-to-wiki-real-state-2026-07-15.md",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "9b45b08e1015a217bb19df55497692939937541b8de3a95453f49c5e2e705618"
+    },
+    {
+      "path": "/opt/automecanik/app/audit/token-consumption-audit-2026-07-14.md",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "7bdcb76d278786227c2dac1ce3dd8b442387066967b4613fb27f13ea484061cd"
+    },
+    {
+      "path": "/opt/automecanik/app/scripts/cron/sync-rag-from-wiki.sh",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "0993a3e10713301aa8f7db1c5254be3eba1905843c2dcaae0308f6d3a63424dd"
+    },
+    {
+      "path": "/opt/automecanik/app/scripts/rag-sync/sync-wiki-exports-to-rag.py",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "132a6b9da0f9d82222c2f25c468f7a406d6cc78cf7aed054b6e19149a76fec00"
+    },
+    {
+      "path": "/opt/automecanik/app/scripts/rag-sync/README.md",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "2e41866b34dad98441377f2968fe10e8c50459ec3b52ccf02fb4dd4b18f27aa5"
+    },
+    {
+      "path": "/opt/automecanik/app/scripts/qa/r8-diversity-check.py",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "f20843cafda0027afc63b901bce9849790a9e0103254c68acc5f1a7f78e6edad"
+    },
+    {
+      "path": "/opt/automecanik/app/scripts/qa/r8-diversity-check-test.py",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "10cd54de27b87a2dc4b529739862646d2d77c9b09876274c7d07c0cae27fd756"
+    },
+    {
+      "path": "/opt/automecanik/app/backend/src/modules/seo/r2/services/r2-composition.service.ts",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "1eb75f9d0e9a7c23539af3a223c7339525d930e29002952bd0c59eb63a80ad74"
+    },
+    {
+      "path": "/opt/automecanik/app/backend/src/modules/seo/r2/r2-v2.module.ts",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "ffc2805a034f7c35d7b7f063efde8236312df0bc877fccf5fa822c36f93be362"
+    },
+    {
+      "path": "/opt/automecanik/app/backend/src/modules/rag-proxy/rag-proxy.controller.ts",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "357e0de82cbe9507c1dd7459cadab466d156226efefbfd1d3577f212d17eba29"
+    },
+    {
+      "path": "/opt/automecanik/app/backend/src/modules/rag-proxy/rag-proxy.module.ts",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "7ff26c0c237da3aa87222f76b40eb232d8911fc182977fdc8ef015e419acfbf6"
+    },
+    {
+      "path": "/opt/automecanik/app/backend/src/modules/blog/services/r3-projection-decision.service.ts",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "afd6e490c00993d3522ffb2c3ed45ec7bdbe40561559ac682f0507551170f532"
+    },
+    {
+      "path": "/opt/automecanik/app/backend/src/modules/seo-projection/seo-projection-reader.service.ts",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "bc7ee4d4b37e6484eeaf2c135ea89c47f0aca01e5482dbccb0a92e1b0167ca0e"
+    },
+    {
+      "path": "/opt/automecanik/app/backend/src/modules/seo-projection/seo-projection-writer.service.ts",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "2dab17c3388695ec74c41bd9923af884471fdaa99ff67df07a35367dc079532f"
+    },
+    {
+      "path": "/opt/automecanik/app/.husky/pre-commit",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "8a145ba9a3ceb9d536f130f9c8e8789cff202e975a2d322e9eafcfcdb139ef1b"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/CLAUDE.md",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "507ec6e1bc8141d6d8f8ec3d05b6057480895052c9878dd7300e1b1225b4c615"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/_scripts/promote.py",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "ea1b3a40d9cbe11f5559c45f95e90a53b073e441c8c83e24d6afce94262dedab"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/_scripts/promotion_decision.py",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "b9e216142c9a70c66ce24cb67451eb16db6edcbd88d26d45a2270924e221a3f2"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/_scripts/test_promotion_decision.py",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "63e32183bfb0976abd73bff0502cc01730fe603f3fcf472c05ec49c1d66c6e47"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/_scripts/compute-confidence-score.py",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "0d79adaea47700c946c98db3d33a5996e3b139eb2883cafff8717638120a9abf"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/_scripts/gates/source_gate.py",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "ece611139e87556bfbc9fae45aff775f5ca244300631e4d198d96faf0e25b5e9"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/_scripts/quality-gates.py",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "3e58641d31a8b59fd81add29a016e616d9435373eefb37d01c80fb0d395bf816"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/_scripts/build_exports_seo.py",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "97a81af9c2ef1676ded731cfc47a6b3eef1e6a8d06228dac5936f5c0813faba2"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/_scripts/tests/test_confidence_schema_contract.py",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "5ede0d043a57de11286aa7dd14a241c4937e7534bd7e4cdc11b8e2643a8148b3"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/.pre-commit-config.yaml",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "5ec3bf45348421a7401cae4e39236740f1d37981149c984903015bf4b1506345"
+    },
+    {
+      "path": "/opt/automecanik/governance-vault/AGENTS.md",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "0189277fa24938b57b89126970cc706bbe6ca88802767bd04fde8d822117ae06"
+    },
+    {
+      "path": "/opt/automecanik/governance-vault/CLAUDE.md",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "6cd7f1d8b1c9318a4f98322c96476af3c3339f4934f473c0e5feae3297a0eb76"
+    },
+    {
+      "path": "/opt/automecanik/governance-vault/ops/moc/MOC-Decisions.md",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "42ff016cca1f29d5a22d71df20d682a92ceb7587668eb3fd91f33acf8e2868a5"
+    },
+    {
+      "path": "/opt/automecanik/governance-vault/ops/moc/MOC-AuditTrail.md",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "cbeb9c256f955924396c233ebad5cd910d60b4c3324d1ae7a7d532ec47f31ab5"
+    },
+    {
+      "path": "/opt/automecanik/governance-vault/_scripts/preflight-write.sh",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "14d35458b352d69e45b5abfb63405fa22acd1139627d0e6d75fe31a3f3d50199"
+    },
+    {
+      "path": "/opt/automecanik/rag/scripts/pipeline/auto-enrich-pipeline.sh",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "1828062a1cb52273625f4ef99616cab850ae591e2623e216d5c785edae1fc302"
+    },
+    {
+      "path": "/opt/automecanik/rag/scripts/importers/import_wiki_exports.py",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "a7aaac48ac0f2fe51665e62838f54e56097d4d060ba41f6a344aae41b4973ea4"
+    },
+    {
+      "path": "/home/deploy/worktrees/raw-acquisition-routing-20260912/CLAUDE.md",
+      "mode": "full",
+      "sha256": "b3b5abe469eb53ee870820c40499c5b963a9fdd14bf86e5f6f3e2964fa3517bf"
+    },
+    {
+      "path": "/home/deploy/worktrees/raw-acquisition-routing-20260912/docs/raw-contract.md",
+      "mode": "full",
+      "sha256": "3e21591e313a56fb4c3e253b82ff2e2af3a67a7b8b71aa664c64731471e2b9b0"
+    },
+    {
+      "path": "/home/deploy/worktrees/raw-acquisition-routing-20260912/docs/agent-capture-policy.md",
+      "mode": "full",
+      "sha256": "60fb0fe5be1767d32351c7d0a31fcaabfbab95e3e916a7d025906dca702c0c45"
+    },
+    {
+      "path": "/home/deploy/worktrees/raw-acquisition-routing-20260912/_scripts/auto-capture-runner.py",
+      "mode": "targeted excerpts",
+      "sha256": "ae2687d12ec25f5cf05262dd5de88d20ddb0869bc661e1956b9cc7e52e5215fc"
+    },
+    {
+      "path": "/home/deploy/worktrees/raw-acquisition-routing-20260912/_scripts/tests/test_auto_capture_runner.py",
+      "mode": "full",
+      "sha256": "47ee842d4a40d850832a99bd6a699e88c09a919e6a9dbe51abaddeb36b8e3c26"
+    },
+    {
+      "path": "/home/deploy/worktrees/raw-acquisition-routing-20260912/_scripts/tests/test_adr096_contracts.py",
+      "mode": "targeted excerpt",
+      "sha256": "4f34cae665a898c29762d41436eb9f5628c209fbbca76062f21bc855aac95e06"
+    },
+    {
+      "path": "/home/deploy/worktrees/raw-acquisition-routing-20260912/_schemas/auto-capture-frontmatter.schema.json",
+      "mode": "output truncated; relevant source fields read",
+      "sha256": "5b59f16fa80d8a32d184e04b17e2b63104d48395cc654c9316bdc25e78aece77"
+    },
+    {
+      "path": "/home/deploy/worktrees/raw-capture-network-20260912/.pre-commit-config.yaml",
+      "mode": "full",
+      "sha256": "a6e16cb451a8ba6c7ff15fb8c5df3fe9113287e0de4100e081dda4ec4d386b39"
+    },
+    {
+      "path": "/home/deploy/worktrees/raw-capture-network-20260912/.github/workflows/jcs-parity.yml",
+      "mode": "full",
+      "sha256": "fa720b947612c255975a2f4826f04d4dcdbbde383de6120ce7d89e4eb0a9f1c8"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/rag-proxy/services/rag-video-management.service.ts",
+      "mode": "targeted excerpt",
+      "sha256": "107136cc7a2bfe8a492d49d8bf97f9951a77286fda4ddb2bda43d743eaf0b62d"
+    },
+    {
+      "path": "/home/deploy/worktrees/raw-capture-network-20260912/docs/source-classification.md",
+      "mode": "full",
+      "sha256": "f50f5f2decca57d2dfdb1e6f03e537bcd0510e9c8c5e571ce64d7a7621724859"
+    },
+    {
+      "path": "/home/deploy/worktrees/raw-capture-network-20260912/_schemas/recycled-frontmatter.schema.json",
+      "mode": "full",
+      "sha256": "201854a8f808e8accb087fd24551afd923e827483f969d7da88f5bc38e980e5c"
+    },
+    {
+      "path": "/home/deploy/worktrees/raw-capture-network-20260912/_schemas/web-clip-frontmatter.schema.json",
+      "mode": "full",
+      "sha256": "59ed2e6f87f56d0cbe55778b6dd74c97d2dd2438fce14b8a0e9d5bde5011dfcc"
+    },
+    {
+      "path": "/home/deploy/worktrees/raw-capture-network-20260912/_scripts/regen-manifests.py",
+      "mode": "targeted functions and main",
+      "sha256": "f07b1f43433cfe5785faf6295e4a13db7b1315dc1c7a4ae590b7b363eb14d9fe"
+    },
+    {
+      "path": "/home/deploy/worktrees/raw-capture-network-20260912/_scripts/gates.py",
+      "mode": "targeted Gate A/J and validation",
+      "sha256": "61f4435720e1fc6b5f5d127adbc23d935e87f95c7a1ad4e41933e9f326f9b13f"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/rag-proxy/services/rag-cleanup.service.ts",
+      "mode": "targeted imports/applyIngest",
+      "sha256": "7cb0f166c9b8da29b55f31a875cb04dc795d2abc4f63fc568e2449a796cfd10c"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/rag-proxy/rag-proxy.module.ts",
+      "mode": "full",
+      "sha256": "2c1f5d1c1b23b510d5173d0bf50af69bcb9c7699ccc7c180908487c0d148e833"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/rag-proxy/types/rag-ingest.types.ts",
+      "mode": "targeted input and decision",
+      "sha256": "34478a85c22445a4458fe9ff6a70b3881d0e56235034b5039f81a41c506ec754"
+    },
+    {
+      "path": "/home/deploy/worktrees/raw-capture-network-20260912/_scripts/capture_http.py",
+      "mode": "authored and/or targeted read; not whole-repo certification",
+      "sha256": "35a5fbe1ce369196ba597fa6432ed810d3965cd765d15254cdec8b517ef4072e"
+    },
+    {
+      "path": "/home/deploy/worktrees/raw-capture-network-20260912/_scripts/auto-capture-runner.py",
+      "mode": "authored and/or targeted read; not whole-repo certification",
+      "sha256": "c2f787fa9ff39506c22c4c4ba264a6048c53143981bffc4adf7784c15351b156"
+    },
+    {
+      "path": "/home/deploy/worktrees/raw-capture-network-20260912/_scripts/tests/test_admin_video.py",
+      "mode": "authored and/or targeted read; not whole-repo certification",
+      "sha256": "4d01bf45f949c57cad31a6fc61abb866cf1f8f4d80d31f4572e990e2682b439a"
+    },
+    {
+      "path": "/home/deploy/worktrees/raw-capture-network-20260912/_scripts/tests/test_admin_submission.py",
+      "mode": "authored and/or targeted read; not whole-repo certification",
+      "sha256": "81f7a3657fc1fe6c6dcaa60a1bcb049bbdcbc39de73c74475f8740418ba94b01"
+    },
+    {
+      "path": "/home/deploy/worktrees/raw-capture-network-20260912/_scripts/tests/test_capture_http.py",
+      "mode": "authored and/or targeted read; not whole-repo certification",
+      "sha256": "50bd887e8ebdaed5aaba1ea9f20640d70798969a5c426dceb21281188a12c22d"
+    },
+    {
+      "path": "/home/deploy/worktrees/raw-capture-network-20260912/.gitattributes",
+      "mode": "authored and/or targeted read; not whole-repo certification",
+      "sha256": "8f115fcf805952631fdc1209cb1e7217217a773904568ccc9f8f5a48e547edd6"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/rag-proxy/services/raw-acquisition-client.service.ts",
+      "mode": "authored and/or targeted read; not whole-repo certification",
+      "sha256": "46ee34a0a00f221e51df8bf92a3d5a8c5929080303cb74b844272a38d1ad20fc"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/rag-proxy/services/raw-acquisition-client.service.test.ts",
+      "mode": "authored and/or targeted read; not whole-repo certification",
+      "sha256": "21f48a2854e6e38e093351cb325b03c68a353563c88d6a382b741272cf1b3fad"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/rag-proxy/rag-proxy.raw-acquisition.test.ts",
+      "mode": "authored and/or targeted read; not whole-repo certification",
+      "sha256": "28fa42ef632c468dd06c9e0644d7a16188495b7e707283a4df774d7e08333b44"
+    },
+    {
+      "path": "/home/deploy/worktrees/rag-editorial-consumption-20260912/scripts/importers/import_wiki_exports.py",
+      "mode": "targeted excerpts or authored candidate; not whole-file certification",
+      "sha256": "3b5902e59a33cf791b9648220dd131ffb6d2d80742ba03d51e5492a09355f644"
+    },
+    {
+      "path": "/home/deploy/worktrees/rag-editorial-consumption-20260912/tests/test_f5_import_body.py",
+      "mode": "targeted excerpts or authored candidate; not whole-file certification",
+      "sha256": "d7ad5d253bcff9877450e707b4386f8b93df205a03aac6c3ed9099fd55973f16"
+    },
+    {
+      "path": "/opt/automecanik/rag/tests/test_f5_import_wiki_exports.py",
+      "mode": "targeted excerpts or authored test; no whole-file coverage claim",
+      "sha256": "a1a34843a8f2a5d8e32b64a31fd43745c1524e799867d617684d8d17b31db104"
+    },
+    {
+      "path": "/opt/automecanik/rag/app/models/wiki_frontmatter.py",
+      "mode": "targeted excerpts or authored test; no whole-file coverage claim",
+      "sha256": "ae15645c9dc9c03d2623f725b809c87703a7f7828ec99a7338ee83c1f741bacb"
+    },
+    {
+      "path": "/opt/automecanik/rag/app/services/weaviate_client.py",
+      "mode": "targeted excerpts or authored test; no whole-file coverage claim",
+      "sha256": "f45deba6be7a1ed1f0d7ca5ba671baf7fbbe0a5f03e0e70cfc20f963128e6320"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/seo-monitoring/services/rag-mirror-freshness.service.ts",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "445b9ed777823460145511a6c91fee3c7233459a94469262b0ae0bacdc0664ed"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/blog/services/r3-guide.service.ts",
+      "mode": "targeted excerpts or authored test; no whole-file coverage claim",
+      "sha256": "faacdc3ceb4a72a368cd1f4d21110feaea48be5ff3075496f05af39b3671b203"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/blog/services/r3-guide.service.test.ts",
+      "mode": "targeted excerpts or authored test; no whole-file coverage claim",
+      "sha256": "7001f0e18b86439cc3be3330b05cb9ed4ff7f9258a3c9b3d09ab179503b4a29f"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/seo-projection/seo-projection-writer.service.ts",
+      "mode": "targeted read or authored and tested; not whole-repository certification",
+      "sha256": "2bde8b802093fb5a9b063fc1a7aa247556a9830966780467ec3c3479d1b65d43"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/tests/test_quality_gates.py",
+      "mode": "targeted excerpts or authored test; no whole-file coverage claim",
+      "sha256": "d48bdd077ba9fec16f5d1e6fb7717940c41caddd6c359b3926ad6830cc26e20b"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/packages/seo-role-contracts/src/contracts/r1.ts",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "322acf49eb59de2a1f50a121b53e140a590003c1d7b5d317413fbf1fe1593faa"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/packages/seo-role-contracts/src/contracts/r2.ts",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "e8707b70020997acdb68b6cf966405e69306de502b9d8897db02b702a537db5c"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/packages/seo-role-contracts/src/contracts/r3.ts",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "0535f891357d5b77f2d64419d800a992b19305845092ff56b62ea8b93ebab357"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/packages/seo-role-contracts/src/contracts/r6.ts",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "d0e6a2028fa0a4d397596948f7f7ca9abe4591b31c01131239a04c9a782ae96e"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/packages/seo-role-contracts/src/contracts/r7.ts",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "f4fd026c992ca20d896266cd4c619ebf294c90f23d51655e44e5755694034668"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/packages/seo-role-contracts/src/contracts/r8.ts",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "3bcb6cd1fef705b55c3c0b9961c81489fcacadce03a9132ae9f81a4fd6878a1a"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/packages/seo-role-contracts/src/index.ts",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "7a6a0f863af0aed44f758069a3ce1e2692cf92e9405f8a423cc5abe6eb755e59"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/packages/seo-role-contracts/src/__tests__/conformance.test.ts",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "67dcfd2dfec235a8f9ca10fe0fdb23b826bfadc1fc9fabf36fc21acc852c6f00"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/packages/seo-role-contracts/src/__tests__/compose-indexability.test.ts",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "4294427cec0d45be226826c2bad050b58227649b3a67f5dceb583997219b5af7"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/packages/seo-role-contracts/src/compose-indexability.ts",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "aeaf0e182f533d0e2a2611e983de2d1b4c944b3440366651a6665a31778f4bb4"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/packages/seo-roles/src/canonical.ts",
+      "mode": "targeted excerpts or authored candidate; not whole-file certification",
+      "sha256": "bdf43087e39704b1dc1c9b320a87fffdd2ecaee763ce01995fbc4865b4396eb2"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/packages/seo-roles/src/__tests__/forbidden-overlap.test.ts",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "a8b067effafc7f6042dc4ea922150bd739380bb307e5223504d11d922598745a"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/config/role-ids.ts",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "1e6f6ff6a90ae6e26a3e5b16f907bf410f77166a8dc3d73a89787875b93cba04"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/config/feature-flags.service.ts",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "973fb1a9b9049cd83027aa66b5438794dd3d7c4ad583902af8227dcb00ab9c0e"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/admin/services/r2-enricher.service.ts",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "375139c4a1fe9cef0e5143cf6592242672effa8f894129061ec76889959cce4c"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/admin/services/r7-brand-enricher.service.ts",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "a2969b20799b434f0cda65f180139a34d4b8d5fa7dc4768e343701755cb3db37"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/admin/services/r7-brand-enricher.editorial.test.ts",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "560e98f1cd4f10c1abaf6707df87d0e0f7e1017bc7ce66059d2396e222d98b8b"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/admin/services/r8-vehicle-enricher.service.ts",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "eb68ae2543215e70aaf20bc11c5f45790868d0a359a3980d9b0af7dccec9f5fd"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/admin/services/vehicle-rag-generator.service.ts",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "74ab51911613bca3a66c2f67f9a7c2e82ed530a5c8e1546baad16209460d2f61"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/admin/services/brand-editorial.service.ts",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "257ccc81ff4b6b04db12507591c56a2d2481276385b2772de3ae43d22d7f6523"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/admin/services/buying-guide-enricher.service.ts",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "8d61e6738d42ee6ac7ab2ec7a680a90543bcaa3157d8af04dd31f7ca0b8b8464"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/admin/services/buying-guide/buying-guide-rag-fetcher.service.ts",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "a00e6028ecf33eda9ad199d5ba9d7a9abadb8ed833b74c96e0ac02b3ef3622be"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/admin/services/buying-guide/buying-guide-quality-gates.service.ts",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "b30af6b1d1a3813d2e3ef2e6d836bc9b4f66000b01236dbcc1b0d19178f12b91"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/admin/services/r1-keyword-plan-batch.service.test.ts",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "5d06caf20d6e8524e47bb790c7b71f25b3ce86e2ebfb5e9906c82bee76416192"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/admin/services/r8-owned-editorial.composer.test.ts",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "981b67b5ac5e6d0644f483aca2c43609e5411a9359f7cd6a9c9acae295e7ef9f"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/blog/services/r6-guide.service.ts",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "7c8a2bc695538fc765297838eb1db3d5f0af11dd85d6063769ec3d7303985cdf"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/blog/services/r6-guide.service.redirect.test.ts",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "b9414dd465f521e1712a0f12843c30fc954616fe401c61bfdb06aa526c8f344e"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/seo-projection/seo-projection-reader.service.ts",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "bc7ee4d4b37e6484eeaf2c135ea89c47f0aca01e5482dbccb0a92e1b0167ca0e"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/seo-projection/seo-projection-feeder.service.ts",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "59071a6b49a835bedc17a72bd18171fde9cc4fcf33087b7a0a201be7a7bd5d12"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/seo-projection/seo-projection-feeder.test.ts",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "b192e4e9b08d89ae2b6998cfd6704fe85ba57221d939f3200de5ba00beaeaee0"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/seo-projection/seo-projection-writer-role-scope.test.ts",
+      "mode": "targeted read or authored and tested; not whole-repository certification",
+      "sha256": "575aeeaec83ca0e2d5504ee8a0952e1357d48279e972465a120b4f474106facf"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/seo-projection/seo-projection-gate.test.ts",
+      "mode": "targeted excerpts or candidate edits; not whole-file certification",
+      "sha256": "c9dbb6f3d3ca6bd21123d69cb060398a38b031880dd18701ea98beb38e2eae85"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/seo-projection/seo-projection.types.ts",
+      "mode": "targeted read or authored and tested; not whole-repository certification",
+      "sha256": "1be50d9ef8011841c246821250b206b60a69812c0615c9ce6970bcd6b0044ac6"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/seo/validation/page-role-validator.service.ts",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "e65a4644791f30825d6d8ac0c04500a29aadf749a290323305455fe90fc1ddb8"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/tests/unit/page-role-validator.test.ts",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "4d1c0a72e2aa22e033d71a78049ac0c8b2fb900de14a0d3ecabe3c0a750c8152"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/seo/r2/services/__tests__/r2-catalog-signature.spec.ts",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "0b89090c6d1987da37fe76ae0e3c919877e20c77b2271f6dce9eed14aae2c0c5"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/seo/r2/services/r2-composition-input-snapshot.service.ts",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "3290a129081b166ded2f5ac049995bd6e09aa3ab2d544d99e1b32d70029613b2"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/frontend/app/routes/pieces.$slug.tsx",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "b95046ff8b5cced20a78baf73f6bea7b77d89811dc1ec3480e050749bc26943c"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/frontend/app/routes/pieces.$gamme.$marque.$modele.$type[.]html.tsx",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "9d1341af41a797122b37275acfbc0c85a631a0d28b43dd7aa2d1360dfc44cf73"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/frontend/app/routes/constructeurs.$brand[.]html.tsx",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "387993933be370eab169078747fa9cebceb77bffdeacd7f71e56069df8bf2498"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/frontend/app/routes/constructeurs.$brand.$model.$type[.]html.tsx",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "74035d555acde2d98d55c9d57161e40e753ece49f48e84d176b51406fd690cba"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/frontend/app/routes/constructeurs.$brand.$model.$type.tsx",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "2abdd717fa0fead404d6bb3ddee82ab25e1f0e4f97941abb4107409420fa68c4"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/frontend/app/routes/blog-pieces-auto.guide-achat.$pg_alias.tsx",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "056d271606a32632747c77e1e7ac011bc7cb77a3980eb7c11cada801950458f7"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/scripts/rag-sync/sync-wiki-exports-to-rag.py",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "68e9d1a3cd4db43ba51388ceee59f678fd15c8e3c0928741ef7730a9fd79ce75"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/scripts/rag-sync/test_sync_wiki_exports_to_rag.py",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "12983d16b26a3a82032e72cf2127aa993a87d4da38f1b40ac747ccc395827c6c"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/scripts/rag-sync/README.md",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "8c5cbee87cc88429c5a78ef809167bee9bc1b3daddf7b9e856ebc2644fc035ea"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/_meta/schema/exports/rag.schema.json",
+      "mode": "targeted excerpts or authored candidate; not whole-file certification",
+      "sha256": "e457c830ba14ebabeb25df6d64372abd8d97a4f108ba4a84da6a4da39f4cd487"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/_meta/schema/exports-seo.schema.json",
+      "mode": "targeted excerpts or candidate edits; not whole-file certification",
+      "sha256": "a588b6b0d7a290156ed748f9a005e22496936c638523248274610e423fa8b324"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/build_exports_seo.py",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "f6e268f5c87d3f8d42f0ddd96e336e6bda88f18c165cc3bd9b95255e7461ba92"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/test_build_exports_seo.py",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "a3a34b75a3a4341b8ec4c96a1db145c66fb21010fa0a6ad3457e097b28ee1392"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/README-build-exports-seo.md",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "995eb07731c5eb865219e0a96342806cd4b479d4c9350e0fd8b225ec94dbcbe3"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/.pre-commit-config.yaml",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "5ec3bf45348421a7401cae4e39236740f1d37981149c984903015bf4b1506345"
+    },
+    {
+      "path": "/home/deploy/worktrees/rag-editorial-consumption-20260912/scripts/tools/wiki_ingester.py",
+      "mode": "targeted excerpts or authored candidate; not whole-file certification",
+      "sha256": "e65b165e60bbdf2af5f25fa675463724b9241df275076f1878c112a60edb272b"
+    },
+    {
+      "path": "/home/deploy/.local/state/hermes-codex/handoffs/editorial-pipeline-20260912/scope-all-editorial-roles.md",
+      "mode": "targeted excerpts or authored/tested delta; not whole-file certification",
+      "sha256": "faac3dd699dec816a535bb79acd0c2d4f63405e561f9b9180a4de88500aad5b9"
+    },
+    {
+      "path": "/opt/automecanik/governance-vault/ledger/decisions/adr/ADR-090-seo-projection-forward-writer-canon.md",
+      "mode": "targeted excerpt or edited file; not whole-file certification",
+      "sha256": "b23c29e89e765eb74eb1dc7058207e423649025bc1c6643cc4b90271fcb85c58"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/admin/controllers/admin-rag-ingest.controller.ts",
+      "mode": "targeted excerpts or authored candidate; not whole-file certification",
+      "sha256": "bc8f87241aede40bc08dccc7a91e04458eba858adb067e19ba110f9c06c12b33"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/admin/services/execution-router.service.ts",
+      "mode": "targeted excerpts or authored candidate; not whole-file certification",
+      "sha256": "1d4248d4c9f0dee646e3aaf73683ff048e2849414c2ec60a194fb3b71f74e211"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/config/execution-registry.constants.ts",
+      "mode": "targeted excerpts or authored candidate; not whole-file certification",
+      "sha256": "a386ffa59a474ccc3ece83995e947425ee632ba6c57d21ec80e9e67bf8e544fe"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/rag-proxy/rag-proxy.controller.ts",
+      "mode": "targeted excerpts or authored candidate; not whole-file certification",
+      "sha256": "279dc9ad8c6a25f374d819d1d4c73a07ce5a778fd07cbce85d30828c71320a5e"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/frontend/app/routes/admin.rag.ingest.tsx",
+      "mode": "targeted excerpts or authored candidate; not whole-file certification",
+      "sha256": "e2fdeb89e364983d7a81dffb2785d42f1c22e91e6b7115ccbaad9082b02381f7"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/seo-projection/seo-projection-write.processor.ts",
+      "mode": "targeted read or authored and tested; not whole-repository certification",
+      "sha256": "609c359e50fc28b52362bd148500c97c38e8df1f3fe08691ac8519a2e046536c"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/seo-projection/seo-projection-refresh.processor.ts",
+      "mode": "targeted excerpt or edited file; not whole-file certification",
+      "sha256": "1ce7c77935ea7fdd43829d8034700c5762e689d0e66ff53e817c57a4dd325ad7"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/packages/database-types/src/supabase-generated.types.ts",
+      "mode": "targeted excerpts or authored candidate; not whole-file certification",
+      "sha256": "f0c869486cad56485a83086042df61a8425b488da502c99e6c747a6007efa348"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/config/operating-matrix.service.ts",
+      "mode": "targeted excerpts or authored candidate; not whole-file certification",
+      "sha256": "88386d77ca8307f7ce57ccef9f6c3c8908b934248e820a450ae27b98666765c5"
+    },
+    {
+      "path": "/home/deploy/worktrees/rag-editorial-consumption-20260912/app/models/wiki_frontmatter.py",
+      "mode": "targeted excerpts or authored candidate; not whole-file certification",
+      "sha256": "ae15645c9dc9c03d2623f725b809c87703a7f7828ec99a7338ee83c1f741bacb"
+    },
+    {
+      "path": "/home/deploy/worktrees/rag-editorial-consumption-20260912/app/services/knowledge_service.py",
+      "mode": "targeted excerpts or authored candidate; not whole-file certification",
+      "sha256": "28398e9124178941613d71b64689e2ff64d38b7469e584368cf3de15a8ad52ae"
+    },
+    {
+      "path": "/home/deploy/worktrees/rag-editorial-consumption-20260912/app/services/index_retirement.py",
+      "mode": "targeted excerpts or authored candidate; not whole-file certification",
+      "sha256": "3d0a061f30d538a90049711916695b745cf7c17dc76a7c3bd121240c537f971e"
+    },
+    {
+      "path": "/home/deploy/worktrees/rag-editorial-consumption-20260912/app/services/weaviate_client.py",
+      "mode": "targeted excerpts or authored candidate; not whole-file certification",
+      "sha256": "f45deba6be7a1ed1f0d7ca5ba671baf7fbbe0a5f03e0e70cfc20f963128e6320"
+    },
+    {
+      "path": "/home/deploy/worktrees/rag-editorial-consumption-20260912/app/services/weaviate_v2_schema.py",
+      "mode": "targeted excerpts or authored candidate; not whole-file certification",
+      "sha256": "9c95b826898e1c96f95efca17fc378660699c2888d224cd53108793894f45934"
+    },
+    {
+      "path": "/home/deploy/worktrees/rag-editorial-consumption-20260912/app/api/knowledge.py",
+      "mode": "targeted excerpts or authored candidate; not whole-file certification",
+      "sha256": "f6e54ef8d9ae62acaf5aca60aec180e0384efa71540773480dfd5c8aba17d435"
+    },
+    {
+      "path": "/home/deploy/worktrees/rag-editorial-consumption-20260912/app/dependencies.py",
+      "mode": "targeted excerpts or authored candidate; not whole-file certification",
+      "sha256": "31f3b1539aa42903985c59d9cc183c3e985fb797076b63f82ada22b06349545f"
+    },
+    {
+      "path": "/home/deploy/worktrees/rag-editorial-consumption-20260912/app/config.py",
+      "mode": "targeted excerpts or authored candidate; not whole-file certification",
+      "sha256": "f02a765d40fb9b26847e459bf29d7f2436700259e5a3621443d12e1c5414843e"
+    },
+    {
+      "path": "/home/deploy/worktrees/rag-editorial-consumption-20260912/app/observability/metrics.py",
+      "mode": "targeted excerpts or authored candidate; not whole-file certification",
+      "sha256": "0f6d9e1bda7e7414617741485508f4d642f225b308142bd0596eb6dc959bf5c8"
+    },
+    {
+      "path": "/home/deploy/worktrees/rag-editorial-consumption-20260912/orchestrator/pipeline.py",
+      "mode": "targeted excerpts or authored candidate; not whole-file certification",
+      "sha256": "92bba5957358f11bd51067b1f08e0d38e585e303d684dccb47efa6b07d7faf5b"
+    },
+    {
+      "path": "/home/deploy/worktrees/rag-editorial-consumption-20260912/scripts/migrations/migrate_kb_v1_to_v2.py",
+      "mode": "targeted excerpts or authored candidate; not whole-file certification",
+      "sha256": "f26fc08db69c477e636f8f59028619d5569da44efba41e06e796ddf4e918a543"
+    },
+    {
+      "path": "/home/deploy/worktrees/rag-editorial-consumption-20260912/tests/test_editorial_retirement.py",
+      "mode": "targeted excerpts or authored candidate; not whole-file certification",
+      "sha256": "979b41b7a136404224930865dc9f50e9d5543a1cb01b1536edead293f9c01567"
+    },
+    {
+      "path": "/home/deploy/worktrees/rag-editorial-consumption-20260912/tests/test_f5_import_wiki_exports.py",
+      "mode": "targeted excerpts or authored candidate; not whole-file certification",
+      "sha256": "a1a34843a8f2a5d8e32b64a31fd43745c1524e799867d617684d8d17b31db104"
+    },
+    {
+      "path": "/home/deploy/worktrees/rag-editorial-consumption-20260912/tests/test_f5_knowledge_service_readonly.py",
+      "mode": "targeted excerpts or authored candidate; not whole-file certification",
+      "sha256": "812eecf818dc86aff007a3b0fdd10b0dfc0cf0786e90bac4b5b8e9f590915e84"
+    },
+    {
+      "path": "/home/deploy/worktrees/rag-editorial-consumption-20260912/docs/editorial-retirement.md",
+      "mode": "targeted excerpts or authored candidate; not whole-file certification",
+      "sha256": "53255020817274b90c05f860c300c1f4266f7fd026ef669d0bdcb5d94eea4ffb"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/seo-projection/seo-projection-snapshot.ts",
+      "mode": "targeted excerpt or edited file; not whole-file certification",
+      "sha256": "885a2edcbffb45f023f7559fdc460065bc206ce16dc46a8f8be46191216531d0"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/seo-projection/seo-projection-snapshot.test.ts",
+      "mode": "targeted excerpt or edited file; not whole-file certification",
+      "sha256": "03637eeb4e37a3f357bd8d53a299757c1e32615795885b7a085662279d8b573f"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/seo-projection/seo-projection-gate.service.ts",
+      "mode": "targeted read or authored and tested; no whole-repository certification",
+      "sha256": "c1556eb21e234896904165bb8134a6a2d46858ee419e4d09ec0d78d9f9053a5f"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/seo-projection/seo-projection-writer.test.ts",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "fd81afe16fb52a8343850e98e85b84050d46b93460b7860c24a026fb5e7b8783"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/scripts/seo-projection/replay_projection.py",
+      "mode": "targeted excerpts or candidate edits; not whole-file certification",
+      "sha256": "d2ff928d51f2230c2f4ea41de71d476424ba93ac4e26e3cd469f3b5f60e27271"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/exports/seo/gamme/filtre-a-air.json",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "f4be9dc6c6c3a599de92a4043acfbb629ef68bc88e4e1693573bddc14b74f543"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/exports/seo/gamme/filtre-a-carburant.json",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "3d47a7e24e6772098169feb2d4d15cb6fc069e78d3a131dd72763ae641566c81"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/exports/seo/gamme/filtre-d-habitacle.json",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "0b39c9728f22fc429f1a438f5c27b4e9303a0d5f830ef5c3e5313119414e0d5c"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/wiki/diagnostic/faq.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "125b89190b51ab9d70a13eaec69cffab8e8c985e884282dffa52841cec5439e4"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/wiki/diagnostic/safety-config.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "4aab3d809ab3489ef255bf057eeadf3c3e7de0b856ccba23b7b4f59adec50f08"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/wiki/diagnostic/signs.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "40be85576307102821ef2529dab9b5d13c04339dd63da8a3c78dfd9e34b06c53"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/wiki/diagnostic/vocab-clusters.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "64253cdc4ec0826328880e68b8f02ead3463b6c2922f852b0116f3fff3cb77d0"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/wiki/diagnostic/wizard-steps.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "62bf412ea812323ee0d3b727ea1816b159d1bee7352b5d0e7ec11c24496dd289"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/wiki/gamme/filtre-a-air.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "b004ed7ea0945abd5359c2012ac75c7e54be2b9ebd67399f024389cca5e3b876"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/wiki/gamme/filtre-a-carburant.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "1277cddaf03705d36bb35b0bdfbaa9c0e4dbc01d520f548137064c7a9b5fb7e5"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/wiki/gamme/filtre-d-habitacle.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "39116a2be2861cfc87008d3a5ca80362685c686c426ac2aee674203d8ee471da"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/wiki/support/controles-mensuels.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "4fcabf196464f1eb09cbcceba82d50a100b98386277e49e359924fc00c9d9aa9"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/_index.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "21c09b50a26b4be76cf350f3e0359578874fe5f5489524971cf08b6e823fdbe9"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/_quality/sources-brief.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "08b319be9ff3a8fbdd8faaa245b1f74282bba9d8ddefda57d3eb8db3e4d98bca"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/citroen-c3.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "ad6429970069b35af9730e06be2fa5b27988a6baa0b577e7c3498a1e6519d1e2"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/courroie-d-accessoire.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "22e8f4aa437eaa2db7bd8e489a6c072b2e5b1b7e00ba5f519e838ccb125dc855"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/dacia.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "67422cf4dbc0fad014e6d38b211f9127d7b0a4e03d054ccbe283625d6467959b"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/disque-de-frein.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "5e676cd1af40fd0051b69f8ab17503a33269092ac288bcd28e412dba79b26b37"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/filtre-a-huile.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "811a538b769a021bbda5d8ff71cdd501fdfee5fb93cfd6783e89e344080ad5ff"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/ford-focus-3.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "6313c388d6067d345b4daa5b08bddfe7434fba1d973b2a81e69387c2ed4a4cac"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/peugeot-206.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "874c6710d396d071ca12ee890a0ee02ad8ba104ba67a4991cb5e5991f9124775"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/plaquette-de-frein.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "8e658769893bc7b1083c5595c699f9059083363ef71e6e7dd564a8464e41b363"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/renault-clio-3.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "e86363c56da494fb26c2da144c962fb09782a0a8100c430915639701b99e7773"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/renault-megane-3.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "1756eb8f62ce90172d5ab60802c5dbd1371ba2214dc6d284869c69e35f98d872"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/renault-scenic-ii.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "78e322aaf8e36fea0a1d455a27294b321fcf507cc2292ab53c0651e37dd46b7c"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/support-moteur.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "3bb470779ed1059fd08833b9f2f8a149de3df6a6953b3520b5b8d6cac9d711c3"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/thermostat.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "4080193a39790ee58d347dd445500b168d947fe149148c776567b3fc74514389"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/vanne-egr.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "cd6b9aedf56a18a9780f590ed7b308df55d1464558df661fddc0c5475058d5b0"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/volkswagen-golf-6.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "42516d8b32bda1eeb11e2a5caa8e84f989b49a1d7708d09052640f630f889cf1"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/exports/seo/gamme/filtre-a-air.json",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "f4be9dc6c6c3a599de92a4043acfbb629ef68bc88e4e1693573bddc14b74f543"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/exports/seo/gamme/filtre-a-carburant.json",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "3d47a7e24e6772098169feb2d4d15cb6fc069e78d3a131dd72763ae641566c81"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/exports/seo/gamme/filtre-d-habitacle.json",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "0b39c9728f22fc429f1a438f5c27b4e9303a0d5f830ef5c3e5313119414e0d5c"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/wiki/diagnostic/faq.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "125b89190b51ab9d70a13eaec69cffab8e8c985e884282dffa52841cec5439e4"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/wiki/diagnostic/safety-config.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "4aab3d809ab3489ef255bf057eeadf3c3e7de0b856ccba23b7b4f59adec50f08"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/wiki/diagnostic/signs.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "40be85576307102821ef2529dab9b5d13c04339dd63da8a3c78dfd9e34b06c53"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/wiki/diagnostic/vocab-clusters.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "64253cdc4ec0826328880e68b8f02ead3463b6c2922f852b0116f3fff3cb77d0"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/wiki/diagnostic/wizard-steps.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "62bf412ea812323ee0d3b727ea1816b159d1bee7352b5d0e7ec11c24496dd289"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/wiki/gamme/filtre-a-air.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "b004ed7ea0945abd5359c2012ac75c7e54be2b9ebd67399f024389cca5e3b876"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/wiki/gamme/filtre-a-carburant.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "1277cddaf03705d36bb35b0bdfbaa9c0e4dbc01d520f548137064c7a9b5fb7e5"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/wiki/gamme/filtre-d-habitacle.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "39116a2be2861cfc87008d3a5ca80362685c686c426ac2aee674203d8ee471da"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/wiki/support/controles-mensuels.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "4fcabf196464f1eb09cbcceba82d50a100b98386277e49e359924fc00c9d9aa9"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/_index.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "21c09b50a26b4be76cf350f3e0359578874fe5f5489524971cf08b6e823fdbe9"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/_quality/sources-brief.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "08b319be9ff3a8fbdd8faaa245b1f74282bba9d8ddefda57d3eb8db3e4d98bca"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/citroen-c3.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "ad6429970069b35af9730e06be2fa5b27988a6baa0b577e7c3498a1e6519d1e2"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/courroie-d-accessoire.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "22e8f4aa437eaa2db7bd8e489a6c072b2e5b1b7e00ba5f519e838ccb125dc855"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/dacia.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "67422cf4dbc0fad014e6d38b211f9127d7b0a4e03d054ccbe283625d6467959b"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/disque-de-frein.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "5e676cd1af40fd0051b69f8ab17503a33269092ac288bcd28e412dba79b26b37"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/filtre-a-huile.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "811a538b769a021bbda5d8ff71cdd501fdfee5fb93cfd6783e89e344080ad5ff"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/ford-focus-3.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "6313c388d6067d345b4daa5b08bddfe7434fba1d973b2a81e69387c2ed4a4cac"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/peugeot-206.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "874c6710d396d071ca12ee890a0ee02ad8ba104ba67a4991cb5e5991f9124775"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/plaquette-de-frein.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "8e658769893bc7b1083c5595c699f9059083363ef71e6e7dd564a8464e41b363"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/renault-clio-3.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "e86363c56da494fb26c2da144c962fb09782a0a8100c430915639701b99e7773"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/renault-megane-3.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "1756eb8f62ce90172d5ab60802c5dbd1371ba2214dc6d284869c69e35f98d872"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/renault-scenic-ii.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "78e322aaf8e36fea0a1d455a27294b321fcf507cc2292ab53c0651e37dd46b7c"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/support-moteur.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "3bb470779ed1059fd08833b9f2f8a149de3df6a6953b3520b5b8d6cac9d711c3"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/thermostat.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "4080193a39790ee58d347dd445500b168d947fe149148c776567b3fc74514389"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/vanne-egr.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "cd6b9aedf56a18a9780f590ed7b308df55d1464558df661fddc0c5475058d5b0"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/volkswagen-golf-6.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "42516d8b32bda1eeb11e2a5caa8e84f989b49a1d7708d09052640f630f889cf1"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/supabase/migrations/20260619_adr059_pr6_seo_projection_schema.sql",
+      "mode": "targeted read or candidate authored and exercised; not whole-repository certification",
+      "sha256": "9ff0df089a0d2c3c634aa73a91a0f1c2a2cc161ad700ff63b0976a830c68305b"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/supabase/migrations/20260620_adr059_pr7_get_active_seo_projection_rpc.sql",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "121ca49f8bdef7bf9ee5936796851b227fc0736c5cfc9861a801238b3e4df8ea"
+    },
+    {
+      "path": "/opt/automecanik/governance-vault/ledger/decisions/adr/ADR-086-encyclopedia-editorial-content-contract.md",
+      "mode": "targeted source/structured corpus read or candidate edit; not factual or whole-system certification",
+      "sha256": "0286f323d4083069897f27e37e0137072f6308bfe07cdd99b7d290c40bc3e33d"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/seo-projection/seo-projection-reader.service.test.ts",
+      "mode": "targeted read or edit; not complete module review",
+      "sha256": "60a06fbd0a027478303a6f8e649d5b3c3b126dff8bd22121ce0cc8e24675cf13"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/node_modules/@supabase/postgrest-js/src/PostgrestFilterBuilder.ts",
+      "mode": "targeted read or edit; not complete module review",
+      "sha256": "241de86c678252fc65e3d6fd14c0f823843969e815145af1ce941e452b842067"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/node_modules/@supabase/postgrest-js/src/PostgrestTransformBuilder.ts",
+      "mode": "targeted read or edit; not complete module review",
+      "sha256": "e283b8c0f5b550493f8c98c0a72f30f92860efb704aad4180b05175ae1fa14cc"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/seo-projection/seo-projection-refresh.processor.test.ts",
+      "mode": "targeted read or edit; not complete module review",
+      "sha256": "afbae58ad3a270bc35dfbf0a665879a9c8f5c912cadfd9d779e095285519d971"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/seo-projection/seo-projection.module.ts",
+      "mode": "targeted read or edit; not complete module review",
+      "sha256": "045219b5b1dbd39c2b3996c9d78b69df31ec51da62f0be6448151df5c9e889b1"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/workers/worker.module.ts",
+      "mode": "targeted read or edit; not complete module review",
+      "sha256": "58958657f9d1f06c249956b7950ac01f54dbcb2399f7cf5c79f20dea418b727e"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/seo/r2/services/outbox-relay.service.ts",
+      "mode": "targeted read or edit; not complete module review",
+      "sha256": "c03b4bfe3ebf3dc78520089994573685d0bb21d721f2c6ce7f4be951cce98982"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/supabase/migrations/20260619_adr059_pr6c_mv_revoke_and_refresh_rpc.sql",
+      "mode": "targeted read or edit; not complete module review",
+      "sha256": "5ff104162ba65bfb3b6eaa3a6a952fff871d2488daccdf34e2bcd8e3ba4e05b6"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/node_modules/bull/lib/queue.js",
+      "mode": "targeted read or edit; not complete module review",
+      "sha256": "7c7d57a6d41945091c5e37d90bf618b7dcfd5350b750b2f6d60c7f0ef20c3d65"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/supabase/migrations/20260912212340_seo_projection_block_outbox.sql",
+      "mode": "targeted read or authored and tested; no whole-repository certification",
+      "sha256": "f3c5ecc0853535551059eee0965ee096c3475193032e1344c9c1cca3f8251acf"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/scripts/seo-projection/test_block_outbox_transaction.py",
+      "mode": "targeted read or authored and tested; no whole-repository certification",
+      "sha256": "3df8f48c009821c1aa30f9590b52ca13349910627ea1d88cd72c84e7c5ef7af2"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/supabase/migrations/README.md",
+      "mode": "targeted read or candidate authored and exercised; not whole-repository certification",
+      "sha256": "ef930a91ead3d77f6b81bfd30898806d50c4c0db1b3e5a6a32e4525b4ecfb41b"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/.squawk.toml",
+      "mode": "targeted read or candidate authored and exercised; not whole-repository certification",
+      "sha256": "16e693a6fdc4c016a2360f33b9212a9f7b881c73512857444ff87fcf107ac65d"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/.claude/canon-mirrors/agent-exit-contract.md",
+      "mode": "targeted read or candidate authored and exercised; not whole-repository certification",
+      "sha256": "65d51c022ce438ddd27146b6da132d2e83d161a8e2dc2f30c90f339eb24dea21"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/database/services/supabase-base.service.ts",
+      "mode": "targeted read or authored and tested; no whole-repository certification",
+      "sha256": "ec9fc6df1247dc4aa057579d2e1c040e37c7df5973044b14bd6466137ab9d546"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/package.json",
+      "mode": "targeted read or authored and tested; no whole-repository certification",
+      "sha256": "12ec08df11b677fecc893d72f3bc5364106c2b6277ae9714aedff8f40032d381"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/.github/workflows/ci.yml",
+      "mode": "targeted read or authored and tested; no whole-repository certification",
+      "sha256": "4da98d718e068f557344c3a0a185e65d4f81c83e2f6c887b23cb1a21702c6acc"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/supabase/migrations/20260912231807_seo_projection_refresh_ack.sql",
+      "mode": "targeted read or authored candidate; not whole-file certification",
+      "sha256": "6c84602f708d044c4aab91b80cba56d8ada306ec14c3d1cf9957a773a7ad4e34"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/seo-projection/seo-projection-refresh-recovery.test.ts",
+      "mode": "targeted read or authored candidate; not whole-file certification",
+      "sha256": "86449ee35c5f464d758cbdea9132647ca2ba460171217f2ba7e376d0fb17c848"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/seo-projection/seo-projection-feed.processor.ts",
+      "mode": "targeted read or authored candidate; not whole-file certification",
+      "sha256": "e81eb1463fe69f322332bece29c1e2d2b6598b64547d52da3fe2f9b58ca21e85"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/seo-projection/seo-projection-refresh-redis.test.ts",
+      "mode": "targeted read or authored candidate; not whole-file certification",
+      "sha256": "5e78e7d5a2d958a65254c5bdd25a9f47fb11776d69654f65644aef2557d6310b"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/session/session-store.test.ts",
+      "mode": "targeted read or authored candidate; not whole-file certification",
+      "sha256": "6e960a15e847b63e8651fbe8b2991b6f9ca52f4c703dc8c84f6759800352b10e"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/node_modules/bull/package.json",
+      "mode": "targeted read or authored candidate; not whole-file certification",
+      "sha256": "a506a7e3e618ef4795c89703df3f78cf4ac0e57508cde8b5300cc0a23aaf4317"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/node_modules/@nestjs/bull/dist/bull.explorer.js",
+      "mode": "targeted read or authored candidate; not whole-file certification",
+      "sha256": "a5eb8f194769486bb8c78a02abfc90816265e2bbb251b9a953c2508eca7c5a3c"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/node_modules/@nestjs/bull/dist/decorators/queue-hooks.decorators.d.ts",
+      "mode": "targeted read or authored candidate; not whole-file certification",
+      "sha256": "3d5eb287602e195de57f57598d1fcd00c86a81d8396c4c3754e3d5707d1e5543"
+    },
+    {
+      "path": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/jest.config.js",
+      "mode": "targeted read or authored candidate; not whole-file certification",
+      "sha256": "d49024e34f0462ae847135bc9a3b97baccb33e8d7bf697c3cbe93300dc61951f"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/CLAUDE.md",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "507ec6e1bc8141d6d8f8ec3d05b6057480895052c9878dd7300e1b1225b4c615"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/promote.py",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "9cd8455dbf0786295fa4381809bc0316c23ce3d45862227e18525f69097dffcb"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/promotion_decision.py",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "ad4d21a7122a9f00dd2ee347719e315ea19d5882e1586dff33b6aeea77337c90"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/_meta/schema/frontmatter.schema.json",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "2d4f5c25fd3792051ff730bb1b86aa1e41dc36b4ebb1dd991f33e4cc2b8fa601"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/tests/test_confidence_schema_contract.py",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "b51a0c937ebbe2ece63a61523721a110d9f52871901a742cb2fadf8e296190d4"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/package.json",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "7f7df11df4ffd583dce44f6051fd21639d508110698a8a22de49dccde1d1de90"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/test_promotion_decision.py",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "177870217402f5a207d5b1f5950877e7bcdcbeaa2426211f054dea42c842da10"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/test_promote.py",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "e4845b90ddf38e656c6cb7d91290fa3ebe768f4d5a316f0cfc0b06ce9b28917a"
+    },
+    {
+      "path": "/opt/automecanik/governance-editorial-pipeline-20260912/CLAUDE.md",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "6cd7f1d8b1c9318a4f98322c96476af3c3339f4934f473c0e5feae3297a0eb76"
+    },
+    {
+      "path": "/opt/automecanik/governance-editorial-pipeline-20260912/ops/moc/MOC-Decisions.md",
+      "mode": "targeted full text or excerpt; not whole-file certification",
+      "sha256": "42ff016cca1f29d5a22d71df20d682a92ceb7587668eb3fd91f33acf8e2868a5"
+    }
+  ],
+  "additional_evidence": [
+    "RAW runner read via git show origin/main",
+    "crontab filtered, sync/auto-enrich log tails, mirror manifest fields",
+    "PR86 and PR50 current read-only GitHub states",
+    "four local transfer documents; source reports reused",
+    "raw-network-regression-probe.py uses same fetch entrypoint on baseline and candidate with mocked HTTP/DNS",
+    "raw-network.patch includes helper and tests; no corpus files or sources mutated",
+    "raw-admin-cli-proof.py and raw-admin-bridge-proof.cjs: real processes, disposable Git corpus only",
+    "knowledge-jobs timer transferred in coordination guide; not live-reverified or modified",
+    "editorial-duplicate-findings.md; 3 existing SEO exports,9 WIKI fiches,15 business proposals per checkout; two copies not two independent corpora;4 navigation/quality docs excluded across copies",
+    "editorial-identity-comparison.json carries native mapper before/after hashes and unchanged source file checks",
+    "r8-projection-db-counts.json preserves aggregate SELECT and tool result",
+    "r8-legacy-verification.json; application-r8-legacy.patch",
+    "editorial-identity-corpus-final.json; replay of saved native inputs, source hashes rechecked",
+    "withdrawal-outbox-design.md section11, refresh-ack-verification.json, application-refresh-ack.patch",
+    "withdrawal-outbox-design.md section12; block-outbox-verification.json; real PostgreSQL17 fixture; application-block-outbox.patch",
+    "withdrawal-outbox-design.md section13, writer-outbox-verification.json, application-writer-outbox.patch",
+    "withdrawal-outbox-design.md section14, partial-write-verification.json, application-partial-write.patch",
+    "refresh-ack-verification.json; 24 real PostgreSQL tests; 106 app tests/5 suites; application-refresh-ack.patch",
+    "queue-recovery-verification.json:119 tests/6 suites incl7 real Redis; SQL24 reused after hashes; application-queue-recovery.patch"
+  ],
+  "excluded_paths": [
+    "unrelated business modules",
+    "secrets",
+    "full source corpus"
+  ],
+  "unscanned_zones": [
+    "shared runtime flags and queues; isolated native Bull/Redis fixture now verified",
+    "browser rendering",
+    "full network/media acquisition safeguards",
+    "document contents/vectors and full live lineage; targeted metadata/counts only",
+    "deployment behavior and public SEO runtime; internal RAG schema read does not validate publication"
+  ],
+  "corrections_proposed": [
+    "bind sync provenance and fail closed on incomplete refresh",
+    "count only section body for substance",
+    "prepare acquisition routing through existing RAW producers",
+    "Bound existing HTML producer network requests including robots and redirects",
+    "Non-normative withdrawal-outbox-design.md; SQL migration candidate now prepared and tested in ephemeral DB; no shared application/queue activation",
+    "Existing WIKI builder --format json observations; retained exports remain blocked and preserved, no inferred withdrawal authority",
+    "Existing promotion input manifest captures native canon_target independently of explicit baseline; engine/input recapture drift blocks decision/apply; no withdrawal executor",
+    "Native executor requires full decision, parses matched source bytes, rechecks before write and preserves proposal changed during write; CLI no longer passes cached fm/body",
+    "Native checkout directory flock and same-directory atomic canonical-file publication; explicit nonzero apply failures in text/JSON"
+  ],
+  "corrections_applied": [
+    "isolated application and WIKI working diffs under user authorization; no runtime delivery",
+    "Isolated RAW network worktree stacked on PR50; three staged files; not delivered",
+    "cleanup/apply wired to RAW CLI in isolated app candidate; RAW submitted-text mode with native schema/manifests; no deployment",
+    "Isolated video route to native RAW capture; removed RAG downloader; common writer lock and process deadlines; staged not committed/deployed",
+    "Isolated RAW native manifest_id, replay inventory/worklist and secret scan for HTML; no source rewrites",
+    "Isolated RAG native importer passes actual Markdown body, rejects empty body; no existing index repair",
+    "Isolated sync preflight rejects unreconciled mirror/partial scope/symlinks without deletion",
+    "Isolated WIKI SEO builder rejects retained exports without eligible source before batch writes",
+    "Isolated R7 curated FAQ only and mandatory hard-gate review; no existing page modified",
+    "Isolated SEO writer reads each input once for metadata/snapshot/projection; duplicate tar names and incomplete input fail before active writes; four changed files, public signature unchanged",
+    "Isolated writer validates selected block IDs against the whole export before entity upsert/facts/blocks; mapped rows reused; pipeline version 1.0.1; no renaming or migration",
+    "Isolated mapper retains existing R8 usefulness_target motorization axis in derived block identity; pipeline1.1.0; no corpus edit, merge, promotion or database write",
+    "User corriger: isolated R8 historical active-ID preflight, read errors fail closed before entity content writes; no automatic migration",
+    "Authorized isolated refresh consumer fix: exact two-view confirmation and failed result rejected to Bull; READ_ONLY skip preserved; pipeline1.1.1 runner1.0.1",
+    "User continue: isolated SQL transaction candidate +18 real PostgreSQL tests; existing outbox only; no shared DB application or runtime hookup",
+    "User continue: candidate writer replacement RPC hookup, confirmed pre-write snapshot attachment, inactive/ownership/collision refusal and exact SQL provenance; not activated",
+    "User continue: preserve successful per-entity progress on later block failure; enqueue partial refresh before failed Bull job; no runtime activation",
+    "Isolated projection ACK migration and native writer pending detection; no shared application or activation",
+    "Isolated native completed/startup projection recovery; shared singleton ID; no new scheduler/activation"
+  ],
+  "validation_executed": {
+    "sync_tests": 10,
+    "sync_baseline_failures": 7,
+    "wiki_tests": 96,
+    "wiki_baseline_failures": 3,
+    "r8_unchanged_tests": 30,
+    "pr86_ci_checks": 6,
+    "pr50_ci_checks": 2,
+    "scorer_corpus_files": 24,
+    "scorer_corpus_changed": 0,
+    "vault_orphans": 0,
+    "vault_broken_links": 0,
+    "raw_network_native_hook_tests": 271,
+    "raw_network_baseline_unsafe_accepted": 4,
+    "raw_network_candidate_unsafe_refused": 4,
+    "raw_combined_script_tests": 286,
+    "admin_nest_tests": 15,
+    "backend_full_typecheck": "PASS",
+    "admin_targeted_eslint": "PASS",
+    "real_raw_cli_scanner_manifests": "PASS",
+    "real_nest_client_to_raw_cli": "PASS",
+    "raw_media_combined_tests": 293,
+    "admin_media_nest_tests": 25,
+    "media_targeted_eslint": "PASS six files",
+    "media_backend_full_typecheck": "PASS",
+    "real_nest_cli_media_probe_scanner_manifests": "PASS MP4 and WebM; synthetic download only",
+    "text_bridge_after_media": "PASS",
+    "raw_latest_combined_tests": 296,
+    "rag_body_baseline_failures": 2,
+    "rag_body_tests": 25,
+    "score_counterexamples": 8,
+    "native_quality_fixtures": 6,
+    "r3_serving_tests": 44,
+    "consumer_withdrawal": "gap reproduced on temporary mirror and in-memory index",
+    "runtime_readonly_inventory": "Supabase projection tables empty; Weaviate v2 absent; 619 SQL docs with zero empty bodies; no writes",
+    "sync_latest_tests": 14,
+    "sync_withdrawal_new_baseline_failures": 4,
+    "wiki_export_latest_tests": 88,
+    "wiki_withdrawal_baseline_failures": 4,
+    "all_role_contract_tests": 73,
+    "all_role_projection_tests": 20,
+    "all_role_targeted_tests": 69,
+    "r7_and_role_admission_tests": 21,
+    "r7_latest_tests": 6,
+    "r7_baseline_failures": 4,
+    "r2_structure_tests": 14,
+    "all_role_eslint": "PASS three TS files",
+    "all_role_backend_typecheck": "PASS",
+    "wiki_all_role_hooks": "PASS affected three files; corpus-only hooks skipped normally",
+    "snapshot_consistency_baseline_failed": 3,
+    "snapshot_consistency_latest_tests": 39,
+    "snapshot_consistency_suites": 3,
+    "snapshot_consistency_eslint": "PASS four files; changed test rechecked",
+    "snapshot_consistency_backend_typecheck": "PASS; production changes checked, subsequent test compiled by Jest",
+    "rag_retirement_latest_tests": 54,
+    "r9_deprecation_related_tests": 74,
+    "block_identity_baseline_failed": 5,
+    "block_identity_latest_tests": 47,
+    "block_identity_suites": 3,
+    "block_identity_lint": "PASS three changed files",
+    "block_identity_typecheck": "PASS backend",
+    "block_identity_public_writer": "real gate + temp archive + fake database; failed run and zero active versions",
+    "r8_scope_baseline_failures": 3,
+    "r8_scope_latest_tests": 53,
+    "r8_scope_suites": 3,
+    "r8_scope_lint": "PASS four files plus final test recheck",
+    "r8_scope_typecheck": "PASS backend; final added test compiled by Jest",
+    "real_corpus_files_read": 58,
+    "real_corpus_logical_collisions_before": 2,
+    "real_corpus_collisions_after": 0,
+    "real_corpus_changed_inputs": 0,
+    "r8_live_projection_table_counts": {
+      "__seo_content_blocks": 0,
+      "__seo_content_block_versions": 0
+    },
+    "r8_legacy_identity": {
+      "tests": 58,
+      "suites": 3,
+      "baseline_failures": 2,
+      "lint": "PASS",
+      "backend_tsc": "PASS",
+      "native_sdk_mock_transport": "GET only for legacy active and HTTP503",
+      "native_mapper_replay": "identical to previous mapping; 58 source hashes unchanged"
+    },
+    "refresh_ack": {
+      "postgres_tests": 24,
+      "application_tests": 106,
+      "application_suites": 5,
+      "eslint": "PASS",
+      "typecheck": "PASS",
+      "sql_lint": "PASS",
+      "migration_marker": "PASS",
+      "diff_check": "PASS"
+    },
+    "block_outbox": {
+      "postgres_tests": 18,
+      "postgres_result": "PASS",
+      "sql_lint": "PASS after two documented local exceptions",
+      "migration_marker": "PASS",
+      "staged_diff_check": "PASS",
+      "migration_reapply": "twice before tests plus after populated transitions; preserved rows and valid indexes"
+    },
+    "writer_outbox": {
+      "writer_refresh_tests": 89,
+      "writer_refresh_suites": 4,
+      "writer_transport": "in-memory Supabase double with native callRpc wrapper and simulated gate rejection; public projectExports plus real snapshot archive I/O",
+      "postgres_tests": 18,
+      "postgres_version": "17.11",
+      "postgres_test": "real SQL function with updated provenance parameter; native projection migration and reconstructed legacy outbox fixture",
+      "eslint": "PASS three files",
+      "backend_typecheck": "PASS",
+      "sql_lint": "PASS with previously documented two local exceptions",
+      "migration_marker": "PASS",
+      "diff_check": "PASS"
+    },
+    "partial_write": {
+      "baseline_failed": 5,
+      "baseline_passed": 59,
+      "latest_passed": 97,
+      "latest_suites": 4,
+      "eslint": "PASS four files",
+      "backend_typecheck": "PASS",
+      "staged_diff_check": "PASS",
+      "bull": "native processJob with simulated state transitions/timers; partial write classified failed, never completed",
+      "writer": "public projectExports, real archive I/O, simulated database and queue transports",
+      "sql_reused": {
+        "previous_passed": 18,
+        "not_rerun": true,
+        "reason": "SQL function and Python harness hashes unchanged; no dependency or fixture changes",
+        "verified_hashes": {
+          "backend/supabase/migrations/20260912212340_seo_projection_block_outbox.sql": "f3c5ecc0853535551059eee0965ee096c3475193032e1344c9c1cca3f8251acf",
+          "scripts/seo-projection/test_block_outbox_transaction.py": "b2111dfce0199ba23721d32ed3ac835de8ec6d809d1237bc68f5021541681dc0"
+        }
+      }
+    },
+    "queue_recovery": {
+      "tests": 119,
+      "suites": 6,
+      "real_redis_tests": 7,
+      "sql_tests_reused": 24,
+      "eslint": "PASS",
+      "typecheck": "PASS",
+      "diff_check": "PASS"
+    },
+    "withdrawal_observations": {
+      "pytest_passed": 102,
+      "builder_tests": 88,
+      "confidence_schema_tests": 14,
+      "new_builder_tests": 20,
+      "baseline_non_json_metadata_failed": 3,
+      "py_compile": "PASS",
+      "pre_commit": "PASS affected three files; corpus-only hooks skipped normally",
+      "first_pre_commit": "mdformat normalized README; subsequent hooks passed; production/test Python unchanged by formatting",
+      "staged_diff_check": "PASS",
+      "database_or_consumer_transport": "None; isolated filesystem/CLI fixtures"
+    },
+    "transition_inputs": {
+      "pytest_passed": 199,
+      "decision_tests": 50,
+      "promoter_tests": 47,
+      "builder_tests": 88,
+      "score_schema_tests": 14,
+      "new_tests": 15,
+      "baseline_failed": 9,
+      "py_compile": "PASS",
+      "pre_commit": "PASS two changed Python files; inapplicable hooks skipped",
+      "staged_diff_check": "PASS"
+    },
+    "applied_snapshot": {
+      "pytest_passed": 209,
+      "decision_tests": 50,
+      "promoter_tests": 57,
+      "builder_tests": 88,
+      "score_schema_tests": 14,
+      "new_tests": 10,
+      "baseline_failed": 3,
+      "py_compile": "PASS two production Python files",
+      "pre_commit": "PASS three changed files",
+      "staged_diff_check": "PASS",
+      "fixture_adjustment": "Two schema serialization fixtures used draft status; explicitly submitted in_review to exercise the new shared executor status guard."
+    },
+    "atomic_promotion": {
+      "pytest_passed": 216,
+      "decision_tests": 50,
+      "promoter_tests": 64,
+      "builder_tests": 88,
+      "score_schema_tests": 14,
+      "new_tests": 7,
+      "baseline_failed": 3,
+      "py_compile": "PASS two production files",
+      "pre_commit": "PASS three changed files",
+      "staged_diff_check": "PASS"
+    }
+  },
+  "remaining_unknowns": [
+    "role-specific substance calibration",
+    "source withdrawal invalidation",
+    "live indexing and token savings",
+    "end-to-end rendered candidate",
+    "HTTP 200 paywall detection, editorial relevance and hostile text qualification",
+    "deployment configuration for RAW producer and qualified scanner",
+    "external clients expecting a RAG DB id from cleanup/apply",
+    "Live external media transport and packaged container constraints; no runtime acquisition activation",
+    "Authoritative complete-snapshot attribution before withdrawal reconciliation",
+    "Governed R3 projection renderer absent; representative WIKI-to-browser flow not proven",
+    "HTML same-content cross-URL provenance remains historical content-hash dedup; not semantic fact dedup",
+    "KB_Knowledge_v2 absent on observed instance; governed migration/activation not performed",
+    "8 non-active SQL documents retain retrievable=true; actual chatbot exposure and cross-index lineage not established",
+    "Per-role public activation and WIKI-to-browser candidate rendering for R1/R2/R6/R7/R8",
+    "R2/R6/R8 legacy RAG content producers; WIKI R1 producer missing and R7 structured sourcing incomplete",
+    "Withdrawal event contract through canonical outbox and complete source-to-consumer dependency lineage",
+    "Outbox withdrawal contract and approval: conditional nullable new_hash, source/entity mapping, durable per-consumer acknowledgements, monotonic approved snapshots",
+    "ADR-090 accepted frontmatter retains draft/proposed body text; vault consistency to resolve",
+    "Each source_wiki_commit is informational and per-file; accepted source-state proof remains distinct from replay snapshot hash",
+    "Stable source_refs/source_ids mapping including positional IDs, renamed sections and existing DB collisions not reconciled",
+    "R8 derived identity convention review before delivery; historic replay compatibility and deterministic ordering among scopes with same block_kind",
+    "No semantic duplicate audit of unprojected prose, legacy RAG corpus, caches or public browser rendering",
+    "R8 preflight is not an atomic historical migration and cannot protect against concurrent legacy writer versions; explicit reconciliation and single writer rollout required before activation",
+    "no shared DB mutation, live RPC, CI or deployment; SQL fixture mutations explicitly tested in later block-outbox lot",
+    "existing active block only; no creation or inferred absence withdrawal",
+    "caller must verify accepted WIKI transition and source-to-target mapping; run metadata alone is not approval",
+    "regressing content is rejected here; native draft/conflict path remains outside this primitive",
+    "shared DB catalog was not refreshed in this lot; old outbox clients still require compatibility inventory",
+    "No real writer-to-PostgREST-to-PostgreSQL integration; writer and SQL proved separately",
+    "WIKI acceptance remains upstream native export contract; no new acceptance proof manufactured",
+    "Initial creation, shared facts and regressing drafts retain native paths; not entity-wide atomicity",
+    "Legacy facts and initial block creation retain independent DB writes; individual statement failures and uncertain acknowledgments remain outside this lot",
+    "No shared database write, migration, CI, browser proof or deployment",
+    "Recovery after successful completion and healthy worker restart is wired; failure of the lifecycle pending lookup/enqueue is logged and needs a later lifecycle/writer opportunity. No independent periodic relay.",
+    "After native retry exhaustion, the event remains pending. Terminal failures are not automatically re-enqueued in an unbounded loop; operator action or a later restart/writer run is required.",
+    "Redis proof uses isolated testcontainers with real Bull 4.16.5 and Nest wiring; DB/outbox transport is simulated. Reconnect/startup is tested, not OS SIGKILL, Redis host data loss or an integrated PostgreSQL/PostgREST/Redis chain.",
+    "ACK and recovery cover explicit block replace/withdraw projection events only, not global consumer completion. Explicit accepted WIKI withdrawal mapping and other consumer ACKs remain unwired.",
+    "Legacy facts/creation independent writes, uncertain acknowledgments, late closeRun/conflict persistence failures and end-to-end source lineage remain outside the proven scope.",
+    "No shared DB migration/write, runtime flag activation, public browser evidence, CI, load/lock-duration proof, commit, push, merge or deployment. External outbox client compatibility still needs assessment.",
+    "Observations are unverified declarations, not accepted WIKI state or withdrawal instructions. Export identities and body hashes are not authenticated.",
+    "No source-to-consumer DB ID mapping, tombstone, dependency registry, accepted withdrawal event or consumer ACK is produced.",
+    "Early Git/root/parser/argument errors retain native non-JSON failure behavior; JSON output is not guaranteed for every failure.",
+    "No executable withdrawal proof/decision, durable acceptance, consumer mapping or corpus mutation added. Existing approved-target overwrite guard remains.",
+    "Hash-before/hash-after does not provide atomic filesystem compare-and-swap; no adversarial filesystem race certification.",
+    "Full evaluator input coverage (referenced RAW contents, effective configuration, all gate imports and schemas) is not certified.",
+    "Tests use temporary files and injected evaluators; no actual shared RAW/DB/Redis/consumer transport, CI, deployment, activation, commit, push or merge.",
+    "When proposal changes during canonical write, canonical file may already exist; apply_error states the written destination and preserved source. No rollback or transaction across files is claimed.",
+    "Decision is an in-process trusted canonical result, not an authenticated portable authorization token. No new consumer/HTTP entrypoint accepts supplied decisions.",
+    "Body and identity derive from matching source bytes; YAML and newlines retain native serialization and audit metadata are intentionally stamped, so whole-file byte equality is not claimed.",
+    "No executable complete withdrawal proof, durable acceptance, source-consumer mapping, shared corpus/DB mutation, runtime activation, CI, commit/push/merge or deployment.",
+    "Directory flock is advisory and scoped to this checkout, not a distributed lock across worktrees or uncooperative authors.",
+    "Proposal authors that bypass the lock can still change source between comparison and unlink; no universal atomic transaction across proposal and canonical files.",
+    "SIGKILL before replacement was tested, not machine power loss or crash at every syscall. A .tmp orphan may remain; it is ignored as content and not silently purged.",
+    "A crash or fsync error after publication can leave canonical file published and source retained; no two-file rollback or automatic recovery journal claimed.",
+    "Complete withdrawal trigger is still undefined in native policy; user clarification requested. No inferred withdrawal, newly accepted contract, executable removal connection or indexed-page deletion.",
+    "No corpus/shared DB write, runtime activation, CI, commit/push/merge or deployment."
+  ],
+  "final_status": "PARTIAL_COVERAGE",
+  "latest_retirement_validation": {
+    "tests": 54,
+    "exit_code": 0,
+    "real_index": false,
+    "real_sdk_filter": true,
+    "native_readonly_guards": true,
+    "r9_related_suites_tests": 74,
+    "activation": false,
+    "wiki_to_outbox_retirement_connected": false
+  }
+}

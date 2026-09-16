@@ -1,0 +1,6 @@
+
+/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/frontend/app/routes/blog-pieces-auto.guide-achat.$pg_alias.tsx
+  230:17  warning  ⚠️ Legacy SEO role literal in OUTPUT context. Use normalizeLegacyPageRole() / @repo/seo-roles canonical RoleId. (Legacy values OK in inputs, tests, fixtures.)  no-restricted-syntax
+
+✖ 1 problem (0 errors, 1 warning)
+

@@ -1,0 +1,86 @@
+{
+  "observed_date": "2026-09-13",
+  "scope_requested": "Identifier et fiabiliser la boucle de controle editorial apres suppression AI-COS",
+  "scope_actually_scanned": "Recherche ciblee du declencheur dans app et wiki; correction adaptateur promotion du pilote WIKI",
+  "files_read_count": 18,
+  "files": [
+    "app:.claude/rules/backend.md",
+    "app:.claude/rules/guardrails.md",
+    "app:.claude/canon-mirrors/agent-exit-contract.md",
+    "app:audit/registry/canonical.json (jq filtre)",
+    "app:backend/src/workers/types/content-refresh.types.ts",
+    "app:backend/src/modules/admin/admin.module.ts (recherche ciblee)",
+    "app:backend/src/modules/admin/controllers/admin-conseil.controller.ts (recherche ciblee)",
+    "app:workspaces/seo-batch/.claude/agents/r3-keyword-planner.md (recherche ciblee)",
+    "app:scripts/seo-audit-weekly.sh (extrait)",
+    "app:backend/src/modules/seo-logs/services/seo-audit-scheduler.service.ts (extrait)",
+    "wiki:CLAUDE.md",
+    "wiki:_scripts/raw_to_wiki_content_loop_pilot.py",
+    "wiki:_scripts/test_raw_to_wiki_content_loop_pilot.py",
+    "wiki:_scripts/promote.py (contrat CLI/report)",
+    "wiki:_scripts/promotion_decision.py (decision canonique)",
+    "wiki:_scripts/test_promote.py (extraits)",
+    "wiki:_scripts/test_promotion_decision.py (inventaire tests)",
+    "wiki:_meta/quality-gates.md (extrait)"
+  ],
+  "roots": {
+    "app": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912",
+    "wiki": "/opt/automecanik/wiki-editorial-qualification-20260912"
+  },
+  "freshness": "Fetch origin/main des deux candidats; pas de diff amont des proprietaires pilotes/scheduler controles. App12 commits derriere; wiki HEAD01cea8deda48d84b6a2993cd4bdefe8280082c0b. Deux fichiers pilotes propres avant ce lot.",
+  "analysis": [
+    "Audit SEO hebdomadaire porte sitemap/URLs, pas la collecte et qualification editoriale",
+    "Ancien content-refresh marque supprime dans AdminModule; ne pas reintroduire",
+    "Pilote WIKI report-only: examine sources/proposals existantes, ne collecte ni ne planifie",
+    "Pilote inferait promotion depuis tier A/S sans statut canonique, ignorait erreur processus, utilisait seuil0.80 refuse par promoteur actuel et omettait raw-root",
+    "Quatre anciens tests de pilote visaient ok/stage_consumer retires; controles equivalents remis sur state/static_proofs"
+  ],
+  "corrections_applied": [
+    "Adaptateur lit promotion_status/eligible/blocking_reasons du promoteur; tier informatif seulement",
+    "Echec processus, decision absente/ambigue/incoherente ou evaluation inconnue restent UNKNOWN",
+    "run transmet raw-root; seuil absent delegue au defaut canonique; surcharge explicite conservee",
+    "Motifs du rapport sans ancien message seuil1.01; description precise role diagnostique",
+    "Tests de regression et invocation reelle CLI dry-run isolee"
+  ],
+  "corrections_proposed": [
+    "Identifier declencheur actuel et dernier run hors surfaces inspectees",
+    "Prouver collecte utile et qualification bout en bout puis page servie"
+  ],
+  "validation_executed": {
+    "baseline": "4 echecs anciens /10 tests avant nouvelles regressions",
+    "before": "16 echecs /22 apres ajout de12 regressions avant code",
+    "after": "138 PASS /3 fichiers de tests dont24 pilote; test CLI reel en dry-run sur donnees temporaires, fichiers inchanges",
+    "checks": "py_compile2 et diff-check cibles PASS",
+    "live": "Aucun appel DB, collecte reseau, promotion corpus ou activation runtime"
+  },
+  "excluded_paths": [
+    "AI-COS supprime",
+    "Corpus partage et DB",
+    "PROD/PREPROD",
+    "Crons et queues actifs",
+    "Autres modifications candidates"
+  ],
+  "unscanned_zones": [
+    "Orchestrateur externe remplacant eventuel",
+    "Dernier run editorial effectif",
+    "Collecte automatique effective",
+    "Contenu projete servi"
+  ],
+  "remaining_unknowns": [
+    "Owner ne connait pas le declencheur actuel; aucun inventaire exhaustif des machines affirme",
+    "Aucun rapport loop trouve dans _audit profondeur2 du candidat WIKI; ne prouve pas absence ailleurs",
+    "Preuves statiques et artefact runtime du pilote restent de portee limitee",
+    "Verdicts composites historiques et selection entity-id du promoteur non modifies",
+    "Correctif pilote candidat non publie ni raccorde a un scheduler"
+  ],
+  "patch_sha256": "a1164a0973e2d1cbc6755ad5ecad7e7f4c27405b3be2f411b116bfde1fa6db29",
+  "patch_scope": "Deux fichiers WIKI, delta sur index existant; depend du promoteur candidat deja corrige",
+  "evidence": [
+    "content-loop-pilot.patch",
+    "content-loop-pilot-baseline.log",
+    "content-loop-pilot-before.log",
+    "content-loop-pilot-after.log",
+    "content-loop-pilot-final.log"
+  ],
+  "final_status": "PARTIAL_COVERAGE"
+}

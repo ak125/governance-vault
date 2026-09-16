@@ -1,0 +1,252 @@
+  console.log
+    ◇ injected env (0) from backend/.env.test // tip: ◈ encrypted .env [www.dotenvx.com]
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+FAIL backend/src/modules/admin/controllers/internal-seo-audit.r3.test.ts (12.414 s)
+  Internal R3 audit — HTTP to real scorer/gates with memory Supabase transport
+    ✕ recomputes existing 100 scores, returns actionable defects and never writes (87 ms)
+    ✕ retains both affected sections for exact cross-section duplicates (6 ms)
+    ✕ does not pass unknown identities or duplicate section rows silently (6 ms)
+    ✕ returns missing sections for an existing gamme with no content (5 ms)
+    ✕ distinguishes an unknown gamme from an empty pack (8 ms)
+    ✕ fails visibly on a read failure or a truncated result (5 ms)
+    ✕ rejects invalid target or pack before any query: 0 (13 ms)
+    ✕ rejects invalid target or pack before any query: -1 (92 ms)
+    ✕ rejects invalid target or pack before any query: 1junk (88 ms)
+    ✕ rejects invalid target or pack before any query: 1?pack=unknown (89 ms)
+    ✕ uses the existing internal key guard before reading content (83 ms)
+
+  ● Internal R3 audit — HTTP to real scorer/gates with memory Supabase transport › recomputes existing 100 scores, returns actionable defects and never writes
+
+    expected 200 "OK", got 404 "Not Found"
+
+      80 |   it('recomputes existing 100 scores, returns actionable defects and never writes', async () => {
+      81 |     const before = JSON.stringify(stored);
+    > 82 |     const response = await audit().expect(200);
+         |                                    ^
+      83 |     expect(response.body.data.scoreBasis).toBe('recomputed_heuristic');
+      84 |     expect(response.body.data.sections[0]).toMatchObject({ storedScore: 100, score: 50 });
+      85 |     expect(response.body.data.audit.sections_to_improve).toEqual(expect.arrayContaining(PACK_DEFINITIONS.standard.requiredSections));
+
+      at Object.<anonymous> (src/modules/admin/controllers/internal-seo-audit.r3.test.ts:82:36)
+      ----
+      at Test._assertStatus (../../../../node_modules/supertest/lib/test.js:309:14)
+      at ../../../../node_modules/supertest/lib/test.js:365:13
+      at Test._assertFunction (../../../../node_modules/supertest/lib/test.js:342:13)
+      at Test.assert (../../../../node_modules/supertest/lib/test.js:195:23)
+      at localAssert (../../../../node_modules/supertest/lib/test.js:138:14)
+      at Server.<anonymous> (../../../../node_modules/supertest/lib/test.js:152:11)
+
+  ● Internal R3 audit — HTTP to real scorer/gates with memory Supabase transport › retains both affected sections for exact cross-section duplicates
+
+    expected 200 "OK", got 404 "Not Found"
+
+      89 |   });
+      90 |   it('retains both affected sections for exact cross-section duplicates', async () => {
+    > 91 |     const response = await audit().expect(200);
+         |                                    ^
+      92 |     expect(response.body.data.audit.priority_fixes.filter((f: { issue: string }) => f.issue === 'duplicate_content').length).toBe(stored.length);
+      93 |   });
+      94 |   it('does not pass unknown identities or duplicate section rows silently', async () => {
+
+      at Object.<anonymous> (src/modules/admin/controllers/internal-seo-audit.r3.test.ts:91:36)
+      ----
+      at Test._assertStatus (../../../../node_modules/supertest/lib/test.js:309:14)
+      at ../../../../node_modules/supertest/lib/test.js:365:13
+      at Test._assertFunction (../../../../node_modules/supertest/lib/test.js:342:13)
+      at Test.assert (../../../../node_modules/supertest/lib/test.js:195:23)
+      at localAssert (../../../../node_modules/supertest/lib/test.js:138:14)
+      at Server.<anonymous> (../../../../node_modules/supertest/lib/test.js:152:11)
+
+  ● Internal R3 audit — HTTP to real scorer/gates with memory Supabase transport › does not pass unknown identities or duplicate section rows silently
+
+    expected 200 "OK", got 404 "Not Found"
+
+      94 |   it('does not pass unknown identities or duplicate section rows silently', async () => {
+      95 |     stored.push({ ...stored[0], sgc_id: '80' }, { ...stored[0], sgc_id: '81', sgc_section_type: 'symptomes' });
+    > 96 |     const response = await audit().expect(200);
+         |                                    ^
+      97 |     expect(response.body.data.duplicateSections).toEqual(['S1']);
+      98 |     expect(response.body.data.unmappedSectionIds).toEqual(['81']);
+      99 |     expect(response.body.data.canSkip).toBe(false);
+
+      at Object.<anonymous> (src/modules/admin/controllers/internal-seo-audit.r3.test.ts:96:36)
+      ----
+      at Test._assertStatus (../../../../node_modules/supertest/lib/test.js:309:14)
+      at ../../../../node_modules/supertest/lib/test.js:365:13
+      at Test._assertFunction (../../../../node_modules/supertest/lib/test.js:342:13)
+      at Test.assert (../../../../node_modules/supertest/lib/test.js:195:23)
+      at localAssert (../../../../node_modules/supertest/lib/test.js:138:14)
+      at Server.<anonymous> (../../../../node_modules/supertest/lib/test.js:152:11)
+
+  ● Internal R3 audit — HTTP to real scorer/gates with memory Supabase transport › returns missing sections for an existing gamme with no content
+
+    expected 200 "OK", got 404 "Not Found"
+
+      101 |   it('returns missing sections for an existing gamme with no content', async () => {
+      102 |     stored = [];
+    > 103 |     const response = await audit().expect(200);
+          |                                    ^
+      104 |     expect(response.body.data.audit.sections_to_create).toEqual(PACK_DEFINITIONS.standard.requiredSections);
+      105 |     expect(response.body.data.canSkip).toBe(false);
+      106 |   });
+
+      at Object.<anonymous> (src/modules/admin/controllers/internal-seo-audit.r3.test.ts:103:36)
+      ----
+      at Test._assertStatus (../../../../node_modules/supertest/lib/test.js:309:14)
+      at ../../../../node_modules/supertest/lib/test.js:365:13
+      at Test._assertFunction (../../../../node_modules/supertest/lib/test.js:342:13)
+      at Test.assert (../../../../node_modules/supertest/lib/test.js:195:23)
+      at localAssert (../../../../node_modules/supertest/lib/test.js:138:14)
+      at Server.<anonymous> (../../../../node_modules/supertest/lib/test.js:152:11)
+
+  ● Internal R3 audit — HTTP to real scorer/gates with memory Supabase transport › distinguishes an unknown gamme from an empty pack
+
+    expect(received).toHaveLength(expected)
+
+    Expected length: 1
+    Received length: 0
+    Received array:  []
+
+      108 |     missing = true;
+      109 |     await audit().expect(404);
+    > 110 |     expect(requests).toHaveLength(1);
+          |                      ^
+      111 |   });
+      112 |   it('fails visibly on a read failure or a truncated result', async () => {
+      113 |     failRead = true;
+
+      at Object.<anonymous> (src/modules/admin/controllers/internal-seo-audit.r3.test.ts:110:22)
+
+  ● Internal R3 audit — HTTP to real scorer/gates with memory Supabase transport › fails visibly on a read failure or a truncated result
+
+    expected 503 "Service Unavailable", got 404 "Not Found"
+
+      112 |   it('fails visibly on a read failure or a truncated result', async () => {
+      113 |     failRead = true;
+    > 114 |     await audit().expect(503);
+          |                   ^
+      115 |     failRead = false; truncated = true;
+      116 |     await audit().expect(503);
+      117 |   });
+
+      at Object.<anonymous> (src/modules/admin/controllers/internal-seo-audit.r3.test.ts:114:19)
+      ----
+      at Test._assertStatus (../../../../node_modules/supertest/lib/test.js:309:14)
+      at ../../../../node_modules/supertest/lib/test.js:365:13
+      at Test._assertFunction (../../../../node_modules/supertest/lib/test.js:342:13)
+      at Test.assert (../../../../node_modules/supertest/lib/test.js:195:23)
+      at localAssert (../../../../node_modules/supertest/lib/test.js:138:14)
+      at Server.<anonymous> (../../../../node_modules/supertest/lib/test.js:152:11)
+
+  ● Internal R3 audit — HTTP to real scorer/gates with memory Supabase transport › rejects invalid target or pack before any query: 0
+
+    expected 400 "Bad Request", got 404 "Not Found"
+
+      117 |   });
+      118 |   it.each(['0', '-1', '1junk', '1?pack=unknown'])('rejects invalid target or pack before any query: %s', async (suffix) => {
+    > 119 |     await audit(suffix).expect(400);
+          |                         ^
+      120 |     expect(requests).toHaveLength(0);
+      121 |   });
+      122 |   it('uses the existing internal key guard before reading content', async () => {
+
+      at src/modules/admin/controllers/internal-seo-audit.r3.test.ts:119:25
+      ----
+      at Test._assertStatus (../../../../node_modules/supertest/lib/test.js:309:14)
+      at ../../../../node_modules/supertest/lib/test.js:365:13
+      at Test._assertFunction (../../../../node_modules/supertest/lib/test.js:342:13)
+      at Test.assert (../../../../node_modules/supertest/lib/test.js:195:23)
+      at localAssert (../../../../node_modules/supertest/lib/test.js:138:14)
+      at Server.<anonymous> (../../../../node_modules/supertest/lib/test.js:152:11)
+
+  ● Internal R3 audit — HTTP to real scorer/gates with memory Supabase transport › rejects invalid target or pack before any query: -1
+
+    expected 400 "Bad Request", got 404 "Not Found"
+
+      117 |   });
+      118 |   it.each(['0', '-1', '1junk', '1?pack=unknown'])('rejects invalid target or pack before any query: %s', async (suffix) => {
+    > 119 |     await audit(suffix).expect(400);
+          |                         ^
+      120 |     expect(requests).toHaveLength(0);
+      121 |   });
+      122 |   it('uses the existing internal key guard before reading content', async () => {
+
+      at src/modules/admin/controllers/internal-seo-audit.r3.test.ts:119:25
+      ----
+      at Test._assertStatus (../../../../node_modules/supertest/lib/test.js:309:14)
+      at ../../../../node_modules/supertest/lib/test.js:365:13
+      at Test._assertFunction (../../../../node_modules/supertest/lib/test.js:342:13)
+      at Test.assert (../../../../node_modules/supertest/lib/test.js:195:23)
+      at localAssert (../../../../node_modules/supertest/lib/test.js:138:14)
+      at Server.<anonymous> (../../../../node_modules/supertest/lib/test.js:152:11)
+
+  ● Internal R3 audit — HTTP to real scorer/gates with memory Supabase transport › rejects invalid target or pack before any query: 1junk
+
+    expected 400 "Bad Request", got 404 "Not Found"
+
+      117 |   });
+      118 |   it.each(['0', '-1', '1junk', '1?pack=unknown'])('rejects invalid target or pack before any query: %s', async (suffix) => {
+    > 119 |     await audit(suffix).expect(400);
+          |                         ^
+      120 |     expect(requests).toHaveLength(0);
+      121 |   });
+      122 |   it('uses the existing internal key guard before reading content', async () => {
+
+      at src/modules/admin/controllers/internal-seo-audit.r3.test.ts:119:25
+      ----
+      at Test._assertStatus (../../../../node_modules/supertest/lib/test.js:309:14)
+      at ../../../../node_modules/supertest/lib/test.js:365:13
+      at Test._assertFunction (../../../../node_modules/supertest/lib/test.js:342:13)
+      at Test.assert (../../../../node_modules/supertest/lib/test.js:195:23)
+      at localAssert (../../../../node_modules/supertest/lib/test.js:138:14)
+      at Server.<anonymous> (../../../../node_modules/supertest/lib/test.js:152:11)
+
+  ● Internal R3 audit — HTTP to real scorer/gates with memory Supabase transport › rejects invalid target or pack before any query: 1?pack=unknown
+
+    expected 400 "Bad Request", got 404 "Not Found"
+
+      117 |   });
+      118 |   it.each(['0', '-1', '1junk', '1?pack=unknown'])('rejects invalid target or pack before any query: %s', async (suffix) => {
+    > 119 |     await audit(suffix).expect(400);
+          |                         ^
+      120 |     expect(requests).toHaveLength(0);
+      121 |   });
+      122 |   it('uses the existing internal key guard before reading content', async () => {
+
+      at src/modules/admin/controllers/internal-seo-audit.r3.test.ts:119:25
+      ----
+      at Test._assertStatus (../../../../node_modules/supertest/lib/test.js:309:14)
+      at ../../../../node_modules/supertest/lib/test.js:365:13
+      at Test._assertFunction (../../../../node_modules/supertest/lib/test.js:342:13)
+      at Test.assert (../../../../node_modules/supertest/lib/test.js:195:23)
+      at localAssert (../../../../node_modules/supertest/lib/test.js:138:14)
+      at Server.<anonymous> (../../../../node_modules/supertest/lib/test.js:152:11)
+
+  ● Internal R3 audit — HTTP to real scorer/gates with memory Supabase transport › uses the existing internal key guard before reading content
+
+    expected 403 "Forbidden", got 404 "Not Found"
+
+      121 |   });
+      122 |   it('uses the existing internal key guard before reading content', async () => {
+    > 123 |     await request(app.getHttpServer()).get('/api/internal/seo/audit/r3/1').expect(403);
+          |                                                                            ^
+      124 |     expect(requests).toHaveLength(0);
+      125 |   });
+      126 | });
+
+      at Object.<anonymous> (src/modules/admin/controllers/internal-seo-audit.r3.test.ts:123:76)
+      ----
+      at Test._assertStatus (../../../../node_modules/supertest/lib/test.js:309:14)
+      at ../../../../node_modules/supertest/lib/test.js:365:13
+      at Test._assertFunction (../../../../node_modules/supertest/lib/test.js:342:13)
+      at Test.assert (../../../../node_modules/supertest/lib/test.js:195:23)
+      at localAssert (../../../../node_modules/supertest/lib/test.js:138:14)
+      at Server.<anonymous> (../../../../node_modules/supertest/lib/test.js:152:11)
+
+Test Suites: 1 failed, 1 total
+Tests:       11 failed, 11 total
+Snapshots:   0 total
+Time:        12.656 s
+Ran all test suites within paths "backend/src/modules/admin/controllers/internal-seo-audit.r3.test.ts".

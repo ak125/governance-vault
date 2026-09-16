@@ -1,0 +1,337 @@
+{
+  "checked_at": "2026-09-13T06:00:59.385679+00:00",
+  "scope": "observed_documentary_inventory",
+  "qualification": "not_evaluated",
+  "occurrences": 16998,
+  "unique_contents": 7343,
+  "duplicate_occurrences": 9655,
+  "projects": [
+    {
+      "project": "alliance",
+      "contents": 91
+    },
+    {
+      "project": "auto-pieces",
+      "contents": 26
+    },
+    {
+      "project": "automecanik",
+      "contents": 7226
+    }
+  ],
+  "families_non_additive": [
+    {
+      "family": "archive",
+      "contents": 29
+    },
+    {
+      "family": "consumer_copy",
+      "contents": 3656
+    },
+    {
+      "family": "evidence",
+      "contents": 276
+    },
+    {
+      "family": "governance",
+      "contents": 523
+    },
+    {
+      "family": "procedure",
+      "contents": 88
+    },
+    {
+      "family": "project_documentation",
+      "contents": 484
+    },
+    {
+      "family": "proposal",
+      "contents": 63
+    },
+    {
+      "family": "quarantine",
+      "contents": 2
+    },
+    {
+      "family": "raw",
+      "contents": 1012
+    },
+    {
+      "family": "recycled",
+      "contents": 3910
+    },
+    {
+      "family": "technical_reference",
+      "contents": 180
+    },
+    {
+      "family": "wiki",
+      "contents": 9
+    }
+  ],
+  "family_combinations": [
+    {
+      "families": "consumer_copy + recycled",
+      "contents": 1946
+    },
+    {
+      "families": "consumer_copy",
+      "contents": 1674
+    },
+    {
+      "families": "recycled",
+      "contents": 1067
+    },
+    {
+      "families": "raw + recycled",
+      "contents": 897
+    },
+    {
+      "families": "governance",
+      "contents": 521
+    },
+    {
+      "families": "project_documentation",
+      "contents": 439
+    },
+    {
+      "families": "evidence",
+      "contents": 275
+    },
+    {
+      "families": "technical_reference",
+      "contents": 180
+    },
+    {
+      "families": "raw",
+      "contents": 113
+    },
+    {
+      "families": "procedure",
+      "contents": 88
+    },
+    {
+      "families": "proposal",
+      "contents": 63
+    },
+    {
+      "families": "consumer_copy + project_documentation",
+      "contents": 36
+    },
+    {
+      "families": "archive",
+      "contents": 29
+    },
+    {
+      "families": "project_documentation + wiki",
+      "contents": 6
+    },
+    {
+      "families": "wiki",
+      "contents": 3
+    },
+    {
+      "families": "project_documentation + raw",
+      "contents": 2
+    },
+    {
+      "families": "quarantine",
+      "contents": 2
+    },
+    {
+      "families": "evidence + governance",
+      "contents": 1
+    },
+    {
+      "families": "governance + project_documentation",
+      "contents": 1
+    }
+  ],
+  "changes": {
+    "baseline": "2026-09-12T11:05:06.988732+00:00",
+    "counts": {
+      "added": 10,
+      "removed": 0,
+      "modified": 13,
+      "metadata_changed": 0,
+      "unchanged": 16975
+    },
+    "records": [
+      {
+        "source": "github-alliance",
+        "path": "docs/recettes/emballage-expediteur.md",
+        "change": "added",
+        "before_sha256": null,
+        "after_sha256": "a686dff2c337cfa9b38dcea92362e70c3434c6505cad160597f46c7d24af85cc"
+      },
+      {
+        "source": "github-alliance",
+        "path": "docs/sections/04-exigences-fonctionnelles-dtailles.md",
+        "change": "modified",
+        "before_sha256": "d22925acaddd46d5d3f2a9e2457d635318b870e580fc22f5af890291da876ce8",
+        "after_sha256": "cdaeb574b2e724fa206074a305a59703423dff280c4a1c595e2c0f92660a4abf"
+      },
+      {
+        "source": "github-alliance",
+        "path": "docs/sections/annexe-e--matrice-dexcution-des-exigences.md",
+        "change": "modified",
+        "before_sha256": "ae81d746f86615fd12c2f9af6d6abf9f813fc6119074cfb8a4d2d04aca1d885c",
+        "after_sha256": "58b8cfbacf05789f29d0ee507f65f7de976e342fee45e6fb58716397fac47e83"
+      },
+      {
+        "source": "github-alliance",
+        "path": "docs/sections/annexe-g--corrections-par-version.md",
+        "change": "modified",
+        "before_sha256": "2d846600f2f00c14d9fb0cfbbcc96c404e0817ddf751ced511615035ddf4043c",
+        "after_sha256": "11ed0a9b6512e3949fbfd27d7a28f3aba9e33e644ed9cfdda0fb669a9c973dcb"
+      },
+      {
+        "source": "github-alliance",
+        "path": "ops/essai-creation-admin.md",
+        "change": "added",
+        "before_sha256": null,
+        "after_sha256": "177ee3e1164b634a73eb58270955e29e34172e62c1d42f6e3c791f23144a24e0"
+      },
+      {
+        "source": "github-auto-pieces",
+        "path": "AGENTS.md",
+        "change": "added",
+        "before_sha256": null,
+        "after_sha256": "02ed3b162b31e600dc53a40c449d0e27f69e1d63f1796b024b408c85d49a313c"
+      },
+      {
+        "source": "github-auto-pieces",
+        "path": "CHECKPOINT.md",
+        "change": "added",
+        "before_sha256": null,
+        "after_sha256": "b0949dd745671ba249c107213867132eaef82337c7a63020a1b6ee596b89e203"
+      },
+      {
+        "source": "github-auto-pieces",
+        "path": "README.md",
+        "change": "modified",
+        "before_sha256": "09a64aa6794bde0c15955d7f58c141e30b45c58148278809d4c379ef1f16c223",
+        "after_sha256": "667d5ef10f22deda41f5a08ef40f79b5547c4077f08b430d75360313e099a27f"
+      },
+      {
+        "source": "github-auto-pieces",
+        "path": "docs/MISE-A-NIVEAU-DEPENDANCES-20260912.md",
+        "change": "added",
+        "before_sha256": null,
+        "after_sha256": "b92b081dcc35bf356f994e3db873a7b876a80a71f520a1bdbb1d75fe11e11ffc"
+      },
+      {
+        "source": "github-auto-pieces",
+        "path": "docs/archives/prototype-mcp.md",
+        "change": "added",
+        "before_sha256": null,
+        "after_sha256": "cb87c39ccbaec4e2167acf5aa8ea1947eafb47dbe97aeb8221798476dc5d3eb9"
+      },
+      {
+        "source": "github-auto-pieces",
+        "path": "docs/archives/prototype-obd.md",
+        "change": "added",
+        "before_sha256": null,
+        "after_sha256": "4f5f50801848bf40fac0fbb1175be7d5bcc1a8e3c053d8a478d579cd39121fee"
+      },
+      {
+        "source": "github-nestjs",
+        "path": ".claude/knowledge/REPO_MAP.md",
+        "change": "modified",
+        "before_sha256": "f77131828864e0c96f7c1e648ac9b9f0c3fad912ec809d0e3973f6806acaeb80",
+        "after_sha256": "e691426b577094851d15c5f8d06efea6838665909c6b3d8c30a565f07e5eba45"
+      },
+      {
+        "source": "github-nestjs",
+        "path": ".claude/knowledge/modules/rm.md",
+        "change": "modified",
+        "before_sha256": "5bf5ea682a7fdec08ae353a538afaf8334f5d4c5fb16c29ba4c43c14b5d2ee8d",
+        "after_sha256": "ddf2f9f9091f4123d4e0c3d6cd3cb16023e73c0bc1a606a6d7c5c8559c33ade7"
+      },
+      {
+        "source": "github-nestjs",
+        "path": ".claude/knowledge/modules/seo-monitoring.md",
+        "change": "modified",
+        "before_sha256": "6a28bb7f700aed4e08b72fcf90ee72d5a508fed3b165d2230cc7ff5c18252642",
+        "after_sha256": "d473cfeb32dda608f8af282227ce2e1930900bc9ab63c4f97a56374b2f8a455b"
+      },
+      {
+        "source": "github-nestjs",
+        "path": "audit/cleanup/pr-8-deletion-proof.md",
+        "change": "modified",
+        "before_sha256": "bcc10dab688448618b7d9024613caeab5cfe3a77aa9d308b64041d2f9b11b622",
+        "after_sha256": "362339924ff4c6645768ea883895fa22cc5bf6212d1dca6a7ff3b3e8cb709d10"
+      },
+      {
+        "source": "github-nestjs",
+        "path": "audit/seo-sept-leviers-2026-09-11.md",
+        "change": "added",
+        "before_sha256": null,
+        "after_sha256": "9b8ab95810a9f2f3369c1b59204ed635820770ad04048271a0cae611e7094cf3"
+      },
+      {
+        "source": "vps-nestjs",
+        "path": ".claude/handoffs/pr-description-seo-leviers-2026-09-11.md",
+        "change": "added",
+        "before_sha256": null,
+        "after_sha256": "f022e7f0a11240d4f6ca014380dcfd1acd807daf60165fdb7f8ea3b2f0c75b18"
+      },
+      {
+        "source": "vps-nestjs",
+        "path": ".claude/knowledge/REPO_MAP.md",
+        "change": "modified",
+        "before_sha256": "f77131828864e0c96f7c1e648ac9b9f0c3fad912ec809d0e3973f6806acaeb80",
+        "after_sha256": "e691426b577094851d15c5f8d06efea6838665909c6b3d8c30a565f07e5eba45"
+      },
+      {
+        "source": "vps-nestjs",
+        "path": ".claude/knowledge/modules/rm.md",
+        "change": "modified",
+        "before_sha256": "5bf5ea682a7fdec08ae353a538afaf8334f5d4c5fb16c29ba4c43c14b5d2ee8d",
+        "after_sha256": "ddf2f9f9091f4123d4e0c3d6cd3cb16023e73c0bc1a606a6d7c5c8559c33ade7"
+      },
+      {
+        "source": "vps-nestjs",
+        "path": ".claude/knowledge/modules/seo-monitoring.md",
+        "change": "modified",
+        "before_sha256": "6a28bb7f700aed4e08b72fcf90ee72d5a508fed3b165d2230cc7ff5c18252642",
+        "after_sha256": "d473cfeb32dda608f8af282227ce2e1930900bc9ab63c4f97a56374b2f8a455b"
+      },
+      {
+        "source": "vps-nestjs",
+        "path": "audit/cleanup/pr-8-deletion-proof.md",
+        "change": "modified",
+        "before_sha256": "bcc10dab688448618b7d9024613caeab5cfe3a77aa9d308b64041d2f9b11b622",
+        "after_sha256": "362339924ff4c6645768ea883895fa22cc5bf6212d1dca6a7ff3b3e8cb709d10"
+      },
+      {
+        "source": "vps-nestjs",
+        "path": "audit/seo-sept-leviers-2026-09-11.md",
+        "change": "added",
+        "before_sha256": null,
+        "after_sha256": "9b8ab95810a9f2f3369c1b59204ed635820770ad04048271a0cae611e7094cf3"
+      },
+      {
+        "source": "vps-vault",
+        "path": "ops/moc/MOC-Planning-Live.md",
+        "change": "modified",
+        "before_sha256": "a02626c1cc5e49b5acba77811424866b75510e5ffbf7fa3345efd799fb6e5d48",
+        "after_sha256": "a71d04999996c0c2d5122499bc55192a9398a4deae875a79ad767840ef4d79b5"
+      }
+    ],
+    "uncompared_sources": []
+  },
+  "source_errors": {},
+  "pilot": {
+    "github_proposal_sha256": "811a538b769a021bbda5d8ff71cdd501fdfee5fb93cfd6783e89e344080ad5ff",
+    "vps_proposal_sha256": "0735e56521de202f7f9f93f75c8ba89388cb3db1609f792253e984028e01055f",
+    "source_index_sha256": "39c43f8db35d0686d976633f139a410c5f0c7aed765df26c568f2c3bc62936f6",
+    "source_rows": 59,
+    "unique_urls": 59,
+    "declared_primary": 22,
+    "proposal_review_notes_declared_primary": 29,
+    "rows_with_capture_hash": 0,
+    "captures_elsewhere": "not_evaluated",
+    "fact_quality": "not_evaluated"
+  }
+}

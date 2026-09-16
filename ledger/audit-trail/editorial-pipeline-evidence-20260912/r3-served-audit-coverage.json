@@ -1,0 +1,73 @@
+{
+  "scope_requested": "Continuer le raccordement HTML servi -> audit R3 -> choix du travail restant.",
+  "scope_actually_scanned": "Lectures ciblees de 14 fichiers (extraits inclus), flux RR/Nest, audit R3 et consommateurs documentes ; six fichiers modifies. Aucune exploration exhaustive des ordonnanceurs externes.",
+  "files_read_count": 14,
+  "files_read": [
+    "backend/src/modules/admin/services/conseil-quality-scorer.service.ts",
+    "backend/src/modules/admin/controllers/internal-seo-audit.r3.test.ts",
+    "backend/src/modules/admin/controllers/internal-seo-audit.controller.ts",
+    "backend/src/modules/seo/interceptors/page-role-validation.interceptor.ts",
+    "workspaces/seo-batch/.claude/agents/r3-keyword-planner.md",
+    "backend/src/modules/seo/validation/page-role-validator.service.ts",
+    "backend/src/remix/remix.controller.ts",
+    "backend/src/remix/remix.controller.test.ts",
+    "backend/src/remix/remix.service.ts",
+    "backend/src/modules/seo-monitoring/services/r-content-auditor.service.ts",
+    "backend/src/modules/seo-monitoring/services/audit-findings.service.ts",
+    "backend/src/modules/seo/services/seo-monitoring.service.ts",
+    "backend/src/config/app.config.ts",
+    "backend/src/modules/admin/services/conseil-quality-scorer.service.test.ts"
+  ],
+  "files_changed": [
+    "backend/src/modules/admin/services/conseil-quality-scorer.service.ts",
+    "backend/src/modules/admin/controllers/internal-seo-audit.r3.test.ts",
+    "backend/src/modules/admin/controllers/internal-seo-audit.controller.ts",
+    "backend/src/modules/seo/interceptors/page-role-validation.interceptor.ts",
+    "workspaces/seo-batch/.claude/agents/r3-keyword-planner.md",
+    "backend/src/modules/seo/validation/page-role-validator.service.ts"
+  ],
+  "excluded_paths": [
+    "runtime partage et infra en ecriture",
+    "contenus et DB partages",
+    "canon et miroirs verrouilles"
+  ],
+  "unscanned_zones": [
+    "ordonnanceur reel de bout en bout en fonctionnement",
+    "revision exacte des sections versus cache/page servie",
+    "inventaire exhaustif des redirections et autres roles R"
+  ],
+  "corrections_proposed": [
+    "Raccorder un GET HTML borne au point d audit R3 existant",
+    "Distinguer audit stocke, preuve HTML et actions de rendu/redirection",
+    "Empecher canSkip si rendu inaccessible, invalide ou redirige",
+    "Signaler une S2_DIAG stockee absente du rendu",
+    "Corriger les consignes de traitement et le renvoi obsolete vers des details R5"
+  ],
+  "corrections_applied": [
+    "Six fichiers dans le candidat isole, selon demandes explicites de correction et poursuite ; aucune activation ni ecriture de contenu partage"
+  ],
+  "validation_executed": [
+    "17 tests en echec / 17 passent avant raccordement",
+    "Contre-exemple supplementaire S2_DIAG disparue : 1 echec avant correction",
+    "113 tests backend PASS / 6 suites apres finalisation",
+    "4 tests frontend PASS, incluant vrai SSR vers le validateur",
+    "Test endpoint HTTP -> vrai serveur temporaire localhost : GET sans cle interne, 301 non suivi",
+    "Tests absence/mauvaise configuration BASE_URL, alias invalide, corps trop grand/interrompu, timeout, 404/429/500 et type non HTML",
+    "ESLint cible : zero erreur, un avertissement any preexistant dans interceptor",
+    "git diff --check et staged diff --check PASS"
+  ],
+  "remaining_unknowns": [
+    "Endpoint prepare dans candidat, pas de preuve de deploiement ou execution par un cron/Hermes actif",
+    "sourceVersionMatch=not_evaluated : hash/date de capture ne prouvent pas la correspondance exacte aux donnees stockees ni leur verite",
+    "BASE_URL doit etre configure explicitement par environnement ; aucun fallback public",
+    "Controle de presence compare seulement S2_DIAG, pas toutes les sections de tous roles",
+    "Semantique factuelle, canonical global et contenu cache ancien restent hors lot",
+    "Verification des destinations de redirection laissee explicite ; aucune redirection suivie automatiquement",
+    "Aucune nouvelle sonde publique/DEV dans ce lot : constat precedent a 15:44 UTC reste historique",
+    "CI/typecheck global/installation propre/deploiement non executes"
+  ],
+  "candidate_head": "0c31807c8453c251d70c7575eafcc973f04eed14",
+  "origin_main": "466cc15ce9b385a61503cc0224f40bec700ec41a",
+  "final_status": "PARTIAL_COVERAGE",
+  "bounded_correction_verdict": "VALIDATED_FOR_SCOPE_ONLY"
+}

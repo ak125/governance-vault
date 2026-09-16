@@ -1,0 +1,13 @@
+diff --git a/.github/workflows/wiki-quality-gates.yml b/.github/workflows/wiki-quality-gates.yml
+index 7333d27..7582a98 100644
+--- a/.github/workflows/wiki-quality-gates.yml
++++ b/.github/workflows/wiki-quality-gates.yml
+@@ -117,7 +117,7 @@ jobs:
+       - name: Pytest 5 wrappers (architectural + smoke)
+         run: cd _scripts && python3 -m pytest gates/test_gates.py -v
+       - name: Canonical automatic promotion and apply guards
+-        run: cd _scripts && python3 -m pytest test_promote.py test_promotion_decision.py -q
++        run: cd _scripts && python3 -m pytest test_promote.py test_promotion_decision.py test_raw_to_wiki_content_loop_pilot.py -q
+       - name: Sanity run on existing proposals (no-op if proposals/ empty)
+         run: |
+           set -e

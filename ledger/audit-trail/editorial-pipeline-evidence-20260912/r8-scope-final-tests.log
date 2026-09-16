@@ -1,0 +1,31 @@
+PASS src/modules/seo-projection/seo-projection-writer.test.ts (10.034 s)
+  ● Console
+
+    console.log
+      ◇ injected env (0) from .env.test // tip: ◈ secrets for agents [www.dotenvx.com]
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+PASS src/modules/seo-projection/seo-projection-writer-role-scope.test.ts
+  ● Console
+
+    console.log
+      ◇ injected env (0) from .env.test // tip: ⌘ enable debugging { debug: true }
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+PASS src/modules/seo-projection/seo-projection-snapshot.test.ts
+  ● Console
+
+    console.log
+      ◇ injected env (0) from .env.test // tip: ⌘ enable debugging { debug: true }
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+
+Test Suites: 3 passed, 3 total
+Tests:       53 passed, 53 total
+Snapshots:   0 total
+Time:        10.831 s, estimated 11 s
+Ran all test suites within paths "src/modules/seo-projection/seo-projection-writer-role-scope.test.ts", "src/modules/seo-projection/seo-projection-writer.test.ts", "src/modules/seo-projection/seo-projection-snapshot.test.ts".
+EXIT_CODE=0

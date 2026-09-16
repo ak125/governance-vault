@@ -1,0 +1,1681 @@
+diff --git a/.gitattributes b/.gitattributes
+index 5cc6d36..f02ee59 100644
+--- a/.gitattributes
++++ b/.gitattributes
+@@ -15,6 +15,13 @@ sources/catalogues/**/*.xml filter=lfs diff=lfs merge=lfs -text
+ *.webp filter=lfs diff=lfs merge=lfs -text
+ recycled/**/*.html filter=lfs diff=lfs merge=lfs -text
+ 
++# Captures video RAW : blobs immuables en LFS
++*.mp4 filter=lfs diff=lfs merge=lfs -text
++*.webm filter=lfs diff=lfs merge=lfs -text
++*.mkv filter=lfs diff=lfs merge=lfs -text
++*.mov filter=lfs diff=lfs merge=lfs -text
++*.m4v filter=lfs diff=lfs merge=lfs -text
++
+ # Markdown / config / manifests : pas de LFS
+ *.md text eol=lf
+ *.json text eol=lf
+diff --git a/_scripts/auto-capture-runner.py b/_scripts/auto-capture-runner.py
+index 8c04b69..0a3e7cb 100644
+--- a/_scripts/auto-capture-runner.py
++++ b/_scripts/auto-capture-runner.py
+@@ -1,8 +1,8 @@
+ #!/usr/bin/env python3
+ """auto-capture-runner.py — capture RAW gouvernée côté agent (voie auto).
+ 
+-Conforme docs/agent-capture-policy.md + ADR-031 (scrape = source raw ; sécurité à
+-RAW->WIKI). Le runner ne fait PAS de découverte web libre (qui ramène des concurrents) :
++Conforme docs/agent-capture-policy.md + ADR-031/ADR-096 : contrôle réseau avant
++requête, validation Gate J avant persistance, puis qualification RAW->WIKI. Le runner ne fait PAS de découverte web libre (qui ramène des concurrents) :
+ il capture des URL fournies, **uniquement** depuis un domaine `allow` de
+ manifests/ingestion-allowlist.yaml, **jamais** un domaine `deny` (plancher Niveau-3),
+ robots.txt respecté, rate-limité. Tout est écrit en `CAPTURED` / `CAPTURED_NEEDS_REVIEW`
+@@ -31,13 +31,17 @@ import os
+ import re
+ import sys
+ import tempfile
++import subprocess
++import shutil
++import math
++from contextlib import contextmanager
++from functools import wraps
++import uuid
+ import time
+ from datetime import datetime, timezone
+ from html.parser import HTMLParser
+ from pathlib import Path
+ from urllib.parse import urlparse
+-from urllib import request as urlrequest
+-from urllib import robotparser
+ 
+ REPO_ROOT = Path(__file__).resolve().parent.parent
+ WORKLIST_FILE = REPO_ROOT / "manifests" / "ingestion-worklist.yaml"
+@@ -54,6 +58,10 @@ _gates_spec = importlib.util.spec_from_file_location("raw_capture_gates", REPO_R
+ _gates = importlib.util.module_from_spec(_gates_spec)
+ _gates_spec.loader.exec_module(_gates)
+ 
++_http_spec = importlib.util.spec_from_file_location("raw_capture_http", REPO_ROOT / "_scripts" / "capture_http.py")
++_http = importlib.util.module_from_spec(_http_spec)
++_http_spec.loader.exec_module(_http)
++
+ 
+ def _fatal(msg: str) -> None:
+     sys.stderr.write(f"FATAL: {msg}\n")
+@@ -106,15 +114,21 @@ def classify(url: str, al: dict) -> tuple[str, dict | None]:
+     return ("not_allowlisted", None)
+ 
+ 
+-def robots_ok(url: str) -> bool:
+-    parsed = urlparse(url)
+-    rp = robotparser.RobotFileParser()
+-    rp.set_url(f"{parsed.scheme}://{parsed.netloc}/robots.txt")
++def _transport(url: str, al: dict, rate_limit: float = 0):
++    # Redirects must remain under the same allowlist policy entry so their
++    # level/license/source_type cannot silently inherit another site's policy.
++    verdict, entry = classify(url, al)
++    def allowed(target):
++        target_verdict, target_entry = classify(target, al)
++        return verdict == "allow" and target_verdict == "allow" and target_entry is entry
++    return _http.Transport(allowed, USER_AGENT, FETCH_TIMEOUT, rate_limit)
++
++
++def robots_ok(url: str, al: dict | None = None) -> bool:
+     try:
+-        rp.read()
+-    except Exception:  # noqa: BLE001 — robots illisible → conservateur: refuser
++        return _http.bounded_network(lambda: _transport(url, al if al is not None else load_allowlist()).robots_ok(url))
++    except Exception:  # unreadable or unsafe robots => refuse
+         return False
+-    return rp.can_fetch(USER_AGENT, url)
+ 
+ 
+ class _BlockExtractor(HTMLParser):
+@@ -178,11 +192,8 @@ def extract_text(html: str) -> str:
+     return "\n".join(out)
+ 
+ 
+-def fetch(url: str) -> str:
+-    req = urlrequest.Request(url, headers={"User-Agent": USER_AGENT})
+-    with urlrequest.urlopen(req, timeout=FETCH_TIMEOUT) as resp:  # noqa: S310 — http(s) only, allowlisté
+-        charset = resp.headers.get_content_charset() or "utf-8"
+-        return resp.read().decode(charset, errors="replace")
++def fetch(url: str, al: dict | None = None, *, rate_limit: float = 0) -> str:
++    return _http.bounded_network(lambda: _transport(url, al if al is not None else load_allowlist(), rate_limit).fetch_html(url))
+ 
+ 
+ def existing_hashes() -> set[str]:
+@@ -208,10 +219,26 @@ def build_frontmatter(fm: dict) -> str:
+     return "---\n" + yaml.safe_dump(fm, allow_unicode=True, sort_keys=False) + "---\n"
+ 
+ 
++
++def exclusive_capture(function):
++    @wraps(function)
++    def locked(*args, **kwargs):
++        if not kwargs.get("commit", False):
++            return function(*args, **kwargs)
++        with acquisition_lock():
++            return function(*args, **kwargs)
++    return locked
++
++
++@exclusive_capture
+ def capture_one(url: str, item: dict, al: dict, *, commit: bool, rate_limit: float) -> dict:
+     """Retourne un dict rapport pour une URL."""
+     rep = {"url": url, "action": None, "detail": None}
+-    verdict, entry = classify(url, al)
++    try:
++        verdict, entry = classify(url, al)
++    except (ValueError, TypeError):
++        rep.update(action="ERROR", detail="invalid_url")
++        return rep
+     if verdict.startswith("deny"):
+         rep.update(action="SKIP", detail=verdict)
+         return rep
+@@ -230,12 +257,12 @@ def capture_one(url: str, item: dict, al: dict, *, commit: bool, rate_limit: flo
+         return rep
+ 
+     # ── LIVE ──
+-    if not robots_ok(url):
+-        rep.update(action="SKIP", detail="robots.txt disallow (ou illisible)")
++    if license_status == "restricted" or level not in (1, 2):
++        rep.update(action="ERROR", detail="capture_policy_refused",
++                   reasons=["restricted_license" if license_status == "restricted" else "invalid_level"])
+         return rep
+-    time.sleep(rate_limit)
+     try:
+-        html = fetch(url)
++        html = fetch(url, al, rate_limit=rate_limit)
+     except Exception as e:  # noqa: BLE001
+         rep.update(action="ERROR", detail=f"fetch_failed:{type(e).__name__}:{str(e)[:120]}")
+         return rep
+@@ -245,7 +272,27 @@ def capture_one(url: str, item: dict, al: dict, *, commit: bool, rate_limit: flo
+         return rep
+     content_hash = "sha256:" + hashlib.sha256(body.encode("utf-8")).hexdigest()
+     if content_hash in existing_hashes():
++        # Reconcile the native inventory even on a replay after a prior failure.
++        try:
++            refresh_submission_manifests()
++        except Exception as exc:
++            rep.update(action="ERROR", detail=f"capture_manifest_refresh_failed:{type(exc).__name__}")
++            return rep
+         rep.update(action="SKIP", detail="duplicate_content_hash")
++        # A prior artifact can precede its worklist update. Only repair the SAME
++        # worklist item's receipt; never attribute another source's capture to it.
++        for existing_path in sorted(AUTO_CAPTURES_DIR.rglob("*.md")):
++            existing_fm = _gates._split_frontmatter(existing_path.read_text(encoding="utf-8")) or {}
++            if existing_fm.get("content_hash") != content_hash or existing_fm.get("worklist_id") != item.get("id"):
++                continue
++            if not existing_path.resolve().is_relative_to(REPO_ROOT.resolve() / "sources/auto-captures"):
++                rep.update(action="ERROR", detail="capture_path_escape")
++                return rep
++            rep.update(raw_path=existing_path.relative_to(REPO_ROOT).as_posix(), content_hash=content_hash,
++                       status="CAPTURED" if existing_fm.get("level") == 1 else "CAPTURED_NEEDS_REVIEW",
++                       source_type=existing_fm["source_type"], license_status=existing_fm["license_status"],
++                       captured_at=existing_fm["captured_at"], url=existing_fm["source_url"])
++            break
+         return rep
+ 
+     gamme = item.get("gamme") or "divers"
+@@ -266,6 +313,8 @@ def capture_one(url: str, item: dict, al: dict, *, commit: bool, rate_limit: flo
+         "license_status": license_status,
+         "level": level,
+         "worklist_id": item.get("id"),
++        "manifest_id": "auto-capture-" + content_hash[7:],
++        "discovery": {"mode": "provided"},
+         "description": f"Auto-capture gouvernée (Niveau {level}) — faits à valider avant usage WIKI/SEO.",
+     }
+     candidate = build_frontmatter(fm) + "\n" + body + "\n"
+@@ -283,33 +332,344 @@ def capture_one(url: str, item: dict, al: dict, *, commit: bool, rate_limit: flo
+         rep.update(action="ERROR", detail="capture_rejected_by_gate_j", reasons=reasons)
+         return rep
+ 
+-    # Publish a fully written file without ever replacing an existing source.
+-    # The hard link is atomic and fails if a competing writer created out_path.
+-    staging_path = None
++    if not out_path.resolve().is_relative_to(REPO_ROOT.resolve() / "sources/auto-captures"):
++        rep.update(action="ERROR", detail="capture_path_escape")
++        return rep
+     try:
+-        rel_dir.mkdir(parents=True, exist_ok=True)
+-        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=rel_dir,
+-                                         prefix=".capture-", suffix=".tmp", delete=False) as staged:
+-            staging_path = Path(staged.name)
+-            staged.write(candidate)
+-            staged.flush()
+-            os.fsync(staged.fileno())
+-        os.link(staging_path, out_path)
++        check_submission_secrets(candidate)
++    except Exception as exc:
++        rep.update(action="ERROR", detail=f"capture_secret_scan_failed:{type(exc).__name__}")
++        return rep
++    try:
++        publish_append_only(out_path, candidate)
++        refresh_submission_manifests()
+     except FileExistsError:
+         rep.update(action="ERROR", detail="source_path_exists:no_overwrite")
+         return rep
+     except OSError as e:
+         rep.update(action="ERROR", detail=f"capture_write_failed:{type(e).__name__}")
+         return rep
+-    finally:
+-        if staging_path is not None:
+-            staging_path.unlink()
++    except Exception as exc:
++        rep.update(action="ERROR", detail=f"capture_manifest_refresh_failed:{type(exc).__name__}")
++        return rep
+     rep.update(action="CAPTURED", detail=f"{raw_path} ({status}, {len(body)}c)",
+                raw_path=raw_path, content_hash=content_hash, status=status,
+                source_type=source_type, license_status=license_status, captured_at=captured_at)
+     return rep
+ 
+ 
++
++def publish_append_only(out_path: Path, candidate: str | Path) -> None:
++    """Existing atomic publication, shared by URL capture and submitted text."""
++    staging_path = None
++    try:
++        out_path.parent.mkdir(parents=True, exist_ok=True)
++        binary = isinstance(candidate, Path)
++        with tempfile.NamedTemporaryFile(mode="wb" if binary else "w", encoding=None if binary else "utf-8", dir=out_path.parent,
++                                         prefix=".capture-", suffix=".tmp", delete=False) as staged:
++            staging_path = Path(staged.name)
++            if binary:
++                with candidate.open("rb") as source:
++                    shutil.copyfileobj(source, staged, length=65536)
++            else:
++                staged.write(candidate)
++            staged.flush()
++            os.fsync(staged.fileno())
++        os.link(staging_path, out_path)
++    finally:
++        if staging_path is not None:
++            staging_path.unlink()
++
++
++
++@contextmanager
++def acquisition_lock():
++    """One nonblocking lock for all native capture writers in this checkout."""
++    import fcntl
++    lock_path = subprocess.run(["git", "-C", str(REPO_ROOT), "rev-parse", "--git-path", "raw-admin-acquisition.lock"],
++                               capture_output=True, text=True, timeout=5, check=True).stdout.strip()
++    lock = Path(lock_path)
++    if not lock.is_absolute():
++        lock = REPO_ROOT / lock
++    with lock.open("a") as held:
++        fcntl.flock(held, fcntl.LOCK_EX | fcntl.LOCK_NB)
++        yield
++
++
++def check_submission_secrets(candidate: str) -> None:
++    """Reuse Gate E's gitleaks engine before durable persistence, fail closed."""
++    with tempfile.TemporaryDirectory(prefix="raw-submission-check-") as tmp:
++        Path(tmp, "candidate.md").write_text(candidate, encoding="utf-8")
++        result = subprocess.run(
++            [os.environ.get("RAW_GITLEAKS_BIN", "gitleaks"), "detect", "--no-git",
++             "--source", tmp, "--redact", "--no-banner"],
++            capture_output=True, timeout=15, check=False,
++        )
++        if result.returncode == 1:
++            raise ValueError("submission_secret_scan_refused")
++        if result.returncode:
++            raise RuntimeError("submission_secret_scan_unavailable")
++
++
++def refresh_submission_manifests() -> None:
++    """The native generator owns inventory/checksums/lineage; no parallel manifest."""
++    result = subprocess.run([sys.executable, str(REPO_ROOT / "_scripts/regen-manifests.py"), "--fix"],
++                            cwd=REPO_ROOT, capture_output=True, timeout=60, check=False)
++    if result.returncode:
++        raise RuntimeError("submission_manifest_refresh_failed")
++
++
++@exclusive_capture
++def ingest_admin_submission(doc: dict, *, commit: bool) -> dict:
++    """Receive declared text as recycled/unverified, never as a verified URL fetch.
++
++    Client decisions and truth levels are not accepted by this producer. Same
++    declared source + exact body yields the same immutable receipt; a changed
++    body is a new version. Native manifests must succeed before RECEIVED.
++    """
++    import jsonschema
++    from urllib.parse import urlsplit, urlunsplit
++
++    allowed = {"title", "content", "source", "source_url", "domain", "category"}
++    if not isinstance(doc, dict) or set(doc) - allowed:
++        raise ValueError("invalid_submission_fields")
++    for key in ("title", "content", "source"):
++        if not isinstance(doc.get(key), str) or not doc[key].strip():
++            raise ValueError(f"submission_missing_{key}")
++    if any(not isinstance(value, str) or "\x00" in value for value in doc.values()):
++        raise ValueError("invalid_submission_value")
++    if len(json.dumps(doc, ensure_ascii=False).encode("utf-8")) > 1024 * 1024:
++        raise ValueError("submission_too_large")
++    if any(pat.search(json.dumps(doc, ensure_ascii=False)) for pat in _gates._AC_PII_PATTERNS):
++        raise ValueError("submission_possible_pii")
++    source_key = doc["source"].strip()
++    if doc.get("source_url"):
++        parsed = urlsplit(doc["source_url"])
++        if parsed.scheme != "https" or not parsed.hostname or parsed.username is not None or parsed.password is not None:
++            raise ValueError("invalid_declared_source_url")
++        port = parsed.port
++        host = parsed.hostname.lower()
++        if ":" in host:
++            host = "[" + host + "]"
++        netloc = host if port in (None, 443) else f"{host}:{port}"
++        source_key = urlunsplit(("https", netloc, parsed.path or "/", parsed.query, ""))
++    content_hash = "sha256:" + hashlib.sha256(doc["content"].encode("utf-8")).hexdigest()
++    receipt_id = hashlib.sha256(json.dumps([source_key, content_hash], ensure_ascii=False).encode("utf-8")).hexdigest()
++    raw_path = f"recycled/admin-submissions/{receipt_id}.md"
++    out_path = REPO_ROOT / raw_path
++    if not out_path.resolve().is_relative_to(REPO_ROOT.resolve() / "recycled" / "admin-submissions"):
++        raise ValueError("submission_path_escape")
++    now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
++    fm = {
++        "title": doc["title"], "source_type": "admin_submission", "truth_level": "L4",
++        "verification_status": "to_verify", "created_at": now, "updated_at": now,
++        "origin_repo": "nestjs-remix-monorepo", "origin_path": "api/rag/admin/cleanup/apply",
++        "origin_type": "admin_submission", "source_level": "secondary", "trust_level": "to_verify",
++        "status": "recycled", "can_feed_wiki": True, "can_feed_content_directly": False,
++        "can_feed_chatbot_directly": False, "recycled_at": now[:10],
++        "doc_id": str(uuid.uuid5(uuid.NAMESPACE_URL, "admin-submission:" + receipt_id)),
++        "content_hash": content_hash, "source_identity_hash": "sha256:" + hashlib.sha256(source_key.encode("utf-8")).hexdigest(),
++        "declared_source": doc["source"],
++        "source_url_verified": False, "acquisition_method": "submitted_text",
++    }
++    if doc.get("source_url"):
++        fm["source_url"] = source_key
++    for key in ("domain", "category"):
++        if key in doc:
++            fm["declared_" + key] = doc[key]
++    schema = json.loads(_gates.RECYCLED_FM_SCHEMA.read_text(encoding="utf-8"))
++    jsonschema.Draft202012Validator.check_schema(schema)
++    jsonschema.Draft202012Validator(schema).validate(fm)
++    candidate = build_frontmatter(fm) + "\n" + doc["content"]
++    receipt = {"id": receipt_id, "destination": "raw", "raw_path": raw_path,
++               "content_hash": content_hash, "status": "to_verify", "retrievable": False,
++               "duplicate": False, "action": "PLAN"}
++    if not commit:
++        return receipt
++    check_submission_secrets(candidate)
++    # exclusive_capture holds the common writer lock through validation and manifests.
++    if out_path.exists():
++        existing = out_path.read_text(encoding="utf-8")
++        match = _gates.FRONTMATTER_RE.match(existing)
++        if not match or existing[len(match.group(0)):].removeprefix("\n") != doc["content"]:
++            raise ValueError("submission_receipt_collision")
++        old = _gates._split_frontmatter(existing)
++        if old.get("content_hash") != content_hash or old.get("doc_id") != fm["doc_id"]:
++            raise ValueError("submission_receipt_collision")
++        receipt["duplicate"] = True
++    else:
++        publish_append_only(out_path, candidate)
++    # On failure preserve immutable source. Retrying the same request repairs
++    # its manifests before returning success, never creates another source.
++    refresh_submission_manifests()
++    receipt["action"] = "RECEIVED"
++    return receipt
++
++
++
++MAX_VIDEO_DURATION_S = 600
++MAX_VIDEO_PIXELS = 3840 * 2160
++
++
++def _probe_limits():
++    import resource
++    import ctypes
++    import signal
++    resource.setrlimit(resource.RLIMIT_CPU, (8, 9))
++    resource.setrlimit(resource.RLIMIT_AS, (1024 * 1024 * 1024,) * 2)
++    resource.setrlimit(resource.RLIMIT_FSIZE, (64 * 1024,) * 2)
++    resource.setrlimit(resource.RLIMIT_NOFILE, (64, 64))
++    if ctypes.CDLL(None).prctl(1, signal.SIGKILL, 0, 0, 0) != 0:
++        raise RuntimeError("probe_parent_death_guard_unavailable")
++
++
++def probe_video(media_path: Path, extension: str) -> dict:
++    """Inspect a local container in a network-isolated namespace, with local protocols only."""
++    binary = os.environ.get("RAW_FFPROBE_BIN", "")
++    if not Path(binary).is_absolute():
++        raise RuntimeError("qualified_ffprobe_not_configured")
++    args = ["unshare", "--user", "--map-root-user", "--net", "--fork", "--kill-child=KILL",
++            binary, "-v", "error", "-threads", "1", "-max_alloc", "67108864",
++            "-probesize", "8388608", "-analyzeduration", "5000000",
++            "-protocol_whitelist", "file,pipe", "-format_whitelist", "mov,matroska,webm"]
++    if extension in ("mp4", "mov"):
++        args += ["-enable_drefs", "0", "-use_absolute_path", "0"]
++    args += ["-show_entries", "format=format_name,duration:stream=codec_type,codec_name,width,height",
++             "-of", "json", "-i", str(media_path)]
++    with tempfile.TemporaryDirectory(prefix="raw-media-probe-") as tmp:
++        output = Path(tmp) / "probe.json"
++        with output.open("wb") as stdout, (Path(tmp) / "probe.err").open("wb") as stderr:
++            result = subprocess.run(args, stdout=stdout, stderr=stderr, timeout=12, check=False,
++                                    preexec_fn=_probe_limits,
++                                    env={"PATH": os.environ.get("PATH", "/usr/bin:/bin"),
++                                         "LANG": "C.UTF-8", "OPENBLAS_NUM_THREADS": "1", "OMP_NUM_THREADS": "1"})
++        if result.returncode:
++            raise ValueError("video_container_probe_refused")
++        metadata = json.loads(output.read_text(encoding="utf-8"))
++    duration = float(metadata.get("format", {}).get("duration", "nan"))
++    formats = set(metadata.get("format", {}).get("format_name", "").split(","))
++    expected = {"mov", "mp4"} if extension in ("mp4", "mov") else {"matroska", "webm"}
++    streams = [stream for stream in metadata.get("streams", []) if stream.get("codec_type") == "video"]
++    if (not formats.intersection(expected) or not math.isfinite(duration)
++            or not 0 < duration <= MAX_VIDEO_DURATION_S or not 1 <= len(streams) <= 4):
++        raise ValueError("video_container_limits_refused")
++    video_streams = []
++    for stream in streams:
++        width, height = stream.get("width", 0), stream.get("height", 0)
++        if not isinstance(width, int) or not isinstance(height, int) or not (width > 0 and height > 0 and width * height <= MAX_VIDEO_PIXELS):
++            raise ValueError("video_dimensions_refused")
++        codec = stream.get("codec_name", "")
++        if not re.fullmatch(r"[a-z0-9_]{1,32}", codec):
++            raise ValueError("video_codec_unknown")
++        if extension == "webm" and codec not in ("vp8", "vp9", "av1"):
++            raise ValueError("webm_codec_mismatch")
++        video_streams.append({"codec": codec, "width": width, "height": height})
++    return {"duration_sec": duration, "video_streams": video_streams}
++
++
++def file_sha256(path: Path) -> str:
++    digest = hashlib.sha256()
++    with path.open("rb") as stream:
++        for block in iter(lambda: stream.read(65536), b""):
++            digest.update(block)
++    return "sha256:" + digest.hexdigest()
++
++
++@exclusive_capture
++def ingest_admin_video(doc: dict, *, commit: bool) -> dict:
++    """Capture a direct allowlisted video in RAW; no ASR, RAG or publication."""
++    import jsonschema
++    from urllib.parse import urlsplit, urlunsplit
++    if not isinstance(doc, dict) or set(doc) - {"url", "gamme", "type"}:
++        raise ValueError("invalid_video_fields")
++    url = doc.get("url")
++    if not isinstance(url, str) or not 1 <= len(url) <= 4000:
++        raise ValueError("invalid_video_url")
++    for key in ("gamme", "type"):
++        if key in doc and (not isinstance(doc[key], str) or len(doc[key]) > 200):
++            raise ValueError("invalid_video_labels")
++    if any(pat.search(json.dumps(doc, ensure_ascii=False)) for pat in _gates._AC_PII_PATTERNS):
++        raise ValueError("video_possible_pii")
++    al = load_allowlist()
++    verdict, entry = classify(url, al)
++    if verdict != "allow" or entry["license_status"] == "restricted" or entry["level"] not in (1, 2):
++        raise ValueError("video_source_policy_refused")
++    if not commit:
++        return {"action": "PLAN", "destination": "raw", "status": "to_verify", "retrievable": False}
++    with tempfile.TemporaryDirectory(prefix="raw-video-download-") as tmp:
++        downloaded = Path(tmp) / "download"
++        media = _http.bounded_network(lambda: _transport(url, al, DEFAULT_RATE_LIMIT_S).fetch_media(url, downloaded))
++        details = probe_video(downloaded, media["ext"])
++        if file_sha256(downloaded) != media["media_hash"]:
++            raise ValueError("download_hash_mismatch")
++        parsed = urlsplit(url)
++        canonical_url = urlunsplit(("https", parsed.hostname.lower(), parsed.path or "/", parsed.query, ""))
++        media_hex = media["media_hash"][7:]
++        receipt_id = hashlib.sha256(json.dumps([canonical_url, media["media_hash"]]).encode()).hexdigest()
++        raw_path = f"sources/auto-captures/media/{receipt_id}.md"
++        media_path = f"sources/media/{media_hex}.{media['ext']}"
++        # Content hash describes the stable metadata witness; media_hash identifies
++        # the binary. Distinct source URLs retain distinct witnesses, one binary.
++        witness = {"source_url": canonical_url, "media_hash": media["media_hash"],
++                   "media_manifest_id": "src-media-" + media_hex, "media_path": media_path,
++                   "mime": media["mime"], "size_bytes": media["size_bytes"], **details}
++        body = json.dumps(witness, ensure_ascii=False, sort_keys=True, indent=2) + "\n"
++        content_hash = "sha256:" + hashlib.sha256(body.encode()).hexdigest()
++        now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
++        fm = {"title": f"Video source — {_domain_of(url)}", "source_url": canonical_url,
++              "source_type": entry["source_type"], "content_hash": content_hash,
++              "captured_at": now, "capture_method": "agent", "license": None,
++              "license_status": entry["license_status"], "level": entry["level"],
++              "discovery": {"mode": "provided"}, "manifest_id": "media-capture-" + receipt_id,
++              "source_identity_hash": "sha256:" + hashlib.sha256(canonical_url.encode()).hexdigest(),
++              "acquisition_method": "direct_video", "source_url_verified": True,
++              "final_url": media["final_url"], "redirect_chain": media["redirect_chain"],
++              "media_path": media_path, "media_hash": media["media_hash"],
++              "media_manifest_id": "src-media-" + media_hex,
++              "can_feed_content_directly": False, "can_feed_chatbot_directly": False}
++        for key in ("gamme", "type"):
++            if key in doc:
++                fm["declared_" + key] = doc[key]
++        candidate = build_frontmatter(fm) + "\n" + body
++        schema = json.loads(_gates.AUTO_CAPTURE_FM_SCHEMA.read_text(encoding="utf-8"))
++        jsonschema.Draft202012Validator.check_schema(schema)
++        reasons, _ = _gates.validate_auto_capture_document(candidate, raw_path, jsonschema.Draft202012Validator(schema))
++        if reasons:
++            raise ValueError("video_provenance_refused")
++        check_submission_secrets(candidate)
++        capture_path, binary_path = REPO_ROOT / raw_path, REPO_ROOT / media_path
++        for target, directory in ((capture_path, "sources/auto-captures/media"), (binary_path, "sources/media")):
++            if not target.resolve().is_relative_to(REPO_ROOT.resolve() / directory):
++                raise ValueError("video_path_escape")
++        duplicate = capture_path.exists()
++        if binary_path.exists():
++            if file_sha256(binary_path) != media["media_hash"]:
++                raise ValueError("video_binary_collision")
++        else:
++            publish_append_only(binary_path, downloaded)
++        sidecar = binary_path.with_suffix(binary_path.suffix + ".manifest.yaml")
++        if not sidecar.resolve().is_relative_to(REPO_ROOT.resolve() / "sources/media"):
++            raise ValueError("video_path_escape")
++        sidecar_text = "manifest_id: media-" + media_hex + "\n"
++        if sidecar.exists():
++            if sidecar.read_text() != sidecar_text:
++                raise ValueError("video_manifest_collision")
++        else:
++            publish_append_only(sidecar, sidecar_text)
++        if duplicate:
++            existing = capture_path.read_text(encoding="utf-8")
++            match = _gates.FRONTMATTER_RE.match(existing)
++            if not match or existing[len(match.group(0)):].removeprefix("\n") != body:
++                raise ValueError("video_receipt_collision")
++        else:
++            publish_append_only(capture_path, candidate)
++        refresh_submission_manifests()
++        return {"id": receipt_id, "action": "RECEIVED", "destination": "raw", "raw_path": raw_path,
++                "content_hash": content_hash, "status": "to_verify", "retrievable": False,
++                "duplicate": duplicate, "media_path": media_path, "media_hash": media["media_hash"],
++                "ext": media["ext"], "size_bytes": media["size_bytes"], "duration_sec": details["duration_sec"]}
++
++
+ def update_worklist_item(wid: str, *, status: str, source: dict, capture: dict) -> bool:
+     """Bascule l'item <wid> de la worklist (édition ligne par clé, formatage/commentaires
+     préservés) puis RE-VALIDE contre le schema worklist — revert si invalide. Idempotent
+@@ -363,14 +723,34 @@ def update_worklist_item(wid: str, *, status: str, source: dict, capture: dict)
+ 
+ def main() -> int:
+     ap = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
+-    ap.add_argument("--item", required=True, help="id d'un item de ingestion-worklist.yaml")
++    ap.add_argument("--item", help="id d'un item de ingestion-worklist.yaml")
+     ap.add_argument("--url", help="URL unique à capturer")
+     ap.add_argument("--urls-file", help="fichier d'URLs (une par ligne) à capturer en lot")
+     ap.add_argument("--plan", action="store_true", help="OFFLINE (défaut si --commit absent)")
+     ap.add_argument("--commit", action="store_true", help="LIVE : robots + fetch + écriture (sinon plan)")
+     ap.add_argument("--rate-limit", type=float, default=DEFAULT_RATE_LIMIT_S)
+     ap.add_argument("--json", action="store_true")
++    ap.add_argument("--submission-stdin", action="store_true", help="Receive declared admin text as recycled RAW (JSON stdin, no network)")
++    ap.add_argument("--video-stdin", action="store_true", help="Receive direct video URL in RAW (JSON stdin)")
+     args = ap.parse_args()
++    if args.submission_stdin or args.video_stdin:
++        if args.item or args.url or args.urls_file or (args.plan and args.commit) or (args.submission_stdin and args.video_stdin):
++            ap.error("--submission-stdin cannot be combined with URL capture arguments")
++        try:
++            raw_input = sys.stdin.buffer.read(1024 * 1024 + 1)
++            if len(raw_input) > 1024 * 1024:
++                raise ValueError("submission_too_large")
++            receiver = ingest_admin_video if args.video_stdin else ingest_admin_submission
++            result = receiver(json.loads(raw_input), commit=args.commit)
++        except Exception as exc:
++            # Do not return source text, scanner findings, process args or secrets.
++            result = {"action": "ERROR", "destination": "raw", "error": type(exc).__name__}
++            print(json.dumps(result))
++            return 1
++        print(json.dumps(result, ensure_ascii=False))
++        return 0
++    if not args.item:
++        ap.error("--item is required for URL capture")
+ 
+     if not WORKLIST_FILE.exists():
+         _fatal(f"worklist absente: {WORKLIST_FILE}")
+@@ -430,21 +810,28 @@ def main() -> int:
+         _fatal("fournir --url ou --urls-file")
+ 
+     al = load_allowlist()
+-    reports = [capture_one(u, item, al, commit=args.commit, rate_limit=args.rate_limit) for u in urls]
++    reports = []
++    for url in urls:
++        try:
++            reports.append(capture_one(url, item, al, commit=args.commit, rate_limit=args.rate_limit))
++        except (BlockingIOError, subprocess.SubprocessError, OSError) as exc:
++            reports.append({"url": url, "action": "ERROR", "detail": f"capture_unavailable:{type(exc).__name__}"})
+ 
+     # Write-back worklist : bascule l'item TODO -> CAPTURED* depuis la 1re capture réussie.
+     worklist_updated = None
+     if args.commit:
+-        cap = next((r for r in reports if r["action"] == "CAPTURED"), None)
++        cap = next((r for r in reports if r["action"] == "CAPTURED" or
++                    (r["action"] == "SKIP" and r.get("raw_path"))), None)
+         if cap:
+             try:
+-                ok = update_worklist_item(
+-                    item["id"], status=cap["status"],
+-                    source={"url": cap["url"], "source_type": cap["source_type"],
+-                            "license_status": cap["license_status"]},
+-                    capture={"content_hash": cap["content_hash"], "captured_at": cap["captured_at"],
+-                             "raw_path": cap["raw_path"]},
+-                )
++                with acquisition_lock():
++                    ok = update_worklist_item(
++                        item["id"], status=cap["status"],
++                        source={"url": cap["url"], "source_type": cap["source_type"],
++                                "license_status": cap["license_status"]},
++                        capture={"content_hash": cap["content_hash"], "captured_at": cap["captured_at"],
++                                 "raw_path": cap["raw_path"]},
++                    )
+                 worklist_updated = item["id"] if ok else "skipped (déjà capturé)"
+             except Exception as e:  # noqa: BLE001
+                 worklist_updated = f"FAILED:{type(e).__name__}:{str(e)[:80]} (artefact conservé, worklist revert)"
+@@ -468,7 +855,7 @@ def main() -> int:
+             print(f"  worklist: {worklist_updated}")
+         print(f"  next: {result['next']}")
+     # Exit 0 si aucune ERROR ; 1 si au moins une erreur de fetch.
+-    return 1 if any(r["action"] == "ERROR" for r in reports) else 0
++    return 1 if any(r["action"] == "ERROR" for r in reports) or str(worklist_updated).startswith("FAILED:") else 0
+ 
+ 
+ if __name__ == "__main__":
+diff --git a/_scripts/capture_http.py b/_scripts/capture_http.py
+new file mode 100644
+index 0000000..fc6b3db
+--- /dev/null
++++ b/_scripts/capture_http.py
+@@ -0,0 +1,311 @@
++"""Bounded HTTPS transport for the existing RAW HTML capture runner.
++
++No proxy, cookies, auth or automatic redirects. DNS is checked once per request;
++the TCP socket connects to that exact checked address, retaining hostname TLS
++verification. robots.txt uses the same transport. Direct video acquisition uses the same request controls and temporary storage.
++
++Operational bounds: 2 MiB HTML, 64 MiB direct video, 256 KiB robots, four redirects per resource,
++12 requests per capture, identity encoding only. bounded_network enforces a 90 s
++process deadline, including blocked OS DNS and HTTP header parsing. This transport does not attest licenses,
++paywall-free content, editorial relevance, or source-score eligibility.
++"""
++from __future__ import annotations
++
++import http.client
++import ctypes
++import hashlib
++import json
++import multiprocessing
++import os
++import signal
++import tempfile
++from contextlib import ExitStack
++from pathlib import Path
++import ipaddress
++import re
++import socket
++import ssl
++import time
++from urllib.parse import urljoin, urlsplit, urlunsplit
++from urllib.robotparser import RobotFileParser
++
++MAX_HTML_BYTES = 2 * 1024 * 1024
++MAX_MEDIA_BYTES = 64 * 1024 * 1024
++MEDIA_MIMES = {
++    "video/mp4": "mp4", "video/x-m4v": "mp4", "video/quicktime": "mov",
++    "video/webm": "webm", "video/x-matroska": "mkv",
++}
++MAX_ROBOTS_BYTES = 256 * 1024
++MAX_REDIRECTS = 4
++MAX_REQUESTS = 12
++_FORBIDDEN_V6_TRANSLATION = (ipaddress.ip_network("64:ff9b::/96"), ipaddress.ip_network("64:ff9b:1::/48"))
++TOTAL_TIMEOUT = 90
++_REDIRECTS = {301, 302, 303, 307, 308}
++
++
++class CaptureHTTPError(ValueError):
++    """The response cannot safely enter the HTML capture pipeline."""
++
++
++
++
++def media_extension(prefix, mime):
++    """Match the declared type to the container header, independent of URL suffix."""
++    expected = MEDIA_MIMES[mime]
++    if expected in ("mp4", "mov"):
++        if len(prefix) < 16 or prefix[4:8] != b"ftyp":
++            raise CaptureHTTPError("media_signature_mismatch")
++        actual = "mov" if prefix[8:12] == b"qt  " else "mp4"
++    else:
++        if prefix[:4] != b"\x1a\x45\xdf\xa3":
++            raise CaptureHTTPError("media_signature_mismatch")
++        def vint(offset, *, identifier=False):
++            first = prefix[offset]
++            width = next((n for n in range(1, 9) if first & (1 << (8 - n))), 0)
++            if not width or offset + width > len(prefix):
++                raise ValueError("invalid_ebml")
++            value = int.from_bytes(prefix[offset:offset + width], "big")
++            return (value if identifier else value & ((1 << (7 * width)) - 1)), offset + width
++        try:
++            size, offset = vint(4)
++            end = offset + size
++            if end > len(prefix):
++                raise ValueError("oversized_ebml_header")
++            actual = None
++            while offset < end:
++                element, offset = vint(offset, identifier=True)
++                size, offset = vint(offset)
++                if offset + size > end:
++                    raise ValueError("invalid_ebml_element")
++                if element == 0x4282:
++                    actual = {b"webm": "webm", b"matroska": "mkv"}.get(bytes(prefix[offset:offset + size]))
++                offset += size
++        except (ValueError, IndexError):
++            raise CaptureHTTPError("media_signature_mismatch") from None
++    if actual != expected:
++        raise CaptureHTTPError("media_mime_container_mismatch")
++    return actual
++
++
++def _network_worker(action, result_path, parent_pid):
++    # A killed caller must not leave an orphan DNS/HTTP worker behind (Linux VPS).
++    if ctypes.CDLL(None).prctl(1, signal.SIGKILL, 0, 0, 0) != 0:
++        raise RuntimeError("parent_death_guard_unavailable")
++    if os.getppid() != parent_pid:
++        return
++    try:
++        result = {"ok": True, "value": action()}
++    except Exception as exc:
++        result = {"ok": False, "error": str(exc) if isinstance(exc, CaptureHTTPError) else type(exc).__name__}
++    Path(result_path).write_text(json.dumps(result, ensure_ascii=False), encoding="utf-8")
++
++
++def bounded_network(action, *, timeout=TOTAL_TIMEOUT):
++    """Hard process deadline also covers blocked OS DNS and HTTP header reads.
++
++    The child only downloads into temporary storage. Durable publication remains
++    in the caller after validation. No pipe recv can block after the join timeout.
++    """
++    with tempfile.TemporaryDirectory(prefix="raw-network-result-") as tmp:
++        result_path = Path(tmp) / "result.json"
++        worker = multiprocessing.get_context("fork").Process(
++            target=_network_worker, args=(action, str(result_path), os.getpid()))
++        worker.start()
++        try:
++            worker.join(timeout)
++            if worker.is_alive():
++                worker.kill()
++                worker.join(2)
++                raise CaptureHTTPError("network_deadline_exceeded")
++            if worker.exitcode != 0 or not result_path.exists():
++                raise CaptureHTTPError("network_worker_failed")
++            result = json.loads(result_path.read_text(encoding="utf-8"))
++            if not result["ok"]:
++                raise CaptureHTTPError(result["error"])
++            return result["value"]
++        finally:
++            if worker.is_alive():
++                worker.kill()
++                worker.join(2)
++
++
++def _target(url, allowed):
++    if not isinstance(url, str) or re.search(r"[\x00-\x20\x7f\\]", url):
++        raise CaptureHTTPError("invalid_url")
++    try:
++        parsed = urlsplit(url)
++        host = (parsed.hostname or "").encode("idna").decode("ascii").lower()
++        if (parsed.scheme != "https" or not host or parsed.username is not None
++                or parsed.password is not None or parsed.port not in (None, 443)):
++            raise CaptureHTTPError("https_public_origin_required")
++    except (ValueError, UnicodeError) as exc:
++        raise CaptureHTTPError("invalid_https_url") from exc
++    if not allowed(url):
++        raise CaptureHTTPError("domain_not_allowed")
++    addresses = socket.getaddrinfo(host, 443, type=socket.SOCK_STREAM)
++    if not addresses:
++        raise CaptureHTTPError("dns_empty")
++    for family, socktype, proto, canonname, sockaddr in addresses:
++        ip = ipaddress.ip_address(sockaddr[0])
++        if (not ip.is_global or ip.is_multicast or ip.is_unspecified
++                or str(ip) == "168.63.129.16"
++                or (ip.version == 6 and any(ip in net for net in _FORBIDDEN_V6_TRANSLATION))
++                or (ip.version == 6 and (ip.ipv4_mapped or ip.sixtofour or ip.teredo))):
++            raise CaptureHTTPError("non_public_address")
++        if family not in (socket.AF_INET, socket.AF_INET6):
++            raise CaptureHTTPError("unsupported_address_family")
++    path = urlunsplit(("", "", parsed.path or "/", parsed.query, ""))
++    return host, path, addresses[0]
++
++
++class _PinnedHTTPSConnection(http.client.HTTPSConnection):
++    def __init__(self, host, address, timeout):
++        super().__init__(host, 443, timeout=timeout, context=ssl.create_default_context())
++        self.address = address
++
++    def connect(self):
++        family, socktype, proto, _, sockaddr = self.address
++        raw = socket.socket(family, socktype, proto)
++        try:
++            raw.settimeout(self.timeout)
++            raw.connect(sockaddr)  # numeric sockaddr: no second DNS resolution
++            self.sock = self._context.wrap_socket(raw, server_hostname=self.host)
++        except BaseException:
++            raw.close()
++            raise
++
++
++class Transport:
++    def __init__(self, allowed, user_agent, timeout, rate_limit=0):
++        self.allowed = allowed
++        self.user_agent = user_agent
++        self.timeout = timeout
++        self.rate_limit = max(0, rate_limit)
++        self.deadline = time.monotonic() + TOTAL_TIMEOUT
++        self.requests = 0
++        self.last_request = None
++
++    def remaining(self):
++        remaining = self.deadline - time.monotonic()
++        if remaining <= 0:
++            raise CaptureHTTPError("capture_deadline_exceeded")
++        return min(self.timeout, remaining)
++
++    def request(self, url, kind, destination=None):
++        if self.requests >= MAX_REQUESTS:
++            raise CaptureHTTPError("request_budget_exceeded")
++        self.remaining()
++        host, path, address = _target(url, self.allowed)
++        if self.last_request is not None:
++            delay = max(0, self.rate_limit - (time.monotonic() - self.last_request))
++            if delay >= self.deadline - time.monotonic():
++                raise CaptureHTTPError("capture_deadline_exceeded")
++            time.sleep(delay)
++        conn = _PinnedHTTPSConnection(host, address, self.remaining())
++        self.requests += 1
++        self.last_request = time.monotonic()
++        try:
++            conn.request("GET", path, headers={"User-Agent": self.user_agent,
++                         "Accept-Encoding": "identity", "Accept": ", ".join(MEDIA_MIMES) if kind == "media" else ("text/html, application/xhtml+xml" if kind == "html" else "text/plain")})
++            resp = conn.getresponse()
++            if resp.status in _REDIRECTS:
++                location = resp.getheader("Location")
++                if not location:
++                    raise CaptureHTTPError("redirect_without_location")
++                return urljoin(url, location), None
++            if resp.status != 200:
++                raise CaptureHTTPError(f"http_status_{resp.status}")
++            if resp.getheader("Content-Encoding", "identity").lower() != "identity":
++                raise CaptureHTTPError("encoded_body_not_supported")
++            mime = resp.headers.get_content_type()
++            allowed_mimes = set(MEDIA_MIMES) if kind == "media" else ({"text/html", "application/xhtml+xml"} if kind == "html" else {"text/plain"})
++            if mime not in allowed_mimes or not resp.getheader("Content-Type"):
++                raise CaptureHTTPError("unsupported_mime")
++            limit = MAX_MEDIA_BYTES if kind == "media" else (MAX_HTML_BYTES if kind == "html" else MAX_ROBOTS_BYTES)
++            length = resp.getheader("Content-Length")
++            if length is not None and (not length.isdigit() or int(length) > limit):
++                raise CaptureHTTPError("invalid_or_oversized_content_length")
++            data = bytearray()
++            count = 0
++            digest = hashlib.sha256()
++            with ExitStack() as stack:
++                output = stack.enter_context(Path(destination).open("xb")) if kind == "media" else None
++                while count <= limit:
++                    if conn.sock is not None:
++                        conn.sock.settimeout(self.remaining())
++                    else:
++                        self.remaining()
++                    chunk = resp.read1(min(65536, limit + 1 - count))
++                    if not chunk:
++                        break
++                    count += len(chunk)
++                    if output is not None:
++                        output.write(chunk)
++                        digest.update(chunk)
++                        data.extend(chunk[:max(0, 4096 - len(data))])
++                    else:
++                        data.extend(chunk)
++                self.remaining()
++                if count > limit:
++                    raise CaptureHTTPError("body_too_large")
++                if length is not None and count != int(length):
++                    raise CaptureHTTPError("incomplete_body")
++                if output is not None:
++                    extension = media_extension(data, mime)
++                    output.flush()
++                    os.fsync(output.fileno())
++                    return None, {"mime": mime, "ext": extension, "size_bytes": count,
++                                  "media_hash": "sha256:" + digest.hexdigest()}
++            # Declared MIME alone is insufficient. Reject binary controls/magic and
++            # require HTML syntax (robots must be text, never an HTML login page).
++            if any(byte < 32 and byte not in (9, 10, 13) for byte in data):
++                raise CaptureHTTPError("binary_body")
++            charset = resp.headers.get_content_charset() or "utf-8"
++            try:
++                text = bytes(data).decode(charset, errors="strict")
++            except (LookupError, UnicodeError) as exc:
++                raise CaptureHTTPError("invalid_text_encoding") from exc
++            prefix = text.lstrip("\ufeff \t\r\n")[:1024].lower()
++            if prefix.startswith(("%pdf-", "pk", "gif8", "\x89png")):
++                raise CaptureHTTPError("binary_signature")
++            if kind == "html" and not re.search(r"<(?:!doctype\s+html|html|head|body|article|p|h[1-6])(?:\s|>)", prefix):
++                raise CaptureHTTPError("html_signature_missing")
++            if kind == "robots" and re.search(r"<(?:!doctype|html|head|body)(?:\s|>)", prefix):
++                raise CaptureHTTPError("robots_is_html")
++            return None, text
++        finally:
++            conn.close()
++
++    def robots_ok(self, url):
++        parsed = urlsplit(url)
++        current = urlunsplit((parsed.scheme, parsed.netloc, "/robots.txt", "", ""))
++        for _ in range(MAX_REDIRECTS + 1):
++            redirect, body = self.request(current, "robots")
++            if redirect is None:
++                parser = RobotFileParser()
++                parser.parse(body.splitlines())
++                return parser.can_fetch(self.user_agent, url)
++            current = redirect
++        raise CaptureHTTPError("robots_redirect_limit")
++
++    def _fetch_resource(self, url, kind, destination=None):
++        current = url
++        chain = []
++        for _ in range(MAX_REDIRECTS + 1):
++            _target(current, self.allowed)
++            if not self.robots_ok(current):
++                raise CaptureHTTPError("robots_disallow")
++            redirect, body = self.request(current, kind, destination)
++            chain.append(current)
++            if redirect is None:
++                if kind == "media":
++                    body.update(final_url=current, redirect_chain=chain)
++                return body
++            current = redirect
++        raise CaptureHTTPError(f"{kind}_redirect_limit")
++
++    def fetch_html(self, url):
++        return self._fetch_resource(url, "html")
++
++    def fetch_media(self, url, destination):
++        return self._fetch_resource(url, "media", destination)
+diff --git a/_scripts/tests/test_admin_submission.py b/_scripts/tests/test_admin_submission.py
+new file mode 100644
+index 0000000..b163e08
+--- /dev/null
++++ b/_scripts/tests/test_admin_submission.py
+@@ -0,0 +1,194 @@
++"""RAW admin text intake: real schema, manifests and append-only files in temp git."""
++import importlib.util
++import json
++import shutil
++import subprocess
++from pathlib import Path
++
++import pytest
++
++ROOT = Path(__file__).parents[2]
++
++
++@pytest.fixture
++def producer(tmp_path, monkeypatch):
++    # Load code from a disposable copy so the native manifest generator also runs
++    # against fixtures only. No corpus or Git remote is accessed.
++    shutil.copytree(ROOT / '_scripts', tmp_path / '_scripts', ignore=shutil.ignore_patterns('__pycache__'))
++    shutil.copytree(ROOT / '_schemas', tmp_path / '_schemas')
++    (tmp_path / 'manifests').mkdir()
++    subprocess.run(['git', 'init', '-q', str(tmp_path)], check=True)
++    spec = importlib.util.spec_from_file_location('submission_runner', tmp_path / '_scripts/auto-capture-runner.py')
++    runner = importlib.util.module_from_spec(spec)
++    spec.loader.exec_module(runner)
++    monkeypatch.setattr(runner, 'check_submission_secrets', lambda _: None)
++    return runner, tmp_path
++
++
++def document(**extra):
++    return {'title': 'Entretien du filtre', 'content': 'Texte soumis : remplacer le filtre selon le plan du constructeur.\n',
++            'source': 'manual/filtre', 'source_url': 'https://manufacturer.example/filtre', **extra}
++
++
++def test_submission_keeps_body_and_declared_provenance_without_authority(producer):
++    r, root = producer
++    doc = document()
++    result = r.ingest_admin_submission(doc, commit=True)
++    assert result['action'] == 'RECEIVED'
++    assert result['status'] == 'to_verify'
++    assert result['retrievable'] is False
++    text = (root / result['raw_path']).read_text()
++    fm = r._gates._split_frontmatter(text)
++    assert text.endswith(doc['content'])
++    assert fm['truth_level'] == 'L4'
++    assert fm['source_url_verified'] is False
++    assert fm['origin_type'] == 'admin_submission'
++    assert fm['can_feed_chatbot_directly'] is False
++    assert fm['can_feed_content_directly'] is False
++    # The actual Gate A and generator check consume the persisted bytes.
++    assert r._gates.gate_recycled_frontmatter() == ([], 1)
++    check = subprocess.run(['python3', str(root / '_scripts/regen-manifests.py'), '--check'], capture_output=True)
++    assert check.returncode == 0, check.stderr
++    assert result['raw_path'] in json.loads((root / 'manifests/checksums.json').read_text())
++
++
++def test_same_canonical_url_and_body_preserve_receipt_and_file(producer):
++    r, root = producer
++    first = r.ingest_admin_submission(document(source_url='https://MANUFACTURER.example:443/filtre#one'), commit=True)
++    path = root / first['raw_path']
++    before, stamp = path.read_bytes(), path.stat().st_mtime_ns
++    second = r.ingest_admin_submission(document(source_url='https://manufacturer.example/filtre#two'), commit=True)
++    assert second['id'] == first['id']
++    assert second['duplicate'] is True
++    assert path.read_bytes() == before and path.stat().st_mtime_ns == stamp
++    assert len(list((root / 'recycled').rglob('*.md'))) == 1
++
++
++def test_changed_body_creates_immutable_new_version(producer):
++    r, root = producer
++    first = r.ingest_admin_submission(document(), commit=True)
++    before = (root / first['raw_path']).read_bytes()
++    second = r.ingest_admin_submission(document(content='Autre texte technique.'), commit=True)
++    assert second['id'] != first['id']
++    assert (root / first['raw_path']).read_bytes() == before
++    assert len(list((root / 'recycled').rglob('*.md'))) == 2
++
++
++@pytest.mark.parametrize('update', [
++    {'truth_level': 'L1'}, {'decision': {'proposed': {'retrievable': True}}},
++    {'content': ''}, {'content': 'person@example.com'}, {'source_url': 'http://example.com'},
++    {'source_url': 'https://user:pass@example.com'}, {'title': None},
++])
++def test_invalid_or_authority_bearing_submission_never_written(update, producer):
++    r, root = producer
++    with pytest.raises((ValueError, TypeError)):
++        r.ingest_admin_submission(document(**update), commit=True)
++    assert not (root / 'recycled').exists()
++
++
++def test_missing_schema_and_secret_scan_failure_prevent_write(producer, monkeypatch):
++    r, root = producer
++    with monkeypatch.context() as patcher:
++        patcher.setattr(r._gates, 'RECYCLED_FM_SCHEMA', root / 'absent.json')
++        with pytest.raises(FileNotFoundError):
++            r.ingest_admin_submission(document(), commit=True)
++    monkeypatch.setattr(r, 'check_submission_secrets', lambda _: (_ for _ in ()).throw(ValueError('secret')))
++    with pytest.raises(ValueError):
++        r.ingest_admin_submission(document(), commit=True)
++    assert not (root / 'recycled').exists()
++
++
++def test_failed_manifest_refresh_never_reports_success_and_retry_repairs(producer, monkeypatch):
++    r, root = producer
++    with monkeypatch.context() as patcher:
++        patcher.setattr(r, 'refresh_submission_manifests', lambda: (_ for _ in ()).throw(ValueError('manifest failed')))
++        with pytest.raises(ValueError):
++            r.ingest_admin_submission(document(), commit=True)
++    assert len(list((root / 'recycled').rglob('*.md'))) == 1
++    repaired = r.ingest_admin_submission(document(), commit=True)
++    assert repaired['action'] == 'RECEIVED' and repaired['duplicate'] is True
++    assert repaired['raw_path'] in json.loads((root / 'manifests/checksums.json').read_text())
++
++
++def test_plan_is_offline_and_does_not_write(producer, monkeypatch):
++    r, root = producer
++    monkeypatch.setattr(r, 'check_submission_secrets', lambda _: pytest.fail('scanner in plan'))
++    assert r.ingest_admin_submission(document(), commit=False)['action'] == 'PLAN'
++    assert not (root / 'recycled').exists()
++    assert not list((root / 'manifests').iterdir())
++
++
++def test_symlink_escape_and_receipt_collision_refused(producer):
++    r, root = producer
++    result = r.ingest_admin_submission(document(), commit=False)
++    (root / 'recycled').mkdir()
++    (root / 'escape').mkdir()
++    (root / 'recycled/admin-submissions').symlink_to(root / 'escape', target_is_directory=True)
++    with pytest.raises(ValueError, match='path_escape'):
++        r.ingest_admin_submission(document(), commit=True)
++    assert not list((root / 'escape').iterdir())
++
++
++def test_busy_producer_lock_prevents_second_writer(producer):
++    import fcntl
++    r, root = producer
++    with (root / '.git/raw-admin-acquisition.lock').open('a') as held:
++        fcntl.flock(held, fcntl.LOCK_EX | fcntl.LOCK_NB)
++        with pytest.raises(BlockingIOError):
++            r.ingest_admin_submission(document(), commit=True)
++    assert not (root / 'recycled').exists()
++
++
++def test_url_capture_native_inventory_and_failed_refresh_replay(producer, monkeypatch):
++    r, root = producer
++    url = 'https://www.bosch.com/technical'
++    item = {'id': 'fixture-item', 'gamme': 'filtre'}
++    al = {'allow': {'bosch.com': {'level': 2, 'source_type': 'product_catalog', 'license_status': 'unknown'}}, 'deny': {}}
++    monkeypatch.setattr(r, 'fetch', lambda *_args, **_kwargs: '<p>' + 'Texte de fixture technique avec 12 particules. ' * 10 + '</p>')
++    with monkeypatch.context() as patcher:
++        patcher.setattr(r, 'refresh_submission_manifests', lambda: (_ for _ in ()).throw(RuntimeError('manifest fixture')))
++        failed = r.capture_one(url, item, al, commit=True, rate_limit=0)
++    assert failed['action'] == 'ERROR'
++    capture = next((root / 'sources/auto-captures').rglob('*.md'))
++    original = capture.read_bytes(), capture.stat().st_mtime_ns
++    retried = r.capture_one(url, item, al, commit=True, rate_limit=0)
++    assert retried['action'] == 'SKIP' and retried['detail'] == 'duplicate_content_hash'
++    assert retried['raw_path'] == capture.relative_to(root).as_posix()
++    assert retried['status'] == 'CAPTURED_NEEDS_REVIEW'
++    assert (capture.read_bytes(), capture.stat().st_mtime_ns) == original
++    assert capture.relative_to(root).as_posix() in json.loads((root / 'manifests/checksums.json').read_text())
++
++
++def test_url_capture_secret_scan_refuses_before_persistence(producer, monkeypatch):
++    r, root = producer
++    monkeypatch.setattr(r, 'fetch', lambda *_args, **_kwargs: '<p>' + 'Texte de fixture technique avec 12 particules. ' * 10 + '</p>')
++    monkeypatch.setattr(r, 'check_submission_secrets', lambda _: (_ for _ in ()).throw(ValueError('secret fixture')))
++    al = {'allow': {'bosch.com': {'level': 2, 'source_type': 'product_catalog', 'license_status': 'unknown'}}, 'deny': {}}
++    result = r.capture_one('https://www.bosch.com/technical', {'id': 'fixture', 'gamme': 'filtre'}, al, commit=True, rate_limit=0)
++    assert result['action'] == 'ERROR' and not (root / 'sources').exists()
++
++
++def test_main_retries_worklist_write_after_duplicate_receipt(producer, monkeypatch, capsys):
++    r, root = producer
++    item = {'id': 'fixture-item', 'gamme': 'filtre', 'discovery': {'mode': 'provided'}}
++    r.WORKLIST_FILE.write_text('fixture-placeholder')
++    monkeypatch.setattr(r, '_load_yaml', lambda _: {'worklist': [item]})
++    monkeypatch.setattr(r, 'load_allowlist', lambda: {})
++    receipt = {'action': 'SKIP', 'detail': 'duplicate_content_hash', 'raw_path': 'sources/auto-captures/fixture.md',
++               'url': 'https://www.bosch.com/source', 'status': 'CAPTURED_NEEDS_REVIEW',
++               'content_hash': 'sha256:' + 'b' * 64, 'captured_at': '2026-09-12T00:00:00Z',
++               'source_type': 'product_catalog', 'license_status': 'unknown'}
++    monkeypatch.setattr(r, 'capture_one', lambda *_args, **_kwargs: receipt)
++    monkeypatch.setattr(r.sys, 'argv', ['capture', '--item', item['id'], '--url', receipt['url'], '--commit', '--json'])
++    calls = []
++    def update(wid, **kwargs):
++        calls.append(wid)
++        if len(calls) == 1:
++            raise OSError('fixture failure')
++        return True
++    monkeypatch.setattr(r, 'update_worklist_item', update)
++    assert r.main() == 1
++    assert json.loads(capsys.readouterr().out)['worklist_updated'].startswith('FAILED:')
++    assert r.main() == 0
++    assert json.loads(capsys.readouterr().out)['worklist_updated'] == item['id']
++    assert calls == [item['id'], item['id']]
+diff --git a/_scripts/tests/test_admin_video.py b/_scripts/tests/test_admin_video.py
+new file mode 100644
+index 0000000..8dd747d
+--- /dev/null
++++ b/_scripts/tests/test_admin_video.py
+@@ -0,0 +1,124 @@
++"""Native RAW gates and manifests; network/probe fixtures never contact a source."""
++import hashlib
++import json
++import subprocess
++from pathlib import Path
++from types import SimpleNamespace
++
++import pytest
++from .test_admin_submission import producer
++
++URL = 'https://www.bosch.com/technical.mp4'
++
++
++@pytest.fixture
++def video(producer, monkeypatch):
++    runner, root = producer
++    state = {'body': b'fixture-container-one', 'fetches': 0}
++    entry = {'level': 2, 'source_type': 'product_catalog', 'license_status': 'unknown'}
++    # Fixture source policy, not a production allowlist extension.
++    monkeypatch.setattr(runner, 'load_allowlist', lambda: {})
++    monkeypatch.setattr(runner, 'classify', lambda *_: ('allow', entry))
++    monkeypatch.setattr(runner._http, 'bounded_network', lambda fn: fn())
++    def fetch(url, destination):
++        state['fetches'] += 1
++        destination.write_bytes(state['body'])
++        return {'ext': 'mp4', 'mime': 'video/mp4', 'size_bytes': len(state['body']),
++                'media_hash': 'sha256:' + hashlib.sha256(state['body']).hexdigest(),
++                'final_url': url, 'redirect_chain': [url]}
++    monkeypatch.setattr(runner, '_transport', lambda *_: SimpleNamespace(fetch_media=fetch))
++    monkeypatch.setattr(runner, 'probe_video', lambda *_: {'duration_sec': 1.0, 'video_streams': [{'codec': 'h264', 'width': 16, 'height': 16}]})
++    return runner, root, state
++
++
++def test_native_inventory_and_replay_preserve_all_bytes(video):
++    r, root, state = video
++    first = r.ingest_admin_video({'url': URL, 'gamme': 'freinage'}, commit=True)
++    assert first['destination'] == 'raw' and first['retrievable'] is False
++    assert first['status'] == 'to_verify' and not first['duplicate']
++    before = {p: (p.read_bytes(), p.stat().st_mtime_ns) for p in (root / 'sources').rglob('*') if p.is_file()}
++    second = r.ingest_admin_video({'url': URL, 'gamme': 'declaration changed'}, commit=True)
++    assert second['duplicate'] and second['id'] == first['id']
++    assert all((p.read_bytes(), p.stat().st_mtime_ns) == value for p, value in before.items())
++    checksums = json.loads((root / 'manifests/checksums.json').read_text())
++    assert first['raw_path'] in checksums and first['media_path'] in checksums
++    checked = subprocess.run(['python3', str(root / '_scripts/regen-manifests.py'), '--check'], capture_output=True)
++    assert checked.returncode == 0, checked.stderr
++    assert r._gates.gate_auto_capture()[0] == []
++
++
++def test_changed_content_versions_and_two_sources_one_binary(video):
++    r, root, state = video
++    first = r.ingest_admin_video({'url': URL}, commit=True)
++    original = (root / first['raw_path']).read_bytes()
++    other = r.ingest_admin_video({'url': URL + '?mirror=2'}, commit=True)
++    assert other['id'] != first['id'] and other['media_path'] == first['media_path']
++    state['body'] = b'fixture-container-two'
++    changed = r.ingest_admin_video({'url': URL}, commit=True)
++    assert changed['id'] != first['id'] and changed['media_path'] != first['media_path']
++    assert (root / first['raw_path']).read_bytes() == original
++    assert len(list((root / 'sources/media').glob('*.mp4'))) == 2
++    assert len(list((root / 'sources/auto-captures/media').glob('*.md'))) == 3
++
++
++@pytest.mark.parametrize('failure', ['probe_video', 'check_submission_secrets'])
++def test_refusal_before_durable_write(video, monkeypatch, failure):
++    r, root, _ = video
++    monkeypatch.setattr(r, failure, lambda *_: (_ for _ in ()).throw(ValueError('refused')))
++    with pytest.raises(ValueError):
++        r.ingest_admin_video({'url': URL}, commit=True)
++    assert not (root / 'sources').exists()
++
++
++@pytest.mark.parametrize('failure', ['sidecar', 'manifests'])
++def test_partial_failure_preserves_binary_and_retry_repairs(video, monkeypatch, failure):
++    r, root, state = video
++    publish = r.publish_append_only
++    def failed(path, candidate):
++        if path.name.endswith('.manifest.yaml'):
++            raise OSError('fixture disk failure')
++        publish(path, candidate)
++    with monkeypatch.context() as patcher:
++        if failure == 'sidecar':
++            patcher.setattr(r, 'publish_append_only', failed)
++        else:
++            patcher.setattr(r, 'refresh_submission_manifests', lambda: (_ for _ in ()).throw(RuntimeError('fixture manifest failure')))
++        with pytest.raises((OSError, RuntimeError)):
++            r.ingest_admin_video({'url': URL}, commit=True)
++    binary = next((root / 'sources/media').glob('*.mp4'))
++    before = binary.read_bytes(), binary.stat().st_mtime_ns
++    repaired = r.ingest_admin_video({'url': URL}, commit=True)
++    assert repaired['action'] == 'RECEIVED'
++    assert (binary.read_bytes(), binary.stat().st_mtime_ns) == before
++    assert repaired['raw_path'] in json.loads((root / 'manifests/checksums.json').read_text())
++
++
++def test_lock_refuses_before_network_and_plan_does_not_fetch(video):
++    r, root, state = video
++    with r.acquisition_lock():
++        with pytest.raises(BlockingIOError):
++            r.ingest_admin_video({'url': URL}, commit=True)
++        assert r.ingest_admin_video({'url': URL}, commit=False)['action'] == 'PLAN'
++    assert state['fetches'] == 0 and not (root / 'sources').exists()
++
++
++def test_sidecar_symlink_escape_refused_without_external_write(video, tmp_path):
++    r, root, state = video
++    directory = root / 'sources/media'
++    directory.mkdir(parents=True)
++    digest = hashlib.sha256(state['body']).hexdigest()
++    outside = root / 'outside.yaml'
++    (directory / (digest + '.mp4.manifest.yaml')).symlink_to(outside)
++    with pytest.raises(ValueError, match='path_escape'):
++        r.ingest_admin_video({'url': URL}, commit=True)
++    assert not outside.exists()
++
++
++def test_binary_collision_never_overwrites(video):
++    r, root, state = video
++    receipt = r.ingest_admin_video({'url': URL}, commit=True)
++    binary = root / receipt['media_path']
++    binary.write_bytes(b'fixture corruption')
++    with pytest.raises(ValueError, match='binary_collision'):
++        r.ingest_admin_video({'url': URL}, commit=True)
++    assert binary.read_bytes() == b'fixture corruption'
+diff --git a/_scripts/tests/test_auto_capture_runner.py b/_scripts/tests/test_auto_capture_runner.py
+index 23e49aa..c3383b3 100644
+--- a/_scripts/tests/test_auto_capture_runner.py
++++ b/_scripts/tests/test_auto_capture_runner.py
+@@ -11,7 +11,7 @@ import hashlib
+ import importlib.util
+ import json
+ import tempfile
+-from contextlib import contextmanager
++from contextlib import contextmanager, nullcontext
+ from pathlib import Path
+ from unittest.mock import patch
+ 
+@@ -106,7 +106,10 @@ def _capture_sandbox(*, html=None, entry=None):
+     with tempfile.TemporaryDirectory() as tmp:
+         root = Path(tmp)
+         captures = root / "sources" / "auto-captures"
+-        with patch.object(acr, "REPO_ROOT", root), \
++        with patch.object(acr, "acquisition_lock", side_effect=nullcontext), \
++             patch.object(acr, "check_submission_secrets", return_value=None), \
++             patch.object(acr, "refresh_submission_manifests", return_value=None), \
++             patch.object(acr, "REPO_ROOT", root), \
+              patch.object(acr, "AUTO_CAPTURES_DIR", captures), \
+              patch.object(acr, "robots_ok", return_value=True), \
+              patch.object(acr, "fetch", return_value=html or body), \
+diff --git a/_scripts/tests/test_capture_http.py b/_scripts/tests/test_capture_http.py
+new file mode 100644
+index 0000000..a022767
+--- /dev/null
++++ b/_scripts/tests/test_capture_http.py
+@@ -0,0 +1,372 @@
++"""Offline adversarial tests; no DNS, TLS or HTTP request reaches the network."""
++import importlib.util
++import io
++import socket
++from email.message import Message
++from pathlib import Path
++from unittest.mock import Mock
++
++import pytest
++
++_spec = importlib.util.spec_from_file_location('capture_http_test', Path(__file__).parents[1] / 'capture_http.py')
++h = importlib.util.module_from_spec(_spec)
++_spec.loader.exec_module(h)
++URL = 'https://manufacturer.example/article'
++PUBLIC = (socket.AF_INET, socket.SOCK_STREAM, 6, '', ('93.184.216.34', 443))
++
++
++class Response:
++    def __init__(self, body=b'<html><p>Technical information 123.</p></html>', status=200, mime='text/html', **headers):
++        self.status = status
++        self.headers = Message()
++        if mime is not None:
++            self.headers['Content-Type'] = mime
++        for key, value in headers.items():
++            self.headers[key.replace('_', '-')] = str(value)
++        self.stream = io.BytesIO(body)
++        self.read_sizes = []
++
++    def getheader(self, name, default=None):
++        return self.headers.get(name, default)
++
++    def read1(self, size):
++        self.read_sizes.append(size)
++        return self.stream.read(size)
++
++
++@pytest.fixture
++def wire(monkeypatch):
++    dns = Mock(return_value=[PUBLIC])
++    monkeypatch.setattr(h.socket, 'getaddrinfo', dns)
++    replies, connections = [], []
++
++    class Connection:
++        def __init__(self, host, address, timeout):
++            self.host, self.address = host, address
++            self.sock = Mock()
++            self.closed = False
++            connections.append(self)
++
++        def request(self, method, path, headers):
++            self.path = path
++            self.headers = headers
++
++        def getresponse(self):
++            assert replies, 'unexpected HTTP request'
++            return replies.pop(0)
++
++        def close(self):
++            self.closed = True
++
++    monkeypatch.setattr(h, '_PinnedHTTPSConnection', Connection)
++    monkeypatch.setattr(h.time, 'sleep', lambda _: None)
++    return replies, connections, dns
++
++
++def transport():
++    return h.Transport(lambda url: 'manufacturer.example' == h.urlsplit(url).hostname, 'capture-test', 2)
++
++
++def robots(body=b'User-agent: *\nAllow: /\n', **kw):
++    return Response(body, mime='text/plain', **kw)
++
++
++@pytest.mark.parametrize('url', [
++    'http://manufacturer.example/x', 'file:///etc/passwd',
++    'https://user:pass@manufacturer.example/', 'https://manufacturer.example:8080/',
++    'https://manufacturer.example/\r\nHeader:evil', 'https://manufacturer.example\\@evil.example/',
++    'https://evil.example/x', 'https://manufacturer.example:bad/',
++])
++def test_invalid_targets_never_connect(url, wire):
++    replies, connections, dns = wire
++    with pytest.raises(h.CaptureHTTPError):
++        transport().fetch_html(url)
++    assert not connections
++    dns.assert_not_called()
++
++
++@pytest.mark.parametrize('ip', ['127.0.0.1', '10.0.0.1', '169.254.169.254', '100.100.100.200',
++                                    '0.0.0.0', '192.168.0.1', '::1', 'fc00::1', 'fe80::1',
++                                    '::ffff:127.0.0.1', '2002:7f00:1::', '224.0.0.1',
++                                    '168.63.129.16', '64:ff9b::a00:1'])
++def test_non_public_and_mixed_dns_refused(ip, wire):
++    replies, connections, dns = wire
++    family = socket.AF_INET6 if ':' in ip else socket.AF_INET
++    dns.return_value = [PUBLIC, (family, socket.SOCK_STREAM, 6, '', (ip, 443))]
++    with pytest.raises(h.CaptureHTTPError, match='non_public'):
++        transport().fetch_html(URL)
++    assert not connections
++
++
++def test_success_reads_robots_before_html_and_closes_connections(wire):
++    replies, connections, _ = wire
++    replies.extend([robots(), Response()])
++    assert 'Technical' in transport().fetch_html(URL)
++    assert [c.path for c in connections] == ['/robots.txt', '/article']
++    assert all(c.address == PUBLIC and c.closed for c in connections)
++    assert all(c.headers['Accept-Encoding'] == 'identity' for c in connections)
++
++
++def test_robots_denial_prevents_target_request(wire):
++    replies, connections, _ = wire
++    replies.append(robots(b'User-agent: *\nDisallow: /\n'))
++    with pytest.raises(h.CaptureHTTPError, match='robots_disallow'):
++        transport().fetch_html(URL)
++    assert [c.path for c in connections] == ['/robots.txt']
++
++
++@pytest.mark.parametrize('where', ['robots', 'html'])
++def test_external_redirect_refused_before_next_connection(where, wire):
++    replies, connections, _ = wire
++    redirect = Response(status=302, Location='https://private.example/secret')
++    replies.extend([redirect] if where == 'robots' else [robots(), redirect])
++    with pytest.raises(h.CaptureHTTPError, match='domain_not_allowed'):
++        transport().fetch_html(URL)
++    assert len(connections) == (1 if where == 'robots' else 2)
++
++
++def test_allowed_subdomain_redirect_with_private_dns_refused(wire):
++    replies, connections, dns = wire
++    replies.extend([robots(), Response(status=302, Location='https://sub.manufacturer.example/')])
++    dns.side_effect = lambda host, *a, **kw: [PUBLIC] if host == 'manufacturer.example' else [
++        (socket.AF_INET, socket.SOCK_STREAM, 6, '', ('127.0.0.1', 443))]
++    t = h.Transport(lambda _: True, 'test', 2)
++    with pytest.raises(h.CaptureHTTPError, match='non_public'):
++        t.fetch_html(URL)
++    assert len(connections) == 2
++
++
++def test_same_origin_redirect_rechecks_robots_for_destination(wire):
++    replies, connections, _ = wire
++    replies.extend([robots(), Response(status=302, Location='/forbidden'),
++                    robots(b'User-agent: *\nDisallow: /forbidden\n')])
++    with pytest.raises(h.CaptureHTTPError, match='robots_disallow'):
++        transport().fetch_html(URL)
++    assert [c.path for c in connections] == ['/robots.txt', '/article', '/robots.txt']
++
++
++def test_dns_rebinding_between_robots_and_target_is_refused(wire):
++    replies, connections, dns = wire
++    replies.append(robots())
++    dns.side_effect = [[PUBLIC], [PUBLIC], [(socket.AF_INET, socket.SOCK_STREAM, 6, '', ('127.0.0.1', 443))]]
++    with pytest.raises(h.CaptureHTTPError, match='non_public'):
++        transport().fetch_html(URL)
++    assert len(connections) == 1
++
++
++@pytest.mark.parametrize('response,reason', [
++    (Response(status=401), 'http_status_401'),
++    (Response(status=403), 'http_status_403'),
++    (Response(mime='application/pdf'), 'unsupported_mime'),
++    (Response(mime=None), 'unsupported_mime'),
++    (Response(b'%PDF-1.7 fake HTML'), 'binary_signature'),
++    (Response(b'GIF89a fake HTML'), 'binary_signature'),
++    (Response(b'\x89PNG\x00\x01'), 'binary_body'),
++    (Response(b'<html>\x00</html>'), 'binary_body'),
++    (Response(b'plain text with an HTML MIME'), 'html_signature_missing'),
++    (Response(Content_Encoding='gzip'), 'encoded_body_not_supported'),
++    (Response(Content_Length=999999999), 'invalid_or_oversized'),
++    (Response(Content_Length='invalid'), 'invalid_or_oversized'),
++    (Response(Content_Length=100), 'incomplete_body'),
++    (Response(b'<html>\xff</html>'), 'invalid_text_encoding'),
++])
++def test_unsuitable_body_refused_and_socket_closed(response, reason, wire):
++    replies, connections, _ = wire
++    replies.append(response)
++    with pytest.raises(h.CaptureHTTPError, match=reason):
++        transport().request(URL, 'html')
++    assert all(c.closed for c in connections)
++
++
++def test_streaming_body_limit_without_content_length(wire, monkeypatch):
++    replies, connections, _ = wire
++    monkeypatch.setattr(h, 'MAX_HTML_BYTES', 128)
++    response = Response(b'<html>' + b'x' * 5000)
++    replies.append(response)
++    with pytest.raises(h.CaptureHTTPError, match='body_too_large'):
++        transport().request(URL, 'html')
++    assert response.stream.tell() == 129
++    assert connections[0].closed
++
++
++def test_robots_html_masquerade_refused(wire):
++    wire[0].append(robots(b'<html>login page</html>'))
++    with pytest.raises(h.CaptureHTTPError, match='robots_is_html'):
++        transport().fetch_html(URL)
++    assert len(wire[1]) == 1
++
++
++def test_redirect_loop_and_request_budget_bounded(wire):
++    wire[0].extend(Response(status=302, Location='/robots.txt') for _ in range(h.MAX_REDIRECTS + 1))
++    with pytest.raises(h.CaptureHTTPError, match='robots_redirect_limit'):
++        transport().fetch_html(URL)
++    assert len(wire[1]) == h.MAX_REDIRECTS + 1
++    t = transport()
++    t.requests = h.MAX_REQUESTS
++    with pytest.raises(h.CaptureHTTPError, match='request_budget'):
++        t.request(URL, 'html')
++
++
++def test_expired_deadline_prevents_connection(wire):
++    t = transport()
++    t.deadline = h.time.monotonic() - 1
++    with pytest.raises(h.CaptureHTTPError, match='deadline'):
++        t.request(URL, 'html')
++    assert not wire[1]
++
++
++def test_connection_pins_numeric_address_but_verifies_hostname(monkeypatch):
++    dns = Mock(side_effect=AssertionError('second DNS lookup'))
++    raw = Mock()
++    context = Mock()
++    monkeypatch.setattr(h.socket, 'getaddrinfo', dns)
++    monkeypatch.setattr(h.socket, 'socket', Mock(return_value=raw))
++    monkeypatch.setattr(h.ssl, 'create_default_context', Mock(return_value=context))
++    conn = h._PinnedHTTPSConnection('manufacturer.example', PUBLIC, 2)
++    conn.connect()
++    raw.connect.assert_called_once_with(('93.184.216.34', 443))
++    context.wrap_socket.assert_called_once_with(raw, server_hostname='manufacturer.example')
++    dns.assert_not_called()
++
++
++def test_tls_error_closes_raw_socket(monkeypatch):
++    raw = Mock()
++    context = Mock()
++    context.wrap_socket.side_effect = h.ssl.SSLError('certificate invalid')
++    monkeypatch.setattr(h.socket, 'socket', Mock(return_value=raw))
++    monkeypatch.setattr(h.ssl, 'create_default_context', Mock(return_value=context))
++    with pytest.raises(h.ssl.SSLError):
++        h._PinnedHTTPSConnection('manufacturer.example', PUBLIC, 2).connect()
++    raw.close.assert_called_once()
++
++
++def test_real_runner_network_refusal_leaves_no_raw_source(wire, monkeypatch, tmp_path):
++    spec = importlib.util.spec_from_file_location('runner_network_test', Path(__file__).parents[1] / 'auto-capture-runner.py')
++    runner = importlib.util.module_from_spec(spec)
++    spec.loader.exec_module(runner)
++    monkeypatch.setattr(runner, "acquisition_lock", lambda: h.ExitStack())
++    monkeypatch.setattr(runner, 'check_submission_secrets', lambda _: None)
++    monkeypatch.setattr(runner, 'refresh_submission_manifests', lambda: None)
++    monkeypatch.setattr(runner, '_http', h)
++    monkeypatch.setattr(runner, 'REPO_ROOT', tmp_path)
++    monkeypatch.setattr(runner, 'AUTO_CAPTURES_DIR', tmp_path / 'sources' / 'auto-captures')
++    wire[0].extend([robots(), Response(b'%PDF-1.7 fake HTML')])
++    al = {'allow': {'manufacturer.example': {'level': 2, 'license_status': 'unknown',
++                                            'source_type': 'technical_datasheet'}}, 'deny': {}}
++    rep = runner.capture_one(URL, {'id': 'wl-test', 'gamme': 'filtre'}, al, commit=True, rate_limit=0)
++    assert rep['action'] == 'ERROR'
++    assert 'binary_signature' in rep['detail']
++    assert not list(tmp_path.iterdir())
++
++
++def test_runner_network_to_gate_j_persistence_and_duplicate(wire, monkeypatch, tmp_path):
++    spec = importlib.util.spec_from_file_location('runner_full_test', Path(__file__).parents[1] / 'auto-capture-runner.py')
++    runner = importlib.util.module_from_spec(spec)
++    spec.loader.exec_module(runner)
++    monkeypatch.setattr(runner, "acquisition_lock", lambda: h.ExitStack())
++    monkeypatch.setattr(runner, 'check_submission_secrets', lambda _: None)
++    monkeypatch.setattr(runner, 'refresh_submission_manifests', lambda: None)
++    monkeypatch.setattr(runner, '_http', h)
++    monkeypatch.setattr(runner, 'REPO_ROOT', tmp_path)
++    monkeypatch.setattr(runner, 'AUTO_CAPTURES_DIR', tmp_path / 'sources' / 'auto-captures')
++    body = b'<html><p>Documentation technique de maintenance et filtration 1234. ' + b'Dimensions et nettoyage 5678. ' * 15 + b'</p></html>'
++    wire[0].extend([robots(), Response(body), robots(), Response(body)])
++    al = {'allow': {'manufacturer.example': {'level': 2, 'license_status': 'unknown',
++                                            'source_type': 'technical_datasheet'}}, 'deny': {}}
++    item = {'id': 'wl-test', 'gamme': 'filtre'}
++    first = runner.capture_one(URL, item, al, commit=True, rate_limit=0)
++    assert first['action'] == 'CAPTURED', first
++    path = tmp_path / first['raw_path']
++    before = path.read_bytes()
++    second = runner.capture_one(URL, item, al, commit=True, rate_limit=0)
++    assert second['detail'] == 'duplicate_content_hash'
++    assert path.read_bytes() == before
++    assert len(list(tmp_path.rglob('*.md'))) == 1
++    assert not list(tmp_path.rglob('*.tmp'))
++
++
++def test_runner_restricted_license_does_not_request_network(wire, monkeypatch, tmp_path):
++    spec = importlib.util.spec_from_file_location('runner_restricted_test', Path(__file__).parents[1] / 'auto-capture-runner.py')
++    runner = importlib.util.module_from_spec(spec)
++    spec.loader.exec_module(runner)
++    monkeypatch.setattr(runner, "acquisition_lock", lambda: h.ExitStack())
++    monkeypatch.setattr(runner, 'check_submission_secrets', lambda _: None)
++    monkeypatch.setattr(runner, 'refresh_submission_manifests', lambda: None)
++    monkeypatch.setattr(runner, '_http', h)
++    monkeypatch.setattr(runner, 'AUTO_CAPTURES_DIR', tmp_path / 'sources')
++    al = {'allow': {'manufacturer.example': {'level': 2, 'license_status': 'restricted',
++                                            'source_type': 'technical_datasheet'}}, 'deny': {}}
++    rep = runner.capture_one(URL, {'id': 'wl-test'}, al, commit=True, rate_limit=0)
++    assert rep['action'] == 'ERROR'
++    wire[2].assert_not_called()
++    assert not wire[1]
++    assert not list(tmp_path.iterdir())
++
++
++def test_hard_deadline_kills_a_blocked_dns_worker(wire):
++    import os
++    import time
++    wire[2].side_effect = lambda *a, **kw: __import__("threading").Event().wait(10)
++    started = time.monotonic()
++    with pytest.raises(h.CaptureHTTPError, match='network_deadline'):
++        h.bounded_network(lambda: transport().fetch_html(URL), timeout=0.1)
++    assert time.monotonic() - started < 2
++    assert not h.multiprocessing.active_children()
++
++
++def test_hard_deadline_kills_blocked_http_headers(wire, monkeypatch):
++    import time
++    class Blocked:
++        def __init__(self, *args):
++            pass
++        def request(self, *args, **kwargs):
++            pass
++        def getresponse(self):
++            __import__("threading").Event().wait(10)
++        def close(self):
++            pass
++    monkeypatch.setattr(h, '_PinnedHTTPSConnection', Blocked)
++    with pytest.raises(h.CaptureHTTPError, match='network_deadline'):
++        h.bounded_network(lambda: transport().request(URL, 'html'), timeout=0.1)
++    assert not h.multiprocessing.active_children()
++
++
++@pytest.mark.parametrize('mime,body,ext', [
++    ('video/mp4', b'\x00\x00\x00\x18ftypisom' + b'\x00' * 16, 'mp4'),
++    ('video/x-m4v', b'\x00\x00\x00\x18ftypM4V ' + b'\x00' * 16, 'mp4'),
++    ('video/quicktime', b'\x00\x00\x00\x18ftypqt  ' + b'\x00' * 16, 'mov'),
++    ('video/webm', b'\x1a\x45\xdf\xa3\x87\x42\x82\x84webm', 'webm'),
++    ('video/x-matroska', b'\x1a\x45\xdf\xa3\x8b\x42\x82\x88matroska', 'mkv'),
++])
++def test_media_transport_streams_and_hashes_expected_containers(mime, body, ext, wire, tmp_path):
++    import hashlib
++    wire[0].extend([robots(), Response(body, mime=mime)])
++    destination = tmp_path / 'download'
++    result = transport().fetch_media(URL, destination)
++    assert result['ext'] == ext
++    assert result['media_hash'] == 'sha256:' + hashlib.sha256(body).hexdigest()
++    assert result['size_bytes'] == len(body)
++    assert result['final_url'] == URL
++    assert destination.read_bytes() == body
++
++
++@pytest.mark.parametrize('mime,body', [
++    ('video/mp4', b'<html>video platform</html>'),
++    ('video/mp4', b'\x00\x00\x00\x18ftypqt  ' + b'\x00' * 16),
++    ('video/webm', b'\x1a\x45\xdf\xa3\x8b\x42\x82\x88matroska'),
++    ('video/webm', b'\x1a\x45\xdf\xa3\xff'),
++    ('application/octet-stream', b'unknown binary'),
++])
++def test_media_mime_or_container_mismatch_refused(mime, body, wire, tmp_path):
++    wire[0].append(Response(body, mime=mime))
++    with pytest.raises(h.CaptureHTTPError):
++        transport().request(URL, 'media', tmp_path / 'download')
++
++
++def test_media_size_bound_applies_to_stream_without_declared_length(wire, tmp_path, monkeypatch):
++    monkeypatch.setattr(h, 'MAX_MEDIA_BYTES', 32)
++    response = Response(b'\x00\x00\x00\x18ftypisom' + b'\x00' * 100, mime='video/mp4')
++    wire[0].append(response)
++    with pytest.raises(h.CaptureHTTPError, match='body_too_large'):
++        transport().request(URL, 'media', tmp_path / 'download')
++    assert response.stream.tell() == 33

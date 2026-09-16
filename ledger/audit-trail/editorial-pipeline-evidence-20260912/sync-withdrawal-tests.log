@@ -1,0 +1,28 @@
+sync-from-wiki: 1 export files, written=0, skipped=0, failed=0 (dry-run; pass --apply to commit)
+.sync-from-wiki: no export files under /tmp/tmps7epvbg_/wiki-repo/exports/rag; mirror not refreshed
+.FAIL  gammes/oil.md: write failed: disk unavailable
+sync-from-wiki: 1 export files, written=0, skipped=0, failed=1
+.sync-from-wiki: 1 export files, written=1, skipped=0, failed=0
+manifest write FAILED: manifest unavailable
+.sync-from-wiki: source unavailable: /tmp/tmpry6fsusn/wiki-repo/exports/rag
+.sync-from-wiki: partial source cannot refresh the complete mirror
+.....sync-from-wiki: 2 export files, written=2, skipped=0, failed=0
+manifest written: /tmp/tmp2k46hn39/rag-repo/knowledge/.last-sync.json
+UNRECONCILED gammes/withdrawn.md (preserved; absent from WIKI exports)
+.sync-from-wiki: mirror preflight failed: mirror symlink: gammes
+.UNRECONCILED legacy.md (preserved; absent from WIKI exports)
+.sync-from-wiki: 1 export files, written=1, skipped=0, failed=0
+manifest written: /tmp/tmprvcckz_3/rag-repo/knowledge/.last-sync.json
+sync-from-wiki: 1 export files, written=0, skipped=1, failed=0
+manifest written: /tmp/tmprvcckz_3/rag-repo/knowledge/.last-sync.json
+.
+----------------------------------------------------------------------
+Ran 14 tests in 0.022s
+
+OK
+DRY   gammes/oil.md → /tmp/tmpq9id1xh0/rag-repo/knowledge/gammes/oil.md
+WRITE gammes/oil.md
+WRITE gammes/oil.md
+WRITE gammes/withdrawn.md
+WRITE gammes/oil.md
+SKIP  gammes/oil.md (sha256 match)

@@ -1,0 +1,96 @@
+diff --git a/backend/src/modules/blog/services/r3-guide.service.test.ts b/backend/src/modules/blog/services/r3-guide.service.test.ts
+index 9071dd9df..bdedf4e29 100644
+--- a/backend/src/modules/blog/services/r3-guide.service.test.ts
++++ b/backend/src/modules/blog/services/r3-guide.service.test.ts
+@@ -181,7 +181,7 @@ describe('R3GuideService — cache + single-flight + invalidation (PR-A)', () =>
+       const result = await service.getR3GuidePayload('inconnu');
+ 
+       expect(result).toBeNull();
+-      expect(await cache.get('r3-guide:v3:inconnu')).toBeNull();
++      expect(await cache.get('r3-guide:v4:inconnu')).toBeNull();
+     });
+   });
+ 
+@@ -570,16 +570,48 @@ describe('R3GuideService — sections META servies seulement si conformes au con
+     expect(warn).not.toHaveBeenCalledWith(expect.stringContaining('[r3-meta]'));
+   });
+ 
+-  it('payload filtré mis en cache sous la clé v3 (les payloads v2 servaient le JSON)', async () => {
++  it('payload filtre mis en cache sous la cle v4 (META filtre et ancre diagnostic stable)', async () => {
+     const { service, cache, seoService } = await buildService();
+     seoService.getGammeConseil.mockResolvedValue([body, JSON_META]);
+ 
+     await service.getR3GuidePayload(PG_ALIAS);
+ 
+     const cached = await cache.get<{ metaSections: unknown[] }>(
+-      `r3-guide:v3:${PG_ALIAS}`,
++      `r3-guide:v4:${PG_ALIAS}`,
+     );
+     expect(cached?.metaSections).toEqual([]);
+     expect(await cache.get(`r3-guide:v2:${PG_ALIAS}`)).toBeNull();
++    expect(await cache.get(`r3-guide:v3:${PG_ALIAS}`)).toBeNull();
+   });
+ });
++
++describe('R3 S2_DIAG — destination des redirections R5 (ADR-027)', () => {
++  it.each([
++    'Diagnostic rapide du disque de frein',
++    'Symptomes et controles utiles',
++  ])(
++    'conserve une ancre stable malgre le titre %s, ainsi que son ancien fragment',
++    async (title) => {
++      const { service, seoService } = await buildService();
++      seoService.getGammeConseil.mockResolvedValue([
++        {
++          title,
++          content:
++            '<table><tr><td>Signal</td><td>Hypothese</td><td>Controle</td></tr></table>',
++          sectionType: 'S2_DIAG',
++          order: 7,
++          qualityScore: null,
++          sources: [],
++        },
++      ]);
++      const result = await service.getR3GuidePayload('filtre-a-huile');
++      const section = result?.bodySections.find(
++        (s) => s.sectionType === 'S2_DIAG',
++      );
++      expect(section?.anchor).toBe('diagnostic-rapide');
++      expect(section?.legacyAnchor).toBeDefined();
++      expect(section?.legacyAnchor).not.toBe(section?.anchor);
++      expect(section?.html).toContain('<table>');
++    },
++  );
++});
+diff --git a/backend/src/modules/blog/services/r3-guide.service.ts b/backend/src/modules/blog/services/r3-guide.service.ts
+index 3c97652f2..2446999c7 100644
+--- a/backend/src/modules/blog/services/r3-guide.service.ts
++++ b/backend/src/modules/blog/services/r3-guide.service.ts
+@@ -38,8 +38,9 @@ import { InternalLinkingService } from '../../seo/internal-linking.service';
+ /** Cache key prefix versionnée — bump v1→v2 invalide tous les payloads.
+  *  v2 (2026-05-24) : compatible vehicles capped à 24 (LCP /blog-pieces-auto/conseils/* — voir PR LCP-R3-PR1).
+  *  v3 (2026-09-11) : sections META hors contrat « liens » retirées du payload
+- *  (sinon les payloads v2 cachés continueraient de servir le JSON 24 h). */
+-const R3_CACHE_PREFIX = 'r3-guide:v3:';
++ *  (sinon les payloads v2 cachés continueraient de servir le JSON 24 h).
++ *  v4 (2026-09-13) : ancre contractuelle S2_DIAG pour les redirections R5. */
++const R3_CACHE_PREFIX = 'r3-guide:v4:';
+ 
+ /** Motif de rejet d'une section META hors contrat « liens ». */
+ type MetaSectionRejection = 'empty' | 'json' | 'meta_tag' | 'no_link';
+@@ -519,10 +520,14 @@ export class R3GuideService {
+     // Clean accidental word duplicates from RAG/enrichment ("km km" → "km")
+     html = deduplicateWords(html);
+ 
++    const titleAnchor = slugifyTitle(s.title);
++    const anchor =
++      s.sectionType === 'S2_DIAG' ? 'diagnostic-rapide' : titleAnchor;
+     return {
+       sectionType: s.sectionType,
+       title: s.title,
+-      anchor: slugifyTitle(s.title),
++      anchor,
++      ...(anchor !== titleAnchor ? { legacyAnchor: titleAnchor } : {}),
+       order: s.order ?? index,
+       html,
+       sources: s.sources,

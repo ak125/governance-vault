@@ -1,0 +1,510 @@
+diff --git a/backend/src/modules/blog/interfaces/r3-guide.interfaces.ts b/backend/src/modules/blog/interfaces/r3-guide.interfaces.ts
+index 6da4587e5..bf0692c72 100644
+--- a/backend/src/modules/blog/interfaces/r3-guide.interfaces.ts
++++ b/backend/src/modules/blog/interfaces/r3-guide.interfaces.ts
+@@ -46,6 +46,8 @@ export interface R3GuideSection {
+   level?: 2 | 3; // only when sourceType=article
+   title: string;
+   anchor: string; // pre-computed server-side
++  /** Previous title-based fragment, preserved for existing links. */
++  legacyAnchor?: string;
+   order: number;
+   html: string; // pre-normalized for S4/S5
+   sources: string[];
+diff --git a/backend/src/modules/blog/services/r3-guide.service.test.ts b/backend/src/modules/blog/services/r3-guide.service.test.ts
+index 128b5d7f4..bdedf4e29 100644
+--- a/backend/src/modules/blog/services/r3-guide.service.test.ts
++++ b/backend/src/modules/blog/services/r3-guide.service.test.ts
+@@ -116,6 +116,10 @@ async function buildService(): Promise<{
+   service: R3GuideService;
+   cache: InMemoryCacheServiceStub;
+   dataService: ReturnType<typeof makeMocks>['dataService'];
++  seoService: ReturnType<typeof makeMocks>['seoService'];
++  internalLinkingService: ReturnType<
++    typeof makeMocks
++  >['internalLinkingService'];
+   relationService: ReturnType<typeof makeMocks>['relationService'];
+   projectionDecision: ReturnType<typeof makeMocks>['projectionDecision'];
+ }> {
+@@ -145,6 +149,8 @@ async function buildService(): Promise<{
+     service,
+     cache,
+     dataService: mocks.dataService,
++    seoService: mocks.seoService,
++    internalLinkingService: mocks.internalLinkingService,
+     relationService: mocks.relationService,
+     projectionDecision: mocks.projectionDecision,
+   };
+@@ -175,7 +181,7 @@ describe('R3GuideService — cache + single-flight + invalidation (PR-A)', () =>
+       const result = await service.getR3GuidePayload('inconnu');
+ 
+       expect(result).toBeNull();
+-      expect(await cache.get('r3-guide:v2:inconnu')).toBeNull();
++      expect(await cache.get('r3-guide:v4:inconnu')).toBeNull();
+     });
+   });
+ 
+@@ -441,3 +447,171 @@ describe('R3GuideService — canary projection (P2-R3-D, dark)', () => {
+     expect(projectionDecision.decide).not.toHaveBeenCalled();
+   });
+ });
++
++/**
++ * Sections META des pages conseils (2026-09-11).
++ *
++ * Défaut confirmé en production : un H2 « Meta SEO » suivi du JSON brut
++ * (meta_title, gate_report…) rendu dans le corps de 4 des 5 pages auditées.
++ * Contrat servi = liste de liens (MetaLinksSection « Pour aller plus loin »).
++ * Contenus ci-dessous = extraits réels de `__seo_gamme_conseil` (lecture seule).
++ */
++describe('R3GuideService — sections META servies seulement si conformes au contrat « liens »', () => {
++  const body = {
++    title: 'Quand changer la pièce',
++    content: '<p>Contenu du guide sur plusieurs mots utiles au lecteur.</p>',
++    sectionType: 'S2',
++    order: 2,
++    qualityScore: null,
++    sources: [],
++  };
++  const meta = (title: string, content: string) => ({
++    title,
++    content,
++    sectionType: 'META',
++    order: 99,
++    qualityScore: null,
++    sources: [],
++  });
++
++  // pg 10 — objet JSON de métadonnées (132 sections de cette forme)
++  const JSON_META = meta(
++    'Meta SEO',
++    '{"meta_title":"Courroie Accessoire : Guide Remplacement | AutoMecanik","meta_description":"Sifflement moteur ou courroie fissurée ? Découvrez quand changer la courroie d\'accessoire, comment la remplacer et choisir le bon modèle sur AutoMecanik."}',
++  );
++  // pg 105 — balises <meta> (49 sections ; extrait des 260 premiers caractères)
++  const META_TAG = meta(
++    'Ampoule feu clignotant : quand changer',
++    '<meta name="title" content="Ampoule feu clignotant : quand changer et comment choisir" /><meta name="description" content="Clignotant en hyperfrequence, inactif d\'un côté ou voyant anormal : reconnaissez une ampoule de clignotant défaillante et sélectionnez la',
++  );
++  // pg 112 — meta description en texte brut (32 sections)
++  const PLAIN_META = meta(
++    'Ampoule éclaireur de plaque : quand changer ?',
++    "Plaque d'immatriculation non éclairée, éclairage clignotant ou refus au contrôle technique ? Identifiez et remplacez l'ampoule feu éclaireur de plaque.",
++  );
++  // pg 1145 — liste de liens (6 sections conformes)
++  const LINKS_META = meta(
++    'Consulter nos articles sur les vannes EGR :',
++    '- <b><a href="/blog/articles/changer-une-vanne-egr-renault-scenic-2-1-9-dci-19.html">Changer une vanne EGR Renault Scénic 2 1.9 DCI</a></b>.<br>- <a href="/blog/articles/vanne-egr-renault-clio-2-1-5-dci-175.html"><b>Vanne EGR Renault Clio 2 1.5 DCI</b></a>.',
++  );
++
++  it('ne sert que la liste de liens ; JSON, <meta>, texte brut et vide sont écartés et journalisés', async () => {
++    const { service, seoService } = await buildService();
++    seoService.getGammeConseil.mockResolvedValue([
++      body,
++      JSON_META,
++      META_TAG,
++      PLAIN_META,
++      LINKS_META,
++      meta('Vide', '   '),
++    ]);
++    const warn = jest.spyOn((service as any).logger, 'warn');
++
++    const payload = await service.getR3GuidePayload(PG_ALIAS);
++
++    expect(payload?.page.sourceType).toBe('conseil');
++    expect(payload?.bodySections).toHaveLength(1);
++    expect(payload?.metaSections).toHaveLength(1);
++    expect(payload?.metaSections[0].title).toBe(LINKS_META.title);
++    expect(payload?.metaSections[0].html).toBe(LINKS_META.content);
++    expect(warn).toHaveBeenCalledWith(
++      `[r3-meta] pg_id=${PG_ID} sections META non servies=4 motifs=json,meta_tag,no_link,empty`,
++    );
++  });
++
++  it('conformité évaluée après résolution des jetons #LinkGamme_n# en liens', async () => {
++    const { service, seoService, internalLinkingService } =
++      await buildService();
++    internalLinkingService.processLinkGamme.mockImplementation(
++      async (s: string) =>
++        s.replace(
++          '#LinkGamme_402#',
++          '<a href="/pieces/plaquette-de-frein-402.html">plaquettes de frein</a>',
++        ),
++    );
++    seoService.getGammeConseil.mockResolvedValue([
++      body,
++      meta('Pour aller plus loin', 'Voir aussi nos #LinkGamme_402#.'),
++    ]);
++
++    const payload = await service.getR3GuidePayload(PG_ALIAS);
++
++    expect(payload?.metaSections).toHaveLength(1);
++    expect(payload?.metaSections[0].html).toContain(
++      '<a href="/pieces/plaquette-de-frein-402.html">',
++    );
++  });
++
++  it('une section META écartée ne compte pas dans le temps de lecture', async () => {
++    const longJson = meta(
++      'Meta SEO',
++      JSON.stringify({ meta_description: 'mot '.repeat(3000).trim() }),
++    );
++    const without = await buildService();
++    without.seoService.getGammeConseil.mockResolvedValue([body]);
++    const withJson = await buildService();
++    withJson.seoService.getGammeConseil.mockResolvedValue([body, longJson]);
++
++    const a = await without.service.getR3GuidePayload(PG_ALIAS);
++    const b = await withJson.service.getR3GuidePayload(PG_ALIAS);
++
++    expect(b?.metaSections).toEqual([]);
++    expect(b?.page.readingTime).toBe(a?.page.readingTime);
++  });
++
++  it('aucune section écartée : aucun journal', async () => {
++    const { service, seoService } = await buildService();
++    seoService.getGammeConseil.mockResolvedValue([body, LINKS_META]);
++    const warn = jest.spyOn((service as any).logger, 'warn');
++
++    const payload = await service.getR3GuidePayload(PG_ALIAS);
++
++    expect(payload?.metaSections).toHaveLength(1);
++    expect(warn).not.toHaveBeenCalledWith(expect.stringContaining('[r3-meta]'));
++  });
++
++  it('payload filtre mis en cache sous la cle v4 (META filtre et ancre diagnostic stable)', async () => {
++    const { service, cache, seoService } = await buildService();
++    seoService.getGammeConseil.mockResolvedValue([body, JSON_META]);
++
++    await service.getR3GuidePayload(PG_ALIAS);
++
++    const cached = await cache.get<{ metaSections: unknown[] }>(
++      `r3-guide:v4:${PG_ALIAS}`,
++    );
++    expect(cached?.metaSections).toEqual([]);
++    expect(await cache.get(`r3-guide:v2:${PG_ALIAS}`)).toBeNull();
++    expect(await cache.get(`r3-guide:v3:${PG_ALIAS}`)).toBeNull();
++  });
++});
++
++describe('R3 S2_DIAG — destination des redirections R5 (ADR-027)', () => {
++  it.each([
++    'Diagnostic rapide du disque de frein',
++    'Symptomes et controles utiles',
++  ])(
++    'conserve une ancre stable malgre le titre %s, ainsi que son ancien fragment',
++    async (title) => {
++      const { service, seoService } = await buildService();
++      seoService.getGammeConseil.mockResolvedValue([
++        {
++          title,
++          content:
++            '<table><tr><td>Signal</td><td>Hypothese</td><td>Controle</td></tr></table>',
++          sectionType: 'S2_DIAG',
++          order: 7,
++          qualityScore: null,
++          sources: [],
++        },
++      ]);
++      const result = await service.getR3GuidePayload('filtre-a-huile');
++      const section = result?.bodySections.find(
++        (s) => s.sectionType === 'S2_DIAG',
++      );
++      expect(section?.anchor).toBe('diagnostic-rapide');
++      expect(section?.legacyAnchor).toBeDefined();
++      expect(section?.legacyAnchor).not.toBe(section?.anchor);
++      expect(section?.html).toContain('<table>');
++    },
++  );
++});
+diff --git a/backend/src/modules/blog/services/r3-guide.service.ts b/backend/src/modules/blog/services/r3-guide.service.ts
+index 83596fede..2446999c7 100644
+--- a/backend/src/modules/blog/services/r3-guide.service.ts
++++ b/backend/src/modules/blog/services/r3-guide.service.ts
+@@ -36,8 +36,32 @@ import { PRIX_PAS_CHER } from '../../seo/seo-v4.types';
+ import { InternalLinkingService } from '../../seo/internal-linking.service';
+ 
+ /** Cache key prefix versionnée — bump v1→v2 invalide tous les payloads.
+- *  v2 (2026-05-24) : compatible vehicles capped à 24 (LCP /blog-pieces-auto/conseils/* — voir PR LCP-R3-PR1). */
+-const R3_CACHE_PREFIX = 'r3-guide:v2:';
++ *  v2 (2026-05-24) : compatible vehicles capped à 24 (LCP /blog-pieces-auto/conseils/* — voir PR LCP-R3-PR1).
++ *  v3 (2026-09-11) : sections META hors contrat « liens » retirées du payload
++ *  (sinon les payloads v2 cachés continueraient de servir le JSON 24 h).
++ *  v4 (2026-09-13) : ancre contractuelle S2_DIAG pour les redirections R5. */
++const R3_CACHE_PREFIX = 'r3-guide:v4:';
++
++/** Motif de rejet d'une section META hors contrat « liens ». */
++type MetaSectionRejection = 'empty' | 'json' | 'meta_tag' | 'no_link';
++
++/**
++ * Contrat d'une section META servie : le bloc « Pour aller plus loin »
++ * (`MetaLinksSection`) rend des liens HTML. Mesuré 2026-09-11 sur
++ * `__seo_gamme_conseil` (219 sections META) : 132 objets JSON de métadonnées
++ * (meta_title, gate_report…), 49 balises `<meta>`, 32 meta descriptions en
++ * texte brut, 6 listes de liens. Seules les listes de liens sont conformes ;
++ * les autres étaient rendues telles quelles dans le corps public.
++ * Évalué sur le HTML déjà traité (les jetons `#LinkGamme_n#` y sont des liens).
++ */
++function metaSectionRejection(html: string): MetaSectionRejection | null {
++  const text = html.trim();
++  if (!text) return 'empty';
++  if (text.startsWith('{') || text.startsWith('[')) return 'json';
++  if (/<meta[\s/>]/i.test(text)) return 'meta_tag';
++  if (!/<a\s[^>]*href\s*=/i.test(text)) return 'no_link';
++  return null;
++}
+ 
+ /** TTL fresh window (seconds) — CacheService utilise ioredis SETEX en secondes.
+  *  24 h (audit LCP 2026-07-14 §2B) : /blog-pieces-auto/conseils/* = 43 URLs à
+@@ -100,7 +124,7 @@ export class R3GuideService {
+    */
+   async getR3GuidePayload(pg_alias: string): Promise<R3GuidePayload | null> {
+     // Canary ciblée → bypass TOTAL du cache (lecture ET écriture). Sans cela, la clé partagée
+-    // `r3-guide:v2:<alias>` pourrait contenir alternativement un payload ciblé et un payload
++    // `r3-guide:v3:<alias>` pourrait contenir alternativement un payload ciblé et un payload
+     // hors-canary selon qui l'a peuplée en premier — empoisonnement croisé. Décision synchrone,
+     // 0 RPC : hors canary, le chemin ci-dessous reste strictement inchangé.
+     if (this.projectionDecision.isTargeted(pg_alias)) {
+@@ -259,7 +283,12 @@ export class R3GuideService {
+ 
+     // Step 3 — Resolve canonical sections (port of frontend resolveCanonicalSections)
+     const { s1Sections, bodySections, metaSections, sourceType } =
+-      await this.resolveCanonicalSections(conseil, article.sections, article);
++      await this.resolveCanonicalSections(
++        conseil,
++        article.sections,
++        article,
++        gammeData.pg_id,
++      );
+ 
+     // Step 3b — Inject approved images into sections
+     const approvedImages = await this.seoService.getApprovedImages(
+@@ -348,6 +377,7 @@ export class R3GuideService {
+     }>,
+     articleSections: BlogSection[],
+     _article: BlogArticle,
++    pgId: number,
+   ): Promise<{
+     s1Sections: R3GuideSection[];
+     bodySections: R3GuideSection[];
+@@ -360,7 +390,7 @@ export class R3GuideService {
+     );
+ 
+     if (hasConseil) {
+-      return this.resolveConseilMode(conseil);
++      return this.resolveConseilMode(conseil, pgId);
+     }
+ 
+     return this.resolveArticleMode(articleSections, conseil);
+@@ -375,6 +405,7 @@ export class R3GuideService {
+       qualityScore: number | null;
+       sources: string[];
+     }>,
++    pgId: number,
+   ): Promise<{
+     s1Sections: R3GuideSection[];
+     bodySections: R3GuideSection[];
+@@ -394,12 +425,28 @@ export class R3GuideService {
+         return oa - ob;
+       });
+ 
+-    const [s1Sections, bodySections, metaSections] = await Promise.all([
++    const [s1Sections, bodySections, mappedMeta] = await Promise.all([
+       Promise.all(s1.map((s, i) => this.mapConseilSection(s, i))),
+       Promise.all(body.map((s, i) => this.mapConseilSection(s, i))),
+       Promise.all(meta.map((s, i) => this.mapConseilSection(s, i))),
+     ]);
+ 
++    // Sections META hors contrat « liens » : non servies (donc ni rendues, ni
++    // dans le JSON-LD, ni comptées dans le temps de lecture) et journalisées.
++    // Aucune réécriture : la donnée reste à corriger à la source.
++    const metaSections: R3GuideSection[] = [];
++    const rejected: string[] = [];
++    for (const section of mappedMeta) {
++      const reason = metaSectionRejection(section.html);
++      if (reason === null) metaSections.push(section);
++      else rejected.push(reason);
++    }
++    if (rejected.length > 0) {
++      this.logger.warn(
++        `[r3-meta] pg_id=${pgId} sections META non servies=${rejected.length} motifs=${rejected.join(',')}`,
++      );
++    }
++
+     return { s1Sections, bodySections, metaSections, sourceType: 'conseil' };
+   }
+ 
+@@ -473,10 +520,14 @@ export class R3GuideService {
+     // Clean accidental word duplicates from RAG/enrichment ("km km" → "km")
+     html = deduplicateWords(html);
+ 
++    const titleAnchor = slugifyTitle(s.title);
++    const anchor =
++      s.sectionType === 'S2_DIAG' ? 'diagnostic-rapide' : titleAnchor;
+     return {
+       sectionType: s.sectionType,
+       title: s.title,
+-      anchor: slugifyTitle(s.title),
++      anchor,
++      ...(anchor !== titleAnchor ? { legacyAnchor: titleAnchor } : {}),
+       order: s.order ?? index,
+       html,
+       sources: s.sources,
+diff --git a/frontend/app/components/blog/conseil/section-config.tsx b/frontend/app/components/blog/conseil/section-config.tsx
+index 9b152f998..2765b37dc 100644
+--- a/frontend/app/components/blog/conseil/section-config.tsx
++++ b/frontend/app/components/blog/conseil/section-config.tsx
+@@ -37,6 +37,7 @@ export interface GammeConseil {
+   sources: string[];
+   /** Pre-computed anchor slug from server (single source of truth for TOC) */
+   anchor?: string;
++  legacyAnchor?: string;
+   /** Image approuvée pour cette section (pipeline R3 Image Prompts) */
+   image?: GammeConseilImage | null;
+ }
+diff --git a/frontend/app/components/guide/GuideCard.tsx b/frontend/app/components/guide/GuideCard.tsx
+index 207f8ab8a..64b785b54 100644
+--- a/frontend/app/components/guide/GuideCard.tsx
++++ b/frontend/app/components/guide/GuideCard.tsx
+@@ -10,6 +10,7 @@ import { slugifyTitle } from "~/components/blog/conseil/section-config";
+ interface GuideCardProps {
+   title: string;
+   anchor?: string;
++  legacyAnchor?: string;
+   icon: LucideIcon;
+   label: string;
+   gradient: string;
+@@ -25,6 +26,7 @@ interface GuideCardProps {
+ export function GuideCard({
+   title,
+   anchor,
++  legacyAnchor,
+   icon: Icon,
+   label,
+   gradient,
+@@ -38,7 +40,7 @@ export function GuideCard({
+ }: GuideCardProps) {
+   const id = anchor ?? slugifyTitle(title);
+ 
+-  return (
++  const card = (
+     <div id={id} className="mb-8">
+       <div
+         className={`rounded-xl border-2 ${border} overflow-hidden shadow-${shadow}`}
+@@ -71,4 +73,11 @@ export function GuideCard({
+       </div>
+     </div>
+   );
++
++  // Both fragments point to the actual section; existing deep links stay valid.
++  return legacyAnchor && legacyAnchor !== id ? (
++    <div id={legacyAnchor}>{card}</div>
++  ) : (
++    card
++  );
+ }
+diff --git a/frontend/app/components/guide/MiniDiagnosticTable.tsx b/frontend/app/components/guide/MiniDiagnosticTable.tsx
+index 770fcad8f..7e828d693 100644
+--- a/frontend/app/components/guide/MiniDiagnosticTable.tsx
++++ b/frontend/app/components/guide/MiniDiagnosticTable.tsx
+@@ -17,6 +17,7 @@ export function MiniDiagnosticTable({ section }: MiniDiagnosticTableProps) {
+     <GuideCard
+       title={section.title}
+       anchor={section.anchor}
++      legacyAnchor={section.legacyAnchor}
+       icon={Stethoscope}
+       label="Diagnostic rapide"
+       gradient=""
+diff --git a/frontend/app/routes/blog-pieces-auto.conseils.$pg_alias.tsx b/frontend/app/routes/blog-pieces-auto.conseils.$pg_alias.tsx
+index feb668aba..e15e5bbd6 100644
+--- a/frontend/app/routes/blog-pieces-auto.conseils.$pg_alias.tsx
++++ b/frontend/app/routes/blog-pieces-auto.conseils.$pg_alias.tsx
+@@ -94,6 +94,7 @@ function toConseil(s: R3GuideSection): GammeConseil {
+     qualityScore: s.qualityScore,
+     sources: s.sources,
+     anchor: s.anchor,
++    legacyAnchor: s.legacyAnchor,
+     image: s.image ?? null,
+   };
+ }
+diff --git a/frontend/app/types/r3-guide.types.ts b/frontend/app/types/r3-guide.types.ts
+index d3bab2e70..9ce5281fd 100644
+--- a/frontend/app/types/r3-guide.types.ts
++++ b/frontend/app/types/r3-guide.types.ts
+@@ -38,6 +38,8 @@ export interface R3GuideSection {
+   level?: 2 | 3;
+   title: string;
+   anchor: string;
++  /** Previous title-based fragment, preserved for existing links. */
++  legacyAnchor?: string;
+   order: number;
+   html: string;
+   sources: string[];
+diff --git a/frontend/tests/unit/r3-diagnostic-fragment.test.tsx b/frontend/tests/unit/r3-diagnostic-fragment.test.tsx
+new file mode 100644
+index 000000000..2ffd95bc5
+--- /dev/null
++++ b/frontend/tests/unit/r3-diagnostic-fragment.test.tsx
+@@ -0,0 +1,63 @@
++import { render, cleanup } from "@testing-library/react";
++import { MemoryRouter } from "react-router";
++import { afterEach, describe, expect, it } from "vitest";
++import { type GammeConseil } from "~/components/blog/conseil/section-config";
++import { MiniDiagnosticTable } from "~/components/guide/MiniDiagnosticTable";
++
++afterEach(cleanup);
++
++const diagnostic: GammeConseil = {
++  title: "Diagnostic rapide du disque de frein",
++  content:
++    "<table><tbody><tr><td>Vibration au freinage</td><td>Controle du disque</td></tr></tbody></table>",
++  sectionType: "S2_DIAG",
++  order: 7,
++  qualityScore: null,
++  sources: [],
++  anchor: "diagnostic-rapide",
++  legacyAnchor: "diagnostic-rapide-du-disque-de-frein",
++};
++
++function renderDiagnostic(section: GammeConseil) {
++  return render(
++    <MemoryRouter>
++      <MiniDiagnosticTable section={section} />
++    </MemoryRouter>,
++  );
++}
++
++describe("R3 diagnostic — destination des anciennes URL R5", () => {
++  it("le fragment de redirection et l'ancien fragment atteignent le meme tableau reel", () => {
++    const { container } = renderDiagnostic(diagnostic);
++    for (const anchor of [diagnostic.anchor, diagnostic.legacyAnchor]) {
++      const nodes = container.querySelectorAll(`[id="${anchor}"]`);
++      expect(nodes).toHaveLength(1);
++      expect(nodes[0].querySelector("table")?.textContent).toContain(
++        "Vibration au freinage",
++      );
++      expect(nodes[0].querySelector("h2")?.textContent).toBe(diagnostic.title);
++    }
++    expect(container.querySelectorAll("table")).toHaveLength(1);
++  });
++
++  it("ne duplique pas un identifiant deja canonique", () => {
++    const { container } = renderDiagnostic({
++      ...diagnostic,
++      legacyAnchor: diagnostic.anchor,
++    });
++    expect(container.querySelectorAll('[id="diagnostic-rapide"]')).toHaveLength(
++      1,
++    );
++  });
++
++  it("accepte les sections sans ancien fragment", () => {
++    const { container } = renderDiagnostic({
++      ...diagnostic,
++      legacyAnchor: undefined,
++    });
++    expect(container.querySelectorAll('[id="diagnostic-rapide"]')).toHaveLength(
++      1,
++    );
++    expect(container.querySelectorAll("table")).toHaveLength(1);
++  });
++});

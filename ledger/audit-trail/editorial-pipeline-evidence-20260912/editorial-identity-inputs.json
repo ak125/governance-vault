@@ -1,0 +1,2033 @@
+{
+  "heads": {
+    "/opt/automecanik/wiki-auto-validation": "01cea8deda48d84b6a2993cd4bdefe8280082c0b",
+    "/opt/automecanik/wiki-editorial-qualification-20260912": "01cea8deda48d84b6a2993cd4bdefe8280082c0b"
+  },
+  "inputs": [
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/exports/seo/gamme/filtre-a-air.json",
+      "sha256": "f4be9dc6c6c3a599de92a4043acfbb629ef68bc88e4e1693573bddc14b74f543"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/exports/seo/gamme/filtre-a-carburant.json",
+      "sha256": "3d47a7e24e6772098169feb2d4d15cb6fc069e78d3a131dd72763ae641566c81"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/exports/seo/gamme/filtre-d-habitacle.json",
+      "sha256": "0b39c9728f22fc429f1a438f5c27b4e9303a0d5f830ef5c3e5313119414e0d5c"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/wiki/diagnostic/faq.md",
+      "sha256": "125b89190b51ab9d70a13eaec69cffab8e8c985e884282dffa52841cec5439e4"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/wiki/diagnostic/safety-config.md",
+      "sha256": "4aab3d809ab3489ef255bf057eeadf3c3e7de0b856ccba23b7b4f59adec50f08"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/wiki/diagnostic/signs.md",
+      "sha256": "40be85576307102821ef2529dab9b5d13c04339dd63da8a3c78dfd9e34b06c53"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/wiki/diagnostic/vocab-clusters.md",
+      "sha256": "64253cdc4ec0826328880e68b8f02ead3463b6c2922f852b0116f3fff3cb77d0"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/wiki/diagnostic/wizard-steps.md",
+      "sha256": "62bf412ea812323ee0d3b727ea1816b159d1bee7352b5d0e7ec11c24496dd289"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/wiki/gamme/filtre-a-air.md",
+      "sha256": "b004ed7ea0945abd5359c2012ac75c7e54be2b9ebd67399f024389cca5e3b876"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/wiki/gamme/filtre-a-carburant.md",
+      "sha256": "1277cddaf03705d36bb35b0bdfbaa9c0e4dbc01d520f548137064c7a9b5fb7e5"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/wiki/gamme/filtre-d-habitacle.md",
+      "sha256": "39116a2be2861cfc87008d3a5ca80362685c686c426ac2aee674203d8ee471da"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/wiki/support/controles-mensuels.md",
+      "sha256": "4fcabf196464f1eb09cbcceba82d50a100b98386277e49e359924fc00c9d9aa9"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/_index.md",
+      "sha256": "21c09b50a26b4be76cf350f3e0359578874fe5f5489524971cf08b6e823fdbe9"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/_quality/sources-brief.md",
+      "sha256": "08b319be9ff3a8fbdd8faaa245b1f74282bba9d8ddefda57d3eb8db3e4d98bca"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/citroen-c3.md",
+      "sha256": "ad6429970069b35af9730e06be2fa5b27988a6baa0b577e7c3498a1e6519d1e2"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/courroie-d-accessoire.md",
+      "sha256": "22e8f4aa437eaa2db7bd8e489a6c072b2e5b1b7e00ba5f519e838ccb125dc855"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/dacia.md",
+      "sha256": "67422cf4dbc0fad014e6d38b211f9127d7b0a4e03d054ccbe283625d6467959b"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/disque-de-frein.md",
+      "sha256": "5e676cd1af40fd0051b69f8ab17503a33269092ac288bcd28e412dba79b26b37"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/filtre-a-huile.md",
+      "sha256": "811a538b769a021bbda5d8ff71cdd501fdfee5fb93cfd6783e89e344080ad5ff"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/ford-focus-3.md",
+      "sha256": "6313c388d6067d345b4daa5b08bddfe7434fba1d973b2a81e69387c2ed4a4cac"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/peugeot-206.md",
+      "sha256": "874c6710d396d071ca12ee890a0ee02ad8ba104ba67a4991cb5e5991f9124775"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/plaquette-de-frein.md",
+      "sha256": "8e658769893bc7b1083c5595c699f9059083363ef71e6e7dd564a8464e41b363"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/renault-clio-3.md",
+      "sha256": "e86363c56da494fb26c2da144c962fb09782a0a8100c430915639701b99e7773"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/renault-megane-3.md",
+      "sha256": "1756eb8f62ce90172d5ab60802c5dbd1371ba2214dc6d284869c69e35f98d872"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/renault-scenic-ii.md",
+      "sha256": "78e322aaf8e36fea0a1d455a27294b321fcf507cc2292ab53c0651e37dd46b7c"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/support-moteur.md",
+      "sha256": "3bb470779ed1059fd08833b9f2f8a149de3df6a6953b3520b5b8d6cac9d711c3"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/thermostat.md",
+      "sha256": "4080193a39790ee58d347dd445500b168d947fe149148c776567b3fc74514389"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/vanne-egr.md",
+      "sha256": "cd6b9aedf56a18a9780f590ed7b308df55d1464558df661fddc0c5475058d5b0"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/volkswagen-golf-6.md",
+      "sha256": "42516d8b32bda1eeb11e2a5caa8e84f989b49a1d7708d09052640f630f889cf1"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/exports/seo/gamme/filtre-a-air.json",
+      "sha256": "f4be9dc6c6c3a599de92a4043acfbb629ef68bc88e4e1693573bddc14b74f543"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/exports/seo/gamme/filtre-a-carburant.json",
+      "sha256": "3d47a7e24e6772098169feb2d4d15cb6fc069e78d3a131dd72763ae641566c81"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/exports/seo/gamme/filtre-d-habitacle.json",
+      "sha256": "0b39c9728f22fc429f1a438f5c27b4e9303a0d5f830ef5c3e5313119414e0d5c"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/wiki/diagnostic/faq.md",
+      "sha256": "125b89190b51ab9d70a13eaec69cffab8e8c985e884282dffa52841cec5439e4"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/wiki/diagnostic/safety-config.md",
+      "sha256": "4aab3d809ab3489ef255bf057eeadf3c3e7de0b856ccba23b7b4f59adec50f08"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/wiki/diagnostic/signs.md",
+      "sha256": "40be85576307102821ef2529dab9b5d13c04339dd63da8a3c78dfd9e34b06c53"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/wiki/diagnostic/vocab-clusters.md",
+      "sha256": "64253cdc4ec0826328880e68b8f02ead3463b6c2922f852b0116f3fff3cb77d0"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/wiki/diagnostic/wizard-steps.md",
+      "sha256": "62bf412ea812323ee0d3b727ea1816b159d1bee7352b5d0e7ec11c24496dd289"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/wiki/gamme/filtre-a-air.md",
+      "sha256": "b004ed7ea0945abd5359c2012ac75c7e54be2b9ebd67399f024389cca5e3b876"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/wiki/gamme/filtre-a-carburant.md",
+      "sha256": "1277cddaf03705d36bb35b0bdfbaa9c0e4dbc01d520f548137064c7a9b5fb7e5"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/wiki/gamme/filtre-d-habitacle.md",
+      "sha256": "39116a2be2861cfc87008d3a5ca80362685c686c426ac2aee674203d8ee471da"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/wiki/support/controles-mensuels.md",
+      "sha256": "4fcabf196464f1eb09cbcceba82d50a100b98386277e49e359924fc00c9d9aa9"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/_index.md",
+      "sha256": "21c09b50a26b4be76cf350f3e0359578874fe5f5489524971cf08b6e823fdbe9"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/_quality/sources-brief.md",
+      "sha256": "08b319be9ff3a8fbdd8faaa245b1f74282bba9d8ddefda57d3eb8db3e4d98bca"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/citroen-c3.md",
+      "sha256": "ad6429970069b35af9730e06be2fa5b27988a6baa0b577e7c3498a1e6519d1e2"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/courroie-d-accessoire.md",
+      "sha256": "22e8f4aa437eaa2db7bd8e489a6c072b2e5b1b7e00ba5f519e838ccb125dc855"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/dacia.md",
+      "sha256": "67422cf4dbc0fad014e6d38b211f9127d7b0a4e03d054ccbe283625d6467959b"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/disque-de-frein.md",
+      "sha256": "5e676cd1af40fd0051b69f8ab17503a33269092ac288bcd28e412dba79b26b37"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/filtre-a-huile.md",
+      "sha256": "811a538b769a021bbda5d8ff71cdd501fdfee5fb93cfd6783e89e344080ad5ff"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/ford-focus-3.md",
+      "sha256": "6313c388d6067d345b4daa5b08bddfe7434fba1d973b2a81e69387c2ed4a4cac"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/peugeot-206.md",
+      "sha256": "874c6710d396d071ca12ee890a0ee02ad8ba104ba67a4991cb5e5991f9124775"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/plaquette-de-frein.md",
+      "sha256": "8e658769893bc7b1083c5595c699f9059083363ef71e6e7dd564a8464e41b363"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/renault-clio-3.md",
+      "sha256": "e86363c56da494fb26c2da144c962fb09782a0a8100c430915639701b99e7773"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/renault-megane-3.md",
+      "sha256": "1756eb8f62ce90172d5ab60802c5dbd1371ba2214dc6d284869c69e35f98d872"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/renault-scenic-ii.md",
+      "sha256": "78e322aaf8e36fea0a1d455a27294b321fcf507cc2292ab53c0651e37dd46b7c"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/support-moteur.md",
+      "sha256": "3bb470779ed1059fd08833b9f2f8a149de3df6a6953b3520b5b8d6cac9d711c3"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/thermostat.md",
+      "sha256": "4080193a39790ee58d347dd445500b168d947fe149148c776567b3fc74514389"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/vanne-egr.md",
+      "sha256": "cd6b9aedf56a18a9780f590ed7b308df55d1464558df661fddc0c5475058d5b0"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/volkswagen-golf-6.md",
+      "sha256": "42516d8b32bda1eeb11e2a5caa8e84f989b49a1d7708d09052640f630f889cf1"
+    }
+  ],
+  "records": [
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/exports/seo/gamme/filtre-a-air.json",
+      "stage": "existing-export",
+      "review_status": null,
+      "eligible": null,
+      "payload": {
+        "entity_id": "gamme:filtre-a-air",
+        "entity_type": "gamme",
+        "schema_version": "1.1.0",
+        "projection_contract_version": "1.0.0",
+        "source_wiki_commit": "6590fc54c835e4bd3191b87e197778d5d73b1199",
+        "wiki_path": "wiki/gamme/filtre-a-air.md",
+        "content_hash": "sha256:b004ed7ea0945abd5359c2012ac75c7e54be2b9ebd67399f024389cca5e3b876",
+        "generated_at": "2026-06-13T13:51:53+02:00",
+        "builder_version": "1.1.0",
+        "facts": [
+          {
+            "key": "pg_id",
+            "value": 510,
+            "source_id": "db:pieces_gamme"
+          },
+          {
+            "key": "family",
+            "value": "filtration",
+            "source_id": "db:pieces_gamme"
+          }
+        ],
+        "sources": [
+          {
+            "id": "src-0",
+            "type": "manual",
+            "url": null
+          },
+          {
+            "id": "src-1",
+            "type": "manual",
+            "url": null
+          },
+          {
+            "id": "src-2",
+            "type": "manual",
+            "url": null
+          }
+        ],
+        "blocks": [
+          {
+            "role": "R3_CONSEILS",
+            "section": "maintenance",
+            "content_md": "Remplacement typique tous les 30 000 km, plus fréquent en milieu poussiéreux ou usage tout-terrain.",
+            "source_ids": [
+              "raw:recycled"
+            ],
+            "truth_level": "editorial",
+            "usefulness_target": "achat"
+          },
+          {
+            "role": "R4_REFERENCE",
+            "section": "related",
+            "content_md": "Pièces de la même famille d'entretien : filtre-habitacle, filtre-a-huile, filtre-a-carburant.",
+            "source_ids": [
+              "db:pieces_gamme"
+            ],
+            "truth_level": "db_owned",
+            "usefulness_target": "maillage"
+          }
+        ],
+        "roles_allowed": [
+          "R3_CONSEILS",
+          "R4_REFERENCE",
+          "R6_GUIDE_ACHAT"
+        ],
+        "consumers_allowed": [
+          "seo",
+          "rag"
+        ]
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/exports/seo/gamme/filtre-a-carburant.json",
+      "stage": "existing-export",
+      "review_status": null,
+      "eligible": null,
+      "payload": {
+        "entity_id": "gamme:filtre-a-carburant",
+        "entity_type": "gamme",
+        "schema_version": "1.1.0",
+        "projection_contract_version": "1.0.0",
+        "source_wiki_commit": "6590fc54c835e4bd3191b87e197778d5d73b1199",
+        "wiki_path": "wiki/gamme/filtre-a-carburant.md",
+        "content_hash": "sha256:1277cddaf03705d36bb35b0bdfbaa9c0e4dbc01d520f548137064c7a9b5fb7e5",
+        "generated_at": "2026-06-13T13:51:53+02:00",
+        "builder_version": "1.1.0",
+        "facts": [],
+        "sources": [
+          {
+            "id": "src-0",
+            "type": "manual",
+            "url": null
+          },
+          {
+            "id": "src-1",
+            "type": "manual",
+            "url": null
+          },
+          {
+            "id": "src-2",
+            "type": "manual",
+            "url": "https://www.vroomly.com/blog/filtre-a-gasoil-encrasse-symptomes/"
+          },
+          {
+            "id": "src-3",
+            "type": "manual",
+            "url": "https://www.idgarages.com/fr-fr/prestations/revision-vidange/definition-filtre-a-gasoil"
+          }
+        ],
+        "blocks": [],
+        "roles_allowed": [
+          "R3_CONSEILS",
+          "R4_REFERENCE",
+          "R6_GUIDE_ACHAT"
+        ],
+        "consumers_allowed": [
+          "seo",
+          "rag"
+        ]
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/exports/seo/gamme/filtre-d-habitacle.json",
+      "stage": "existing-export",
+      "review_status": null,
+      "eligible": null,
+      "payload": {
+        "entity_id": "gamme:filtre-d-habitacle",
+        "entity_type": "gamme",
+        "schema_version": "1.1.0",
+        "projection_contract_version": "1.0.0",
+        "source_wiki_commit": "6590fc54c835e4bd3191b87e197778d5d73b1199",
+        "wiki_path": "wiki/gamme/filtre-d-habitacle.md",
+        "content_hash": "sha256:39116a2be2861cfc87008d3a5ca80362685c686c426ac2aee674203d8ee471da",
+        "generated_at": "2026-06-13T13:51:53+02:00",
+        "builder_version": "1.1.0",
+        "facts": [],
+        "sources": [
+          {
+            "id": "src-0",
+            "type": "manual",
+            "url": null
+          },
+          {
+            "id": "src-1",
+            "type": "manual",
+            "url": "https://www.carglass.fr/faq/answers/5929/quand-changer-le-filtre-d-habitacle"
+          },
+          {
+            "id": "src-2",
+            "type": "manual",
+            "url": "https://www.bymycar.fr/webzine/filtre-habitacle-charbon-actif-ou-pollen/"
+          }
+        ],
+        "blocks": [],
+        "roles_allowed": [
+          "R3_CONSEILS",
+          "R4_REFERENCE",
+          "R6_GUIDE_ACHAT"
+        ],
+        "consumers_allowed": [
+          "seo",
+          "rag"
+        ]
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/wiki/diagnostic/faq.md",
+      "stage": "native-transform-preview-wiki",
+      "review_status": "approved",
+      "eligible": false,
+      "payload": {
+        "entity_id": "diagnostic:faq",
+        "entity_type": "diagnostic",
+        "blocks": []
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/wiki/diagnostic/safety-config.md",
+      "stage": "native-transform-preview-wiki",
+      "review_status": "approved",
+      "eligible": false,
+      "payload": {
+        "entity_id": "diagnostic:safety-config",
+        "entity_type": "diagnostic",
+        "blocks": []
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/wiki/diagnostic/signs.md",
+      "stage": "native-transform-preview-wiki",
+      "review_status": "approved",
+      "eligible": false,
+      "payload": {
+        "entity_id": "diagnostic:signs",
+        "entity_type": "diagnostic",
+        "blocks": []
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/wiki/diagnostic/vocab-clusters.md",
+      "stage": "native-transform-preview-wiki",
+      "review_status": "approved",
+      "eligible": false,
+      "payload": {
+        "entity_id": "diagnostic:vocab-clusters",
+        "entity_type": "diagnostic",
+        "blocks": []
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/wiki/diagnostic/wizard-steps.md",
+      "stage": "native-transform-preview-wiki",
+      "review_status": "approved",
+      "eligible": false,
+      "payload": {
+        "entity_id": "diagnostic:wizard-steps",
+        "entity_type": "diagnostic",
+        "blocks": []
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/wiki/gamme/filtre-a-air.md",
+      "stage": "native-transform-preview-wiki",
+      "review_status": "approved",
+      "eligible": true,
+      "payload": {
+        "entity_id": "gamme:filtre-a-air",
+        "entity_type": "gamme",
+        "blocks": [
+          {
+            "role": "R3_CONSEILS",
+            "section": "maintenance",
+            "content_md": "Remplacement typique tous les 30 000 km, plus fréquent en milieu poussiéreux ou usage tout-terrain.",
+            "source_ids": [
+              "raw:recycled"
+            ],
+            "truth_level": "editorial",
+            "usefulness_target": "achat"
+          },
+          {
+            "role": "R4_REFERENCE",
+            "section": "related",
+            "content_md": "Pièces de la même famille d'entretien : filtre-habitacle, filtre-a-huile, filtre-a-carburant.",
+            "source_ids": [
+              "db:pieces_gamme"
+            ],
+            "truth_level": "db_owned",
+            "usefulness_target": "maillage"
+          }
+        ]
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/wiki/gamme/filtre-a-carburant.md",
+      "stage": "native-transform-preview-wiki",
+      "review_status": "approved",
+      "eligible": true,
+      "payload": {
+        "entity_id": "gamme:filtre-a-carburant",
+        "entity_type": "gamme",
+        "blocks": []
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/wiki/gamme/filtre-d-habitacle.md",
+      "stage": "native-transform-preview-wiki",
+      "review_status": "approved",
+      "eligible": true,
+      "payload": {
+        "entity_id": "gamme:filtre-d-habitacle",
+        "entity_type": "gamme",
+        "blocks": []
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/wiki/support/controles-mensuels.md",
+      "stage": "native-transform-preview-wiki",
+      "review_status": "approved",
+      "eligible": false,
+      "payload": {
+        "entity_id": "support:controles-mensuels",
+        "entity_type": "support",
+        "blocks": []
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/citroen-c3.md",
+      "stage": "native-transform-preview-proposals",
+      "review_status": "proposed",
+      "eligible": false,
+      "payload": {
+        "entity_id": "vehicle:citroen-c3",
+        "entity_type": "vehicle",
+        "blocks": []
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/courroie-d-accessoire.md",
+      "stage": "native-transform-preview-proposals",
+      "review_status": "proposed",
+      "eligible": false,
+      "payload": {
+        "entity_id": "gamme:courroie-d-accessoire",
+        "entity_type": "gamme",
+        "blocks": [
+          {
+            "role": "R4_REFERENCE",
+            "section": "compatibility",
+            "content_md": "Compatibilité véhicule : 42 modèle(s) · marques : Chevrolet, Citroen, Dacia, Fiat, Kia, Mercedes-benz, Mini, Mitsubishi, Opel, Peugeot, Renault, Suzuki, Toyota, Volkswagen · carburants : Diesel, Essence · puissance 54–200 ch · années 1996–2018.",
+            "source_ids": [
+              "db:auto_type"
+            ],
+            "truth_level": "db_owned",
+            "usefulness_target": "compatibilite"
+          },
+          {
+            "role": "R4_REFERENCE",
+            "section": "related",
+            "content_md": "Pièces de la même famille d'entretien : courroie-de-distribution, kit-de-distribution, galet-tendeur-de-courroie-de-distribution, galet-enrouleur-de-courroie-de-distribution, pompe-a-eau.",
+            "source_ids": [
+              "db:pieces_gamme"
+            ],
+            "truth_level": "db_owned",
+            "usefulness_target": "maillage"
+          }
+        ]
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/dacia.md",
+      "stage": "native-transform-preview-proposals",
+      "review_status": "proposed",
+      "eligible": false,
+      "payload": {
+        "entity_id": "constructeur:dacia",
+        "entity_type": "constructeur",
+        "blocks": []
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/disque-de-frein.md",
+      "stage": "native-transform-preview-proposals",
+      "review_status": "proposed",
+      "eligible": false,
+      "payload": {
+        "entity_id": "gamme:disque-de-frein",
+        "entity_type": "gamme",
+        "blocks": [
+          {
+            "role": "R3_CONSEILS",
+            "section": "maintenance",
+            "content_md": "Contrôler l'épaisseur du disque à chaque changement de plaquettes et vérifier le voile si des vibrations apparaissent ; remplacer dès que l'épaisseur atteint la cote MIN TH gravée sur le disque, toujours par paire sur l'essieu.",
+            "source_ids": [
+              "raw:recycled"
+            ],
+            "truth_level": "editorial",
+            "usefulness_target": "achat"
+          },
+          {
+            "role": "R4_REFERENCE",
+            "section": "related",
+            "content_md": "Pièces de la même famille d'entretien : plaquette-de-frein, etrier-de-frein.",
+            "source_ids": [
+              "db:pieces_gamme"
+            ],
+            "truth_level": "db_owned",
+            "usefulness_target": "maillage"
+          },
+          {
+            "role": "R6_GUIDE_ACHAT",
+            "section": "selection",
+            "content_md": "Critères de choix : Compatibilité dimensionnelle OE exacte (diamètre, épaisseur neuve/mini, hauteur de bol, PCD, trous, alésage central). ; Type de structure (ventilé/plein) et de surface (lisse/percé/rainuré) conformes au montage d'origine. ; Épaisseur mini MIN TH gravée + homologation ECE R90 + remplacement par paire d'essieu..",
+            "source_ids": [
+              "db:pieces_gamme"
+            ],
+            "truth_level": "inferred",
+            "usefulness_target": "achat"
+          },
+          {
+            "role": "R4_REFERENCE",
+            "section": "definition",
+            "content_md": "Le disque de frein transforme l'énergie cinétique du véhicule en chaleur par friction avec les plaquettes, pour ralentir de façon stable et répétable sur chaque essieu.",
+            "source_ids": [
+              "db:pieces_gamme"
+            ],
+            "truth_level": "inferred",
+            "usefulness_target": "page_indexable"
+          }
+        ]
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/filtre-a-huile.md",
+      "stage": "native-transform-preview-proposals",
+      "review_status": "proposed",
+      "eligible": false,
+      "payload": {
+        "entity_id": "gamme:filtre-a-huile",
+        "entity_type": "gamme",
+        "blocks": [
+          {
+            "role": "R3_CONSEILS",
+            "section": "maintenance",
+            "content_md": "Remplacer le filtre à huile systématiquement à chaque vidange, jamais le réutiliser, et toujours commander la référence d'origine du moteur.",
+            "source_ids": [
+              "raw:recycled"
+            ],
+            "truth_level": "editorial",
+            "usefulness_target": "achat"
+          },
+          {
+            "role": "R4_REFERENCE",
+            "section": "related",
+            "content_md": "Pièces de la même famille d'entretien : huile-moteur, joint-de-vidange-carter, filtre-a-air, filtre-a-carburant, filtre-d-habitacle, bouchon-de-vidange.",
+            "source_ids": [
+              "db:pieces_gamme"
+            ],
+            "truth_level": "db_owned",
+            "usefulness_target": "maillage"
+          },
+          {
+            "role": "R6_GUIDE_ACHAT",
+            "section": "selection",
+            "content_md": "Critères de choix : Type d'origine : vissé (spin-on) ou cartouche, dicté par le moteur. ; Filetage et joint conformes au système de filtration d'origine. ; Média et capacité adaptés à l'intervalle de vidange du moteur..",
+            "source_ids": [
+              "db:pieces_gamme"
+            ],
+            "truth_level": "inferred",
+            "usefulness_target": "achat"
+          },
+          {
+            "role": "R4_REFERENCE",
+            "section": "definition",
+            "content_md": "Le filtre à huile retient les impuretés en suspension dans l'huile moteur pour protéger les organes lubrifiés de l'usure abrasive.",
+            "source_ids": [
+              "db:pieces_gamme"
+            ],
+            "truth_level": "inferred",
+            "usefulness_target": "page_indexable"
+          },
+          {
+            "role": "R3_CONSEILS",
+            "section": "function",
+            "content_md": "Le filtre à huile est l'élément qui retient les impuretés en suspension dans l'huile moteur — particules métalliques d'usure et résidus de combustion — pour protéger les organes lubrifiés (paliers, arbre à cames, turbocompresseur) de l'usure abrasive. C'est un filtre à plein débit (full-flow) qui reçoit l'essentiel du débit de la pompe à huile.",
+            "source_ids": [
+              "raw:filtre-a-huile-selection-criteria",
+              "oem:mann-filter",
+              "web:donaldson-beta"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "function"
+          },
+          {
+            "role": "R3_CONSEILS",
+            "section": "failure_symptoms",
+            "content_md": "Un filtre fortement colmaté peut faire chuter la pression d'huile, allumer le voyant de pression au tableau de bord et, par lubrification insuffisante, provoquer une perte de puissance. Un clapet anti-retour défaillant laisse l'huile redescendre du filtre à l'arrêt : le moteur subit un démarrage à sec, avec bruit au démarrage à froid et montée en pression retardée. Le filtre reste UNE cause possible parmi d'autres (niveau, pompe, capteur de pression).",
+            "source_ids": [
+              "raw:filtre-a-huile-faq-symptoms",
+              "oem:filtron-clapets",
+              "web:fram-bypass"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "failure_symptoms"
+          },
+          {
+            "role": "R3_CONSEILS",
+            "section": "maintenance_interval",
+            "content_md": "L'élément papier d'un filtre à huile est conçu pour être remplacé à chaque vidange : garder un filtre saturé fait ouvrir le by-pass prématurément et laisse circuler de l'huile non filtrée. Un filtre papier jetable ne se nettoie pas et ne se réutilise pas. La capacité de rétention doit être cohérente avec l'intervalle de service du moteur (intervalles longs en huile synthétique).",
+            "source_ids": [
+              "raw:filtre-a-huile-faq-symptoms",
+              "oem:mann-filter",
+              "web:fram-synthetic"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "maintenance_interval"
+          },
+          {
+            "role": "R4_REFERENCE",
+            "section": "variants",
+            "content_md": "Deux architectures coexistent et ne se substituent pas librement : le filtre vissé (spin-on), boîtier métallique complet remplacé en entier qui intègre ses propres clapets, et la cartouche (insert papier sans carter métallique) logée dans un boîtier permanent sur le moteur, où les clapets sont généralement portés par le boîtier. Le type est imposé par la conception moteur.",
+            "source_ids": [
+              "raw:filtre-a-huile-compatibility",
+              "oem:mann-filter",
+              "oem:filtron-clapets"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "variants"
+          },
+          {
+            "role": "R6_GUIDE_ACHAT",
+            "section": "selection_criteria",
+            "content_md": "Le choix se fait par référence d'origine du moteur : type (vissé ou cartouche), filetage et joint d'embase, type de média (cellulose, synthétique ou microfibres de verre selon l'efficacité visée), type de clapets (anti-retour, by-pass) et capacité de rétention adaptée à l'intervalle de vidange. Un filetage qui « ressemble » ne suffit pas — le joint et les clapets doivent aussi correspondre.",
+            "source_ids": [
+              "raw:filtre-a-huile-selection-criteria",
+              "oem:mann-filter",
+              "web:donaldson-beta"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "selection_criteria"
+          },
+          {
+            "role": "R6_GUIDE_ACHAT",
+            "section": "quality_tiers",
+            "content_md": "Le marché de la rechange se structure en trois niveaux au sens du Règlement européen 461/2010 : pièce OE/OEM (montée d'origine en usine), pièce OES (équipementier d'origine vendant sous sa marque, qualité identique) et pièce de qualité équivalente. Les équipementiers OE de la filtration incluent notamment MANN-FILTER, Mahle, Purflux, Bosch, Denso, Valeo et Blue Print.",
+            "source_ids": [
+              "raw:filtre-a-huile-price-quality",
+              "normative:eu-461-2010",
+              "oem:mann-filter"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "quality_tiers"
+          },
+          {
+            "role": "R4_REFERENCE",
+            "section": "standards_norms",
+            "content_md": "La filtration à plein débit est encadrée par la série de normes ISO 4548 (méthodes d'essai : caractéristique débit/perte de charge, clapet de dérivation, clapets anti-retour, efficacité par comptage de particules). L'efficacité réelle s'exprime par le ratio bêta à une taille de particule donnée — un seuil « X microns » seul ne suffit pas sans le bêta associé.",
+            "source_ids": [
+              "raw:filtre-a-huile-compatibility",
+              "normative:iso-4548",
+              "web:donaldson-beta"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "standards_norms"
+          },
+          {
+            "role": "R3_CONSEILS",
+            "section": "replacement_guidance",
+            "content_md": "Au montage d'un filtre vissé : vérifier que l'ancien joint est bien parti (éviter le double joint), enduire le joint neuf d'un peu d'huile propre, visser à la main jusqu'au contact puis serrer d'une fraction de tour selon la notice — sans clé ni sur-serrage. Sur une cartouche : remplacer les joints toriques neufs fournis, les placer dans leur gorge, ne pas oublier le tube central, et respecter le couple du couvercle. Le filtre se commande par la référence d'origine du moteur.",
+            "source_ids": [
+              "raw:filtre-a-huile-common-mistakes",
+              "web:pmm-spin-on",
+              "oem:ecogard-cartouche"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "replacement_guidance"
+          },
+          {
+            "role": "R3_CONSEILS",
+            "section": "faq",
+            "content_md": "Peut-on nettoyer et réutiliser un filtre à huile ? Non pour un élément papier jetable. Quand le remplacer ? À chaque vidange. Faut-il commander par dimension ? Non : par référence d'origine du moteur, car le type, le filetage/joint et les clapets en dépendent. Un voyant de pression d'huile vient-il toujours du filtre ? Non — c'est plus souvent le niveau, la pompe ou le capteur ; le filtre colmaté n'est qu'une cause possible.",
+            "source_ids": [
+              "raw:filtre-a-huile-faq-symptoms",
+              "raw:filtre-a-huile-selection-criteria",
+              "oem:filtron-clapets"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "faq"
+          }
+        ]
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/ford-focus-3.md",
+      "stage": "native-transform-preview-proposals",
+      "review_status": "proposed",
+      "eligible": false,
+      "payload": {
+        "entity_id": "vehicle:ford-focus-3",
+        "entity_type": "vehicle",
+        "blocks": []
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/peugeot-206.md",
+      "stage": "native-transform-preview-proposals",
+      "review_status": "proposed",
+      "eligible": false,
+      "payload": {
+        "entity_id": "vehicle:peugeot-206",
+        "entity_type": "vehicle",
+        "blocks": []
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/plaquette-de-frein.md",
+      "stage": "native-transform-preview-proposals",
+      "review_status": "proposed",
+      "eligible": false,
+      "payload": {
+        "entity_id": "gamme:plaquette-de-frein",
+        "entity_type": "gamme",
+        "blocks": [
+          {
+            "role": "R3_CONSEILS",
+            "section": "maintenance",
+            "content_md": "Vérifier l'épaisseur minimum 3 mm avant un long trajet ; remplacer toujours par paire sur le même train.",
+            "source_ids": [
+              "raw:recycled"
+            ],
+            "truth_level": "editorial",
+            "usefulness_target": "achat"
+          },
+          {
+            "role": "R4_REFERENCE",
+            "section": "related",
+            "content_md": "Pièces de la même famille d'entretien : disque-de-frein, etrier-de-frein, kit-de-frein-arriere.",
+            "source_ids": [
+              "db:pieces_gamme"
+            ],
+            "truth_level": "db_owned",
+            "usefulness_target": "maillage"
+          },
+          {
+            "role": "R3_CONSEILS",
+            "section": "function",
+            "content_md": "La plaquette est la garniture de friction que l'étrier presse contre le disque pour convertir l'énergie cinétique en chaleur et ralentir la roue de façon progressive et répétable ; sa géométrie dépend de l'architecture d'étrier (flottant à pistons d'un seul côté, ou fixe à pistons opposés).",
+            "source_ids": [
+              "oem:bremboparts-etriers",
+              "web:mister-auto-etriers"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "function"
+          },
+          {
+            "role": "R3_CONSEILS",
+            "section": "failure_symptoms",
+            "content_md": "Une plaquette usée se signale par un grincement aigu (témoin acoustique, ou support métallique au contact du disque), un allongement de la distance de freinage, parfois des vibrations à la pédale (souvent liées au disque) et un témoin au tableau de bord ; le remplacement s'impose autour de 3 mm de garniture restante.",
+            "source_ids": [
+              "web:autodoc-usure",
+              "web:mister-auto-symptomes"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "failure_symptoms"
+          },
+          {
+            "role": "R3_CONSEILS",
+            "section": "maintenance_interval",
+            "content_md": "La durée de vie varie fortement selon l'usage — ordre de grandeur 25 000 à 80 000 km — la conduite urbaine usant plus vite que les longs trajets. Plutôt qu'un kilométrage fixe, contrôler visuellement l'épaisseur et suivre le carnet d'entretien ; remplacer disques et plaquettes ensemble quand le disque est hors limites.",
+            "source_ids": [
+              "web:vroomly-duree-vie",
+              "web:bymycar-disques"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "maintenance_interval"
+          },
+          {
+            "role": "R6_GUIDE_ACHAT",
+            "section": "selection_criteria",
+            "content_md": "Le choix croise une correspondance véhicule/essieu stricte (référence d'origine, dimensions, type d'étrier, type de témoin d'usure) et un compromis matériau selon l'usage (organique NAO, semi-métallique, fritté, céramique). Le remplacement se fait par paire sur l'essieu, avec contrôle du disque et rodage d'environ 200 km.",
+            "source_ids": [
+              "oem:zf-installation",
+              "web:mister-auto-choisir",
+              "web:tour-dhorizon"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "selection_criteria"
+          },
+          {
+            "role": "R6_GUIDE_ACHAT",
+            "section": "quality_tiers",
+            "content_md": "Le marché se structure en première monte / qualité d'origine (OES), aftermarket premium équivalent OE, puis gammes économiques. Au catalogue, les équipementiers d'origine de référence du freinage sont Bosch, Brembo et ATE (Continental) en tête, puis Textar, TRW, Delphi, Ferodo et Valeo ; le prix tient à la composition, aux tolérances dimensionnelles et aux procédés (revêtement anticorrosion, traitement thermique, cales antibruit).",
+            "source_ids": [
+              "db:pieces-marque-oes",
+              "oem:bremboparts-10-points",
+              "web:jurid-oe"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "quality_tiers"
+          },
+          {
+            "role": "R4_REFERENCE",
+            "section": "standards_norms",
+            "content_md": "En Europe, toute plaquette de rechange doit être homologuée ECE R90 : ses performances doivent rester équivalentes à la pièce d'origine dans une tolérance de l'ordre de plus ou moins 15 %. R90 est un plancher de sécurité, pas un gage d'excellence — il n'évalue ni le bruit, ni l'usure du disque, ni la tenue dans le temps.",
+            "source_ids": [
+              "oem:bremboparts-r90",
+              "web:carmino-r90"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "standards_norms"
+          },
+          {
+            "role": "R3_CONSEILS",
+            "section": "replacement_guidance",
+            "content_md": "Au montage : remplacer par paire sur l'essieu, ne jamais graisser la surface de friction (graisse uniquement sur les points de contact mécaniques), repousser le piston avec précaution en surveillant le bocal, nettoyer et lubrifier les coulisseaux de l'étrier flottant, ne pas suspendre l'étrier par le flexible, puis réamorcer la pédale.",
+            "source_ids": [
+              "web:oscaro-erreurs",
+              "oem:zf-installation",
+              "web:oovango-erreurs"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "replacement_guidance"
+          },
+          {
+            "role": "R3_CONSEILS",
+            "section": "faq",
+            "content_md": "Quand changer ? sous environ 3 mm de garniture (minimum contrôle technique de l'ordre de 2 mm) ou au déclenchement d'un témoin. Un léger sifflement de plaquettes neuves est normal pendant le rodage ; un crissement persistant au-delà signale un montage incorrect ou une pièce inadaptée. On peut traiter un seul essieu, jamais une seule roue.",
+            "source_ids": [
+              "web:autodoc-quand-changer",
+              "web:oscaro-rodage",
+              "web:vroomly-bruit"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "faq"
+          }
+        ]
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/renault-clio-3.md",
+      "stage": "native-transform-preview-proposals",
+      "review_status": "proposed",
+      "eligible": false,
+      "payload": {
+        "entity_id": "vehicle:renault-clio-3",
+        "entity_type": "vehicle",
+        "blocks": []
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/renault-megane-3.md",
+      "stage": "native-transform-preview-proposals",
+      "review_status": "proposed",
+      "eligible": false,
+      "payload": {
+        "entity_id": "vehicle:renault-megane-3",
+        "entity_type": "vehicle",
+        "blocks": []
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/renault-scenic-ii.md",
+      "stage": "native-transform-preview-proposals",
+      "review_status": "proposed",
+      "eligible": false,
+      "payload": {
+        "entity_id": "vehicle:renault-scenic-ii",
+        "entity_type": "vehicle",
+        "blocks": [
+          {
+            "role": "R8_VEHICLE",
+            "section": "known_issues",
+            "content_md": "Moteur essence 2.0 16V (famille F4R) : bobines d'allumage et joints spi (fuite d'huile) à surveiller.",
+            "source_ids": [
+              "db:kg_engine_families"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "engine_family:f4r"
+          },
+          {
+            "role": "R8_VEHICLE",
+            "section": "known_issues",
+            "content_md": "Moteur 1.5 dCi (famille K9K, Renault-Nissan) : vanne EGR sujette à l'encrassement (perte de puissance, fumées noires), injecteurs sensibles (fuite de retour), turbo dont les paliers s'usent prématurément si les intervalles de vidange ne sont pas respectés.",
+            "source_ids": [
+              "db:kg_engine_families",
+              "db:auto_type"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "engine_family:k9k"
+          },
+          {
+            "role": "R8_VEHICLE",
+            "section": "maintenance",
+            "content_md": "Diesel : vidange + filtre à huile tous les 15 000 à 20 000 km ou 1 an ; filtre à gasoil environ 60 000 km ; contrôler la distribution selon la motorisation.",
+            "source_ids": [
+              "db:auto_type"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "fuel:diesel"
+          },
+          {
+            "role": "R8_VEHICLE",
+            "section": "maintenance",
+            "content_md": "Essence : vidange + filtre à huile tous les 15 000 à 20 000 km ou 1 an selon préconisation ; filtre à air environ 30 000 km.",
+            "source_ids": [
+              "db:auto_type"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "fuel:essence"
+          }
+        ]
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/support-moteur.md",
+      "stage": "native-transform-preview-proposals",
+      "review_status": "proposed",
+      "eligible": false,
+      "payload": {
+        "entity_id": "gamme:support-moteur",
+        "entity_type": "gamme",
+        "blocks": [
+          {
+            "role": "R4_REFERENCE",
+            "section": "compatibility",
+            "content_md": "Compatibilité véhicule : 42 modèle(s) · marques : Audi, Citroen, Dacia, Fiat, Ford, Mercedes-benz, Mini, Peugeot, Renault, Volkswagen · carburants : Diesel, Essence · puissance 45–211 ch · années 1985–2018.",
+            "source_ids": [
+              "db:auto_type"
+            ],
+            "truth_level": "db_owned",
+            "usefulness_target": "compatibilite"
+          },
+          {
+            "role": "R4_REFERENCE",
+            "section": "related",
+            "content_md": "Pièces de la même famille d'entretien : support-de-boite-vitesse, silent-bloc, berceau-moteur, biellette-de-reprise-de-couple.",
+            "source_ids": [
+              "db:pieces_gamme"
+            ],
+            "truth_level": "db_owned",
+            "usefulness_target": "maillage"
+          }
+        ]
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/thermostat.md",
+      "stage": "native-transform-preview-proposals",
+      "review_status": "proposed",
+      "eligible": false,
+      "payload": {
+        "entity_id": "gamme:thermostat",
+        "entity_type": "gamme",
+        "blocks": [
+          {
+            "role": "R4_REFERENCE",
+            "section": "compatibility",
+            "content_md": "Compatibilité véhicule : 49 modèle(s) · marques : Bmw, Chevrolet, Citroen, Dacia, Fiat, Ford, Mercedes-benz, Nissan, Opel, Peugeot, Renault, Seat, Skoda, Volkswagen · carburants : Diesel, Essence · puissance 54–184 ch · années 1988–2018.",
+            "source_ids": [
+              "db:auto_type"
+            ],
+            "truth_level": "db_owned",
+            "usefulness_target": "compatibilite"
+          },
+          {
+            "role": "R4_REFERENCE",
+            "section": "related",
+            "content_md": "Pièces de la même famille d'entretien : radiateur-de-refroidissement, pompe-a-eau, durite-de-refroidissement, vase-d-expansion, ventilateur-de-refroidissement.",
+            "source_ids": [
+              "db:pieces_gamme"
+            ],
+            "truth_level": "db_owned",
+            "usefulness_target": "maillage"
+          }
+        ]
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/vanne-egr.md",
+      "stage": "native-transform-preview-proposals",
+      "review_status": "proposed",
+      "eligible": false,
+      "payload": {
+        "entity_id": "gamme:vanne-egr",
+        "entity_type": "gamme",
+        "blocks": [
+          {
+            "role": "R4_REFERENCE",
+            "section": "compatibility",
+            "content_md": "Compatibilité véhicule : 21 modèle(s) · marques : Citroen, Nissan, Opel, Peugeot, Renault, Volkswagen · carburants : Diesel · puissance 69–140 ch · années 1999–2014.",
+            "source_ids": [
+              "db:auto_type"
+            ],
+            "truth_level": "db_owned",
+            "usefulness_target": "compatibilite"
+          },
+          {
+            "role": "R4_REFERENCE",
+            "section": "related",
+            "content_md": "Pièces de la même famille d'entretien : catalyseur, fap, silencieux, sonde-lambda, tube-d-echappement, collecteur-d-echappement.",
+            "source_ids": [
+              "db:pieces_gamme"
+            ],
+            "truth_level": "db_owned",
+            "usefulness_target": "maillage"
+          }
+        ]
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/volkswagen-golf-6.md",
+      "stage": "native-transform-preview-proposals",
+      "review_status": "proposed",
+      "eligible": false,
+      "payload": {
+        "entity_id": "vehicle:volkswagen-golf-6",
+        "entity_type": "vehicle",
+        "blocks": []
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/exports/seo/gamme/filtre-a-air.json",
+      "stage": "existing-export",
+      "review_status": null,
+      "eligible": null,
+      "payload": {
+        "entity_id": "gamme:filtre-a-air",
+        "entity_type": "gamme",
+        "schema_version": "1.1.0",
+        "projection_contract_version": "1.0.0",
+        "source_wiki_commit": "6590fc54c835e4bd3191b87e197778d5d73b1199",
+        "wiki_path": "wiki/gamme/filtre-a-air.md",
+        "content_hash": "sha256:b004ed7ea0945abd5359c2012ac75c7e54be2b9ebd67399f024389cca5e3b876",
+        "generated_at": "2026-06-13T13:51:53+02:00",
+        "builder_version": "1.1.0",
+        "facts": [
+          {
+            "key": "pg_id",
+            "value": 510,
+            "source_id": "db:pieces_gamme"
+          },
+          {
+            "key": "family",
+            "value": "filtration",
+            "source_id": "db:pieces_gamme"
+          }
+        ],
+        "sources": [
+          {
+            "id": "src-0",
+            "type": "manual",
+            "url": null
+          },
+          {
+            "id": "src-1",
+            "type": "manual",
+            "url": null
+          },
+          {
+            "id": "src-2",
+            "type": "manual",
+            "url": null
+          }
+        ],
+        "blocks": [
+          {
+            "role": "R3_CONSEILS",
+            "section": "maintenance",
+            "content_md": "Remplacement typique tous les 30 000 km, plus fréquent en milieu poussiéreux ou usage tout-terrain.",
+            "source_ids": [
+              "raw:recycled"
+            ],
+            "truth_level": "editorial",
+            "usefulness_target": "achat"
+          },
+          {
+            "role": "R4_REFERENCE",
+            "section": "related",
+            "content_md": "Pièces de la même famille d'entretien : filtre-habitacle, filtre-a-huile, filtre-a-carburant.",
+            "source_ids": [
+              "db:pieces_gamme"
+            ],
+            "truth_level": "db_owned",
+            "usefulness_target": "maillage"
+          }
+        ],
+        "roles_allowed": [
+          "R3_CONSEILS",
+          "R4_REFERENCE",
+          "R6_GUIDE_ACHAT"
+        ],
+        "consumers_allowed": [
+          "seo",
+          "rag"
+        ]
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/exports/seo/gamme/filtre-a-carburant.json",
+      "stage": "existing-export",
+      "review_status": null,
+      "eligible": null,
+      "payload": {
+        "entity_id": "gamme:filtre-a-carburant",
+        "entity_type": "gamme",
+        "schema_version": "1.1.0",
+        "projection_contract_version": "1.0.0",
+        "source_wiki_commit": "6590fc54c835e4bd3191b87e197778d5d73b1199",
+        "wiki_path": "wiki/gamme/filtre-a-carburant.md",
+        "content_hash": "sha256:1277cddaf03705d36bb35b0bdfbaa9c0e4dbc01d520f548137064c7a9b5fb7e5",
+        "generated_at": "2026-06-13T13:51:53+02:00",
+        "builder_version": "1.1.0",
+        "facts": [],
+        "sources": [
+          {
+            "id": "src-0",
+            "type": "manual",
+            "url": null
+          },
+          {
+            "id": "src-1",
+            "type": "manual",
+            "url": null
+          },
+          {
+            "id": "src-2",
+            "type": "manual",
+            "url": "https://www.vroomly.com/blog/filtre-a-gasoil-encrasse-symptomes/"
+          },
+          {
+            "id": "src-3",
+            "type": "manual",
+            "url": "https://www.idgarages.com/fr-fr/prestations/revision-vidange/definition-filtre-a-gasoil"
+          }
+        ],
+        "blocks": [],
+        "roles_allowed": [
+          "R3_CONSEILS",
+          "R4_REFERENCE",
+          "R6_GUIDE_ACHAT"
+        ],
+        "consumers_allowed": [
+          "seo",
+          "rag"
+        ]
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/exports/seo/gamme/filtre-d-habitacle.json",
+      "stage": "existing-export",
+      "review_status": null,
+      "eligible": null,
+      "payload": {
+        "entity_id": "gamme:filtre-d-habitacle",
+        "entity_type": "gamme",
+        "schema_version": "1.1.0",
+        "projection_contract_version": "1.0.0",
+        "source_wiki_commit": "6590fc54c835e4bd3191b87e197778d5d73b1199",
+        "wiki_path": "wiki/gamme/filtre-d-habitacle.md",
+        "content_hash": "sha256:39116a2be2861cfc87008d3a5ca80362685c686c426ac2aee674203d8ee471da",
+        "generated_at": "2026-06-13T13:51:53+02:00",
+        "builder_version": "1.1.0",
+        "facts": [],
+        "sources": [
+          {
+            "id": "src-0",
+            "type": "manual",
+            "url": null
+          },
+          {
+            "id": "src-1",
+            "type": "manual",
+            "url": "https://www.carglass.fr/faq/answers/5929/quand-changer-le-filtre-d-habitacle"
+          },
+          {
+            "id": "src-2",
+            "type": "manual",
+            "url": "https://www.bymycar.fr/webzine/filtre-habitacle-charbon-actif-ou-pollen/"
+          }
+        ],
+        "blocks": [],
+        "roles_allowed": [
+          "R3_CONSEILS",
+          "R4_REFERENCE",
+          "R6_GUIDE_ACHAT"
+        ],
+        "consumers_allowed": [
+          "seo",
+          "rag"
+        ]
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/wiki/diagnostic/faq.md",
+      "stage": "native-transform-preview-wiki",
+      "review_status": "approved",
+      "eligible": false,
+      "payload": {
+        "entity_id": "diagnostic:faq",
+        "entity_type": "diagnostic",
+        "blocks": []
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/wiki/diagnostic/safety-config.md",
+      "stage": "native-transform-preview-wiki",
+      "review_status": "approved",
+      "eligible": false,
+      "payload": {
+        "entity_id": "diagnostic:safety-config",
+        "entity_type": "diagnostic",
+        "blocks": []
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/wiki/diagnostic/signs.md",
+      "stage": "native-transform-preview-wiki",
+      "review_status": "approved",
+      "eligible": false,
+      "payload": {
+        "entity_id": "diagnostic:signs",
+        "entity_type": "diagnostic",
+        "blocks": []
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/wiki/diagnostic/vocab-clusters.md",
+      "stage": "native-transform-preview-wiki",
+      "review_status": "approved",
+      "eligible": false,
+      "payload": {
+        "entity_id": "diagnostic:vocab-clusters",
+        "entity_type": "diagnostic",
+        "blocks": []
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/wiki/diagnostic/wizard-steps.md",
+      "stage": "native-transform-preview-wiki",
+      "review_status": "approved",
+      "eligible": false,
+      "payload": {
+        "entity_id": "diagnostic:wizard-steps",
+        "entity_type": "diagnostic",
+        "blocks": []
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/wiki/gamme/filtre-a-air.md",
+      "stage": "native-transform-preview-wiki",
+      "review_status": "approved",
+      "eligible": true,
+      "payload": {
+        "entity_id": "gamme:filtre-a-air",
+        "entity_type": "gamme",
+        "blocks": [
+          {
+            "role": "R3_CONSEILS",
+            "section": "maintenance",
+            "content_md": "Remplacement typique tous les 30 000 km, plus fréquent en milieu poussiéreux ou usage tout-terrain.",
+            "source_ids": [
+              "raw:recycled"
+            ],
+            "truth_level": "editorial",
+            "usefulness_target": "achat"
+          },
+          {
+            "role": "R4_REFERENCE",
+            "section": "related",
+            "content_md": "Pièces de la même famille d'entretien : filtre-habitacle, filtre-a-huile, filtre-a-carburant.",
+            "source_ids": [
+              "db:pieces_gamme"
+            ],
+            "truth_level": "db_owned",
+            "usefulness_target": "maillage"
+          }
+        ]
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/wiki/gamme/filtre-a-carburant.md",
+      "stage": "native-transform-preview-wiki",
+      "review_status": "approved",
+      "eligible": true,
+      "payload": {
+        "entity_id": "gamme:filtre-a-carburant",
+        "entity_type": "gamme",
+        "blocks": []
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/wiki/gamme/filtre-d-habitacle.md",
+      "stage": "native-transform-preview-wiki",
+      "review_status": "approved",
+      "eligible": true,
+      "payload": {
+        "entity_id": "gamme:filtre-d-habitacle",
+        "entity_type": "gamme",
+        "blocks": []
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/wiki/support/controles-mensuels.md",
+      "stage": "native-transform-preview-wiki",
+      "review_status": "approved",
+      "eligible": false,
+      "payload": {
+        "entity_id": "support:controles-mensuels",
+        "entity_type": "support",
+        "blocks": []
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/citroen-c3.md",
+      "stage": "native-transform-preview-proposals",
+      "review_status": "proposed",
+      "eligible": false,
+      "payload": {
+        "entity_id": "vehicle:citroen-c3",
+        "entity_type": "vehicle",
+        "blocks": []
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/courroie-d-accessoire.md",
+      "stage": "native-transform-preview-proposals",
+      "review_status": "proposed",
+      "eligible": false,
+      "payload": {
+        "entity_id": "gamme:courroie-d-accessoire",
+        "entity_type": "gamme",
+        "blocks": [
+          {
+            "role": "R4_REFERENCE",
+            "section": "compatibility",
+            "content_md": "Compatibilité véhicule : 42 modèle(s) · marques : Chevrolet, Citroen, Dacia, Fiat, Kia, Mercedes-benz, Mini, Mitsubishi, Opel, Peugeot, Renault, Suzuki, Toyota, Volkswagen · carburants : Diesel, Essence · puissance 54–200 ch · années 1996–2018.",
+            "source_ids": [
+              "db:auto_type"
+            ],
+            "truth_level": "db_owned",
+            "usefulness_target": "compatibilite"
+          },
+          {
+            "role": "R4_REFERENCE",
+            "section": "related",
+            "content_md": "Pièces de la même famille d'entretien : courroie-de-distribution, kit-de-distribution, galet-tendeur-de-courroie-de-distribution, galet-enrouleur-de-courroie-de-distribution, pompe-a-eau.",
+            "source_ids": [
+              "db:pieces_gamme"
+            ],
+            "truth_level": "db_owned",
+            "usefulness_target": "maillage"
+          }
+        ]
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/dacia.md",
+      "stage": "native-transform-preview-proposals",
+      "review_status": "proposed",
+      "eligible": false,
+      "payload": {
+        "entity_id": "constructeur:dacia",
+        "entity_type": "constructeur",
+        "blocks": []
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/disque-de-frein.md",
+      "stage": "native-transform-preview-proposals",
+      "review_status": "proposed",
+      "eligible": false,
+      "payload": {
+        "entity_id": "gamme:disque-de-frein",
+        "entity_type": "gamme",
+        "blocks": [
+          {
+            "role": "R3_CONSEILS",
+            "section": "maintenance",
+            "content_md": "Contrôler l'épaisseur du disque à chaque changement de plaquettes et vérifier le voile si des vibrations apparaissent ; remplacer dès que l'épaisseur atteint la cote MIN TH gravée sur le disque, toujours par paire sur l'essieu.",
+            "source_ids": [
+              "raw:recycled"
+            ],
+            "truth_level": "editorial",
+            "usefulness_target": "achat"
+          },
+          {
+            "role": "R4_REFERENCE",
+            "section": "related",
+            "content_md": "Pièces de la même famille d'entretien : plaquette-de-frein, etrier-de-frein.",
+            "source_ids": [
+              "db:pieces_gamme"
+            ],
+            "truth_level": "db_owned",
+            "usefulness_target": "maillage"
+          },
+          {
+            "role": "R6_GUIDE_ACHAT",
+            "section": "selection",
+            "content_md": "Critères de choix : Compatibilité dimensionnelle OE exacte (diamètre, épaisseur neuve/mini, hauteur de bol, PCD, trous, alésage central). ; Type de structure (ventilé/plein) et de surface (lisse/percé/rainuré) conformes au montage d'origine. ; Épaisseur mini MIN TH gravée + homologation ECE R90 + remplacement par paire d'essieu..",
+            "source_ids": [
+              "db:pieces_gamme"
+            ],
+            "truth_level": "inferred",
+            "usefulness_target": "achat"
+          },
+          {
+            "role": "R4_REFERENCE",
+            "section": "definition",
+            "content_md": "Le disque de frein transforme l'énergie cinétique du véhicule en chaleur par friction avec les plaquettes, pour ralentir de façon stable et répétable sur chaque essieu.",
+            "source_ids": [
+              "db:pieces_gamme"
+            ],
+            "truth_level": "inferred",
+            "usefulness_target": "page_indexable"
+          }
+        ]
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/filtre-a-huile.md",
+      "stage": "native-transform-preview-proposals",
+      "review_status": "proposed",
+      "eligible": false,
+      "payload": {
+        "entity_id": "gamme:filtre-a-huile",
+        "entity_type": "gamme",
+        "blocks": [
+          {
+            "role": "R3_CONSEILS",
+            "section": "maintenance",
+            "content_md": "Remplacer le filtre à huile systématiquement à chaque vidange, jamais le réutiliser, et toujours commander la référence d'origine du moteur.",
+            "source_ids": [
+              "raw:recycled"
+            ],
+            "truth_level": "editorial",
+            "usefulness_target": "achat"
+          },
+          {
+            "role": "R4_REFERENCE",
+            "section": "related",
+            "content_md": "Pièces de la même famille d'entretien : huile-moteur, joint-de-vidange-carter, filtre-a-air, filtre-a-carburant, filtre-d-habitacle, bouchon-de-vidange.",
+            "source_ids": [
+              "db:pieces_gamme"
+            ],
+            "truth_level": "db_owned",
+            "usefulness_target": "maillage"
+          },
+          {
+            "role": "R6_GUIDE_ACHAT",
+            "section": "selection",
+            "content_md": "Critères de choix : Type d'origine : vissé (spin-on) ou cartouche, dicté par le moteur. ; Filetage et joint conformes au système de filtration d'origine. ; Média et capacité adaptés à l'intervalle de vidange du moteur..",
+            "source_ids": [
+              "db:pieces_gamme"
+            ],
+            "truth_level": "inferred",
+            "usefulness_target": "achat"
+          },
+          {
+            "role": "R4_REFERENCE",
+            "section": "definition",
+            "content_md": "Le filtre à huile retient les impuretés en suspension dans l'huile moteur pour protéger les organes lubrifiés de l'usure abrasive.",
+            "source_ids": [
+              "db:pieces_gamme"
+            ],
+            "truth_level": "inferred",
+            "usefulness_target": "page_indexable"
+          },
+          {
+            "role": "R3_CONSEILS",
+            "section": "function",
+            "content_md": "Le filtre à huile est l'élément qui retient les impuretés en suspension dans l'huile moteur — particules métalliques d'usure et résidus de combustion — pour protéger les organes lubrifiés (paliers, arbre à cames, turbocompresseur) de l'usure abrasive. C'est un filtre à plein débit (full-flow) qui reçoit l'essentiel du débit de la pompe à huile.",
+            "source_ids": [
+              "raw:filtre-a-huile-selection-criteria",
+              "oem:mann-filter",
+              "web:donaldson-beta"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "function"
+          },
+          {
+            "role": "R3_CONSEILS",
+            "section": "failure_symptoms",
+            "content_md": "Un filtre fortement colmaté peut faire chuter la pression d'huile, allumer le voyant de pression au tableau de bord et, par lubrification insuffisante, provoquer une perte de puissance. Un clapet anti-retour défaillant laisse l'huile redescendre du filtre à l'arrêt : le moteur subit un démarrage à sec, avec bruit au démarrage à froid et montée en pression retardée. Le filtre reste UNE cause possible parmi d'autres (niveau, pompe, capteur de pression).",
+            "source_ids": [
+              "raw:filtre-a-huile-faq-symptoms",
+              "oem:filtron-clapets",
+              "web:fram-bypass"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "failure_symptoms"
+          },
+          {
+            "role": "R3_CONSEILS",
+            "section": "maintenance_interval",
+            "content_md": "L'élément papier d'un filtre à huile est conçu pour être remplacé à chaque vidange : garder un filtre saturé fait ouvrir le by-pass prématurément et laisse circuler de l'huile non filtrée. Un filtre papier jetable ne se nettoie pas et ne se réutilise pas. La capacité de rétention doit être cohérente avec l'intervalle de service du moteur (intervalles longs en huile synthétique).",
+            "source_ids": [
+              "raw:filtre-a-huile-faq-symptoms",
+              "oem:mann-filter",
+              "web:fram-synthetic"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "maintenance_interval"
+          },
+          {
+            "role": "R4_REFERENCE",
+            "section": "variants",
+            "content_md": "Deux architectures coexistent et ne se substituent pas librement : le filtre vissé (spin-on), boîtier métallique complet remplacé en entier qui intègre ses propres clapets, et la cartouche (insert papier sans carter métallique) logée dans un boîtier permanent sur le moteur, où les clapets sont généralement portés par le boîtier. Le type est imposé par la conception moteur.",
+            "source_ids": [
+              "raw:filtre-a-huile-compatibility",
+              "oem:mann-filter",
+              "oem:filtron-clapets"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "variants"
+          },
+          {
+            "role": "R6_GUIDE_ACHAT",
+            "section": "selection_criteria",
+            "content_md": "Le choix se fait par référence d'origine du moteur : type (vissé ou cartouche), filetage et joint d'embase, type de média (cellulose, synthétique ou microfibres de verre selon l'efficacité visée), type de clapets (anti-retour, by-pass) et capacité de rétention adaptée à l'intervalle de vidange. Un filetage qui « ressemble » ne suffit pas — le joint et les clapets doivent aussi correspondre.",
+            "source_ids": [
+              "raw:filtre-a-huile-selection-criteria",
+              "oem:mann-filter",
+              "web:donaldson-beta"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "selection_criteria"
+          },
+          {
+            "role": "R6_GUIDE_ACHAT",
+            "section": "quality_tiers",
+            "content_md": "Le marché de la rechange se structure en trois niveaux au sens du Règlement européen 461/2010 : pièce OE/OEM (montée d'origine en usine), pièce OES (équipementier d'origine vendant sous sa marque, qualité identique) et pièce de qualité équivalente. Les équipementiers OE de la filtration incluent notamment MANN-FILTER, Mahle, Purflux, Bosch, Denso, Valeo et Blue Print.",
+            "source_ids": [
+              "raw:filtre-a-huile-price-quality",
+              "normative:eu-461-2010",
+              "oem:mann-filter"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "quality_tiers"
+          },
+          {
+            "role": "R4_REFERENCE",
+            "section": "standards_norms",
+            "content_md": "La filtration à plein débit est encadrée par la série de normes ISO 4548 (méthodes d'essai : caractéristique débit/perte de charge, clapet de dérivation, clapets anti-retour, efficacité par comptage de particules). L'efficacité réelle s'exprime par le ratio bêta à une taille de particule donnée — un seuil « X microns » seul ne suffit pas sans le bêta associé.",
+            "source_ids": [
+              "raw:filtre-a-huile-compatibility",
+              "normative:iso-4548",
+              "web:donaldson-beta"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "standards_norms"
+          },
+          {
+            "role": "R3_CONSEILS",
+            "section": "replacement_guidance",
+            "content_md": "Au montage d'un filtre vissé : vérifier que l'ancien joint est bien parti (éviter le double joint), enduire le joint neuf d'un peu d'huile propre, visser à la main jusqu'au contact puis serrer d'une fraction de tour selon la notice — sans clé ni sur-serrage. Sur une cartouche : remplacer les joints toriques neufs fournis, les placer dans leur gorge, ne pas oublier le tube central, et respecter le couple du couvercle. Le filtre se commande par la référence d'origine du moteur.",
+            "source_ids": [
+              "raw:filtre-a-huile-common-mistakes",
+              "web:pmm-spin-on",
+              "oem:ecogard-cartouche"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "replacement_guidance"
+          },
+          {
+            "role": "R3_CONSEILS",
+            "section": "faq",
+            "content_md": "Peut-on nettoyer et réutiliser un filtre à huile ? Non pour un élément papier jetable. Quand le remplacer ? À chaque vidange. Faut-il commander par dimension ? Non : par référence d'origine du moteur, car le type, le filetage/joint et les clapets en dépendent. Un voyant de pression d'huile vient-il toujours du filtre ? Non — c'est plus souvent le niveau, la pompe ou le capteur ; le filtre colmaté n'est qu'une cause possible.",
+            "source_ids": [
+              "raw:filtre-a-huile-faq-symptoms",
+              "raw:filtre-a-huile-selection-criteria",
+              "oem:filtron-clapets"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "faq"
+          }
+        ]
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/ford-focus-3.md",
+      "stage": "native-transform-preview-proposals",
+      "review_status": "proposed",
+      "eligible": false,
+      "payload": {
+        "entity_id": "vehicle:ford-focus-3",
+        "entity_type": "vehicle",
+        "blocks": []
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/peugeot-206.md",
+      "stage": "native-transform-preview-proposals",
+      "review_status": "proposed",
+      "eligible": false,
+      "payload": {
+        "entity_id": "vehicle:peugeot-206",
+        "entity_type": "vehicle",
+        "blocks": []
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/plaquette-de-frein.md",
+      "stage": "native-transform-preview-proposals",
+      "review_status": "proposed",
+      "eligible": false,
+      "payload": {
+        "entity_id": "gamme:plaquette-de-frein",
+        "entity_type": "gamme",
+        "blocks": [
+          {
+            "role": "R3_CONSEILS",
+            "section": "maintenance",
+            "content_md": "Vérifier l'épaisseur minimum 3 mm avant un long trajet ; remplacer toujours par paire sur le même train.",
+            "source_ids": [
+              "raw:recycled"
+            ],
+            "truth_level": "editorial",
+            "usefulness_target": "achat"
+          },
+          {
+            "role": "R4_REFERENCE",
+            "section": "related",
+            "content_md": "Pièces de la même famille d'entretien : disque-de-frein, etrier-de-frein, kit-de-frein-arriere.",
+            "source_ids": [
+              "db:pieces_gamme"
+            ],
+            "truth_level": "db_owned",
+            "usefulness_target": "maillage"
+          },
+          {
+            "role": "R3_CONSEILS",
+            "section": "function",
+            "content_md": "La plaquette est la garniture de friction que l'étrier presse contre le disque pour convertir l'énergie cinétique en chaleur et ralentir la roue de façon progressive et répétable ; sa géométrie dépend de l'architecture d'étrier (flottant à pistons d'un seul côté, ou fixe à pistons opposés).",
+            "source_ids": [
+              "oem:bremboparts-etriers",
+              "web:mister-auto-etriers"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "function"
+          },
+          {
+            "role": "R3_CONSEILS",
+            "section": "failure_symptoms",
+            "content_md": "Une plaquette usée se signale par un grincement aigu (témoin acoustique, ou support métallique au contact du disque), un allongement de la distance de freinage, parfois des vibrations à la pédale (souvent liées au disque) et un témoin au tableau de bord ; le remplacement s'impose autour de 3 mm de garniture restante.",
+            "source_ids": [
+              "web:autodoc-usure",
+              "web:mister-auto-symptomes"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "failure_symptoms"
+          },
+          {
+            "role": "R3_CONSEILS",
+            "section": "maintenance_interval",
+            "content_md": "La durée de vie varie fortement selon l'usage — ordre de grandeur 25 000 à 80 000 km — la conduite urbaine usant plus vite que les longs trajets. Plutôt qu'un kilométrage fixe, contrôler visuellement l'épaisseur et suivre le carnet d'entretien ; remplacer disques et plaquettes ensemble quand le disque est hors limites.",
+            "source_ids": [
+              "web:vroomly-duree-vie",
+              "web:bymycar-disques"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "maintenance_interval"
+          },
+          {
+            "role": "R6_GUIDE_ACHAT",
+            "section": "selection_criteria",
+            "content_md": "Le choix croise une correspondance véhicule/essieu stricte (référence d'origine, dimensions, type d'étrier, type de témoin d'usure) et un compromis matériau selon l'usage (organique NAO, semi-métallique, fritté, céramique). Le remplacement se fait par paire sur l'essieu, avec contrôle du disque et rodage d'environ 200 km.",
+            "source_ids": [
+              "oem:zf-installation",
+              "web:mister-auto-choisir",
+              "web:tour-dhorizon"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "selection_criteria"
+          },
+          {
+            "role": "R6_GUIDE_ACHAT",
+            "section": "quality_tiers",
+            "content_md": "Le marché se structure en première monte / qualité d'origine (OES), aftermarket premium équivalent OE, puis gammes économiques. Au catalogue, les équipementiers d'origine de référence du freinage sont Bosch, Brembo et ATE (Continental) en tête, puis Textar, TRW, Delphi, Ferodo et Valeo ; le prix tient à la composition, aux tolérances dimensionnelles et aux procédés (revêtement anticorrosion, traitement thermique, cales antibruit).",
+            "source_ids": [
+              "db:pieces-marque-oes",
+              "oem:bremboparts-10-points",
+              "web:jurid-oe"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "quality_tiers"
+          },
+          {
+            "role": "R4_REFERENCE",
+            "section": "standards_norms",
+            "content_md": "En Europe, toute plaquette de rechange doit être homologuée ECE R90 : ses performances doivent rester équivalentes à la pièce d'origine dans une tolérance de l'ordre de plus ou moins 15 %. R90 est un plancher de sécurité, pas un gage d'excellence — il n'évalue ni le bruit, ni l'usure du disque, ni la tenue dans le temps.",
+            "source_ids": [
+              "oem:bremboparts-r90",
+              "web:carmino-r90"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "standards_norms"
+          },
+          {
+            "role": "R3_CONSEILS",
+            "section": "replacement_guidance",
+            "content_md": "Au montage : remplacer par paire sur l'essieu, ne jamais graisser la surface de friction (graisse uniquement sur les points de contact mécaniques), repousser le piston avec précaution en surveillant le bocal, nettoyer et lubrifier les coulisseaux de l'étrier flottant, ne pas suspendre l'étrier par le flexible, puis réamorcer la pédale.",
+            "source_ids": [
+              "web:oscaro-erreurs",
+              "oem:zf-installation",
+              "web:oovango-erreurs"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "replacement_guidance"
+          },
+          {
+            "role": "R3_CONSEILS",
+            "section": "faq",
+            "content_md": "Quand changer ? sous environ 3 mm de garniture (minimum contrôle technique de l'ordre de 2 mm) ou au déclenchement d'un témoin. Un léger sifflement de plaquettes neuves est normal pendant le rodage ; un crissement persistant au-delà signale un montage incorrect ou une pièce inadaptée. On peut traiter un seul essieu, jamais une seule roue.",
+            "source_ids": [
+              "web:autodoc-quand-changer",
+              "web:oscaro-rodage",
+              "web:vroomly-bruit"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "faq"
+          }
+        ]
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/renault-clio-3.md",
+      "stage": "native-transform-preview-proposals",
+      "review_status": "proposed",
+      "eligible": false,
+      "payload": {
+        "entity_id": "vehicle:renault-clio-3",
+        "entity_type": "vehicle",
+        "blocks": []
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/renault-megane-3.md",
+      "stage": "native-transform-preview-proposals",
+      "review_status": "proposed",
+      "eligible": false,
+      "payload": {
+        "entity_id": "vehicle:renault-megane-3",
+        "entity_type": "vehicle",
+        "blocks": []
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/renault-scenic-ii.md",
+      "stage": "native-transform-preview-proposals",
+      "review_status": "proposed",
+      "eligible": false,
+      "payload": {
+        "entity_id": "vehicle:renault-scenic-ii",
+        "entity_type": "vehicle",
+        "blocks": [
+          {
+            "role": "R8_VEHICLE",
+            "section": "known_issues",
+            "content_md": "Moteur essence 2.0 16V (famille F4R) : bobines d'allumage et joints spi (fuite d'huile) à surveiller.",
+            "source_ids": [
+              "db:kg_engine_families"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "engine_family:f4r"
+          },
+          {
+            "role": "R8_VEHICLE",
+            "section": "known_issues",
+            "content_md": "Moteur 1.5 dCi (famille K9K, Renault-Nissan) : vanne EGR sujette à l'encrassement (perte de puissance, fumées noires), injecteurs sensibles (fuite de retour), turbo dont les paliers s'usent prématurément si les intervalles de vidange ne sont pas respectés.",
+            "source_ids": [
+              "db:kg_engine_families",
+              "db:auto_type"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "engine_family:k9k"
+          },
+          {
+            "role": "R8_VEHICLE",
+            "section": "maintenance",
+            "content_md": "Diesel : vidange + filtre à huile tous les 15 000 à 20 000 km ou 1 an ; filtre à gasoil environ 60 000 km ; contrôler la distribution selon la motorisation.",
+            "source_ids": [
+              "db:auto_type"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "fuel:diesel"
+          },
+          {
+            "role": "R8_VEHICLE",
+            "section": "maintenance",
+            "content_md": "Essence : vidange + filtre à huile tous les 15 000 à 20 000 km ou 1 an selon préconisation ; filtre à air environ 30 000 km.",
+            "source_ids": [
+              "db:auto_type"
+            ],
+            "truth_level": "sourced",
+            "usefulness_target": "fuel:essence"
+          }
+        ]
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/support-moteur.md",
+      "stage": "native-transform-preview-proposals",
+      "review_status": "proposed",
+      "eligible": false,
+      "payload": {
+        "entity_id": "gamme:support-moteur",
+        "entity_type": "gamme",
+        "blocks": [
+          {
+            "role": "R4_REFERENCE",
+            "section": "compatibility",
+            "content_md": "Compatibilité véhicule : 42 modèle(s) · marques : Audi, Citroen, Dacia, Fiat, Ford, Mercedes-benz, Mini, Peugeot, Renault, Volkswagen · carburants : Diesel, Essence · puissance 45–211 ch · années 1985–2018.",
+            "source_ids": [
+              "db:auto_type"
+            ],
+            "truth_level": "db_owned",
+            "usefulness_target": "compatibilite"
+          },
+          {
+            "role": "R4_REFERENCE",
+            "section": "related",
+            "content_md": "Pièces de la même famille d'entretien : support-de-boite-vitesse, silent-bloc, berceau-moteur, biellette-de-reprise-de-couple.",
+            "source_ids": [
+              "db:pieces_gamme"
+            ],
+            "truth_level": "db_owned",
+            "usefulness_target": "maillage"
+          }
+        ]
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/thermostat.md",
+      "stage": "native-transform-preview-proposals",
+      "review_status": "proposed",
+      "eligible": false,
+      "payload": {
+        "entity_id": "gamme:thermostat",
+        "entity_type": "gamme",
+        "blocks": [
+          {
+            "role": "R4_REFERENCE",
+            "section": "compatibility",
+            "content_md": "Compatibilité véhicule : 49 modèle(s) · marques : Bmw, Chevrolet, Citroen, Dacia, Fiat, Ford, Mercedes-benz, Nissan, Opel, Peugeot, Renault, Seat, Skoda, Volkswagen · carburants : Diesel, Essence · puissance 54–184 ch · années 1988–2018.",
+            "source_ids": [
+              "db:auto_type"
+            ],
+            "truth_level": "db_owned",
+            "usefulness_target": "compatibilite"
+          },
+          {
+            "role": "R4_REFERENCE",
+            "section": "related",
+            "content_md": "Pièces de la même famille d'entretien : radiateur-de-refroidissement, pompe-a-eau, durite-de-refroidissement, vase-d-expansion, ventilateur-de-refroidissement.",
+            "source_ids": [
+              "db:pieces_gamme"
+            ],
+            "truth_level": "db_owned",
+            "usefulness_target": "maillage"
+          }
+        ]
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/vanne-egr.md",
+      "stage": "native-transform-preview-proposals",
+      "review_status": "proposed",
+      "eligible": false,
+      "payload": {
+        "entity_id": "gamme:vanne-egr",
+        "entity_type": "gamme",
+        "blocks": [
+          {
+            "role": "R4_REFERENCE",
+            "section": "compatibility",
+            "content_md": "Compatibilité véhicule : 21 modèle(s) · marques : Citroen, Nissan, Opel, Peugeot, Renault, Volkswagen · carburants : Diesel · puissance 69–140 ch · années 1999–2014.",
+            "source_ids": [
+              "db:auto_type"
+            ],
+            "truth_level": "db_owned",
+            "usefulness_target": "compatibilite"
+          },
+          {
+            "role": "R4_REFERENCE",
+            "section": "related",
+            "content_md": "Pièces de la même famille d'entretien : catalyseur, fap, silencieux, sonde-lambda, tube-d-echappement, collecteur-d-echappement.",
+            "source_ids": [
+              "db:pieces_gamme"
+            ],
+            "truth_level": "db_owned",
+            "usefulness_target": "maillage"
+          }
+        ]
+      }
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/volkswagen-golf-6.md",
+      "stage": "native-transform-preview-proposals",
+      "review_status": "proposed",
+      "eligible": false,
+      "payload": {
+        "entity_id": "vehicle:volkswagen-golf-6",
+        "entity_type": "vehicle",
+        "blocks": []
+      }
+    }
+  ],
+  "errors": [],
+  "excluded": [
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/_index.md",
+      "reason": "navigation index or source-quality brief, not an entity fiche"
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/_quality/sources-brief.md",
+      "reason": "navigation index or source-quality brief, not an entity fiche"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/_index.md",
+      "reason": "navigation index or source-quality brief, not an entity fiche"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/_quality/sources-brief.md",
+      "reason": "navigation index or source-quality brief, not an entity fiche"
+    }
+  ]
+}

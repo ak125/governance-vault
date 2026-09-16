@@ -1,0 +1,6 @@
+Résumé des résultats observés dans les sorties outils (pas un journal brut).
+Jest --runInBand --runTestsByPath : raw-acquisition-client.service.test.ts et rag-proxy.raw-acquisition.test.ts
+Résultat : 2 suites PASS, 15 tests PASS. Avertissements ts-jest allowJs sur seo-roles/dist existant.
+ESLint --no-cache sur les cinq fichiers du lot : exit 0.
+Backend tsc --noEmit --incremental --tsBuildInfoFile /tmp/raw-acquisition-typecheck-20260912.tsbuildinfo : exit 0.
+Le fichier raw-admin-typecheck.log est vide parce que la commande n'a émis aucune erreur.

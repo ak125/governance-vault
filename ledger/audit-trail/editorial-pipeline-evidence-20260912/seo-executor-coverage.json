@@ -1,0 +1,96 @@
+{
+  "scope_requested": "Continuer la correction de la boucle de controle editorial",
+  "scope_actually_scanned": "Executants DEV visibles, bilan knowledge-jobs, scripts cron utilisateur actifs, disponibilite audit compile et consigne historique",
+  "files_read_count": 24,
+  "files": [
+    "local:CLAUDE.md",
+    "app:.claude/rules/deployment.md",
+    "app:.claude/rules/backend.md",
+    "app:.claude/rules/security-hooks.md",
+    "app:.claude/canon-mirrors/agent-exit-contract.md",
+    "app:audit/registry/canonical.json (jq filtered)",
+    "app:.claude/knowledge/REPO_MAP.md (excerpt)",
+    "app:log.md (tail 80)",
+    "app:scripts/ops/check-repo-freshness.sh",
+    "app:agents/seo-content/AGENTS.md",
+    "app:scripts/agents/validate-agents-md.sh (excerpt)",
+    "app:backend/src/modules/admin/controllers/admin-buying-guide.controller.ts",
+    "app:backend/src/modules/admin/controllers/internal-enrich.controller.ts (candidate and origin/main)",
+    "knowledge:README.md",
+    "knowledge:run.py",
+    "knowledge:collection/collect.py (excerpt)",
+    "knowledge:collection/sources.json",
+    "knowledge-state:latest.json",
+    "runtime:compiled internal-seo-audit.controller.js (route presence/hash)",
+    "runtime-rag:scripts/pipeline/auto-enrich-pipeline.sh (excerpts)",
+    "runtime-rag:scripts/pipeline/run-phase-f.sh (excerpt, not active cron)",
+    "runtime-rag:logs/auto-enrich.log (last100, filtered)",
+    "vault:seo-runtime-owner-correction.json",
+    "vault:seo-runtime-inspection-coverage-manifest.json"
+  ],
+  "additional_targeted_searches": [
+    "workspaces/seo-batch/.claude/agents/r3-keyword-planner.md",
+    "workspaces/seo-batch/.claude/skills/seo-content-loop/SKILL.md",
+    "scripts/ops",
+    "backend/src controllers",
+    "SSH host aliases (names only)"
+  ],
+  "excluded_paths": [
+    "secrets",
+    "DB/corpus mutations",
+    "runtime changes",
+    "PROD/PREPROD",
+    "notifications/publication"
+  ],
+  "unscanned_zones": [
+    "private Hermes schedules (permission denied)",
+    "system-wide cron exhaustive inventory",
+    "other users queues",
+    "useful fact capture across all pages"
+  ],
+  "corrections_proposed": [
+    "Preserve historical protocol while marking AI-COS retired",
+    "Align storedCanSkip/renderedPage/pageReviewRequired and evidence limitations",
+    "Identify page-gap-to-source handoff before any activation"
+  ],
+  "corrections_applied": [
+    "Owner-authorized candidate documentation update only: agents/seo-content/AGENTS.md"
+  ],
+  "validation_executed": [
+    "DEV health GET 200 and compiled route absence",
+    "Actual knowledge service last result success; latest report 0 eligible/0 promoted/15 blocked",
+    "Active crontab parsed excluding comments; last legacy enrichment errors read",
+    "AGENTS validator: 1 file, 0 blocks, 0 warnings",
+    "Scoped diff checks PASS; no new app tests needed for doc-only change"
+  ],
+  "remaining_unknowns": [
+    "Hermes may have another private scheduler; not excluded",
+    "No proof running endpoint includes candidate checks",
+    "No measured gap-to-capture-to-qualified-source execution",
+    "Document counts span multiple projects and do not measure editorial facts"
+  ],
+  "final_status": "PARTIAL_COVERAGE",
+  "followup_copy_clarification": {
+    "files_read_count": 4,
+    "files": [
+      "knowledge:collection/collect.py (targeted excerpts)",
+      "knowledge:collection/remote.py",
+      "collection snapshot 2026-09-12T11:05:06.988732+00:00/manifest.json",
+      "collection snapshot 2026-09-13T06:00:59.385679+00:00/manifest.json"
+    ],
+    "validation": {
+      "unchanged_content_hashes": 7325,
+      "added_hashes": 18,
+      "removed_from_inventory_hashes": 7,
+      "github_sources_reused": 4
+    },
+    "corrections_applied": [
+      "Report precision only"
+    ],
+    "remaining_unknowns": [
+      "Added inventory hashes are not evidence of new editorial facts",
+      "No network byte measurement"
+    ],
+    "final_status": "PARTIAL_COVERAGE"
+  }
+}

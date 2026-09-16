@@ -1,0 +1,6 @@
+{
+  "scope": "read-only arithmetic comparison; no truth certification or frontmatter rewrite",
+  "files_evaluated": 24,
+  "changes": [],
+  "errors": []
+}

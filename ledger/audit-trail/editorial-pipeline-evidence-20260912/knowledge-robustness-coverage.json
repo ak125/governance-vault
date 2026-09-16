@@ -1,0 +1,73 @@
+{
+  "scope_requested": "Robustesse du catalogue et fiabilite des changements avant integration",
+  "scope_actually_scanned": "Comparabilite des snapshots, attribution des entrees, generation des projections et reprise apres erreur dans le candidat isole",
+  "files_read_count": 18,
+  "files": [
+    "app:CLAUDE.md",
+    "app:.claude/canon-mirrors/agent-exit-contract.md",
+    "app:.claude/rules/guardrails.md",
+    "app:audit/registry/canonical.json (jq keys only)",
+    "app:.claude/knowledge/REPO_MAP.md (excerpt)",
+    "app:log.md (tail)",
+    "candidate:collection/collect.py",
+    "candidate:collection/test_catalogue.py",
+    "candidate:verify_projection.py",
+    "candidate:current-manifest.json",
+    "candidate:previous-manifest.json",
+    "vault:knowledge-catalogue-coverage.json",
+    "vault:2026-09-12-editorial-pipeline-codex.md (tail)",
+    "vault:CHECKPOINT.md",
+    "runtime:collect.py (hash verification)",
+    "runtime:policy.py (hash verification)",
+    "runtime:remote.py (hash verification)",
+    "runtime:sources.json (hash verification)"
+  ],
+  "excluded_paths": [
+    "runtime mutations",
+    "sources documentaires",
+    "DB",
+    "cron",
+    "deploiements",
+    "canon"
+  ],
+  "unscanned_zones": [
+    "qualification semantique du corpus",
+    "toutes les pages R",
+    "UI Obsidian",
+    "boucle editoriale de bout en bout"
+  ],
+  "corrections_proposed": [
+    "Comparer uniquement des methodes de collecte identiques et identifiables",
+    "Conserver les empreintes des inventaires",
+    "Preparer tous les fichiers avant ecriture et refuser les noms invalides"
+  ],
+  "corrections_applied": [
+    "Modifications du candidat collect.py et tests autorisees par les demandes corriger/ameliorer/continuer de l owner"
+  ],
+  "validation_executed": [
+    "5 nouveaux tests initiaux: 5 failures dont deux sous-cas et 1 error avant correction",
+    "31 tests ciblés PASS apres correction, incluant reprise apres OSError simulee",
+    "7343 fiches/16998 provenances reconciliees; zero lien Markdown local casse; cinq vues Bases structurelles",
+    "Hashes des quatre fichiers runtime identiques aux preuves precedentes"
+  ],
+  "remaining_unknowns": [
+    "Les remplacements sont atomiques par fichier; une panne disque peut laisser temporairement un dossier mixte. La reprise est testee, pas une transaction de dossier.",
+    "Aucune qualification factuelle ou garantie de classement Google",
+    "Aucune preuve de rendu Obsidian ni integration au timer"
+  ],
+  "runtime_code_hashes": {
+    "collect.py": "3c7654c9f825159f691e5425cb66d45fa024bf9874befd4d687c4c0b33448daa",
+    "policy.py": "72547efa6bb46f3cdd9b87de71a7e77653d75f22373f32b8d3843a3b181fd166",
+    "remote.py": "0e9087707ec196334e0c40a1a627d9f204421f54bbf0661f69fb173468843f50",
+    "sources.json": "0b7ed4abdc040305e5296c792570a12ed0a2c1acd34a593104afdca828b8bc79"
+  },
+  "snapshot_provenance": {
+    "digest_basis": "canonical_json_utf8_sorted_keys",
+    "current_manifest_sha256": "c3851e37e245e93cda24d28d9f86d3c17307268599275ffafd0d7086cf294f10",
+    "baseline_manifest_sha256": "1f7f56614a09cced4d256d72ead6823b2c91592d0df4253aba579ce10b2072fa",
+    "policy_sha256": "72547efa6bb46f3cdd9b87de71a7e77653d75f22373f32b8d3843a3b181fd166",
+    "collector_sha256": "411dd503963a633626b7b002c4309064b2a1f0d794f23c8da980df151063e2d9"
+  },
+  "final_status": "PARTIAL_COVERAGE",
+  "bounded_status": "VALIDATED_FOR_SCOPE_ONLY"
+}

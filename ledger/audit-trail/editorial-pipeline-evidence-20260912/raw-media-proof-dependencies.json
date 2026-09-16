@@ -1,0 +1,35 @@
+{
+  "purpose": "Observed test dependencies only; not a deployable pin or security currency certification",
+  "python": "3.10.12 (main, Aug 31 2026, 10:18:17) [GCC 11.4.0]",
+  "packages": {
+    "PyYAML": "6.0.3",
+    "jsonschema": "4.26.0"
+  },
+  "binaries": [
+    {
+      "path": "/usr/bin/python3",
+      "resolved": "/usr/bin/python3.10",
+      "sha256": "a2f33a6e006989270f4340528eb61f8f97366e00a5d1b602ac8672ea44fc56ae"
+    },
+    {
+      "path": "/usr/bin/timeout",
+      "resolved": "/usr/bin/timeout",
+      "sha256": "2e3f2616d64647f6c30250f258ae350e2d21e4e413bd2c1e4f7c2d9f9c17f984"
+    },
+    {
+      "path": "/usr/bin/unshare",
+      "resolved": "/usr/bin/unshare",
+      "sha256": "9f41a192393e7a05b843ae51bd187a76e09482392d37275d796f8881db97dde6"
+    },
+    {
+      "path": "/usr/bin/ffprobe",
+      "resolved": "/usr/bin/ffprobe",
+      "sha256": "d4f3ef9c12be756793cad83dd2004d89f49c1c4094053bfbbe7e28925c8fa4fd"
+    },
+    {
+      "path": "/home/deploy/.cache/pre-commit/repo4ommmk55/golangenv-default/bin/gitleaks",
+      "resolved": "/home/deploy/.cache/pre-commit/repo4ommmk55/golangenv-default/bin/gitleaks",
+      "sha256": "9ad80c91f290c20f01904602f9c5d725e8f09d789fd58c1d32ff45f4b6ba2fac"
+    }
+  ]
+}

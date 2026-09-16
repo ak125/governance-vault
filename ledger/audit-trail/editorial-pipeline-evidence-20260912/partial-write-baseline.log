@@ -1,0 +1,178 @@
+npm warn Unknown project config "puppeteer-skip-download". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+  console.log
+    ◇ injected env (0) from .env.test // tip: ⌘ enable debugging { debug: true }
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+[32m[Nest] 554516  - [39m13/09/2026 00:51:59 [32m    LOG[39m [38;5;3m[SeoProjectionWriteProcessor] [39m[32mprojection write run=fixture-run facts=0 roles(w/n/b/r)=0/0/1/0 snapshot=H refresh=false[39m
+[32m[Nest] 554516  - [39m13/09/2026 00:51:59 [32m    LOG[39m [38;5;3m[SeoProjectionWriteProcessor] [39m[32mprojection write run=fixture-run facts=0 roles(w/n/b/r)=0/0/0/0 snapshot=none refresh=false[39m
+[32m[Nest] 554516  - [39m13/09/2026 00:51:59 [32m    LOG[39m [38;5;3m[SeoProjectionWriteProcessor] [39m[32mprojection write run=none facts=0 roles(w/n/b/r)=0/0/0/0 snapshot=none refresh=false[39m
+[32m[Nest] 554516  - [39m13/09/2026 00:51:59 [32m    LOG[39m [38;5;3m[SeoProjectionWriteProcessor] [39m[32mprojection write run=none facts=0 roles(w/n/b/r)=0/0/0/0 snapshot=none refresh=false [READ_ONLY skipped][39m
+[32m[Nest] 554516  - [39m13/09/2026 00:51:59 [32m    LOG[39m [38;5;3m[SeoProjectionWriteProcessor] [39m[32mprojection write run=none facts=0 roles(w/n/b/r)=0/0/0/0 snapshot=none refresh=false[39m
+[32m[Nest] 554516  - [39m13/09/2026 00:51:59 [32m    LOG[39m [38;5;3m[SeoProjectionWriteProcessor] [39m[32mprojection write run=fixture-run facts=0 roles(w/n/b/r)=0/1/0/0 snapshot=H refresh=false[39m
+FAIL src/modules/seo-projection/seo-projection-writer-role-scope.test.ts (17.052 s)
+  ✓ un export ambigu conserve sa preuve mais clôt le run en échec sans version active (5 ms)
+  ✓ R8 Scénic : quatre axes/sections distincts sont conservés et rejouables sans doublon
+  ✓ R8 : deux blocs du même axe et de la même section restent refusés avant écriture
+  ✓ R8 : legacy active refuse le rejeu avant facts et blocs
+  ✓ R8 : lookup failure refuse le rejeu avant facts et blocs (1 ms)
+  ✓ R8 : le controle historique respecte le role selectionne et les ID explicites (1 ms)
+  ✓ R8 : le SDK reel ne transmet aucune mutation si le preflight repond 200 (7 ms)
+  ✓ R8 : le SDK reel ne transmet aucune mutation si le preflight repond 503 (7004 ms)
+  writeEntity — facts/role decouple + role-scoping (non-negotiable)
+    ✓ trigger R3 (entité neuve) → facts written + SEULS blocs R3 écrits (jamais R4) (3 ms)
+    ✓ facts NO-OP ne saute PAS un nouveau rôle : re-trigger R4 sur export inchangé → facts noop + blocs R4 écrits, R3 intact (1 ms)
+    ✓ slurp (role absent) → facts written + TOUS les blocs (R3 + R4) écrits (1 ms)
+    ✓ facts noop + bloc du rôle noop → factsOutcome=noop ET roleOutcome=noop (0 écriture de version)
+    ✓ régression : 1er run insère 1 draft + 1 conflit (active plus fiable préservée) (1 ms)
+    ✓ régression IDEMPOTENTE : re-projeter un export régressant inchangé (draft déjà présent) → no-op, 0 draft dupliqué, 0 conflit
+    ✓ projectExports([]) → no-op observable, aucun run ouvert (job malformé/stale)
+    ✓ atomicité snapshot-first : export LISIBLE mais publication snapshot ÉCHOUE → 0 flip actif, run failed (10 ms)
+  all requested canonical roles — isolated projection and replay
+    ✓ R1_ROUTER writes only its block when shared facts are unchanged (1 ms)
+    ✓ R2_PRODUCT writes only its block when shared facts are unchanged
+    ✓ R3_CONSEILS writes only its block when shared facts are unchanged (1 ms)
+    ✓ R6_GUIDE_ACHAT writes only its block when shared facts are unchanged
+    ✓ R7_BRAND writes only its block when shared facts are unchanged
+    ✓ R8_VEHICLE writes only its block when shared facts are unchanged
+    ✓ R1_ROUTER unchanged replay creates no new content version
+    ✓ R2_PRODUCT unchanged replay creates no new content version
+    ✓ R3_CONSEILS unchanged replay creates no new content version
+    ✓ R6_GUIDE_ACHAT unchanged replay creates no new content version
+    ✓ R7_BRAND unchanged replay creates no new content version
+    ✓ R8_VEHICLE unchanged replay creates no new content version
+  identité des octets archivés et projetés
+    ✓ un changement du fichier after-open-run ne remplace pas les octets capturés (6 ms)
+    ✓ un changement du fichier after-snapshot ne remplace pas les octets capturés (3 ms)
+  capture incomplète ou archive ambiguë
+    ✓ missing-later-input refuse le lot avant toute version active (1 ms)
+    ✓ duplicate-basename refuse le lot avant toute version active (1 ms)
+  identité non ambiguë des blocs avant toute écriture
+    ✓ sections normalisées : refus sans upsert ni version, même en mode mono-rôle (16 ms)
+    ✓ section et index positionnel : refus sans upsert ni version, même en mode mono-rôle
+    ✓ block_kind explicite : refus sans upsert ni version, même en mode mono-rôle
+    ✓ identifiant explicite partagé entre rôles : refus sans upsert ni version, même en mode mono-rôle
+    ✓ deux sections de même nom dans des rôles différents gardent des identifiants distincts
+    ✓ un doublon limité à un autre rôle ne bloque pas le rôle demandé (1 ms)
+    ✓ le mode tous rôles refuse aussi le doublon présent en fin de tableau
+  writer transactional replacement hookup
+    ✓ uses the guarded native RPC with exact source, provenance, version and predecessor; no direct version/pointer mutation (2 ms)
+    ✓ missing RPC fails without direct-write fallback
+    ✓ stale version fails without direct-write fallback (1 ms)
+    ✓ empty RPC result fails without direct-write fallback
+    ✓ false commit fails without direct-write fallback (1 ms)
+    ✓ event read failure fails without direct-write fallback
+    ✓ active read failure fails without direct-write fallback (1 ms)
+    ✓ identity read failure fails without direct-write fallback
+    ✓ refuses changed ownership, retained withdrawn rows and inconsistent pointers
+    ✓ refuses changed ownership, retained withdrawn rows and inconsistent pointers (1 ms)
+    ✓ refuses changed ownership, retained withdrawn rows and inconsistent pointers
+    ✓ honors the native RPC guard and never bypasses its rejection (1 ms)
+    ✓ a concurrent creation conflict cannot overwrite an existing block
+    ✓ snapshot attachment attached is checked before content writes through public writer (5 ms)
+    ✓ snapshot attachment error is checked before content writes through public writer (4 ms)
+    ✓ snapshot attachment missing-row is checked before content writes through public writer (3 ms)
+    ✓ snapshot attachment rpc-error is checked before content writes through public writer (4 ms)
+  partial write progress reaches the refresh queue and Bull failure state
+    ✕ preserves committed facts when the next block fails (5 ms)
+    ✕ preserves committed blocks when the next block fails (4 ms)
+    ✕ blocked is reported without a false refresh (2 ms)
+    ✕ snapshot-failed is reported without a false refresh
+    ✕ open-run-failed is reported without a false refresh
+    ✓ readonly is reported without a false refresh
+    ✓ empty is reported without a false refresh (1 ms)
+    ✓ noop is reported without a false refresh
+
+  ● partial write progress reaches the refresh queue and Bull failure state › preserves committed facts when the next block fails
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 1
+    Received: 0
+
+      1343 |       expect(result.rolesBlocked).toBe(1);
+      1344 |       expect(result.rolesWritten).toBe(0); // Status partition stays truthful.
+    > 1345 |       expect(result.entitiesWritten).toBe(mode === 'facts' ? 1 : 0);
+           |                                      ^
+      1346 |       expect(result.outcomes[0].blocksWritten ?? 0).toBe(mode === 'blocks' ? 1 : 0);
+      1347 |       expect(result.outcomes[0].factsOutcome).toBe(mode === 'facts' ? 'written' : 'noop');
+      1348 |       const close = ops.find(o => o.table === '__seo_projection_runs' && o.payload.status === 'failed');
+
+      at src/modules/seo-projection/seo-projection-writer-role-scope.test.ts:1345:38
+
+  ● partial write progress reaches the refresh queue and Bull failure state › preserves committed blocks when the next block fails
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 1
+    Received: 0
+
+      1344 |       expect(result.rolesWritten).toBe(0); // Status partition stays truthful.
+      1345 |       expect(result.entitiesWritten).toBe(mode === 'facts' ? 1 : 0);
+    > 1346 |       expect(result.outcomes[0].blocksWritten ?? 0).toBe(mode === 'blocks' ? 1 : 0);
+           |                                                     ^
+      1347 |       expect(result.outcomes[0].factsOutcome).toBe(mode === 'facts' ? 'written' : 'noop');
+      1348 |       const close = ops.find(o => o.table === '__seo_projection_runs' && o.payload.status === 'failed');
+      1349 |       expect(close?.payload.entities_written).toBe(mode === 'facts' ? 1 : 0);
+
+      at src/modules/seo-projection/seo-projection-writer-role-scope.test.ts:1346:53
+
+  ● partial write progress reaches the refresh queue and Bull failure state › blocked is reported without a false refresh
+
+    expect(received).rejects.toThrow()
+
+    Received promise resolved instead of rejected
+    Resolved to value: {"entitiesWritten": 0, "outcomes": [], "readOnlySkipped": false, "refreshEnqueued": false, "rolesBlocked": 1, "rolesNoop": 0, "rolesRegressed": 0, "rolesWritten": 0, "runId": "fixture-run", "snapshot": {"hash": "H", "uri": "fixture://snapshot"}, "triggeredBy": "manual"}
+
+      1378 |     const processor = new SeoProjectionWriteProcessor({ projectExports: jest.fn().mockResolvedValue(result) } as unknown as SeoProjectionWriterService, { add } as unknown as Queue);
+      1379 |     const promise = processor.handle({ data: { exportPaths: mode === 'empty' ? [] : ['fixture.json'] } } as Job<ProjectionWriteJobData>);
+    > 1380 |     if (['blocked', 'snapshot-failed', 'open-run-failed'].includes(mode)) await expect(promise).rejects.toThrow();
+           |                                                                                 ^
+      1381 |     else await expect(promise).resolves.toEqual(result);
+      1382 |     expect(add).not.toHaveBeenCalled();
+      1383 |   });
+
+      at expect (../../../../node_modules/expect/build/index.js:113:15)
+      at src/modules/seo-projection/seo-projection-writer-role-scope.test.ts:1380:81
+
+  ● partial write progress reaches the refresh queue and Bull failure state › snapshot-failed is reported without a false refresh
+
+    expect(received).rejects.toThrow()
+
+    Received promise resolved instead of rejected
+    Resolved to value: {"entitiesWritten": 0, "outcomes": [], "readOnlySkipped": false, "refreshEnqueued": false, "rolesBlocked": 0, "rolesNoop": 0, "rolesRegressed": 0, "rolesWritten": 0, "runId": "fixture-run", "snapshot": null, "triggeredBy": "manual"}
+
+      1378 |     const processor = new SeoProjectionWriteProcessor({ projectExports: jest.fn().mockResolvedValue(result) } as unknown as SeoProjectionWriterService, { add } as unknown as Queue);
+      1379 |     const promise = processor.handle({ data: { exportPaths: mode === 'empty' ? [] : ['fixture.json'] } } as Job<ProjectionWriteJobData>);
+    > 1380 |     if (['blocked', 'snapshot-failed', 'open-run-failed'].includes(mode)) await expect(promise).rejects.toThrow();
+           |                                                                                 ^
+      1381 |     else await expect(promise).resolves.toEqual(result);
+      1382 |     expect(add).not.toHaveBeenCalled();
+      1383 |   });
+
+      at expect (../../../../node_modules/expect/build/index.js:113:15)
+      at src/modules/seo-projection/seo-projection-writer-role-scope.test.ts:1380:81
+
+  ● partial write progress reaches the refresh queue and Bull failure state › open-run-failed is reported without a false refresh
+
+    expect(received).rejects.toThrow()
+
+    Received promise resolved instead of rejected
+    Resolved to value: {"entitiesWritten": 0, "outcomes": [], "readOnlySkipped": false, "refreshEnqueued": false, "rolesBlocked": 0, "rolesNoop": 0, "rolesRegressed": 0, "rolesWritten": 0, "runId": null, "snapshot": null, "triggeredBy": "manual"}
+
+      1378 |     const processor = new SeoProjectionWriteProcessor({ projectExports: jest.fn().mockResolvedValue(result) } as unknown as SeoProjectionWriterService, { add } as unknown as Queue);
+      1379 |     const promise = processor.handle({ data: { exportPaths: mode === 'empty' ? [] : ['fixture.json'] } } as Job<ProjectionWriteJobData>);
+    > 1380 |     if (['blocked', 'snapshot-failed', 'open-run-failed'].includes(mode)) await expect(promise).rejects.toThrow();
+           |                                                                                 ^
+      1381 |     else await expect(promise).resolves.toEqual(result);
+      1382 |     expect(add).not.toHaveBeenCalled();
+      1383 |   });
+
+      at expect (../../../../node_modules/expect/build/index.js:113:15)
+      at src/modules/seo-projection/seo-projection-writer-role-scope.test.ts:1380:81
+
+Test Suites: 1 failed, 1 total
+Tests:       5 failed, 59 passed, 64 total
+Snapshots:   0 total
+Time:        17.248 s, estimated 19 s
+Ran all test suites matching /src\/modules\/seo-projection\/seo-projection-writer-role-scope.test.ts/i.

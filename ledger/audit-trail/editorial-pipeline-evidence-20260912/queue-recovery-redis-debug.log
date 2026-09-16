@@ -1,0 +1,21 @@
+npm warn Unknown project config "puppeteer-skip-download". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+  console.log
+    ◇ injected env (0) from .env.test // tip: ⌁ auth for agents [www.vestauth.com]
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+[31m[Nest] 584448  - [39m13/09/2026 01:43:35 [31m  ERROR[39m [38;5;3m[SeoProjectionRefreshProcessor] [39m[31mprojection-refresh job projection-refresh-singleton failed: injected RPC failure[39m
+PASS src/modules/seo-projection/seo-projection-refresh-redis.test.ts (16.175 s)
+  refresh recovery — real Redis and native Nest/Bull hooks
+    ✓ characterizes the old gap: adding an active singleton does not create a successor (30 ms)
+    ✓ native completed hook schedules late work after the singleton has been removed (577 ms)
+    ✓ a producer after the completion lookup can still enqueue the released singleton (545 ms)
+    ✓ boot reconciles committed backlog with no queued job or new writer run (1148 ms)
+    ✓ boot coalesces with a job persisted before the old queue connection closed (536 ms)
+    ✓ RPC failure uses native bounded retry, then acknowledges the backlog (566 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       6 passed, 6 total
+Snapshots:   0 total
+Time:        16.357 s
+Ran all test suites matching /src\/modules\/seo-projection\/seo-projection-refresh-redis.test.ts/i.

@@ -1,0 +1,151 @@
+{
+  "heads": {
+    "/opt/automecanik/wiki-auto-validation": "01cea8deda48d84b6a2993cd4bdefe8280082c0b",
+    "/opt/automecanik/wiki-editorial-qualification-20260912": "01cea8deda48d84b6a2993cd4bdefe8280082c0b"
+  },
+  "files_read": 58,
+  "errors": [
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/_index.md",
+      "error": "wiki source lacks frontmatter: /opt/automecanik/wiki-auto-validation/proposals/_index.md"
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/_index.md",
+      "error": "wiki source lacks frontmatter: /opt/automecanik/wiki-editorial-qualification-20260912/proposals/_index.md"
+    }
+  ],
+  "counts": {
+    "existing-export": {
+      "documents": 6,
+      "blocks": 4
+    },
+    "native-transform-preview-wiki": {
+      "documents": 18,
+      "blocks": 4
+    },
+    "native-transform-preview-proposals": {
+      "documents": 30,
+      "blocks": 78
+    }
+  },
+  "collisions": [
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/renault-scenic-ii.md",
+      "stage": "native-transform-preview-proposals",
+      "review_status": "proposed",
+      "eligible": false,
+      "entity_id": "vehicle:renault-scenic-ii",
+      "blockId": "vehicle:renault-scenic-ii#R8_VEHICLE#known-issues",
+      "classification": "different-text",
+      "blocks": [
+        {
+          "index": 0,
+          "role": "R8_VEHICLE",
+          "section": "known_issues",
+          "usefulness_target": "engine_family:f4r",
+          "blockId": "vehicle:renault-scenic-ii#R8_VEHICLE#known-issues",
+          "contentHash": "afb4b9877ac6ce4992ba616524f8c8189aefa70dc90449b413baac233577e4b4",
+          "textHash": "446f254189654437b0b809fae12b9a37f8c3876958607c324ff55c5fee4bcff1"
+        },
+        {
+          "index": 1,
+          "role": "R8_VEHICLE",
+          "section": "known_issues",
+          "usefulness_target": "engine_family:k9k",
+          "blockId": "vehicle:renault-scenic-ii#R8_VEHICLE#known-issues",
+          "contentHash": "3c6c075dddcc185aa25bf749b6883759a503b5c657a1d99fea35d823757c7987",
+          "textHash": "b7f6b2d180ec5d8abfd3616a3b5f7e241194e0ed295f92ff4ac403ddcae21533"
+        }
+      ]
+    },
+    {
+      "path": "/opt/automecanik/wiki-auto-validation/proposals/renault-scenic-ii.md",
+      "stage": "native-transform-preview-proposals",
+      "review_status": "proposed",
+      "eligible": false,
+      "entity_id": "vehicle:renault-scenic-ii",
+      "blockId": "vehicle:renault-scenic-ii#R8_VEHICLE#maintenance",
+      "classification": "different-text",
+      "blocks": [
+        {
+          "index": 2,
+          "role": "R8_VEHICLE",
+          "section": "maintenance",
+          "usefulness_target": "fuel:diesel",
+          "blockId": "vehicle:renault-scenic-ii#R8_VEHICLE#maintenance",
+          "contentHash": "45f5a129b939c415f291d786ee0f07fa8e870940c2b98a639b40ca2f752da36e",
+          "textHash": "4266cc0ef1ec48f07c8de5e40bf3d1f124f88c714d101d2dfa379a90f39f0d14"
+        },
+        {
+          "index": 3,
+          "role": "R8_VEHICLE",
+          "section": "maintenance",
+          "usefulness_target": "fuel:essence",
+          "blockId": "vehicle:renault-scenic-ii#R8_VEHICLE#maintenance",
+          "contentHash": "51acd5d04a15232dc5c2dd0e88cec6aaf598e2dfee75fbad9040dfc8a6677277",
+          "textHash": "1b0e954ec6b4521cd2a52f53f3edbef8ae4e34181026bd985e338ff5b21c4f7b"
+        }
+      ]
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/renault-scenic-ii.md",
+      "stage": "native-transform-preview-proposals",
+      "review_status": "proposed",
+      "eligible": false,
+      "entity_id": "vehicle:renault-scenic-ii",
+      "blockId": "vehicle:renault-scenic-ii#R8_VEHICLE#known-issues",
+      "classification": "different-text",
+      "blocks": [
+        {
+          "index": 0,
+          "role": "R8_VEHICLE",
+          "section": "known_issues",
+          "usefulness_target": "engine_family:f4r",
+          "blockId": "vehicle:renault-scenic-ii#R8_VEHICLE#known-issues",
+          "contentHash": "afb4b9877ac6ce4992ba616524f8c8189aefa70dc90449b413baac233577e4b4",
+          "textHash": "446f254189654437b0b809fae12b9a37f8c3876958607c324ff55c5fee4bcff1"
+        },
+        {
+          "index": 1,
+          "role": "R8_VEHICLE",
+          "section": "known_issues",
+          "usefulness_target": "engine_family:k9k",
+          "blockId": "vehicle:renault-scenic-ii#R8_VEHICLE#known-issues",
+          "contentHash": "3c6c075dddcc185aa25bf749b6883759a503b5c657a1d99fea35d823757c7987",
+          "textHash": "b7f6b2d180ec5d8abfd3616a3b5f7e241194e0ed295f92ff4ac403ddcae21533"
+        }
+      ]
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/renault-scenic-ii.md",
+      "stage": "native-transform-preview-proposals",
+      "review_status": "proposed",
+      "eligible": false,
+      "entity_id": "vehicle:renault-scenic-ii",
+      "blockId": "vehicle:renault-scenic-ii#R8_VEHICLE#maintenance",
+      "classification": "different-text",
+      "blocks": [
+        {
+          "index": 2,
+          "role": "R8_VEHICLE",
+          "section": "maintenance",
+          "usefulness_target": "fuel:diesel",
+          "blockId": "vehicle:renault-scenic-ii#R8_VEHICLE#maintenance",
+          "contentHash": "45f5a129b939c415f291d786ee0f07fa8e870940c2b98a639b40ca2f752da36e",
+          "textHash": "4266cc0ef1ec48f07c8de5e40bf3d1f124f88c714d101d2dfa379a90f39f0d14"
+        },
+        {
+          "index": 3,
+          "role": "R8_VEHICLE",
+          "section": "maintenance",
+          "usefulness_target": "fuel:essence",
+          "blockId": "vehicle:renault-scenic-ii#R8_VEHICLE#maintenance",
+          "contentHash": "51acd5d04a15232dc5c2dd0e88cec6aaf598e2dfee75fbad9040dfc8a6677277",
+          "textHash": "1b0e954ec6b4521cd2a52f53f3edbef8ae4e34181026bd985e338ff5b21c4f7b"
+        }
+      ]
+    }
+  ],
+  "identicalContentDifferentIds": [],
+  "sameSectionDifferentRoles": []
+}

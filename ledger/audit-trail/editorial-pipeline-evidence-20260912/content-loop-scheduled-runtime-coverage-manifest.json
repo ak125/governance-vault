@@ -1,0 +1,66 @@
+{
+  "observed_date": "2026-09-13",
+  "scope_requested": "Identifier declenchement et dernier passage de la boucle",
+  "scope_actually_scanned": "Timers/cron DEV, workflows wiki/raw, programme knowledge-jobs et trois rapports recents; integration tests pilote dans CI candidate",
+  "files_read_count": 14,
+  "files": [
+    "wiki:.github/workflows/wiki-quality-gates.yml",
+    "wiki:.github/workflows/agent-exit-contract-hash.yml (schedule excerpt)",
+    "raw:.github/workflows/jcs-parity.yml (schedule excerpt)",
+    "raw:.github/workflows/agent-exit-contract-hash.yml (schedule excerpt)",
+    "host:/home/deploy/.local/lib/knowledge-jobs/run.py",
+    "host:/home/deploy/.local/lib/knowledge-jobs/collection/sources.json",
+    "host:/home/deploy/.local/lib/knowledge-jobs/collection/collect.py (write/collection scope)",
+    "host:/home/deploy/.local/state/knowledge-jobs/latest.json",
+    "host:/home/deploy/.local/state/knowledge-jobs/runs/20260913T060059.292712Z/wiki-apply.stdout.json",
+    "host:/home/deploy/.local/state/knowledge-jobs/runs/20260913T060059.292712Z/revisions.json",
+    "host:/home/deploy/.local/state/knowledge-jobs/runs/20260912T110200.687126Z/summary.json",
+    "host:/home/deploy/.local/state/knowledge-jobs/runs/20260912T110506.900528Z/summary.json",
+    "host:/home/deploy/.local/state/knowledge-jobs/runs/20260913T060059.292712Z/summary.json",
+    "runtime-wiki:_scripts/compute-confidence-score.py (function inventory)"
+  ],
+  "operational_inputs": [
+    "systemd timers system/user et proprietes allowlistees",
+    "crontab deploy et /etc/crontab/cron.d lisibles, chemins scripts seuls"
+  ],
+  "corrections_applied": [
+    "CI WIKI existante inclut test_raw_to_wiki_content_loop_pilot.py avec tests promoteur/decideur",
+    "Suivi corrige: declencheur quotidien collection+promotion identifie, plus inconnu global"
+  ],
+  "corrections_proposed": [
+    "Relier manques de preuve a recherche/capture de sources automobiles puis propositions qualifiees",
+    "Expliquer/calibrer moteur legacy et mesure secondaire a partir preuves fraiches; pas de flip ou seuil abaisse",
+    "Prouver export/projection/rendu effectifs apres qualification"
+  ],
+  "validation_executed": {
+    "live": "Timer enabled, dernier run exit0 et rapport lu; 0 eligible/0 promoted/15 blocked",
+    "ci_candidate": "YAML parse, chemins3 tests et diff-check PASS; meme ensemble143 tests precedemment verts, fichiers/configuration tests inchanges",
+    "not_run": "Job non relance, aucun apply/push/PR/notification effectue par cette inspection"
+  },
+  "excluded_paths": [
+    "Autres machines non inspectees",
+    "Donnees clients/DB",
+    "Mutations programme runtime",
+    "PROD/PREPROD",
+    "Activation ou modification gate"
+  ],
+  "unscanned_zones": [
+    "Pipeline automobile externe eventuel",
+    "Qualite factuelle des15 fiches",
+    "Export projection rendu actifs",
+    "CI GitHub du candidat non publie"
+  ],
+  "remaining_unknowns": [
+    "Collection depots ne constitue pas enrichissement du contenu",
+    "Code de sortie success signifie evaluation executee; statut validated du resume ne signifie pas15 fiches acceptees",
+    "91 secondaire et0.46 legacy mesurent differemment; manifeste secondaire stale interdit conclusion optimiste",
+    "Duplicates du collecteur = occurrences documentaires inter-copies, pas duplicate SEO"
+  ],
+  "patch_sha256": "f44ffc12a9e62c545913e1e00f7b77b16ee9d50fbb6715b83c9c1cb73ba67ac6",
+  "patch_scope": "Une ligne CI delta sur index precedent; autres modifications candidates conservees",
+  "evidence": [
+    "content-loop-scheduled-runtime-evidence.json",
+    "content-loop-scheduled-runtime-ci.patch"
+  ],
+  "final_status": "PARTIAL_COVERAGE"
+}

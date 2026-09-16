@@ -1,0 +1,317 @@
+diff --git a/workspaces/seo-batch/.claude/rules/seo-batch.md b/workspaces/seo-batch/.claude/rules/seo-batch.md
+index d302af024..9331a6355 100644
+--- a/workspaces/seo-batch/.claude/rules/seo-batch.md
++++ b/workspaces/seo-batch/.claude/rules/seo-batch.md
+@@ -4,10 +4,14 @@ S'applique aux runs depuis `workspaces/seo-batch/`. Complète (sans les remplace
+ 
+ ## Sources de vérité
+ 
+-- **RAG knowledge** : `/opt/automecanik/rag/knowledge/` (gammes `.md`, vehicles, constructeurs). **Ne jamais seed du contenu métier depuis le LLM** — incident breezy-eagle 2026-04-18, 350 entrées rollback.
++- **Contenu éditorial** : WIKI validé et exports/projections autorisés, selon le contrat racine (ADR-031/046/059). RAW conserve les sources ; RAG consomme pour le chatbot et ne produit pas le contenu SEO. Ne jamais inventer de contenu métier depuis le LLM.
+ - **DB Supabase** via MCP (`mcp__supabase__execute_sql` ou `mcp__claude_ai_Supabase__execute_sql`). Tables : `__seo_*`, `__rag_*`, `__pg_*`, `__diag_*`, `__blog_*`. Pas de DROP/TRUNCATE sans validation humaine.
+ - **Vault gouvernance** : `/opt/automecanik/governance-vault/ledger/knowledge/` pour les recettes canon (V-Level, KW pipeline, gamme audit).
+ 
++Pour conduire la boucle, lire `.claude/skills/seo-content-loop/SKILL.md` depuis la racine
++du workspace et revérifier ses références courantes avant toute validation. Les statuts
++KW historiques ci-dessous ne constituent pas une autorisation de production depuis RAG.
++
+ ## Pièges DB connus
+ 
+ - `gamme_aggregates` (241 lignes, RLS active) : **jamais caster `sgc_id` en `timestamptz`**. Utiliser `sg_updated_at` pour les filtres temporels.
+@@ -26,10 +30,10 @@ S'applique aux runs depuis `workspaces/seo-batch/`. Complète (sans les remplace
+ ## Anti-patterns SEO
+ 
+ - **Pas de scrape "parts-feed"** (catalogue fournisseur) sans recipe canon. Termes neutres uniquement dans nouveaux fichiers (jamais "tecdoc" dans contenus créés ici).
+-- **Pas de commit de contenu seedé** — toute génération R1-R8 doit s'appuyer sur RAG `.md` + KW DB, pas sur l'imagination du LLM.
++- **Pas de commit de contenu inventé** — toute génération s'appuie sur le WIKI validé et les données métier autorisées pour son rôle. Les KW DB renseignent la demande ; ils ne prouvent pas une affirmation et ne constituent pas automatiquement un terme produit.
+ - **Pas de trigger sitemap** (`POST /api/sitemap/v10/generate-all`) sans validation explicite. Incident 2026-04-18.
+ - **R7 vs R8** : R7 = hub marque transversal. R8 = page véhicule (modele/motorisation/type_id). Ne **jamais** dériver R8 vers une page gamme.
+ 
+ ## Contrat de sortie agents
+ 
+-`./agent-exit-contract.md` — règle non-négociable applicable à tous les agents R*.
++`.claude/canon-mirrors/agent-exit-contract.md` depuis la racine du workspace — contrat de sortie applicable à tous les agents R*.
+diff --git a/workspaces/seo-batch/.claude/skills/seo-content-loop/SKILL.md b/workspaces/seo-batch/.claude/skills/seo-content-loop/SKILL.md
+index 1bf46bfb3..239fbb728 100644
+--- a/workspaces/seo-batch/.claude/skills/seo-content-loop/SKILL.md
++++ b/workspaces/seo-batch/.claude/skills/seo-content-loop/SKILL.md
+@@ -1,130 +1,127 @@
+ ---
+ name: seo-content-loop
+-description: "Méthode opératoire canonique du contenu SEO AutoMecanik : la BOUCLE scraping LARGE → RAW → WIKI → CONSUMER → mesure SCORE → itérer jusqu'au score. NO-RAG (RAG = chatbot only). Pointe vers le canon vault (ADR-031/046/059/083/086), ne le duplique pas. Use when: planifier/exécuter du contenu R1-R8, enrichir une gamme/motorisation, débloquer le pipeline, ou décider 'comment produire du contenu qui ranke'."
++description: "Piloter la boucle éditoriale SEO AutoMecanik : sources utiles, RAW, WIKI validé, projection et contrôle des pages. Vérifier règles applicables, preuves, scores et doublons avant de conclure. À utiliser pour enrichir une gamme ou un véhicule, diagnostiquer la boucle ou évaluer la qualité du contenu. RAG réservé au chatbot ; aucune garantie de classement."
+ license: Internal - Automecanik
+-version: "1.0"
++version: "1.1"
+ argument-hint: "[gamme-name | vehicle-slug | status]"
+ disable-model-invocation: false
+ allowed-tools: mcp__claude_ai_Supabase__execute_sql, Read, Glob, Grep, Bash
+ ---
+ 
+-# SEO Content Loop — la boucle canonique du contenu (NO-RAG)
+-
+-> **Skill = méthode opératoire, PAS canon.** La gouvernance vit au **vault** :
+-> ADR-031 (raw/wiki/rag/seo separation) · ADR-046 (RAG = retrieval chatbot only) ·
+-> ADR-059 (SEO Runtime Projection) · ADR-083 (tiered WIKI promotion) · ADR-086 (Content Excellence Contract).
+-> Ce skill **pointe** vers eux, ne les réécrit jamais.
+-
+-## Axiome n°0 (non-négociable)
+-> **Le contenu ne crée jamais l'information.** Il structure, clarifie, expose ce qui est **sourcé et vérifié**.
+-> En cas de doute : s'abstenir. Jamais d'invention LLM, jamais de number-swapping, jamais de filler générique.
+-
+-## La BOUCLE (ordre non négociable)
+-
+-```
+-SCRAPING LARGE (RUN_TARGETED_RAW_TO_WIKI) → RAW → WIKI → score SUBSTANCE (shadow, sur le WIKI)
+-  → revue/promotion → export → projection data → CONSUMER (R1/R2/R8) → resolver balises
+-  → CONSTRUIRE le scorer SEO surface (shadow) → composition R2 → rendu SSR → EXÉCUTER le score surface
+-  → audit cluster (intra + cross-gamme) → calibration → correction → re-passage → outcome
+-```
+-
+-> **2 scores à 2 étapes** : substance (sur le WIKI, tôt) ≠ surface SEO (après composition+rendu, tard) ;
+-> **construire le scorer ≠ l'exécuter**. Verdict terminal de page = `PAGE_QUALITY_COMPOSITE_PASS`
+-> (ADR-094, **shadow/gated** jusqu'à calibration — cf. §« scoring en transition » plus bas).
+-
+-1. **SCRAPING LARGE** (web → `automecanik-raw/sources/web-research/<gamme>/`) — la 1ʳᵉ étape, pas RAW directement.
+-   - **Méthode de scraping = run web-research `RUN_TARGETED_RAW_TO_WIKI <gamme>`** (label du run, pas un CLI) :
+-     **N agents web-research read-only parallèles**, sources FR auto, **anti-pollution** (faits **reformulés**,
+-     non verbatim), **chaque fait cité + confidence-rated**. **Sortie structurée mappée aux champs WIKI**
+-     (`target_wiki_field`) : `selection-criteria.md` · `common-mistakes.md` · `compatibility-technical.md` ·
+-     `price-quality-brands.md` · `faq-symptoms.md` + `source-index.json` (provenance) + `extraction-report.json`
+-     (run, contradictions **à valider humainement**, governance). `verification_status: draft` → **validation
+-     humaine REQUISE** avant promotion WIKI ; **0 publication**, **0 invention**. **Template livré (preuve)** :
+-     `automecanik-raw/sources/web-research/colonne-de-direction/` (pg 1211, 31 sources).
+-   - Le handoff `raw-to-wiki` (état **PARTIAL**, gate **`human_review_required`**) est tracé dans la projection
+-     **de référence** (non-canon) `.spec/00-canon/ai-registry/agent-operating-map.yaml` ; le **canon** est au
+-     vault (**ADR-031** raw→wiki, **ADR-059** projection, **ADR-083** promotion tiered).
+-   - **PROFONDEUR > LARGEUR (gravé 2026-06-15, [[feedback_rank_1_objective_and_content_excellence_bar]])** :
+-     re-synthétiser les **mêmes blogs distributeurs/médias qui rankent déjà** (Oscaro/Vroomly/Mister-Auto…) = contenu
+-     **dérivé** → **ne dépasse jamais ce qu'il recopie** → ne rank JAMAIS #1. Viser à **BATTRE** le SERP : **sources
+-     primaires/autoritaires** (OE technique/datasheets, **texte réglementaire brut** UNECE/ISO/SAE, registres
+-     FMSI/WVA), **data réelle**, angles/comparatifs uniques, et la **data catalogue AutoMecanik par véhicule**
+-     (réf/fitment/specs — l'edge que les concurrents n'ont pas). **Motorisation-aware** = condition des variants R2.
+-   - **LARGE et comprehensif** : multi-source, **par gamme ET par motorisation**, **saturer tout l'espace du
+-     sujet**. **OBJECTIF = RANKER #1**. JAMAIS de gap-filling myope (ne pas s'isoler sur un champ/une norme).
+-   - Angles à saturer : rôle, symptômes, diagnostic, procédure, critères de choix, **qualité + équipementiers
+-     réels**, normes, comparatifs, **PAA / People-Also-Ask**, prix, compatibilité, **problèmes par code moteur**,
+-     OEM/OE, durées de vie, couples (sourcés).
+-   - Cible = **`sources/`** (primaire, append-only, **URL citable + manifest**). **JAMAIS** `recycled/rag-knowledge/`.
+-     **NE PAS** lancer les legacy `download-oem-corpus.py` / `rag-enrich-*` / `ingest-oem-*` (= content-RAG abandonné).
+-   - **Découverte des sources par ENTITÉ (data-driven — « les chercher », pas les deviner)** :
+-     - **Gamme** : les bons équipementiers **DIFFÈRENT par gamme** (amortisseur = Bilstein/Sachs/Monroe · embrayage =
+-       Sachs/LuK/Valeo · filtration = Mann/Mahle/Wix · freinage = Brembo/ATE/Textar — **aucun chevauchement**). Les
+-       **dériver du CATALOGUE** (autorité), jamais de mémoire : `pieces ⋈ pieces_marque` filtré par
+-       `pieces_gamme.pg_alias`, classé `pm_oes DESC, pm_nb_stars DESC` → équipementiers réels, **OES en tête**. Puis
+-       marque → **site technique** : vérifié (seed = inventaire `__rag_web_ingest_jobs`, **URLs only, PAS le contenu
+-       RAG**) sinon **DISCOVER** par recherche — **jamais d'URL fabriquée**.
+-     - **Véhicule (R8)** : fiches-auto.fr (fiabilité/pannes **par code moteur**) + caradisiac.com (specs ; slug = slug
+-       fiche wiki → templatable) + forums véhicule. fiches-auto = **DISCOVER** (id interne non-dérivable).
+-     - **Diagnostic** : sources symptômes→causes (codes OBD/VAG, constructeur, forums techniques) — à découvrir de même.
+-     - **Dédup + refresh** : chaque cible scrapée **une seule fois** (manifest type `app/audit/scrape-targets-*.md`) ;
+-       rafraîchir périodiquement. Sortie toujours **`.md`** par `target_wiki_field` (cf. ci-dessus).
+-   - **Mesure de la substance produite (complète l'étape 5) — ⚠️ SCORING EN TRANSITION + ⚠️ ÉTAT RUNTIME À VÉRIFIER SUR `origin/main`** :
+-     - **Ne pas traiter ce skill comme une vérité runtime figée.** Les scorers + la porte de promotion du wiki
+-       (`_scripts/compute-confidence-score.py`, `_scripts/promote.py` ADR-083 TIER A/B, `_scripts/shadow_score.py` ADR-088 6-dim
+-       derrière flag `PROMOTE_GATE_ENGINE`, gate régression `compare-proposal-versions.py`) **évoluent vite et peuvent être
+-       absents ou différents sur un checkout périmé** (incident 2026-07-02 : checkout wiki 31+ commits derrière `origin/main`).
+-       **AVANT de t'appuyer sur eux** : (1) lancer la garde de fraîcheur `scripts/ops/check-repo-freshness.sh <chemin-wiki> origin/main`
+-       (racine monorepo) — si `STALE`, ne conclus pas sur le vieux code ; (2) lire l'état réel via
+-       `git -C <chemin-wiki> show origin/main:_scripts/<fichier>` (présence + statut de câblage + seuil). **En cas de conflit
+-       entre ce skill (dérivé) et l'état réel du repo : l'état du repo l'emporte.**
+-     - **Doctrine stable (indépendante du checkout)** : le score scalaire seul ne suffit jamais à déclarer « TIER A / fait ».
+-       La promotion reste gouvernée par la **porte tiered déterministe** (ADR-083 : TIER A auto fail-closed / TIER B humain),
+-       durcie par le scorer de substance (ADR-088, planchers par claim) et recalibrée sur `source-catalog` (ADR-091) ;
+-       **les familles sécurité (freinage/direction/airbag/suspension) restent human spot-check** (ADR-091), jamais auto.
+-       Tant que le scorer autoritaire cible n'est pas confirmé câblé **sur `origin/main`**, traiter le verdict comme **indicatif**.
+-       (Détail + plan : `app/audit/content-loop-method-confusion-and-hardening-2026-06-22.md`.)
+-2. **RAW** (`automecanik-raw/`) — normaliser/recycler le scrape en fiches sourcées (frontmatter contrat
+-   `_schemas/recycled-frontmatter.schema.json`), `verification_status` `to_verify`→`verified` (humain).
+-   `recycled/` n'est **jamais** canon (canon RAW `CLAUDE.md`).
+-3. **WIKI** (`automecanik-wiki/`) — proposer (`proposals/`), structurer aux sections ADR-086 (TIER A), export
+-   ajv. **Promotion = gouvernée ADR-083 tiered** (TIER A auto fail-closed · TIER B humain · vagues mesurées).
+-   Jamais un GO big-bang. Seul `WIKI_ACCEPTED` promu alimente PROD/indexable.
+-4. **CONSUMER** (R1/R2/R8…) — lisent la **projection WIKI→DB** (ADR-059). Flags OFF par défaut, additif,
+-   fallback explicite logué. Jamais RAG, jamais candidat non promu en PROD.
+-5. **SCORE — gate rank-#1 (l'étape qui empêche de livrer du médiocre, [[feedback_rank_1_objective_and_content_excellence_bar]])**.
+-   Les gates WIKI existants (`_scripts/gates/` : claim/source/contradiction/risk/confidence) vérifient que le contenu
+-   n'est pas **faux** — ils **ne mesurent pas l'excellence**. Ajouter une **mesure rank-#1 capable** (ancrée
+-   **ADR-086 Content Excellence Contract** + `gamme.schema` + `diversity_score`/sibling-distinctness), 5 axes :
+-   **① profondeur vs SERP** (couvre les tops +davantage) · **② autorité des sources** (primaire/OE/réglementaire vs
+-   blog secondaire) · **③ différenciation/unicité** (data/angles que les concurrents n'ont pas, dont catalogue
+-   AutoMecanik) · **④ motorisation-awareness** (permet les variants R2 + autorité R1) · **⑤ complétude topique**
+-   (entité+PAA+comparatifs+intents). **Seuil promotion = rank-#1 capable** (ex. ≥85/100, aucun axe <60).
+-   Si < seuil → **re-scraper plus PROFOND (pas plus large) / ré-enrichir → re-tourner** jusqu'au score. Jamais
+-   déclarer « fait » sans score rank-#1 capable.
+-
+-## Différenciation = réelle, sur le bon AXE (anti-bricolage)
+-- **Jamais fabriquée** : si deux sœurs (ex. 105 std vs 105 4Motion) sont proches pour une gamme, l'assumer ;
+-  différencier seulement sur les points **vérifiables** (puissance, années, 4Motion, compat, référence pièce).
+-- **Axe par famille de gamme** :
+-  - gammes **moteur** (filtration, distribution, injection, turbo, embrayage) → **code moteur + known-issues**.
+-  - gammes **châssis** (frein, suspension, direction) → **référence pièce compatible + dynamique (poids/puissance)** ;
+-    le code moteur n'y est PAS le différenciateur.
+-- Succès = « texte **utile, sourcé, non artificiel** », pas « texte différent à tout prix ».
+-
+-## INTERDITS (pièges re-rencontrés)
+-- ❌ **RAG comme source de contenu/SEO** (ADR-046). RAG = chatbot only. Interdit : `recycled/rag-knowledge/` comme
+-  source canon, scripts `download-oem-corpus.py` / `rag-enrich-*` / `ingest-oem-*` (ancienne pipeline RAG) — **NE PAS LANCER**.
+-- ❌ Inférer la stratégie du **code legacy** présent dans le repo (systèmes RAG morts encore là). Confirmer le
+-  mécanisme courant (owner / canon / pattern récemment livré), ne pas deviner.
+-- ❌ Toucher aux URLs/canonical ; muter `pg_relfollow`/`pg_display`/`pg_sitemap` ; keyword brut `__seo_keywords`
+-  comme terme produit ; casser les gates commerce R2 (sellable, `catalog_signature`, noindex 0-vendable).
+-- ❌ **Inventer un nouvel outil de scraping** ou contourner la gouvernance de `RUN_TARGETED_RAW_TO_WIKI`
+-  (sortie `draft` + validation humaine avant WIKI). Le scraping écrit en `sources/web-research/<gamme>/`,
+-  **jamais** directement en WIKI/PROD ni dans une page R sans promotion.
+-
+-## Quand l'utiliser
+-Toute tâche « produire/améliorer du contenu pour ranker » (R1-R8, gamme, motorisation), débloquer le pipeline,
+-ou trancher « comment ». Voir mémoires : `feedback_seo_content_pipeline_scrape_raw_wiki_kw`,
+-`feedback_no_rag_for_content_legacy_code_is_not_strategy`, `project_r8_content_solidity_phaseab_20260614`,
+-`reference_engine_code_mapping_auto_type_motor_code`.
++# SEO Content Loop
++
++Méthode opératoire dérivée, pas une source de gouvernance. Lire le contrat racine
++`CLAUDE.md` et les décisions courantes du vault avant un run. Les références ci-dessous
++orientent la lecture ; elles ne remplacent ni leurs amendements ni l'état du code.
++
++## Vérifier les règles avant de corriger ou valider
++
++1. Identifier l'usage : article général, choix pour un véhicule précis, procédure
++   technique ou page commerciale. Lire les règles du domaine et le registry comme
++   prescrit par le contrat racine, puis les contrats des rôles réellement concernés.
++2. Vérifier la fraîcheur des repos avec `scripts/ops/check-repo-freshness.sh` avant
++   d'interpréter un checkout externe. Comparer les fichiers concernés à `origin/main` ;
++   conserver les changements du candidat et distinguer base, candidat et runtime.
++3. Consulter au vault le statut, les amendements et les remplacements des ADRs :
++   séparation des couches (031/046/059), rôles et composition (047/066/067/070),
++   WIKI et qualité (083/086/088/089/091/092/093), découverte (096).
++   ADR-094 est une proposition de verdict composite, pas un gate actif établi.
++   ADR-095 présente un conflit de statut entre en-tête et corps ; le signaler,
++   vérifier les contrôles réellement appliqués et ne pas déduire une activation.
++4. Lire dans le WIKI courant `_meta/source-policy.md` (§9.3),
++   `_meta/quality-gates.md` (§7) et `_scripts/promotion_decision.py` :
++   la décision automatique du 12 septembre 2026 remplace la revue humaine
++   systématique. Preuve insuffisante = blocage avec motif puis réévaluation après
++   correction, sans approbation LLM ni contournement des contrôles de sécurité.
++5. Pour chaque exigence du run, relever sa référence, le contrôle existant,
++   ses tests et son état : présent, branché, activé, observé. Une contradiction
++   non résolue reste une limite explicite ; une règle proposée ne devient pas
++   obligatoire par sa copie dans ce skill.
++
++Avant de modifier un gate, appliquer `.claude/rules/guardrails.md` : lire ses tests,
++identifier son propriétaire, vérifier l'ordre d'exécution et son contrat de portée.
++Étendre les mécanismes existants. Aucun seuil arbitraire ni second décideur.
++
++## Exécuter la boucle selon les manques utiles
++
++**Besoin utilisateur → collecte RAW → proposition WIKI → décision automatique →
++export/projection → composition et rendu → contrôles SEO → résultats observés.**
++
++- Définir les informations manquantes pour l'intention et l'entité, avec preuves
++  attendues. L'article général n'a pas à résoudre les références OE, codes moteur
++  ou dimensions absents de son contenu ; la compatibilité relève du catalogue.
++  Tout conseil technique précis effectivement retenu reste soumis à ses contrôles.
++- Rechercher les sources appropriées à ces manques, en privilégiant les documents
++  primaires applicables. Dériver les équipementiers du catalogue de la gamme,
++  vérifier les sites et URLs ; ne pas inventer marques, mots-clés ou correspondances.
++  Les questions et résultats de recherche éclairent la demande, pas la vérité d'un fait.
++- Vérifier la capacité de collecte disponible : capture d'URLs fournies et découverte
++  de nouvelles sources sont deux capacités distinctes. ADR-096 cadre la découverte ;
++  sa présence ne prouve pas un moteur opérationnel. `RUN_TARGETED_RAW_TO_WIKI` est un
++  label de run, pas un CLI. Utiliser le mécanisme existant et signaler la capacité
++  manquante. Un seul agent par défaut, conformément aux instructions de session.
++- Conserver les sources RAW et leur provenance ; extraire les passages utiles avec
++  leurs références et contradictions. Vérifier l'adéquation du passage à chaque
++  affirmation, son contexte et son actualité. Une URL ou une confiance déclarée
++  ne constitue pas une preuve. Dédupliquer la collecte et tracer les rafraîchissements.
++  Ne pas copier les textes sources pour produire une page.
++- Proposer au WIKI selon ses schémas, sections canoniques et règles de preuve.
++  Réutiliser le décideur existant ; le score seul n'autorise pas la promotion.
++  Lire les motifs bloquants et corriger leurs causes. Un contrôle impossible reste
++  bloquant ; les anciens identifiants contenant `HUMAN_REVIEW` n'imposent pas à eux
++  seuls une revue humaine. La qualification WIKI n'autorise pas le diagnostic LIVE.
++- Alimenter les consommateurs uniquement par les exports/projections WIKI validés
++  selon les contrats existants. RAG est consommateur pour le chatbot ; ne pas relancer
++  les producteurs legacy `rag-enrich-*`, `ingest-oem-*` ou `download-oem-corpus.py`.
++- Mesurer après composition et rendu les contrôles applicables au rôle. Une fiche
++  WIKI valide ne prouve pas la qualité de la page assemblée, ni son indexation.
++  Une activation, une publication et un déploiement restent des actions distinctes.
++- Réitérer lorsqu'une correction ou nouvelle preuve répond à un manque identifié.
++  Sans gain d'information ou sans source vérifiable disponible, consigner la limite
++  et le blocage ; ne pas répéter une collecte identique pour faire monter un nombre.
++
++## Évaluer les scores sans les confondre avec le résultat
++
++Séparer qualité de la source avant capture, preuve des affirmations, substance WIKI,
++qualité de la page composée et résultats par page/requête. Un bon score sur un axe
++ne compense pas l'échec d'un contrôle obligatoire sur un autre.
++
++Vérifier formule, version, données réellement utilisées et câblage des scorers
++existants (`compute-confidence-score.py`, `shadow_score.py`, scorers applicatifs).
++Le six dimensions est observé à côté du moteur legacy et peut conditionner la
++promotion selon `PROMOTE_GATE_ENGINE` ; ne pas basculer ce réglage implicitement.
++Les seuils viennent du contrat et de la configuration vérifiés, pas de ce guide.
++
++Avant de qualifier un score de fiable, le confronter à des contenus évalués
++indépendamment : contenu utile sourcé, texte long répétitif, source arbitraire,
++preuve hors contexte, contradiction et information manquante. Mesurer faux positifs
++et faux négatifs ; un exemple adversarial démontre une limite, pas sa fréquence.
++Ni longueur, ni nombre de sections, ni confiance déclarée ne certifient l'excellence.
++Le classement en première position est un objectif ; aucun score interne ne le garantit.
++
++## Contrôler les doublons au bon niveau
++
++- **Sections** : comparer l'identité canonique, notamment `Symptômes`/`symptomes`,
++  casse, accents et espaces. Réutiliser la normalisation et les contrats existants ;
++  ne pas supprimer les faits distincts contenus sous deux titres équivalents.
++- **Page rendue** : rechercher les répétitions de paragraphes, FAQ et blocs ajoutés
++  par composition. Des empreintes différentes ne prouvent pas une information nouvelle.
++- **Pages voisines** : comparer intention, rôle, catalogue et faits utiles aux
++  variantes. Préserver `catalog_signature` et les règles de composition R2 ;
++  ne pas fabriquer de différence pour passer un test de diversité.
++- **Surface SEO** : vérifier title/H1, canonical, maillage, indexabilité effective
++  et cohérence des données structurées avec le visible, selon les contrats existants.
++  Distinguer collisions exactes et similarité à qualifier ; relever si le contrôle
++  ne fait que produire un rapport. Aucun seuil universel de similarité dans ce guide.
++
++Les faits communs exacts et avertissements nécessaires peuvent se répéter. Selon
++ADR-067, une similarité ne déclenche pas la suppression ou la canonicalisation
++automatique d'une page. Préserver les URLs et les zones STOP du contrat racine :
++aucune mutation implicite de meta/H1, canonical, robots ou indexation.
++
++## Livrable du run
++
++Appliquer le contrat de sortie référencé par le workspace : périmètre demandé et lu,
++preuves, contradictions, corrections autorisées, validations exécutées, exclusions
++et inconnues. Distinguer score calculé, décision WIKI, export, page réellement servie
++et résultats SEO. Ne pas annoncer la boucle validée depuis un simple run réussi.
+diff --git a/workspaces/seo-batch/CLAUDE.md b/workspaces/seo-batch/CLAUDE.md
+index 2bdbe8e10..135430864 100644
+--- a/workspaces/seo-batch/CLAUDE.md
++++ b/workspaces/seo-batch/CLAUDE.md
+@@ -1,6 +1,6 @@
+ # CLAUDE.md — Workspace SEO Batch (AutoMecanik)
+ 
+-> Workspace dédié aux campagnes SEO : keyword planning R0-R8, content generation, RAG enrichment, audits gammes et véhicules.
++> Workspace dédié aux campagnes SEO : keyword planning R0-R8, production et enrichissement depuis le WIKI validé, audits gammes et véhicules.
+ 
+ ## Quand utiliser ce workspace
+ 
+@@ -20,14 +20,14 @@ Pour le dev quotidien (backend NestJS, frontend Remix, hooks, refactor, CI, gove
+ Les règles globales suivantes s'appliquent même en SEO workspace — voir `/opt/automecanik/app/CLAUDE.md` pour le détail :
+ 
+ - **Source de vérité gouvernance** : `/opt/automecanik/governance-vault/` (jamais écrire dans `app/.local/`)
+-- **Vérifier l'existant AVANT d'inventer** : grep racine, lire `.claude/knowledge/`, `MEMORY.md`
+-- **3-VPS Architecture** : DEV `46.224.118.55` = SoT, PROD `49.12.233.2` = read-only mirror, AI-COS `178.104.1.118` = agents IA
++- **Vérifier l'existant AVANT d'inventer** : suivre l'ordre registry-first du contrat racine, puis les connaissances du domaine ; recherche ciblée après cartographie.
++- **Infrastructure** : consulter `.claude/rules/deployment.md` à la racine avant toute action infra ; ne pas dupliquer ici les cibles.
+ - **Démarrage de session** : lire `/opt/automecanik/app/log.md` pour le contexte récent
+ 
+ ## Règles spécifiques SEO
+ 
+ Voir `.claude/rules/seo-batch.md` pour :
+-- Sources RAG (`/opt/automecanik/rag/knowledge/`) — jamais seed depuis LLM
++- Sources éditoriales : RAW → WIKI validé → exports/projection ; RAG réservé au chatbot, jamais de contenu métier inventé.
+ - Pièges DB connus (`gamme_aggregates`, V-Level v5.0, vehicles)
+ - Anti-patterns (parts-feed re-scrape, naming "tecdoc")
+ 

@@ -1,0 +1,108 @@
+  console.log
+    ◇ injected env (0) from .env.test // tip: ⌁ auth for agents [www.vestauth.com]
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+FAIL src/modules/admin/services/r7-brand-enricher.editorial.test.ts (10.129 s)
+  R7 editorial source and publication boundaries
+    ✕ does not manufacture a FAQ when the curated source is absent (3 ms)
+    ✕ preserves the curated FAQ without filling it with unverified commercial claims (2 ms)
+    ✕ a high aggregate score cannot override a missing critical source block (1 ms)
+    ✕ a high aggregate score cannot override declared boilerplate hard gates (1 ms)
+
+  ● R7 editorial source and publication boundaries › does not manufacture a FAQ when the curated source is absent
+
+    expect(received).toBeUndefined()
+
+    Received: {"boilerplateRisk": 0.35, "id": "R7_S9_FAQ", "renderedText": "**Comment trouver la bonne pièce pour ma Marque fixture ?**
+    Sélectionnez votre modèle Marque fixture et votre motorisation dans notre configurateur. Le système vérifie automatiquement la compatibilité.·
+    **Les pièces Marque fixture sont-elles d'origine ?**
+    Nous proposons des pièces OEM et des pièces de qualité équivalente certifiées par les grands équipementiers (Bosch, Valeo, TRW, etc.).·
+    **Quels modèles Marque fixture sont couverts ?**
+    Notre catalogue couvre l'ensemble des modèles Marque fixture disponibles sur le marché français.·
+    **Comment vérifier la compatibilité d'une pièce Marque fixture ?**
+    Chaque fiche produit affiche les véhicules compatibles. Utilisez le sélecteur de véhicule pour filtrer les pièces adaptées à votre motorisation.·
+    **Quel délai de livraison pour les pièces Marque fixture ?**
+    La livraison standard est de 24 à 48h en France métropolitaine.", "semanticPayload": ["Comment trouver la bonne pièce", "Les pièces Marque fixture sont", "Quels modèles Marque fixture s", "Comment vérifier la compatibil", "Quel délai de livraison pour l"], "specificityWeight": 0.5, "title": "FAQ — Pièces Marque fixture et compatibilité", "type": "faq"}
+
+      17 |   it('does not manufacture a FAQ when the curated source is absent', () => {
+      18 |     const blocks = compose([]);
+    > 19 |     expect(blocks.find((b) => b.id === 'R7_S9_FAQ')).toBeUndefined();
+         |                                                      ^
+      20 |   });
+      21 |
+      22 |   it('preserves the curated FAQ without filling it with unverified commercial claims', () => {
+
+      at Object.<anonymous> (src/modules/admin/services/r7-brand-enricher.editorial.test.ts:19:54)
+
+  ● R7 editorial source and publication boundaries › preserves the curated FAQ without filling it with unverified commercial claims
+
+    expect(received).toBe(expected) // Object.is equality
+
+    - Expected  -  0
+    + Received  + 12
+
+      **Quels modèles sont documentés ?**
+      Voir les modèles présents dans le catalogue vérifié.
+    +
+    + **Comment trouver la bonne pièce pour ma Marque fixture ?**
+    + Sélectionnez votre modèle Marque fixture et votre motorisation dans notre configurateur. Le système vérifie automatiquement la compatibilité.
+    +
+    + **Les pièces Marque fixture sont-elles d'origine ?**
+    + Nous proposons des pièces OEM et des pièces de qualité équivalente certifiées par les grands équipementiers (Bosch, Valeo, TRW, etc.).
+    +
+    + **Quels modèles Marque fixture sont couverts ?**
+    + Notre catalogue couvre l'ensemble des modèles Marque fixture disponibles sur le marché français.
+    +
+    + **Comment vérifier la compatibilité d'une pièce Marque fixture ?**
+    + Chaque fiche produit affiche les véhicules compatibles. Utilisez le sélecteur de véhicule pour filtrer les pièces adaptées à votre motorisation.
+
+      22 |   it('preserves the curated FAQ without filling it with unverified commercial claims', () => {
+      23 |     const blocks = compose([{ q: 'Quels modèles sont documentés ?', a: 'Voir les modèles présents dans le catalogue vérifié.' }]);
+    > 24 |     expect(blocks.find((b) => b.id === 'R7_S9_FAQ')?.renderedText).toBe(
+         |                                                                    ^
+      25 |       '**Quels modèles sont documentés ?**\nVoir les modèles présents dans le catalogue vérifié.',
+      26 |     );
+      27 |   });
+
+      at Object.<anonymous> (src/modules/admin/services/r7-brand-enricher.editorial.test.ts:24:68)
+
+  ● R7 editorial source and publication boundaries › a high aggregate score cannot override a missing critical source block
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "REVIEW_REQUIRED"
+    Received: "PUBLISH"
+
+      34 |     ]);
+      35 |     expect(result.reasons).toContain('MISSING_FAQ');
+    > 36 |     expect(result.decision).toBe('REVIEW_REQUIRED');
+         |                             ^
+      37 |   });
+      38 |
+      39 |   it('a high aggregate score cannot override declared boilerplate hard gates', () => {
+
+      at Object.<anonymous> (src/modules/admin/services/r7-brand-enricher.editorial.test.ts:36:29)
+
+  ● R7 editorial source and publication boundaries › a high aggregate score cannot override declared boilerplate hard gates
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "REVIEW_REQUIRED"
+    Received: "PUBLISH"
+
+      44 |     ]);
+      45 |     expect(result.reasons).toEqual(expect.arrayContaining(['LOW_SPECIFIC_CONTENT', 'HIGH_BOILERPLATE']));
+    > 46 |     expect(result.decision).toBe('REVIEW_REQUIRED');
+         |                             ^
+      47 |   });
+      48 | });
+      49 |
+
+      at Object.<anonymous> (src/modules/admin/services/r7-brand-enricher.editorial.test.ts:46:29)
+
+Test Suites: 1 failed, 1 total
+Tests:       4 failed, 4 total
+Snapshots:   0 total
+Time:        10.313 s
+Ran all test suites within paths "src/modules/admin/services/r7-brand-enricher.editorial.test.ts".

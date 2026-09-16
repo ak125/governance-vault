@@ -1,0 +1,22 @@
+[1m[33mwarning[]8;;https://squawkhq.com/docs/ban-drop-not-null\ban-drop-not-null]8;;\][0m[1m: Dropping a `NOT NULL` constraint may break existing clients.[0m
+  [1m[94m ╭▸ [0mbackend/supabase/migrations/20260912212340_seo_projection_block_outbox.sql:42:66
+   [1m[94m│[0m
+[1m[94m42[0m [1m[94m│[0m ALTER TABLE public.__rag_change_events ALTER COLUMN rce_new_hash DROP NOT NULL;
+   [1m[94m╰╴[0m                                                                 [1m[33m━━━━━━━━━━━━━[0m
+[1m[33mwarning[]8;;https://squawkhq.com/docs/ban-concurrent-index-creation-in-transaction\ban-concurrent-index-creation-in-transaction]8;;\][0m[1m: While regular index creation can happen inside a transaction, this is not allowed when the `CONCURRENTLY` option is used.[0m
+  [1m[94m ╭▸ [0mbackend/supabase/migrations/20260912212340_seo_projection_block_outbox.sql:47:21
+   [1m[94m│[0m
+[1m[94m47[0m [1m[94m│[0m CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS idx_rce_block_run_transition
+   [1m[94m│[0m                     [1m[33m━━━━━━━━━━━━[0m
+   [1m[94m│[0m
+   [1m[94m╰ [0m[1mhelp[0m: Build the index outside any transactions.
+[1m[33mwarning[]8;;https://squawkhq.com/docs/ban-concurrent-index-creation-in-transaction\ban-concurrent-index-creation-in-transaction]8;;\][0m[1m: While regular index creation can happen inside a transaction, this is not allowed when the `CONCURRENTLY` option is used.[0m
+  [1m[94m ╭▸ [0mbackend/supabase/migrations/20260912212340_seo_projection_block_outbox.sql:50:14
+   [1m[94m│[0m
+[1m[94m50[0m [1m[94m│[0m CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_rce_block_transition_head
+   [1m[94m│[0m              [1m[33m━━━━━━━━━━━━[0m
+   [1m[94m│[0m
+   [1m[94m╰ [0m[1mhelp[0m: Build the index outside any transactions.
+
+Find detailed examples and solutions for each rule at https://squawkhq.com/docs/rules
+Found 3 issues in 1 file (checked 1 source file)

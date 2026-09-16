@@ -1,0 +1,76 @@
+{
+  "scope_requested": "Separer le corpus, detecter les changements, preparer une navigation Obsidian et une methode de collecte utile pour les pages",
+  "scope_actually_scanned": "Toutes les metadonnees des 16998 occurrences/7343 empreintes des deux manifests ; trois objets source du pilote ; code du collecteur existant. Corps des autres documents non lus semantiquement.",
+  "files_read_count": 14,
+  "files": [
+    "app:CLAUDE.md",
+    "app:.claude/rules/guardrails.md",
+    "app:audit/registry/canonical.json (jq scoped)",
+    "app:.claude/knowledge/REPO_MAP.md (excerpt)",
+    "app:log.md (tail excerpt)",
+    "runtime-collection:policy.py",
+    "runtime-collection:test_collection.py",
+    "runtime-collection:collect.py (current thread already read; copied and compared)",
+    "runtime-collection:remote.py (current thread already read)",
+    "current-manifest.json",
+    "previous-manifest.json",
+    "object:811a538b769a021bbda5d8ff71cdd501fdfee5fb93cfd6783e89e344080ad5ff",
+    "object:0735e56521de202f7f9f93f75c8ba89388cb3db1609f792253e984028e01055f",
+    "object:39c43f8db35d0686d976633f139a410c5f0c7aed765df26c568f2c3bc62936f6"
+  ],
+  "external_documentation": [
+    "https://help.obsidian.md/bases",
+    "https://help.obsidian.md/properties",
+    "https://help.obsidian.md/plugins/backlinks",
+    "https://help.obsidian.md/bases/syntax",
+    "https://help.obsidian.md/bases/views",
+    "https://developers.google.com/search/docs/fundamentals/creating-helpful-content"
+  ],
+  "excluded_paths": [
+    "source document edits",
+    "runtime scheduler changes",
+    "DB",
+    "PROD/PREPROD",
+    "private Hermes",
+    "memory writes",
+    "Obsidian configuration of existing vaults"
+  ],
+  "unscanned_zones": [
+    "semantic correctness of 7343 bodies",
+    "capture availability outside pilot index",
+    "live Obsidian UI",
+    "every page gap and ranking"
+  ],
+  "corrections_proposed": [
+    "Extend existing collection projection with unique-content cards, native Bases and occurrence deltas",
+    "Keep mixed families and unverified declarations visible",
+    "Use page gap -> primary source -> exact captured passage -> native WIKI qualification -> served section verification"
+  ],
+  "corrections_applied": [
+    "Owner-authorized isolated candidate collect.py extension and test_catalogue.py",
+    "Generated metadata-only navigation and pilot analysis; live collection unchanged"
+  ],
+  "validation_executed": [
+    "Eight feature tests failed before implementation",
+    "24 unit tests passed after implementation",
+    "7343 card properties checked; 16998 origins reconciled; 19 exclusive family combinations sum to7343",
+    "Zero broken local Markdown links; five native Bases views structurally checked",
+    "Unchanged cards not rewritten; failure/configuration/no baseline cannot simulate deletions",
+    "Sources and raw bodies not modified or recopied"
+  ],
+  "remaining_unknowns": [
+    "No live Obsidian UI proof",
+    "No fact qualification or page-claim closure implied by inventory",
+    "No automatic scheduling of candidate projection",
+    "Conflicting proposal declarations need revision-aware reconciliation"
+  ],
+  "final_status": "PARTIAL_COVERAGE",
+  "bounded_status": "VALIDATED_FOR_SCOPE_ONLY",
+  "candidate": "/home/deploy/knowledge-navigation-candidate-20260913",
+  "runtime_code_hashes": {
+    "collect.py": "3c7654c9f825159f691e5425cb66d45fa024bf9874befd4d687c4c0b33448daa",
+    "policy.py": "72547efa6bb46f3cdd9b87de71a7e77653d75f22373f32b8d3843a3b181fd166",
+    "remote.py": "0e9087707ec196334e0c40a1a627d9f204421f54bbf0661f69fb173468843f50",
+    "sources.json": "0b7ed4abdc040305e5296c792570a12ed0a2c1acd34a593104afdca828b8bc79"
+  }
+}

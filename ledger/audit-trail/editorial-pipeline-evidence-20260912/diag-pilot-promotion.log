@@ -1,0 +1,210 @@
+{
+  "threshold": 0.85,
+  "apply": false,
+  "apply_failures": 0,
+  "tier_A": 0,
+  "tier_B": 1,
+  "eligible": 0,
+  "blocked": 1,
+  "unknown_fail_closed": 0,
+  "report": [
+    {
+      "file": "proposals/filtre-a-huile.md",
+      "schema_version": "promotion-decision/v1",
+      "substance_tier": "S",
+      "promotion_status": "BLOCKED",
+      "eligible": false,
+      "blocking_reasons": [
+        {
+          "code": "COVERAGE_STRICT_FAIL",
+          "owner_stage": "COVERAGE",
+          "detector_stage": "COVERAGE_MAP",
+          "evidence": {
+            "fails": [
+              "proof_unavailable:claim_id=filtre-huile-efficacite-iso-4548-12:source_slug=iso_4548_12_2017_notice:source_pending,page_not_archived,archive_hash_missing_or_invalid",
+              "proof_unavailable:claim_id=filtre-huile-bypass-clapet-iso-4548-2:source_slug=iso_4548_2_1997_notice:source_pending,page_not_archived,archive_hash_missing_or_invalid",
+              "proof_unavailable:claim_id=filtre-huile-anti-retour-iso-4548-9:source_slug=iso_4548_9_2008_notice:source_pending,page_not_archived,archive_hash_missing_or_invalid",
+              "proof_unavailable:claim_id=filtre-huile-definition-piece-origine:source_slug=eu_lignes_directrices_pieces_2023:source_pending,page_not_archived,archive_hash_missing_or_invalid",
+              "proof_unavailable:claim_id=filtre-huile-definition-qualite-equivalente:source_slug=eu_lignes_directrices_pieces_2023:source_pending,page_not_archived,archive_hash_missing_or_invalid"
+            ],
+            "warns": []
+          }
+        },
+        {
+          "code": "SUBSTANCE_SCORE",
+          "owner_stage": "SUBSTANCE",
+          "detector_stage": "PROMOTE_EVALUATE_TIER",
+          "evidence": {
+            "score": 0.46,
+            "threshold": 0.85,
+            "engine": "legacy"
+          }
+        }
+      ],
+      "evaluation": {
+        "tier": "B",
+        "confidence_score": 0.46,
+        "score_details": {
+          "score": 0.46,
+          "components": {
+            "sources": {
+              "weight": 0.4,
+              "ratio": 0.6,
+              "reference_count": 11,
+              "defaulted_confidence_indices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10
+              ],
+              "points": 0.24
+            },
+            "sections": {
+              "weight": 0.3,
+              "ratio": 0.4,
+              "required": [
+                "Définition",
+                "Fonctionnement",
+                "Symptômes d'usure",
+                "Choix selon véhicule",
+                "FAQ"
+              ],
+              "filled": [
+                "Fonctionnement",
+                "FAQ"
+              ],
+              "unmatched_required": [
+                "Définition",
+                "Symptômes d'usure",
+                "Choix selon véhicule"
+              ],
+              "points": 0.12
+            },
+            "internal_links": {
+              "weight": 0.2,
+              "ratio": 0.0,
+              "resolved": 0,
+              "total": 0,
+              "unresolved": [],
+              "points": 0.0
+            },
+            "source_kinds": {
+              "weight": 0.1,
+              "ratio": 1.0,
+              "distinct_count": 2,
+              "points": 0.1
+            }
+          },
+          "scope": "metadata_structure_proxy_not_factual_or_seo_validation"
+        },
+        "gate_engine": "legacy",
+        "gate_status": {
+          "source": "pass",
+          "claim": "pass",
+          "contradiction": "pass",
+          "risk": "pass",
+          "confidence": "pass"
+        },
+        "shadow_score": {
+          "shadow_tier": "S",
+          "shadow_total": 90,
+          "shadow_dims": {
+            "F": 1.0,
+            "D": 15.0,
+            "A": 26.0,
+            "E": 10.0,
+            "C": 20.0
+          },
+          "shadow_applicable": [
+            "A",
+            "C",
+            "D",
+            "E",
+            "F"
+          ],
+          "shadow_floors_failed": [],
+          "shadow_blocked": [],
+          "shadow_notes": [
+            "reality-check SKIPPÉ (manifest status=stale)",
+            "A:page_unproven=5 (confidence capped at medium)"
+          ],
+          "manifest_status": "stale",
+          "scorer": "shadow_score.score@6dim-v0"
+        }
+      },
+      "inputs": {
+        "schema_version": "promotion-decision/v1",
+        "input_manifest": [
+          {
+            "role": "candidate",
+            "path": "proposals/filtre-a-huile.md",
+            "sha256": "86968daab70f2cdbf14292dccb6badf2cc1853871a3c438a83e3555ada4509d6"
+          },
+          {
+            "role": "canon_target",
+            "path": "wiki/gamme/filtre-a-huile.md",
+            "sha256": null
+          },
+          {
+            "role": "coverage_map",
+            "path": "proposals/_coverage/filtre-a-huile.coverage.yaml",
+            "sha256": "5f4bc12690476c9a4edaf24851e63962a2fce4477710cd72a9404bfb325d910b"
+          },
+          {
+            "role": "coverage_schema",
+            "path": "_meta/schema/coverage-map.schema.json",
+            "sha256": "b1d4e60efd19643c0978001cca6736b6bb61d86e3ecfd337c966ac882aeeca5d"
+          },
+          {
+            "role": "raw_archive",
+            "path": "sources/auto-captures/filtre-a-huile/filtron-eu-wl-filtre-a-huile-clapets-b8431d6f.md",
+            "sha256": "809c3efd864a3be850c5e63ba2d400064b61dcd4090342b171d45ceba11c0178"
+          },
+          {
+            "role": "raw_archive",
+            "path": "sources/auto-captures/filtre-a-huile/mahle-aftermarket-com-wl-filtre-a-huile-conception-media-fa488c04.md",
+            "sha256": "8358e439faddebc32395175c9fb161ee7d9abce755ead940aeadb7b6ddc5f589"
+          },
+          {
+            "role": "raw_archive",
+            "path": "sources/auto-captures/filtre-a-huile/user-manual-renault-com-wl-filtre-a-huile-alerte-pression-re-a64b110a.md",
+            "sha256": "fc3dc89072596e51a15b1520f44c9b74f8180379a0eeb957ebb5de0fa2349235"
+          },
+          {
+            "role": "raw_checksums",
+            "path": "manifests/checksums.json",
+            "sha256": "22fd090c76b04d89254f8a2f1c3eac3f208e96a9087289700bca50193cc95ef2"
+          },
+          {
+            "role": "raw_inventory",
+            "path": "manifests/source-inventory.csv",
+            "sha256": "ef011dde6330ea89fc8456777e8b06ff58735fe916e65da33eae0096346a0161"
+          },
+          {
+            "role": "reality_manifest",
+            "path": "_meta/reality-manifest.json",
+            "sha256": "8d38fe921b908d1dbf1b67f6f50c97ab2ee31c714a1aa2367a84dc5a7bbe1c7f"
+          },
+          {
+            "role": "source_catalog",
+            "path": "_meta/source-catalog.yaml",
+            "sha256": "25ea21e69face58331d51f596950a9f2cfa83821090593325267ac6ef8fe5b37"
+          }
+        ],
+        "wiki_revision": "01cea8d-dirty",
+        "raw_revision": "7565934-dirty",
+        "evaluation_engine_revision": "962a11d9cec8efb679460847bfdd15f35a8d4b3ac1bcdcec05ec393994ff4d0d",
+        "decision_engine_revision": "4c37a7eb17cdd8b09039ee75c7ed397795f904f0418c0f750799dbe4177f1c47"
+      },
+      "tier": "B",
+      "confidence_score": 0.46
+    }
+  ]
+}

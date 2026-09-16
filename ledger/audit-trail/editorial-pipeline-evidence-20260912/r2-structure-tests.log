@@ -1,0 +1,22 @@
+PASS src/modules/seo/r2/services/__tests__/r2-eligibility.spec.ts (10.279 s)
+  ● Console
+
+    console.log
+      ◇ injected env (0) from .env.test // tip: ⌘ override existing { override: true }
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+PASS src/modules/seo/r2/services/__tests__/r2-catalog-signature.spec.ts
+  ● Console
+
+    console.log
+      ◇ injected env (0) from .env.test // tip: ⌘ enable debugging { debug: true }
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+
+Test Suites: 2 passed, 2 total
+Tests:       14 passed, 14 total
+Snapshots:   0 total
+Time:        10.535 s
+Ran all test suites within paths "src/modules/seo/r2/services/__tests__/r2-catalog-signature.spec.ts", "src/modules/seo/r2/services/__tests__/r2-eligibility.spec.ts".

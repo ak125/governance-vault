@@ -1,0 +1,1 @@
+Session output summary, not raw log: 2 suites PASS; 25 tests PASS. Jest runInBand raw-acquisition-client.service.test.ts and rag-proxy.raw-acquisition.test.ts. ts-jest emitted existing JS/allowJs warnings on shared seo-roles dist.

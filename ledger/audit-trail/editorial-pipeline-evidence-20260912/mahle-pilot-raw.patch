@@ -1,0 +1,148 @@
+--- a/manifests/ingestion-allowlist.yaml
++++ b/manifests/ingestion-allowlist.yaml
+@@ -14,6 +14,7 @@
+ 
+ # ── Sources AUTORISÉES (équipementiers + constructeurs + technique) ───────────
+ allow:
++  - { domain: "mahle-aftermarket.com", source_type: manufacturer_maintenance, level: 2, license_status: unknown, notes: "Passage technique Spin-on oil filter mix up: differences internes selon moteur; examen WIKI, sans reprise des chiffres promotionnels ou hydrauliques." }
+   - { domain: "filtron.eu", source_type: manufacturer_maintenance, level: 2, license_status: unknown, notes: "Pilote filtre a huile: explication technique des clapets, examen WIKI uniquement." }
+   # ── FACTUEL — product_catalog (équipementiers). NB : la DB interne AutoMecanik reste
+   #    la source PRIMAIRE des faits ; ces domaines = appoint, PAS de l'éditorial.
+--- a/manifests/ingestion-worklist.yaml
++++ b/manifests/ingestion-worklist.yaml
+@@ -172,3 +172,33 @@
+       raw_path: sources/auto-captures/filtre-a-huile/filtron-eu-wl-filtre-a-huile-clapets-b8431d6f.md
+     notes: Candidat isole. Pas de validation factuelle ni publication depuis RAW; controles
+       reseau et persistance conserves.
++
++  - id: wl-filtre-a-huile-conception-media
++    subject_type: gamme
++    entity_ref:
++      pg_id: 7
++    gamme: filtre-a-huile
++    topic: Differences internes et media des filtres visses selon le moteur
++    target_consumer: [WIKI]
++    priority: P1
++    rationale: >-
++      Lacune de la proposition filtre-a-huile, criteres 2 et 3 : hierarchie universelle
++      des medias non etayee et source transmission hors contexte. Expliquer pourquoi
++      une apparence identique ne prouve pas une compatibilite.
++    discovery:
++      mode: provided
++    source:
++      authoritative_domain: mahle-aftermarket.com
++      url: https://www.mahle-aftermarket.com/na/en/products-and-services/filters/oil-filters/
++      source_type: manufacturer_maintenance
++      license: null
++      license_status: unknown
++    capture:
++      status: CAPTURED_NEEDS_REVIEW
++      content_hash: sha256:fa488c047addedba6909fc86d9a4c3d1b6529dc93c7039a84f0589342fc0a77b
++      captured_at: '2026-09-13T22:40:47Z'
++      raw_path: sources/auto-captures/filtre-a-huile/mahle-aftermarket-com-wl-filtre-a-huile-conception-media-fa488c04.md
++    notes: >-
++      Selectionner le passage Spin-on oil filter mix up, sans generaliser la partie
++      hydraulique, les chiffres promotionnels ou les exemples de produit. Aucun
++      tableau de compatibilite ni intervalle moteur deduit. Candidat uniquement.
+--- a/manifests/checksums.json
++++ b/manifests/checksums.json
+@@ -1,7 +1,7 @@
+ {
+   "_comment": "SHA256 checksums of all files in sources/ and recycled/. Régénéré par _scripts/regen-manifests.py — édition manuelle interdite.",
+   "_schema_version": "2.0.0",
+-  "_updated_at": "2026-09-13T21:43:09Z",
++  "_updated_at": "2026-09-13T22:40:47Z",
+   "recycled/rag-knowledge/_raw/evidence/alternateur.yml": "sha256:b9c019442d8448e110de05a69c5a1dabc96c4355c5de9cfd482922c0b850c8d8",
+   "recycled/rag-knowledge/_raw/evidence/balais-d-essuie-glace.yml": "sha256:b9b50115fadb61af25784fc55be0db02a0834186cbbf8f4dbfbb7380fc712d58",
+   "recycled/rag-knowledge/_raw/evidence/barre-stabilisatrice.yml": "sha256:c84f620cd422c3f689428e7320829e61269b21ee034e1cad877eae750c0ee62a",
+@@ -4837,6 +4837,7 @@
+   "recycled/rag-knowledge/web/ngk-b4b5019acb58-s001.md": "sha256:ab02613375fceb87838852197d38d6d469e0356e86990e4aaec27d2b408d0733",
+   "recycled/rag-knowledge/web/ngk-fd4eae963b68-s001.md": "sha256:b280bfeb768fb38241a468f8b51cc648588887f1df6813203d5aad4f7154bf6a",
+   "sources/auto-captures/filtre-a-huile/filtron-eu-wl-filtre-a-huile-clapets-b8431d6f.md": "sha256:809c3efd864a3be850c5e63ba2d400064b61dcd4090342b171d45ceba11c0178",
++  "sources/auto-captures/filtre-a-huile/mahle-aftermarket-com-wl-filtre-a-huile-conception-media-fa488c04.md": "sha256:8358e439faddebc32395175c9fb161ee7d9abce755ead940aeadb7b6ddc5f589",
+   "sources/diagnostic/faq.md": "sha256:a249e548fb25228580dbbd670b14286e0a008e18e8a31fd22eda634160517cbd",
+   "sources/diagnostic/safety-config.md": "sha256:fbf4cf8ac6fc4214506c4e4c097aba78f8b202f2e824c7523dd20b61af98c6f5",
+   "sources/diagnostic/signs.md": "sha256:dd490c4d53b800e4a92a9ae3dd4eda91642f7dc3d4a93661ce5436d03c122f69",
+--- a/manifests/source-inventory.csv
++++ b/manifests/source-inventory.csv
+@@ -4834,6 +4834,7 @@
+ recycled/rag-knowledge/web/ngk-b4b5019acb58-s001.md,rec-h-ab02613375fceb87,recycled,false,sha256:ab02613375fceb87838852197d38d6d469e0356e86990e4aaec27d2b408d0733,762,2026-05-01T10:13:49Z
+ recycled/rag-knowledge/web/ngk-fd4eae963b68-s001.md,rec-h-b280bfeb768fb382,recycled,false,sha256:b280bfeb768fb38241a468f8b51cc648588887f1df6813203d5aad4f7154bf6a,722,2026-05-01T10:13:49Z
+ sources/auto-captures/filtre-a-huile/filtron-eu-wl-filtre-a-huile-clapets-b8431d6f.md,src-auto-capture-b8431d6ff4d46f8f4e7acf118fa89b3679683572706f59d159e6ab5e1c01ba6f,sources,false,sha256:809c3efd864a3be850c5e63ba2d400064b61dcd4090342b171d45ceba11c0178,3293,2026-09-13T21:43:09Z
++sources/auto-captures/filtre-a-huile/mahle-aftermarket-com-wl-filtre-a-huile-conception-media-fa488c04.md,src-auto-capture-fa488c047addedba6909fc86d9a4c3d1b6529dc93c7039a84f0589342fc0a77b,sources,false,sha256:8358e439faddebc32395175c9fb161ee7d9abce755ead940aeadb7b6ddc5f589,9116,2026-09-13T22:40:47Z
+ sources/diagnostic/faq.md,src-diagnostic-faq,sources,false,sha256:a249e548fb25228580dbbd670b14286e0a008e18e8a31fd22eda634160517cbd,3247,2026-05-01T10:13:49Z
+ sources/diagnostic/safety-config.md,src-diagnostic-safety-config,sources,false,sha256:fbf4cf8ac6fc4214506c4e4c097aba78f8b202f2e824c7523dd20b61af98c6f5,1949,2026-05-01T10:13:49Z
+ sources/diagnostic/signs.md,src-diagnostic-signs,sources,false,sha256:dd490c4d53b800e4a92a9ae3dd4eda91642f7dc3d4a93661ce5436d03c122f69,2513,2026-05-01T10:13:49Z
+--- a/manifests/lineage-map.json
++++ b/manifests/lineage-map.json
+@@ -1,7 +1,7 @@
+ {
+   "_comment": "Carte de provenance manifest_id → fiches wiki (peuplée par P2). En P0, arrays vides — clés présentes pour invariant scope.",
+   "_schema_version": "2.0.0",
+-  "_updated_at": "2026-09-13T21:43:09Z",
++  "_updated_at": "2026-09-13T22:40:47Z",
+   "lineage": {
+     "path-5fd3d0ecc74da254": [],
+     "path-7cccf9637ad64915": [],
+@@ -4720,6 +4720,7 @@
+     "rec-h-ffc5410933989ddd": [],
+     "rec-h-ffd60963e46fefc1": [],
+     "src-auto-capture-b8431d6ff4d46f8f4e7acf118fa89b3679683572706f59d159e6ab5e1c01ba6f": [],
++    "src-auto-capture-fa488c047addedba6909fc86d9a4c3d1b6529dc93c7039a84f0589342fc0a77b": [],
+     "src-diagnostic-faq": [],
+     "src-diagnostic-safety-config": [],
+     "src-diagnostic-signs": [],
+--- a/sources/auto-captures/filtre-a-huile/mahle-aftermarket-com-wl-filtre-a-huile-conception-media-fa488c04.md
++++ b/sources/auto-captures/filtre-a-huile/mahle-aftermarket-com-wl-filtre-a-huile-conception-media-fa488c04.md
+@@ -0,0 +1,51 @@
++---
++title: filtre-a-huile — mahle-aftermarket.com (2026-09-13)
++source_url: https://www.mahle-aftermarket.com/na/en/products-and-services/filters/oil-filters/
++source_type: manufacturer_maintenance
++content_hash: sha256:fa488c047addedba6909fc86d9a4c3d1b6529dc93c7039a84f0589342fc0a77b
++captured_at: '2026-09-13T22:40:47Z'
++capture_method: agent
++license: null
++license_status: unknown
++level: 2
++worklist_id: wl-filtre-a-huile-conception-media
++manifest_id: auto-capture-fa488c047addedba6909fc86d9a4c3d1b6529dc93c7039a84f0589342fc0a77b
++discovery:
++  mode: provided
++description: Auto-capture gouvernée (Niveau 2) — faits à valider avant usage WIKI/SEO.
++---
++
++Jump to main content
++MAHLE oil filter—doorman of the engine
++MAHLE oil filters reliably prevent contaminants from entering the lubrication system and maintain oil quality as well as the performance and efficiency of the engine. Thanks to stable pleat geometry, cold start stability is assured. Load peaks up to 20 bar are compensated due to the high pressure resistance of the housing. A pressure relief valve guarantees the oil supply under all conditions – for viscous oil encountered during cold starts or at low temperatures, for extremely contaminated filter elements, or when the replacement intervals have been exceeded. A non-return flow valve prevents the draining of the filter when the engine is switched off and ensures adequate oil supply when the engine is started. High-grade sealing materials and custom-fit connecting pieces assure reliable separation of contaminated and filtered oil.
++However, an important consideration for optimum functioning of oil filters is that filters are replaced within the maintenance intervals stipulated by the automobile manufacturers.
++Oil filter cartridges
++MAHLE oil filter cartridges
++With filter cartridges from the OX program we offer particularly economical solutions for repair shops: instead of replacing the complete filter, only the dirty filter element has to be renewed. This is an ecologically sensible solution that saves material and disposal costs. In the Eco version, the cartridges are metal-free and can therefore be completely incinerated. Oil filter cartridges are available for all oil filters with removable housings.
++Hydraulic spin-on filters and filter cartridges
++MAHLE hydraulic spin-on filters and filter cartridges
++Hydraulic spin-on filters with increased wall thickness and more stable end plates are specially matched to the high pressures in hydraulic systems of up to 40 bar. Often the multifaceted collar is eliminated to allow greater pulsation dampening. More durable materials such as special non-wovens and synthetic media are used in hydraulic spin-on filters and filter cartridges, since hydraulic oil contains different components.
++Special spin-on filters and filter cartridges that are suitable for use with hydraulic oil are available.
++Spin-on oil filters: well lubricated
++If one considers the tendencies in the original equipment sector it becomes clear: in addition to a trend towards increased type variety for replacement filters—due to new engine designs and restricted space in the engine compartment—a distinct increase in service intervals can be noticed. Filter service life spans of 30,000 km and more are now common for many new vehicles and some manufacturers are even quoting 50,000 km—driving patterns and the quality of engine oil taken into account. However, a longer service life does not necessarily mean less sales revenue. This is because the longer the replacement interval, the more important the quality of the oil filter.
++The cellulose-free filter medium
++Today in the series, tomorrow in the workshop
++Increased service life makes also higher demands on the filter media in oil filters, particularly as the new engine generations with direct injection increase the problem of oil aging. With the use of new fully synthetic high performance oils, replacement intervals of up to 50,000 km are reached—with a trend to even longer intervals. However, due to the new general conditions, conventional filter raw materials are becoming less suitable, especially as the excessive nitration of the oils leads to embrittlement of the filter medial. The response from MAHLE: a fully synthetic two-layer fleece made of polyester, consisting of a support and a filtration layer. This makes it possible to achieve highest filtration performance with best stability—and at the same time block forming in the pleats can be avoided. Compared with cellulose fibres, the aging stability of the new oil filter medium is 7 times higher—and it offers the same or even lower pressure drop at significantly increased dirt pick-up capacity. The new cellulose free filter media are, for instance, available for Mercedes-Benz vehicles in the Aftermarket.
++For the current requirement in service and repair, MAHLE offers a comprehensive well maintained filter range in uncompromising original equipment quality. However, not only the quality of the filter is essential. The quality of fitting and maintenance is as important. As simple as it may sound—also a high quality oil filter can only work properly when it has been fitted correctly beforehand.
++Spin-on oil filter mix up?
++Important oil filter quality characteristics: MICROSTAR filter paper (1), bypass valve (2) and anti-drain valve (3).
++A spin-on oil filter consists of housing and filter element, which are inseparably connected and must therefore be changed as a unit. However, the problem is that many filters look identical but have completely different insides depending on the engine. For example, they may be with or without anti-drain valve or have different connection threads. They also can differ in the oil pressure of the bypass valve, filter media, the fineness of the filter or the permissible operational overpressure.
++Expertise in new media
++OIL FILTER EVOLUTION: FROM CELLULOSE TO THE FULLY SYNTHETIC FILTER MEDIUM.
++Variable valve train. Downsizing. Turbocharged engines. — Also in oil filter design the continuing development in engine technology presents a challenge, with a clear trend toward increasingly finer filter media. This is because the filter surface and therefore the efficiency and oil purity can only be increased with the use of finer filter fibres. Today’s Oil filters have to collect many times more dirt, filter out finer particles and simultaneously last longer. This increases the demands on collection capacity and material stability even further. At the same time, the oil filter designers are challenged to produce more compact external dimensions—because the available space is getting smaller all the time.
++THE CHANGE INTERVAL CHALLENGE
++ALTERNATIVE FUELS
++A NEW FILTER MEDIUM
++Many automobile and engine manufacturers demand further increases in change interval lengths—which have been more than trebled by the MAHLE engineers during the past 2 years alone. In the mean time, an oil filter needs changing after about 30,000 km on average. A trend that is bound to continue—driven also by oil condition sensors and optimised fully synthetic oils. On the other hand, many of the oil filters that are replaced are of a higher grade – and therefore the workshops are compensated for the longer change intervals with higher earnings per unit.
++Another important consideration in the development of future filter media is the increasing use of alternative fuels. Due to an accumulation of biodiesel in the engine oil, extremely aggressive conditions are created at high temperatures and make the task of the filter medium even more difficult.
++The load factors have direct effect on the so-called embrittlement limit, which determines the service life span of the filter in the end. If this limit is reached, the material is fatigued and non-functional. This means that even when the filter element is not jet clogged, it cannot collect any more dirt.
++MAHLE has recognised these new challenges in good time and is working to develop new, innovative filter media that provide significantly better resistance to these new operating conditions.
++A comparison between conventional cellulose based media and fully synthetic media.
++OX 345 D: the oil filter with a new type of filter medium for the vehicles and engines of the next generation.
++THE SOLUTION FROM THE MAHLE DEVELOPMENT DEPARTMENT
++A typical example from this development is the OX 345 D. Instead of filter paper or cellulose fleece, this filter is equipped with a fully synthetic multilayer filter medium made from plastic fibre.The filter offers a much higher chemical resistance against embrittlement and avoids damages from condensed water which might occur when the engine is working mainly in short-run operation where the oil in the circuit is not heated up properly. In order to make the filter extremely leak-proof without bypasses, its end plates are plasticized, i.e. the materials are “welded” together without adhesives. To prevent the dreaded block forming, which can significantly reduce the filter performance, the pleats are protected by two plastic bands around their circumference.

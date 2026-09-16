@@ -1,0 +1,29 @@
+{
+  "checked_at": "2026-09-13T15:44:41.554Z",
+  "results": [
+    {
+      "environment": "DEV3000",
+      "url": "http://127.0.0.1:3000/diagnostic-auto/voyant-disque-de-frein",
+      "error": "fetch failed",
+      "cause": "ECONNREFUSED"
+    },
+    {
+      "environment": "PUBLIC",
+      "url": "https://www.automecanik.com/diagnostic-auto/voyant-disque-de-frein",
+      "status": 301,
+      "location": "/blog-pieces-auto/conseils/disque-de-frein#diagnostic-rapide"
+    },
+    {
+      "environment": "PUBLIC",
+      "url": "https://www.automecanik.com/blog-pieces-auto/conseils/disque-de-frein",
+      "status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "html_length": 210950,
+      "fragment": "diagnostic-rapide",
+      "fragment_match_count": 0,
+      "diagnostic_marker_count": 0,
+      "article_count": 1,
+      "fragment_table_count": 0
+    }
+  ]
+}
