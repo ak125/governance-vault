@@ -147,7 +147,9 @@ l'enregistre sans réécrire le corps historique.
 - **Les valeurs PROD sont écrites par le job de déploiement PROD**, depuis des variables GitHub
   Actions, comme les autres réglages PROD (ce job est déjà le seul writer du `.env` PROD). Cela vaut
   aussi pour `SEO_PROJECTION_R1_FEED_ENABLED` (D1). Aucune édition à la main sur l'hôte : elle ne
-  serait ni validée ni tracée. Supprimer la variable puis redéployer, c'est le rollback.
+  serait ni validée ni tracée. Supprimer la variable puis redéployer, c'est le rollback. Tout
+  déploiement PROD (tag `v*` ou `workflow_dispatch`) promeut la tête de `main` : une variable
+  modifiée prend effet au déploiement PROD suivant, sous GO nominatif, jamais par un simple redémarrage.
 - **Activer la lecture ne sert encore rien.** Le consumer R3 s'arrête à la décision (P2-R3-D) :
   `servedBodySource` reste `legacy`. La lecture rend la préparation observable, mais aucune page
   n'est servie depuis la projection tant que le rendu gouverné (P2-R3-E) n'existe pas.
@@ -194,7 +196,7 @@ l'enregistre sans réécrire le corps historique.
   3. fusionner les PR monorepo (transport, packaging, write-once) ;
   4. poser le tag `v*` ;
   5. prouver un run sur l'endpoint admin de déclenchement (indépendant du drapeau), puis activer
-     `SEO_PROJECTION_R1_FEED_ENABLED` par sa variable GitHub et un redéploiement (D5).
+     `SEO_PROJECTION_R1_FEED_ENABLED` par sa variable GitHub, effective au déploiement PROD suivant (D5).
 - **Risque résiduel** : la taille de l'image croît avec `exports/seo`. C'est aujourd'hui de l'ordre du
   kilo-octet (3 exports gamme) : à surveiller à mesure que les gammes se multiplient.
 
@@ -206,7 +208,7 @@ l'enregistre sans réécrire le corps historique.
 | D2 (livraison) et D3 (volume) | `build.yml` (appelé par `ci.yml`) récupère le sous-module, `Dockerfile` copie `exports/seo`, volume object-store dans `docker-compose.prod.yml` | PR monorepo #1565 ouverte |
 | D3 (racine obligatoire) et D4 (write-once) | racine jamais créée, garde d'existence et vérification sha256 dans `buildAndPublishSnapshot`, avec tests | PR monorepo #1567 ouverte |
 | D1 | DEV n'a ni object-store ni drapeau du feeder (constaté le 2026-09-24). Avec #1567, un déclenchement sur DEV échoue sans écrire de contenu (run `failed` journalisé) | effectif à la fusion de #1567 |
-| D5 (écriture PROD des drapeaux) | writer d'env du job de déploiement PROD (`scripts/ci/prod-seo-projection-env.sh`), depuis des variables GitHub Actions | PR monorepo en cours (2026-09-24) |
+| D5 (écriture PROD des drapeaux) | writer d'env du job de déploiement PROD (`scripts/ci/prod-seo-projection-env.sh`), depuis des variables GitHub Actions | PR monorepo #1569 ouverte |
 | D3 (hôte), D4 (scellement), activation | actes owner | non commencés |
 
 ## Références
