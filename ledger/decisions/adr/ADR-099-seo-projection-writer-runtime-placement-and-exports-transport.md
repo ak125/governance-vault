@@ -1,9 +1,9 @@
 ---
 id: ADR-099
 title: "SEO Projection — lieu d'exécution du forward writer (conteneur PROD), transport des exports par le pin du sous-module, object-store sur l'hôte PROD, immuabilité write-once, rollout par drapeaux d'environnement : amende ADR-059 et ADR-090"
-status: proposed
+status: accepted
 date: "2026-09-24"
-decision_date: null
+decision_date: "2026-09-24"
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
@@ -17,7 +17,7 @@ version: "1.0.0"
 
 # ADR-099 : SEO Projection — exécution du writer, transport des exports, object-store, immuabilité, rollout
 
-- **Statut** : Proposed. La signature G3 et l'acceptation reviennent à l'owner.
+- **Statut** : Accepted (2026-09-24).
 - **Amende** :
   - **ADR-059** : §Snapshots immutables (lieu, backup, `chattr`) et §Rollout via GrowthBook ;
   - **ADR-090** : §A (localisation du writer) et §G (« Snapshot immutability »).

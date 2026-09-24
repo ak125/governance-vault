@@ -202,7 +202,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-094 | Gate cross-domaine page-quality (composite) : orchestre substance WIKI ⊗ surface rendue ⊗ runtime ⊗ diversité ⊗ lineage | Proposed | 2026-06-24 | [[ADR-094-page-quality-composite-gate]] |
 | ADR-095 | Gate dure anti-duplicate balises R0→R8 | Accepted | 2026-06-27 | [[ADR-095-balise-anti-duplicate-hard-gate]] |
 | ADR-096 | Governed Automatic Source Discovery, Scoring & Capture (RAW intelligent scraper — 4 entity types) | Accepted | 2026-07-15 | [[ADR-096-governed-automatic-source-discovery]] |
-| ADR-099 | SEO Projection — lieu d'exécution du forward writer (conteneur PROD), transport des exports par le pin du sous-module, object-store sur l'hôte PROD, immuabilité write-once, rollout par drapeaux d'environnement : amende ADR-059 et ADR-090 | Proposed | 2026-09-24 | [[ADR-099-seo-projection-writer-runtime-placement-and-exports-transport]] |
+| ADR-099 | SEO Projection — lieu d'exécution du forward writer (conteneur PROD), transport des exports par le pin du sous-module, object-store sur l'hôte PROD, immuabilité write-once, rollout par drapeaux d'environnement : amende ADR-059 et ADR-090 | Accepted | 2026-09-24 | [[ADR-099-seo-projection-writer-runtime-placement-and-exports-transport]] |
 
 <!-- AUTO-GENERATED:moc-decisions-canonical-index end -->
 
