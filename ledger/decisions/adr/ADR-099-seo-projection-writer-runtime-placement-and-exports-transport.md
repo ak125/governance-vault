@@ -193,7 +193,7 @@ l'enregistre sans réécrire le corps historique.
 - **Actes owner requis** avant la première écriture PROD :
   1. provisionner l'object-store sur l'hôte PROD ;
   2. mettre en place le backup hors site depuis l'hôte PROD, puis le scellement ;
-  3. fusionner les PR monorepo (transport, packaging, write-once) ;
+  3. fusionner les PR monorepo (transport, packaging, write-once) : fait le 2026-09-24 ;
   4. poser le tag `v*` ;
   5. prouver un run sur l'endpoint admin de déclenchement (indépendant du drapeau), puis activer
      `SEO_PROJECTION_R1_FEED_ENABLED` par sa variable GitHub, effective au déploiement PROD suivant (D5).
@@ -202,13 +202,13 @@ l'enregistre sans réécrire le corps historique.
 
 ## Mise en œuvre (monorepo, hors vault)
 
-| Décision | Implémentation | État au 2026-09-24 |
+| Décision | Implémentation | État au 2026-09-24 (fusion sur `main` = PREPROD ; PROD au tag `v*`) |
 |---|---|---|
-| D2 (avance du pin, sync DEV) | Dependabot `gitsubmodule`, exclusion de la revue Claude, `sync_submodules()` | PR monorepo #1564 ouverte |
-| D2 (livraison) et D3 (volume) | `build.yml` (appelé par `ci.yml`) récupère le sous-module, `Dockerfile` copie `exports/seo`, volume object-store dans `docker-compose.prod.yml` | PR monorepo #1565 ouverte |
-| D3 (racine obligatoire) et D4 (write-once) | racine jamais créée, garde d'existence et vérification sha256 dans `buildAndPublishSnapshot`, avec tests | PR monorepo #1567 ouverte |
-| D1 | DEV n'a ni object-store ni drapeau du feeder (constaté le 2026-09-24). Avec #1567, un déclenchement sur DEV échoue sans écrire de contenu (run `failed` journalisé) | effectif à la fusion de #1567 |
-| D5 (écriture PROD des drapeaux) | writer d'env du job de déploiement PROD (`scripts/ci/prod-seo-projection-env.sh`), depuis des variables GitHub Actions | PR monorepo #1569 ouverte |
+| D2 (avance du pin, sync DEV) | Dependabot `gitsubmodule`, exclusion de la revue Claude, `sync_submodules()` | #1564 fusionnée sur `main` (`35511b1`) |
+| D2 (livraison) et D3 (volume) | `build.yml` (appelé par `ci.yml`) récupère le sous-module, `Dockerfile` copie `exports/seo`, volume object-store dans `docker-compose.prod.yml` | #1565 fusionnée sur `main` (`491ee50`) |
+| D3 (racine obligatoire) et D4 (write-once) | racine jamais créée, garde d'existence et vérification sha256 dans `buildAndPublishSnapshot`, avec tests | #1567 fusionnée sur `main` (`cce545b`) |
+| D1 | DEV n'a ni object-store ni drapeau du feeder (constaté le 2026-09-24). Avec #1567, un déclenchement sur DEV échoue sans écrire de contenu (run `failed` journalisé) | effectif sur `main` depuis `cce545b` |
+| D5 (écriture PROD des drapeaux) | writer d'env du job de déploiement PROD (`scripts/ci/prod-seo-projection-env.sh`), depuis des variables GitHub Actions | #1569 fusionnée sur `main` (`9e6c44f`) |
 | D3 (hôte), D4 (scellement), activation | actes owner | non commencés |
 
 ## Références
