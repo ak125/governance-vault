@@ -109,9 +109,15 @@ l'enregistre sans réécrire le corps historique.
 - **Le backup hors site part de l'hôte PROD.** Cela remplace « Backup VPS DEV → cron rsync »
   d'ADR-059. La cible (Storage Box) et la vérification des checksums restent celles d'ADR-059.
 - **Aucun snapshot éphémère** : un run dont l'object-store n'est pas le volume persistant ne doit pas
-  réussir. Le writer fait un `mkdir -p` avant d'écrire. La PR de packaging doit donc prouver qu'un
-  conteneur sans ce volume fait échouer le run, observable dans `__seo_projection_runs`, au lieu
-  d'écrire dans sa couche éphémère.
+  réussir. Le writer ne crée **jamais** la racine : il exige qu'elle existe et soit un répertoire, et
+  ne crée que `exports-snapshots/` dessous (non récursif). Deux cas d'échec, tous deux observables
+  (`__seo_projection_runs.status = failed` et conflit `snapshot_publish_failed`, zéro écriture de
+  contenu) :
+  - conteneur sans le volume (DEV, PREPROD) : racine absente, le run échoue ;
+  - volume déclaré mais répertoire hôte non provisionné : Docker le crée au nom de root, le writer
+    (non-root) reçoit `EACCES`, le run échoue.
+  Le volume utilise volontairement la syntaxe courte : un répertoire non provisionné n'empêche pas le
+  site de démarrer, seul le writer échoue.
 
 ### D4. Immuabilité : write-once dans le writer, puis `chattr +i` côté hôte
 
@@ -138,6 +144,13 @@ l'enregistre sans réécrire le corps historique.
     L'identité est la **paire** : un GO R3 sur une gamme n'active jamais R4/R6 de la même gamme.
 - **La progression est nominative et déterministe** (liste revue), pas un pourcentage tiré au hasard :
   chaque entité servie depuis la projection est nommée.
+- **Les valeurs PROD sont écrites par le job de déploiement PROD**, depuis des variables GitHub
+  Actions, comme les autres réglages PROD (ce job est déjà le seul writer du `.env` PROD). Cela vaut
+  aussi pour `SEO_PROJECTION_R1_FEED_ENABLED` (D1). Aucune édition à la main sur l'hôte : elle ne
+  serait ni validée ni tracée. Supprimer la variable puis redéployer, c'est le rollback.
+- **Activer la lecture ne sert encore rien.** Le consumer R3 s'arrête à la décision (P2-R3-D) :
+  `servedBodySource` reste `legacy`. La lecture rend la préparation observable, mais aucune page
+  n'est servie depuis la projection tant que le rendu gouverné (P2-R3-E) n'existe pas.
 - **Les §GrowthBook d'ADR-059 sont sans objet tant que GrowthBook n'est pas déployé.** Leur invariant
   (« les pages ne bloquent jamais sur un lookup de flag ») est satisfait par construction : les flags
   sont lus dans l'environnement du process. Réintroduire GrowthBook sur ce flux exigerait un ADR.
@@ -180,7 +193,8 @@ l'enregistre sans réécrire le corps historique.
   2. mettre en place le backup hors site depuis l'hôte PROD, puis le scellement ;
   3. fusionner les PR monorepo (transport, packaging, write-once) ;
   4. poser le tag `v*` ;
-  5. activer `SEO_PROJECTION_R1_FEED_ENABLED`.
+  5. prouver un run sur l'endpoint admin de déclenchement (indépendant du drapeau), puis activer
+     `SEO_PROJECTION_R1_FEED_ENABLED` par sa variable GitHub et un redéploiement (D5).
 - **Risque résiduel** : la taille de l'image croît avec `exports/seo`. C'est aujourd'hui de l'ordre du
   kilo-octet (3 exports gamme) : à surveiller à mesure que les gammes se multiplient.
 
@@ -189,9 +203,11 @@ l'enregistre sans réécrire le corps historique.
 | Décision | Implémentation | État au 2026-09-24 |
 |---|---|---|
 | D2 (avance du pin, sync DEV) | Dependabot `gitsubmodule`, exclusion de la revue Claude, `sync_submodules()` | PR monorepo #1564 ouverte |
-| D2 (livraison) et D3 (volume) | `ci.yml` récupère le sous-module, `Dockerfile` copie `exports/seo`, volume object-store dans `docker-compose.prod.yml` | à ouvrir |
-| D4 (write-once) | garde d'existence et vérification sha256 dans `buildAndPublishSnapshot`, avec tests | à ouvrir |
-| D1, D3 (hôte), D4 (scellement), D5 | actes owner | non commencés |
+| D2 (livraison) et D3 (volume) | `build.yml` (appelé par `ci.yml`) récupère le sous-module, `Dockerfile` copie `exports/seo`, volume object-store dans `docker-compose.prod.yml` | PR monorepo #1565 ouverte |
+| D3 (racine obligatoire) et D4 (write-once) | racine jamais créée, garde d'existence et vérification sha256 dans `buildAndPublishSnapshot`, avec tests | PR monorepo #1567 ouverte |
+| D1 | DEV n'a ni object-store ni drapeau du feeder (constaté le 2026-09-24). Avec #1567, un déclenchement sur DEV échoue sans écrire de contenu (run `failed` journalisé) | effectif à la fusion de #1567 |
+| D5 (écriture PROD des drapeaux) | writer d'env du job de déploiement PROD (`scripts/ci/prod-seo-projection-env.sh`), depuis des variables GitHub Actions | PR monorepo en cours (2026-09-24) |
+| D3 (hôte), D4 (scellement), activation | actes owner | non commencés |
 
 ## Références
 
