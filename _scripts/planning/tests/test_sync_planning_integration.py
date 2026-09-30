@@ -5,8 +5,13 @@ without GH_TOKEN, without network. Real GH API contract is covered in
 test_fetch.py. Real cron run is exercised manually via `sudo -u deploy run-cron.sh`.
 """
 import os
+from pathlib import Path
 
 import pytest
+
+# The checkout under test, not a fixed machine path: the test must read the
+# schemas of the commit being tested (CI runners have no DEV runtime checkout).
+VAULT_PATH = Path(__file__).resolve().parents[3]
 
 
 def test_sync_planning_dry_run_exits_zero(monkeypatch, tmp_path):
@@ -32,7 +37,7 @@ def test_sync_planning_dry_run_exits_zero(monkeypatch, tmp_path):
 
     # sys.argv shim — argparse reads from sys.argv unless we pass it
     monkeypatch.setattr("sys.argv", [
-        "sync_planning", "--vault-path", "/opt/automecanik/governance-vault", "--dry-run",
+        "sync_planning", "--vault-path", str(VAULT_PATH), "--dry-run",
     ])
     rc = sync_planning.main()
     assert rc == 0
@@ -46,5 +51,5 @@ def test_sync_planning_real_gh_dry_run():
     """Optional smoke test against real GH API. Skipped by default."""
     from _scripts.planning import sync_planning
     import sys
-    sys.argv = ["sync_planning", "--vault-path", "/opt/automecanik/governance-vault", "--dry-run"]
+    sys.argv = ["sync_planning", "--vault-path", str(VAULT_PATH), "--dry-run"]
     assert sync_planning.main() == 0
