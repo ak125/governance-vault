@@ -34,8 +34,25 @@ def _stringify_dates(obj):
     return obj
 
 
+class FrontmatterParseError(ValueError):
+    """Frontmatter delimite par `---` mais YAML invalide."""
+
+
+def _describe_yaml_error(exc: Exception) -> str:
+    mark = getattr(exc, "problem_mark", None)
+    problem = getattr(exc, "problem", None) or str(exc).splitlines()[0]
+    if mark is not None:
+        # +2 : la ligne 1 du fichier est le delimiteur `---`, et mark.line est 0-based.
+        return f"line {mark.line + 2}: {problem}"
+    return problem
+
+
 def find_frontmatter(text: str) -> tuple[dict | None, str | None]:
-    """Extract YAML frontmatter from a markdown file. Returns (parsed_dict, raw_yaml) or (None, None)."""
+    """Extract YAML frontmatter from a markdown file. Returns (parsed_dict, raw_yaml) or (None, None).
+
+    Raises FrontmatterParseError si le bloc existe mais n'est pas du YAML valide :
+    un plantage ici faisait echouer tout le check (0 finding remonte au weekly-lint).
+    """
     if not text.startswith("---\n"):
         return None, None
     end = text.find("\n---\n", 4)
@@ -44,10 +61,6 @@ def find_frontmatter(text: str) -> tuple[dict | None, str | None]:
     raw = text[4:end]
     try:
         import yaml  # type: ignore
-        parsed = yaml.safe_load(raw)
-        if not isinstance(parsed, dict):
-            return None, raw
-        return _stringify_dates(parsed), raw
     except ImportError:
         parsed = {}
         for line in raw.splitlines():
@@ -56,6 +69,13 @@ def find_frontmatter(text: str) -> tuple[dict | None, str | None]:
             key, _, val = line.partition(":")
             parsed[key.strip()] = val.strip().strip('"').strip("'")
         return parsed, raw
+    try:
+        parsed = yaml.safe_load(raw)
+    except yaml.YAMLError as exc:
+        raise FrontmatterParseError(_describe_yaml_error(exc)) from exc
+    if not isinstance(parsed, dict):
+        return None, raw
+    return _stringify_dates(parsed), raw
 
 
 def classify(rel_path: str) -> str | None:
@@ -154,7 +174,17 @@ def main(argv: list[str]) -> int:
             text = md.read_text(encoding="utf-8", errors="ignore")
         except OSError:
             continue
-        data, _ = find_frontmatter(text)
+        try:
+            data, _ = find_frontmatter(text)
+        except FrontmatterParseError as exc:
+            findings.append({
+                "severity": "error",
+                "file": rel,
+                "kind": kind,
+                "message": f"invalid YAML frontmatter ({exc})",
+                "rule": f"{kind}.schema/frontmatter-yaml",
+            })
+            continue
 
         if data is None:
             severity = "warning" if kind == "rule" else "error"
