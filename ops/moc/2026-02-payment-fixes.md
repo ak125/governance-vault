@@ -9,9 +9,9 @@
 
 | Type | Fichier | Description |
 |------|---------|-------------|
-| 🚨 Incident | [01-incidents/2026-02-03-paybox-orderid-format.md](../01-incidents/2026-02-03-paybox-orderid-format.md) | Post-mortem bug orderId |
-| 📋 Décision | [02-decisions/adr-2026-02-03-remove-callback-test.md](../02-decisions/adr-2026-02-03-remove-callback-test.md) | ADR suppression endpoint test |
-| 📚 Knowledge | [06-knowledge/normalize-order-id-pattern.md](../06-knowledge/normalize-order-id-pattern.md) | Pattern de normalisation |
+| 🚨 Incident | [ledger/incidents/2026/2026-02-03-paybox-orderid-format.md](../../ledger/incidents/2026/2026-02-03-paybox-orderid-format.md) | Post-mortem bug orderId |
+| 📋 Décision | [ledger/decisions/adr/ADR-014-remove-paybox-callback-test.md](../../ledger/decisions/adr/ADR-014-remove-paybox-callback-test.md) | ADR suppression endpoint test |
+| 📚 Knowledge | [ledger/knowledge/normalize-order-id-pattern.md](../../ledger/knowledge/normalize-order-id-pattern.md) | Pattern de normalisation |
 
 ## Résumé des changements
 

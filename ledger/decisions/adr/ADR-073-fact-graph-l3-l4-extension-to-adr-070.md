@@ -1,7 +1,9 @@
 ---
-adr: 073
+id: ADR-073
+title: "Canonical Fact Graph (L3) + Editorial Evidence Cache (L4) — Extension to ADR-070"
 status: proposed
 date: 2026-05-17
+decision_makers: ["@fafa"]
 supersedes: []
 extends: [ADR-066, ADR-070, ADR-072]
 related: [ADR-050, ADR-058, ADR-064, ADR-068]

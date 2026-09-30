@@ -1,9 +1,9 @@
 ---
 id: ADR-095
 title: Gate dure anti-duplicate balises R0→R8
-status: Accepted
+status: accepted
 date: 2026-06-27
-deciders: [Fafa]
+decision_makers: [Fafa]
 supersedes: []
 amends: [ADR-066]      # gate structurel catalog_signature — la balise est la couche sœur
 tags: [seo, balise, anti-duplicate, R8, R2, hard-gate]
