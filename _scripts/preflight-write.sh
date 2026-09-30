@@ -43,9 +43,12 @@ if [[ "$VAULT_ROOT" == *"/app/.local/governance-vault"* ]] || [[ "$VAULT_ROOT" =
   exit 12
 fi
 
-# --- Guard 2 : repo git ---
-if [[ ! -d .git ]]; then
-  echo "❌ ERR : $VAULT_ROOT n'est pas un repo git" >&2
+# --- Guard 2 : racine d'un repo git ---
+# Clone ou worktree : dans un worktree, `.git` est un fichier, pas un dossier
+# (meme correctif que check-signatures.sh et check-v1-paths.sh).
+TOPLEVEL="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+if [[ -z "$TOPLEVEL" || "$TOPLEVEL" != "$(pwd -P)" ]]; then
+  echo "❌ ERR : $VAULT_ROOT n'est pas la racine d'un repo git" >&2
   exit 20
 fi
 
