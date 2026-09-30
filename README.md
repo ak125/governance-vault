@@ -8,18 +8,8 @@
 
 ## Taxonomie Canonique
 
-Les regles sont nommees par prefix pour eviter les collisions:
-
-| Prefix | Domaine | Fichier |
-|--------|---------|---------|
-| `T1-T7` | Technical Rules (Supabase, Sessions, Zod, HMAC, etc.) | `ledger/rules/rules-technical.md` |
-| `G1-G4` | Vault Governance (Canon, Zero Orphelin, Signed Commits, CI read-only) | `ledger/rules/rules-vault.md` |
-| `G5-G8` | Governance Process (Proof Requirements, Obsolete Handling) | `ledger/rules/rules-governance-process.md` |
-| `AI1-AI10` | AI-COS Rules (agents IA) | `ledger/rules/rules-ai-cos.md` |
-| `V1-V6` | V-Level SEO | `ledger/rules/rules-seo-vlevel.md` |
-| `PageRole` | SEO PageRole Taxonomy | `ledger/rules/rules-seo-pagerole.md` |
-
-Voir `ops/moc/MOC-Rules.md` pour l'index complet.
+Les regles sont nommees par prefixe pour eviter les collisions (T, G, AI, V, R-SEO, R-SEO-KW, AP, D, Q, DoD, AEC).
+Au 2026-09-30, `ledger/rules/` compte 13 fichiers de regles. L'index complet (prefixe, fichier, domaine) est `ops/moc/MOC-Rules.md` : il n'est pas recopie ici.
 
 ---
 
@@ -48,7 +38,7 @@ Enforcement: CI job `g3-signed-commits`.
 
 Aucun workflow CI ne doit modifier les zones canoniques. Le kill-switch `AI_VAULT_WRITE=false` est respecte en production.
 
-Voir `99-meta/ci-policy.md`.
+Voir `99-meta/ci-policy.md`. Le check requis `G4: CI read-only sur canon` n'execute que des `echo` : la lecture seule vient des `permissions: contents: read` declarees par chaque workflow (voir [[branch-protection]]).
 
 ---
 
@@ -56,22 +46,32 @@ Voir `99-meta/ci-policy.md`.
 
 ```
 governance-vault/
-├── .github/workflows/    # CI gouvernance (G2, G3, G4)
-├── .githooks/            # Pre-commit hooks (G2 + broken links)
-├── _scripts/             # Scripts enforcement (check-orphans, broken-links, sync-canon, ...)
-├── _templates/           # Templates (ADR, incident, rule, deployment)
-├── 99-meta/              # Gouvernance du vault (signing-policy, key-registry, ci-policy, sync-log)
+├── .github/workflows/    # 6 workflows ; 5 checks requis sur main (voir branch-protection)
+├── .githooks/            # pre-commit (G2 + liens casses), pre-push (+ signatures G3)
+├── .spec/00-canon/planning/  # Enums du planning (ADR-053)
+├── _scripts/             # Scripts (check-orphans, check-broken-links, preflight-write, sync_moc_decisions.py, ...)
+├── _templates/           # Templates (ADR, incident, rule, deployment, verification, ...)
+├── 99-meta/              # Gouvernance du vault (signing-policy, key-registry, ci-policy, branch-protection, ...)
+├── dist/policies/        # Politiques OPA compilees (wasm + bundles)
+├── policies/             # Sources OPA par domaine (seo-content/)
+├── runbooks/             # Runbooks hors ops/ (soft-404-telemetry)
 ├── ledger/               # Contenu canonique
 │   ├── _archive/         # Documents archives (superseded)
 │   ├── agents/           # 119 agents en 11 categories, chaque categorie a son INDEX
 │   ├── audit-trail/      # Retrospectives, bundles rejetes, audits RPC
-│   ├── compliance/       # Plans d'execution, checklists, evidence-packs
-│   ├── decisions/adr/    # Architecture Decision Records (ADR-001 a ADR-014)
+│   ├── canon-coverage/   # Couverture des canons (REG-002)
+│   ├── compliance/       # Plans d'execution, checklists, evidence-pack/
+│   ├── decisions/adr/    # Architecture Decision Records (statuts : MOC-Decisions)
 │   ├── incidents/        # Post-mortems
 │   ├── knowledge/        # Specs, patterns, architecture technique
 │   ├── policies/         # Bundle specs, prompts systeme, processus
-│   └── rules/            # Regles canoniques T/G/AI/V
-└── ops/moc/              # Maps of Content (MOC-Governance, MOC-Decisions, MOC-Rules, ...)
+│   ├── rules/            # Regles canoniques (13 fichiers)
+│   ├── snapshots/        # Snapshots du planning (ADR-053)
+│   └── verdicts/         # Verdicts empiriques
+└── ops/
+    ├── GOVERNANCE-HUMAN.md
+    ├── moc/              # Maps of Content (MOC-Governance, MOC-Decisions, MOC-Rules, ...)
+    └── runbooks/         # Runbooks d'exploitation
 ```
 
 ---
@@ -80,7 +80,7 @@ governance-vault/
 
 Point d'entree: `ops/moc/MOC-Governance.md`. Autres MOCs:
 
-- `MOC-Decisions` — 14 ADR canoniques
+- `MOC-Decisions` — index des ADR et de leurs statuts (projection auto-generee)
 - `MOC-Rules` — taxonomie T/G/AI/V complete
 - `MOC-Compliance` — plans d'execution, evidence-packs
 - `MOC-Agents` — 119 agents par categorie
@@ -88,6 +88,9 @@ Point d'entree: `ops/moc/MOC-Governance.md`. Autres MOCs:
 - `MOC-Knowledge` — base de connaissances
 - `MOC-AuditTrail` — bundles rejetes, audits RPC, retrospectives
 - `MOC-Policies` — bundle specs, templates
+- `MOC-Planning-Live` — planning (ADR-053)
+- `MOC-Repository-Control-Plane` — Repository Control Plane
+- `MOC-Roadmap-2026` — roadmap 2026
 
 ---
 
@@ -103,11 +106,10 @@ _scripts/check-broken-links.sh .
 # Verifier les signatures (G3) localement
 git log --show-signature -5
 
-# Synchroniser depuis le canon monorepo
-_scripts/sync-canon.sh --dry-run
-_scripts/sync-canon.sh --commit
+# _scripts/sync-canon.sh : obsolete, ecrit des chemins v1 rejetes par le check requis
+# « No V1 Paths (ADR-015) » ; ne pas l'utiliser (voir 99-meta/cron-setup.md)
 
-# Activer le pre-commit hook localement (une fois)
+# Activer les hooks locaux pre-commit et pre-push (une fois)
 git config core.hooksPath .githooks
 
 # (Re)appliquer la protection serveur de main
@@ -124,7 +126,7 @@ Details complets sur la protection serveur : [[branch-protection]]
 git clone git@github.com:ak125/governance-vault.git
 cd governance-vault
 
-# 1. Installer le pre-commit hook
+# 1. Installer les hooks locaux (pre-commit, pre-push)
 git config core.hooksPath .githooks
 
 # 2. Configurer la signature SSH (voir 99-meta/signing-policy.md)
@@ -139,16 +141,20 @@ _scripts/check-broken-links.sh . # Doit afficher: PASS: 0 broken wikilink
 
 ---
 
-## Statistiques (2026-04-17)
+## Statistiques (instantane du 2026-09-30)
+
+Chiffres releves a la main a cette date, non mis a jour automatiquement. Pour les ADR et leurs statuts, la reference est `ops/moc/MOC-Decisions.md`.
 
 | Metrique | Valeur |
 |----------|--------|
-| ADR actifs | 14 |
-| Documents .md total | 238 |
-| MOCs racines | 9 |
-| INDEX de sous-archives | 18 |
+| Fichiers ADR | 90 (numeros jusqu'a ADR-099) |
+| Fichiers de regles | 13 |
+| Documents .md suivis | 540 |
+| MOCs racines | 12 |
+| INDEX de sous-archives | 20 |
 | Agents | 119 (11 categories) |
-| Evidence-packs | 4 (fevrier 2026) |
+| Evidence-packs | 6 (fevrier, avril et mai 2026) |
+| Incidents | 18 |
 | Orphelins (G2) | **0** |
 | Wikilinks casses | **0** |
 
@@ -159,8 +165,8 @@ _scripts/check-broken-links.sh . # Doit afficher: PASS: 0 broken wikilink
 - **Monorepo**: https://github.com/ak125/nestjs-remix-monorepo
 - **Canon source**: `.spec/00-canon/` dans le monorepo
 - **Repo ce vault**: https://github.com/ak125/governance-vault
-- **Plan original**: `.spec/governance/governance-vault-plan.md` dans le monorepo
+- **Plan original**: `.spec/governance/governance-vault-plan.md`, absent de `main` du monorepo (verifie le 2026-09-30)
 
 ---
 
-_Derniere mise a jour: 2026-04-17_
+_Derniere mise a jour: 2026-09-30_
