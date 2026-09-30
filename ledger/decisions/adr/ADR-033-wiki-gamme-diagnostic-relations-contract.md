@@ -8,6 +8,7 @@ decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
 amends: []
+amended_by: ["ADR-083"]
 related_rules: ["G1", "G2", "G3", "Q1", "AP-10"]
 related_incidents: []
 related_adr: ["ADR-015", "ADR-027", "ADR-031", "ADR-032"]
@@ -108,10 +109,10 @@ diagnostic:
 - **ADR-027** (accepted, 2026-04-25) — fige la consolidation R5 → R3 S2_DIAG.
   ADR-033 n'invalide pas ADR-027 : les fiches R3 continuent d'agréger
   les symptômes diagnostics, mais désormais via références typées.
-- **ADR-031** (proposed, 2026-04-28) — fige le cadre 4-layer raw/wiki/exports.
+- **ADR-031** (proposé le 2026-04-28 ; accepted le 2026-05-13, PR vault #262) — fige le cadre 4-layer raw/wiki/exports.
   ADR-033 spécifie un bloc frontmatter pour la couche `wiki` côté gamme,
   conforme au principe directeur d'ADR-031.
-- **ADR-032** (accepted, 2026-04-29, PR vault #107) — fige le canon DB+backend
+- **ADR-032** (proposed depuis le 2026-04-29, PR vault #107, jamais ratifié) — propose de figer le canon DB+backend
   pour diagnostic/maintenance (`kg_*` canon, `__diag_*` interactif distinct).
   ADR-032 introduit `entity_data.maintenance.{educational_advice, related_pages}`
   côté frontmatter wiki gamme. **`diagnostic_relations[]` est orthogonal**
@@ -302,6 +303,9 @@ conséquence avec validation stricte des champs `diagnostic_relations[]`.
 
 ### Phase 2 — Validateur CI (1 PR monorepo)
 
+> **Livré** (PR monorepo #250, 2026-05-01) — en Python : `scripts/wiki/validate-gamme-diagnostic-relations.py`,
+> exécuté par le workflow monorepo `wiki-validate.yml` (pas d'étape dans `ci.yml`). Constat du 2026-09-30.
+
 - Script `scripts/wiki/validate-gamme-diagnostic-relations.ts` exécuté
   en pre-commit hook + CI. Lit `exports/diag-canon-slugs.json` (généré
   nightly via cron monorepo : SELECT slug FROM `__diag_symptom`
@@ -309,6 +313,9 @@ conséquence avec validation stricte des champs `diagnostic_relations[]`.
 - CI step `validate-wiki-gamme-relations` ajoutée à `.github/workflows/ci.yml`.
 
 ### Phase 3 — Export slugs canon (1 PR monorepo)
+
+> **Livré** (PR monorepo #251, 2026-05-01) — en Python : `scripts/wiki/export-diag-canon-slugs.py`,
+> workflow monorepo `diag-canon-slugs-export.yml` (quotidien, 02:00 UTC). Constat du 2026-09-30.
 
 - Cron nightly `scripts/wiki/export-diag-canon-slugs.ts` qui fige les
   slugs canon dans `exports/diag-canon-slugs.json`. PR auto-générée

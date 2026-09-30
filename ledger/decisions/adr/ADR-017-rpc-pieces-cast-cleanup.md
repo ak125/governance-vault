@@ -7,14 +7,13 @@ decision_makers:
   - "@automecanik.seo"
 supersedes: []
 superseded_by: []
-related_rules:
-  - rpc-governance
-  - performance-budget-ttfb
+related_rules: []
 related_incidents:
-  - INC-2026-005-gsc-5xx-vehicle-page-cold-rpc
-related_adrs:
-  - ADR-016-vehicle-page-matview-persistence
-  - ADR-018-dual-column-schema-consolidation
+  - INC-2026-005
+related_adr:
+  - ADR-003
+  - ADR-016
+  - ADR-018
 reviewed_by: "Claude Opus 4.7"
 implementation_evidence:
   status_review_at: 2026-04-27

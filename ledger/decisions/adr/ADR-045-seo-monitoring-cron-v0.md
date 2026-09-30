@@ -8,6 +8,7 @@ decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
 amends: []
+amended_by: ["ADR-063"]
 related_rules: ["G1", "G3", "Q1", "AP-04", "AP-08"]
 related_incidents: []
 related_adr: ["ADR-025", "ADR-028", "ADR-044"]
@@ -56,7 +57,7 @@ sans ce sample serait du bricolage (liste arbitraire ou liste vide).
 >
 > Le volet CWV initialement prévu en V0.D (PageSpeed synthetic per-URL +
 > sample top-1k stable) est résolu différemment par [[ADR-063-cwv-monitoring-prod-crux-api]]
-> (status: `proposed`, `amends: ["ADR-045"]`).
+> (status: `accepted` le 2026-05-14, PR vault #272 ; `amends: ["ADR-045"]`).
 >
 > Approche retenue : **CrUX field data** (Chrome User Experience Report,
 > History API, fenêtre rolling 28j) via le même cron `seo-monitor` BullMQ

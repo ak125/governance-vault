@@ -11,7 +11,7 @@ owner: "@fafa"
 
 # Evidence Pack — ADR-041 Baseline T0
 
-Suit l'acceptance d'[ADR-041](../../../../decisions/adr/ADR-041-r1-router-posture-empirical-reaffirm.md) (vault PR #178, 2026-05-06).
+Suit l'acceptance d'[ADR-041](../../../../../decisions/adr/ADR-041-r1-router-posture-empirical-reaffirm.md) (vault PR #178, 2026-05-06).
 
 Pose la baseline empirique T0 (snapshot GSC 28j ending 2026-05-04) et planifie les snapshots T+7/T+14/T+30 jusqu'au 2026-06-05, date de la décision finale 2.A (règle longueur Option 1 vs Option 2).
 

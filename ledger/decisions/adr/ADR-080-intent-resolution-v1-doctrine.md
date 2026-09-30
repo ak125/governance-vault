@@ -26,7 +26,7 @@ Le Diagnostic Engine V1 (ADR-077) est LIVE en PREPROD depuis 2026-05-19 (PR-A→
 - Pas de couche `diagnostic_intent` exposée comme **vérité backend déterministe explicable**
 - Event taxonomy funnel `diagnostic_to_commerce` défini (PR #676 step 4-A) mais jamais émis
 
-Le **2026-05-23** Reality Audit Block A du moteur (cf. monorepo `audit/diagnostic-engine-reality-2026-05-23`, PR #708) confirme :
+Le **2026-05-23** Reality Audit Block A du moteur (cf. monorepo `docs/superpowers/specs/2026-05-23-diagnostic-engine-reality-audit.md`, PR #708) confirme :
 - Moteur opérationnel (113 sessions persistées, Mars-burst MVP 91 / Avr 12 / Mai 10)
 - Couverture data : 13 systems × 62 symptoms × 58 causes × 162 scoring links × 21 safety rules
 - EvidencePack canonique suffit pour Intent Classifier (composition pure, aucune nouvelle inférence métier)
@@ -245,7 +245,7 @@ V1A.0 ship-gate :
 
 1. ✅ Block A Reality Audit verdict signé (GO/PIVOT) — DONE 2026-05-23 (verdict PIVOT)
 2. ✅ Golden dataset bucketed 5×10 cases ownership defined — Block A livré
-3. ⏳ V1A.0 PR mergé sur main monorepo — PR #711 OPEN
+3. ✅ V1A.0 PR mergé sur main monorepo — PR #711 fusionnée le 2026-05-24
 4. ⏳ Golden seed extended ≥10 active cases/bucket via validators humains (50+ total)
 5. ⏳ 14j prod observation flag ON 5% rollout
 6. ⏳ V1A.0 KPI gates verts : `resolved_intent_rate ≥ 55%`, `intent_to_commerce_rate ≥ baseline+20%`, `human_escalation_uptake_rate` mesuré, 0 sev2+
@@ -276,6 +276,6 @@ V1A.0 ship-gate :
 - V1A.0 implementation (monorepo) : PR ak125/nestjs-remix-monorepo#711
 - ADR-077 Diagnostic CP V1 evidence-gated registry (10 gates G1-G10) — cadre wider Diagnostic CP
 - ADR-027 R5 sub-pages sunset doctrine
-- ADR-032 ADR-032 D1-D9 diagnostic-engine wiki submodule contract
+- ADR-032 D1-D9 diagnostic-engine wiki submodule contract
 - ADR-058 Repository Control Plane
 - ADR-070 R8 R1-first R2-second active disambiguation

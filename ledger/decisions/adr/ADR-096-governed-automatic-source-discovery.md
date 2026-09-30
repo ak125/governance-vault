@@ -5,7 +5,6 @@ status: accepted
 date: 2026-07-15
 decision_date: "2026-07-16"
 version: "1.0.0"
-deciders: [Fafa]
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []

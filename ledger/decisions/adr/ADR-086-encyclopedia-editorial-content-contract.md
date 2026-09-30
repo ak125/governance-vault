@@ -8,6 +8,7 @@ decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
 amends: ["ADR-083"]
+amended_by: ["ADR-088"]
 extends: ["ADR-059", "ADR-031", "ADR-066"]
 related_adr: ["ADR-031", "ADR-033", "ADR-046", "ADR-059", "ADR-066", "ADR-083"]
 related_rules: ["G1", "AI1", "T1"]
@@ -277,8 +278,8 @@ source/claim/contradiction/risk/confidence + `confidence_score ≥ seuil` + `tru
   véhicule (R8)**.
 - [ADR-083 Tiered WIKI Promotion](ADR-083-tiered-wiki-promotion.md) — **amendé** (gate « ≥1 bloc valide »).
 - [ADR-031 Four-Layer Content Architecture](ADR-031-four-layer-content-architecture.md) ·
-  [ADR-046 RAG = retrieval chatbot only](ADR-046-rag-retrieval-chatbot-only.md) (RAG ≠ source contenu) ·
-  [ADR-033 Wiki Gamme Diagnostic Relations](ADR-033-wiki-gamme-diagnostic-relations.md).
+  [ADR-046 RAG = retrieval chatbot only](ADR-046-r-stack-single-generator-and-layers.md) (RAG ≠ source contenu) ·
+  [ADR-033 Wiki Gamme Diagnostic Relations](ADR-033-wiki-gamme-diagnostic-relations-contract.md).
 - Preuve de contrat : PR `automecanik-wiki` `feat/export-contract-dimensions-to-blocks` (#43) —
   `dimensions → facts/blocks`, schema v1.1.0, negative test 0 filler.
 - Contrat opérationnel : `automecanik-raw/docs/encyclopedia-contract.md` (à linker au canon).
