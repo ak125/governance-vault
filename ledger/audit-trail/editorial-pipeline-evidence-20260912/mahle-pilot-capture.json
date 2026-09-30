@@ -1,0 +1,21 @@
+{
+  "mode": "commit",
+  "item": "wl-filtre-a-huile-conception-media",
+  "gamme": "filtre-a-huile",
+  "urls_total": 1,
+  "reports": [
+    {
+      "url": "https://www.mahle-aftermarket.com/na/en/products-and-services/filters/oil-filters/",
+      "action": "CAPTURED",
+      "detail": "sources/auto-captures/filtre-a-huile/mahle-aftermarket-com-wl-filtre-a-huile-conception-media-fa488c04.md (CAPTURED_NEEDS_REVIEW, 8429c)",
+      "raw_path": "sources/auto-captures/filtre-a-huile/mahle-aftermarket-com-wl-filtre-a-huile-conception-media-fa488c04.md",
+      "content_hash": "sha256:fa488c047addedba6909fc86d9a4c3d1b6529dc93c7039a84f0589342fc0a77b",
+      "status": "CAPTURED_NEEDS_REVIEW",
+      "source_type": "manufacturer_maintenance",
+      "license_status": "unknown",
+      "captured_at": "2026-09-13T22:40:47Z"
+    }
+  ],
+  "worklist_updated": "wl-filtre-a-huile-conception-media",
+  "next": "python _scripts/gates.py --gate I --gate J"
+}

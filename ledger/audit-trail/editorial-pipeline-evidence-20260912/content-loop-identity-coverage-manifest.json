@@ -1,0 +1,66 @@
+{
+  "observed_date": "2026-09-13",
+  "scope_requested": "Continuer la fiabilisation de la boucle et de ses verdicts",
+  "scope_actually_scanned": "Selection entite du promoteur et portee des verdicts du pilote WIKI",
+  "files_read_count": 9,
+  "files": [
+    "wiki:_scripts/raw_to_wiki_content_loop_pilot.py",
+    "wiki:_scripts/test_raw_to_wiki_content_loop_pilot.py",
+    "wiki:_scripts/promote.py",
+    "wiki:_scripts/test_promote.py",
+    "wiki:_meta/schema/frontmatter.schema.json (identite)",
+    "vault:ops/moc/MOC-Decisions.md (ADR088/092/094)",
+    "vault:ledger/decisions/adr/ADR-088-promotion-gate-substance-scoring.md (extraits)",
+    "vault:ledger/decisions/adr/ADR-092-rank1-content-gate.md (extraits)",
+    "vault:ledger/decisions/adr/ADR-094-page-quality-composite-gate.md (statut et portee verdicts)"
+  ],
+  "freshness": "Fetch wiki origin/main; pas de diff amont des trois fichiers modifies; deltas precedents indexes conserves",
+  "analysis": [
+    "Filtre entity-id utilisait une sous-chaine de nom, pouvait selectionner fiche voisine",
+    "Frontmatter non confronte a identite demandee avant evaluation ou skip",
+    "Verdicts techniques historiques distincts de qualite; ADR094 proposed, pas de nouveau gate actif deduit"
+  ],
+  "corrections_applied": [
+    "Selection exacte du nom pour entity-id, compatibilite slug seul preservee",
+    "Comparaison slug et type declares avant toute evaluation; incompatibilite BLOCKED/ENTITY_ID_MISMATCH, y compris target avec entity-id",
+    "Metadonnees verdict_scope dans rapport pour preciser portee historique et controles editoriaux distincts",
+    "Cinq tests regression: voisin, absence cible, mauvais type/slug et target incompatible"
+  ],
+  "corrections_proposed": [
+    "Identifier declencheur/dernier run effectif et qualification/collecte utiles",
+    "Prouver contenu projete servi; les booleens historiques ne suffisent pas"
+  ],
+  "validation_executed": {
+    "before": "5 nouveaux tests echouent avant correction",
+    "after": "143 PASS /3 fichiers de tests (pilote, promoteur, decideur); tests temporaires et doubles existants",
+    "checks": "py_compile3 fichiers et diff-check cible PASS",
+    "live": "Aucun changement corpus/DB/runtime ni promotion reelle"
+  },
+  "excluded_paths": [
+    "AI-COS supprime",
+    "Corpus et DB partages",
+    "Activation runtime/crons",
+    "PROD/PREPROD",
+    "Modification de seuil ou de verdict composite canonique"
+  ],
+  "unscanned_zones": [
+    "Dernier run editorial actif",
+    "Collecte et preuves reelles catalogue",
+    "Rendu public",
+    "Orchestrateur externe eventuel"
+  ],
+  "remaining_unknowns": [
+    "Nom du declencheur toujours inconnu",
+    "Verdicts projection_operational et business_loop_closed conserves; ne garantissent pas qualite",
+    "Mode --target sans entity-id garde contrat anterieur",
+    "Correctifs candidats non publies/deployes"
+  ],
+  "patch_sha256": "c47ba397c0d70612dd5974fff4d658162b458954a6dff39403976764d9e99fa9",
+  "patch_scope": "Delta sur index des lots precedents: promote.py, test_promote.py et pilote; prerequis candidats conserves",
+  "evidence": [
+    "content-loop-identity.patch",
+    "content-loop-identity-before.log",
+    "content-loop-identity-after.log"
+  ],
+  "final_status": "PARTIAL_COVERAGE"
+}

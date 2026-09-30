@@ -1,0 +1,70 @@
+diff --git a/_scripts/compute-confidence-score.py b/_scripts/compute-confidence-score.py
+index 35697de..cc8368d 100755
+--- a/_scripts/compute-confidence-score.py
++++ b/_scripts/compute-confidence-score.py
+@@ -66,20 +66,22 @@ def split_frontmatter(text: str) -> tuple[str, str]:
+ 
+ 
+ def count_filled_sections(body: str, required: list[str]) -> int:
+-    headings = [h.lower() for h in H2_RE.findall(body)]
++    headings = list(H2_RE.finditer(body))
+     filled = 0
+     for sec in required:
+         sec_low = sec.lower()
+-        if any(sec_low in h or h in sec_low for h in headings):
+-            # Check section has content (≥ 20 non-whitespace chars after heading)
+-            pattern = re.compile(rf"^##\s+.*{re.escape(sec[:8])}", re.MULTILINE | re.IGNORECASE)
+-            m = pattern.search(body)
+-            if m:
+-                start = m.end()
+-                next_h2 = H2_RE.search(body, start)
+-                section_body = body[start : next_h2.start() if next_h2 else len(body)]
+-                if len(re.sub(r"\s+", "", section_body)) >= 20:
+-                    filled += 1
++        for index, heading in enumerate(headings):
++            title = heading.group(1).lower()
++            if sec_low not in title and title not in sec_low:
++                continue
++            # Only the body after the COMPLETE heading contributes substance.
++            # Matching the first eight title characters counted the remaining
++            # title as content and let empty sections pass the 20-char floor.
++            end = headings[index + 1].start() if index + 1 < len(headings) else len(body)
++            section_body = body[heading.end():end]
++            if len(re.sub(r"\s+", "", section_body)) >= 20:
++                filled += 1
++                break
+     return filled
+ 
+ 
+diff --git a/_scripts/tests/test_confidence_schema_contract.py b/_scripts/tests/test_confidence_schema_contract.py
+index c436ef1..d56d75a 100644
+--- a/_scripts/tests/test_confidence_schema_contract.py
++++ b/_scripts/tests/test_confidence_schema_contract.py
+@@ -63,3 +63,27 @@ def test_source_metadata_stays_strict():
+     fm["source_refs"][0]["unrecognized_evidence"] = True
+     with pytest.raises(ValidationError):
+         VALIDATOR.validate(fm)
++
++
++def test_long_heading_without_body_is_not_substance():
++    body = '\n'.join(
++        f"## {heading} avec un titre artificiellement tres long sans explication\n"
++        for heading in SCORER.SECTIONS_REQUIRED['gamme']
++    )
++    assert SCORER.count_filled_sections(body, SCORER.SECTIONS_REQUIRED['gamme']) == 0
++
++
++def test_next_heading_cannot_fill_previous_section():
++    body = '## Definition\n\n## Another long heading that contains no explanation\n'
++    assert SCORER.count_filled_sections(body, ['Definition']) == 0
++
++
++@pytest.mark.parametrize('content, expected', [('x' * 19, 0), ('x' * 20, 1), (' \n\t', 0)])
++def test_substance_boundary_excludes_heading_and_whitespace(content, expected):
++    body = f'## Definition with a long explanatory-looking heading\n{content}\n'
++    assert SCORER.count_filled_sections(body, ['Definition']) == expected
++
++
++def test_duplicate_heading_counts_required_section_only_once():
++    body = '## Definition\n' + 'x' * 20 + '\n## Definition\n' + 'y' * 20
++    assert SCORER.count_filled_sections(body, ['Definition']) == 1

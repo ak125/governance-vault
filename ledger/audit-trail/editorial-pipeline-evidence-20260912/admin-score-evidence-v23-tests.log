@@ -1,0 +1,7 @@
+PASS src/config/scoring-profiles.config.spec.ts (9.588 s)
+PASS src/modules/admin/services/quality-scoring-engine.service.test.ts
+
+Test Suites: 2 passed, 2 total
+Tests:       29 passed, 29 total
+Snapshots:   0 total
+Time:        10.065 s, estimated 11 s

@@ -1,0 +1,78 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+_ test_cli_applies_content_and_identity_from_evaluated_snapshot[filtre-a-huile] _
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-414/test_cli_applies_content_and_i0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fa246cf3940>
+slug = 'filtre-a-huile'
+
+    @pytest.mark.parametrize('slug', ['filtre-a-huile', 'filtre-revise'])
+    def test_cli_applies_content_and_identity_from_evaluated_snapshot(tmp_path, monkeypatch, slug):
+        mod, source, document, decide, invoke = _cli_snapshot_fixture(tmp_path, monkeypatch)
+        def changed_before_capture(*args, **kwargs):
+            source.write_text(document(slug, 'EVALUATED BODY'))
+            return decide(*args, **kwargs)
+        monkeypatch.setattr(mod, 'canonical_promotion_decision', changed_before_capture)
+        result = invoke()
+        assert result.exit_code == 0, result.output
+        entry, = json.loads(result.stdout)['report']
+        assert 'promoted_to' in entry, entry
+        output = tmp_path / 'wiki/gamme' / f'{slug}.md'
+        assert output.exists()
+        fm, body = mod._parse_markdown(output)
+        assert fm['slug'] == slug
+>       assert body == 'EVALUATED BODY'
+E       AssertionError: assert 'PRELOADED BODY' == 'EVALUATED BODY'
+E         
+E         - EVALUATED BODY
+E         + PRELOADED BODY
+
+_scripts/test_promote.py:517: AssertionError
+_ test_cli_applies_content_and_identity_from_evaluated_snapshot[filtre-revise] _
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-414/test_cli_applies_content_and_i1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fa246843220>
+slug = 'filtre-revise'
+
+    @pytest.mark.parametrize('slug', ['filtre-a-huile', 'filtre-revise'])
+    def test_cli_applies_content_and_identity_from_evaluated_snapshot(tmp_path, monkeypatch, slug):
+        mod, source, document, decide, invoke = _cli_snapshot_fixture(tmp_path, monkeypatch)
+        def changed_before_capture(*args, **kwargs):
+            source.write_text(document(slug, 'EVALUATED BODY'))
+            return decide(*args, **kwargs)
+        monkeypatch.setattr(mod, 'canonical_promotion_decision', changed_before_capture)
+        result = invoke()
+        assert result.exit_code == 0, result.output
+        entry, = json.loads(result.stdout)['report']
+        assert 'promoted_to' in entry, entry
+        output = tmp_path / 'wiki/gamme' / f'{slug}.md'
+>       assert output.exists()
+E       AssertionError: assert False
+E        +  where False = exists()
+E        +    where exists = PosixPath('/tmp/pytest-of-deploy/pytest-414/test_cli_applies_content_and_i1/wiki/gamme/filtre-revise.md').exists
+
+_scripts/test_promote.py:514: AssertionError
+_________ test_cli_refuses_source_changed_inside_executor_before_write _________
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-414/test_cli_refuses_source_change0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fa246855f00>
+
+    def test_cli_refuses_source_changed_inside_executor_before_write(tmp_path, monkeypatch):
+        mod, source, document, _, invoke = _cli_snapshot_fixture(tmp_path, monkeypatch)
+        import promotion_decision as core
+        def mutate(root):
+            source.write_text(document('filtre-a-huile', 'CONCURRENT BODY'))
+            return 'fixture'
+        monkeypatch.setattr(core, '_wiki_commit_sha', mutate)
+        result = invoke()
+        assert result.exit_code == 0, result.output
+        entry, = json.loads(result.stdout)['report']
+>       assert 'apply_error' in entry or 'apply_refused' in entry
+E       AssertionError: assert ('apply_error' in {'blocking_reasons': [], 'confidence_score': 0.9, 'eligible': True, 'evaluation': {'confidence_score': 0.9, 'gate_status': {}, 'shadow_score': None, 'tier': 'A'}, ...} or 'apply_refused' in {'blocking_reasons': [], 'confidence_score': 0.9, 'eligible': True, 'evaluation': {'confidence_score': 0.9, 'gate_status': {}, 'shadow_score': None, 'tier': 'A'}, ...})
+
+_scripts/test_promote.py:532: AssertionError
+=========================== short test summary info ============================
+FAILED _scripts/test_promote.py::test_cli_applies_content_and_identity_from_evaluated_snapshot[filtre-a-huile]
+FAILED _scripts/test_promote.py::test_cli_applies_content_and_identity_from_evaluated_snapshot[filtre-revise]
+FAILED _scripts/test_promote.py::test_cli_refuses_source_changed_inside_executor_before_write
+3 failed, 47 deselected in 0.26s

@@ -1,0 +1,833 @@
+--- a/backend/src/modules/blog/interfaces/r6-guide.interfaces.ts
++++ b/backend/src/modules/blog/interfaces/r6-guide.interfaces.ts
+@@ -1,3 +1,5 @@
++import { z } from 'zod';
++
+ /**
+  * R6 Guide d'Achat interfaces V2.
+  * Typed payload served by R6GuideService from __seo_gamme_purchase_guide.
+@@ -68,14 +70,17 @@
+ // V2 buying-guide interfaces
+ // ══════════════════════════════════════════════════════════
+ 
+-export interface R6QualityTier {
+-  tier_id: string;
+-  label: string;
+-  description: string;
+-  target_profile?: string;
+-  price_hint?: string;
+-  available: boolean;
+-}
++/** Runtime contract for comparison tiers; V1 compatibility criteria do not satisfy it. */
++export const R6QualityTierSchema = z.object({
++  tier_id: z.string().trim().min(1),
++  label: z.string().trim().min(1),
++  description: z.string().trim().min(1),
++  target_profile: z.string().optional(),
++  price_hint: z.string().optional(),
++  available: z.boolean(),
++});
++
++export type R6QualityTier = z.infer<typeof R6QualityTierSchema>;
+ 
+ export interface R6CompatibilityAxis {
+   axis: string;
+@@ -199,6 +204,8 @@
+   heroDecision?: R6HeroDecision;
+   summaryPickFast?: R6DecisionNode[];
+   qualityTiers?: R6QualityTier[];
++  /** Missing/invalid comparison data; keep the section explicit without invented tiers. */
++  qualityTiersReviewRequired?: boolean;
+   compatibilityAxes?: R6CompatibilityAxis[];
+   priceGuide?: R6PriceGuideSection;
+   brandsGuide?: R6BrandsGuideSection;
+--- a/backend/src/modules/blog/services/r6-guide.service.ts
++++ b/backend/src/modules/blog/services/r6-guide.service.ts
+@@ -7,6 +7,9 @@
+  */
+ 
+ import { Injectable, Logger } from '@nestjs/common';
++import { normalizeSeoText } from '@repo/seo-roles';
++import { R6QualityTierSchema } from '../interfaces/r6-guide.interfaces';
++import { isLegacyRagTier } from '../../../config/source-provenance.constants';
+ import { FeatureFlagsService } from '../../../config/feature-flags.service';
+ import { SupabaseIndexationService } from '../../search/services/supabase-indexation.service';
+ import { BlogArticleTransformService } from './blog-article-transform.service';
+@@ -264,34 +267,51 @@
+         ),
+       }));
+ 
+-    // Quality tiers from selection_criteria
+-    // V2 agent format: {tiers:[{tier_id, label, description, available, ...}], block_type, intro_text}
+-    const rawCriteria = row.sgpg_selection_criteria as
+-      | { tiers: R6QualityTier[]; intro_text?: string }
+-      | R6QualityTier[]
+-      | null;
+-    const rawTiers: R6QualityTier[] = Array.isArray(rawCriteria)
+-      ? rawCriteria
+-      : rawCriteria?.tiers || [];
+-    // Sanitize: filter out RAG chunks and clean markdown artifacts from labels
+-    const qualityTiers: R6QualityTier[] = rawTiers
+-      .filter((t) => {
+-        const label = t.label || '';
+-        const guidance =
+-          ((t as unknown as Record<string, unknown>).guidance as string) || '';
+-        return !this.isRagChunk(label) && !this.isRagChunk(guidance);
+-      })
+-      .map((t) => {
+-        const cleaned = { ...t };
+-        if (cleaned.label) cleaned.label = this.sanitizeRagLeaks(cleaned.label);
+-        const rec = cleaned as unknown as Record<string, unknown>;
+-        if (rec.guidance) {
+-          rec.guidance = this.sanitizeRagLeaks(rec.guidance as string);
+-        }
+-        if (cleaned.description)
+-          cleaned.description = this.sanitizeRagLeaks(cleaned.description);
+-        return cleaned;
++    // Validate V2 comparison data instead of interpreting V1 criteria as tiers.
++    // Both existing V2 containers are supported. Invalid source data stays in DB;
++    // the section is explicitly unavailable and flagged for editorial review.
++    const rawCriteria = row.sgpg_selection_criteria;
++    const rawTiers =
++      rawCriteria !== null &&
++      typeof rawCriteria === 'object' &&
++      !Array.isArray(rawCriteria) &&
++      'tiers' in rawCriteria
++        ? rawCriteria.tiers
++        : rawCriteria;
++    const parsedTiers = R6QualityTierSchema.array().min(1).safeParse(rawTiers);
++    let qualityTiers: R6QualityTier[] = [];
++    let qualityTiersReviewRequired = !parsedTiers.success;
++    if (parsedTiers.success) {
++      const ids = new Set<string>();
++      const labels = new Set<string>();
++      const cleaned = parsedTiers.data.map((tier) => ({
++        ...tier,
++        label: this.sanitizeRagLeaks(tier.label),
++        description: this.sanitizeRagLeaks(tier.description),
++      }));
++      qualityTiersReviewRequired = cleaned.some((tier, index) => {
++        const label = normalizeSeoText(tier.label);
++        const id = normalizeSeoText(tier.tier_id);
++        const source = parsedTiers.data[index];
++        const invalid =
++          !label ||
++          !id ||
++          !normalizeSeoText(tier.description) ||
++          ids.has(id) ||
++          labels.has(label) ||
++          this.isRagChunk(source.label) ||
++          this.isRagChunk(source.description);
++        ids.add(id);
++        labels.add(label);
++        return invalid;
+       });
++      if (!qualityTiersReviewRequired) qualityTiers = cleaned;
++    }
++    if (qualityTiersReviewRequired) {
++      this.logger.warn(
++        `R6_QUALITY_TIERS_REVIEW_REQUIRED: pg_alias=${pg_alias}, field=sgpg_selection_criteria`,
++      );
++    }
+ 
+     // Compatibility axes from new JSONB column — sanitize RAG leaks
+     const rawAxesField = row.sgpg_compatibility_axes as
+@@ -423,6 +443,7 @@
+       heroDecision,
+       summaryPickFast,
+       qualityTiers,
++      qualityTiersReviewRequired,
+       compatibilityAxes,
+       priceGuide,
+       brandsGuide,
+@@ -437,7 +458,9 @@
+             ref: row.sgpg_source_ref as string | undefined,
+           })
+         : null,
+-      sourceVerified: (row.sgpg_source_verified as boolean) ?? false,
++      sourceVerified:
++        row.sgpg_source_verified === true &&
++        !isLegacyRagTier(row.sgpg_source_type as string | null),
+     };
+   }
+ 
+@@ -523,7 +546,9 @@
+             ref: row.sgpg_source_ref as string | undefined,
+           })
+         : null,
+-      sourceVerified: (row.sgpg_source_verified as boolean) ?? false,
++      sourceVerified:
++        row.sgpg_source_verified === true &&
++        !isLegacyRagTier(row.sgpg_source_type as string | null),
+     };
+   }
+ 
+--- a/backend/src/modules/blog/utils/source-provenance.util.ts
++++ b/backend/src/modules/blog/utils/source-provenance.util.ts
+@@ -33,7 +33,7 @@
+   if (s.ref?.includes('OEM') || s.ref === 'OEM_manual')
+     return 'Manuel constructeur';
+   if (s.ref?.endsWith('.pdf')) return 'Documentation technique';
+-  return 'Source vérifiée';
++  return 'Référence documentaire';
+ }
+ 
+ /** Convert a raw string source ref into a user-facing label. */
+--- a/backend/src/modules/admin/services/buying-guide/buying-guide-db.service.ts
++++ b/backend/src/modules/admin/services/buying-guide/buying-guide-db.service.ts
+@@ -1,12 +1,11 @@
+ import { Injectable, Logger, Optional, Inject } from '@nestjs/common';
+ import { ConfigService } from '@nestjs/config';
+ import { SupabaseBaseService } from '@database/services/supabase-base.service';
++import { FAMILY_MARKERS } from '../../../../config/buying-guide-quality.constants';
+ import {
+-  MIN_VERIFIED_CONFIDENCE,
+-  MIN_QUALITY_SCORE,
+-  FAMILY_MARKERS,
+-} from '../../../../config/buying-guide-quality.constants';
+-import { SOURCE_TIER } from '../../../../config/source-provenance.constants';
++  SOURCE_TIER,
++  isLegacyRagTier,
++} from '../../../../config/source-provenance.constants';
+ import type { SectionValidationResult } from './buying-guide.types';
+ import { BuyingGuideSectionExtractor } from './buying-guide-section-extractor.service';
+ import { FeatureFlagsService } from '../../../../config/feature-flags.service';
+@@ -83,8 +82,8 @@
+     sections: Record<string, SectionValidationResult>,
+     sourceUri: string,
+     sourceRef: string,
+-    avgConfidence: number,
+-    qualityScore: number,
++    _avgConfidence: number,
++    _qualityScore: number,
+   ): Record<string, unknown> {
+     const payload: Record<string, unknown> = {
+       // Honest provenance tier: parsed from the legacy RAG knowledge doc
+@@ -92,11 +91,11 @@
+       sgpg_source_type: SOURCE_TIER.RAG_LEGACY,
+       sgpg_source_uri: sourceUri,
+       sgpg_source_ref: sourceRef,
+-      sgpg_source_verified:
+-        avgConfidence >= MIN_VERIFIED_CONFIDENCE &&
+-        qualityScore >= MIN_QUALITY_SCORE,
+-      sgpg_source_verified_by: 'pipeline:rag-enrich',
+-      sgpg_source_verified_at: new Date().toISOString(),
++      // A retrieval score is not a source review. Legacy content cannot
++      // manufacture verification metadata, even with perfect numeric scores.
++      sgpg_source_verified: false,
++      sgpg_source_verified_by: null,
++      sgpg_source_verified_at: null,
+     };
+ 
+     // Map each OK section to its DB column
+@@ -377,17 +376,29 @@
+       }
+     }
+ 
+-    // ── Existing write (UNCHANGED) ──
+-    const { error } = await this.client
++    // Legacy criteria are V1 data. Apply the version condition in the UPDATE
++    // itself so a concurrent V2 conversion cannot be overwritten after a read.
++    let update = this.client
+       .from('__seo_gamme_purchase_guide')
+       .update(payload)
+       .eq('sgpg_pg_id', pgId);
++    if (isLegacyRagTier(payload.sgpg_source_type as string | null)) {
++      update = update.or('sgpg_role_version.is.null,sgpg_role_version.eq.v1');
++    }
++    const { data: updatedRows, error } = await update.select('sgpg_pg_id');
+ 
+     if (error) {
+       this.logger.error(
+         `Failed to update buying guide for pgId=${pgId}: ${error.message}`,
+       );
+       throw new Error(`DB update failed: ${error.message}`);
++    }
++
++    if (!updatedRows?.length) {
++      // Zero affected rows is not success (version mismatch, missing row or RLS).
++      throw new Error(
++        `R6_WRITE_NOT_APPLIED: pgId=${pgId}, no eligible row updated`,
++      );
+     }
+ 
+     this.logger.log(`Buying guide updated for pgId=${pgId}`);
+--- a/frontend/app/types/r6-guide.types.ts
++++ b/frontend/app/types/r6-guide.types.ts
+@@ -189,6 +189,7 @@
+   heroDecision?: R6HeroDecision;
+   summaryPickFast?: R6DecisionNode[];
+   qualityTiers?: R6QualityTier[];
++  qualityTiersReviewRequired?: boolean;
+   compatibilityAxes?: R6CompatibilityAxis[];
+   priceGuide?: R6PriceGuideSection;
+   brandsGuide?: R6BrandsGuideSection;
+--- a/frontend/app/components/blog/guide-achat/R6QualityTiersTable.tsx
++++ b/frontend/app/components/blog/guide-achat/R6QualityTiersTable.tsx
+@@ -12,6 +12,7 @@
+ interface Props {
+   tiers: R6QualityTier[];
+   gammeName: string;
++  reviewRequired?: boolean;
+ }
+ 
+ const TIER_COLORS: Record<string, string> = {
+@@ -30,108 +31,70 @@
+   echange_standard: "bg-teal-100 text-teal-800 border-teal-300",
+ };
+ 
+-/** Alternate format from some V2 pipelines: {key, label, guidance, priority} */
+-interface AltTier {
+-  key?: string;
+-  label?: string;
+-  guidance?: string;
+-  priority?: string;
+-}
+-
+-type AnyTier = R6QualityTier | AltTier;
+-
+-function isStandardTier(t: AnyTier): t is R6QualityTier {
+-  return "tier_id" in t && typeof (t as R6QualityTier).tier_id === "string";
+-}
+-
+-export function R6QualityTiersTable({ tiers, gammeName }: Props) {
+-  if (!tiers || tiers.length === 0) return null;
++export function R6QualityTiersTable({
++  tiers,
++  gammeName,
++  reviewRequired = false,
++}: Props) {
++  if (!reviewRequired && (!tiers || tiers.length === 0)) return null;
+ 
+   return (
+     <section id="niveaux-qualite" className="mb-8">
+       <h2 className="text-2xl font-bold text-gray-900 mb-4 pb-2 border-b-2 border-emerald-500">
+         Niveaux de qualite — {gammeName}
+       </h2>
+-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+-        {(tiers as AnyTier[]).map((tier, i) => {
+-          if (isStandardTier(tier)) {
+-            // Standard V2 format with tier_id, description, available, etc.
+-            return (
+-              <Card
+-                key={tier.tier_id}
+-                className={`border-2 ${TIER_COLORS[tier.tier_id] || "border-gray-200 bg-gray-50"} ${!tier.available ? "opacity-60" : ""}`}
+-              >
+-                <CardContent className="p-5">
+-                  <div className="flex items-center justify-between mb-2">
+-                    <Badge
+-                      variant="outline"
+-                      className={
+-                        TIER_BADGE_COLORS[tier.tier_id] ||
+-                        "bg-gray-100 text-gray-800"
+-                      }
+-                    >
+-                      {tier.label}
+-                    </Badge>
+-                    {tier.available ? (
+-                      <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+-                    ) : (
+-                      <XCircle className="w-4 h-4 text-gray-400" />
+-                    )}
+-                  </div>
+-                  <p className="text-sm text-gray-700 leading-relaxed mb-2">
+-                    {tier.description}
+-                  </p>
+-                  {tier.target_profile && (
+-                    <p className="text-xs text-gray-500">
+-                      Pour : {tier.target_profile}
+-                    </p>
+-                  )}
+-                  {tier.price_hint && (
+-                    <p className="text-xs text-gray-500 mt-1">
+-                      Budget : {tier.price_hint}
+-                    </p>
+-                  )}
+-                  {!tier.available && (
+-                    <p className="text-xs text-gray-400 mt-1 italic">
+-                      Non disponible pour cette gamme
+-                    </p>
+-                  )}
+-                </CardContent>
+-              </Card>
+-            );
+-          }
+-
+-          // Alternate format: {key, label, guidance, priority}
+-          const alt = tier as AltTier;
+-          return (
++      {reviewRequired ? (
++        <p className="text-sm text-gray-700">
++          Les informations comparatives ne sont pas disponibles pour cette
++          gamme.
++        </p>
++      ) : (
++        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
++          {tiers.map((tier) => (
+             <Card
+-              key={alt.key || i}
+-              className="border-2 border-gray-200 bg-gray-50"
++              key={tier.tier_id}
++              className={`border-2 ${TIER_COLORS[tier.tier_id] || "border-gray-200 bg-gray-50"} ${!tier.available ? "opacity-60" : ""}`}
+             >
+               <CardContent className="p-5">
+                 <div className="flex items-center justify-between mb-2">
+                   <Badge
+                     variant="outline"
+-                    className="bg-gray-100 text-gray-800"
++                    className={
++                      TIER_BADGE_COLORS[tier.tier_id] ||
++                      "bg-gray-100 text-gray-800"
++                    }
+                   >
+-                    {alt.label || alt.key || `Critere ${i + 1}`}
++                    {tier.label}
+                   </Badge>
+-                  {alt.priority === "required" ? (
++                  {tier.available ? (
+                     <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                   ) : (
+                     <XCircle className="w-4 h-4 text-gray-400" />
+                   )}
+                 </div>
+-                {alt.guidance && (
+-                  <p className="text-sm text-gray-700 leading-relaxed">
+-                    {alt.guidance}
++                <p className="text-sm text-gray-700 leading-relaxed mb-2">
++                  {tier.description}
++                </p>
++                {tier.target_profile && (
++                  <p className="text-xs text-gray-500">
++                    Pour : {tier.target_profile}
++                  </p>
++                )}
++                {tier.price_hint && (
++                  <p className="text-xs text-gray-500 mt-1">
++                    Budget : {tier.price_hint}
++                  </p>
++                )}
++                {!tier.available && (
++                  <p className="text-xs text-gray-400 mt-1 italic">
++                    Non disponible pour cette gamme
+                   </p>
+                 )}
+               </CardContent>
+             </Card>
+-          );
+-        })}
+-      </div>
++          ))}
++        </div>
++      )}
+     </section>
+   );
+ }
+--- a/frontend/app/routes/blog-pieces-auto.guide-achat.$pg_alias.tsx
++++ b/frontend/app/routes/blog-pieces-auto.guide-achat.$pg_alias.tsx
+@@ -255,7 +255,7 @@
+         .join("\n\n"),
+       faq: [],
+       sourceType: "manual",
+-      sourceVerified: true,
++      sourceVerified: false,
+     };
+ 
+     const r4Reference = await fetchR4Reference(guide.page.pg_id, request);
+@@ -288,7 +288,10 @@
+ 
+ // ── Meta (noindex if no data) ───────────────────────────
+ 
+-export const meta: MetaFunction<typeof loader> = ({ loaderData: data, location }) => {
++export const meta: MetaFunction<typeof loader> = ({
++  loaderData: data,
++  location,
++}) => {
+   if (!data) {
+     return [
+       { title: "Guide non trouve" },
+@@ -377,7 +380,10 @@
+         anchor: "quiz-assistant",
+       });
+     }
+-    if (guide.qualityTiers && guide.qualityTiers.length > 0) {
++    if (
++      guide.qualityTiersReviewRequired ||
++      (guide.qualityTiers && guide.qualityTiers.length > 0)
++    ) {
+       sections.push({
+         level: 2,
+         title: "Niveaux de qualite",
+@@ -724,8 +730,13 @@
+       )}
+ 
+       {/* 3. Quality Tiers */}
+-      {guide.qualityTiers && guide.qualityTiers.length > 0 && (
+-        <R6QualityTiersTable tiers={guide.qualityTiers} gammeName={gn} />
++      {(guide.qualityTiersReviewRequired ||
++        (guide.qualityTiers && guide.qualityTiers.length > 0)) && (
++        <R6QualityTiersTable
++          tiers={guide.qualityTiers || []}
++          gammeName={gn}
++          reviewRequired={guide.qualityTiersReviewRequired !== false}
++        />
+       )}
+       {ms?.quality_tiers && (
+         <R6MediaSlotRenderer slots={ms.quality_tiers} gammeName={gn} />
+--- /dev/null
++++ b/backend/src/modules/blog/services/r6-guide.service.content.test.ts
+@@ -0,0 +1,248 @@
++import { createClient } from '@supabase/supabase-js';
++import { R6GuideService } from './r6-guide.service';
++import { BuyingGuideDbService } from '../../admin/services/buying-guide/buying-guide-db.service';
++import { humanizeProvenance } from '../utils/source-provenance.util';
++
++const tier = {
++  tier_id: 'oe',
++  label: 'Origine',
++  description: 'Référence documentée pour cette application.',
++  available: true,
++};
++const criterion = {
++  key: 'marque',
++  label: 'Marque du véhicule',
++  guidance: 'Vérifier le catalogue.',
++  priority: 'required',
++};
++
++function reader(fields: Record<string, unknown> = {}) {
++  const row = {
++    sgpg_role_version: 'v2',
++    sgpg_selection_criteria: [tier],
++    sgpg_faq: [],
++    sgpg_updated_at: '2026-09-13T12:00:00Z',
++    ...fields,
++  };
++  const client = {
++    from: (table: string) => {
++      const builder = {
++        select: () => builder,
++        eq: () => builder,
++        count: 0,
++        single: async () => ({
++          data:
++            table === 'pieces_gamme'
++              ? { pg_id: 7, pg_name: 'Filtre à huile', pg_pic: null }
++              : row,
++          error: null,
++        }),
++      };
++      return builder;
++    },
++  };
++  return {
++    row,
++    service: new R6GuideService(
++      { client } as never,
++      { buildImageUrl: () => null } as never,
++      { processLinkGamme: async (html: string) => html } as never,
++      {} as never,
++    ),
++  };
++}
++
++describe('R6 quality tier contract and declared source verification', () => {
++  it.each(
++    [[tier], { tiers: [tier], intro_text: 'Comparaison' }].map((value) => [
++      value,
++    ]),
++  )('preserves both documented V2 containers: %j', async (value) => {
++    const { service } = reader({ sgpg_selection_criteria: value });
++    expect(await service.getR6GuidePayload('filtre-a-huile')).toMatchObject({
++      roleVersion: 'v2',
++      qualityTiers: [tier],
++      qualityTiersReviewRequired: false,
++    });
++  });
++  it.each(
++    [
++      [criterion],
++      { tiers: [criterion] },
++      [tier, criterion],
++      [null],
++      { tiers: 'invalid' },
++      [{ ...tier, available: 'false' }],
++      [{ ...tier, description: '   ' }],
++      null,
++      [],
++      [tier, { ...tier, tier_id: 'oe-2', label: 'ORIGÍNE.' }],
++      [tier, { ...tier, label: 'Autre catégorie' }],
++    ].map((value) => [value]),
++  )(
++    'reports incomplete/invalid V2 tiers without converting compatibility data: %j',
++    async (value) => {
++      const { service, row } = reader({ sgpg_selection_criteria: value });
++      const before = JSON.stringify(row);
++      expect(await service.getR6GuidePayload('filtre-a-huile')).toMatchObject({
++        qualityTiers: [],
++        qualityTiersReviewRequired: true,
++        canonicalRoleUrl: '/blog-pieces-auto/guide-achat/filtre-a-huile',
++      });
++      expect(JSON.stringify(row)).toBe(before);
++    },
++  );
++  it('keeps legitimate V1 criteria in their V1 field', async () => {
++    const { service } = reader({
++      sgpg_role_version: 'v1',
++      sgpg_selection_criteria: [criterion],
++    });
++    const payload = await service.getR6GuidePayload('filtre-a-huile');
++    expect(payload).toMatchObject({
++      roleVersion: 'v1',
++      selectionCriteria: [criterion],
++    });
++    expect(payload?.qualityTiers).toBeUndefined();
++  });
++  it.each(['v1', 'v2'])(
++    'refuses the historical RAG verification stamp in %s',
++    async (version) => {
++      for (const source of ['rag', 'rag-legacy']) {
++        const { service } = reader({
++          sgpg_role_version: version,
++          sgpg_source_type: source,
++          sgpg_source_verified: true,
++        });
++        expect(await service.getR6GuidePayload('filtre-a-huile')).toMatchObject(
++          { sourceVerified: false },
++        );
++      }
++    },
++  );
++  it('preserves an explicit non-legacy verification declaration without inventing one', async () => {
++    const { service } = reader({
++      sgpg_source_type: 'wiki',
++      sgpg_source_verified: true,
++    });
++    expect(await service.getR6GuidePayload('filtre-a-huile')).toMatchObject({
++      sourceVerified: true,
++    });
++    const missing = reader({ sgpg_source_type: 'wiki' }).service;
++    expect(await missing.getR6GuidePayload('filtre-a-huile')).toMatchObject({
++      sourceVerified: false,
++    });
++  });
++  it('does not convert the string false into a truthy verified badge', async () => {
++    const { service } = reader({
++      sgpg_source_type: 'wiki',
++      sgpg_source_verified: 'false',
++    });
++    expect(await service.getR6GuidePayload('filtre-a-huile')).toMatchObject({
++      sourceVerified: false,
++    });
++  });
++  it('does not manufacture verification from perfect legacy scores', () => {
++    // Exercise the pure payload builder without creating a DB client.
++    const writer = Object.create(
++      BuyingGuideDbService.prototype,
++    ) as BuyingGuideDbService;
++    expect(
++      writer.buildUpdatePayload({}, 'rag://fixture', 'fixture', 1, 100),
++    ).toMatchObject({
++      sgpg_source_type: 'rag-legacy',
++      sgpg_source_verified: false,
++      sgpg_source_verified_by: null,
++      sgpg_source_verified_at: null,
++    });
++  });
++  it('uses a neutral provenance label when there is no verification evidence', () => {
++    expect(humanizeProvenance({ type: 'web', ref: 'fixture' })).toBe(
++      'Référence documentaire',
++    );
++  });
++});
++
++describe('Legacy R6 writer uses a version predicate in the UPDATE itself', () => {
++  it.each(['v1', null, 'v2', 'v3'])(
++    'checks the write request and affected rows for version %s',
++    async (version) => {
++      const requests: URL[] = [];
++      const client = createClient('https://fixture.invalid', 'fixture-key', {
++        auth: {
++          persistSession: false,
++          autoRefreshToken: false,
++          detectSessionInUrl: false,
++        },
++        global: {
++          fetch: async (input, init) => {
++            const url = new URL(String(input));
++            expect(init?.method).toBe('PATCH');
++            requests.push(url);
++            const eligible = version === 'v1' || version === null;
++            return new Response(
++              JSON.stringify(eligible ? [{ sgpg_pg_id: '7' }] : []),
++              { status: 200, headers: { 'Content-Type': 'application/json' } },
++            );
++          },
++        },
++      });
++      const writer = Object.create(
++        BuyingGuideDbService.prototype,
++      ) as BuyingGuideDbService;
++      Object.defineProperty(writer, 'client', { value: client });
++      Object.defineProperty(writer, 'logger', {
++        value: { log: jest.fn(), warn: jest.fn(), error: jest.fn() },
++      });
++      const result = writer.upsertBuyingGuide('7', {
++        sgpg_source_type: 'rag-legacy',
++        sgpg_gatekeeper_score: 100,
++      });
++      if (version === 'v1' || version === null)
++        await expect(result).resolves.toBeUndefined();
++      else await expect(result).rejects.toThrow('R6_WRITE_NOT_APPLIED');
++      expect(requests).toHaveLength(1);
++      expect(requests[0].searchParams.get('sgpg_pg_id')).toBe('eq.7');
++      expect(requests[0].searchParams.get('or')).toBe(
++        '(sgpg_role_version.is.null,sgpg_role_version.eq.v1)',
++      );
++      expect(requests[0].searchParams.get('select')).toBe('sgpg_pg_id');
++    },
++  );
++});
++
++describe('R6 metadata-only diagnostics', () => {
++  it('keeps diagnostics writable without a legacy content-version restriction', async () => {
++    let query: URL | undefined;
++    const client = createClient('https://fixture.invalid', 'fixture-key', {
++      auth: {
++        persistSession: false,
++        autoRefreshToken: false,
++        detectSessionInUrl: false,
++      },
++      global: {
++        fetch: async (input) => {
++          query = new URL(String(input));
++          return new Response(JSON.stringify([{ sgpg_pg_id: '7' }]), {
++            status: 200,
++            headers: { 'Content-Type': 'application/json' },
++          });
++        },
++      },
++    });
++    const writer = Object.create(
++      BuyingGuideDbService.prototype,
++    ) as BuyingGuideDbService;
++    Object.defineProperty(writer, 'client', { value: client });
++    Object.defineProperty(writer, 'logger', {
++      value: { log: jest.fn(), warn: jest.fn(), error: jest.fn() },
++    });
++    await expect(
++      writer.upsertBuyingGuide('7', {
++        sgpg_gatekeeper_score: 0,
++        sgpg_source_verified: false,
++      }),
++    ).resolves.toBeUndefined();
++    expect(query?.searchParams.get('or')).toBeNull();
++    expect(query?.searchParams.get('sgpg_pg_id')).toBe('eq.7');
++  });
++});
+--- /dev/null
++++ b/frontend/tests/unit/r6-quality-tiers.test.tsx
+@@ -0,0 +1,43 @@
++import { cleanup, render, screen } from "@testing-library/react";
++import { afterEach, describe, expect, it } from "vitest";
++import { R6QualityTiersTable } from "~/components/blog/guide-achat/R6QualityTiersTable";
++
++afterEach(cleanup);
++const tier = {
++  tier_id: "oe",
++  label: "Origine",
++  description: "Application documentée.",
++  available: true,
++};
++describe("R6 quality comparison", () => {
++  it("renders a valid comparison", () => {
++    render(<R6QualityTiersTable tiers={[tier]} gammeName="Filtre à huile" />);
++    expect(screen.getByText("Origine")).toBeTruthy();
++    expect(screen.getByText("Application documentée.")).toBeTruthy();
++  });
++  it("retains the section anchor and explains missing comparative information", () => {
++    const { container } = render(
++      <R6QualityTiersTable
++        tiers={[]}
++        gammeName="Filtre à huile"
++        reviewRequired
++      />,
++    );
++    expect(container.querySelector("#niveaux-qualite")).toBeTruthy();
++    expect(
++      screen.getByText(
++        "Les informations comparatives ne sont pas disponibles pour cette gamme.",
++      ),
++    ).toBeTruthy();
++  });
++  it("does not present stale cards when the server marks the section for review", () => {
++    render(
++      <R6QualityTiersTable
++        tiers={[tier]}
++        gammeName="Filtre à huile"
++        reviewRequired
++      />,
++    );
++    expect(screen.queryByText("Origine")).toBeNull();
++  });
++});
+--- /dev/null
++++ b/frontend/tests/unit/r6-guide-loader.test.ts
+@@ -0,0 +1,58 @@
++import { RouterContextProvider } from "react-router";
++import { afterEach, describe, expect, it, vi } from "vitest";
++import { loader } from "~/routes/blog-pieces-auto.guide-achat.$pg_alias";
++vi.mock("~/utils/internal-api.server", () => ({
++  getInternalApiUrlFromRequest: (path: string) =>
++    `https://fixture.invalid${path}`,
++}));
++afterEach(() => vi.restoreAllMocks());
++const args = {
++  params: { pg_alias: "filtre-a-huile" },
++  request: new Request(
++    "https://fixture.invalid/blog-pieces-auto/guide-achat/filtre-a-huile",
++  ),
++  context: new RouterContextProvider(),
++  url: new URL(
++    "https://fixture.invalid/blog-pieces-auto/guide-achat/filtre-a-huile",
++  ),
++  pattern: "/blog-pieces-auto/guide-achat/:pg_alias",
++} satisfies Parameters<typeof loader>[0];
++describe("R6 loader provenance and comparison state", () => {
++  it("does not manufacture expert verification in the manual fallback", async () => {
++    vi.spyOn(globalThis, "fetch").mockImplementation(async (input) => {
++      const path = new URL(String(input)).pathname;
++      if (path.includes("/redirect/")) return Response.json(null);
++      if (path.includes("/api/blog/guides/slug/"))
++        return Response.json({
++          data: {
++            slug: "filtre-a-huile",
++            title: "Filtre à huile",
++            sections: [],
++          },
++        });
++      return new Response(null, { status: 404 });
++    });
++    expect(await loader(args)).toMatchObject({
++      guide: { sourceType: "manual", sourceVerified: false },
++    });
++  });
++  it("preserves the server's explicit incomplete-comparison state", async () => {
++    vi.spyOn(globalThis, "fetch").mockImplementation(async (input) => {
++      const path = new URL(String(input)).pathname;
++      if (path.includes("/redirect/")) return Response.json(null);
++      if (path.includes("/api/r6-guide/"))
++        return Response.json({
++          data: {
++            intentType: "R6",
++            page: { pg_id: 0 },
++            qualityTiers: [],
++            qualityTiersReviewRequired: true,
++          },
++        });
++      return new Response(null, { status: 404 });
++    });
++    expect(await loader(args)).toMatchObject({
++      guide: { qualityTiers: [], qualityTiersReviewRequired: true },
++    });
++  });
++});

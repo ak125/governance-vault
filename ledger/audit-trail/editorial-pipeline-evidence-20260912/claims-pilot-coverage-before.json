@@ -1,0 +1,28 @@
+{
+  "pass": 0,
+  "warn": 0,
+  "fail": 1,
+  "results": [
+    {
+      "slug": "filtre-a-huile",
+      "status": "FAIL",
+      "fails": [
+        "entry[1].text_anchor absent de la prose de '## Critères de choix selon le véhicule' (claim_id=filtre-huile-efficacite-iso-4548-12)",
+        "entry[2].text_anchor absent de la prose de '## Fonctionnement' (claim_id=filtre-huile-bypass-clapet-iso-4548-2)",
+        "entry[3].text_anchor absent de la prose de '## Fonctionnement' (claim_id=filtre-huile-anti-retour-iso-4548-9)",
+        "entry[6].text_anchor absent de la prose de '## Critères de choix selon le véhicule' (claim_id=filtre-huile-cartouche-vs-spinon-type-moteur)",
+        "entry[7].text_anchor absent de la prose de '## Fonctionnement' (claim_id=filtre-huile-anti-retour-orientation)",
+        "entry[8].text_anchor absent de la prose de '## Symptômes & diagnostic' (claim_id=filtre-huile-bypass-huile-non-filtree)",
+        "entry[9].text_anchor absent de la prose de '## Marques & qualité' (claim_id=filtre-huile-trois-niveaux-qualite-oe-oes-equivalent)",
+        "entry[10].text_anchor absent de la prose de '## Marques & qualité' (claim_id=filtre-huile-oes-droit-rechange)",
+        "entry[11].text_anchor absent de la prose de '## Entretien & bonnes pratiques de montage' (claim_id=filtre-huile-remplacement-chaque-vidange)",
+        "entry[12].text_anchor absent de la prose de '## Critères de choix selon le véhicule' (claim_id=filtre-huile-clapets-cartouche-dans-boitier)",
+        "entry[13].text_anchor absent de la prose de '## Critères de choix selon le véhicule' (claim_id=filtre-huile-capacite-retention-intervalle)",
+        "entry[14].text_anchor absent de la prose de '## Fonctionnement' (claim_id=filtre-huile-bypass-pression-engine-tied)"
+      ],
+      "warns": [],
+      "coverage_entries": 15,
+      "h2_sections": 9
+    }
+  ]
+}

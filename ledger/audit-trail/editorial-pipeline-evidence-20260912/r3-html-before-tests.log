@@ -1,0 +1,260 @@
+FAIL src/modules/seo/validation/page-role-html.test.ts (9.493 s)
+  ● R3 composed HTML — diagnostic section boundary › reads actual HTML and does not trust a clean text argument
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      16 |   });
+      17 |   it('reads actual HTML and does not trust a clean text argument', () => {
+    > 18 |     expect(audit(`<article><p>Diagnostic et bruit anormal ailleurs.</p>${diag}</article>`).isValid).toBe(false);
+         |                                                                                                     ^
+      19 |   });
+      20 |   it('rejects commercial diagnostic content, including decoded entities', () => {
+      21 |     expect(audit(`<article>${diag.replace('Verifier le signal', 'Ajouter au panier : 20 &#8364;')}</article>`).isValid).toBe(false);
+
+      at Object.<anonymous> (src/modules/seo/validation/page-role-html.test.ts:18:101)
+
+  ● R3 composed HTML — diagnostic section boundary › rejects commercial diagnostic content, including decoded entities
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      19 |   });
+      20 |   it('rejects commercial diagnostic content, including decoded entities', () => {
+    > 21 |     expect(audit(`<article>${diag.replace('Verifier le signal', 'Ajouter au panier : 20 &#8364;')}</article>`).isValid).toBe(false);
+         |                                                                                                                         ^
+      22 |   });
+      23 |   it('rejects procedural content inside diagnostic', () => {
+      24 |     expect(audit(`<article>${diag.replace('Verifier le signal', 'Etapes de remplacement et couple de serrage')}</article>`).isValid).toBe(false);
+
+      at Object.<anonymous> (src/modules/seo/validation/page-role-html.test.ts:21:121)
+
+  ● R3 composed HTML — diagnostic section boundary › rejects procedural content inside diagnostic
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      22 |   });
+      23 |   it('rejects procedural content inside diagnostic', () => {
+    > 24 |     expect(audit(`<article>${diag.replace('Verifier le signal', 'Etapes de remplacement et couple de serrage')}</article>`).isValid).toBe(false);
+         |                                                                                                                                      ^
+      25 |   });
+      26 |   it('ignores inert scripts/styles/comments and page chrome outside article', () => {
+      27 |     expect(audit(`<nav>Ajouter au panier</nav><article><script>prix = 5</script><style>.prix {}</style><!-- diagnostic -->${diag}</article>`).isValid).toBe(true);
+
+      at Object.<anonymous> (src/modules/seo/validation/page-role-html.test.ts:24:134)
+
+  ● R3 composed HTML — diagnostic section boundary › rejects ambiguous, missing or incomplete diagnostic structure (0)
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      38 |   ])('rejects ambiguous, missing or incomplete diagnostic structure (%#)', (content) => {
+      39 |     const result = audit(`<article>${content}</article>`);
+    > 40 |     expect(result.isValid).toBe(false);
+         |                            ^
+      41 |     expect(result.violations).toEqual(expect.arrayContaining([expect.objectContaining({ type: 'missing_element', severity: 'error' })]));
+      42 |   });
+      43 |   it('does not grant a diagnostic exemption outside the article', () => {
+
+      at src/modules/seo/validation/page-role-html.test.ts:40:28
+
+  ● R3 composed HTML — diagnostic section boundary › rejects ambiguous, missing or incomplete diagnostic structure (1)
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      38 |   ])('rejects ambiguous, missing or incomplete diagnostic structure (%#)', (content) => {
+      39 |     const result = audit(`<article>${content}</article>`);
+    > 40 |     expect(result.isValid).toBe(false);
+         |                            ^
+      41 |     expect(result.violations).toEqual(expect.arrayContaining([expect.objectContaining({ type: 'missing_element', severity: 'error' })]));
+      42 |   });
+      43 |   it('does not grant a diagnostic exemption outside the article', () => {
+
+      at src/modules/seo/validation/page-role-html.test.ts:40:28
+
+  ● R3 composed HTML — diagnostic section boundary › rejects ambiguous, missing or incomplete diagnostic structure (2)
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      38 |   ])('rejects ambiguous, missing or incomplete diagnostic structure (%#)', (content) => {
+      39 |     const result = audit(`<article>${content}</article>`);
+    > 40 |     expect(result.isValid).toBe(false);
+         |                            ^
+      41 |     expect(result.violations).toEqual(expect.arrayContaining([expect.objectContaining({ type: 'missing_element', severity: 'error' })]));
+      42 |   });
+      43 |   it('does not grant a diagnostic exemption outside the article', () => {
+
+      at src/modules/seo/validation/page-role-html.test.ts:40:28
+
+  ● R3 composed HTML — diagnostic section boundary › rejects ambiguous, missing or incomplete diagnostic structure (3)
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      38 |   ])('rejects ambiguous, missing or incomplete diagnostic structure (%#)', (content) => {
+      39 |     const result = audit(`<article>${content}</article>`);
+    > 40 |     expect(result.isValid).toBe(false);
+         |                            ^
+      41 |     expect(result.violations).toEqual(expect.arrayContaining([expect.objectContaining({ type: 'missing_element', severity: 'error' })]));
+      42 |   });
+      43 |   it('does not grant a diagnostic exemption outside the article', () => {
+
+      at src/modules/seo/validation/page-role-html.test.ts:40:28
+
+  ● R3 composed HTML — diagnostic section boundary › rejects ambiguous, missing or incomplete diagnostic structure (4)
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      38 |   ])('rejects ambiguous, missing or incomplete diagnostic structure (%#)', (content) => {
+      39 |     const result = audit(`<article>${content}</article>`);
+    > 40 |     expect(result.isValid).toBe(false);
+         |                            ^
+      41 |     expect(result.violations).toEqual(expect.arrayContaining([expect.objectContaining({ type: 'missing_element', severity: 'error' })]));
+      42 |   });
+      43 |   it('does not grant a diagnostic exemption outside the article', () => {
+
+      at src/modules/seo/validation/page-role-html.test.ts:40:28
+
+  ● R3 composed HTML — diagnostic section boundary › rejects ambiguous, missing or incomplete diagnostic structure (5)
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      38 |   ])('rejects ambiguous, missing or incomplete diagnostic structure (%#)', (content) => {
+      39 |     const result = audit(`<article>${content}</article>`);
+    > 40 |     expect(result.isValid).toBe(false);
+         |                            ^
+      41 |     expect(result.violations).toEqual(expect.arrayContaining([expect.objectContaining({ type: 'missing_element', severity: 'error' })]));
+      42 |   });
+      43 |   it('does not grant a diagnostic exemption outside the article', () => {
+
+      at src/modules/seo/validation/page-role-html.test.ts:40:28
+
+  ● R3 composed HTML — diagnostic section boundary › rejects ambiguous, missing or incomplete diagnostic structure (6)
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      38 |   ])('rejects ambiguous, missing or incomplete diagnostic structure (%#)', (content) => {
+      39 |     const result = audit(`<article>${content}</article>`);
+    > 40 |     expect(result.isValid).toBe(false);
+         |                            ^
+      41 |     expect(result.violations).toEqual(expect.arrayContaining([expect.objectContaining({ type: 'missing_element', severity: 'error' })]));
+      42 |   });
+      43 |   it('does not grant a diagnostic exemption outside the article', () => {
+
+      at src/modules/seo/validation/page-role-html.test.ts:40:28
+
+  ● R3 composed HTML — diagnostic section boundary › rejects ambiguous, missing or incomplete diagnostic structure (7)
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      38 |   ])('rejects ambiguous, missing or incomplete diagnostic structure (%#)', (content) => {
+      39 |     const result = audit(`<article>${content}</article>`);
+    > 40 |     expect(result.isValid).toBe(false);
+         |                            ^
+      41 |     expect(result.violations).toEqual(expect.arrayContaining([expect.objectContaining({ type: 'missing_element', severity: 'error' })]));
+      42 |   });
+      43 |   it('does not grant a diagnostic exemption outside the article', () => {
+
+      at src/modules/seo/validation/page-role-html.test.ts:40:28
+
+  ● R3 composed HTML — diagnostic section boundary › does not grant a diagnostic exemption outside the article
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      42 |   });
+      43 |   it('does not grant a diagnostic exemption outside the article', () => {
+    > 44 |     expect(audit(`${diag}<article>Les outils necessaires.</article>`).isValid).toBe(false);
+         |                                                                                ^
+      45 |   });
+      46 |   it.each([`<div>${diag}</div>`, `<article>${diag}</article><article>Second article</article>`])('requires an unambiguous article root (%#)', (content) => {
+      47 |     expect(audit(content).isValid).toBe(false);
+
+      at Object.<anonymous> (src/modules/seo/validation/page-role-html.test.ts:44:80)
+
+  ● R3 composed HTML — diagnostic section boundary › requires an unambiguous article root (0)
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      45 |   });
+      46 |   it.each([`<div>${diag}</div>`, `<article>${diag}</article><article>Second article</article>`])('requires an unambiguous article root (%#)', (content) => {
+    > 47 |     expect(audit(content).isValid).toBe(false);
+         |                                    ^
+      48 |   });
+      49 |   it('keeps missing canonical invalid even with a valid diagnostic', () => {
+      50 |     const result = validator.validatePageWithHtml(url, '', html(`<article>${diag}</article>`, false));
+
+      at src/modules/seo/validation/page-role-html.test.ts:47:36
+
+  ● R3 composed HTML — diagnostic section boundary › requires an unambiguous article root (1)
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      45 |   });
+      46 |   it.each([`<div>${diag}</div>`, `<article>${diag}</article><article>Second article</article>`])('requires an unambiguous article root (%#)', (content) => {
+    > 47 |     expect(audit(content).isValid).toBe(false);
+         |                                    ^
+      48 |   });
+      49 |   it('keeps missing canonical invalid even with a valid diagnostic', () => {
+      50 |     const result = validator.validatePageWithHtml(url, '', html(`<article>${diag}</article>`, false));
+
+      at src/modules/seo/validation/page-role-html.test.ts:47:36
+
+  ● R3 composed HTML — diagnostic section boundary › refuses a declared role that disagrees with the R3 conseils route
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      55 |     const result = validator.validatePageWithHtml(url, '', html(`<article>${diag}</article>`), PageRole.R5_DIAGNOSTIC);
+      56 |     expect(result.violations.some(v => v.type === 'role_mismatch')).toBe(true);
+    > 57 |     expect(result.isValid).toBe(false);
+         |                            ^
+      58 |   });
+      59 |   it('allows a full-width DTC footer after a complete diagnostic row', () => {
+      60 |     expect(audit(`<article>${diag.replace('</tbody>', '<tr><td colspan="3">Code DTC : consulter les limites du signal.</td></tr></tbody>')}</article>`).isValid).toBe(true);
+
+      at Object.<anonymous> (src/modules/seo/validation/page-role-html.test.ts:57:28)
+
+Test Suites: 1 failed, 1 total
+Tests:       15 failed, 4 passed, 19 total
+Snapshots:   0 total
+Time:        9.667 s

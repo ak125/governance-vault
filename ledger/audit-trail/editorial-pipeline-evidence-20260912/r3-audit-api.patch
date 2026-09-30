@@ -1,0 +1,439 @@
+diff --git a/backend/src/modules/admin/controllers/internal-seo-audit.controller.ts b/backend/src/modules/admin/controllers/internal-seo-audit.controller.ts
+index bd0e29291..7f4704594 100644
+--- a/backend/src/modules/admin/controllers/internal-seo-audit.controller.ts
++++ b/backend/src/modules/admin/controllers/internal-seo-audit.controller.ts
+@@ -6,7 +6,21 @@
+  * GET /api/internal/seo/audit/coverage  — coverage gaps for AI-COS heartbeat
+  */
+ 
+-import { Controller, Get, Logger, UseGuards } from '@nestjs/common';
++import {
++  BadRequestException,
++  Controller,
++  Get,
++  Logger,
++  Param,
++  Query,
++  UseGuards,
++} from '@nestjs/common';
++import { z } from 'zod';
++import { ConseilQualityScorerService } from '../services/conseil-quality-scorer.service';
++import {
++  PACK_DEFINITIONS,
++  type PackLevel,
++} from '../../../config/conseil-pack.constants';
+ import { ConfigService } from '@nestjs/config';
+ import { createClient, SupabaseClient } from '@supabase/supabase-js';
+ import { InternalApiKeyGuard } from '../../../auth/internal-api-key.guard';
+@@ -44,13 +58,45 @@ export class InternalSeoAuditController {
+   private readonly logger = new Logger(InternalSeoAuditController.name);
+   private readonly supabase: SupabaseClient;
+ 
+-  constructor(private readonly configService: ConfigService) {
++  constructor(
++    private readonly configService: ConfigService,
++    private readonly qualityScorer: ConseilQualityScorerService,
++  ) {
+     const url = this.configService.get<string>('SUPABASE_URL') || '';
+     // ADR-028 Option D — fallback to ANON_KEY in read-only mode (RLS protects writes)
+     const key = getEffectiveSupabaseKey();
+     this.supabase = createClient(url, key);
+   }
+ 
++  /** Fresh read-only R3 diagnosis; no plan write, enrichment dispatch or publication. */
++  @Get('audit/r3/:pgId')
++  async auditR3(
++    @Param('pgId') pgId: string,
++    @Query('pack') pack: string = 'standard',
++  ) {
++    const input = z
++      .object({
++        pgId: z
++          .string()
++          .regex(/^[1-9]\d*$/)
++          .refine((value) => Number.isSafeInteger(Number(value))),
++        pack: z.custom<PackLevel>(
++          (value) =>
++            typeof value === 'string' &&
++            Object.prototype.hasOwnProperty.call(PACK_DEFINITIONS, value),
++        ),
++      })
++      .safeParse({ pgId, pack });
++    if (!input.success) throw new BadRequestException(input.error.issues);
++    return {
++      success: true,
++      data: await this.qualityScorer.auditGamme(
++        input.data.pgId,
++        input.data.pack,
++      ),
++    };
++  }
++
+   /**
+    * GET /api/internal/seo/audit/coverage
+    * Returns SEO coverage gaps for IA-SEO Master heartbeat audit.
+diff --git a/backend/src/modules/admin/services/conseil-quality-scorer.service.ts b/backend/src/modules/admin/services/conseil-quality-scorer.service.ts
+index ac5f7f5b2..bf3a4a78d 100644
+--- a/backend/src/modules/admin/services/conseil-quality-scorer.service.ts
++++ b/backend/src/modules/admin/services/conseil-quality-scorer.service.ts
+@@ -3,7 +3,19 @@
+  * Populates sgc_quality_score for existing rows (backfill) and new content.
+  */
+ 
+-import { Injectable, Logger } from '@nestjs/common';
++import {
++  Injectable,
++  Logger,
++  NotFoundException,
++  ServiceUnavailableException,
++} from '@nestjs/common';
++import { ConfigService } from '@nestjs/config';
++import { z } from 'zod';
++import {
++  KeywordPlanGatesService,
++  type ConseilSectionRow,
++} from './keyword-plan-gates.service';
++import { PLANNABLE_SECTIONS } from '../../../config/keyword-plan.constants';
+ import { SupabaseBaseService } from '@database/services/supabase-base.service';
+ import { hasDeclaredSourceReferences } from '../../blog/utils/source-provenance.util';
+ import { deduplicateWords } from '../../blog/utils/html-normalize.utils';
+@@ -55,10 +67,112 @@ export interface BackfillResult {
+   skipped: number;
+ }
+ 
++// Validate the DB boundary before scoring; malformed rows cannot disappear from an audit.
++const AuditSectionSchema = z.object({
++  sgc_id: z.union([z.string(), z.number()]),
++  sgc_section_type: z.string().nullable(),
++  sgc_content: z.string().nullable(),
++  sgc_sources: z.string().nullable(),
++  sgc_quality_score: z.number().nullable(),
++});
++
+ @Injectable()
+ export class ConseilQualityScorerService extends SupabaseBaseService {
+   private readonly log = new Logger(ConseilQualityScorerService.name);
+ 
++  constructor(
++    configService: ConfigService,
++    private readonly auditGates: KeywordPlanGatesService,
++  ) {
++    super(configService);
++  }
++
++  /** Read-only diagnosis of stored R3 content, using fresh heuristic scores and existing gates. */
++  async auditGamme(pgId: string, packLevel: PackLevel = 'standard') {
++    const { data: gamme, error: gammeError } = await this.client
++      .from('pieces_gamme')
++      .select('pg_id, pg_alias')
++      .eq('pg_id', Number(pgId))
++      .maybeSingle();
++    if (gammeError)
++      throw new ServiceUnavailableException('R3 gamme lookup failed');
++    if (!gamme) throw new NotFoundException('R3 gamme not found');
++
++    const { data, error, count } = await this.client
++      .from('__seo_gamme_conseil')
++      .select(
++        'sgc_id, sgc_section_type, sgc_content, sgc_sources, sgc_quality_score',
++        { count: 'exact' },
++      )
++      .eq('sgc_pg_id', pgId)
++      .order('sgc_id', { ascending: true });
++    // PostgREST may cap returned rows. A partial read must never look like a complete audit.
++    if (error || !data || count === null || data.length !== count) {
++      throw new ServiceUnavailableException(
++        'R3 section read failed or incomplete',
++      );
++    }
++    const parsed = z.array(AuditSectionSchema).safeParse(data);
++    if (!parsed.success)
++      throw new ServiceUnavailableException(
++        'R3 section data outside audit contract',
++      );
++
++    const auditRows: ConseilSectionRow[] = [];
++    const unmappedSectionIds: string[] = [];
++    const seen = new Set<string>();
++    const duplicates = new Set<string>();
++    const sections = parsed.data.map((row) => {
++      const section = row.sgc_section_type;
++      const isKnown =
++        section !== null &&
++        (PLANNABLE_SECTIONS as readonly string[]).includes(section);
++      if (!isKnown) {
++        unmappedSectionIds.push(String(row.sgc_id));
++        return {
++          rowId: String(row.sgc_id),
++          sectionType: section,
++          storedScore: row.sgc_quality_score,
++          score: null,
++          penalties: [],
++        };
++      }
++      if (seen.has(section)) duplicates.add(section);
++      seen.add(section);
++      const content = row.sgc_content ?? '';
++      const result = this.scoreSection(section, content, row.sgc_sources);
++      auditRows.push({
++        section_type: section,
++        quality_score: result.score,
++        content_len: this.stripHtml(content).length,
++        content,
++        sources: row.sgc_sources,
++      });
++      return {
++        rowId: String(row.sgc_id),
++        sectionType: section,
++        storedScore: row.sgc_quality_score,
++        ...result,
++      };
++    });
++    const audit = this.auditGates.auditFromSections(auditRows, packLevel);
++    return {
++      pgId,
++      pgAlias: gamme.pg_alias,
++      pack: packLevel,
++      scoreBasis: 'recomputed_heuristic' as const,
++      sections,
++      unmappedSectionIds,
++      duplicateSections: [...duplicates].sort(),
++      audit,
++      // A clean heuristic audit is not factual qualification or publication approval.
++      canSkip:
++        unmappedSectionIds.length === 0 &&
++        duplicates.size === 0 &&
++        this.auditGates.shouldSkipGamme(audit, packLevel),
++    };
++  }
++
+   // ── Public API ───────────────────────────────────────────
+ 
+   /**
+diff --git a/workspaces/seo-batch/.claude/agents/r3-keyword-planner.md b/workspaces/seo-batch/.claude/agents/r3-keyword-planner.md
+index e79f5287d..b27a263bf 100644
+--- a/workspaces/seo-batch/.claude/agents/r3-keyword-planner.md
++++ b/workspaces/seo-batch/.claude/agents/r3-keyword-planner.md
+@@ -52,10 +52,20 @@ un nombre de lignes ou une moyenne. Lire les contrôles existants :
+   création/correction, dont sources et passages répétés détectés ;
+ - `PACK_DEFINITIONS` et le contrat R3 : identités et sections du pack courant.
+ 
+-Ces méthodes de service ne sont ni une commande CLI ni une API automatiquement
+-accessible à cet agent. Vérifier l'appelant utilisé et conserver son résultat.
+-Si le raccordement manque, le signaler dans le rapport ; ne pas simuler un audit
+-réussi ni présenter une inspection manuelle comme son exécution.
++Le point d'entrée interne `GET /api/internal/seo/audit/r3/:pgId?pack=standard`
++raccorde la lecture des sections à ces services. Il exige la garde interne
++existante et ne modifie ni notes, ni plans, ni contenu. Vérifier sa disponibilité
++dans l'environnement ciblé avant de l'utiliser : du code candidat ne prouve pas
++un endpoint déployé. Conserver son résultat et le périmètre exact de l'appel.
++
++La réponse distingue `storedScore` et les scores `recomputed_heuristic`, puis
++retourne `audit`, `duplicateSections`, `unmappedSectionIds` et `canSkip`.
++`canSkip` concerne ces contrôles heuristiques seulement ; ce n'est ni une preuve
++factuelle ni une autorisation de publication. Une lecture tronquée ou échouée
++interrompt l'audit. Une identité inconnue ou plusieurs lignes pour une même
++section demandent une correction explicite, sans fusion ni suppression automatique.
++Si l'API est indisponible, le signaler ; ne pas simuler un audit réussi ni
++présenter une inspection manuelle comme son exécution.
+ 
+ Considérer plans absents ET contenus existants avec défauts ou preuves modifiées.
+ Conserver les corrections indépendamment de la note : une priorité de zéro ou une
+diff --git a/backend/src/modules/admin/controllers/internal-seo-audit.r3.test.ts b/backend/src/modules/admin/controllers/internal-seo-audit.r3.test.ts
+new file mode 100644
+index 000000000..a01c24d3f
+--- /dev/null
++++ b/backend/src/modules/admin/controllers/internal-seo-audit.r3.test.ts
+@@ -0,0 +1,192 @@
++import { Test } from '@nestjs/testing';
++import { ConfigService } from '@nestjs/config';
++import type { INestApplication } from '@nestjs/common';
++import { createClient } from '@supabase/supabase-js';
++import request from 'supertest';
++import { InternalSeoAuditController } from './internal-seo-audit.controller';
++import { ConseilQualityScorerService } from '../services/conseil-quality-scorer.service';
++import { KeywordPlanGatesService } from '../services/keyword-plan-gates.service';
++import { PACK_DEFINITIONS } from '../../../config/conseil-pack.constants';
++
++jest.mock('@common/utils', () => ({
++  ...jest.requireActual('@common/utils'),
++  getEffectiveSupabaseKey: () => 'fixture-only-key',
++}));
++
++const KEY = 'fixture-internal-key';
++const rows = () =>
++  PACK_DEFINITIONS.standard.requiredSections.map((section, i) => ({
++    sgc_id: String(i + 1),
++    sgc_section_type: section as string,
++    sgc_content: 'banane '.repeat(60).trim(),
++    sgc_sources: '["reference non verifiee"]',
++    sgc_quality_score: 100,
++  }));
++
++describe('Internal R3 audit — HTTP to real scorer/gates with memory Supabase transport', () => {
++  let app: INestApplication;
++  let stored = rows();
++  let missing = false;
++  let failRead = false;
++  let truncated = false;
++  let requests: URL[];
++
++  beforeEach(async () => {
++    stored = rows();
++    missing = false;
++    failRead = false;
++    truncated = false;
++    requests = [];
++    const transport = jest.fn(
++      async (input: RequestInfo | URL, init?: RequestInit) => {
++        const url = new URL(String(input));
++        requests.push(url);
++        // Any write is a test failure; use the installed query builder, not a chain mock.
++        expect(init?.method ?? 'GET').toBe('GET');
++        if (url.pathname.endsWith('/pieces_gamme')) {
++          expect(url.searchParams.get('pg_id')).toBe('eq.1');
++          return new Response(
++            JSON.stringify(missing ? [] : [{ pg_id: 1, pg_alias: 'fixture' }]),
++            {
++              status: 200,
++              headers: { 'Content-Type': 'application/json' },
++            },
++          );
++        }
++        expect(url.pathname).toBe('/rest/v1/__seo_gamme_conseil');
++        expect(url.searchParams.get('sgc_pg_id')).toBe('eq.1');
++        expect(url.searchParams.has('sgc_quality_score')).toBe(false);
++        if (failRead)
++          return new Response(
++            JSON.stringify({ message: 'fixture read failed' }),
++            { status: 503 },
++          );
++        const returned = truncated ? stored.slice(0, 1) : stored;
++        return new Response(JSON.stringify(returned), {
++          status: 200,
++          headers: {
++            'Content-Type': 'application/json',
++            'Content-Range': `0-${Math.max(0, returned.length - 1)}/${stored.length}`,
++          },
++        });
++      },
++    );
++    const client = createClient('https://example.invalid', 'fixture-only-key', {
++      global: { fetch: transport },
++      auth: {
++        persistSession: false,
++        autoRefreshToken: false,
++        detectSessionInUrl: false,
++      },
++    });
++    const module = await Test.createTestingModule({
++      controllers: [InternalSeoAuditController],
++      providers: [
++        {
++          provide: ConfigService,
++          useValue: {
++            get: (name: string) =>
++              name === 'INTERNAL_API_KEY'
++                ? KEY
++                : name === 'SUPABASE_URL'
++                  ? 'https://example.invalid'
++                  : 'fixture-only-key',
++          },
++        },
++        ConseilQualityScorerService,
++        KeywordPlanGatesService,
++      ],
++    }).compile();
++    Object.defineProperty(module.get(ConseilQualityScorerService), 'client', {
++      value: client,
++    });
++    app = module.createNestApplication();
++    await app.init();
++  });
++  afterEach(async () => {
++    await app.close();
++  });
++  const audit = (suffix = '1') =>
++    request(app.getHttpServer())
++      .get(`/api/internal/seo/audit/r3/${suffix}`)
++      .set('X-Internal-Key', KEY);
++
++  it('recomputes existing 100 scores, returns actionable defects and never writes', async () => {
++    const before = JSON.stringify(stored);
++    const response = await audit().expect(200);
++    expect(response.body.data.scoreBasis).toBe('recomputed_heuristic');
++    expect(response.body.data.sections[0]).toMatchObject({
++      storedScore: 100,
++      score: 65,
++    });
++    expect(response.body.data.audit.sections_to_improve).toEqual(
++      expect.arrayContaining(PACK_DEFINITIONS.standard.requiredSections),
++    );
++    expect(response.body.data.canSkip).toBe(false);
++    expect(JSON.stringify(stored)).toBe(before);
++    expect(requests).toHaveLength(2);
++  });
++  it('retains both affected sections for exact cross-section duplicates', async () => {
++    const response = await audit().expect(200);
++    expect(
++      response.body.data.audit.priority_fixes.filter(
++        (f: { issue: string }) => f.issue === 'duplicate_content',
++      ).length,
++    ).toBe(stored.length);
++  });
++  it('does not pass unknown identities or duplicate section rows silently', async () => {
++    stored.push(
++      { ...stored[0], sgc_id: '80' },
++      { ...stored[0], sgc_id: '81', sgc_section_type: 'symptomes' },
++    );
++    const response = await audit().expect(200);
++    expect(response.body.data.duplicateSections).toEqual(['S1']);
++    expect(response.body.data.unmappedSectionIds).toEqual(['81']);
++    expect(response.body.data.canSkip).toBe(false);
++  });
++  it('returns missing sections for an existing gamme with no content', async () => {
++    stored = [];
++    const response = await audit().expect(200);
++    expect(response.body.data.audit.sections_to_create).toEqual(
++      PACK_DEFINITIONS.standard.requiredSections,
++    );
++    expect(response.body.data.canSkip).toBe(false);
++  });
++  it('distinguishes an unknown gamme from an empty pack', async () => {
++    missing = true;
++    await audit().expect(404);
++    expect(requests).toHaveLength(1);
++  });
++  it('fails visibly on a read failure or a truncated result', async () => {
++    failRead = true;
++    await audit().expect(503);
++    failRead = false;
++    truncated = true;
++    await audit().expect(503);
++  });
++  it.each(['0', '-1', '1junk', '1?pack=unknown'])(
++    'rejects invalid target or pack before any query: %s',
++    async (suffix) => {
++      await audit(suffix).expect(400);
++      expect(requests).toHaveLength(0);
++    },
++  );
++  it('applies the requested pack without pretending that standard is sufficient', async () => {
++    stored = [];
++    const response = await audit('1?pack=pro').expect(200);
++    expect(response.body.data.pack).toBe('pro');
++    expect(response.body.data.audit.sections_to_create).toEqual(
++      PACK_DEFINITIONS.pro.requiredSections,
++    );
++  });
++  it('rejects malformed stored content instead of silently dropping a row', async () => {
++    Object.assign(stored[0], { sgc_content: { invalid: true } });
++    await audit().expect(503);
++  });
++  it('uses the existing internal key guard before reading content', async () => {
++    await request(app.getHttpServer())
++      .get('/api/internal/seo/audit/r3/1')
++      .expect(403);
++    expect(requests).toHaveLength(0);
++  });
++});

@@ -1,0 +1,517 @@
+diff --git a/.github/workflows/wiki-quality-gates.yml b/.github/workflows/wiki-quality-gates.yml
+index 7582a98..028c819 100644
+--- a/.github/workflows/wiki-quality-gates.yml
++++ b/.github/workflows/wiki-quality-gates.yml
+@@ -117,7 +117,7 @@ jobs:
+       - name: Pytest 5 wrappers (architectural + smoke)
+         run: cd _scripts && python3 -m pytest gates/test_gates.py -v
+       - name: Canonical automatic promotion and apply guards
+-        run: cd _scripts && python3 -m pytest test_promote.py test_promotion_decision.py test_raw_to_wiki_content_loop_pilot.py -q
++        run: cd _scripts && python3 -m pytest test_promote.py test_promotion_decision.py test_raw_to_wiki_content_loop_pilot.py test_shadow_score.py -q
+       - name: Sanity run on existing proposals (no-op if proposals/ empty)
+         run: |
+           set -e
+diff --git a/_scripts/compute-confidence-score.py b/_scripts/compute-confidence-score.py
+index cc8368d..be1c6c1 100755
+--- a/_scripts/compute-confidence-score.py
++++ b/_scripts/compute-confidence-score.py
+@@ -65,9 +65,9 @@ def split_frontmatter(text: str) -> tuple[str, str]:
+     return text[4:end], text[end + 5 :]
+ 
+ 
+-def count_filled_sections(body: str, required: list[str]) -> int:
++def filled_sections(body: str, required: list[str]) -> list[str]:
+     headings = list(H2_RE.finditer(body))
+-    filled = 0
++    filled = []
+     for sec in required:
+         sec_low = sec.lower()
+         for index, heading in enumerate(headings):
+@@ -80,55 +80,67 @@ def count_filled_sections(body: str, required: list[str]) -> int:
+             end = headings[index + 1].start() if index + 1 < len(headings) else len(body)
+             section_body = body[heading.end():end]
+             if len(re.sub(r"\s+", "", section_body)) >= 20:
+-                filled += 1
++                filled.append(sec)
+                 break
+     return filled
+ 
+ 
+-def count_links(body: str, wiki_root: Path) -> tuple[int, int]:
+-    """Returns (resolved, total)."""
++def count_filled_sections(body: str, required: list[str]) -> int:
++    return len(filled_sections(body, required))
++
++
++def link_details(body: str, wiki_root: Path) -> dict:
++    """Resolve the existing slug convention within the canonical wiki directory."""
+     matches = WIKILINK_RE.findall(body)
+-    if not matches:
+-        return 0, 0
+-    resolved = 0
+-    if not wiki_root.exists():
+-        return 0, len(matches)
+-    existing_slugs = {p.stem for p in wiki_root.rglob("*.md")}
+-    for slug in matches:
+-        if slug.strip() in existing_slugs:
+-            resolved += 1
+-    return resolved, len(matches)
++    existing_slugs = {p.stem for p in wiki_root.rglob("*.md")} if matches and wiki_root.exists() else set()
++    unresolved = [slug.strip() for slug in matches if slug.strip() not in existing_slugs]
++    return {"resolved": len(matches) - len(unresolved), "total": len(matches),
++            "unresolved": unresolved}
+ 
+ 
+-def compute_score(fm: dict, body: str, wiki_root: Path) -> float:
+-    refs = fm.get("source_refs") or []
+-    # Component 1: source confidence average
+-    nums = [
+-        CONFIDENCE_NUMERIC.get(r.get("confidence", "medium"), 0.6)
+-        for r in refs
+-        if isinstance(r, dict)
+-    ]
+-    src_score = mean(nums) if nums else 0.0
++def count_links(body: str, wiki_root: Path) -> tuple[int, int]:
++    details = link_details(body, wiki_root)
++    return details["resolved"], details["total"]
+ 
+-    # Component 2: sections filled ratio
+-    et = fm.get("entity_type", "")
+-    required = SECTIONS_REQUIRED.get(et, [])
+-    if required:
+-        filled = count_filled_sections(body, required)
+-        sec_ratio = filled / len(required)
+-    else:
+-        sec_ratio = 0.0
+ 
+-    # Component 3: internal links resolved ratio
+-    resolved, total = count_links(body, wiki_root)
+-    link_ratio = resolved / max(total, 1)
++def compute_score_details(fm: dict, body: str, wiki_root: Path) -> dict:
++    """Explain the existing formula, without asserting factual or SEO quality.
+ 
+-    # Component 4: source diversity bonus
++    Unmatched headings describe this lexical detector, not proven missing facts.
++    Defaulted confidence is metadata, not evidence to upgrade a source to high.
++    `wiki_root` is the canonical wiki/ directory (same contract as the CLI).
++    """
++    refs = fm.get("source_refs") or []
++    nums = [CONFIDENCE_NUMERIC.get(r.get("confidence", "medium"), 0.6)
++            for r in refs if isinstance(r, dict)]
++    src_score = mean(nums) if nums else 0.0
++    defaulted = [i for i, r in enumerate(refs) if isinstance(r, dict)
++                 and r.get("confidence") not in CONFIDENCE_NUMERIC]
++    required = SECTIONS_REQUIRED.get(fm.get("entity_type", ""), [])
++    filled = filled_sections(body, required)
++    sec_ratio = len(filled) / len(required) if required else 0.0
++    links = link_details(body, wiki_root)
++    link_ratio = links["resolved"] / max(links["total"], 1)
+     kinds = {r.get("kind") for r in refs if isinstance(r, dict)}
+     diversity = 1.0 if len(kinds) >= 2 else 0.0
++    components = {
++        "sources": {"weight": 0.40, "ratio": src_score,
++                    "reference_count": len(nums), "defaulted_confidence_indices": defaulted},
++        "sections": {"weight": 0.30, "ratio": sec_ratio, "required": required,
++                     "filled": filled, "unmatched_required": [s for s in required if s not in filled]},
++        "internal_links": {"weight": 0.20, "ratio": link_ratio, **links},
++        "source_kinds": {"weight": 0.10, "ratio": diversity, "distinct_count": len(kinds)},
++    }
++    for component in components.values():
++        component["points"] = round(component["weight"] * component["ratio"], 6)
++    # Round only the final sum, exactly like the original public scalar scorer.
++    value = sum(c["weight"] * c["ratio"] for c in components.values())
++    return {"score": round(value, 2), "components": components,
++            "scope": "metadata_structure_proxy_not_factual_or_seo_validation"}
++
+ 
+-    score = 0.40 * src_score + 0.30 * sec_ratio + 0.20 * link_ratio + 0.10 * diversity
+-    return round(score, 2)
++def compute_score(fm: dict, body: str, wiki_root: Path) -> float:
++    return compute_score_details(fm, body, wiki_root)["score"]
+ 
+ 
+ def process_file(path: Path, mode: str, wiki_root: Path) -> bool:
+diff --git a/_scripts/promote.py b/_scripts/promote.py
+index f37c77e..1b8be43 100644
+--- a/_scripts/promote.py
++++ b/_scripts/promote.py
+@@ -82,7 +82,8 @@ def _candidate_files(wiki_root: Path, target: str | None, entity_id: str | None)
+     if target:
+         p = (wiki_root / target).resolve() if not Path(target).is_absolute() else Path(target)
+         return [p]
+-    files = sorted(proposals.glob("*.md")) if proposals.is_dir() else []
++    # Same underscore metadata convention as the coverage/scoring batch readers.
++    files = sorted(p for p in proposals.glob("*.md") if not p.name.startswith("_")) if proposals.is_dir() else []
+     if entity_id:
+         slug = entity_id.split(":", 1)[-1]
+         files = [f for f in files if slug == f.stem]
+diff --git a/_scripts/promotion_decision.py b/_scripts/promotion_decision.py
+index f47e172..d206177 100644
+--- a/_scripts/promotion_decision.py
++++ b/_scripts/promotion_decision.py
+@@ -269,6 +269,7 @@ def assemble_bundle(substance: dict, *, coverage_raw=None, regression_raw=None,
+ _EVALUATION_ENGINE_FILES = (
+     "promotion_decision.py", "quality-gates.py", "check-coverage-map.py",
+     "compare-proposal-versions.py", "shadow_score.py", "compute-confidence-score.py",
++    "gen_coverage_map.py",
+ )
+ 
+ 
+@@ -334,12 +335,25 @@ def capture_input_manifest(candidate_path, wiki_root, raw_root, baseline_path) -
+     # The native evaluator can resolve its baseline without a caller override.
+     # Capture the actual destination (including absence) independently: another
+     # baseline must never hide a concurrent change to the canonical fiche.
+-    fm, _ = _parse_markdown(Path(candidate_path))
++    fm, body = _parse_markdown(Path(candidate_path))
+     add("canon_target", _promotion_target_path(wiki_root, fm))
+     if baseline_path is not None:
+         add("baseline", baseline_path)
+     add("source_catalog", wiki_root / "_meta" / "source-catalog.yaml")
+     add("coverage_schema", wiki_root / "_meta" / "schema" / "coverage-map.schema.json")
++    add("reality_manifest", wiki_root / "_meta" / "reality-manifest.json")
++    # Coverage checker keys by filename; shadow loader keys by declared slug.
++    # Capture both when different, including absence, before allowing any apply.
++    for slug in sorted({Path(candidate_path).stem, fm.get("slug") or Path(candidate_path).stem}):
++        add("coverage_map", wiki_root / "proposals" / "_coverage" / f"{slug}.coverage.yaml")
++    # Snapshot only targets actually referenced by this candidate, using the
++    # scorer's own syntax. An unrelated fiche must not invalidate the decision.
++    scorer = _load_module("_confidence_snapshot", "compute-confidence-score.py")
++    link_slugs = {slug.strip() for slug in scorer.WIKILINK_RE.findall(body)}
++    if link_slugs:
++        for link_target in sorted((wiki_root / "wiki").rglob("*.md")):
++            if link_target.stem in link_slugs:
++                add("canonical_link_target", link_target)
+     if raw_root is not None:
+         add("raw_inventory", raw_root / "manifests" / "source-inventory.csv")
+         add("raw_checksums", raw_root / "manifests" / "checksums.json")
+@@ -466,14 +480,14 @@ def _load_gates():
+ 
+ 
+ def _load_confidence_fn():
+-    """Charge compute_score depuis compute-confidence-score.py (filename à tirets)."""
++    """Charge le calcul détaillé unique depuis compute-confidence-score.py (filename à tirets)."""
+     path = SCRIPTS_DIR / "compute-confidence-score.py"
+     spec = importlib.util.spec_from_file_location("_confidence_score", path)
+     if spec is None or spec.loader is None:
+         raise PromotionInputError(f"compute-confidence-score.py introuvable: {path}")
+     mod = importlib.util.module_from_spec(spec)
+     spec.loader.exec_module(mod)
+-    return mod.compute_score
++    return mod.compute_score_details
+ 
+ 
+ def _parse_markdown(path: Path, *, source_bytes: bytes | None = None) -> tuple[dict[str, Any], str]:
+@@ -520,7 +534,7 @@ def _compute_shadow(fm: dict, body: str, target: Path, wiki_root: Path) -> dict
+         import reality_manifest as _rm
+         import shadow_score as _ss
+ 
+-        manifest = _rm.load_manifest(SCRIPTS_DIR.parent / "_meta" / "reality-manifest.json")
++        manifest = _rm.load_manifest(wiki_root / "_meta" / "reality-manifest.json")
+         cmap = None
+         loader = getattr(_ss, "_load_coverage_map", None)  # fourni par PR #53
+         if callable(loader):
+@@ -535,6 +549,7 @@ def _compute_shadow(fm: dict, body: str, target: Path, wiki_root: Path) -> dict
+             "shadow_applicable": r.applicable,
+             "shadow_floors_failed": r.floors_failed,
+             "shadow_blocked": r.blocked,
++            "shadow_notes": r.notes,
+             "manifest_status": _rm.status(manifest),
+             "scorer": "shadow_score.score@6dim-v0",
+         }
+@@ -645,8 +660,17 @@ def evaluate_tier(fm: dict, body: str, target: Path, wiki_root: Path,
+     if truth_level not in AUTO_PROMOTE_TRUTH_LEVELS:
+         reasons.append(f"truth_level={truth_level} (auto exige L1/L2)")
+ 
++    score_details = None
+     try:
+-        score = float(compute_score(fm, body, wiki_root))
++        # Same canonical link scope as compute-confidence-score.py --check.
++        # Native scorer returns evidence from ONE computation; injected legacy
++        # scalar callables remain supported without manufacturing explanations.
++        computed = compute_score(fm, body, wiki_root / "wiki")
++        if isinstance(computed, dict):
++            score = float(computed["score"])
++            score_details = computed
++        else:
++            score = float(computed)
+     except Exception as exc:  # fail-closed
+         reasons.append(f"confidence_score indéterminable: {exc}")
+         score = 0.0
+@@ -677,6 +701,7 @@ def evaluate_tier(fm: dict, body: str, target: Path, wiki_root: Path,
+     return {
+         "tier": tier,
+         "confidence_score": round(score, 4),
++        "score_details": score_details,
+         "gate_engine": gate_engine,
+         "gate_status": {n: r.status for n, r in gate_results},
+         "gate_outcomes": [_serialize_gate_outcome(n, r) for n, r in gate_results],
+@@ -917,6 +942,8 @@ def _evaluation_passthrough(substance) -> dict:
+     return {
+         "tier": substance.get("tier"),
+         "confidence_score": substance.get("confidence_score"),
++        "score_details": substance.get("score_details"),
++        "gate_engine": substance.get("gate_engine"),
+         "gate_status": substance.get("gate_status"),
+         "shadow_score": substance.get("shadow_score"),
+     }
+diff --git a/_scripts/raw_to_wiki_content_loop_pilot.py b/_scripts/raw_to_wiki_content_loop_pilot.py
+index 50f5475..1108694 100644
+--- a/_scripts/raw_to_wiki_content_loop_pilot.py
++++ b/_scripts/raw_to_wiki_content_loop_pilot.py
+@@ -157,7 +157,8 @@ def stage_promotion(entity_id: str, wiki_root: Path, threshold: float | None,
+         status, eligible = row.get("promotion_status"), row.get("eligible")
+         reasons = row.get("blocking_reasons", [])
+         result.update(tier=row.get("tier"), threshold=data.get("threshold", threshold),
+-                      promotion_status=status, eligible=eligible, blocking_reasons=reasons)
++                      promotion_status=status, eligible=eligible, blocking_reasons=reasons,
++                      evaluation=row.get("evaluation"))
+         if not isinstance(reasons, list):
+             return {**result, "detail": "invalid blocking_reasons"}
+         if status == "ELIGIBLE" and eligible is True and not reasons:
+diff --git a/_scripts/shadow_score.py b/_scripts/shadow_score.py
+index 08103cf..69ad817 100644
+--- a/_scripts/shadow_score.py
++++ b/_scripts/shadow_score.py
+@@ -28,6 +28,7 @@ SCRIPTS_DIR = Path(__file__).resolve().parent
+ sys.path.insert(0, str(SCRIPTS_DIR))
+ 
+ import reality_manifest as rm  # noqa: E402
++from gen_coverage_map import _cap_medium  # same page-level cap as the producer
+ 
+ WEIGHTS = {"A": 30, "B": 20, "C": 20, "D": 15, "E": 10, "F": 5}
+ 
+@@ -65,10 +66,15 @@ def _dim_A(fm, coverage_map):
+     # ADR-040 : la coverage-map canonique porte la clé 'coverage_entries' ; 'coverage'/'claims' = compat ascendante.
+     cov = (coverage_map.get("coverage_entries") or coverage_map.get("coverage")
+            or coverage_map.get("claims") or [])
+-    nums = [CONFIDENCE_NUMERIC.get((c or {}).get("confidence"), 0.0) for c in cov if isinstance(c, dict)]
++    entries = [c for c in cov if isinstance(c, dict)]
++    unproven = [c for c in entries if c.get("source_status") not in {"captured", "verified"}]
++    nums = [CONFIDENCE_NUMERIC.get(
++        c.get("confidence") if c.get("source_status") in {"captured", "verified"}
++        else _cap_medium(c.get("confidence")), 0.0) for c in entries]
+     if not nums:
+         return 0.0, "A:coverage_map_vide"
+-    return WEIGHTS["A"] * (sum(nums) / len(nums)), None
++    note = f"A:page_unproven={len(unproven)} (confidence capped at medium)" if unproven else None
++    return WEIGHTS["A"] * (sum(nums) / len(nums)), note
+ 
+ 
+ def _engine_blocks(fm):
+diff --git a/_scripts/test_promote.py b/_scripts/test_promote.py
+index c161ae1..3cf12e6 100644
+--- a/_scripts/test_promote.py
++++ b/_scripts/test_promote.py
+@@ -816,3 +816,61 @@ def test_explicit_target_cannot_override_requested_entity_identity(tmp_path):
+     result = CliRunner().invoke(mod.main, ['--wiki-root', str(tmp_path), '--target', 'proposals/autre.md', '--entity-id', 'gamme:filtre', '--dry-run', '--format', 'json'])
+     assert result.exit_code == 0, result.output
+     assert json.loads(result.output)['report'][0]['promotion_status'] == 'BLOCKED'
++
++
++def test_native_score_does_not_resolve_links_to_unpromoted_proposals(tmp_path):
++    mod = _load_promote()
++    (tmp_path / 'proposals').mkdir()
++    (tmp_path / 'proposals/related.md').write_text('not canonical')
++    body = '[[related]]'
++    d = mod.evaluate_tier(FM_OK, body, tmp_path / 'p.md', tmp_path,
++                         threshold=.85, gates=[], compute_score=mod._load_confidence_fn())
++    assert d['confidence_score'] == .34
++    assert d['score_details']['components']['internal_links']['unresolved'] == ['related']
++    (tmp_path / 'wiki/gammes').mkdir(parents=True)
++    (tmp_path / 'wiki/gammes/related.md').write_text('canonical fixture')
++    canonical = mod.evaluate_tier(FM_OK, body, tmp_path / 'p.md', tmp_path,
++                         threshold=.85, gates=[], compute_score=mod._load_confidence_fn())
++    assert canonical['confidence_score'] == .54
++
++
++def test_shadow_uses_evaluated_repository_manifest_and_keeps_degradation(tmp_path):
++    mod = _load_promote()
++    # The actual code checkout has a stale manifest; this evaluated root has none.
++    result = mod._compute_shadow(FM_OK, '', tmp_path / 'p.md', tmp_path)
++    assert result['manifest_status'] == 'absent'
++    assert any('SKIPP' in note for note in result['shadow_notes'])
++
++
++def test_score_details_and_engine_survive_canonical_evaluation_passthrough():
++    import promotion_decision as dec
++    details = {'score': .46, 'components': {'sources': {'points': .24}}}
++    result = dec._evaluation_passthrough({'confidence_score': .46,
++        'gate_engine': 'legacy', 'score_details': details})
++    assert result['score_details'] is details
++    assert result['gate_engine'] == 'legacy'
++
++
++def test_detailed_scorer_runs_once_and_its_evidence_is_not_recalculated(tmp_path):
++    mod = _load_promote()
++    calls = []
++    evidence = {'score': .9, 'components': {'fixture': {'points': .9}}}
++    def scorer(*args):
++        calls.append(args)
++        return evidence
++    d = mod.evaluate_tier(FM_OK, 'body', tmp_path / 'p.md', tmp_path,
++                         threshold=.85, gates=[], compute_score=scorer)
++    assert len(calls) == 1
++    assert calls[0][2] == tmp_path / 'wiki'
++    assert d['score_details'] is evidence
++    assert d['confidence_score'] == .9
++
++
++def test_batch_candidates_exclude_navigation_metadata_but_explicit_target_stays_visible(tmp_path):
++    mod = _load_promote()
++    proposals = tmp_path / 'proposals'
++    proposals.mkdir()
++    (proposals / '_index.md').write_text('navigation, not a proposal')
++    (proposals / 'actual.md').write_text('candidate')
++    assert mod._candidate_files(tmp_path, None, None) == [proposals / 'actual.md']
++    assert mod._candidate_files(tmp_path, 'proposals/_index.md', None) == [proposals / '_index.md']
+diff --git a/_scripts/test_promotion_decision.py b/_scripts/test_promotion_decision.py
+index cf61bd2..5ffa8a2 100644
+--- a/_scripts/test_promotion_decision.py
++++ b/_scripts/test_promotion_decision.py
+@@ -763,7 +763,10 @@ def test_native_regression_resolver_target_is_guarded_without_baseline_override(
+         observed.append(baseline)
+         target.write_text("---\nreview_status: approved\n---\nconcurrent predecessor\n")
+         return {"verdict": "NEUTRAL"}
++    real_load = dec._load_module
+     def module(name, filename):
++        if filename == 'compute-confidence-score.py':
++            return real_load(name, filename)
+         if filename == 'compare-proposal-versions.py':
+             return SimpleNamespace(compare=compare)
+         if filename == 'check-coverage-map.py':
+@@ -782,3 +785,16 @@ def test_native_regression_resolver_target_is_guarded_without_baseline_override(
+     assert observed == [target]
+     assert decision['eligible'] is False
+     assert decision['blocking_reasons'][0]['code'] == 'STALE_DURING_EVALUATION'
++
++
++@pytest.mark.parametrize('relative_path', [
++    'proposals/_coverage/a.coverage.yaml', '_meta/reality-manifest.json', 'wiki/gammes/related.md'])
++def test_score_input_added_after_decision_invalidates_apply(tmp_path, relative_path):
++    dec = _load_decision()
++    candidate = _write_candidate(tmp_path, '---\nentity_type: gamme\nslug: a\n---\n[[related]]\n')
++    decision = _decide_with_inputs(dec, candidate, tmp_path, _clean_substance(tmp_path))
++    assert decision['eligible'] is True
++    changed = tmp_path / relative_path
++    changed.parent.mkdir(parents=True, exist_ok=True)
++    changed.write_text('changed scoring input')
++    assert dec.reverify_inputs(decision, candidate, tmp_path) is not None
+diff --git a/_scripts/test_raw_to_wiki_content_loop_pilot.py b/_scripts/test_raw_to_wiki_content_loop_pilot.py
+index 276bfec..18a6463 100644
+--- a/_scripts/test_raw_to_wiki_content_loop_pilot.py
++++ b/_scripts/test_raw_to_wiki_content_loop_pilot.py
+@@ -182,3 +182,16 @@ def test_run_forwards_raw_checkout_to_promotion(monkeypatch, tmp_path):
+     monkeypatch.setattr(lp, 'stage_promotion', promotion)
+     lp.run('gamme:fixture', tmp_path, tmp_path / 'raw', tmp_path / 'app', 'HEAD', None)
+     assert calls == [('gamme:fixture', tmp_path, None, tmp_path / 'raw')]
++
++
++def test_promotion_adapter_preserves_score_evidence_without_reinterpretation(tmp_path, monkeypatch):
++    import json
++    evaluation = {'confidence_score': .46, 'gate_engine': 'legacy',
++                  'score_details': {'score': .46},
++                  'shadow_score': {'shadow_total': 91, 'manifest_status': 'stale'}}
++    report = {'report': [{'promotion_status': 'BLOCKED', 'eligible': False,
++                         'tier': 'B', 'blocking_reasons': [], 'evaluation': evaluation}]}
++    monkeypatch.setattr(lp, '_run', lambda cmd: (0, json.dumps(report), ''))
++    result = lp.stage_promotion('gamme:fixture', tmp_path, None)
++    assert result['state'] == lp.FAIL
++    assert result['evaluation'] == evaluation
+diff --git a/_scripts/test_shadow_score.py b/_scripts/test_shadow_score.py
+index 16af928..e3133bf 100644
+--- a/_scripts/test_shadow_score.py
++++ b/_scripts/test_shadow_score.py
+@@ -54,7 +54,7 @@ def test_degradation_manifest_not_ready_skips_realitycheck():
+ 
+ 
+ def test_floor_caps_tier_to_B_when_commerce_floor_fails():
+-    cov = {"coverage": [{"confidence": "high"}]}  # A=30
++    cov = {"coverage": [{"confidence": "high", "source_status": "captured"}]}  # A=30
+     fm = {"entity_type": "vehicle", "review_status": "approved", "lineage_id": "x", "exportable": {},
+           "entity_data": {"known_issues_by_engine": {"engine_family:bkc": _block(applies_to={"engine_codes": ["BKC"]})}}}
+     # PAS de related_gammes → D=0 → plancher D<10 échoue ; total=85 (≥80) → tier A capé à B
+@@ -68,7 +68,7 @@ def test_floor_caps_tier_to_B_when_commerce_floor_fails():
+ 
+ def test_dim_A_reads_canonical_coverage_entries_key():
+     # ADR-040 : la coverage-map réelle utilise 'coverage_entries' (pas 'coverage'/'claims').
+-    cov = {"coverage_entries": [{"confidence": "high"}, {"confidence": "medium"}]}
++    cov = {"coverage_entries": [{"confidence": "high", "source_status": "captured"}, {"confidence": "medium", "source_status": "captured"}]}
+     pts, note = ss._dim_A({}, cov)
+     assert note is None
+     assert pts == ss.WEIGHTS["A"] * ((1.0 + 0.6) / 2)  # 30 * 0.8 = 24.0
+@@ -76,7 +76,7 @@ def test_dim_A_reads_canonical_coverage_entries_key():
+ 
+ def test_dim_A_backward_compat_legacy_coverage_key():
+     # compat ascendante : l'ancienne clé 'coverage' reste lue.
+-    pts, _ = ss._dim_A({}, {"coverage": [{"confidence": "high"}]})
++    pts, _ = ss._dim_A({}, {"coverage": [{"confidence": "high", "source_status": "captured"}]})
+     assert pts == ss.WEIGHTS["A"] * 1.0
+ 
+ 
+@@ -90,7 +90,7 @@ def test_load_coverage_map_reads_real_file(tmp_path):
+     cov_dir = tmp_path / "_coverage"
+     cov_dir.mkdir()
+     (cov_dir / "x.coverage.yaml").write_text(
+-        "coverage_entries:\n  - confidence: high\n  - confidence: low\n", encoding="utf-8")
++        "coverage_entries:\n  - confidence: high\n    source_status: captured\n  - confidence: low\n    source_status: captured\n", encoding="utf-8")
+     cmap = ss._load_coverage_map("x", tmp_path)
+     assert cmap is not None and len(cmap["coverage_entries"]) == 2
+     pts, note = ss._dim_A({}, cmap)  # bout-en-bout : loader → _dim_A
+@@ -127,3 +127,27 @@ def test_old_score_computed_in_shadow():
+         return 0.42
+     r = ss.score({"entity_type": "gamme", "entity_data": {}}, "", {**_ctx(), "compute_old": fake_old})
+     assert called.get("yes") and r.old_score == 0.42
++
++
++def test_pending_capture_cannot_receive_high_source_points():
++    points, note = ss._dim_A({}, {'coverage_entries': [
++        {'confidence': 'high', 'source_status': 'pending_capture'},
++        {'confidence': 'medium', 'source_status': 'captured'},
++    ]})
++    assert points == 18.0  # existing generator's high -> medium cap, no new threshold
++    assert 'page_unproven=1' in note
++
++
++def test_legacy_missing_capture_status_is_reported_and_capped():
++    points, note = ss._dim_A({}, {'claims': [{'confidence': 'high'}]})
++    assert points == 18.0
++    assert 'page_unproven=1' in note
++
++
++def test_verified_capture_retains_declared_confidence():
++    points, note = ss._dim_A({}, {'coverage_entries': [
++        {'confidence': 'high', 'source_status': 'verified'},
++        {'confidence': 'low', 'source_status': 'captured'},
++    ]})
++    assert points == 30 * .65
++    assert note is None
+diff --git a/_scripts/tests/test_confidence_schema_contract.py b/_scripts/tests/test_confidence_schema_contract.py
+index d56d75a..d29cf7a 100644
+--- a/_scripts/tests/test_confidence_schema_contract.py
++++ b/_scripts/tests/test_confidence_schema_contract.py
+@@ -87,3 +87,25 @@ def test_substance_boundary_excludes_heading_and_whitespace(content, expected):
+ def test_duplicate_heading_counts_required_section_only_once():
+     body = '## Definition\n' + 'x' * 20 + '\n## Definition\n' + 'y' * 20
+     assert SCORER.count_filled_sections(body, ['Definition']) == 1
++
++
++def test_score_details_explain_observed_oil_filter_components(tmp_path):
++    fm = document()  # absent confidence is the historical medium default
++    body = '## Fonctionnement\n' + 'x' * 25 + '\n## FAQ\n' + 'y' * 25
++    details = SCORER.compute_score_details(fm, body, tmp_path)
++    assert details['score'] == SCORER.compute_score(fm, body, tmp_path) == 0.46
++    assert {k: v['points'] for k, v in details['components'].items()} == {
++        'sources': 0.24, 'sections': 0.12, 'internal_links': 0.0, 'source_kinds': 0.1}
++    assert details['components']['sources']['defaulted_confidence_indices'] == [0, 1]
++    assert details['components']['sections']['unmatched_required'] == [
++        'Définition', "Symptômes d'usure", 'Choix selon véhicule']
++    assert details['components']['internal_links']['total'] == 0
++    assert details['scope'] == 'metadata_structure_proxy_not_factual_or_seo_validation'
++
++
++def test_score_details_identify_unresolved_links(tmp_path):
++    (tmp_path / 'known.md').write_text('canonical fixture')
++    details = SCORER.compute_score_details(document(), '[[known]] [[missing]]', tmp_path)
++    assert details['components']['internal_links']['unresolved'] == ['missing']
++    assert details['components']['internal_links']['resolved'] == 1
++    assert details['components']['internal_links']['points'] == 0.1

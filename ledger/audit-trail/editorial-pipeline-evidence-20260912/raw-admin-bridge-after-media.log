@@ -1,0 +1,9 @@
+{
+  "nest_client_to_real_raw_cli": "PASS",
+  "browser_authority_ignored": true,
+  "duplicate_receipt_stable": true,
+  "native_manifests_present": true,
+  "database_calls": 0,
+  "network_requests": 0,
+  "durable_runtime_changes": 0
+}

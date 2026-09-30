@@ -1,0 +1,19 @@
+trim trailing whitespace.........................................................................................Passed
+fix end of files.................................................................................................Passed
+check yaml...................................................................................(no files to check)Skipped
+check json...................................................................................(no files to check)Skipped
+check for merge conflicts........................................................................................Passed
+check for added large files......................................................................................Passed
+Detect hardcoded secrets.........................................................................................Passed
+mdformat.....................................................................................(no files to check)Skipped
+validate frontmatter against _meta/schema/ (Node legacy).....................................(no files to check)Skipped
+check slug uniqueness........................................................................(no files to check)Skipped
+check extension whitelist........................................................................................Passed
+Validate frontmatter (JSON Schema 2020-12, Python)...........................................(no files to check)Skipped
+Run quality gates §2 (schema, sources, catalog_leak, commercial_promise, safety_unsourced)...(no files to check)Skipped
+Guard activation source (to_capture→active interdit par édition directe).....................(no files to check)Skipped
+Verify confidence_score matches formula §4 (check-only ; --fix manuel séparé)................(no files to check)Skipped
+Compare fiche score vs git predecessor (report-only).........................................(no files to check)Skipped
+- hook id: wiki-score-regression
+Block legacy status assignments in documentation.............................................(no files to check)Skipped
+Verify confidence_score_computed per diagnostic_relations[] entry (ADR-033 §C8)..............(no files to check)Skipped

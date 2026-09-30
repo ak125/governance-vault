@@ -1,0 +1,11 @@
+{
+  "cli": "PASS",
+  "real_secret_scanner": "PASS",
+  "gate_a": "PASS",
+  "native_manifests": "PASS",
+  "duplicate_same_receipt": true,
+  "changed_body_new_receipt": true,
+  "secret_refused_without_persistence": true,
+  "sources_in_disposable_corpus": 2,
+  "network_requests": 0
+}

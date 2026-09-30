@@ -1,0 +1,146 @@
+FFFFF                                                                    [100%]
+=================================== FAILURES ===================================
+_________________ test_entity_selection_is_exact_not_substring _________________
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-426/test_entity_selection_is_exact0')
+
+    def test_entity_selection_is_exact_not_substring(tmp_path):
+        mod = _load_promote()
+        proposals = tmp_path / 'proposals'
+        proposals.mkdir()
+        for slug in ('filtre', 'filtre-a-air', 'support-filtre'):
+            (proposals / f'{slug}.md').write_text('fixture')
+>       assert mod._candidate_files(tmp_path, None, 'gamme:filtre') == [proposals / 'filtre.md']
+E       AssertionError: assert [PosixPath('/...t-filtre.md')] == [PosixPath('/...s/filtre.md')]
+E         
+E         At index 0 diff: PosixPath('/tmp/pytest-of-deploy/pytest-426/test_entity_selection_is_exact0/proposals/filtre-a-air.md') != PosixPath('/tmp/pytest-of-deploy/pytest-426/test_entity_selection_is_exact0/proposals/filtre.md')
+E         Left contains 2 more items, first extra item: PosixPath('/tmp/pytest-of-deploy/pytest-426/test_entity_selection_is_exact0/proposals/filtre.md')
+E         Use -v to get more diff
+
+_scripts/test_promote.py:777: AssertionError
+______ test_entity_selection_does_not_replace_missing_entity_by_neighbor _______
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-426/test_entity_selection_does_not0')
+
+    def test_entity_selection_does_not_replace_missing_entity_by_neighbor(tmp_path):
+        mod = _load_promote()
+        proposals = tmp_path / 'proposals'
+        proposals.mkdir()
+        (proposals / 'filtre-a-air.md').write_text('fixture')
+>       assert mod._candidate_files(tmp_path, None, 'gamme:filtre') == []
+E       AssertionError: assert [PosixPath('/...re-a-air.md')] == []
+E         
+E         Left contains one more item: PosixPath('/tmp/pytest-of-deploy/pytest-426/test_entity_selection_does_not0/proposals/filtre-a-air.md')
+E         Use -v to get more diff
+
+_scripts/test_promote.py:786: AssertionError
+__ test_cli_blocks_entity_identity_mismatch_before_evaluation[vehicle-filtre] __
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-426/test_cli_blocks_entity_identit0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fd8182411b0>
+kind = 'vehicle', slug = 'filtre'
+
+    @pytest.mark.parametrize('kind,slug', [('vehicle', 'filtre'), ('gamme', 'autre')])
+    def test_cli_blocks_entity_identity_mismatch_before_evaluation(tmp_path, monkeypatch, kind, slug):
+        from click.testing import CliRunner
+        mod = _load_promote()
+        proposals = tmp_path / 'proposals'
+        proposals.mkdir()
+        proposal = proposals / 'filtre.md'
+        proposal.write_text(f'---\nentity_type: {kind}\nslug: {slug}\nreview_status: in_review\n---\nFixture.\n')
+        before = proposal.read_bytes()
+        def must_not_evaluate(*args, **kwargs):
+            pytest.fail('The requested identity must be checked before evaluating another entity')
+        monkeypatch.setattr(mod, 'canonical_promotion_decision', must_not_evaluate)
+>       result = CliRunner().invoke(mod.main, ['--wiki-root', str(tmp_path), '--entity-id', 'gamme:filtre', '--dry-run', '--format', 'json'])
+
+_scripts/test_promote.py:801: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/home/deploy/.local/lib/python3.10/site-packages/click/testing.py:596: in invoke
+    return_value = cli.main(args=args or (), prog_name=prog_name, **extra)
+/home/deploy/.local/lib/python3.10/site-packages/click/core.py:1435: in main
+    rv = self.invoke(ctx)
+/home/deploy/.local/lib/python3.10/site-packages/click/core.py:1298: in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+/home/deploy/.local/lib/python3.10/site-packages/click/core.py:853: in invoke
+    return callback(*args, **kwargs)
+_scripts/promote.py:144: in main
+    decision = canonical_promotion_decision(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (PosixPath('/tmp/pytest-of-deploy/pytest-426/test_cli_blocks_entity_identit0/proposals/filtre.md'), PosixPath('/tmp/pytest-of-deploy/pytest-426/test_cli_blocks_entity_identit0'))
+kwargs = {'compute_score': <function compute_score at 0x7fd8178ad120>, 'gates': [('source', <function run_source_gate at 0x7fd8...7fd8178628c0>), ('confidence', <function run_confidence_gate at 0x7fd817862440>)], 'raw_root': None, 'threshold': 0.85}
+
+    def must_not_evaluate(*args, **kwargs):
+>       pytest.fail('The requested identity must be checked before evaluating another entity')
+E       Failed: The requested identity must be checked before evaluating another entity
+
+_scripts/test_promote.py:799: Failed
+___ test_cli_blocks_entity_identity_mismatch_before_evaluation[gamme-autre] ____
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-426/test_cli_blocks_entity_identit1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fd818241fc0>
+kind = 'gamme', slug = 'autre'
+
+    @pytest.mark.parametrize('kind,slug', [('vehicle', 'filtre'), ('gamme', 'autre')])
+    def test_cli_blocks_entity_identity_mismatch_before_evaluation(tmp_path, monkeypatch, kind, slug):
+        from click.testing import CliRunner
+        mod = _load_promote()
+        proposals = tmp_path / 'proposals'
+        proposals.mkdir()
+        proposal = proposals / 'filtre.md'
+        proposal.write_text(f'---\nentity_type: {kind}\nslug: {slug}\nreview_status: in_review\n---\nFixture.\n')
+        before = proposal.read_bytes()
+        def must_not_evaluate(*args, **kwargs):
+            pytest.fail('The requested identity must be checked before evaluating another entity')
+        monkeypatch.setattr(mod, 'canonical_promotion_decision', must_not_evaluate)
+>       result = CliRunner().invoke(mod.main, ['--wiki-root', str(tmp_path), '--entity-id', 'gamme:filtre', '--dry-run', '--format', 'json'])
+
+_scripts/test_promote.py:801: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/home/deploy/.local/lib/python3.10/site-packages/click/testing.py:596: in invoke
+    return_value = cli.main(args=args or (), prog_name=prog_name, **extra)
+/home/deploy/.local/lib/python3.10/site-packages/click/core.py:1435: in main
+    rv = self.invoke(ctx)
+/home/deploy/.local/lib/python3.10/site-packages/click/core.py:1298: in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+/home/deploy/.local/lib/python3.10/site-packages/click/core.py:853: in invoke
+    return callback(*args, **kwargs)
+_scripts/promote.py:144: in main
+    decision = canonical_promotion_decision(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (PosixPath('/tmp/pytest-of-deploy/pytest-426/test_cli_blocks_entity_identit1/proposals/filtre.md'), PosixPath('/tmp/pytest-of-deploy/pytest-426/test_cli_blocks_entity_identit1'))
+kwargs = {'compute_score': <function compute_score at 0x7fd81753a050>, 'gates': [('source', <function run_source_gate at 0x7fd8...7fd8178628c0>), ('confidence', <function run_confidence_gate at 0x7fd817862440>)], 'raw_root': None, 'threshold': 0.85}
+
+    def must_not_evaluate(*args, **kwargs):
+>       pytest.fail('The requested identity must be checked before evaluating another entity')
+E       Failed: The requested identity must be checked before evaluating another entity
+
+_scripts/test_promote.py:799: Failed
+________ test_explicit_target_cannot_override_requested_entity_identity ________
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-426/test_explicit_target_cannot_ov0')
+
+    def test_explicit_target_cannot_override_requested_entity_identity(tmp_path):
+        from click.testing import CliRunner
+        mod = _load_promote()
+        proposals = tmp_path / 'proposals'
+        proposals.mkdir()
+        (proposals / 'autre.md').write_text('---\nentity_type: gamme\nslug: autre\nreview_status: approved\n---\nFixture.\n')
+        result = CliRunner().invoke(mod.main, ['--wiki-root', str(tmp_path), '--target', 'proposals/autre.md', '--entity-id', 'gamme:filtre', '--dry-run', '--format', 'json'])
+        assert result.exit_code == 0, result.output
+>       assert json.loads(result.output)['report'][0]['promotion_status'] == 'BLOCKED'
+E       AssertionError: assert 'SKIP' == 'BLOCKED'
+E         
+E         - BLOCKED
+E         + SKIP
+
+_scripts/test_promote.py:818: AssertionError
+=========================== short test summary info ============================
+FAILED _scripts/test_promote.py::test_entity_selection_is_exact_not_substring
+FAILED _scripts/test_promote.py::test_entity_selection_does_not_replace_missing_entity_by_neighbor
+FAILED _scripts/test_promote.py::test_cli_blocks_entity_identity_mismatch_before_evaluation[vehicle-filtre]
+FAILED _scripts/test_promote.py::test_cli_blocks_entity_identity_mismatch_before_evaluation[gamme-autre]
+FAILED _scripts/test_promote.py::test_explicit_target_cannot_override_requested_entity_identity
+5 failed, 64 deselected in 0.42s

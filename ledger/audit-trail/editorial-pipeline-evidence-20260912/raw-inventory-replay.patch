@@ -1,0 +1,205 @@
+diff --git a/_scripts/auto-capture-runner.py b/_scripts/auto-capture-runner.py
+index bf38220..0a3e7cb 100644
+--- a/_scripts/auto-capture-runner.py
++++ b/_scripts/auto-capture-runner.py
+@@ -272,7 +272,27 @@ def capture_one(url: str, item: dict, al: dict, *, commit: bool, rate_limit: flo
+         return rep
+     content_hash = "sha256:" + hashlib.sha256(body.encode("utf-8")).hexdigest()
+     if content_hash in existing_hashes():
++        # Reconcile the native inventory even on a replay after a prior failure.
++        try:
++            refresh_submission_manifests()
++        except Exception as exc:
++            rep.update(action="ERROR", detail=f"capture_manifest_refresh_failed:{type(exc).__name__}")
++            return rep
+         rep.update(action="SKIP", detail="duplicate_content_hash")
++        # A prior artifact can precede its worklist update. Only repair the SAME
++        # worklist item's receipt; never attribute another source's capture to it.
++        for existing_path in sorted(AUTO_CAPTURES_DIR.rglob("*.md")):
++            existing_fm = _gates._split_frontmatter(existing_path.read_text(encoding="utf-8")) or {}
++            if existing_fm.get("content_hash") != content_hash or existing_fm.get("worklist_id") != item.get("id"):
++                continue
++            if not existing_path.resolve().is_relative_to(REPO_ROOT.resolve() / "sources/auto-captures"):
++                rep.update(action="ERROR", detail="capture_path_escape")
++                return rep
++            rep.update(raw_path=existing_path.relative_to(REPO_ROOT).as_posix(), content_hash=content_hash,
++                       status="CAPTURED" if existing_fm.get("level") == 1 else "CAPTURED_NEEDS_REVIEW",
++                       source_type=existing_fm["source_type"], license_status=existing_fm["license_status"],
++                       captured_at=existing_fm["captured_at"], url=existing_fm["source_url"])
++            break
+         return rep
+ 
+     gamme = item.get("gamme") or "divers"
+@@ -293,6 +313,8 @@ def capture_one(url: str, item: dict, al: dict, *, commit: bool, rate_limit: flo
+         "license_status": license_status,
+         "level": level,
+         "worklist_id": item.get("id"),
++        "manifest_id": "auto-capture-" + content_hash[7:],
++        "discovery": {"mode": "provided"},
+         "description": f"Auto-capture gouvernée (Niveau {level}) — faits à valider avant usage WIKI/SEO.",
+     }
+     candidate = build_frontmatter(fm) + "\n" + body + "\n"
+@@ -310,14 +332,26 @@ def capture_one(url: str, item: dict, al: dict, *, commit: bool, rate_limit: flo
+         rep.update(action="ERROR", detail="capture_rejected_by_gate_j", reasons=reasons)
+         return rep
+ 
++    if not out_path.resolve().is_relative_to(REPO_ROOT.resolve() / "sources/auto-captures"):
++        rep.update(action="ERROR", detail="capture_path_escape")
++        return rep
++    try:
++        check_submission_secrets(candidate)
++    except Exception as exc:
++        rep.update(action="ERROR", detail=f"capture_secret_scan_failed:{type(exc).__name__}")
++        return rep
+     try:
+         publish_append_only(out_path, candidate)
++        refresh_submission_manifests()
+     except FileExistsError:
+         rep.update(action="ERROR", detail="source_path_exists:no_overwrite")
+         return rep
+     except OSError as e:
+         rep.update(action="ERROR", detail=f"capture_write_failed:{type(e).__name__}")
+         return rep
++    except Exception as exc:
++        rep.update(action="ERROR", detail=f"capture_manifest_refresh_failed:{type(exc).__name__}")
++        return rep
+     rep.update(action="CAPTURED", detail=f"{raw_path} ({status}, {len(body)}c)",
+                raw_path=raw_path, content_hash=content_hash, status=status,
+                source_type=source_type, license_status=license_status, captured_at=captured_at)
+@@ -776,12 +810,18 @@ def main() -> int:
+         _fatal("fournir --url ou --urls-file")
+ 
+     al = load_allowlist()
+-    reports = [capture_one(u, item, al, commit=args.commit, rate_limit=args.rate_limit) for u in urls]
++    reports = []
++    for url in urls:
++        try:
++            reports.append(capture_one(url, item, al, commit=args.commit, rate_limit=args.rate_limit))
++        except (BlockingIOError, subprocess.SubprocessError, OSError) as exc:
++            reports.append({"url": url, "action": "ERROR", "detail": f"capture_unavailable:{type(exc).__name__}"})
+ 
+     # Write-back worklist : bascule l'item TODO -> CAPTURED* depuis la 1re capture réussie.
+     worklist_updated = None
+     if args.commit:
+-        cap = next((r for r in reports if r["action"] == "CAPTURED"), None)
++        cap = next((r for r in reports if r["action"] == "CAPTURED" or
++                    (r["action"] == "SKIP" and r.get("raw_path"))), None)
+         if cap:
+             try:
+                 with acquisition_lock():
+@@ -815,7 +855,7 @@ def main() -> int:
+             print(f"  worklist: {worklist_updated}")
+         print(f"  next: {result['next']}")
+     # Exit 0 si aucune ERROR ; 1 si au moins une erreur de fetch.
+-    return 1 if any(r["action"] == "ERROR" for r in reports) else 0
++    return 1 if any(r["action"] == "ERROR" for r in reports) or str(worklist_updated).startswith("FAILED:") else 0
+ 
+ 
+ if __name__ == "__main__":
+diff --git a/_scripts/tests/test_admin_submission.py b/_scripts/tests/test_admin_submission.py
+index 3dabe36..b163e08 100644
+--- a/_scripts/tests/test_admin_submission.py
++++ b/_scripts/tests/test_admin_submission.py
+@@ -137,3 +137,58 @@ def test_busy_producer_lock_prevents_second_writer(producer):
+         with pytest.raises(BlockingIOError):
+             r.ingest_admin_submission(document(), commit=True)
+     assert not (root / 'recycled').exists()
++
++
++def test_url_capture_native_inventory_and_failed_refresh_replay(producer, monkeypatch):
++    r, root = producer
++    url = 'https://www.bosch.com/technical'
++    item = {'id': 'fixture-item', 'gamme': 'filtre'}
++    al = {'allow': {'bosch.com': {'level': 2, 'source_type': 'product_catalog', 'license_status': 'unknown'}}, 'deny': {}}
++    monkeypatch.setattr(r, 'fetch', lambda *_args, **_kwargs: '<p>' + 'Texte de fixture technique avec 12 particules. ' * 10 + '</p>')
++    with monkeypatch.context() as patcher:
++        patcher.setattr(r, 'refresh_submission_manifests', lambda: (_ for _ in ()).throw(RuntimeError('manifest fixture')))
++        failed = r.capture_one(url, item, al, commit=True, rate_limit=0)
++    assert failed['action'] == 'ERROR'
++    capture = next((root / 'sources/auto-captures').rglob('*.md'))
++    original = capture.read_bytes(), capture.stat().st_mtime_ns
++    retried = r.capture_one(url, item, al, commit=True, rate_limit=0)
++    assert retried['action'] == 'SKIP' and retried['detail'] == 'duplicate_content_hash'
++    assert retried['raw_path'] == capture.relative_to(root).as_posix()
++    assert retried['status'] == 'CAPTURED_NEEDS_REVIEW'
++    assert (capture.read_bytes(), capture.stat().st_mtime_ns) == original
++    assert capture.relative_to(root).as_posix() in json.loads((root / 'manifests/checksums.json').read_text())
++
++
++def test_url_capture_secret_scan_refuses_before_persistence(producer, monkeypatch):
++    r, root = producer
++    monkeypatch.setattr(r, 'fetch', lambda *_args, **_kwargs: '<p>' + 'Texte de fixture technique avec 12 particules. ' * 10 + '</p>')
++    monkeypatch.setattr(r, 'check_submission_secrets', lambda _: (_ for _ in ()).throw(ValueError('secret fixture')))
++    al = {'allow': {'bosch.com': {'level': 2, 'source_type': 'product_catalog', 'license_status': 'unknown'}}, 'deny': {}}
++    result = r.capture_one('https://www.bosch.com/technical', {'id': 'fixture', 'gamme': 'filtre'}, al, commit=True, rate_limit=0)
++    assert result['action'] == 'ERROR' and not (root / 'sources').exists()
++
++
++def test_main_retries_worklist_write_after_duplicate_receipt(producer, monkeypatch, capsys):
++    r, root = producer
++    item = {'id': 'fixture-item', 'gamme': 'filtre', 'discovery': {'mode': 'provided'}}
++    r.WORKLIST_FILE.write_text('fixture-placeholder')
++    monkeypatch.setattr(r, '_load_yaml', lambda _: {'worklist': [item]})
++    monkeypatch.setattr(r, 'load_allowlist', lambda: {})
++    receipt = {'action': 'SKIP', 'detail': 'duplicate_content_hash', 'raw_path': 'sources/auto-captures/fixture.md',
++               'url': 'https://www.bosch.com/source', 'status': 'CAPTURED_NEEDS_REVIEW',
++               'content_hash': 'sha256:' + 'b' * 64, 'captured_at': '2026-09-12T00:00:00Z',
++               'source_type': 'product_catalog', 'license_status': 'unknown'}
++    monkeypatch.setattr(r, 'capture_one', lambda *_args, **_kwargs: receipt)
++    monkeypatch.setattr(r.sys, 'argv', ['capture', '--item', item['id'], '--url', receipt['url'], '--commit', '--json'])
++    calls = []
++    def update(wid, **kwargs):
++        calls.append(wid)
++        if len(calls) == 1:
++            raise OSError('fixture failure')
++        return True
++    monkeypatch.setattr(r, 'update_worklist_item', update)
++    assert r.main() == 1
++    assert json.loads(capsys.readouterr().out)['worklist_updated'].startswith('FAILED:')
++    assert r.main() == 0
++    assert json.loads(capsys.readouterr().out)['worklist_updated'] == item['id']
++    assert calls == [item['id'], item['id']]
+diff --git a/_scripts/tests/test_auto_capture_runner.py b/_scripts/tests/test_auto_capture_runner.py
+index 53a8054..c3383b3 100644
+--- a/_scripts/tests/test_auto_capture_runner.py
++++ b/_scripts/tests/test_auto_capture_runner.py
+@@ -107,6 +107,8 @@ def _capture_sandbox(*, html=None, entry=None):
+         root = Path(tmp)
+         captures = root / "sources" / "auto-captures"
+         with patch.object(acr, "acquisition_lock", side_effect=nullcontext), \
++             patch.object(acr, "check_submission_secrets", return_value=None), \
++             patch.object(acr, "refresh_submission_manifests", return_value=None), \
+              patch.object(acr, "REPO_ROOT", root), \
+              patch.object(acr, "AUTO_CAPTURES_DIR", captures), \
+              patch.object(acr, "robots_ok", return_value=True), \
+diff --git a/_scripts/tests/test_capture_http.py b/_scripts/tests/test_capture_http.py
+index e55f480..a022767 100644
+--- a/_scripts/tests/test_capture_http.py
++++ b/_scripts/tests/test_capture_http.py
+@@ -245,6 +245,8 @@ def test_real_runner_network_refusal_leaves_no_raw_source(wire, monkeypatch, tmp
+     runner = importlib.util.module_from_spec(spec)
+     spec.loader.exec_module(runner)
+     monkeypatch.setattr(runner, "acquisition_lock", lambda: h.ExitStack())
++    monkeypatch.setattr(runner, 'check_submission_secrets', lambda _: None)
++    monkeypatch.setattr(runner, 'refresh_submission_manifests', lambda: None)
+     monkeypatch.setattr(runner, '_http', h)
+     monkeypatch.setattr(runner, 'REPO_ROOT', tmp_path)
+     monkeypatch.setattr(runner, 'AUTO_CAPTURES_DIR', tmp_path / 'sources' / 'auto-captures')
+@@ -262,6 +264,8 @@ def test_runner_network_to_gate_j_persistence_and_duplicate(wire, monkeypatch, t
+     runner = importlib.util.module_from_spec(spec)
+     spec.loader.exec_module(runner)
+     monkeypatch.setattr(runner, "acquisition_lock", lambda: h.ExitStack())
++    monkeypatch.setattr(runner, 'check_submission_secrets', lambda _: None)
++    monkeypatch.setattr(runner, 'refresh_submission_manifests', lambda: None)
+     monkeypatch.setattr(runner, '_http', h)
+     monkeypatch.setattr(runner, 'REPO_ROOT', tmp_path)
+     monkeypatch.setattr(runner, 'AUTO_CAPTURES_DIR', tmp_path / 'sources' / 'auto-captures')
+@@ -286,6 +290,8 @@ def test_runner_restricted_license_does_not_request_network(wire, monkeypatch, t
+     runner = importlib.util.module_from_spec(spec)
+     spec.loader.exec_module(runner)
+     monkeypatch.setattr(runner, "acquisition_lock", lambda: h.ExitStack())
++    monkeypatch.setattr(runner, 'check_submission_secrets', lambda _: None)
++    monkeypatch.setattr(runner, 'refresh_submission_manifests', lambda: None)
+     monkeypatch.setattr(runner, '_http', h)
+     monkeypatch.setattr(runner, 'AUTO_CAPTURES_DIR', tmp_path / 'sources')
+     al = {'allow': {'manufacturer.example': {'level': 2, 'license_status': 'restricted',

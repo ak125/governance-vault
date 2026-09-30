@@ -1,0 +1,30 @@
+PASS src/modules/seo-projection/seo-projection-writer.test.ts (10.216 s)
+  ● Console
+
+    console.log
+      ◇ injected env (0) from .env.test // tip: ⌘ enable debugging { debug: true }
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+PASS src/modules/seo-projection/seo-projection-snapshot.test.ts
+  ● Console
+
+    console.log
+      ◇ injected env (0) from .env.test // tip: ◈ encrypted .env [www.dotenvx.com]
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+FAIL src/modules/seo-projection/seo-projection-writer-role-scope.test.ts
+  ● Test suite failed to run
+
+    [96msrc/modules/seo-projection/seo-projection-writer-role-scope.test.ts[0m:[93m633[0m:[93m16[0m - [91merror[0m[90m TS2304: [0mCannot find name 'conflictInserts'.
+
+    [7m633[0m         expect(conflictInserts(ops)).toHaveLength(1);
+    [7m   [0m [91m               ~~~~~~~~~~~~~~~[0m
+
+Test Suites: 1 failed, 2 passed, 3 total
+Tests:       15 passed, 15 total
+Snapshots:   0 total
+Time:        10.589 s, estimated 11 s
+Ran all test suites within paths "src/modules/seo-projection/seo-projection-writer-role-scope.test.ts", "src/modules/seo-projection/seo-projection-snapshot.test.ts", "src/modules/seo-projection/seo-projection-writer.test.ts".
+EXIT_CODE=1

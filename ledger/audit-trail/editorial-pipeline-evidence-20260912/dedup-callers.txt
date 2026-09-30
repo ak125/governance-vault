@@ -1,0 +1,16 @@
+backend/src/modules/admin/services/keyword-plan-gates.dedup.test.ts:31:    const report = gates.auditFromSections(duplicated());
+backend/src/modules/admin/services/keyword-plan-gates.dedup.test.ts:60:    const report = gates.auditFromSections(sections);
+backend/src/modules/admin/services/keyword-plan-gates.dedup.test.ts:71:    const forward = gates.auditFromSections(duplicated());
+backend/src/modules/admin/services/keyword-plan-gates.dedup.test.ts:72:    const reverse = gates.auditFromSections(duplicated().reverse());
+backend/src/modules/admin/services/keyword-plan-gates.dedup.test.ts:84:    const report = gates.auditFromSections(sections);
+backend/src/modules/admin/services/keyword-plan-gates.dedup.test.ts:94:    const report = gates.auditFromSections(sections);
+backend/src/modules/admin/services/keyword-plan-gates.dedup.test.ts:101:    const report = gates.auditFromSections(rows());
+backend/src/modules/admin/services/conseil-priority.service.ts:44:      'get_conseil_priority_queue',
+backend/src/modules/admin/services/conseil-priority.service.ts:53:        `RPC get_conseil_priority_queue not found, using view fallback: ${error.message}`,
+backend/src/modules/admin/services/keyword-plan-gates.service.ts:626:  runAuditGates(
+backend/src/modules/admin/services/keyword-plan-gates.service.ts:689:   * Uses runAuditGates() internally.
+backend/src/modules/admin/services/keyword-plan-gates.service.ts:691:  auditFromSections(
+backend/src/modules/admin/services/keyword-plan-gates.service.ts:716:    const report = this.runAuditGates(existingSections, packLevel);
+backend/src/modules/admin/services/keyword-plan-gates.sources.test.ts:6:  gates.runAuditGates([
+backend/src/modules/admin/services/keyword-plan-gates.sources.test.ts:60:    const result = gates.auditFromSections(sections);
+backend/src/modules/admin/services/keyword-plan-gates.sources.test.ts:66:    const result = gates.auditFromSections(rows());

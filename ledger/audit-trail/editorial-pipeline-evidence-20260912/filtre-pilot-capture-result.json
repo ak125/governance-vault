@@ -1,0 +1,15 @@
+{
+  "mode": "commit",
+  "item": "wl-filtre-a-huile-clapets",
+  "gamme": "filtre-a-huile",
+  "urls_total": 1,
+  "reports": [
+    {
+      "url": "https://filtron.eu/en/insights/filter-guide/spin-on-oil-filter-valves.html",
+      "action": "ERROR",
+      "detail": "capture_secret_scan_failed:FileNotFoundError"
+    }
+  ],
+  "worklist_updated": null,
+  "next": "python _scripts/gates.py --gate I --gate J"
+}

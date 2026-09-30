@@ -1,0 +1,158 @@
+diff --git a/_meta/source-catalog.yaml b/_meta/source-catalog.yaml
+index 862aceb..b0bd129 100644
+--- a/_meta/source-catalog.yaml
++++ b/_meta/source-catalog.yaml
+@@ -563,23 +563,46 @@ sources:
+       ni l'ouverture permanente, ni les references normatives ISO du guide.
+ 
+   - slug: eu_reg_461_2010_block_exemption
+-    title: 'Règlement (UE) n°461/2010 — exemption par catégorie automobile (qualité OE / OES / équivalente)'
+-    type: normative_standard                    # → max confidence: high
+-    publisher: 'Union européenne (CLEPA / legislation.gov.uk)'
++    title: 'Règlement (UE) n°461/2010 — exemption par catégorie des accords dans le secteur automobile'
++    type: normative_standard
++    publisher: 'Commission européenne — EUR-Lex'
+     year: 2010
+     raw_ref:
+       repo: automecanik-raw
+       manifest_id: eu_reg_461_2010_block_exemption
+       expected_sha256: null
+-    archived_at: 'automecanik-raw/sources/web-research/filtre-a-huile/source-index.json'
+     status: to_capture
+-    license: regulatory_public
++    license: regulatory_reference_only
++    url: https://eur-lex.europa.eu/legal-content/FR/ALL/?uri=celex%3A32010R0461
++    notes: |
++      Reference historique conservee, pas une archive du texte primaire.
++      Le reglement encadre des accords et restrictions de concurrence ; il ne
++      justifie pas un classement universel de qualite OE/OES/equivalente ni une
++      identite de toutes les references d'une marque. Les definitions du guide
++      filtre-a-huile pointent desormais vers les lignes directrices 2023 ci-dessous.
++      Ancien index de liens non traite comme archive du reglement. Droits de
++      reutilisation non qualifies ; aucune preuve produit deduite.
++
++  - slug: eu_lignes_directrices_pieces_2023
++    title: 'Commission européenne — définitions des pièces, lignes directrices supplémentaires, version du 17 avril 2023'
++    type: normative_standard
++    publisher: 'Commission européenne — EUR-Lex'
++    year: 2023
++    raw_ref:
++      repo: automecanik-raw
++      manifest_id: eu_lignes_directrices_pieces_2023
++      expected_sha256: null
++    status: to_capture
++    license: regulatory_reference_only
++    url: https://eur-lex.europa.eu/legal-content/FR/TXT/?uri=CELEX%3A02010XC0528%2801%29-20230417
+     notes: |
+-      Source réglementaire PRIMARY définissant les trois niveaux de qualité du
+-      marché de la rechange (OE/OEM, OES, qualité équivalente / matching quality)
+-      et le droit des équipementiers OE à vendre en rechange. Extraite dans
+-      price-quality-brands.md (legislation.gov.uk + CLEPA). STATUS to_capture :
+-      texte réglementaire référencé par URL, archive à matérialiser.
++      Texte consolide 02010XC0528(01)-20230417 consulte le 14 septembre 2026.
++      Paragraphes 19 (origine, renvoi 2018/858) et 20 (qualite equivalente).
++      Consolidation documentaire ; versions faisant foi au Journal officiel.
++      Aucune hierarchie de marques, performance ou compatibilite precise etablie.
++      Native wl-filtre-a-huile-ue-definitions : fetch_failed, unsupported_mime.
++      Aucune archive creee ; consultation web ne vaut pas preuve RAW disponible.
++      Droits de reutilisation non qualifies ; statut to_capture et hash null.
+ 
+   # ─── Plaquette-de-frein : équipementiers OE (web-research) + catalogue interne ───
+   - slug: bremboparts_technologie_etriers
+diff --git a/log.md b/log.md
+index f64e2f0..b3b85b5 100644
+--- a/log.md
++++ b/log.md
+@@ -156,3 +156,9 @@ Correction proposee du passage sur la presence des clapets, appuyee sur une capt
+ - Extension des contrôles natifs : couverture de promotion exige carte non vide, ancre, état de capture et page active avec hash ; la préparation conserve les états pending. Le gate RAW lit et hache les archives référencées, refuse chemins hors RAW et ambiguïtés. Le snapshot inclut leurs octets ; racines explicites/environnement alignées entre évaluation et application.
+ - 232tests ciblés PASS dont23nouveauxcas ; modes legacy/6dim éprouvés sans bascule runtime. Schéma/code py_compile et diff ciblé PASS. Pas de nouvel outil, dépendance ou changement des poids/seuils.
+ - Filtre à huile : six preuves en attente deviennent des motifs explicites de refus, en plus de trois ancres existantes ; score0.46/shadow89 inchangés. Deux archives existantes liées au snapshot ; aucune mutation documentaire/RAW. Prochain travail : pertinence des passages, OE/OES, diagnostic. Preuves proof-gate-* au vault. Aucun commit/export/déploiement.
++
++## 2026-09-14 — candidat oe-quality : définitions et critères de choix
++
++- Classement universel OE/OES/équivalent et liste globale de marques retirés du corps et du bloc structuré. Deux anciennes déclarations retirées avec motif, deux définitions européennes bornées aux paragraphes 19-20 de la consolidation 2023 ; aucun retrait compté comme preuve acquise.
++- Source réglementaire historique rectifiée, nouvelle référence EUR-Lex précise, sans archive inventée. Capture native unsupported_mime : aucune archive ; deux déclarations restent pending_capture.
++- Recommandations de justificatifs par référence et d'affectation catalogue ; pas de certification ou identité universelle inférée. Score et droits de promotion inchangés. Contrôles et limites : oe-quality-* dans le dossier de preuves du vault.
+diff --git a/proposals/_coverage/filtre-a-huile.coverage.yaml b/proposals/_coverage/filtre-a-huile.coverage.yaml
+index 1d15168..d689324 100644
+--- a/proposals/_coverage/filtre-a-huile.coverage.yaml
++++ b/proposals/_coverage/filtre-a-huile.coverage.yaml
+@@ -87,20 +87,20 @@ coverage_entries:
+     source_policy: 1_high
+     source_status: pending_capture
+ 
+-  # --- claims sourcés réglementaire UE 461/2010 → high (§9.1 normative) ---
+-  - claim_id: filtre-huile-trois-niveaux-qualite-oe-oes-equivalent
++  # --- definitions des pieces : lignes directrices UE consolidees 2023 ---
++  - claim_id: filtre-huile-definition-piece-origine
+     section: "## Marques & qualité"
+-    text_anchor: "trois niveaux : OE/OEM, OES, qualité équivalente (matching quality)"
+-    source_slug: eu_reg_461_2010_block_exemption
++    text_anchor: "Une pièce d'origine répond aux spécifications et normes de production du constructeur pour l'assemblage du véhicule."
++    source_slug: eu_lignes_directrices_pieces_2023
+     evidence_type: regulatory_primary
+     confidence: high
+     source_policy: 1_high
+     source_status: pending_capture
+ 
+-  - claim_id: filtre-huile-oes-droit-rechange
++  - claim_id: filtre-huile-definition-qualite-equivalente
+     section: "## Marques & qualité"
+-    text_anchor: "les équipementiers OE peuvent vendre en rechange la même pièce que la première monte"
+-    source_slug: eu_reg_461_2010_block_exemption
++    text_anchor: "Pour la « qualité équivalente », les lignes directrices retiennent une qualité suffisante pour préserver la réputation du réseau agréé."
++    source_slug: eu_lignes_directrices_pieces_2023
+     evidence_type: regulatory_primary
+     confidence: high
+     source_policy: 1_high
+@@ -136,6 +136,15 @@ coverage_entries:
+     source_status: captured
+ 
+ notes: |
++  Lot oe-quality 2026-09-14 : retrait des claims trois-niveaux-qualite-oe-oes-equivalent
++  et oes-droit-rechange. Le premier reposait sur un classement excessif ; le second
++  ne figurait pas dans le corps et generalisait l'identite des pieces. Aucun des
++  deux n'est compte comme prouve. Deux definitions distinctes, paragraphes 19-20
++  des lignes directrices UE consolidees 2023, les remplacent dans la section utile
++  au choix. Liste globale de marques OE/OES retiree faute de preuve par reference.
++  Recommandations de justificatifs : consequence editoriale, pas certification.
++  Consultation EUR-Lex du 14 septembre ; capture native refusee unsupported_mime.
++  Aucune archive, deux pending_capture conserves et source to_capture/hash null.
+   Lot iso-pilot 2026-09-14 : trois mentions bornees aux notices officielles
+   4548-2:1997, -9:2008 et -12:2017, consultation web tracee dans le rapport.
+   Ancres et bloc structure alignes ; aucune certification ou performance produit
+diff --git a/proposals/filtre-a-huile.md b/proposals/filtre-a-huile.md
+index 34ddfdd..c690e0c 100644
+--- a/proposals/filtre-a-huile.md
++++ b/proposals/filtre-a-huile.md
+@@ -190,11 +190,12 @@ entity_data:
+       truth_level: sourced
+     quality_tiers:
+       content_md: >-
+-        Le marché de la rechange se structure en trois niveaux au sens du Règlement européen 461/2010 :
+-        pièce OE/OEM (montée d'origine en usine), pièce OES (équipementier d'origine vendant sous sa marque,
+-        qualité identique) et pièce de qualité équivalente. Les équipementiers OE de la filtration incluent
+-        notamment MANN-FILTER, Mahle, Purflux, Bosch, Denso, Valeo et Blue Print.
+-      source_ids: [raw:filtre-a-huile-price-quality, normative:eu-461-2010, oem:mann-filter]
++        Les pièces d'origine répondent aux spécifications et normes de production du constructeur
++        pour l'assemblage du véhicule. La qualité équivalente est définie par une qualité suffisante
++        pour préserver la réputation du réseau agréé (lignes directrices européennes, paragraphes 19-20,
++        version du 17 avril 2023). Pour choisir un filtre, demander les justificatifs propres à la
++        référence proposée et confirmer son affectation au véhicule dans le catalogue.
++      source_ids: [eu_lignes_directrices_pieces_2023, mahle_oem_conception_filtre_huile]
+       truth_level: sourced
+     maintenance_interval:
+       content_md: >-
+@@ -295,10 +296,9 @@ Pour comparer deux références, rechercher les résultats mesurés et leurs con
+ 
+ ## Marques & qualité
+ 
+-Trois niveaux structurent le marché de la rechange au sens du **Règlement européen 461/2010** : pièce **OE/OEM** (première monte usine), pièce **OES** (équipementier d'origine sous sa marque, qualité identique) et pièce de **qualité équivalente** ([CLEPA](https://www.clepa.eu/insights-updates/news/the-motor-vehicle-block-exemption-regulation-eu-no-461-2010/), [legislation.gov.uk](https://www.legislation.gov.uk/eur/2010/461/adopted)).
++Une pièce d'origine répond aux spécifications et normes de production du constructeur pour l'assemblage du véhicule. Pour la « qualité équivalente », les lignes directrices retiennent une qualité suffisante pour préserver la réputation du réseau agréé. Ces définitions figurent aux paragraphes 19 et 20 des [lignes directrices européennes, version du 17 avril 2023](https://eur-lex.europa.eu/legal-content/FR/TXT/?uri=CELEX%3A02010XC0528%2801%29-20230417).
+ 
+-- **Équipementiers OE / OES** : MANN-FILTER (groupe MANN+HUMMEL), Mahle/Knecht, Purflux (groupe Sogefi, fournisseur OE de PSA), Bosch, Denso, Valeo, Blue Print ([MANN-FILTER](https://www.mann-filter.com/en.html), [Purflux](https://www.purflux.com/en/news/sogefi-first-choice-for-psa-s-new-euro-6-compliant-engines.html), [Denso](https://www.densoautoparts.com/filters-oil-filters/)).
+-- **Différenciateur réel** = média + clapets + conformité au système d'origine, pas le seul nom de marque.
++Pour choisir un filtre, demander les justificatifs propres à la référence proposée : affectation au véhicule, caractéristiques techniques et résultats d'essai lorsqu'ils sont revendiqués. Le nom d'une marque ou la mention OES ne suffisent pas à démontrer que chaque référence est identique à la pièce montée en usine. Comparer ensuite les caractéristiques décrites dans « Critères de choix selon le véhicule » ; [MAHLE](https://www.mahle-aftermarket.com/na/en/products-and-services/filters/oil-filters/) explique que des filtres d'apparence identique peuvent différer intérieurement selon le moteur.
+ 
+ ## FAQ
+ 

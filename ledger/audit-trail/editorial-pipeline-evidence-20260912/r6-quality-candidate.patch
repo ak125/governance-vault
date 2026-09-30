@@ -1,0 +1,445 @@
+diff --git a/backend/src/modules/admin/dto/buying-guide-enrich.dto.ts b/backend/src/modules/admin/dto/buying-guide-enrich.dto.ts
+index 46d167c52..e09c6899b 100644
+--- a/backend/src/modules/admin/dto/buying-guide-enrich.dto.ts
++++ b/backend/src/modules/admin/dto/buying-guide-enrich.dto.ts
+@@ -1,4 +1,5 @@
+ import { z } from 'zod';
++import type { GammeContentQualityFlag } from '../../../config/buying-guide-quality.constants';
+ import type {
+   EvidenceEntry,
+   ClaimEntry,
+@@ -68,6 +69,10 @@ export interface EnrichmentResult {
+   updated: boolean;
+   sectionsUpdated: number;
+   skippedSections: string[];
++  /** Diagnostic score, not an approval of factual accuracy or publication. */
++  qualityScore?: number;
++  qualityFlags?: GammeContentQualityFlag[];
++  antiWikiGate?: { ok: boolean; reasons: string[] };
+   evidencePack?: EvidenceEntry[];
+   claims?: ClaimEntry[];
+ }
+diff --git a/backend/src/modules/admin/services/buying-guide-enricher.service.ts b/backend/src/modules/admin/services/buying-guide-enricher.service.ts
+index eb6d18523..4d331160d 100644
+--- a/backend/src/modules/admin/services/buying-guide-enricher.service.ts
++++ b/backend/src/modules/admin/services/buying-guide-enricher.service.ts
+@@ -7,10 +7,7 @@ import type {
+   EnrichmentResult,
+ } from '../dto/buying-guide-enrich.dto';
+ import type { GammeContentQualityFlag } from '../../../config/buying-guide-quality.constants';
+-import {
+-  FLAG_PENALTIES,
+-  MIN_QUALITY_SCORE,
+-} from '../../../config/buying-guide-quality.constants';
++import { FLAG_PENALTIES } from '../../../config/buying-guide-quality.constants';
+ import {
+   BuyingGuideRagFetcherService,
+   BuyingGuideQualityGatesService,
+@@ -183,6 +180,14 @@ export class BuyingGuideEnricherService {
+ 
+     // 5. Anti-wiki gate check
+     const antiWikiGate = this.qualityGates.checkAntiWikiGate(sectionResults);
++    const gatekeeper = this.qualityGates.computeGatekeeperScore({
++      sectionResults,
++      qualityFlags: uniqueFlags,
++      qualityScore,
++      antiWikiGate,
++    });
++    // One decision for preview and execution; a score never overrides a failed gate.
++    const wouldUpdate = gatekeeper.checks.passed === true;
+ 
+     // 6. DryRun → return preview
+     if (dryRun) {
+@@ -206,7 +211,7 @@ export class BuyingGuideEnricherService {
+         qualityScore,
+         qualityFlags: uniqueFlags,
+         antiWikiGate,
+-        wouldUpdate: qualityScore >= MIN_QUALITY_SCORE && antiWikiGate.ok,
++        wouldUpdate,
+       } satisfies EnrichDryRunResult;
+     }
+ 
+@@ -223,12 +228,6 @@ export class BuyingGuideEnricherService {
+       // is worse than {score, flags: [ALL_SECTIONS_SKIPPED]} = "known RAG-incomplete".
+       // The fn_invalidate_sgpg_gatekeeper trigger only fires on content changes,
+       // so this metadata-only write is safe.
+-      const gatekeeper = this.qualityGates.computeGatekeeperScore({
+-        sectionResults,
+-        qualityFlags: uniqueFlags,
+-        qualityScore,
+-        antiWikiGate,
+-      });
+       const gateOnlyPayload: Record<string, unknown> = {
+         sgpg_gatekeeper_score: gatekeeper.score,
+         sgpg_gatekeeper_flags: [...gatekeeper.flags, 'ALL_SECTIONS_SKIPPED'],
+@@ -270,7 +269,29 @@ export class BuyingGuideEnricherService {
+         updated: false,
+         sectionsUpdated: 0,
+         skippedSections: Object.keys(sectionResults),
++        qualityScore,
++        qualityFlags: uniqueFlags,
++        antiWikiGate,
++        evidencePack: evidenceEntries,
++      };
++    }
++
++    if (!wouldUpdate) {
++      this.logger.warn(
++        `QUALITY_GATE_BLOCKED: pgId=${pgId}, score=${qualityScore}, reasons=${gatekeeper.flags.join(' | ')}`,
++      );
++      return {
++        pgId,
++        sections: {},
++        averageConfidence: 0,
++        updated: false,
++        sectionsUpdated: 0,
++        skippedSections: Object.keys(sectionResults),
++        qualityScore,
++        qualityFlags: uniqueFlags,
++        antiWikiGate,
+         evidencePack: evidenceEntries,
++        claims,
+       };
+     }
+ 
+@@ -300,12 +321,6 @@ export class BuyingGuideEnricherService {
+     // Persisted in the same UPDATE as content columns so the BEFORE UPDATE
+     // trigger `trg_invalidate_sgpg_gatekeeper` keeps our fresh values instead
+     // of nulling them out.
+-    const gatekeeper = this.qualityGates.computeGatekeeperScore({
+-      sectionResults,
+-      qualityFlags: uniqueFlags,
+-      qualityScore,
+-      antiWikiGate,
+-    });
+     updatePayload.sgpg_gatekeeper_score = gatekeeper.score;
+     updatePayload.sgpg_gatekeeper_flags = gatekeeper.flags;
+     updatePayload.sgpg_gatekeeper_checks = gatekeeper.checks;
+@@ -359,6 +374,9 @@ export class BuyingGuideEnricherService {
+       updated: true,
+       sectionsUpdated: okSections.length,
+       skippedSections,
++      qualityScore,
++      qualityFlags: uniqueFlags,
++      antiWikiGate,
+       evidencePack: evidenceEntries,
+       claims,
+     };
+diff --git a/backend/src/modules/admin/services/buying-guide/buying-guide-quality-gates.service.ts b/backend/src/modules/admin/services/buying-guide/buying-guide-quality-gates.service.ts
+index a99a2f029..254f62e81 100644
+--- a/backend/src/modules/admin/services/buying-guide/buying-guide-quality-gates.service.ts
++++ b/backend/src/modules/admin/services/buying-guide/buying-guide-quality-gates.service.ts
+@@ -1,4 +1,6 @@
+ import { Injectable, Logger } from '@nestjs/common';
++import { normalizeSeoText } from '@repo/seo-roles';
++import { SelectionCriterionSchema } from '../../dto/buying-guide-enrich.dto';
+ import {
+   type GammeContentQualityFlag,
+   MIN_NARRATIVE_LENGTH,
+@@ -199,22 +201,42 @@ export class BuyingGuideQualityGatesService {
+       reasons.push('GENERIC_WITHOUT_ACTION');
+     }
+ 
+-    // D1: Check guidance is not a mere copy of label in selection_criteria
+-    if (
+-      criteria?.ok &&
+-      Array.isArray(criteria.content) &&
+-      criteria.content.length > 0
+-    ) {
+-      const guidanceCopies = (
+-        criteria.content as Array<{ label?: string; guidance?: string }>
+-      ).filter(
+-        (c) =>
+-          c.guidance?.trim() === c.label?.trim() + '.' ||
+-          c.guidance?.trim() === c.label?.trim(),
+-      );
+-      if (guidanceCopies.length > criteria.content.length / 2) {
++    // D1: Validate the existing criterion contract before comparing content.
++    // A single duplicate or empty explanation requires editorial review; counting
++    // repeated criteria must never make an incomplete guide eligible to write.
++    if (criteria?.ok && Array.isArray(criteria.content)) {
++      const labels = new Set<string>();
++      const invalidRows: number[] = [];
++      const copiedRows: number[] = [];
++      const duplicateRows: number[] = [];
++      criteria.content.forEach((item: unknown, index: number) => {
++        const parsed = SelectionCriterionSchema.safeParse(item);
++        if (!parsed.success) {
++          invalidRows.push(index + 1);
++          return;
++        }
++        const { key, label, guidance } = parsed.data;
++        const normalizedLabel = normalizeSeoText(label);
++        const normalizedGuidance = normalizeSeoText(guidance);
++        if (!key.trim() || !normalizedLabel || !normalizedGuidance) {
++          invalidRows.push(index + 1);
++          return;
++        }
++        if (normalizedLabel === normalizedGuidance) copiedRows.push(index + 1);
++        if (labels.has(normalizedLabel)) duplicateRows.push(index + 1);
++        labels.add(normalizedLabel);
++      });
++      if (invalidRows.length) {
++        reasons.push(
++          `INVALID_SELECTION_CRITERIA (rows: ${invalidRows.join(', ')})`,
++        );
++      }
++      if (copiedRows.length) {
++        reasons.push(`GUIDANCE_COPIES_LABEL (rows: ${copiedRows.join(', ')})`);
++      }
++      if (duplicateRows.length) {
+         reasons.push(
+-          `GUIDANCE_COPIES_LABEL (${guidanceCopies.length}/${criteria.content.length} criteria have guidance identical to label)`,
++          `DUPLICATE_SELECTION_CRITERIA (rows: ${duplicateRows.join(', ')})`,
+         );
+       }
+     }
+diff --git a/backend/src/modules/admin/services/buying-guide-enricher.quality.test.ts b/backend/src/modules/admin/services/buying-guide-enricher.quality.test.ts
+new file mode 100644
+index 000000000..ecd1b065e
+--- /dev/null
++++ b/backend/src/modules/admin/services/buying-guide-enricher.quality.test.ts
+@@ -0,0 +1,243 @@
++import { BuyingGuideEnricherService } from './buying-guide-enricher.service';
++import { BuyingGuideQualityGatesService } from './buying-guide/buying-guide-quality-gates.service';
++import type { SectionValidationResult } from './buying-guide/buying-guide.types';
++
++function section(content: unknown): SectionValidationResult {
++  return {
++    ok: true,
++    flags: [],
++    content,
++    sources: ['fixture'],
++    confidence: 0.9,
++    sourcesCitation: 'Fixture only',
++    rawAnswer: '',
++  };
++}
++function fixture() {
++  return {
++    selection_criteria: section([
++      {
++        key: 'marque',
++        label: 'Marque du véhicule',
++        guidance: 'Vérifier la marque dans le catalogue constructeur.',
++        priority: 'required',
++      },
++      {
++        key: 'modele',
++        label: 'Modèle du véhicule',
++        guidance: 'Comparer le modèle exact avant de commander.',
++        priority: 'required',
++      },
++      {
++        key: 'moteur',
++        label: 'Motorisation',
++        guidance: 'Relever le code moteur pour vérifier la référence.',
++        priority: 'required',
++      },
++      {
++        key: 'reference',
++        label: 'Référence OEM',
++        guidance: 'Comparer la référence au catalogue de pièces.',
++        priority: 'recommended',
++      },
++      {
++        key: 'montage',
++        label: 'Montage',
++        guidance: 'Vérifier le montage documenté pour cette application.',
++        priority: 'recommended',
++      },
++    ]),
++    anti_mistakes: section([
++      'Ne pas choisir au seul prix.',
++      'Ne pas ignorer le code moteur.',
++      'Ne pas mélanger deux références.',
++      'Ne pas confondre les montages.',
++    ]),
++    decision_tree: section([
++      { id: 'compatibilite', question: 'Référence compatible ?', options: [] },
++    ]),
++  };
++}
++function criteria(sections: ReturnType<typeof fixture>) {
++  return sections.selection_criteria.content as Array<{
++    key: string;
++    label: string;
++    guidance: string;
++    priority: string;
++  }>;
++}
++function harness(sections: Record<string, SectionValidationResult>) {
++  const db = {
++    fetchGammeMetadata: jest.fn().mockResolvedValue({
++      gammeName: 'Filtre à huile',
++      family: 'filtration',
++      pgAlias: 'filtre-a-huile',
++    }),
++    buildUpdatePayload: jest.fn().mockReturnValue({
++      sgpg_selection_criteria: sections.selection_criteria?.content,
++    }),
++    upsertBuyingGuide: jest.fn().mockResolvedValue(undefined),
++  };
++  const service = new BuyingGuideEnricherService(
++    {
++      enrichFromRag: jest
++        .fn()
++        .mockResolvedValue({ sections, evidencePack: [], claims: [] }),
++    } as never,
++    new BuyingGuideQualityGatesService(),
++    db as never,
++    { writeGuardEnabled: false } as never,
++  );
++  return { db, service };
++}
++
++describe('Buying guide criteria quality at the write boundary', () => {
++  const gates = new BuyingGuideQualityGatesService();
++
++  it('accepts distinct criteria with useful guidance', () => {
++    expect(gates.checkAntiWikiGate(fixture())).toEqual({
++      ok: true,
++      reasons: [],
++    });
++  });
++
++  it('blocks one copied label even among otherwise valid criteria, ignoring accents and punctuation', () => {
++    const sections = fixture();
++    criteria(sections)[0].guidance = '  MARQUE DU VEHICULE.  ';
++    expect(gates.checkAntiWikiGate(sections)).toEqual({
++      ok: false,
++      reasons: [expect.stringContaining('GUIDANCE_COPIES_LABEL')],
++    });
++  });
++
++  it('flags accent variants without deleting or merging their different guidance', () => {
++    const sections = fixture();
++    criteria(sections)[1].label = 'Marque du vehicule';
++    const before = JSON.stringify(sections);
++    expect(gates.checkAntiWikiGate(sections)).toEqual({
++      ok: false,
++      reasons: [expect.stringContaining('DUPLICATE_SELECTION_CRITERIA')],
++    });
++    expect(JSON.stringify(sections)).toBe(before);
++  });
++
++  it.each([
++    null,
++    { label: 42 },
++    { key: 'empty', label: '  ', guidance: '  ', priority: 'required' },
++    {
++      tier_id: 'oe',
++      label: 'Origine',
++      description: 'Pièce d’origine',
++      available: true,
++    },
++  ])(
++    'reports malformed criteria instead of crashing or counting them as valid: %j',
++    (item) => {
++      const sections = fixture();
++      (sections.selection_criteria.content as unknown[])[0] = item;
++      expect(gates.checkAntiWikiGate(sections)).toEqual({
++        ok: false,
++        reasons: [expect.stringContaining('INVALID_SELECTION_CRITERIA')],
++      });
++    },
++  );
++
++  it('cannot write a preview-rejected guide even with a score of 100', async () => {
++    const sections = fixture();
++    for (const criterion of criteria(sections))
++      criterion.guidance = criterion.label;
++    const { service, db } = harness(sections);
++    const [preview] = await service.enrich(['7'], true);
++    expect(preview).toMatchObject({
++      qualityScore: 100,
++      wouldUpdate: false,
++      antiWikiGate: { ok: false },
++    });
++    const [execution] = await service.enrich(['7'], false);
++    expect(execution).toMatchObject({ updated: false, sectionsUpdated: 0 });
++    expect(db.buildUpdatePayload).not.toHaveBeenCalled();
++    expect(db.upsertBuyingGuide).not.toHaveBeenCalled();
++  });
++
++  it('blocks low-score content even when the anti-wiki checks pass', async () => {
++    const sections = fixture();
++    sections.selection_criteria.flags = [
++      'GENERIC_PHRASES',
++      'MISSING_REQUIRED_TERMS',
++      'TOO_SHORT',
++      'CONTENT_OVERLAP',
++    ];
++    const { service, db } = harness(sections);
++    const [preview] = await service.enrich(['7'], true);
++    expect(preview).toMatchObject({
++      wouldUpdate: false,
++      antiWikiGate: { ok: true },
++    });
++    const [execution] = await service.enrich(['7'], false);
++    expect(execution).toMatchObject({ updated: false });
++    expect(db.upsertBuyingGuide).not.toHaveBeenCalled();
++  });
++
++  it('returns the same blocking diagnostics in preview and execution for an accented duplicate', async () => {
++    const sections = fixture();
++    criteria(sections)[1].label = 'Marque du vehicule';
++    const { service, db } = harness(sections);
++    const [preview] = await service.enrich(['7'], true);
++    const [execution] = await service.enrich(['7'], false);
++    expect(preview).toMatchObject({ wouldUpdate: false });
++    expect(execution).toMatchObject({
++      updated: false,
++      qualityScore: preview.qualityScore,
++      antiWikiGate: preview.antiWikiGate,
++      skippedSections: Object.keys(sections),
++    });
++    expect(db.upsertBuyingGuide).not.toHaveBeenCalled();
++  });
++
++  it('retains the metadata-only diagnostic path when all sections were rejected', async () => {
++    const sections = fixture();
++    for (const value of Object.values(sections)) value.ok = false;
++    const { service, db } = harness(sections);
++    expect((await service.enrich(['7'], true))[0]).toMatchObject({
++      wouldUpdate: false,
++    });
++    expect(db.upsertBuyingGuide).not.toHaveBeenCalled();
++    expect((await service.enrich(['7'], false))[0]).toMatchObject({
++      updated: false,
++      sectionsUpdated: 0,
++    });
++    expect(db.buildUpdatePayload).not.toHaveBeenCalled();
++    expect(db.upsertBuyingGuide).toHaveBeenCalledTimes(1);
++    const payload = db.upsertBuyingGuide.mock.calls[0][1];
++    expect(Object.keys(payload).sort()).toEqual([
++      'sgpg_gatekeeper_checks',
++      'sgpg_gatekeeper_flags',
++      'sgpg_gatekeeper_score',
++      'sgpg_source_verified',
++      'sgpg_source_verified_at',
++      'sgpg_source_verified_by',
++    ]);
++    expect(payload.sgpg_source_verified).toBe(false);
++    expect(payload.sgpg_gatekeeper_checks).toMatchObject({
++      passed: false,
++      all_sections_skipped: true,
++    });
++  });
++
++  it('preserves the authorized path for structurally valid content', async () => {
++    const { service, db } = harness(fixture());
++    expect((await service.enrich(['7'], true))[0]).toMatchObject({
++      wouldUpdate: true,
++    });
++    expect(db.upsertBuyingGuide).not.toHaveBeenCalled();
++    expect((await service.enrich(['7'], false))[0]).toMatchObject({
++      updated: true,
++      sectionsUpdated: 3,
++    });
++    expect(db.upsertBuyingGuide).toHaveBeenCalledTimes(1);
++    expect(
++      db.upsertBuyingGuide.mock.calls[0][1].sgpg_gatekeeper_checks.passed,
++    ).toBe(true);
++  });
++});

@@ -1,0 +1,293 @@
+{
+  "recorded_at_utc": "2026-09-13T11:09:22.306354+00:00",
+  "timer": "knowledge-jobs.timer",
+  "enabled": true,
+  "schedule_observed": "daily08:00 Europe/Paris; next14sept08:00",
+  "last_service_result": "success",
+  "last_service_exit": 0,
+  "run_at": "20260913T060059.292712Z",
+  "run_path": "/home/deploy/.local/state/knowledge-jobs/runs/20260913T060059.292712Z",
+  "revisions": {
+    "wiki_before": "01cea8deda48d84b6a2993cd4bdefe8280082c0b",
+    "main": "01cea8deda48d84b6a2993cd4bdefe8280082c0b",
+    "raw": "4cd819a5feedb4b3d0d4ed1ef9b3f081f68d50c0"
+  },
+  "errors": {},
+  "wiki": {
+    "eligible": 0,
+    "promoted": 0,
+    "blocked": 15,
+    "decisions": {
+      "proposals/citroen-c3.md": {
+        "status": "BLOCKED",
+        "score": 0.31,
+        "reasons": [
+          "SOURCE_DIVERSITY",
+          "SUBSTANCE_SCORE",
+          "TRUTH_LEVEL"
+        ]
+      },
+      "proposals/courroie-d-accessoire.md": {
+        "status": "BLOCKED",
+        "score": 0.24,
+        "reasons": [
+          "SAFETY_HUMAN_REVIEW",
+          "SOURCE_DIVERSITY",
+          "SUBSTANCE_SCORE"
+        ]
+      },
+      "proposals/dacia.md": {
+        "status": "BLOCKED",
+        "score": 0.31,
+        "reasons": [
+          "SOURCE_DIVERSITY",
+          "SUBSTANCE_SCORE",
+          "TRUTH_LEVEL"
+        ]
+      },
+      "proposals/disque-de-frein.md": {
+        "status": "BLOCKED",
+        "score": 0.36,
+        "reasons": [
+          "GATE_RISK",
+          "SAFETY_HUMAN_REVIEW",
+          "SOURCE_DIVERSITY",
+          "SUBSTANCE_SCORE"
+        ]
+      },
+      "proposals/filtre-a-huile.md": {
+        "status": "BLOCKED",
+        "score": 0.46,
+        "reasons": [
+          "SUBSTANCE_SCORE"
+        ]
+      },
+      "proposals/ford-focus-3.md": {
+        "status": "BLOCKED",
+        "score": 0.32,
+        "reasons": [
+          "GATE_RISK",
+          "SOURCE_DIVERSITY",
+          "SUBSTANCE_SCORE",
+          "TRUTH_LEVEL"
+        ]
+      },
+      "proposals/peugeot-206.md": {
+        "status": "BLOCKED",
+        "score": 0.36,
+        "reasons": [
+          "SOURCE_DIVERSITY",
+          "SUBSTANCE_SCORE",
+          "TRUTH_LEVEL"
+        ]
+      },
+      "proposals/plaquette-de-frein.md": {
+        "status": "BLOCKED",
+        "score": 0.49,
+        "reasons": [
+          "SAFETY_HUMAN_REVIEW",
+          "SOURCE_DIVERSITY",
+          "SUBSTANCE_SCORE"
+        ]
+      },
+      "proposals/renault-clio-3.md": {
+        "status": "BLOCKED",
+        "score": 0.34,
+        "reasons": [
+          "NUMERIC_HIGH_HARM",
+          "SOURCE_DIVERSITY",
+          "SUBSTANCE_SCORE",
+          "TRUTH_LEVEL"
+        ]
+      },
+      "proposals/renault-megane-3.md": {
+        "status": "BLOCKED",
+        "score": 0.32,
+        "reasons": [
+          "GATE_RISK",
+          "SOURCE_DIVERSITY",
+          "SUBSTANCE_SCORE",
+          "TRUTH_LEVEL"
+        ]
+      },
+      "proposals/renault-scenic-ii.md": {
+        "status": "BLOCKED",
+        "score": 0.24,
+        "reasons": [
+          "SOURCE_DIVERSITY",
+          "SUBSTANCE_SCORE"
+        ]
+      },
+      "proposals/support-moteur.md": {
+        "status": "BLOCKED",
+        "score": 0.24,
+        "reasons": [
+          "SOURCE_DIVERSITY",
+          "SUBSTANCE_SCORE"
+        ]
+      },
+      "proposals/thermostat.md": {
+        "status": "BLOCKED",
+        "score": 0.24,
+        "reasons": [
+          "SOURCE_DIVERSITY",
+          "SUBSTANCE_SCORE"
+        ]
+      },
+      "proposals/vanne-egr.md": {
+        "status": "BLOCKED",
+        "score": 0.24,
+        "reasons": [
+          "SOURCE_DIVERSITY",
+          "SUBSTANCE_SCORE"
+        ]
+      },
+      "proposals/volkswagen-golf-6.md": {
+        "status": "BLOCKED",
+        "score": 0.3,
+        "reasons": [
+          "SOURCE_DIVERSITY",
+          "SUBSTANCE_SCORE",
+          "TRUTH_LEVEL"
+        ]
+      }
+    },
+    "status": "validated"
+  },
+  "collection": {
+    "checked_at": "2026-09-13T06:00:59.385679+00:00",
+    "collector_sha256": "411dd503963a633626b7b002c4309064b2a1f0d794f23c8da980df151063e2d9",
+    "changed_sources": [
+      "github-nestjs",
+      "github-alliance",
+      "github-auto-pieces",
+      "vps-nestjs",
+      "vps-vault"
+    ],
+    "documents": 16998,
+    "unique_contents": 7343,
+    "duplicate_occurrences": 9655,
+    "source_errors": {},
+    "github_reused": 4,
+    "model_calls": 0,
+    "navigation": "/home/deploy/.local/lib/knowledge-jobs/collection/data/navigation/README.md"
+  },
+  "collector_scope": {
+    "github": [
+      {
+        "id": "github-nestjs",
+        "repo": "ak125/nestjs-remix-monorepo",
+        "project": "automecanik",
+        "role": "application"
+      },
+      {
+        "id": "github-raw",
+        "repo": "ak125/automecanik-raw",
+        "project": "automecanik",
+        "role": "raw"
+      },
+      {
+        "id": "github-wiki",
+        "repo": "ak125/automecanik-wiki",
+        "project": "automecanik",
+        "role": "wiki"
+      },
+      {
+        "id": "github-vault",
+        "repo": "ak125/governance-vault",
+        "project": "automecanik",
+        "role": "governance"
+      },
+      {
+        "id": "github-rag",
+        "repo": "ak125/automecanik-rag",
+        "project": "automecanik",
+        "role": "consumer"
+      },
+      {
+        "id": "github-alliance",
+        "repo": "ak125/alliance-delivery",
+        "project": "alliance",
+        "role": "application"
+      },
+      {
+        "id": "github-auto-pieces",
+        "repo": "ak125/auto-pieces-equipements-site",
+        "project": "auto-pieces",
+        "role": "application"
+      }
+    ],
+    "vps_source_ids": [
+      "vps-nestjs",
+      "vps-raw",
+      "vps-wiki",
+      "vps-vault",
+      "vps-rag-knowledge",
+      "vps-alliance"
+    ]
+  },
+  "filter_example": {
+    "promotion_status": "BLOCKED",
+    "eligible": false,
+    "tier": "B",
+    "substance_tier": "S",
+    "confidence_score": 0.46,
+    "blocking_reasons": [
+      {
+        "code": "SUBSTANCE_SCORE",
+        "owner_stage": "SUBSTANCE",
+        "detector_stage": "PROMOTE_EVALUATE_TIER",
+        "evidence": {
+          "score": 0.46,
+          "threshold": 0.85,
+          "engine": "legacy"
+        }
+      }
+    ],
+    "evaluation": {
+      "tier": "B",
+      "confidence_score": 0.46,
+      "gate_status": {
+        "source": "pass",
+        "claim": "pass",
+        "contradiction": "pass",
+        "risk": "pass",
+        "confidence": "pass"
+      },
+      "shadow_score": {
+        "shadow_tier": "S",
+        "shadow_total": 91,
+        "shadow_dims": {
+          "E": 10.0,
+          "D": 15.0,
+          "C": 20.0,
+          "A": 26.5,
+          "F": 1.0
+        },
+        "shadow_applicable": [
+          "A",
+          "C",
+          "D",
+          "E",
+          "F"
+        ],
+        "shadow_floors_failed": [],
+        "shadow_blocked": [],
+        "manifest_status": "stale",
+        "scorer": "shadow_score.score@6dim-v0"
+      }
+    }
+  },
+  "source_sha256": {
+    "/home/deploy/.local/lib/knowledge-jobs/run.py": "e4bfc17d126877beb1e8670f6310571f7397a0ce084212d5aa4a517ee76965dc",
+    "/home/deploy/.local/lib/knowledge-jobs/collection/sources.json": "0b7ed4abdc040305e5296c792570a12ed0a2c1acd34a593104afdca828b8bc79",
+    "/home/deploy/.local/state/knowledge-jobs/runs/20260913T060059.292712Z/summary.json": "baadc756ea5d52c396d1075b2629d8fba15c69f64ccf43077d8c4cdec29474ce",
+    "/home/deploy/.local/state/knowledge-jobs/runs/20260913T060059.292712Z/wiki-apply.stdout.json": "b844a5462cca18347ecaaa51f3fa34a03880c046ef0a2aa8354a064ebd2d71a4"
+  },
+  "boundaries": [
+    "Read only; task not rerun",
+    "documents and duplicate_occurrences count repository snapshots, not indexed SEO pages",
+    "No technical documentation source discovery observed in configured collection",
+    "No notification sent by this inspection"
+  ]
+}

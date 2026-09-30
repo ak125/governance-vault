@@ -1,0 +1,25 @@
+PASS src/modules/admin/controllers/internal-seo-audit.r3.test.ts (17.376 s)
+PASS src/modules/admin/services/conseil-quality-backfill.test.ts
+PASS src/modules/admin/services/keyword-plan-gates.dedup.test.ts
+[32m[Nest] 929132  - [39m13/09/2026 16:44:47 [32m    LOG[39m [38;5;3m[KeywordPlanGatesService] [39m[32mAudit: 7/7 sections (100%), avg=100, improve=2, create=0, priority=0[39m
+[32m[Nest] 929132  - [39m13/09/2026 16:44:47 [32m    LOG[39m [38;5;3m[KeywordPlanGatesService] [39m[32mAudit: 7/7 sections (100%), avg=100, improve=7, create=0, priority=0[39m
+[32m[Nest] 929132  - [39m13/09/2026 16:44:47 [32m    LOG[39m [38;5;3m[KeywordPlanGatesService] [39m[32mAudit: 7/7 sections (100%), avg=100, improve=2, create=0, priority=0[39m
+[32m[Nest] 929132  - [39m13/09/2026 16:44:47 [32m    LOG[39m [38;5;3m[KeywordPlanGatesService] [39m[32mAudit: 7/7 sections (100%), avg=100, improve=2, create=0, priority=0[39m
+[32m[Nest] 929132  - [39m13/09/2026 16:44:47 [32m    LOG[39m [38;5;3m[KeywordPlanGatesService] [39m[32mAudit: 7/7 sections (100%), avg=100, improve=3, create=0, priority=0[39m
+[32m[Nest] 929132  - [39m13/09/2026 16:44:47 [32m    LOG[39m [38;5;3m[KeywordPlanGatesService] [39m[32mAudit: 7/7 sections (100%), avg=100, improve=0, create=0, priority=0[39m
+[32m[Nest] 929132  - [39m13/09/2026 16:44:47 [32m    LOG[39m [38;5;3m[KeywordPlanGatesService] [39m[32mAudit: 7/7 sections (100%), avg=100, improve=0, create=0, priority=0[39m
+[32m[Nest] 929132  - [39m13/09/2026 16:44:47 [32m    LOG[39m [38;5;3m[KeywordPlanGatesService] [39m[32mAudit: 7/7 sections (100%), avg=100, improve=2, create=0, priority=0[39m
+[32m[Nest] 929132  - [39m13/09/2026 16:44:47 [32m    LOG[39m [38;5;3m[KeywordPlanGatesService] [39m[32mAudit: 7/7 sections (100%), avg=100, improve=2, create=0, priority=0[39m
+[32m[Nest] 929132  - [39m13/09/2026 16:44:47 [32m    LOG[39m [38;5;3m[KeywordPlanGatesService] [39m[32mAudit: 7/7 sections (100%), avg=100, improve=2, create=0, priority=0[39m
+[32m[Nest] 929132  - [39m13/09/2026 16:44:47 [32m    LOG[39m [38;5;3m[KeywordPlanGatesService] [39m[32mAudit: 7/7 sections (100%), avg=100, improve=2, create=0, priority=0[39m
+[32m[Nest] 929132  - [39m13/09/2026 16:44:47 [32m    LOG[39m [38;5;3m[KeywordPlanGatesService] [39m[32mAudit: 7/7 sections (100%), avg=100, improve=0, create=0, priority=0[39m
+[32m[Nest] 929132  - [39m13/09/2026 16:44:47 [32m    LOG[39m [38;5;3m[KeywordPlanGatesService] [39m[32mAudit: 7/7 sections (100%), avg=100, improve=2, create=0, priority=0[39m
+PASS src/modules/admin/services/conseil-quality-scorer.service.test.ts
+PASS src/modules/admin/services/keyword-plan-gates.sources.test.ts
+
+Test Suites: 5 passed, 5 total
+Tests:       73 passed, 73 total
+Snapshots:   0 total
+Time:        18.306 s, estimated 19 s
+[32m[Nest] 929132  - [39m13/09/2026 16:44:47 [32m    LOG[39m [38;5;3m[KeywordPlanGatesService] [39m[32mAudit: 7/7 sections (100%), avg=100, improve=1, create=0, priority=5[39m
+[32m[Nest] 929132  - [39m13/09/2026 16:44:47 [32m    LOG[39m [38;5;3m[KeywordPlanGatesService] [39m[32mAudit: 7/7 sections (100%), avg=100, improve=0, create=0, priority=0[39m

@@ -1,0 +1,607 @@
+diff --git a/_scripts/auto-capture-runner.py b/_scripts/auto-capture-runner.py
+index 8c04b69..fe0240f 100644
+--- a/_scripts/auto-capture-runner.py
++++ b/_scripts/auto-capture-runner.py
+@@ -1,8 +1,8 @@
+ #!/usr/bin/env python3
+ """auto-capture-runner.py — capture RAW gouvernée côté agent (voie auto).
+ 
+-Conforme docs/agent-capture-policy.md + ADR-031 (scrape = source raw ; sécurité à
+-RAW->WIKI). Le runner ne fait PAS de découverte web libre (qui ramène des concurrents) :
++Conforme docs/agent-capture-policy.md + ADR-031/ADR-096 : contrôle réseau avant
++requête, validation Gate J avant persistance, puis qualification RAW->WIKI. Le runner ne fait PAS de découverte web libre (qui ramène des concurrents) :
+ il capture des URL fournies, **uniquement** depuis un domaine `allow` de
+ manifests/ingestion-allowlist.yaml, **jamais** un domaine `deny` (plancher Niveau-3),
+ robots.txt respecté, rate-limité. Tout est écrit en `CAPTURED` / `CAPTURED_NEEDS_REVIEW`
+@@ -36,8 +36,6 @@ from datetime import datetime, timezone
+ from html.parser import HTMLParser
+ from pathlib import Path
+ from urllib.parse import urlparse
+-from urllib import request as urlrequest
+-from urllib import robotparser
+ 
+ REPO_ROOT = Path(__file__).resolve().parent.parent
+ WORKLIST_FILE = REPO_ROOT / "manifests" / "ingestion-worklist.yaml"
+@@ -54,6 +52,10 @@ _gates_spec = importlib.util.spec_from_file_location("raw_capture_gates", REPO_R
+ _gates = importlib.util.module_from_spec(_gates_spec)
+ _gates_spec.loader.exec_module(_gates)
+ 
++_http_spec = importlib.util.spec_from_file_location("raw_capture_http", REPO_ROOT / "_scripts" / "capture_http.py")
++_http = importlib.util.module_from_spec(_http_spec)
++_http_spec.loader.exec_module(_http)
++
+ 
+ def _fatal(msg: str) -> None:
+     sys.stderr.write(f"FATAL: {msg}\n")
+@@ -106,15 +108,21 @@ def classify(url: str, al: dict) -> tuple[str, dict | None]:
+     return ("not_allowlisted", None)
+ 
+ 
+-def robots_ok(url: str) -> bool:
+-    parsed = urlparse(url)
+-    rp = robotparser.RobotFileParser()
+-    rp.set_url(f"{parsed.scheme}://{parsed.netloc}/robots.txt")
++def _transport(url: str, al: dict, rate_limit: float = 0):
++    # Redirects must remain under the same allowlist policy entry so their
++    # level/license/source_type cannot silently inherit another site's policy.
++    verdict, entry = classify(url, al)
++    def allowed(target):
++        target_verdict, target_entry = classify(target, al)
++        return verdict == "allow" and target_verdict == "allow" and target_entry is entry
++    return _http.Transport(allowed, USER_AGENT, FETCH_TIMEOUT, rate_limit)
++
++
++def robots_ok(url: str, al: dict | None = None) -> bool:
+     try:
+-        rp.read()
+-    except Exception:  # noqa: BLE001 — robots illisible → conservateur: refuser
++        return _transport(url, al if al is not None else load_allowlist()).robots_ok(url)
++    except Exception:  # unreadable or unsafe robots => refuse
+         return False
+-    return rp.can_fetch(USER_AGENT, url)
+ 
+ 
+ class _BlockExtractor(HTMLParser):
+@@ -178,11 +186,8 @@ def extract_text(html: str) -> str:
+     return "\n".join(out)
+ 
+ 
+-def fetch(url: str) -> str:
+-    req = urlrequest.Request(url, headers={"User-Agent": USER_AGENT})
+-    with urlrequest.urlopen(req, timeout=FETCH_TIMEOUT) as resp:  # noqa: S310 — http(s) only, allowlisté
+-        charset = resp.headers.get_content_charset() or "utf-8"
+-        return resp.read().decode(charset, errors="replace")
++def fetch(url: str, al: dict | None = None, *, rate_limit: float = 0) -> str:
++    return _transport(url, al if al is not None else load_allowlist(), rate_limit).fetch_html(url)
+ 
+ 
+ def existing_hashes() -> set[str]:
+@@ -211,7 +216,11 @@ def build_frontmatter(fm: dict) -> str:
+ def capture_one(url: str, item: dict, al: dict, *, commit: bool, rate_limit: float) -> dict:
+     """Retourne un dict rapport pour une URL."""
+     rep = {"url": url, "action": None, "detail": None}
+-    verdict, entry = classify(url, al)
++    try:
++        verdict, entry = classify(url, al)
++    except (ValueError, TypeError):
++        rep.update(action="ERROR", detail="invalid_url")
++        return rep
+     if verdict.startswith("deny"):
+         rep.update(action="SKIP", detail=verdict)
+         return rep
+@@ -230,12 +239,12 @@ def capture_one(url: str, item: dict, al: dict, *, commit: bool, rate_limit: flo
+         return rep
+ 
+     # ── LIVE ──
+-    if not robots_ok(url):
+-        rep.update(action="SKIP", detail="robots.txt disallow (ou illisible)")
++    if license_status == "restricted" or level not in (1, 2):
++        rep.update(action="ERROR", detail="capture_policy_refused",
++                   reasons=["restricted_license" if license_status == "restricted" else "invalid_level"])
+         return rep
+-    time.sleep(rate_limit)
+     try:
+-        html = fetch(url)
++        html = fetch(url, al, rate_limit=rate_limit)
+     except Exception as e:  # noqa: BLE001
+         rep.update(action="ERROR", detail=f"fetch_failed:{type(e).__name__}:{str(e)[:120]}")
+         return rep
+diff --git a/_scripts/capture_http.py b/_scripts/capture_http.py
+new file mode 100644
+index 0000000..1f11c2c
+--- /dev/null
++++ b/_scripts/capture_http.py
+@@ -0,0 +1,193 @@
++"""Bounded HTTPS transport for the existing RAW HTML capture runner.
++
++No proxy, cookies, auth or automatic redirects. DNS is checked once per request;
++the TCP socket connects to that exact checked address, retaining hostname TLS
++verification. robots.txt uses the same transport. Binary acquisition is excluded.
++
++Operational bounds: 2 MiB HTML, 256 KiB robots, four redirects per resource,
++12 requests per capture, identity encoding only. The 90 s deadline is checked
++between operations/body reads; the OS DNS resolver and HTTP header parsing are
++not an interruptible whole-run deadline. This transport does not attest licenses,
++paywall-free content, editorial relevance, or source-score eligibility.
++"""
++from __future__ import annotations
++
++import http.client
++import ipaddress
++import re
++import socket
++import ssl
++import time
++from urllib.parse import urljoin, urlsplit, urlunsplit
++from urllib.robotparser import RobotFileParser
++
++MAX_HTML_BYTES = 2 * 1024 * 1024
++MAX_ROBOTS_BYTES = 256 * 1024
++MAX_REDIRECTS = 4
++MAX_REQUESTS = 12
++_FORBIDDEN_V6_TRANSLATION = (ipaddress.ip_network("64:ff9b::/96"), ipaddress.ip_network("64:ff9b:1::/48"))
++TOTAL_TIMEOUT = 90
++_REDIRECTS = {301, 302, 303, 307, 308}
++
++
++class CaptureHTTPError(ValueError):
++    """The response cannot safely enter the HTML capture pipeline."""
++
++
++def _target(url, allowed):
++    if not isinstance(url, str) or re.search(r"[\x00-\x20\x7f\\]", url):
++        raise CaptureHTTPError("invalid_url")
++    try:
++        parsed = urlsplit(url)
++        host = (parsed.hostname or "").encode("idna").decode("ascii").lower()
++        if (parsed.scheme != "https" or not host or parsed.username is not None
++                or parsed.password is not None or parsed.port not in (None, 443)):
++            raise CaptureHTTPError("https_public_origin_required")
++    except (ValueError, UnicodeError) as exc:
++        raise CaptureHTTPError("invalid_https_url") from exc
++    if not allowed(url):
++        raise CaptureHTTPError("domain_not_allowed")
++    addresses = socket.getaddrinfo(host, 443, type=socket.SOCK_STREAM)
++    if not addresses:
++        raise CaptureHTTPError("dns_empty")
++    for family, socktype, proto, canonname, sockaddr in addresses:
++        ip = ipaddress.ip_address(sockaddr[0])
++        if (not ip.is_global or ip.is_multicast or ip.is_unspecified
++                or str(ip) == "168.63.129.16"
++                or (ip.version == 6 and any(ip in net for net in _FORBIDDEN_V6_TRANSLATION))
++                or (ip.version == 6 and (ip.ipv4_mapped or ip.sixtofour or ip.teredo))):
++            raise CaptureHTTPError("non_public_address")
++        if family not in (socket.AF_INET, socket.AF_INET6):
++            raise CaptureHTTPError("unsupported_address_family")
++    path = urlunsplit(("", "", parsed.path or "/", parsed.query, ""))
++    return host, path, addresses[0]
++
++
++class _PinnedHTTPSConnection(http.client.HTTPSConnection):
++    def __init__(self, host, address, timeout):
++        super().__init__(host, 443, timeout=timeout, context=ssl.create_default_context())
++        self.address = address
++
++    def connect(self):
++        family, socktype, proto, _, sockaddr = self.address
++        raw = socket.socket(family, socktype, proto)
++        try:
++            raw.settimeout(self.timeout)
++            raw.connect(sockaddr)  # numeric sockaddr: no second DNS resolution
++            self.sock = self._context.wrap_socket(raw, server_hostname=self.host)
++        except BaseException:
++            raw.close()
++            raise
++
++
++class Transport:
++    def __init__(self, allowed, user_agent, timeout, rate_limit=0):
++        self.allowed = allowed
++        self.user_agent = user_agent
++        self.timeout = timeout
++        self.rate_limit = max(0, rate_limit)
++        self.deadline = time.monotonic() + TOTAL_TIMEOUT
++        self.requests = 0
++        self.last_request = None
++
++    def remaining(self):
++        remaining = self.deadline - time.monotonic()
++        if remaining <= 0:
++            raise CaptureHTTPError("capture_deadline_exceeded")
++        return min(self.timeout, remaining)
++
++    def request(self, url, kind):
++        if self.requests >= MAX_REQUESTS:
++            raise CaptureHTTPError("request_budget_exceeded")
++        self.remaining()
++        host, path, address = _target(url, self.allowed)
++        if self.last_request is not None:
++            delay = max(0, self.rate_limit - (time.monotonic() - self.last_request))
++            if delay >= self.deadline - time.monotonic():
++                raise CaptureHTTPError("capture_deadline_exceeded")
++            time.sleep(delay)
++        conn = _PinnedHTTPSConnection(host, address, self.remaining())
++        self.requests += 1
++        self.last_request = time.monotonic()
++        try:
++            conn.request("GET", path, headers={"User-Agent": self.user_agent,
++                         "Accept-Encoding": "identity", "Accept": "text/html, application/xhtml+xml" if kind == "html" else "text/plain"})
++            resp = conn.getresponse()
++            if resp.status in _REDIRECTS:
++                location = resp.getheader("Location")
++                if not location:
++                    raise CaptureHTTPError("redirect_without_location")
++                return urljoin(url, location), None
++            if resp.status != 200:
++                raise CaptureHTTPError(f"http_status_{resp.status}")
++            if resp.getheader("Content-Encoding", "identity").lower() != "identity":
++                raise CaptureHTTPError("encoded_body_not_supported")
++            mime = resp.headers.get_content_type()
++            allowed_mimes = {"text/html", "application/xhtml+xml"} if kind == "html" else {"text/plain"}
++            if mime not in allowed_mimes or not resp.getheader("Content-Type"):
++                raise CaptureHTTPError("unsupported_mime")
++            limit = MAX_HTML_BYTES if kind == "html" else MAX_ROBOTS_BYTES
++            length = resp.getheader("Content-Length")
++            if length is not None and (not length.isdigit() or int(length) > limit):
++                raise CaptureHTTPError("invalid_or_oversized_content_length")
++            data = bytearray()
++            while len(data) <= limit:
++                # read1 gives control back between socket reads; enforce total body deadline.
++                if conn.sock is not None:
++                    conn.sock.settimeout(self.remaining())
++                else:
++                    self.remaining()
++                chunk = resp.read1(min(65536, limit + 1 - len(data)))
++                if not chunk:
++                    break
++                data.extend(chunk)
++            self.remaining()
++            if len(data) > limit:
++                raise CaptureHTTPError("body_too_large")
++            if length is not None and len(data) != int(length):
++                raise CaptureHTTPError("incomplete_body")
++            # Declared MIME alone is insufficient. Reject binary controls/magic and
++            # require HTML syntax (robots must be text, never an HTML login page).
++            if any(byte < 32 and byte not in (9, 10, 13) for byte in data):
++                raise CaptureHTTPError("binary_body")
++            charset = resp.headers.get_content_charset() or "utf-8"
++            try:
++                text = bytes(data).decode(charset, errors="strict")
++            except (LookupError, UnicodeError) as exc:
++                raise CaptureHTTPError("invalid_text_encoding") from exc
++            prefix = text.lstrip("\ufeff \t\r\n")[:1024].lower()
++            if prefix.startswith(("%pdf-", "pk", "gif8", "\x89png")):
++                raise CaptureHTTPError("binary_signature")
++            if kind == "html" and not re.search(r"<(?:!doctype\s+html|html|head|body|article|p|h[1-6])(?:\s|>)", prefix):
++                raise CaptureHTTPError("html_signature_missing")
++            if kind == "robots" and re.search(r"<(?:!doctype|html|head|body)(?:\s|>)", prefix):
++                raise CaptureHTTPError("robots_is_html")
++            return None, text
++        finally:
++            conn.close()
++
++    def robots_ok(self, url):
++        parsed = urlsplit(url)
++        current = urlunsplit((parsed.scheme, parsed.netloc, "/robots.txt", "", ""))
++        for _ in range(MAX_REDIRECTS + 1):
++            redirect, body = self.request(current, "robots")
++            if redirect is None:
++                parser = RobotFileParser()
++                parser.parse(body.splitlines())
++                return parser.can_fetch(self.user_agent, url)
++            current = redirect
++        raise CaptureHTTPError("robots_redirect_limit")
++
++    def fetch_html(self, url):
++        current = url
++        for _ in range(MAX_REDIRECTS + 1):
++            # Check target before fetching even its robots, then bind DNS again at
++            # the actual connection (a changed/private DNS answer is refused).
++            _target(current, self.allowed)
++            if not self.robots_ok(current):
++                raise CaptureHTTPError("robots_disallow")
++            redirect, body = self.request(current, "html")
++            if redirect is None:
++                return body
++            current = redirect
++        raise CaptureHTTPError("html_redirect_limit")
+diff --git a/_scripts/tests/test_capture_http.py b/_scripts/tests/test_capture_http.py
+new file mode 100644
+index 0000000..17c8f79
+--- /dev/null
++++ b/_scripts/tests/test_capture_http.py
+@@ -0,0 +1,294 @@
++"""Offline adversarial tests; no DNS, TLS or HTTP request reaches the network."""
++import importlib.util
++import io
++import socket
++from email.message import Message
++from pathlib import Path
++from unittest.mock import Mock
++
++import pytest
++
++_spec = importlib.util.spec_from_file_location('capture_http_test', Path(__file__).parents[1] / 'capture_http.py')
++h = importlib.util.module_from_spec(_spec)
++_spec.loader.exec_module(h)
++URL = 'https://manufacturer.example/article'
++PUBLIC = (socket.AF_INET, socket.SOCK_STREAM, 6, '', ('93.184.216.34', 443))
++
++
++class Response:
++    def __init__(self, body=b'<html><p>Technical information 123.</p></html>', status=200, mime='text/html', **headers):
++        self.status = status
++        self.headers = Message()
++        if mime is not None:
++            self.headers['Content-Type'] = mime
++        for key, value in headers.items():
++            self.headers[key.replace('_', '-')] = str(value)
++        self.stream = io.BytesIO(body)
++        self.read_sizes = []
++
++    def getheader(self, name, default=None):
++        return self.headers.get(name, default)
++
++    def read1(self, size):
++        self.read_sizes.append(size)
++        return self.stream.read(size)
++
++
++@pytest.fixture
++def wire(monkeypatch):
++    dns = Mock(return_value=[PUBLIC])
++    monkeypatch.setattr(h.socket, 'getaddrinfo', dns)
++    replies, connections = [], []
++
++    class Connection:
++        def __init__(self, host, address, timeout):
++            self.host, self.address = host, address
++            self.sock = Mock()
++            self.closed = False
++            connections.append(self)
++
++        def request(self, method, path, headers):
++            self.path = path
++            self.headers = headers
++
++        def getresponse(self):
++            assert replies, 'unexpected HTTP request'
++            return replies.pop(0)
++
++        def close(self):
++            self.closed = True
++
++    monkeypatch.setattr(h, '_PinnedHTTPSConnection', Connection)
++    monkeypatch.setattr(h.time, 'sleep', lambda _: None)
++    return replies, connections, dns
++
++
++def transport():
++    return h.Transport(lambda url: 'manufacturer.example' == h.urlsplit(url).hostname, 'capture-test', 2)
++
++
++def robots(body=b'User-agent: *\nAllow: /\n', **kw):
++    return Response(body, mime='text/plain', **kw)
++
++
++@pytest.mark.parametrize('url', [
++    'http://manufacturer.example/x', 'file:///etc/passwd',
++    'https://user:pass@manufacturer.example/', 'https://manufacturer.example:8080/',
++    'https://manufacturer.example/\r\nHeader:evil', 'https://manufacturer.example\\@evil.example/',
++    'https://evil.example/x', 'https://manufacturer.example:bad/',
++])
++def test_invalid_targets_never_connect(url, wire):
++    replies, connections, dns = wire
++    with pytest.raises(h.CaptureHTTPError):
++        transport().fetch_html(url)
++    assert not connections
++    dns.assert_not_called()
++
++
++@pytest.mark.parametrize('ip', ['127.0.0.1', '10.0.0.1', '169.254.169.254', '100.100.100.200',
++                                    '0.0.0.0', '192.168.0.1', '::1', 'fc00::1', 'fe80::1',
++                                    '::ffff:127.0.0.1', '2002:7f00:1::', '224.0.0.1',
++                                    '168.63.129.16', '64:ff9b::a00:1'])
++def test_non_public_and_mixed_dns_refused(ip, wire):
++    replies, connections, dns = wire
++    family = socket.AF_INET6 if ':' in ip else socket.AF_INET
++    dns.return_value = [PUBLIC, (family, socket.SOCK_STREAM, 6, '', (ip, 443))]
++    with pytest.raises(h.CaptureHTTPError, match='non_public'):
++        transport().fetch_html(URL)
++    assert not connections
++
++
++def test_success_reads_robots_before_html_and_closes_connections(wire):
++    replies, connections, _ = wire
++    replies.extend([robots(), Response()])
++    assert 'Technical' in transport().fetch_html(URL)
++    assert [c.path for c in connections] == ['/robots.txt', '/article']
++    assert all(c.address == PUBLIC and c.closed for c in connections)
++    assert all(c.headers['Accept-Encoding'] == 'identity' for c in connections)
++
++
++def test_robots_denial_prevents_target_request(wire):
++    replies, connections, _ = wire
++    replies.append(robots(b'User-agent: *\nDisallow: /\n'))
++    with pytest.raises(h.CaptureHTTPError, match='robots_disallow'):
++        transport().fetch_html(URL)
++    assert [c.path for c in connections] == ['/robots.txt']
++
++
++@pytest.mark.parametrize('where', ['robots', 'html'])
++def test_external_redirect_refused_before_next_connection(where, wire):
++    replies, connections, _ = wire
++    redirect = Response(status=302, Location='https://private.example/secret')
++    replies.extend([redirect] if where == 'robots' else [robots(), redirect])
++    with pytest.raises(h.CaptureHTTPError, match='domain_not_allowed'):
++        transport().fetch_html(URL)
++    assert len(connections) == (1 if where == 'robots' else 2)
++
++
++def test_allowed_subdomain_redirect_with_private_dns_refused(wire):
++    replies, connections, dns = wire
++    replies.extend([robots(), Response(status=302, Location='https://sub.manufacturer.example/')])
++    dns.side_effect = lambda host, *a, **kw: [PUBLIC] if host == 'manufacturer.example' else [
++        (socket.AF_INET, socket.SOCK_STREAM, 6, '', ('127.0.0.1', 443))]
++    t = h.Transport(lambda _: True, 'test', 2)
++    with pytest.raises(h.CaptureHTTPError, match='non_public'):
++        t.fetch_html(URL)
++    assert len(connections) == 2
++
++
++def test_same_origin_redirect_rechecks_robots_for_destination(wire):
++    replies, connections, _ = wire
++    replies.extend([robots(), Response(status=302, Location='/forbidden'),
++                    robots(b'User-agent: *\nDisallow: /forbidden\n')])
++    with pytest.raises(h.CaptureHTTPError, match='robots_disallow'):
++        transport().fetch_html(URL)
++    assert [c.path for c in connections] == ['/robots.txt', '/article', '/robots.txt']
++
++
++def test_dns_rebinding_between_robots_and_target_is_refused(wire):
++    replies, connections, dns = wire
++    replies.append(robots())
++    dns.side_effect = [[PUBLIC], [PUBLIC], [(socket.AF_INET, socket.SOCK_STREAM, 6, '', ('127.0.0.1', 443))]]
++    with pytest.raises(h.CaptureHTTPError, match='non_public'):
++        transport().fetch_html(URL)
++    assert len(connections) == 1
++
++
++@pytest.mark.parametrize('response,reason', [
++    (Response(status=401), 'http_status_401'),
++    (Response(status=403), 'http_status_403'),
++    (Response(mime='application/pdf'), 'unsupported_mime'),
++    (Response(mime=None), 'unsupported_mime'),
++    (Response(b'%PDF-1.7 fake HTML'), 'binary_signature'),
++    (Response(b'GIF89a fake HTML'), 'binary_signature'),
++    (Response(b'\x89PNG\x00\x01'), 'binary_body'),
++    (Response(b'<html>\x00</html>'), 'binary_body'),
++    (Response(b'plain text with an HTML MIME'), 'html_signature_missing'),
++    (Response(Content_Encoding='gzip'), 'encoded_body_not_supported'),
++    (Response(Content_Length=999999999), 'invalid_or_oversized'),
++    (Response(Content_Length='invalid'), 'invalid_or_oversized'),
++    (Response(Content_Length=100), 'incomplete_body'),
++    (Response(b'<html>\xff</html>'), 'invalid_text_encoding'),
++])
++def test_unsuitable_body_refused_and_socket_closed(response, reason, wire):
++    replies, connections, _ = wire
++    replies.append(response)
++    with pytest.raises(h.CaptureHTTPError, match=reason):
++        transport().request(URL, 'html')
++    assert all(c.closed for c in connections)
++
++
++def test_streaming_body_limit_without_content_length(wire, monkeypatch):
++    replies, connections, _ = wire
++    monkeypatch.setattr(h, 'MAX_HTML_BYTES', 128)
++    response = Response(b'<html>' + b'x' * 5000)
++    replies.append(response)
++    with pytest.raises(h.CaptureHTTPError, match='body_too_large'):
++        transport().request(URL, 'html')
++    assert response.stream.tell() == 129
++    assert connections[0].closed
++
++
++def test_robots_html_masquerade_refused(wire):
++    wire[0].append(robots(b'<html>login page</html>'))
++    with pytest.raises(h.CaptureHTTPError, match='robots_is_html'):
++        transport().fetch_html(URL)
++    assert len(wire[1]) == 1
++
++
++def test_redirect_loop_and_request_budget_bounded(wire):
++    wire[0].extend(Response(status=302, Location='/robots.txt') for _ in range(h.MAX_REDIRECTS + 1))
++    with pytest.raises(h.CaptureHTTPError, match='robots_redirect_limit'):
++        transport().fetch_html(URL)
++    assert len(wire[1]) == h.MAX_REDIRECTS + 1
++    t = transport()
++    t.requests = h.MAX_REQUESTS
++    with pytest.raises(h.CaptureHTTPError, match='request_budget'):
++        t.request(URL, 'html')
++
++
++def test_expired_deadline_prevents_connection(wire):
++    t = transport()
++    t.deadline = h.time.monotonic() - 1
++    with pytest.raises(h.CaptureHTTPError, match='deadline'):
++        t.request(URL, 'html')
++    assert not wire[1]
++
++
++def test_connection_pins_numeric_address_but_verifies_hostname(monkeypatch):
++    dns = Mock(side_effect=AssertionError('second DNS lookup'))
++    raw = Mock()
++    context = Mock()
++    monkeypatch.setattr(h.socket, 'getaddrinfo', dns)
++    monkeypatch.setattr(h.socket, 'socket', Mock(return_value=raw))
++    monkeypatch.setattr(h.ssl, 'create_default_context', Mock(return_value=context))
++    conn = h._PinnedHTTPSConnection('manufacturer.example', PUBLIC, 2)
++    conn.connect()
++    raw.connect.assert_called_once_with(('93.184.216.34', 443))
++    context.wrap_socket.assert_called_once_with(raw, server_hostname='manufacturer.example')
++    dns.assert_not_called()
++
++
++def test_tls_error_closes_raw_socket(monkeypatch):
++    raw = Mock()
++    context = Mock()
++    context.wrap_socket.side_effect = h.ssl.SSLError('certificate invalid')
++    monkeypatch.setattr(h.socket, 'socket', Mock(return_value=raw))
++    monkeypatch.setattr(h.ssl, 'create_default_context', Mock(return_value=context))
++    with pytest.raises(h.ssl.SSLError):
++        h._PinnedHTTPSConnection('manufacturer.example', PUBLIC, 2).connect()
++    raw.close.assert_called_once()
++
++
++def test_real_runner_network_refusal_leaves_no_raw_source(wire, monkeypatch, tmp_path):
++    spec = importlib.util.spec_from_file_location('runner_network_test', Path(__file__).parents[1] / 'auto-capture-runner.py')
++    runner = importlib.util.module_from_spec(spec)
++    spec.loader.exec_module(runner)
++    monkeypatch.setattr(runner, '_http', h)
++    monkeypatch.setattr(runner, 'REPO_ROOT', tmp_path)
++    monkeypatch.setattr(runner, 'AUTO_CAPTURES_DIR', tmp_path / 'sources' / 'auto-captures')
++    wire[0].extend([robots(), Response(b'%PDF-1.7 fake HTML')])
++    al = {'allow': {'manufacturer.example': {'level': 2, 'license_status': 'unknown',
++                                            'source_type': 'technical_datasheet'}}, 'deny': {}}
++    rep = runner.capture_one(URL, {'id': 'wl-test', 'gamme': 'filtre'}, al, commit=True, rate_limit=0)
++    assert rep['action'] == 'ERROR'
++    assert 'binary_signature' in rep['detail']
++    assert not list(tmp_path.iterdir())
++
++
++def test_runner_network_to_gate_j_persistence_and_duplicate(wire, monkeypatch, tmp_path):
++    spec = importlib.util.spec_from_file_location('runner_full_test', Path(__file__).parents[1] / 'auto-capture-runner.py')
++    runner = importlib.util.module_from_spec(spec)
++    spec.loader.exec_module(runner)
++    monkeypatch.setattr(runner, '_http', h)
++    monkeypatch.setattr(runner, 'REPO_ROOT', tmp_path)
++    monkeypatch.setattr(runner, 'AUTO_CAPTURES_DIR', tmp_path / 'sources' / 'auto-captures')
++    body = b'<html><p>Documentation technique de maintenance et filtration 1234. ' + b'Dimensions et nettoyage 5678. ' * 15 + b'</p></html>'
++    wire[0].extend([robots(), Response(body), robots(), Response(body)])
++    al = {'allow': {'manufacturer.example': {'level': 2, 'license_status': 'unknown',
++                                            'source_type': 'technical_datasheet'}}, 'deny': {}}
++    item = {'id': 'wl-test', 'gamme': 'filtre'}
++    first = runner.capture_one(URL, item, al, commit=True, rate_limit=0)
++    assert first['action'] == 'CAPTURED', first
++    path = tmp_path / first['raw_path']
++    before = path.read_bytes()
++    second = runner.capture_one(URL, item, al, commit=True, rate_limit=0)
++    assert second['detail'] == 'duplicate_content_hash'
++    assert path.read_bytes() == before
++    assert len(list(tmp_path.rglob('*.md'))) == 1
++    assert not list(tmp_path.rglob('*.tmp'))
++
++
++def test_runner_restricted_license_does_not_request_network(wire, monkeypatch, tmp_path):
++    spec = importlib.util.spec_from_file_location('runner_restricted_test', Path(__file__).parents[1] / 'auto-capture-runner.py')
++    runner = importlib.util.module_from_spec(spec)
++    spec.loader.exec_module(runner)
++    monkeypatch.setattr(runner, '_http', h)
++    monkeypatch.setattr(runner, 'AUTO_CAPTURES_DIR', tmp_path / 'sources')
++    al = {'allow': {'manufacturer.example': {'level': 2, 'license_status': 'restricted',
++                                            'source_type': 'technical_datasheet'}}, 'deny': {}}
++    rep = runner.capture_one(URL, {'id': 'wl-test'}, al, commit=True, rate_limit=0)
++    assert rep['action'] == 'ERROR'
++    wire[2].assert_not_called()
++    assert not wire[1]
++    assert not list(tmp_path.iterdir())

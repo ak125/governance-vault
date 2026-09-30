@@ -1,0 +1,34 @@
+{
+  "catalog_schema": "PASS",
+  "relation_ids_types_sources_preserved": true,
+  "relation_review_and_safety_false": true,
+  "relation_confidence": "low",
+  "publication_fields_unchanged": true,
+  "prior_232_test_code_sha256": {
+    "_scripts/check-coverage-map.py": "62747f44973d62c8f1a978d20d31814ac6e8350d888dd14f92857d7288f1b0ec",
+    "_scripts/quality-gates.py": "9e1a7f24057aa5fdf5205397a82f7a04555ae360e3b151f68522f3140a548ab1",
+    "_scripts/promotion_decision.py": "a0b4d08358970fd959dae91229073f5894c36f53625341c142e0a72686e9f41b",
+    "_scripts/test_promotion_decision.py": "078426250a5e18c36a7be7ff13f9cbf34dfb431ee2928a75ca4f916400ee7959"
+  },
+  "previous_raw_file_checksum_entries_preserved": 4848,
+  "new_raw_file_checksum_entries": [
+    "sources/auto-captures/filtre-a-huile/user-manual-renault-com-wl-filtre-a-huile-alerte-pression-re-a64b110a.md"
+  ],
+  "raw_archive_bytes_verified": [
+    {
+      "role": "raw_archive",
+      "path": "sources/auto-captures/filtre-a-huile/filtron-eu-wl-filtre-a-huile-clapets-b8431d6f.md",
+      "sha256": "809c3efd864a3be850c5e63ba2d400064b61dcd4090342b171d45ceba11c0178"
+    },
+    {
+      "role": "raw_archive",
+      "path": "sources/auto-captures/filtre-a-huile/mahle-aftermarket-com-wl-filtre-a-huile-conception-media-fa488c04.md",
+      "sha256": "8358e439faddebc32395175c9fb161ee7d9abce755ead940aeadb7b6ddc5f589"
+    },
+    {
+      "role": "raw_archive",
+      "path": "sources/auto-captures/filtre-a-huile/user-manual-renault-com-wl-filtre-a-huile-alerte-pression-re-a64b110a.md",
+      "sha256": "fc3dc89072596e51a15b1520f44c9b74f8180379a0eeb957ebb5de0fa2349235"
+    }
+  ]
+}

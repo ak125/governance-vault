@@ -1,0 +1,15 @@
+{
+  "source_files_checked": 58,
+  "changed_files": [],
+  "mapping_identical_to_previous_candidate": true,
+  "collisions": 0,
+  "tests_passed": 58,
+  "test_suites": 3,
+  "baseline_failures": 2,
+  "lint_exit": 0,
+  "backend_typecheck_exit": 0,
+  "staged_diff_check_exit": 0,
+  "sdk_transport": "native Supabase client; mocked HTTP 200 legacy active and 503; GET only, no database calls",
+  "patch_sha256": "9be09b97f2fbb45415b27097ef80ee9cd1e25547022c8bcb646b08c1f6d63154",
+  "limitation": "Preflight read is not a transactional migration or protection against concurrent legacy writers. Activation requires single writer rollout and explicit reconciliation if blocked."
+}

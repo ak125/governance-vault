@@ -1,0 +1,53 @@
+{
+  "observed_date": "2026-09-13",
+  "scope_requested": "Continuer la fiabilisation de la boucle apres le test banane",
+  "scope_actually_scanned": "GA3 vers corrections et audit/skip; recherches appelants et instructions R3",
+  "files_read_count": 24,
+  "app_root": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912",
+  "files": [
+    "CLAUDE.md",
+    ".claude/rules/backend.md",
+    ".claude/rules/guardrails.md",
+    ".claude/rules/security-hooks.md",
+    ".claude/rules/agent-doc-search.md",
+    ".claude/canon-mirrors/agent-exit-contract.md",
+    "audit/registry/canonical.json (jq filtre uniquement)",
+    ".claude/knowledge/REPO_MAP.md",
+    ".claude/knowledge/modules/admin.md",
+    "log.md (80 dernieres lignes)",
+    "scripts/ops/check-repo-freshness.sh",
+    "backend/src/modules/admin/controllers/admin-conseil.controller.ts",
+    "backend/src/modules/admin/services/conseil-priority.service.ts",
+    "backend/src/modules/admin/services/keyword-plan-gates.service.ts (audit et helpers)",
+    "backend/src/config/keyword-plan.constants.ts (contrats audit)",
+    "backend/src/config/conseil-pack.constants.ts (packs et criteres)",
+    "backend/src/modules/admin/services/keyword-plan-gates.sources.test.ts",
+    "backend/src/modules/admin/services/keyword-plan-gates.dedup.test.ts",
+    "backend/src/modules/admin/services/quality-gate-reducer.characterization.test.ts (extraits)",
+    "backend/src/modules/admin/services/conseil-quality-scorer.service.ts (extraits)",
+    "backend/src/modules/admin/services/conseil-quality-scorer.service.test.ts (extraits)",
+    "backend/src/database/services/supabase-base.service.ts (constructeur)",
+    "workspaces/seo-batch/.claude/agents/r3-keyword-plan-batch.md (audit, sources, selection)",
+    "workspaces/seo-batch/.claude/agents/r3-keyword-planner.md (audit, sources, persistence)"
+  ],
+  "authorization": "Corrections explicitement demandees par utilisateur; candidat isole seulement",
+  "corrections_applied": ["keyword-plan.constants.ts: type duplicate_content", "keyword-plan-gates.service.ts: GA3 vers corrections", "keyword-plan-gates.dedup.test.ts: six cas"],
+  "corrections_proposed": ["Identifier et raccorder appelant effectif", "Aligner instructions operateur R3 sur preuves WIKI confirmees"],
+  "validation_executed": {
+    "before": "3 failed,2 passed /5 cas comportementaux",
+    "after": "75 PASS /6 suites:62 cas precedents,7 caracterisations existantes,6 nouveaux cas",
+    "lint": "ESLint3 fichiers, prettier, diff-check PASS",
+    "io": "Fonctions pures; aucune DB ni reseau",
+    "evidence": ["dedup-before.log", "dedup-after.log", "dedup-lint.log", "dedup-callers.txt"]
+  },
+  "patch": {
+    "file": "conseil-dedup-routing.patch",
+    "sha256": "a3940d8e4f36ab1f78ddf6162298c8a11b93a55beaf8ccab11fb9e160a485ddc",
+    "scope": "Cumulatif HEAD sur3 fichiers, service inclut lot sources precedent"
+  },
+  "excluded_paths": ["DB et corpus partages", "SEO indexe", "Configuration runtime", "Implementation RAW/WIKI/RAG"],
+  "unscanned_zones": ["Appelants externes/live", "Definition RPC live", "Doublons semantiques/inter-pages", "Resolution de preuves factuelles"],
+  "remaining_unknowns": ["Pas d'appelant audit applicatif trouve dans chemins recherches hors definitions/tests", "Doublon seul: priorite0 possible, corrections presentes", "GA3 segments exacts >40 caracteres: titres accentues et similarites hors couverture", "Notes historiques non recalculees", "Instructions R3 encore RAG/plans absents; activation non demontree"],
+  "official_references": ["https://developers.google.com/search/docs/fundamentals/creating-helpful-content", "https://developers.google.com/search/docs/crawling-indexing/canonicalization"],
+  "final_status": "PARTIAL_COVERAGE"
+}

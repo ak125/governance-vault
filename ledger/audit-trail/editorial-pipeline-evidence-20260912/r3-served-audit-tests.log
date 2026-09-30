@@ -1,0 +1,11 @@
+PASS src/modules/admin/controllers/internal-seo-audit.r3.test.ts (18.101 s)
+PASS src/modules/admin/controllers/internal-seo-audit.coverage.test.ts (35.558 s)
+PASS src/modules/seo/validation/page-role-html.test.ts
+PASS src/modules/admin/services/conseil-quality-backfill.test.ts
+PASS src/modules/admin/services/conseil-quality-scorer.service.test.ts
+PASS src/modules/seo/validation/page-role-sections.test.ts
+
+Test Suites: 6 passed, 6 total
+Tests:       113 passed, 113 total
+Snapshots:   0 total
+Time:        54.274 s, estimated 55 s

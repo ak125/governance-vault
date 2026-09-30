@@ -1,0 +1,68 @@
+======================================================================
+ERROR: test_changes_keep_modification_and_reclassification_separate (test_catalogue.CatalogueTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/deploy/knowledge-navigation-candidate-20260913/collection/test_catalogue.py", line 48, in test_changes_keep_modification_and_reclassification_separate
+    result=collect.catalogue(new,old)['changes']
+AttributeError: module 'collect' has no attribute 'catalogue'
+
+======================================================================
+ERROR: test_configuration_change_and_first_run_are_not_new_findings (test_catalogue.CatalogueTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/deploy/knowledge-navigation-candidate-20260913/collection/test_catalogue.py", line 60, in test_configuration_change_and_first_run_are_not_new_findings
+    result=collect.catalogue(new,old)['changes']
+AttributeError: module 'collect' has no attribute 'catalogue'
+
+======================================================================
+ERROR: test_duplicate_identity_or_invalid_hash_rejected (test_catalogue.CatalogueTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/deploy/knowledge-navigation-candidate-20260913/collection/test_catalogue.py", line 42, in test_duplicate_identity_or_invalid_hash_rejected
+    with self.assertRaises(ValueError):collect.catalogue(run({'a':source([row(),row()])}))
+AttributeError: module 'collect' has no attribute 'catalogue'
+
+======================================================================
+ERROR: test_exclusive_buckets_reconcile_and_projects_do_not_merge (test_catalogue.CatalogueTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/deploy/knowledge-navigation-candidate-20260913/collection/test_catalogue.py", line 37, in test_exclusive_buckets_reconcile_and_projects_do_not_merge
+    result=collect.catalogue(data)
+AttributeError: module 'collect' has no attribute 'catalogue'
+
+======================================================================
+ERROR: test_failed_or_removed_source_never_becomes_file_deletion (test_catalogue.CatalogueTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/deploy/knowledge-navigation-candidate-20260913/collection/test_catalogue.py", line 54, in test_failed_or_removed_source_never_becomes_file_deletion
+    changes=collect.catalogue(new,old)['changes']
+AttributeError: module 'collect' has no attribute 'catalogue'
+
+======================================================================
+ERROR: test_identical_body_keeps_multiple_provenances_without_approval (test_catalogue.CatalogueTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/deploy/knowledge-navigation-candidate-20260913/collection/test_catalogue.py", line 27, in test_identical_body_keeps_multiple_provenances_without_approval
+    result=collect.catalogue(data)
+AttributeError: module 'collect' has no attribute 'catalogue'
+
+======================================================================
+ERROR: test_render_metadata_only_with_native_base_and_retained_missing_card (test_catalogue.CatalogueTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/deploy/knowledge-navigation-candidate-20260913/collection/test_catalogue.py", line 74, in test_render_metadata_only_with_native_base_and_retained_missing_card
+    collect.render_catalogue(collect.catalogue(data))
+AttributeError: module 'collect' has no attribute 'render_catalogue'
+
+======================================================================
+ERROR: test_timestamp_only_does_not_change_document (test_catalogue.CatalogueTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/deploy/knowledge-navigation-candidate-20260913/collection/test_catalogue.py", line 68, in test_timestamp_only_does_not_change_document
+    result=collect.catalogue(new,old)['changes']
+AttributeError: module 'collect' has no attribute 'catalogue'
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.001s
+
+FAILED (errors=8)

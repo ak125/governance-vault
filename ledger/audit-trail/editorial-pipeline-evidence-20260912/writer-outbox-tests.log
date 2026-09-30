@@ -1,0 +1,43 @@
+npm warn Unknown project config "puppeteer-skip-download". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+PASS src/modules/seo-projection/seo-projection-writer-role-scope.test.ts (18.043 s)
+  ● Console
+
+    console.log
+      ◇ injected env (0) from .env.test // tip: ⌘ enable debugging { debug: true }
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+PASS src/modules/seo-projection/seo-projection-refresh.processor.test.ts
+  ● Console
+
+    console.log
+      ◇ injected env (0) from .env.test // tip: ⌘ enable debugging { debug: true }
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+PASS src/modules/seo-projection/seo-projection-snapshot.test.ts
+  ● Console
+
+    console.log
+      ◇ injected env (0) from .env.test // tip: ⌁ auth for agents [www.vestauth.com]
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+[32m[Nest] 530829  - [39m12/09/2026 23:49:29 [32m    LOG[39m [38;5;3m[SeoProjectionRefreshProcessor] [39m[32mprojection refresh (run=refresh-run) → refreshed=false (RPC unavailable)[39m
+[32m[Nest] 530829  - [39m12/09/2026 23:49:29 [32m    LOG[39m [38;5;3m[SeoProjectionRefreshProcessor] [39m[32mprojection refresh (run=refresh-run) → refreshed=true[39m
+[32m[Nest] 530829  - [39m12/09/2026 23:49:29 [32m    LOG[39m [38;5;3m[SeoProjectionRefreshProcessor] [39m[32mprojection refresh (run=refresh-run) → refreshed=false (READ_ONLY)[39m
+[32m[Nest] 530829  - [39m12/09/2026 23:49:29 [32m    LOG[39m [38;5;3m[SeoProjectionRefreshProcessor] [39m[32mprojection refresh (run=refresh-run) → refreshed=false (incomplete projection refresh response)[39m
+PASS src/modules/seo-projection/seo-projection-writer.test.ts
+  ● Console
+
+    console.log
+      ◇ injected env (0) from .env.test // tip: ⌘ enable debugging { debug: true }
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+
+Test Suites: 4 passed, 4 total
+Tests:       89 passed, 89 total
+Snapshots:   0 total
+Time:        18.898 s, estimated 19 s
+Ran all test suites matching /src\/modules\/seo-projection\/seo-projection-writer-role-scope.test.ts|src\/modules\/seo-projection\/seo-projection-writer.test.ts|src\/modules\/seo-projection\/seo-projection-snapshot.test.ts|src\/modules\/seo-projection\/seo-projection-refresh.processor.test.ts/i.

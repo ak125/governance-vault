@@ -1,0 +1,22 @@
+PASS backend/src/modules/admin/controllers/internal-seo-audit.coverage.test.ts (45.361 s)
+  ● Console
+
+    console.log
+      ◇ injected env (0) from backend/.env.test // tip: ⌁ auth for agents [www.vestauth.com]
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+PASS backend/src/modules/admin/controllers/internal-seo-audit.r3.test.ts (7.454 s)
+  ● Console
+
+    console.log
+      ◇ injected env (0) from backend/.env.test // tip: ⌘ enable debugging { debug: true }
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+
+Test Suites: 2 passed, 2 total
+Tests:       22 passed, 22 total
+Snapshots:   0 total
+Time:        53.01 s, estimated 63 s
+Ran all test suites within paths "backend/src/modules/admin/controllers/internal-seo-audit.coverage.test.ts", "backend/src/modules/admin/controllers/internal-seo-audit.r3.test.ts".

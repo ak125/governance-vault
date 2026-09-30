@@ -1,0 +1,68 @@
+{
+  "files": [
+    {
+      "path": "/home/deploy/worktrees/raw-filtre-pilot-20260913/_scripts/auto-capture-runner.py",
+      "sha256": "1fee6b1adf5cf055833e1531d61bf1c24870033871287ec96629d553ccc13c33",
+      "symbols": [
+        {
+          "name": "existing_hashes",
+          "start": 281,
+          "end": 290
+        },
+        {
+          "name": "capture_one",
+          "start": 316,
+          "end": 443
+        },
+        {
+          "name": "main",
+          "start": 809,
+          "end": 943
+        }
+      ]
+    },
+    {
+      "path": "/home/deploy/worktrees/raw-filtre-pilot-20260913/_scripts/capture_http.py",
+      "sha256": "35a5fbe1ce369196ba597fa6432ed810d3965cd765d15254cdec8b517ef4072e",
+      "symbols": [
+        {
+          "name": "Transport",
+          "start": 178,
+          "end": 311
+        }
+      ]
+    },
+    {
+      "path": "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/raw_to_wiki_content_loop_pilot.py",
+      "sha256": "39d3cd0aae89ef6316720d3812d02e04ec0580a157fdaa791c98b6781f8ebaed",
+      "symbols": [
+        {
+          "name": "stage_raw",
+          "start": 99,
+          "end": 105
+        },
+        {
+          "name": "stage_wiki",
+          "start": 108,
+          "end": 119
+        },
+        {
+          "name": "run",
+          "start": 334,
+          "end": 427
+        }
+      ]
+    }
+  ],
+  "candidate_state": {
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913": {
+      "head": "7565934186fced370f78ea64d7616b912a0c9a6c",
+      "unstaged": []
+    },
+    "/opt/automecanik/wiki-editorial-qualification-20260912": {
+      "head": "01cea8deda48d84b6a2993cd4bdefe8280082c0b",
+      "unstaged": []
+    }
+  },
+  "method": "Read-only source inspection; no throughput benchmark or live crawler run"
+}

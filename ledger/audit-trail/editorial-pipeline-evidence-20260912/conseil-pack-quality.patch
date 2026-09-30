@@ -1,0 +1,266 @@
+diff --git a/backend/src/modules/admin/services/conseil-quality-scorer.service.test.ts b/backend/src/modules/admin/services/conseil-quality-scorer.service.test.ts
+new file mode 100644
+index 000000000..f06762387
+--- /dev/null
++++ b/backend/src/modules/admin/services/conseil-quality-scorer.service.test.ts
+@@ -0,0 +1,156 @@
++import { ConseilQualityScorerService } from './conseil-quality-scorer.service';
++import { PACK_DEFINITIONS } from '../../../config/conseil-pack.constants';
++
++type SectionRow = {
++  sgc_section_type: string;
++  sgc_quality_score: number | null;
++};
++
++const standardRows = (score: number | null = 80): SectionRow[] =>
++  PACK_DEFINITIONS.standard.requiredSections.map((section) => ({
++    sgc_section_type: section,
++    sgc_quality_score: score,
++  }));
++
++// Exercise the public coverage path with an in-memory read adapter. No service
++// constructor, database, network, backfill or publication is invoked.
++async function coverage(rows: SectionRow[]) {
++  const read = {
++    select: jest.fn().mockReturnThis(),
++    eq: jest.fn().mockReturnThis(),
++    not: jest.fn().mockResolvedValue({ data: rows, error: null }),
++    single: jest.fn().mockResolvedValue({ data: { pg_alias: 'fixture' } }),
++  };
++  const service = Object.create(
++    ConseilQualityScorerService.prototype,
++  ) as ConseilQualityScorerService;
++  Object.defineProperty(service, 'client', {
++    value: { from: jest.fn().mockReturnValue(read) },
++  });
++  return service.computeGammeCoverage('1');
++}
++
++describe('Conseil pack coverage: presence is distinct from score qualification', () => {
++  it('keeps structural completeness but exposes missing scores, without a misleading average', async () => {
++    const rows = standardRows();
++    rows[0].sgc_quality_score = null;
++    expect((await coverage(rows)).standard).toEqual(
++      expect.objectContaining({
++        packComplete: true,
++        coverage: 1,
++        avgQuality: null,
++        qualityStatus: 'not_evaluable',
++        unscoredSections: ['S1'],
++      }),
++    );
++  });
++
++  it('does not hide a section below its floor behind a high pack average', async () => {
++    const rows = standardRows(100);
++    rows[0].sgc_quality_score = 59;
++    expect((await coverage(rows)).standard).toEqual(
++      expect.objectContaining({
++        packComplete: true,
++        qualityStatus: 'below_threshold',
++        lowQualitySections: ['S1'],
++      }),
++    );
++  });
++
++  it('applies the pack threshold even when every section reaches its floor', async () => {
++    expect((await coverage(standardRows(60))).standard).toEqual(
++      expect.objectContaining({
++        qualityStatus: 'below_threshold',
++        lowQualitySections: [],
++      }),
++    );
++  });
++
++  it('does not round a score up into acceptance', async () => {
++    const rows = standardRows(70);
++    rows[0].sgc_quality_score = 69;
++    expect((await coverage(rows)).standard).toEqual(
++      expect.objectContaining({
++        avgQuality: 70,
++        qualityStatus: 'below_threshold',
++      }),
++    );
++  });
++
++  it('accepts the configured pack threshold exactly, without certifying factual excellence', async () => {
++    expect((await coverage(standardRows(70))).standard).toEqual(
++      expect.objectContaining({
++        avgQuality: 70,
++        qualityStatus: 'meets_thresholds',
++      }),
++    );
++  });
++
++  it('does not weight a duplicated section more heavily or silently select one copy', async () => {
++    const rows = standardRows(70);
++    rows.push({ sgc_section_type: 'S1', sgc_quality_score: 100 });
++    expect((await coverage(rows)).standard).toEqual(
++      expect.objectContaining({
++        coverage: 1,
++        packComplete: true,
++        avgQuality: null,
++        qualityStatus: 'not_evaluable',
++        duplicateSections: ['S1'],
++      }),
++    );
++  });
++
++  it.each([-1, 101, Number.NaN, Number.POSITIVE_INFINITY])(
++    'rejects invalid stored score %s without clamping it into a valid score',
++    async (score) => {
++      const rows = standardRows();
++      rows[0].sgc_quality_score = score;
++      expect((await coverage(rows)).standard).toEqual(
++        expect.objectContaining({
++          avgQuality: null,
++          qualityStatus: 'not_evaluable',
++          invalidScoreSections: ['S1'],
++        }),
++      );
++    },
++  );
++
++  it('does not give an incomplete pack the average of its only scored section', async () => {
++    expect((await coverage(standardRows(100).slice(0, 1))).standard).toEqual(
++      expect.objectContaining({
++        packComplete: false,
++        avgQuality: null,
++        qualityStatus: 'not_evaluable',
++      }),
++    );
++  });
++
++  it('does not count optional or unknown sections towards the required-pack average', async () => {
++    const rows = standardRows(70);
++    rows.push({ sgc_section_type: 'S7', sgc_quality_score: null });
++    rows.push({ sgc_section_type: 'UNKNOWN', sgc_quality_score: 100 });
++    expect((await coverage(rows)).standard).toEqual(
++      expect.objectContaining({
++        avgQuality: 70,
++        qualityStatus: 'meets_thresholds',
++      }),
++    );
++  });
++
++  it('uses each pack own thresholds', async () => {
++    const rows = PACK_DEFINITIONS.eeat.requiredSections.map((section) => ({
++      sgc_section_type: section,
++      sgc_quality_score: 80,
++    }));
++    const result = await coverage(rows);
++    expect(result.standard).toEqual(
++      expect.objectContaining({ qualityStatus: 'meets_thresholds' }),
++    );
++    expect(result.pro).toEqual(
++      expect.objectContaining({ qualityStatus: 'meets_thresholds' }),
++    );
++    expect(result.eeat).toEqual(
++      expect.objectContaining({ qualityStatus: 'below_threshold' }),
++    );
++  });
++});
+diff --git a/backend/src/modules/admin/services/conseil-quality-scorer.service.ts b/backend/src/modules/admin/services/conseil-quality-scorer.service.ts
+index c071b9578..42b85e7ba 100644
+--- a/backend/src/modules/admin/services/conseil-quality-scorer.service.ts
++++ b/backend/src/modules/admin/services/conseil-quality-scorer.service.ts
+@@ -26,8 +26,16 @@ export interface PackCoverageResult {
+   presentSections: string[];
+   missingSections: string[];
+   coverage: number;
++  /** Average of exactly one valid score per required section, otherwise null. */
+   avgQuality: number | null;
++  /** Structural presence only; does not imply score qualification. */
+   packComplete: boolean;
++  /** Existing score thresholds only, not a factual or SEO ranking verdict. */
++  qualityStatus: 'not_evaluable' | 'below_threshold' | 'meets_thresholds';
++  unscoredSections: string[];
++  invalidScoreSections: string[];
++  duplicateSections: string[];
++  lowQualitySections: string[];
+ }
+ 
+ export interface GammeCoverageResult {
+@@ -200,16 +208,49 @@ export class ConseilQualityScorerService extends SupabaseBaseService {
+         (t) => !presentTypes.has(t),
+       );
+ 
+-      const scores = sections
+-        .filter(
+-          (s) =>
+-            // `sgc_section_type` est une chaîne DB arbitraire testée pour appartenance à la
+-            // liste canonique : on élargit le RÉCEPTEUR, sans affaiblir le type du pack.
+-            (pack.requiredSections as readonly string[]).includes(
+-              s.sgc_section_type,
+-            ) && s.sgc_quality_score !== null,
+-        )
+-        .map((s) => s.sgc_quality_score!);
++      const unscoredSections: string[] = [];
++      const invalidScoreSections: string[] = [];
++      const duplicateSections: string[] = [];
++      const lowQualitySections: string[] = [];
++      const scores: number[] = [];
++
++      for (const sectionType of pack.requiredSections) {
++        const rows = sections.filter((s) => s.sgc_section_type === sectionType);
++        if (rows.length === 0) continue;
++        if (rows.length > 1) duplicateSections.push(sectionType);
++        if (rows.some((s) => s.sgc_quality_score === null)) {
++          unscoredSections.push(sectionType);
++        }
++        if (
++          rows.some(
++            (s) =>
++              s.sgc_quality_score !== null &&
++              (!Number.isFinite(s.sgc_quality_score) ||
++                s.sgc_quality_score < 0 ||
++                s.sgc_quality_score > 100),
++          )
++        ) {
++          invalidScoreSections.push(sectionType);
++        }
++        // No arbitrary selection/weighting when several rows claim the same section.
++        if (rows.length !== 1) continue;
++        const score = rows[0].sgc_quality_score;
++        if (
++          score === null ||
++          !Number.isFinite(score) ||
++          score < 0 ||
++          score > 100
++        ) {
++          continue;
++        }
++        scores.push(score);
++        if (score < pack.minSectionScore) lowQualitySections.push(sectionType);
++      }
++
++      const evaluable = scores.length === pack.requiredSections.length;
++      const average = evaluable
++        ? scores.reduce((sum, score) => sum + score, 0) / scores.length
++        : null;
+ 
+       return {
+         packLevel,
+@@ -217,11 +258,18 @@ export class ConseilQualityScorerService extends SupabaseBaseService {
+         presentSections,
+         missingSections,
+         coverage: presentSections.length / pack.requiredSections.length,
+-        avgQuality:
+-          scores.length > 0
+-            ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
+-            : null,
++        avgQuality: average === null ? null : Math.round(average),
+         packComplete: missingSections.length === 0,
++        qualityStatus:
++          average === null
++            ? 'not_evaluable'
++            : lowQualitySections.length === 0 && average >= pack.minPackScore
++              ? 'meets_thresholds'
++              : 'below_threshold',
++        unscoredSections,
++        invalidScoreSections,
++        duplicateSections,
++        lowQualitySections,
+       };
+     };
+ 

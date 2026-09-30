@@ -1,0 +1,60 @@
+{
+  "observed_at_utc": "2026-09-13T10:45:42Z",
+  "scope_requested": "Rectifier AI-COS supprime et DEV3000 disponible; rechercher pilote actuel",
+  "scope_actually_scanned": "Health DEV, listener, HEAD, references appelantes dans scripts/backend; methode seo-batch et scheduler SEO; noms des scripts cron utilisateur",
+  "files_read_count": 4,
+  "files": [
+    "workspaces/seo-batch/.claude/skills/seo-content-loop/SKILL.md",
+    "workspaces/seo-batch/.claude/rules/seo-batch.md (recherche ciblee)",
+    "workspaces/seo-batch/CLAUDE.md (recherche ciblee)",
+    "backend/src/modules/seo-logs/services/seo-audit-scheduler.service.ts (extraits)"
+  ],
+  "user_correction": {
+    "aicos": "Supprime selon owner; retirer de la trajectoire active",
+    "dev3000": "Up, confirme par probe"
+  },
+  "live_evidence": {
+    "health_http": 200,
+    "listener3000": true,
+    "branch": "main",
+    "head": "ef84ec4586d73c497d480d805f483b2c0e11ea65"
+  },
+  "analysis": [
+    "Indisponibilite precedente historique seulement; aucune panne actuelle etablie",
+    "Blocage SSH aicos sans objet pour ce projet: ne pas demander authentification ni restauration",
+    "Instructions agents/seo-content candidates sont legacy; ne pas les traiter comme integration active",
+    "seo-content-loop est une methode operatoire, pas une preuve de declenchement automatique",
+    "Scheduler SEO present dans code, pas de preuve dans ces extraits qu il execute la boucle editoriale",
+    "Cron utilisateur trouve sync-rag-from-wiki.sh; ne prouve pas une boucle de controle editorial"
+  ],
+  "corrections_applied": [
+    "Rapport et checkpoint rectifies a partir information owner et health actuel"
+  ],
+  "corrections_proposed": [
+    "Identifier declencheur actuel et dernier run editorial avant raccordement API; ne pas reactiver AI-COS"
+  ],
+  "validation_executed": [
+    "GET health HTTP200",
+    "Listener3000 present",
+    "Aucune mutation runtime ni requete DB",
+    "Pas de code change; tests precedents non relances"
+  ],
+  "excluded_paths": [
+    "AI-COS supprime",
+    "DB/corpus",
+    "PROD/PREPROD",
+    "Activation cron/queue",
+    "Deploiement"
+  ],
+  "unscanned_zones": [
+    "Orchestrateur remplacant eventuel",
+    "Dernier run editorial effectif",
+    "Queues actives",
+    "Configuration Hermes eventuelle"
+  ],
+  "remaining_unknowns": [
+    "Qui declenche et suit actuellement la boucle",
+    "Etat exact du raccordement des controles candidats"
+  ],
+  "final_status": "PARTIAL_COVERAGE"
+}

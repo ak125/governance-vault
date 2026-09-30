@@ -1,0 +1,235 @@
+diff --git a/manifests/checksums.json b/manifests/checksums.json
+index 76face8..53f3529 100644
+--- a/manifests/checksums.json
++++ b/manifests/checksums.json
+@@ -1,7 +1,7 @@
+ {
+   "_comment": "SHA256 checksums of all files in sources/ and recycled/. Régénéré par _scripts/regen-manifests.py — édition manuelle interdite.",
+   "_schema_version": "2.0.0",
+-  "_updated_at": "2026-09-13T22:40:47Z",
++  "_updated_at": "2026-09-14T06:35:03Z",
+   "recycled/rag-knowledge/_raw/evidence/alternateur.yml": "sha256:b9c019442d8448e110de05a69c5a1dabc96c4355c5de9cfd482922c0b850c8d8",
+   "recycled/rag-knowledge/_raw/evidence/balais-d-essuie-glace.yml": "sha256:b9b50115fadb61af25784fc55be0db02a0834186cbbf8f4dbfbb7380fc712d58",
+   "recycled/rag-knowledge/_raw/evidence/barre-stabilisatrice.yml": "sha256:c84f620cd422c3f689428e7320829e61269b21ee034e1cad877eae750c0ee62a",
+@@ -4838,6 +4838,7 @@
+   "recycled/rag-knowledge/web/ngk-fd4eae963b68-s001.md": "sha256:b280bfeb768fb38241a468f8b51cc648588887f1df6813203d5aad4f7154bf6a",
+   "sources/auto-captures/filtre-a-huile/filtron-eu-wl-filtre-a-huile-clapets-b8431d6f.md": "sha256:809c3efd864a3be850c5e63ba2d400064b61dcd4090342b171d45ceba11c0178",
+   "sources/auto-captures/filtre-a-huile/mahle-aftermarket-com-wl-filtre-a-huile-conception-media-fa488c04.md": "sha256:8358e439faddebc32395175c9fb161ee7d9abce755ead940aeadb7b6ddc5f589",
++  "sources/auto-captures/filtre-a-huile/user-manual-renault-com-wl-filtre-a-huile-alerte-pression-re-a64b110a.md": "sha256:fc3dc89072596e51a15b1520f44c9b74f8180379a0eeb957ebb5de0fa2349235",
+   "sources/diagnostic/faq.md": "sha256:a249e548fb25228580dbbd670b14286e0a008e18e8a31fd22eda634160517cbd",
+   "sources/diagnostic/safety-config.md": "sha256:fbf4cf8ac6fc4214506c4e4c097aba78f8b202f2e824c7523dd20b61af98c6f5",
+   "sources/diagnostic/signs.md": "sha256:dd490c4d53b800e4a92a9ae3dd4eda91642f7dc3d4a93661ce5436d03c122f69",
+diff --git a/manifests/ingestion-allowlist.yaml b/manifests/ingestion-allowlist.yaml
+index 61f7181..8449594 100644
+--- a/manifests/ingestion-allowlist.yaml
++++ b/manifests/ingestion-allowlist.yaml
+@@ -14,6 +14,7 @@ schema_version: "1.0.0"
+ 
+ # ── Sources AUTORISÉES (équipementiers + constructeurs + technique) ───────────
+ allow:
++  - { domain: "user-manual.renault.com", source_type: manufacturer_maintenance, level: 2, license_status: unknown, notes: "Candidat filtre a huile : notice Clio 5 phase 1, temoins pression huile et arret imperatif. Consigne contextualisee seulement, aucune cause de panne ou compatibilite deduite." }
+   - { domain: "eur-lex.europa.eu", source_type: technical_datasheet, level: 2, license_status: unknown, notes: "Candidat filtre a huile : definitions des pieces origine et qualite equivalente, lignes directrices consolidees 2023, paragraphes 18-20. Source institutionnelle, aucun classement de marques deduit. Capture native uniquement." }
+   - { domain: "iso.org", source_type: technical_datasheet, level: 2, license_status: unknown, notes: "Candidat ISO pilote: fiches publiques de metadonnees 4548-2/-9/-12 uniquement. Aucun texte integral payant, contournement ou preuve de performance produit. Controle reseau natif obligatoire." }
+   - { domain: "mahle-aftermarket.com", source_type: manufacturer_maintenance, level: 2, license_status: unknown, notes: "Passage technique Spin-on oil filter mix up: differences internes selon moteur; examen WIKI, sans reprise des chiffres promotionnels ou hydrauliques." }
+diff --git a/manifests/ingestion-worklist.yaml b/manifests/ingestion-worklist.yaml
+index b473531..9195075 100644
+--- a/manifests/ingestion-worklist.yaml
++++ b/manifests/ingestion-worklist.yaml
+@@ -315,3 +315,33 @@ worklist:
+       Ne pas contourner refus HTTP, robots ou protection. Consultation web ne vaut pas
+       archive RAW. Texte consolide documentaire ; pas de conseil juridique specifique.
+       Candidat uniquement, aucune activation du runtime.
++
++  - id: wl-filtre-a-huile-alerte-pression-renault
++    subject_type: gamme
++    entity_ref:
++      pg_id: 7
++    gamme: filtre-a-huile
++    topic: Consigne constructeur face au temoin de pression huile
++    target_consumer: [WIKI]
++    priority: P1
++    rationale: >-
++      Le candidat attribue des causes diagnostiques non etablies et omet une
++      consigne constructeur contextualisee. Notice Clio 5 phase 1 : pression
++      huile et arret imperatif, aucune causalite filtre-perte de puissance deduite.
++    discovery:
++      mode: provided
++    source:
++      authoritative_domain: user-manual.renault.com
++      url: https://www.user-manual.renault.com/fr/chapitre1-faites-connaissance-avec-votre-v%C3%A9hicule/temoins-lumineux
++      source_type: manufacturer_maintenance
++      license: null
++      license_status: unknown
++    capture:
++      status: CAPTURED_NEEDS_REVIEW
++      content_hash: sha256:a64b110a256a86ffebaf26d3db725afef93e914f922ecb8f4eff96c13b70e884
++      captured_at: '2026-09-14T06:35:03Z'
++      raw_path: sources/auto-captures/filtre-a-huile/user-manual-renault-com-wl-filtre-a-huile-alerte-pression-re-a64b110a.md
++    notes: >-
++      Examen interne uniquement ; extraire les paragraphes pression huile et arret
++      imperatif avec leurs conditions. Notice propre au modele, pas consigne
++      universelle tous voyants. Aucun contournement ou activation runtime.
+diff --git a/manifests/lineage-map.json b/manifests/lineage-map.json
+index 4f71d8f..c16e8e9 100644
+--- a/manifests/lineage-map.json
++++ b/manifests/lineage-map.json
+@@ -1,7 +1,7 @@
+ {
+   "_comment": "Carte de provenance manifest_id → fiches wiki (peuplée par P2). En P0, arrays vides — clés présentes pour invariant scope.",
+   "_schema_version": "2.0.0",
+-  "_updated_at": "2026-09-13T22:40:47Z",
++  "_updated_at": "2026-09-14T06:35:03Z",
+   "lineage": {
+     "path-5fd3d0ecc74da254": [],
+     "path-7cccf9637ad64915": [],
+@@ -4719,6 +4719,7 @@
+     "rec-h-ffb1d8b68ce24a86": [],
+     "rec-h-ffc5410933989ddd": [],
+     "rec-h-ffd60963e46fefc1": [],
++    "src-auto-capture-a64b110a256a86ffebaf26d3db725afef93e914f922ecb8f4eff96c13b70e884": [],
+     "src-auto-capture-b8431d6ff4d46f8f4e7acf118fa89b3679683572706f59d159e6ab5e1c01ba6f": [],
+     "src-auto-capture-fa488c047addedba6909fc86d9a4c3d1b6529dc93c7039a84f0589342fc0a77b": [],
+     "src-diagnostic-faq": [],
+diff --git a/manifests/source-inventory.csv b/manifests/source-inventory.csv
+index 53d2715..8924ada 100644
+--- a/manifests/source-inventory.csv
++++ b/manifests/source-inventory.csv
+@@ -4835,6 +4835,7 @@ recycled/rag-knowledge/web/ngk-b4b5019acb58-s001.md,rec-h-ab02613375fceb87,recyc
+ recycled/rag-knowledge/web/ngk-fd4eae963b68-s001.md,rec-h-b280bfeb768fb382,recycled,false,sha256:b280bfeb768fb38241a468f8b51cc648588887f1df6813203d5aad4f7154bf6a,722,2026-05-01T10:13:49Z
+ sources/auto-captures/filtre-a-huile/filtron-eu-wl-filtre-a-huile-clapets-b8431d6f.md,src-auto-capture-b8431d6ff4d46f8f4e7acf118fa89b3679683572706f59d159e6ab5e1c01ba6f,sources,false,sha256:809c3efd864a3be850c5e63ba2d400064b61dcd4090342b171d45ceba11c0178,3293,2026-09-13T21:43:09Z
+ sources/auto-captures/filtre-a-huile/mahle-aftermarket-com-wl-filtre-a-huile-conception-media-fa488c04.md,src-auto-capture-fa488c047addedba6909fc86d9a4c3d1b6529dc93c7039a84f0589342fc0a77b,sources,false,sha256:8358e439faddebc32395175c9fb161ee7d9abce755ead940aeadb7b6ddc5f589,9116,2026-09-13T22:40:47Z
++sources/auto-captures/filtre-a-huile/user-manual-renault-com-wl-filtre-a-huile-alerte-pression-re-a64b110a.md,src-auto-capture-a64b110a256a86ffebaf26d3db725afef93e914f922ecb8f4eff96c13b70e884,sources,false,sha256:fc3dc89072596e51a15b1520f44c9b74f8180379a0eeb957ebb5de0fa2349235,10255,2026-09-14T06:35:03Z
+ sources/diagnostic/faq.md,src-diagnostic-faq,sources,false,sha256:a249e548fb25228580dbbd670b14286e0a008e18e8a31fd22eda634160517cbd,3247,2026-05-01T10:13:49Z
+ sources/diagnostic/safety-config.md,src-diagnostic-safety-config,sources,false,sha256:fbf4cf8ac6fc4214506c4e4c097aba78f8b202f2e824c7523dd20b61af98c6f5,1949,2026-05-01T10:13:49Z
+ sources/diagnostic/signs.md,src-diagnostic-signs,sources,false,sha256:dd490c4d53b800e4a92a9ae3dd4eda91642f7dc3d4a93661ce5436d03c122f69,2513,2026-05-01T10:13:49Z
+diff --git a/sources/auto-captures/filtre-a-huile/user-manual-renault-com-wl-filtre-a-huile-alerte-pression-re-a64b110a.md b/sources/auto-captures/filtre-a-huile/user-manual-renault-com-wl-filtre-a-huile-alerte-pression-re-a64b110a.md
+new file mode 100644
+index 0000000..5e32d6d
+--- /dev/null
++++ b/sources/auto-captures/filtre-a-huile/user-manual-renault-com-wl-filtre-a-huile-alerte-pression-re-a64b110a.md
+@@ -0,0 +1,125 @@
++---
++title: filtre-a-huile — user-manual.renault.com (2026-09-14)
++source_url: https://www.user-manual.renault.com/fr/chapitre1-faites-connaissance-avec-votre-v%C3%A9hicule/temoins-lumineux
++source_type: manufacturer_maintenance
++content_hash: sha256:a64b110a256a86ffebaf26d3db725afef93e914f922ecb8f4eff96c13b70e884
++captured_at: '2026-09-14T06:35:03Z'
++capture_method: agent
++license: null
++license_status: unknown
++level: 2
++worklist_id: wl-filtre-a-huile-alerte-pression-renault
++manifest_id: auto-capture-a64b110a256a86ffebaf26d3db725afef93e914f922ecb8f4eff96c13b70e884
++discovery:
++  mode: provided
++description: Auto-capture gouvernée (Niveau 2) — faits à valider avant usage WIKI/SEO.
++---
++
++Renault Clio 5 phase 1
++18/12/2018 à 01/06/2023
++Renault Clio 5 phase 1
++Chapitre 1 : faites connaissance avec votre véhicule
++Témoins lumineux
++Partager ce contenu
++Facebook
++LinkedIn
++Pinterest
++X
++Partager par e-mail
++L’affichage des informations décrites ci-après DÉPEND DE L’ÉQUIPEMENT DU VÉHICULE ET DU PAYS.
++Tableau de bord A , B ou C : il s’éclaire à la mise sous contact. Appuyez ou levez le contacteur 1 autant de fois que nécessaire pour régler l'intensité.
++L’allumage de certains témoins est accompagné d’un message au tableau de bord.
++Le témoin © nécessite un arrêt au plus tôt chez un Représentant de la marque en conduisant avec ménagement. Le non-respect de cette préconisation risque d’entraîner un endommagement du véhicule.
++Le témoin ® vous impose, pour votre sécurité, un arrêt impératif et immédiat compatible avec les conditions de circulation. Arrêtez le moteur et ne le redémarrez pas. Faites appel à un Représentant de la marque.
++L’absence de retour visuel ou sonore indique une défaillance du tableau de bord. Cela impose un arrêt immédiat et compatible avec les conditions de circulation. Assurez-vous de la bonne immobilisation du véhicule et faites appel à un Représentant de la marque.
++L’affichage des informations décrites ci-après DÉPEND DE L’ÉQUIPEMENT DU VÉHICULE ET DU PAYS.
++š Témoin des feux de position
++á Témoin des feux de route
++k Témoin des feux de croisement
++g Témoin de feux de brouillard avant
++ Témoin de feux de brouillard arrière
++ Témoin des feux de route automatiques ÉCLAIRAGES ET SIGNALISATIONS EXTÉRIEURS
++– Témoin des feux indicateurs de direction gauche
++˜ Témoin des feux indicateurs de direction droit
++å Témoin d’airbag
++Il s’allume à la mise sous contact ou au démarrage du moteur puis s’éteint après quelques secondes.
++S’il ne s’allume pas à la mise sous contact ou s’il s’allume moteur tournant, il signale une défaillance du système.
++Consultez au plus tôt un Représentant de la marque.
++® Témoin d’arrêt impératif
++Il s’allume à la mise sous contact ou au démarrage du moteur puis s’éteint dès que le moteur tourne. Il s’allume conjointement à d’autres témoins et/ou messages, et est accompagné d’un signal sonore.
++Il vous impose, pour votre sécurité, un arrêt impératif et immédiat compatible avec les conditions de circulation. Arrêtez le moteur et ne le redémarrez pas.
++Faites appel à un Représentant de la marque.
++D Témoin d’incident sur circuit de freinage
++Il s’allume à la mise sous contact ou au démarrage du moteur puis s’éteint après quelques secondes.
++S’il s’allume au freinage, accompagné du témoin ® et d’un signal sonore, c’est l’indice d’une baisse de niveau dans les circuits ou d’un incident sur le système de freinage.
++Arrêtez-vous et faites appel à un Représentant de la marque.
++Ú Témoin de charge de batterie
++Il s’allume à la mise sous contact ou au démarrage du moteur puis s’éteint après quelques secondes.
++S’il s’allume sur route accompagné du témoin ® et d’un signal sonore, cela indique une surcharge ou une décharge du circuit électrique.
++Arrêtez-vous et faites appel à un Représentant de la marque.
++À Témoin de pression d’huile
++Il s’allume à la mise sous contact ou au démarrage du moteur puis s’éteint après quelques secondes.
++S’il s’allume sur route, accompagné du témoin ® et d’un signal sonore, arrêtez-vous impérativement et coupez le contact.
++Vérifiez le niveau d'huile. Si le niveau est normal, cela provient d'une autre cause.
++Faites appel à un Représentant de la marque.
++U Témoin de direction à assistance variable
++Il s’allume à la mise sous contact ou au démarrage du moteur puis s’éteint après quelques secondes.
++S’il s’allume en roulant accompagné du témoin ®, cela indique une défaillance du système.
++Faites appel à un Représentant de la marque.
++ Témoin du système « AUTOHOLD » FONCTION « AUTOHOLD »
++© Témoin d’alerte
++Il s’allume à la mise sous contact ou au démarrage du moteur puis s’éteint dès que le moteur tourne. Il peut s’allumer conjointement à d’autres témoins et/ou messages au tableau de bord. Il nécessite un arrêt au plus tôt chez un Représentant de la marque en conduisant avec ménagement. Le non-respect de cette préconisation risque d’entraîner un endommagement du véhicule.
++ Témoin d’alerte
++S'il s'allume en rouge en roulage accompagné du témoin ®, il vous impose, pour votre sécurité, un arrêt impératif et immédiat compatible avec les conditions de circulation. Arrêtez le moteur et ne le redémarrez pas. Faites appel à un Représentant de la marque. S'il s'allume en jaune en roulage accompagné du témoin ©, il nécessite un arrêt au plus tôt chez un Représentant de la marque en conduisant avec ménagement. Le non-respect de cette préconisation risque d’entraîner un endommagement du véhicule.
++} Témoin de serrage du frein à main et du frein de parking assisté LEVIER DE VITESSES, FREIN À MAIN FREIN DE PARKING ASSISTÉ
++ Indicateurs de changement de vitesse
++Ils s’allument pour vous conseiller de passer un rapport supérieur (flèche vers le haut) ou inférieur (flèche vers le bas) CONSEILS DE CONDUITE, ECO CONDUITE.
++ Témoin de contrôle dynamique de conduite (ESC) et système antipatinage
++Il s’allume à la mise sous contact ou au démarrage du moteur puis s’éteint après quelques secondes.
++Il existe plusieurs cas d’allumage du témoin DISPOSITIFS DE CORRECTION ET D’ASSISTANCE À LA CONDUITE.
++ Témoin de non-disponibilité de contrôle dynamique de conduite (ESC) et système antipatinage
++2 Témoin de porte(s) ouverte(s)
++x Témoin antiblocage des roues
++Il s’allume à la mise sous contact ou au démarrage du moteur puis s’éteint après quelques secondes.
++S’il s’allume en roulant, il signale une défaillance du système d’antiblocage des roues.
++Le système de freinage est alors assuré comme sur un véhicule non équipé du système ABS. Consultez rapidement un Représentant de la marque.
++ Témoin d'alerte du système filtre à particules PARTICULARITÉS DES VERSIONS ESSENCE, FILTRE À PARTICULES PARTICULARITÉS DES VERSIONS DIESEL, FILTRE À PARTICULES
++ Témoin d’alerte de niveau de réactif et d’anomalie du système de réduction des gaz d’échappement RÉSERVOIR RÉACTIF
++ Avertisseur de perte de pression des pneumatiques AVERTISSEUR DE PERTE DE PRESSION DES PNEUMATIQUES
++É Témoin de préchauffage (version Diesel)
++Contact mis, il doit s’allumer. Il indique que les bougies de préchauffage sont en fonctionnement.
++Il s’éteint quand le préchauffage est obtenu. Le moteur peut démarrer.
++Ä Témoin de contrôle du système antipollution
++Pour les véhicules qui en sont équipés, il s’allume au démarrage moteur et, suivant véhicule, à la coupure du contact alors que le véhicule est en phase de veille moteur FONCTION STOP AND START puis il s’éteint.
++- S’il s’allume de façon continue, consultez au plus tôt un Représentant de la marque ;
++- s’il clignote, réduisez le régime moteur jusqu’à disparition du clignotement. Consultez au plus tôt un Représentant de la marque CONSEILS ENTRETIEN ET ANTIPOLLUTION.
++L Témoin d’alerte mini carburant
++Il s’allume en orange à la mise sous contact ou au démarrage du moteur puis s’éteint après quelques secondes.
++S’il devient orange en roulage accompagné d'un signal sonore, faites le plein dès que possible. Il vous reste alors environ 50 km d’autonomie.
++ Témoin de mode ECO
++Il s'allume quand le mode ECO est enclenché CONSEILS DE CONDUITE, ECO CONDUITE.
++ Témoin de roue libre
++CONSEILS DE CONDUITE, ECO CONDUITE
++Ô Témoin d’alerte de température du liquide de refroidissement
++Il s’allume en bleu à la mise sous contact ou au démarrage du moteur.
++S’il devient rouge, arrêtez-vous et laissez tourner le moteur au ralenti une ou deux minutes.
++La température doit s’abaisser et le témoin repasser au bleu. Sinon arrêtez le moteur. Laissez-le refroidir avant de vérifier le liquide de refroidissement.
++Faites appel à un Représentant de la marque.
++Ð Témoin du limiteur de vitesse LIMITEUR DE VITESSE
++Ï Témoin du régulateur de vitesse RÉGULATEUR DE VITESSE
++ Témoin du régulateur de vitesse adaptatif Stop and Go RÉGULATEUR DE VITESSE ADAPTATIF
++ Témoin de mise en veille du moteur FONCTION STOP AND START
++ Témoin de non-disponibilité de mise en veille du moteur FONCTION STOP AND START
++Ó Témoin de pied sur la pédale de frein
++Il s'allume lorsqu'un appui sur la pédale de frein est requis BOÎTE DE VITESSES AUTOMATIQUE.
++ Témoin de stationnement assisté STATIONNEMENT ASSISTÉ
++ Témoin d'alerte de survitesse AFFICHEURS ET INDICATEURS
++ Témoin du système d'alerte de sortie de voie ALERTE DE SORTIE DE VOIE
++ Témoin du système d'aide au maintien de voie AIDE AU MAINTIEN DE VOIE
++ (Suivant véhicule)Témoin de défaillance ou de non disponibilité du freinage actif d’urgence FREINAGE ACTIF D’URGENCE
++ Témoin d'alerte de non-présence des mains sur le volant AIDE AU MAINTIEN DE VOIE
++Sur l'afficheur D
++Airbag passager ON SÉCURITÉ ENFANTS : désactivation, activation airbag passager avant
++¹Airbag passager OFF SÉCURITÉ ENFANTS : désactivation, activation airbag passager avant
++ß Témoin d’alerte de non-port des ceintures avant et arrière (suivant véhicule) CEINTURES DE SÉCURITÉ
++retour en haut

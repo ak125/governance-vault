@@ -1,0 +1,19 @@
+{
+  "pass": 0,
+  "warn": 0,
+  "fail": 1,
+  "results": [
+    {
+      "slug": "filtre-a-huile",
+      "status": "FAIL",
+      "fails": [
+        "entry[8].text_anchor absent de la prose de '## Symptômes & diagnostic' (claim_id=filtre-huile-bypass-huile-non-filtree)",
+        "entry[9].text_anchor absent de la prose de '## Marques & qualité' (claim_id=filtre-huile-trois-niveaux-qualite-oe-oes-equivalent)",
+        "entry[10].text_anchor absent de la prose de '## Marques & qualité' (claim_id=filtre-huile-oes-droit-rechange)"
+      ],
+      "warns": [],
+      "coverage_entries": 14,
+      "h2_sections": 10
+    }
+  ]
+}

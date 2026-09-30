@@ -1,0 +1,50 @@
+{
+  "scope": "Atomic SEO projection acknowledgment in existing editorial outbox; pending work recovery on existing writer executions",
+  "branch": "codex/editorial-pipeline-provenance-20260912",
+  "head": "0c31807c8453c251d70c7575eafcc973f04eed14",
+  "pipeline_version": "1.2.1",
+  "runner_version": "1.0.3",
+  "files": {
+    "backend/supabase/migrations/20260912231807_seo_projection_refresh_ack.sql": "6c84602f708d044c4aab91b80cba56d8ada306ec14c3d1cf9957a773a7ad4e34",
+    "scripts/seo-projection/test_block_outbox_transaction.py": "3df8f48c009821c1aa30f9590b52ca13349910627ea1d88cd72c84e7c5ef7af2",
+    "backend/src/modules/seo-projection/seo-projection-writer.service.ts": "2bde8b802093fb5a9b063fc1a7aa247556a9830966780467ec3c3479d1b65d43",
+    "backend/src/modules/seo-projection/seo-projection-write.processor.ts": "63e4a83feb39522edd37cbb95986df725d45cb74e0ede285800303fbe6f6b8ae",
+    "backend/src/modules/seo-projection/seo-projection-writer-role-scope.test.ts": "575aeeaec83ca0e2d5504ee8a0952e1357d48279e972465a120b4f474106facf",
+    "backend/src/modules/seo-projection/seo-projection-refresh-recovery.test.ts": "c3d7f300aa52ee74e212ed37cf1cd9330964c39e03ac4b8888bf25544d4f13e1",
+    "backend/src/modules/seo-projection/seo-projection.types.ts": "feaff8dbf03f706493386d151dadffecfb24937ffd41ae6a6be4e64d5d285be2"
+  },
+  "application_patch_sha256": "c3f0c1663b79bce4583ab0d7336d94cc0ad33b31bf4047d59c3969f408e2f0c6",
+  "validation": {
+    "postgres_passed": 24,
+    "postgres_version": "17.11",
+    "postgres_fixture": "network-isolated temporary Docker, tmpfs, no ports/volumes, exact container removed after tests",
+    "jest_passed": 106,
+    "jest_suites": 5,
+    "eslint": "PASS five changed TypeScript files",
+    "backend_typecheck": "PASS",
+    "sql_lint": "PASS; one initial warning, local concurrent-index exception justified by native autocommit marker",
+    "migration_marker": "PASS",
+    "staged_diff_check": "PASS",
+    "test_transports": "PostgreSQL concurrency real; application DB/queue simulated; native Bull processJob retained from prior tests",
+    "baseline": "No before-fix failing baseline claimed for this lot"
+  },
+  "counterproofs": [
+    "Exact two-view RPC response and repeat refresh preserves first ACK timestamp/global event fields",
+    "Withdrawal removes current projection while keeping original content/history",
+    "Injected ACK failure rolls back both materialized views; retry succeeds",
+    "Committed transition during a blocked refresh remains unacknowledged until next refresh",
+    "Lower sequence ID committed late is not accidentally acknowledged by a higher committed ID",
+    "Migration reapplication preserves populated history and ACK; service_role-only execution retained",
+    "No-op writer enqueues pending work, acknowledged backlog causes no enqueue, readonly skips query/queue",
+    "Pending lookup and enqueue failures propagate to worker; confirmed new writes do not depend on backlog lookup"
+  ],
+  "limits": [
+    "No independent relay: recovery requires a later execution of the existing writer; the R1 feeder remains disabled by default and is unchanged.",
+    "Native singleton can coalesce an enqueue while refresh is active; the exact captured events are safe, later events remain pending for a subsequent run. No crash-independent or bounded-delay recovery claim.",
+    "ACK covers SEO projection replace/withdraw only, not all editorial consumers, legacy facts/creation writes or global outbox status.",
+    "Explicit accepted WIKI withdrawal mapping remains unwired; an absent block never requests withdrawal.",
+    "No Redis persistence, integrated PostgREST transport, load/lock-duration, CI or browser/public validation.",
+    "No shared database writes/migration, activation, commit, push, merge or deployment. External outbox clients still need compatibility assessment before shared migration."
+  ],
+  "final_status": "PARTIAL_COVERAGE"
+}

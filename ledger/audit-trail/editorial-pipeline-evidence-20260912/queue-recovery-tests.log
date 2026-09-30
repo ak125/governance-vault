@@ -1,0 +1,77 @@
+npm warn Unknown project config "puppeteer-skip-download". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+[31m[Nest] 586980  - [39m13/09/2026 01:45:05 [31m  ERROR[39m [38;5;3m[SeoProjectionRefreshProcessor] [39m[31mprojection-refresh job projection-refresh-singleton failed: injected RPC failure[39m
+[31m[Nest] 586980  - [39m13/09/2026 01:45:06 [31m  ERROR[39m [38;5;3m[SeoProjectionRefreshProcessor] [39m[31mprojection-refresh job projection-refresh-singleton failed: persistent RPC failure[39m
+[31m[Nest] 586980  - [39m13/09/2026 01:45:06 [31m  ERROR[39m [38;5;3m[SeoProjectionRefreshProcessor] [39m[31mprojection-refresh job projection-refresh-singleton failed: persistent RPC failure[39m
+[31m[Nest] 586980  - [39m13/09/2026 01:45:06 [31m  ERROR[39m [38;5;3m[SeoProjectionRefreshProcessor] [39m[31mprojection-refresh job projection-refresh-singleton failed: persistent RPC failure[39m
+PASS src/modules/seo-projection/seo-projection-refresh-redis.test.ts (14.986 s)
+  ● Console
+
+    console.log
+      ◇ injected env (0) from .env.test // tip: ◈ secrets for agents [www.dotenvx.com]
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+PASS src/modules/seo-projection/seo-projection-writer-role-scope.test.ts (8.004 s)
+  ● Console
+
+    console.log
+      ◇ injected env (0) from .env.test // tip: ⌘ override existing { override: true }
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+[32m[Nest] 586980  - [39m13/09/2026 01:45:15 [32m    LOG[39m [38;5;3m[SeoProjectionWriteProcessor] [39m[32mprojection write run=run-1 facts=1 roles(w/n/b/r)=0/0/1/0 snapshot=sha256:6ee45c0913cd943cd30f8445bc16c234c8634796833057c2e318647e4dc7a082 refresh=true[39m
+[32m[Nest] 586980  - [39m13/09/2026 01:45:15 [32m    LOG[39m [38;5;3m[SeoProjectionWriteProcessor] [39m[32mprojection write run=run-1 facts=0 roles(w/n/b/r)=0/0/1/0 snapshot=sha256:6ee45c0913cd943cd30f8445bc16c234c8634796833057c2e318647e4dc7a082 refresh=true[39m
+[32m[Nest] 586980  - [39m13/09/2026 01:45:15 [32m    LOG[39m [38;5;3m[SeoProjectionWriteProcessor] [39m[32mprojection write run=fixture-run facts=0 roles(w/n/b/r)=0/0/1/0 snapshot=H refresh=false[39m
+[32m[Nest] 586980  - [39m13/09/2026 01:45:15 [32m    LOG[39m [38;5;3m[SeoProjectionWriteProcessor] [39m[32mprojection write run=fixture-run facts=0 roles(w/n/b/r)=0/0/0/0 snapshot=none refresh=false[39m
+[32m[Nest] 586980  - [39m13/09/2026 01:45:15 [32m    LOG[39m [38;5;3m[SeoProjectionWriteProcessor] [39m[32mprojection write run=none facts=0 roles(w/n/b/r)=0/0/0/0 snapshot=none refresh=false[39m
+[32m[Nest] 586980  - [39m13/09/2026 01:45:15 [32m    LOG[39m [38;5;3m[SeoProjectionWriteProcessor] [39m[32mprojection write run=none facts=0 roles(w/n/b/r)=0/0/0/0 snapshot=none refresh=false [READ_ONLY skipped][39m
+[32m[Nest] 586980  - [39m13/09/2026 01:45:15 [32m    LOG[39m [38;5;3m[SeoProjectionWriteProcessor] [39m[32mprojection write run=none facts=0 roles(w/n/b/r)=0/0/0/0 snapshot=none refresh=false[39m
+[32m[Nest] 586980  - [39m13/09/2026 01:45:15 [32m    LOG[39m [38;5;3m[SeoProjectionWriteProcessor] [39m[32mprojection write run=fixture-run facts=0 roles(w/n/b/r)=0/1/0/0 snapshot=H refresh=false[39m
+[32m[Nest] 586980  - [39m13/09/2026 01:45:15 [32m    LOG[39m [38;5;3m[SeoProjectionWriteProcessor] [39m[32mprojection write run=none facts=0 roles(w/n/b/r)=0/0/0/0 snapshot=none refresh=true[39m
+[32m[Nest] 586980  - [39m13/09/2026 01:45:15 [32m    LOG[39m [38;5;3m[SeoProjectionWriteProcessor] [39m[32mprojection write run=none facts=0 roles(w/n/b/r)=0/0/0/0 snapshot=none refresh=false[39m
+[32m[Nest] 586980  - [39m13/09/2026 01:45:15 [32m    LOG[39m [38;5;3m[SeoProjectionWriteProcessor] [39m[32mprojection write run=none facts=1 roles(w/n/b/r)=0/0/0/0 snapshot=none refresh=true[39m
+[32m[Nest] 586980  - [39m13/09/2026 01:45:15 [32m    LOG[39m [38;5;3m[SeoProjectionWriteProcessor] [39m[32mprojection write run=none facts=0 roles(w/n/b/r)=0/0/0/0 snapshot=none refresh=false [READ_ONLY skipped][39m
+[32m[Nest] 586980  - [39m13/09/2026 01:45:15 [32m    LOG[39m [38;5;3m[SeoProjectionRefreshProcessor] [39m[32mprojection recovery (completed): pending refresh requested[39m
+[32m[Nest] 586980  - [39m13/09/2026 01:45:15 [32m    LOG[39m [38;5;3m[SeoProjectionRefreshProcessor] [39m[32mprojection recovery (startup): pending refresh requested[39m
+PASS src/modules/seo-projection/seo-projection-refresh-recovery.test.ts
+  ● Console
+
+    console.log
+      ◇ injected env (0) from .env.test // tip: ⌘ suppress logs { quiet: true }
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+PASS src/modules/seo-projection/seo-projection-refresh.processor.test.ts
+  ● Console
+
+    console.log
+      ◇ injected env (0) from .env.test // tip: ◈ encrypted .env [www.dotenvx.com]
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+PASS src/modules/seo-projection/seo-projection-writer.test.ts
+  ● Console
+
+    console.log
+      ◇ injected env (0) from .env.test // tip: ⌁ auth for agents [www.vestauth.com]
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+[32m[Nest] 586980  - [39m13/09/2026 01:45:15 [32m    LOG[39m [38;5;3m[SeoProjectionRefreshProcessor] [39m[32mprojection refresh (run=refresh-run) → refreshed=false (RPC unavailable)[39m
+[32m[Nest] 586980  - [39m13/09/2026 01:45:15 [32m    LOG[39m [38;5;3m[SeoProjectionRefreshProcessor] [39m[32mprojection refresh (run=refresh-run) → refreshed=true[39m
+[32m[Nest] 586980  - [39m13/09/2026 01:45:15 [32m    LOG[39m [38;5;3m[SeoProjectionRefreshProcessor] [39m[32mprojection refresh (run=refresh-run) → refreshed=false (READ_ONLY)[39m
+[32m[Nest] 586980  - [39m13/09/2026 01:45:15 [32m    LOG[39m [38;5;3m[SeoProjectionRefreshProcessor] [39m[32mprojection refresh (run=refresh-run) → refreshed=false (incomplete projection refresh response)[39m
+PASS src/modules/seo-projection/seo-projection-snapshot.test.ts
+  ● Console
+
+    console.log
+      ◇ injected env (0) from .env.test // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+
+Test Suites: 6 passed, 6 total
+Tests:       119 passed, 119 total
+Snapshots:   0 total
+Time:        23.539 s, estimated 25 s
+Ran all test suites matching /src\/modules\/seo-projection\/seo-projection-writer-role-scope.test.ts|src\/modules\/seo-projection\/seo-projection-writer.test.ts|src\/modules\/seo-projection\/seo-projection-snapshot.test.ts|src\/modules\/seo-projection\/seo-projection-refresh.processor.test.ts|src\/modules\/seo-projection\/seo-projection-refresh-recovery.test.ts|src\/modules\/seo-projection\/seo-projection-refresh-redis.test.ts/i.

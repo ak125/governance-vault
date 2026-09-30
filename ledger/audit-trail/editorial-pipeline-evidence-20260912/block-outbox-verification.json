@@ -1,0 +1,56 @@
+{
+  "scope": "Existing exact block replace/withdraw transaction plus canonical __rag_change_events; isolated candidate only",
+  "head": "0c31807c8453c251d70c7575eafcc973f04eed14",
+  "branch": "codex/editorial-pipeline-provenance-20260912",
+  "postgres": "17.11",
+  "image_id": "sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73",
+  "fixture": {
+    "native_schema": "backend/supabase/migrations/20260619_adr059_pr6_seo_projection_schema.sql",
+    "outbox": "13-column reconstruction from saved read-only inventory; original CREATE TABLE absent in checkout",
+    "network": "none",
+    "storage": "tmpfs",
+    "published_ports": [],
+    "remaining_test_containers": ""
+  },
+  "validation": {
+    "postgres_tests": 18,
+    "postgres_result": "PASS",
+    "sql_lint": "PASS after two documented local exceptions",
+    "migration_marker": "PASS",
+    "staged_diff_check": "PASS",
+    "migration_reapply": "twice before tests plus after populated transitions; preserved rows and valid indexes"
+  },
+  "counterproofs": [
+    "outbox insertion exception rolls back pointer and new version",
+    "observed second transaction Lock wait while first held block lock; exactly one event",
+    "old replay after withdrawal has no live effects",
+    "changed replay and stale predecessor rejected",
+    "withdrawal retains historical content",
+    "event foreign keys preserve referenced run/block/versions",
+    "legacy NULL hash remains forbidden",
+    "service_role execution with native projection RLS; anon/authenticated cannot execute"
+  ],
+  "lint_exceptions": {
+    "ban-concurrent-index-creation-in-transaction": "native @non_transactional marker verified; concurrent indexes run in autocommit",
+    "ban-drop-not-null": "intentional candidate contract change; validated CHECK permits NULL only for explicit withdraw; external client compatibility requires owner review before shared DB"
+  },
+  "files": {
+    "backend/supabase/migrations/20260912212340_seo_projection_block_outbox.sql": "4e4db74db664eb96eef06696c76b051ab3ec891804b7e6c18e344c05ff4e47f4",
+    "scripts/seo-projection/test_block_outbox_transaction.py": "25e062033654f079e503aa12d8e21a0214884925c11259a22573085bdc355e8c"
+  },
+  "application_patch_sha256": "727f55436e46cd712c8f904c06bf47d3b84a9f97deeb72956d4530540c33598d",
+  "runtime_wired": false,
+  "shared_database_written": false,
+  "queue_tested": false,
+  "consumer_acks_implemented": false,
+  "deployed": false,
+  "limitations": [
+    "existing active block only; no creation or inferred absence withdrawal",
+    "caller must verify accepted WIKI transition and source-to-target mapping; run metadata alone is not approval",
+    "current writer persists snapshot metadata at closeRun; integration must persist verified snapshot before transitions",
+    "regressing content is rejected here; native draft/conflict path remains outside this primitive",
+    "no per-consumer ACK, relay recovery, MV refresh or browser proof",
+    "shared DB catalog was not refreshed in this lot; old outbox clients still require compatibility inventory"
+  ],
+  "final_status": "PARTIAL_COVERAGE"
+}

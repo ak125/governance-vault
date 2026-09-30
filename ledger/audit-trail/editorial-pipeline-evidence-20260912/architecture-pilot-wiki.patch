@@ -1,0 +1,178 @@
+--- a/proposals/filtre-a-huile.md
++++ b/proposals/filtre-a-huile.md
+@@ -139,7 +139,7 @@
+     function_oneliner: "Le filtre à huile retient les impuretés en suspension dans\
+       \ l'huile moteur pour protéger les organes lubrifiés de l'usure abrasive."
+     selection_criteria_top:
+-    - "Type d'origine : vissé (spin-on) ou cartouche, dicté par le moteur."
++    - "Type de filtre prévu : ensemble vissé ou élément en cartouche."
+     - "Filetage et joint conformes au système de filtration d'origine."
+     - "Média défini pour le moteur : son matériau seul ne justifie pas un classement de qualité universel."
+     - "Clapets selon la conception du filtre et du moteur ; leur présence seule ne prouve pas la compatibilité."
+@@ -158,11 +158,9 @@
+       truth_level: sourced
+     variants:
+       content_md: >-
+-        Deux architectures coexistent et ne se substituent pas librement : le filtre vissé (spin-on),
+-        boîtier métallique complet remplacé en entier qui intègre ses propres clapets, et la cartouche
+-        (insert papier sans carter métallique) logée dans un boîtier permanent sur le moteur, où les
+-        clapets sont généralement portés par le boîtier. Le type est imposé par la conception moteur.
+-      source_ids: [raw:filtre-a-huile-compatibility, oem:mann-filter, oem:filtron-clapets]
++        Le filtre vissé est remplacé avec son boîtier ; une cartouche permet de remplacer l'élément dans un boîtier réutilisé.
++        Respecter l'architecture prévue pour le véhicule lors du choix de la référence.
++      source_ids: [mahle_oem_conception_filtre_huile]
+       truth_level: sourced
+     selection_criteria:
+       content_md: >-
+@@ -254,8 +252,8 @@
+ 
+ La présence des clapets dépend de la conception du filtre et du moteur. Sur les filtres vissés, FILTRON décrit trois fonctions possibles : anti-retour, dérivation (by-pass) et anti-siphon. Elles ne sont pas nécessairement toutes présentes sur chaque filtre. La présence d'un clapet ne constitue donc pas, à elle seule, un critère de compatibilité ([Filtron](https://filtron.eu/en/insights/filter-guide/spin-on-oil-filter-valves.html)).
+ 
+-- **Clapet anti-retour (anti-drain-back)** — membrane élastomère qui empêche l'huile de redescendre du filtre vers le carter à l'arrêt, pour que l'huile soit immédiatement disponible au redémarrage. Il est surtout indispensable quand le filtre est monté **horizontalement ou tête en bas** — d'où la dépendance à l'orientation du montage moteur ([Filtron](https://filtron.eu/en/insights/filter-guide/spin-on-oil-filter-valves.html)). Sa méthode d'essai est normalisée par **ISO 4548-9**.
+-- **Clapet de dérivation (by-pass)** — clapet à ressort qui s'ouvre quand le média se colmate ou quand l'huile est trop visqueuse à froid, pour maintenir le débit vers le moteur (« de l'huile non filtrée vaut mieux que pas d'huile »). Il réagit à la **pression différentielle aux bornes du filtre**, pas à la pression d'huile absolue du moteur ; sa pression d'ouverture est **calibrée selon le moteur** — d'où la nécessité de la référence d'origine. Sa caractéristique est normalisée par **ISO 4548-2** ([Filtron](https://filtron.eu/en/insights/filter-guide/spin-on-oil-filter-valves.html)).
++- **Clapet anti-retour (anti-drain-back)** — souvent constitué d'une membrane en caoutchouc, il empêche l'huile de s'échapper du filtre à l'arrêt. La nécessité de l'anti-retour dépend notamment de l'orientation du filtre, comme l'explique FILTRON ([Filtron](https://filtron.eu/en/insights/filter-guide/spin-on-oil-filter-valves.html)). Sa méthode d'essai est normalisée par **ISO 4548-9**.
++- **Clapet de dérivation (by-pass)** — il permet de maintenir le passage d'huile lorsque le filtre est colmaté ou que l'huile est froide et visqueuse. L'huile peut alors contourner le média filtrant pour préserver l'alimentation du moteur ([Filtron](https://filtron.eu/en/insights/filter-guide/spin-on-oil-filter-valves.html)). Le réglage du by-pass peut différer selon le moteur ([MAHLE](https://www.mahle-aftermarket.com/na/en/products-and-services/filters/oil-filters/)). Sa caractéristique est normalisée par **ISO 4548-2**.
+ 
+ > _Les valeurs chiffrées de pression d'ouverture du by-pass (issues de forums techniques, confidence faible) ne sont pas reproduites ici : elles dépendent du moteur et relèvent de la référence d'origine + de la revue humaine._
+ 
+@@ -271,7 +269,7 @@
+ 
+ Pièce **moteur** : la sélection repose sur la conformité au système de filtration d'origine.
+ 
+-1. **Type d'origine — vissé (spin-on) vs cartouche** — le filtre vissé est un boîtier métallique complet remplacé en entier (clapets intégrés) ; la cartouche est un élément papier sans carter, logé dans un boîtier permanent où les clapets sont souvent portés par le moteur. Le type est **imposé par la conception moteur** ([MANN-FILTER](https://www.mann-filter.com/en.html), [Counterman](https://www.counterman.com/spin-on-vs-cartridge-style-oil-filters/)).
++1. **Filtre vissé ou cartouche** — Le filtre vissé est remplacé avec son boîtier ; une cartouche permet de remplacer l'élément dans un boîtier réutilisé. Respecter l'architecture prévue pour le véhicule lors du choix de la référence ([MAHLE](https://www.mahle-aftermarket.com/na/en/products-and-services/filters/oil-filters/)).
+ 2. **Conception et filetage** — deux filtres vissés d'apparence identique peuvent avoir des caractéristiques internes différentes selon le moteur : filetage, présence d'un anti-retour ou réglage du by-pass. La ressemblance extérieure ne suffit pas pour choisir une référence ([MAHLE](https://www.mahle-aftermarket.com/na/en/products-and-services/filters/oil-filters/)).
+ 3. **Média filtrant** — le média et la finesse de filtration peuvent différer selon le moteur. Le matériau seul ne permet pas d'établir ici une hiérarchie universelle de qualité ; confirmer le choix de la référence dans le catalogue pour le véhicule concerné ([MAHLE](https://www.mahle-aftermarket.com/na/en/products-and-services/filters/oil-filters/)).
+ 4. **Clapets adaptés à la conception** — leur présence dépend du filtre et du moteur. Ne pas choisir un filtre sur la seule présence d'un anti-retour ; vérifier sa référence dans le catalogue de compatibilité ([Filtron](https://filtron.eu/en/insights/filter-guide/spin-on-oil-filter-valves.html)).
+@@ -305,6 +303,6 @@
+ 
+ La reconstruction du 27 juin 2026 s'appuyait sur le dossier web-research `automecanik-raw/sources/web-research/filtre-a-huile/`. Ses compteurs historiques (59 sources, 29 déclarées primary) ne prouvent ni l'archivage ni l'appui de chaque affirmation.
+ 
+-Révision candidate du 14 septembre 2026 : passages FILTRON sur les clapets et MAHLE sur les différences de conception reliés à leurs captures RAW immuables, empreintes et entrées de couverture. Les critères de choix et leur version structurée ne reprennent plus la hiérarchie de médias issue d'une source transmission. L'échéance d'entretien renvoie désormais au programme du constructeur, sur la base du passage MAHLE déjà archivé. Les autres affirmations, notamment normes, diagnostic, montage, réutilisation et équivalence OE/OES, restent à qualifier séparément.
++Révision candidate du 14 septembre 2026 : passages FILTRON sur les clapets et MAHLE sur les différences de conception reliés à leurs captures RAW immuables, empreintes et entrées de couverture. Les critères de choix et leur version structurée ne reprennent plus la hiérarchie de médias issue d'une source transmission. L'échéance d'entretien renvoie désormais au programme du constructeur, sur la base du passage MAHLE déjà archivé. Les architectures et les principes des clapets sont précisés à partir de passages identifiés ; la généralisation sur les clapets des cartouches dans le boîtier moteur a été retirée faute d'appui dans ces sources. Les autres affirmations, notamment normes, diagnostic, montage, réutilisation et équivalence OE/OES, restent à qualifier séparément.
+ 
+ `review_status: proposed`, exports désactivés. L'archivage ne vaut pas validation : la décision de promotion appartient au moteur WIKI natif et à ses contrôles de preuve et de droits. Les captures à licence inconnue restent destinées à l'examen interne. Les relations diagnostiques conservent `reviewed: false` et `diagnostic_safe: false`.
+--- a/proposals/_coverage/filtre-a-huile.coverage.yaml
++++ b/proposals/_coverage/filtre-a-huile.coverage.yaml
+@@ -60,21 +60,21 @@
+ 
+   - claim_id: filtre-huile-cartouche-vs-spinon-type-moteur
+     section: "## Critères de choix selon le véhicule"
+-    text_anchor: "le type (vissé spin-on ou cartouche) est dicté par la conception moteur"
+-    source_slug: mann_filter_oem_filtre_huile
+-    evidence_type: oem_datasheet
++    text_anchor: "Le filtre vissé est remplacé avec son boîtier ; une cartouche permet de remplacer l'élément dans un boîtier réutilisé."
++    source_slug: mahle_oem_conception_filtre_huile
++    evidence_type: oem_technical_page
+     confidence: high
+     source_policy: 1_high
+-    source_status: pending_capture
++    source_status: captured
+ 
+   - claim_id: filtre-huile-anti-retour-orientation
+     section: "## Fonctionnement"
+-    text_anchor: "anti-retour indispensable sur filtre monté horizontalement ou tête en bas"
++    text_anchor: "La nécessité de l'anti-retour dépend notamment de l'orientation du filtre"
+     source_slug: filtron_oem_clapets_filtre_huile
+     evidence_type: oem_technical_page
+     confidence: high
+     source_policy: 1_high
+-    source_status: pending_capture
++    source_status: captured
+ 
+   - claim_id: filtre-huile-bypass-huile-non-filtree
+     section: "## Symptômes & diagnostic"
+@@ -115,25 +115,33 @@
+     source_status: captured
+ 
+   # --- claims conservés honnêtement (sources medium/low, non-PRIMARY) ---
+-  - claim_id: filtre-huile-clapets-cartouche-dans-boitier
+-    section: "## Critères de choix selon le véhicule"
+-    text_anchor: "sur cartouche, by-pass et anti-retour sont souvent dans le boîtier moteur"
+-    source_slug: mann_filter_oem_filtre_huile
+-    evidence_type: oem_datasheet
+-    confidence: medium
+-    source_policy: 2_medium_concordant
+-    source_status: pending_capture
++  - claim_id: filtre-huile-bypass-colmatage-froid
++    section: "## Fonctionnement"
++    text_anchor: "il permet de maintenir le passage d'huile lorsque le filtre est colmaté ou que l'huile est froide et visqueuse"
++    source_slug: filtron_oem_clapets_filtre_huile
++    evidence_type: oem_technical_page
++    confidence: high
++    source_policy: 1_high
++    source_status: captured
+ 
+   - claim_id: filtre-huile-bypass-pression-engine-tied
+     section: "## Fonctionnement"
+-    text_anchor: "la pression d'ouverture du by-pass est calibrée selon le moteur (spec d'origine)"
+-    source_slug: filtron_oem_clapets_filtre_huile
++    text_anchor: "Le réglage du by-pass peut différer selon le moteur"
++    source_slug: mahle_oem_conception_filtre_huile
+     evidence_type: oem_technical_page
+-    confidence: low
+-    source_policy: 2_medium_concordant
+-    source_status: pending_capture
++    confidence: high
++    source_policy: 1_high
++    source_status: captured
+ 
+ notes: |
++  Lot architecture-pilot 2026-09-14 : architectures, orientation anti-retour et
++  difference de reglage du by-pass rattachees aux captures existantes MAHLE/FILTRON.
++  Trois anciennes declarations remplacees par des formulations bornees a ces
++  passages. Claim boitier/clapets-cartouche retire avec sa generalisation non
++  etayee ; principe colmatage/froid du by-pass ajoute separement. Le claim
++  diagnostique by-pass permanent reste pending, pas valide par ce principe.
++  Les mentions ISO conservees dans le texte restent egalement pending ; aucune
++  valeur de pression ni compatibilite precise inferee. Captured, pas verified.
+   Lot claims-pilot 2026-09-14 : echeance renvoyee au constructeur, passage MAHLE
+   deja archive ; remplace le claim chaque-vidange. Le claim capacite/intervalle
+   est retire avec sa generalisation non etayee, pas compte comme lacune resolue
+--- a/_meta/source-catalog.yaml
++++ b/_meta/source-catalog.yaml
+@@ -510,7 +510,7 @@
+       to_capture : fiches référencées par URL, archive physique à matérialiser.
+ 
+   - slug: mahle_oem_conception_filtre_huile
+-    title: 'MAHLE Aftermarket — différences de conception des filtres à huile vissés'
++    title: 'MAHLE Aftermarket — architectures, conception et entretien des filtres à huile'
+     type: oem_manual
+     publisher: 'MAHLE Aftermarket'
+     year: null
+@@ -532,6 +532,11 @@
+       maintenance intervals stipulated by the automobile manufacturers. Appuie
+       le respect des echeances constructeur, pas une duree universelle ni la
+       regle chaque-vidange ; aucune nouvelle capture pour la meme source.
++      Lot architecture-pilot : Oil filter cartridges, jusqu'a Hydraulic spin-on
++      filters, pour le remplacement de l'element en cartouche ; premiere phrase
++      Spin-on oil filter mix up pour l'ensemble boitier/element indissociable.
++      Meme section pour les differences de reglage du by-pass selon moteur.
++      Aucun emplacement general des clapets de cartouche deduit de ces passages.
+       Date de publication inconnue. Licence inconnue, CAPTURED_NEEDS_REVIEW ;
+       active signifie archive disponible, pas faits verifies ou publication autorisee.
+ 
+@@ -554,6 +559,10 @@
+       Source primaire sur son perimetre, pas une preuve de compatibilite d'une
+       reference, de materiau de joint ou de pression calibree. Licence inconnue,
+       CAPTURED_NEEDS_REVIEW : archive disponible ne signifie pas faits valides.
++      Lot architecture-pilot : Anti-drainback valve pour la dependance a
++      l'orientation ; Bypass valve pour colmatage/huile froide et maintien du
++      passage d'huile. Ces principes ne prouvent ni une perte de puissance,
++      ni l'ouverture permanente, ni les references normatives ISO du guide.
+ 
+   - slug: eu_reg_461_2010_block_exemption
+     title: 'Règlement (UE) n°461/2010 — exemption par catégorie automobile (qualité OE / OES / équivalente)'
+--- a/log.md
++++ b/log.md
+@@ -135,3 +135,10 @@
+ - Dépendance markdown-it-py 3.0.0 utilisée et déclarée dans les exigences déjà installées par CI. Aucune nouvelle règle canon ni workflow parallèle.
+ - Filtre à huile : échéance constructeur remplace chaque-vidange et raccourci huile synthétique/intervalle long. Réemploi MAHLE immuable ; carte 14 déclarations dont 4 captured, aucune verified. Les 12 anciennes entrées pending examinées et dispositions dans les preuves du lot.
+ - 197 tests ciblés PASS ; schéma fiche et score0.46 PASS. Promotion BLOCKED avec COVERAGE_STRICT_FAIL (10 ancres restantes) et SUBSTANCE_SCORE. Contrôle structurel 15 propositions : 1PASS/6WARN/8FAIL ; corpus non corrigé artificiellement. Aucun export/DB/site modifié.
++
++## 2026-09-14 — candidat architecture-pilot : architectures et clapets
++
++- Architecture vissé/cartouche réécrite selon MAHLE, structure variants et résumé alignés ; généralisation clapets-cartouche dans boîtier moteur retirée faute de preuve, retrait tracé.
++- Anti-retour lié à l'orientation sans généraliser une position ambiguë ; by-pass expliqué sur colmatage/froid selon FILTRON. Réglage selon moteur rattaché à MAHLE, sans chiffres ou extrapolation diagnostique validés.
++- Quatre déclarations ciblées reliées aux passages des archives existantes ; aucune capture ni mutation RAW. Carte14déclarations,8captured,0verified ;6ancres encore en échec (ISO3, réglementaire2, diagnostic1).
++- Schéma, calcul0.46, SHA et raw_ref cibles PASS. Promotion native BLOCKED : COVERAGE_STRICT_FAIL et SUBSTANCE_SCORE. Shadow89/tierA ne vaut pas publication :6page_unproven et reality stale. Code/test/dépendance du lot197tests précédent inchangés par hash ; validations de données rejouées.

@@ -1,0 +1,235 @@
+diff --git a/backend/src/config/keyword-plan.constants.ts b/backend/src/config/keyword-plan.constants.ts
+index 67bc37462..42e540a18 100644
+--- a/backend/src/config/keyword-plan.constants.ts
++++ b/backend/src/config/keyword-plan.constants.ts
+@@ -324,6 +324,7 @@ export interface PriorityFix {
+     | 'thin_content'
+     | 'weak_phrases'
+     | 'no_sources'
++    | 'duplicate_content'
+     | 'rag_stale'
+     | 'rag_insufficient';
+   current_score: number | null;
+@@ -505,7 +506,7 @@ export interface AuditResult {
+   priority_score: number;
+   /** Structured fix descriptors */
+   priority_fixes: PriorityFix[];
+-  /** Sections that exist but score < improvementScoreThreshold */
++  /** Existing sections with an actionable audit finding, independently of score */
+   sections_to_improve: string[];
+   /** Sections missing entirely from required pack */
+   sections_to_create: string[];
+diff --git a/backend/src/modules/admin/services/keyword-plan-gates.dedup.test.ts b/backend/src/modules/admin/services/keyword-plan-gates.dedup.test.ts
+new file mode 100644
+index 000000000..5bbbd937d
+--- /dev/null
++++ b/backend/src/modules/admin/services/keyword-plan-gates.dedup.test.ts
+@@ -0,0 +1,105 @@
++import { PACK_DEFINITIONS } from '../../../config/conseil-pack.constants';
++import {
++  KeywordPlanGatesService,
++  type ConseilSectionRow,
++} from './keyword-plan-gates.service';
++
++const gates = new KeywordPlanGatesService();
++const shared =
++  'Le filtre retient les impuretes presentes dans le lubrifiant avant leur circulation';
++const other =
++  'La reference constructeur permet de verifier la compatibilite de la piece avec le vehicule';
++// Report fixtures isolate GA3; they do not certify factual quality or live execution.
++const rows = (): ConseilSectionRow[] =>
++  PACK_DEFINITIONS.standard.requiredSections.map((section) => ({
++    section_type: section,
++    quality_score: 100,
++    content_len: 1000,
++    content: `Texte distinct de la section ${section}`,
++    sources: '["wiki/gammes/filtre.md"]',
++  }));
++
++function duplicated() {
++  const sections = rows();
++  sections[0].content = shared;
++  sections[1].content = `<p>${shared.toUpperCase()}</p>`;
++  return sections;
++}
++
++describe('GA3 duplicate finding reaches the audit correction decision', () => {
++  it('does not skip a full 100-score pack containing a detected duplicate', () => {
++    const report = gates.auditFromSections(duplicated());
++    expect(report.gate_report?.GA3_CROSS_SECTION_DEDUP.status).toBe('warn');
++    expect(gates.shouldSkipGamme(report)).toBe(false);
++    expect(report.sections_to_improve.sort()).toEqual(['S1', 'S2']);
++    expect(report.priority_fixes).toEqual(
++      expect.arrayContaining([
++        expect.objectContaining({
++          section: 'S1',
++          issue: 'duplicate_content',
++          fix_type: 'improve',
++          current_score: 100,
++        }),
++        expect.objectContaining({
++          section: 'S2',
++          issue: 'duplicate_content',
++          fix_type: 'improve',
++          current_score: 100,
++        }),
++      ]),
++    );
++    // Routing work does not invent a new audit weight or alter stored quality scores.
++    expect(report.priority_score).toBe(0);
++    expect(report.section_scores.S1).toBe(100);
++  });
++
++  it('retains work for repeated banane content even with legacy scores of 100', () => {
++    const sections = rows();
++    for (const section of sections)
++      section.content = Array(60).fill('banane').join(' ');
++    const report = gates.auditFromSections(sections);
++    expect(report.sections_to_improve.sort()).toEqual(
++      [...PACK_DEFINITIONS.standard.requiredSections].sort(),
++    );
++    expect(gates.shouldSkipGamme(report)).toBe(false);
++    expect(sections.every((section) => section.quality_score === 100)).toBe(
++      true,
++    );
++  });
++
++  it('reports both affected sections independently of input order', () => {
++    const forward = gates.auditFromSections(duplicated());
++    const reverse = gates.auditFromSections(duplicated().reverse());
++    expect(forward.sections_to_improve.sort()).toEqual(['S1', 'S2']);
++    expect(reverse.sections_to_improve.sort()).toEqual(
++      forward.sections_to_improve,
++    );
++  });
++
++  it('emits one duplicate fix per affected section despite repeated matches', () => {
++    const sections = duplicated();
++    sections[0].content = `${shared}. ${other}`;
++    sections[1].content = `${shared}. ${other}`;
++    sections[2].content = shared;
++    const report = gates.auditFromSections(sections);
++    const fixes = report.priority_fixes;
++    expect(fixes.map((fix) => fix.section).sort()).toEqual(['S1', 'S2', 'S3']);
++    expect(report.sections_to_improve.sort()).toEqual(['S1', 'S2', 'S3']);
++  });
++
++  it('keeps GA3 scoped to cross-section matches, without rewriting content', () => {
++    const sections = rows();
++    sections[0].content = `${shared}. ${shared}`;
++    const before = JSON.stringify(sections);
++    const report = gates.auditFromSections(sections);
++    expect(report.gate_report?.GA3_CROSS_SECTION_DEDUP.status).toBe('pass');
++    expect(report.sections_to_improve).toEqual([]);
++    expect(JSON.stringify(sections)).toBe(before);
++  });
++
++  it('preserves the existing decision for distinct section content', () => {
++    const report = gates.auditFromSections(rows());
++    expect(report.sections_to_improve).toEqual([]);
++    expect(gates.shouldSkipGamme(report)).toBe(true);
++  });
++});
+diff --git a/backend/src/modules/admin/services/keyword-plan-gates.service.ts b/backend/src/modules/admin/services/keyword-plan-gates.service.ts
+index 708118e12..e4007b73a 100644
+--- a/backend/src/modules/admin/services/keyword-plan-gates.service.ts
++++ b/backend/src/modules/admin/services/keyword-plan-gates.service.ts
+@@ -13,6 +13,7 @@
+  */
+ 
+ import { Injectable, Logger } from '@nestjs/common';
++import { hasDeclaredSourceReferences } from '../../blog/utils/source-provenance.util';
+ import {
+   type GateResult,
+   type AuditResult,
+@@ -645,6 +646,7 @@ export class KeywordPlanGatesService {
+     const priorityFixes: PriorityFix[] = [
+       ...ga1.fixes,
+       ...ga2.fixes,
++      ...ga3.fixes,
+       ...ga4.fixes,
+       ...ga5.fixes,
+       ...ga6.fixes,
+@@ -662,7 +664,13 @@ export class KeywordPlanGatesService {
+     const sectionsToCreate = ga1.fixes
+       .filter((f) => f.fix_type === 'create')
+       .map((f) => f.section);
+-    const sectionsToImprove = [...ga2.fixes, ...ga4.fixes, ...ga6.fixes]
++    const sectionsToImprove = [
++      ...ga2.fixes,
++      ...ga3.fixes,
++      ...ga4.fixes,
++      ...ga5.fixes,
++      ...ga6.fixes,
++    ]
+       .filter((f) => f.fix_type === 'improve')
+       .map((f) => f.section)
+       .filter((s, i, arr) => arr.indexOf(s) === i);
+@@ -828,7 +836,8 @@ export class KeywordPlanGatesService {
+     result: GateResult;
+     fixes: PriorityFix[];
+   } {
+-    const paragraphMap = new Map<string, string>();
++    const paragraphMap = new Map<string, ConseilSectionRow>();
++    const affectedSections = new Map<string, ConseilSectionRow>();
+     let dupCount = 0;
+ 
+     for (const row of sections) {
+@@ -841,10 +850,13 @@ export class KeywordPlanGatesService {
+ 
+       for (const p of paragraphs) {
+         const existing = paragraphMap.get(p);
+-        if (existing && existing !== row.section_type) {
++        if (existing && existing.section_type !== row.section_type) {
+           dupCount++;
++          // Both sections need review; input order does not identify an owner.
++          affectedSections.set(existing.section_type, existing);
++          affectedSections.set(row.section_type, row);
+         } else if (!existing) {
+-          paragraphMap.set(p, row.section_type);
++          paragraphMap.set(p, row);
+         }
+       }
+     }
+@@ -858,7 +870,12 @@ export class KeywordPlanGatesService {
+             ? 'No duplicate paragraphs across sections'
+             : `${dupCount} duplicate paragraph(s) found across sections`,
+       },
+-      fixes: [],
++      fixes: [...affectedSections.values()].map((row) => ({
++        section: row.section_type,
++        issue: 'duplicate_content',
++        current_score: row.quality_score,
++        fix_type: 'improve',
++      })),
+     };
+   }
+ 
+@@ -903,15 +920,9 @@ export class KeywordPlanGatesService {
+     result: GateResult;
+     fixes: PriorityFix[];
+   } {
+-    const noSource = sections.filter((s) => {
+-      if (!s.sources || s.sources.trim().length === 0) return true;
+-      try {
+-        const parsed = JSON.parse(s.sources);
+-        return !Array.isArray(parsed) || parsed.length === 0;
+-      } catch {
+-        return true;
+-      }
+-    });
++    const noSource = sections.filter(
++      (s) => !hasDeclaredSourceReferences(s.sources),
++    );
+     const fixes: PriorityFix[] = noSource.map((s) => ({
+       section: s.section_type,
+       issue: 'no_sources' as const,
+@@ -924,7 +935,7 @@ export class KeywordPlanGatesService {
+         status: noSource.length === 0 ? 'pass' : 'warn',
+         message:
+           noSource.length === 0
+-            ? 'All sections have E-E-A-T sources'
++            ? 'All sections declare source references (evidence not verified here)'
+             : `${noSource.length} sections missing sources: ${noSource.map((s) => s.section_type).join(', ')}`,
+       },
+       fixes,

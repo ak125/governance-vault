@@ -1,0 +1,113 @@
+{
+  "scope": "Douze declarations historiques pending_capture du guide filtre-a-huile, examinees une par une. Rapport de lot, pas nouvelle source canonique.",
+  "claims": [
+    {
+      "claim_id": "filtre-huile-efficacite-iso-4548-12",
+      "original_section": "## Critères de choix selon le véhicule",
+      "original_anchor": "efficacité de filtration mesurée par comptage de particules (multipasse)",
+      "source_slug": "iso_4548_filtre_huile_serie",
+      "disposition": "absent_du_corps_de_section",
+      "finding": "La mention multipasse du claim ne figure plus dans les criteres ; texte normatif structure a qualifier separement.",
+      "next_action": "Decider de retirer cette ancienne entree ou de la rattacher a une affirmation utile existante, apres preuve ISO ; pas de texte ajoute pour le score."
+    },
+    {
+      "claim_id": "filtre-huile-bypass-clapet-iso-4548-2",
+      "original_section": "## Fonctionnement",
+      "original_anchor": "clapet de dérivation (by-pass) calibré, testé à deux viscosités",
+      "source_slug": "iso_4548_filtre_huile_serie",
+      "disposition": "paraphrase_avec_detail_non_present",
+      "finding": "ISO 4548-2 est cite dans Fonctionnement ; deux viscosites ne figure pas dans le texte.",
+      "next_action": "Verifier le perimetre officiel de la norme puis rattacher l extrait reel, sans injecter le detail pour faire correspondre l ancienne ancre."
+    },
+    {
+      "claim_id": "filtre-huile-anti-retour-iso-4548-9",
+      "original_section": "## Fonctionnement",
+      "original_anchor": "clapet anti-retour (anti-drain-back) — composant fonctionnel normalisé",
+      "source_slug": "iso_4548_filtre_huile_serie",
+      "disposition": "paraphrase_non_ancree",
+      "finding": "Le corps mentionne ISO 4548-9 ; l ancre est une reformulation.",
+      "next_action": "Archive du perimetre officiel de la norme et ancre exacte ; reference normative non validee actuellement."
+    },
+    {
+      "claim_id": "filtre-huile-cartouche-vs-spinon-type-moteur",
+      "original_section": "## Critères de choix selon le véhicule",
+      "original_anchor": "le type (vissé spin-on ou cartouche) est dicté par la conception moteur",
+      "source_slug": "mann_filter_oem_filtre_huile",
+      "disposition": "idee_presente_preuve_a_reviser",
+      "finding": "Le critere 1 melange type, media papier et clapets ; MANN catalogue non archive.",
+      "next_action": "Reutiliser les passages MAHLE deja captures pour les deux architectures, en retirant les generalisations non soutenues."
+    },
+    {
+      "claim_id": "filtre-huile-anti-retour-orientation",
+      "original_section": "## Fonctionnement",
+      "original_anchor": "anti-retour indispensable sur filtre monté horizontalement ou tête en bas",
+      "source_slug": "filtron_oem_clapets_filtre_huile",
+      "disposition": "idee_presente_formulation_a_verifier",
+      "finding": "FILTRON capture contient la condition d orientation ; la formulation du guide reste a rapprocher exactement du montage decrit.",
+      "next_action": "Verifier le sens de orientation/couvercle, corriger au besoin puis ancrer le passage ; aucune nouvelle capture necessaire par defaut."
+    },
+    {
+      "claim_id": "filtre-huile-bypass-huile-non-filtree",
+      "original_section": "## Symptômes & diagnostic",
+      "original_anchor": "by-pass ouvert en permanence → huile non filtrée vers les organes en rotation",
+      "source_slug": "filtron_oem_clapets_filtre_huile",
+      "disposition": "extrapolation_diagnostique",
+      "finding": "FILTRON explique la derivation en conditions de colmatage/froid ; ne prouve pas la chaine by-pass permanent vers perte de puissance du guide.",
+      "next_action": "Separer principe de fonctionnement et diagnostic ; garder relations non validees tant que preuve diagnostique absente."
+    },
+    {
+      "claim_id": "filtre-huile-trois-niveaux-qualite-oe-oes-equivalent",
+      "original_section": "## Marques & qualité",
+      "original_anchor": "trois niveaux : OE/OEM, OES, qualité équivalente (matching quality)",
+      "source_slug": "eu_reg_461_2010_block_exemption",
+      "disposition": "idee_presente_preuve_reglementaire_absente",
+      "finding": "Hierarchie OE/OES/qualite equivalente attribuee a un reglement, sans archive normative exploitable.",
+      "next_action": "Verifier les textes officiels et leur portee avant de presenter trois niveaux ou une qualite identique."
+    },
+    {
+      "claim_id": "filtre-huile-oes-droit-rechange",
+      "original_section": "## Marques & qualité",
+      "original_anchor": "les équipementiers OE peuvent vendre en rechange la même pièce que la première monte",
+      "source_slug": "eu_reg_461_2010_block_exemption",
+      "disposition": "claim_absent",
+      "finding": "Aucune phrase du corps de Marques & qualite ne formule ce droit comme dans la carte.",
+      "next_action": "Ne pas considerer une declaration de coverage comme du contenu ; retirer ou requalifier apres lecture officielle selon utilite du guide."
+    },
+    {
+      "claim_id": "filtre-huile-remplacement-chaque-vidange",
+      "original_section": "## Entretien & bonnes pratiques de montage",
+      "original_anchor": "remplacer le filtre à chaque vidange (élément papier jetable)",
+      "source_slug": "oem_filter_maintenance_general",
+      "disposition": "remplace_dans_candidat",
+      "finding": "Regle universelle remplacee par echeances constructeur ; passage MAHLE existant relie au nouveau claim filtre-huile-echeance-constructeur.",
+      "next_action": "Controles ancre/hash/raw_ref passes ; statut captured, pas validation publique."
+    },
+    {
+      "claim_id": "filtre-huile-clapets-cartouche-dans-boitier",
+      "original_section": "## Critères de choix selon le véhicule",
+      "original_anchor": "sur cartouche, by-pass et anti-retour sont souvent dans le boîtier moteur",
+      "source_slug": "mann_filter_oem_filtre_huile",
+      "disposition": "idee_presente_non_etayee",
+      "finding": "Generalisation clapets portes par le boitier moteur, archive MANN absente.",
+      "next_action": "Verifier le besoin editorial et la preuve de conception ; ne pas generaliser les architectures."
+    },
+    {
+      "claim_id": "filtre-huile-capacite-retention-intervalle",
+      "original_section": "## Critères de choix selon le véhicule",
+      "original_anchor": "la capacité de rétention de salissures conditionne la tenue entre deux vidanges",
+      "source_slug": "oem_filter_maintenance_general",
+      "disposition": "retire_avec_assertion_non_etayee",
+      "finding": "Critere intervalle long/huile synthetique remplace par programme constructeur ; ancienne entree retiree, pas preuve supplementaire.",
+      "next_action": "Conserver ce retrait dans le patch et ce rapport ; une capacite specifique exigerait une source de reference appropriee."
+    },
+    {
+      "claim_id": "filtre-huile-bypass-pression-engine-tied",
+      "original_section": "## Fonctionnement",
+      "original_anchor": "la pression d'ouverture du by-pass est calibrée selon le moteur (spec d'origine)",
+      "source_slug": "filtron_oem_clapets_filtre_huile",
+      "disposition": "idee_presente_mauvais_rattachement",
+      "finding": "Reglage selon moteur dit dans le guide ; FILTRON ne donne pas cette preuve precise dans le passage capture.",
+      "next_action": "Reutiliser la difference de reglage decrite par MAHLE en bornant la formulation, sans pression numerique."
+    }
+  ]
+}

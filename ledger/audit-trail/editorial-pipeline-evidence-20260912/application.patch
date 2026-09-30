@@ -1,0 +1,288 @@
+diff --git a/scripts/cron/sync-rag-from-wiki.sh b/scripts/cron/sync-rag-from-wiki.sh
+index 1b827dc07..c8e51f713 100755
+--- a/scripts/cron/sync-rag-from-wiki.sh
++++ b/scripts/cron/sync-rag-from-wiki.sh
+@@ -44,7 +44,9 @@ log "=== sync-rag-from-wiki start ==="
+ 
+ # --- Sanity checks ---
+ for d in "$WIKI_PATH" "$RAG_PATH" "$APP_PATH"; do
+-  [ -d "$d/.git" ] || { log "ERROR: $d not a git repo"; exit 2; }
++  git -C "$d" rev-parse --is-inside-work-tree >/dev/null 2>&1 || {
++    log "ERROR: $d not a git repo"; exit 2;
++  }
+ done
+ [ -x "$SYNC_SCRIPT" ] || [ -r "$SYNC_SCRIPT" ] || {
+   log "ERROR: sync script not found: $SYNC_SCRIPT"; exit 2;
+@@ -63,10 +65,10 @@ log "[1/4] git pull wiki main"
+ cd "$WIKI_PATH"
+ WIKI_BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "detached")
+ if [ "$WIKI_BRANCH" != "main" ]; then
+-  log "WARN: wiki not on main (branch=$WIKI_BRANCH), skipping pull"
+-else
+-  git pull --ff-only origin main 2>&1 | tee -a "$LOG_FILE"
++  log "ERROR: wiki not on main (branch=$WIKI_BRANCH), aborting before mirror writes"
++  exit 3
+ fi
++git pull --ff-only origin main 2>&1 | tee -a "$LOG_FILE"
+ WIKI_SHA=$(git rev-parse --short HEAD)
+ log "  wiki HEAD: $WIKI_SHA"
+ 
+diff --git a/scripts/rag-sync/README.md b/scripts/rag-sync/README.md
+index 2b94e5a25..6b7367371 100644
+--- a/scripts/rag-sync/README.md
++++ b/scripts/rag-sync/README.md
+@@ -28,3 +28,22 @@ CI workflow (plan v3 §Étape 7, à activer) :
+ 
+ - ADR-031 §D20 — sync-from-wiki STRICT lit `wiki/exports/rag/` ONLY
+ - Plan v3 §Étape 5 Groupe C + §Étape 7 (workflow CI)
++
++## Contrat de provenance et de fraîcheur
++
++Le chemin source doit appartenir à `exports/rag/` du dépôt passé par `--wiki-repo`.
++Les chemins résolus des fichiers sont vérifiés avant toute copie ; un lien symbolique
++sortant du dépôt est refusé. Une source absente ou vide produit un échec observable.
++Un échec de copie conserve la date du dernier succès ; un échec d'écriture du manifest
++fait échouer la commande. Les fichiers déjà identiques restent inchangés.
++
++Le cron exige une source WIKI sur `main` avant de mettre à jour le miroir. Un checkout
++de travail doit être conservé et une source de synchronisation conforme préparée
++séparément. Ce contrôle ne reconstruit pas les exports et ne prouve pas leur fraîcheur
++par rapport aux fiches WIKI ; cette validation reste une étape distincte.
++
++Tests hors réseau et hors corpus réel :
++
++```bash
++python3 scripts/rag-sync/test_sync_wiki_exports_to_rag.py
++```
+diff --git a/scripts/rag-sync/sync-wiki-exports-to-rag.py b/scripts/rag-sync/sync-wiki-exports-to-rag.py
+index 3f492c9a9..8f8f8b623 100755
+--- a/scripts/rag-sync/sync-wiki-exports-to-rag.py
++++ b/scripts/rag-sync/sync-wiki-exports-to-rag.py
+@@ -48,33 +48,28 @@ def sha256_of(path: Path) -> str:
+     return h.hexdigest()
+ 
+ 
+-def assert_source_is_exports_rag(source: Path) -> None:
+-    """D20 garde-fou. Source path must end at `<wiki>/exports/rag/`. Reading from
+-    `<wiki>/wiki/<entity_type>/` directly is forbidden — that tree may contain
+-    draft fields, notes-internes, or sections that are not yet validated for
+-    consumption by Weaviate."""
+-    parts = source.resolve().parts
+-    if "exports" not in parts or "rag" not in parts:
++def assert_source_is_exports_rag(source: Path, wiki_repo: Path) -> None:
++    """D20: bind every source to the designated WIKI exports, including symlinks."""
++    expected = wiki_repo.resolve() / WIKI_EXPORTS_RAG_RELATIVE
++    try:
++        relative = source.resolve().relative_to(expected)
++    except ValueError:
+         raise SystemExit(
+-            f"D20 garde-fou: --source must be under <wiki>/exports/rag/. Got: {source}"
++            f"D20 garde-fou: source must be under {expected}. Got: {source}"
++        )
++    if "wiki" in relative.parts:
++        raise SystemExit(
++            f"D20 garde-fou: detected wiki/ inside exports/rag/: {source}"
+         )
+-    # Reject explicit wiki/<entity_type>/ paths even nested under exports.
+-    if "wiki" in parts:
+-        # exports/rag/wiki/... would mean someone tried to nest the canonical wiki
+-        # tree inside the export tree to bypass — fail loudly.
+-        wiki_index = parts.index("wiki")
+-        rag_index = parts.index("rag")
+-        if wiki_index > rag_index:
+-            raise SystemExit(
+-                f"D20 garde-fou: detected `wiki/` inside `exports/rag/` — "
+-                f"this would let unvalidated wiki/<entity_type>/ leak into RAG. {source}"
+-            )
+ 
+ 
+-def iter_export_files(source: Path) -> list[Path]:
+-    if not source.exists():
+-        return []
+-    return sorted(p for p in source.rglob("*") if p.is_file() and p.suffix in SUPPORTED_EXTS)
++def iter_export_files(source: Path, wiki_repo: Path) -> list[Path]:
++    # Validate the entire input before copying anything: a late escaping symlink
++    # must not leave a partially updated mirror.
++    files = sorted(p for p in source.rglob("*") if p.is_file() and p.suffix in SUPPORTED_EXTS)
++    for path in files:
++        assert_source_is_exports_rag(path, wiki_repo)
++    return files
+ 
+ 
+ def main() -> int:
+@@ -107,21 +102,20 @@ def main() -> int:
+ 
+     # D20 enforcement: source must be under <wiki>/exports/rag/. Even if the user
+     # passes --source pointing at wiki/wiki/<entity_type>/, we abort.
+-    assert_source_is_exports_rag(source)
++    assert_source_is_exports_rag(source, wiki_repo)
+ 
+     if not source.exists():
+         print(
+-            f"sync-from-wiki: nothing to do — source {source} does not exist yet "
+-            f"(ADR-031 Phase F.x will populate it)",
++            f"sync-from-wiki: source unavailable: {source}",
+             file=sys.stderr,
+         )
+-        return 0
++        return 1
+ 
+     target_root = rag_repo / RAG_KNOWLEDGE_RELATIVE
+-    files = iter_export_files(source)
++    files = iter_export_files(source, wiki_repo)
+     if not files:
+-        print(f"sync-from-wiki: 0 export files under {source}", file=sys.stderr)
+-        return 0
++        print(f"sync-from-wiki: no export files under {source}; mirror not refreshed", file=sys.stderr)
++        return 1
+ 
+     written = 0
+     skipped = 0
+@@ -160,8 +154,9 @@ def main() -> int:
+ 
+     # PR-E.2 — produit le manifest `.last-sync.json` lu par le runtime
+     # NestJS (RagMirrorFreshnessService) pour fail-fast / health endpoint.
+-    # Compte les fichiers présents par topic dans le mirror après sync.
+-    if args.apply:
++    # Compte les fichiers présents par topic après un sync intégralement réussi.
++    # Un échec ne doit jamais avancer la date du dernier succès.
++    if args.apply and not failed:
+         manifest_path = target_root / ".last-sync.json"
+         topic_counts: dict[str, int] = {}
+         for topic_dir in sorted(p for p in target_root.iterdir() if p.is_dir()):
+@@ -185,7 +180,8 @@ def main() -> int:
+             print(f"manifest written: {manifest_path}", file=sys.stderr)
+         except OSError as e:
+             print(f"manifest write FAILED: {e}", file=sys.stderr)
+-            # Le sync lui-même a réussi, ne pas faire échouer le run pour le manifest
++            # Freshness is part of the sync contract, not a best-effort signal.
++            return 1
+ 
+     return 1 if failed else 0
+ 
+diff --git a/scripts/rag-sync/test_sync_wiki_exports_to_rag.py b/scripts/rag-sync/test_sync_wiki_exports_to_rag.py
+new file mode 100644
+index 000000000..3bb4c2d0d
+--- /dev/null
++++ b/scripts/rag-sync/test_sync_wiki_exports_to_rag.py
+@@ -0,0 +1,120 @@
++"""Offline D20 and freshness regressions; all writes stay in temporary fixtures."""
++import importlib.util
++import json
++import os
++from pathlib import Path
++import sys
++import tempfile
++import unittest
++from unittest.mock import patch
++
++SCRIPT = Path(os.getenv('SYNC_SCRIPT_UNDER_TEST', str(Path(__file__).with_name('sync-wiki-exports-to-rag.py'))))
++spec = importlib.util.spec_from_file_location('wiki_sync', SCRIPT)
++sync = importlib.util.module_from_spec(spec)
++spec.loader.exec_module(sync)
++
++
++class SyncContractTests(unittest.TestCase):
++    def setUp(self):
++        self.tmp = tempfile.TemporaryDirectory()
++        self.addCleanup(self.tmp.cleanup)
++        self.root = Path(self.tmp.name)
++        self.wiki = self.root / 'wiki-repo'
++        self.exports = self.wiki / 'exports/rag'
++        self.exports.mkdir(parents=True)
++        self.rag = self.root / 'rag-repo'
++        self.mirror = self.rag / 'knowledge'
++        self.mirror.mkdir(parents=True)
++        self.manifest = self.mirror / '.last-sync.json'
++        self.manifest.write_text('{"synced_at":"previous-success"}\n')
++
++    def run_sync(self, source=None, apply=True):
++        args = ['sync', '--wiki-repo', str(self.wiki), '--rag-repo', str(self.rag)]
++        if source is not None:
++            args += ['--source', str(source)]
++        if apply:
++            args += ['--apply']
++        with patch.object(sys, 'argv', args):
++            return sync.main()
++
++    def add_export(self, relative='gammes/oil.md'):
++        p = self.exports / relative
++        p.parent.mkdir(parents=True, exist_ok=True)
++        p.write_text('fixture: validated export\n')
++        return p
++
++    def assert_rejected(self, source):
++        with self.assertRaises(SystemExit):
++            self.run_sync(source)
++        self.assertEqual(list(self.mirror.iterdir()), [self.manifest])
++        self.assertIn('previous-success', self.manifest.read_text())
++
++    def test_rejects_noncontiguous_export_path(self):
++        p = self.root / 'exports/unreviewed/rag'
++        p.mkdir(parents=True)
++        (p / 'unreviewed.md').write_text('raw')
++        self.assert_rejected(p)
++
++    def test_rejects_another_wiki_repository(self):
++        p = self.root / 'another-wiki/exports/rag'
++        p.mkdir(parents=True)
++        (p / 'unreviewed.md').write_text('raw')
++        self.assert_rejected(p)
++
++    def test_rejects_symlink_escape_before_any_copy(self):
++        self.add_export('a-valid.md')
++        outside = self.root / 'raw.md'
++        outside.write_text('raw')
++        (self.exports / 'z-escape.md').symlink_to(outside)
++        self.assert_rejected(self.exports)
++
++    def test_rejects_export_root_symlink(self):
++        self.exports.rmdir()
++        outside = self.root / 'unreviewed'
++        outside.mkdir()
++        (outside / 'raw.md').write_text('raw')
++        self.exports.symlink_to(outside, target_is_directory=True)
++        self.assert_rejected(self.exports)
++
++    def test_valid_export_and_unchanged_replay(self):
++        src = self.add_export()
++        self.assertEqual(self.run_sync(), 0)
++        dst = self.mirror / 'gammes/oil.md'
++        before = dst.stat().st_mtime_ns
++        with patch.object(sync.shutil, 'copy2', side_effect=AssertionError('unchanged file copied')):
++            self.assertEqual(self.run_sync(), 0)
++        self.assertEqual(dst.read_bytes(), src.read_bytes())
++        self.assertEqual(dst.stat().st_mtime_ns, before)
++        self.assertEqual(json.loads(self.manifest.read_text())['stats']['skipped'], 1)
++
++    def test_dry_run_writes_nothing(self):
++        self.add_export()
++        before = self.manifest.read_bytes()
++        self.assertEqual(self.run_sync(apply=False), 0)
++        self.assertEqual(list(self.mirror.iterdir()), [self.manifest])
++        self.assertEqual(self.manifest.read_bytes(), before)
++
++    def test_missing_exports_fail_without_refreshing(self):
++        self.exports.rmdir()
++        self.assertEqual(self.run_sync(), 1)
++        self.assertIn('previous-success', self.manifest.read_text())
++
++    def test_empty_exports_fail_without_refreshing(self):
++        self.assertEqual(self.run_sync(), 1)
++        self.assertIn('previous-success', self.manifest.read_text())
++
++    def test_failed_copy_cannot_refresh_success_timestamp(self):
++        self.add_export()
++        with patch.object(sync.shutil, 'copy2', side_effect=OSError('disk unavailable')):
++            self.assertEqual(self.run_sync(), 1)
++        self.assertIn('previous-success', self.manifest.read_text())
++
++    def test_failed_manifest_is_observable_failure(self):
++        self.add_export()
++        with patch.object(Path, 'write_text', side_effect=OSError('manifest unavailable')):
++            self.assertEqual(self.run_sync(), 1)
++        self.assertIn('previous-success', self.manifest.read_text())
++
++
++if __name__ == '__main__':
++    unittest.main()

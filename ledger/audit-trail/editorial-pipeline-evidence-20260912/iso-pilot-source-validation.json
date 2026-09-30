@@ -1,0 +1,74 @@
+{
+  "status": "VALIDATED_FOR_SCOPE_ONLY",
+  "scope": "Structure, provenance states, candidate protections and archive preservation; not factual approval",
+  "source_schema": "PASS",
+  "raw_ref_failures": [],
+  "raw_ref_warnings": [],
+  "raw_ref_interpretation": "to_capture legitimately skipped; no archive validation claimed",
+  "changed_claims": [
+    {
+      "claim_id": "filtre-huile-efficacite-iso-4548-12",
+      "section": "## Lire les références aux normes d'essai",
+      "text_anchor": "ISO 4548-12:2017 décrit un essai multipasse par comptage de particules, en régime stable.",
+      "source_slug": "iso_4548_12_2017_notice",
+      "evidence_type": "normative_standard_scope",
+      "confidence": "high",
+      "source_policy": "1_high",
+      "source_status": "pending_capture"
+    },
+    {
+      "claim_id": "filtre-huile-bypass-clapet-iso-4548-2",
+      "section": "## Lire les références aux normes d'essai",
+      "text_anchor": "ISO 4548-2:1997 concerne les essais des caractéristiques du clapet de dérivation",
+      "source_slug": "iso_4548_2_1997_notice",
+      "evidence_type": "normative_standard_scope",
+      "confidence": "high",
+      "source_policy": "1_high",
+      "source_status": "pending_capture"
+    },
+    {
+      "claim_id": "filtre-huile-anti-retour-iso-4548-9",
+      "section": "## Lire les références aux normes d'essai",
+      "text_anchor": "ISO 4548-9:2008 décrit la mesure d'efficacité des clapets anti-retour d'entrée ou de sortie",
+      "source_slug": "iso_4548_9_2008_notice",
+      "evidence_type": "normative_standard_scope",
+      "confidence": "high",
+      "source_policy": "1_high",
+      "source_status": "pending_capture"
+    }
+  ],
+  "anchor_errors_remaining": [
+    "entry[8].text_anchor absent de la prose de '## Symptômes & diagnostic' (claim_id=filtre-huile-bypass-huile-non-filtree)",
+    "entry[9].text_anchor absent de la prose de '## Marques & qualité' (claim_id=filtre-huile-trois-niveaux-qualite-oe-oes-equivalent)",
+    "entry[10].text_anchor absent de la prose de '## Marques & qualité' (claim_id=filtre-huile-oes-droit-rechange)"
+  ],
+  "coverage_entries": 14,
+  "captured_entries": 8,
+  "pending_entries": 6,
+  "verified_entries": 0,
+  "new_captures": 0,
+  "existing_raw_archive_hashes": {
+    "filtron-eu-wl-filtre-a-huile-clapets-b8431d6f.md": "809c3efd864a3be850c5e63ba2d400064b61dcd4090342b171d45ceba11c0178",
+    "mahle-aftermarket-com-wl-filtre-a-huile-conception-media-fa488c04.md": "8358e439faddebc32395175c9fb161ee7d9abce755ead940aeadb7b6ddc5f589"
+  },
+  "reused_test_scope_hashes_unchanged": {
+    "_scripts/check-coverage-map.py": true,
+    "_scripts/tests/test_check_coverage_map.py": true,
+    "_scripts/tests/requirements-dev.txt": true
+  },
+  "protected_fields_unchanged": [
+    "id",
+    "slug",
+    "review_status",
+    "reviewed_by",
+    "reviewed_at",
+    "exportable",
+    "diagnostic_relations",
+    "confidence_score"
+  ],
+  "capture_attempts": {
+    "2": "HTTP403",
+    "9": "not attempted after first notice failure",
+    "12": "not attempted after first notice failure"
+  }
+}

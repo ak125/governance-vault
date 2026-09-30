@@ -1,0 +1,31 @@
+FAIL src/modules/seo-projection/seo-projection-writer-role-scope.test.ts
+  ● Test suite failed to run
+
+    [96msrc/modules/seo-projection/seo-projection-writer-role-scope.test.ts[0m:[93m793[0m:[93m19[0m - [91merror[0m[90m TS2339: [0mProperty 'rolesBlocked' does not exist on type '{ runId: string; entitiesWritten: number; rolesWritten: number; snapshot: unknown; }'.
+
+    [7m793[0m     expect(result.rolesBlocked).toBe(1);
+    [7m   [0m [91m                  ~~~~~~~~~~~~[0m
+
+PASS src/modules/seo-projection/seo-projection-writer.test.ts
+  ● Console
+
+    console.log
+      ◇ injected env (0) from .env.test // tip: ◈ encrypted .env [www.dotenvx.com]
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+PASS src/modules/seo-projection/seo-projection-snapshot.test.ts
+  ● Console
+
+    console.log
+      ◇ injected env (0) from .env.test // tip: ⌘ suppress logs { quiet: true }
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+
+Test Suites: 1 failed, 2 passed, 3 total
+Tests:       15 passed, 15 total
+Snapshots:   0 total
+Time:        10.295 s, estimated 11 s
+Ran all test suites within paths "src/modules/seo-projection/seo-projection-writer-role-scope.test.ts", "src/modules/seo-projection/seo-projection-writer.test.ts", "src/modules/seo-projection/seo-projection-snapshot.test.ts".
+EXIT_CODE=1

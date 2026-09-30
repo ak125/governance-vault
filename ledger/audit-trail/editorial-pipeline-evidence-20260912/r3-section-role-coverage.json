@@ -1,0 +1,46 @@
+{
+  "scope_requested": "Continuer les corrections de qualite et de structure des pages R, en respectant les details R5 integres dans R3.",
+  "scope_actually_scanned": "Lectures ciblees du validateur de roles, raccordement audit R3 et tests ; inventaire ci-dessous limite aux cinq fichiers du lot relus/modifies, non au depot entier.",
+  "files_read_count": 5,
+  "files_read": [
+    "backend/src/modules/seo/validation/page-role-validator.service.ts",
+    "backend/src/modules/admin/services/conseil-quality-scorer.service.ts",
+    "backend/src/modules/admin/controllers/internal-seo-audit.r3.test.ts",
+    "backend/src/modules/seo/validation/page-role-sections.test.ts",
+    "backend/src/config/keyword-plan.constants.ts"
+  ],
+  "excluded_paths": [
+    "contenus et base partages",
+    "runtime et infrastructure en ecriture",
+    "canon et miroirs verrouilles"
+  ],
+  "unscanned_zones": [
+    "HTML public de toutes pages",
+    "inventaire exhaustif des redirections",
+    "structure et qualite factuelle de tous roles R"
+  ],
+  "corrections_proposed": [
+    "Supprimer la demande obsolete de lien R5 dans R3/conseils",
+    "Appliquer les controles diagnostiques existants dans S2_DIAG uniquement",
+    "Raccorder les erreurs de role aux sections a ameliorer et a canSkip"
+  ],
+  "corrections_applied": [
+    "Cinq fichiers dans le candidat isole, suivant demandes explicites de correction et poursuite de l owner ; pas de modification des contenus partages"
+  ],
+  "validation_executed": [
+    "135 tests PASS / 7 suites",
+    "ESLint cible cinq fichiers : exit 0, journal vide",
+    "git diff --check puis staged diff --check sur les cinq fichiers : PASS",
+    "origin/main 466cc15ce9b385a61503cc0224f40bec700ec41a : aucune difference upstream depuis HEAD dans les fichiers existants du lot"
+  ],
+  "remaining_unknowns": [
+    "validatePageWithHtml et consommateurs globaux forbidden-overlap non rendus sensibles aux sections",
+    "Controles lexicaux sur sections stockees, sans validation DOM, faits, preuves, table ni ancre",
+    "Aucun test DB partagee, typecheck global, CI ou deploiement",
+    "Priorite numerique non reponderee ; role_review et priority_fixes signalent le travail"
+  ],
+  "final_status": "PARTIAL_COVERAGE",
+  "bounded_correction_verdict": "VALIDATED_FOR_SCOPE_ONLY",
+  "candidate_head": "0c31807c8453c251d70c7575eafcc973f04eed14",
+  "origin_main": "466cc15ce9b385a61503cc0224f40bec700ec41a"
+}

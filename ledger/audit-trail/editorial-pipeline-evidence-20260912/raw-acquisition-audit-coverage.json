@@ -1,0 +1,42 @@
+{
+  "scope_requested": "Collecte RAW performante et riche pour WIKI et consommateurs R/RAG",
+  "scope_actually_scanned": "Trois fichiers du chemin natif candidat de capture HTML et diagnostic WIKI",
+  "files_read_count": 3,
+  "files_read": [
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/_scripts/auto-capture-runner.py",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/_scripts/capture_http.py",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/raw_to_wiki_content_loop_pilot.py"
+  ],
+  "read_depth": "Extraits cibles; symboles et empreintes releves sans execution du code",
+  "excluded_paths": [
+    "Autres collecteurs et planificateurs",
+    "Corpus integral",
+    "Application et DB",
+    "Runtime actif",
+    "Schemas canon de decouverte non reevalues dans ce lot"
+  ],
+  "unscanned_zones": [
+    "Decouverte disponible ailleurs",
+    "Debit et cout reseau mesures",
+    "Qualite semantique globale",
+    "Pilotage de rafraichissement externe"
+  ],
+  "corrections_proposed": [
+    "Relier besoin documentaire, decouverte source et qualification des passages",
+    "Distinguer disponibilite capture et manque resolu",
+    "Revoir indicateur stage_raw obsolete en reutilisant preuves natives",
+    "Introduire revalidation HTTP conditionnelle avec archives persistantes verifiees",
+    "Examiner index de hash existant avant optimisation du scan par capture"
+  ],
+  "corrections_applied": [],
+  "validation_executed": [
+    "Lecture source native et empreintes SHA256",
+    "Verification absence de modifications non stagees RAW/WIKI"
+  ],
+  "remaining_unknowns": [
+    "Faisabilite contractuelle de chaque evolution",
+    "Performances mesurees avant/apres",
+    "Preuves requises pour chaque role consommateur"
+  ],
+  "final_status": "PARTIAL_COVERAGE"
+}

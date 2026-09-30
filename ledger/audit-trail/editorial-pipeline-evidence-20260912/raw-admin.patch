@@ -1,0 +1,363 @@
+diff --git a/_scripts/auto-capture-runner.py b/_scripts/auto-capture-runner.py
+index fe0240f..4a5b2ac 100644
+--- a/_scripts/auto-capture-runner.py
++++ b/_scripts/auto-capture-runner.py
+@@ -31,6 +31,8 @@ import os
+ import re
+ import sys
+ import tempfile
++import subprocess
++import uuid
+ import time
+ from datetime import datetime, timezone
+ from html.parser import HTMLParser
+@@ -292,33 +294,156 @@ def capture_one(url: str, item: dict, al: dict, *, commit: bool, rate_limit: flo
+         rep.update(action="ERROR", detail="capture_rejected_by_gate_j", reasons=reasons)
+         return rep
+ 
+-    # Publish a fully written file without ever replacing an existing source.
+-    # The hard link is atomic and fails if a competing writer created out_path.
+-    staging_path = None
+     try:
+-        rel_dir.mkdir(parents=True, exist_ok=True)
+-        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=rel_dir,
+-                                         prefix=".capture-", suffix=".tmp", delete=False) as staged:
+-            staging_path = Path(staged.name)
+-            staged.write(candidate)
+-            staged.flush()
+-            os.fsync(staged.fileno())
+-        os.link(staging_path, out_path)
++        publish_append_only(out_path, candidate)
+     except FileExistsError:
+         rep.update(action="ERROR", detail="source_path_exists:no_overwrite")
+         return rep
+     except OSError as e:
+         rep.update(action="ERROR", detail=f"capture_write_failed:{type(e).__name__}")
+         return rep
+-    finally:
+-        if staging_path is not None:
+-            staging_path.unlink()
+     rep.update(action="CAPTURED", detail=f"{raw_path} ({status}, {len(body)}c)",
+                raw_path=raw_path, content_hash=content_hash, status=status,
+                source_type=source_type, license_status=license_status, captured_at=captured_at)
+     return rep
+ 
+ 
++
++def publish_append_only(out_path: Path, candidate: str) -> None:
++    """Existing atomic publication, shared by URL capture and submitted text."""
++    staging_path = None
++    try:
++        out_path.parent.mkdir(parents=True, exist_ok=True)
++        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=out_path.parent,
++                                         prefix=".capture-", suffix=".tmp", delete=False) as staged:
++            staging_path = Path(staged.name)
++            staged.write(candidate)
++            staged.flush()
++            os.fsync(staged.fileno())
++        os.link(staging_path, out_path)
++    finally:
++        if staging_path is not None:
++            staging_path.unlink()
++
++
++def check_submission_secrets(candidate: str) -> None:
++    """Reuse Gate E's gitleaks engine before durable persistence, fail closed."""
++    with tempfile.TemporaryDirectory(prefix="raw-submission-check-") as tmp:
++        Path(tmp, "candidate.md").write_text(candidate, encoding="utf-8")
++        result = subprocess.run(
++            [os.environ.get("RAW_GITLEAKS_BIN", "gitleaks"), "detect", "--no-git",
++             "--source", tmp, "--redact", "--no-banner"],
++            capture_output=True, timeout=15, check=False,
++        )
++        if result.returncode == 1:
++            raise ValueError("submission_secret_scan_refused")
++        if result.returncode:
++            raise RuntimeError("submission_secret_scan_unavailable")
++
++
++def refresh_submission_manifests() -> None:
++    """The native generator owns inventory/checksums/lineage; no parallel manifest."""
++    result = subprocess.run([sys.executable, str(REPO_ROOT / "_scripts/regen-manifests.py"), "--fix"],
++                            cwd=REPO_ROOT, capture_output=True, timeout=60, check=False)
++    if result.returncode:
++        raise RuntimeError("submission_manifest_refresh_failed")
++
++
++def ingest_admin_submission(doc: dict, *, commit: bool) -> dict:
++    """Receive declared text as recycled/unverified, never as a verified URL fetch.
++
++    Client decisions and truth levels are not accepted by this producer. Same
++    declared source + exact body yields the same immutable receipt; a changed
++    body is a new version. Native manifests must succeed before RECEIVED.
++    """
++    import jsonschema
++    import fcntl
++    from urllib.parse import urlsplit, urlunsplit
++
++    allowed = {"title", "content", "source", "source_url", "domain", "category"}
++    if not isinstance(doc, dict) or set(doc) - allowed:
++        raise ValueError("invalid_submission_fields")
++    for key in ("title", "content", "source"):
++        if not isinstance(doc.get(key), str) or not doc[key].strip():
++            raise ValueError(f"submission_missing_{key}")
++    if any(not isinstance(value, str) or "\x00" in value for value in doc.values()):
++        raise ValueError("invalid_submission_value")
++    if len(json.dumps(doc, ensure_ascii=False).encode("utf-8")) > 1024 * 1024:
++        raise ValueError("submission_too_large")
++    if any(pat.search(json.dumps(doc, ensure_ascii=False)) for pat in _gates._AC_PII_PATTERNS):
++        raise ValueError("submission_possible_pii")
++    source_key = doc["source"].strip()
++    if doc.get("source_url"):
++        parsed = urlsplit(doc["source_url"])
++        if parsed.scheme != "https" or not parsed.hostname or parsed.username is not None or parsed.password is not None:
++            raise ValueError("invalid_declared_source_url")
++        port = parsed.port
++        host = parsed.hostname.lower()
++        if ":" in host:
++            host = "[" + host + "]"
++        netloc = host if port in (None, 443) else f"{host}:{port}"
++        source_key = urlunsplit(("https", netloc, parsed.path or "/", parsed.query, ""))
++    content_hash = "sha256:" + hashlib.sha256(doc["content"].encode("utf-8")).hexdigest()
++    receipt_id = hashlib.sha256(json.dumps([source_key, content_hash], ensure_ascii=False).encode("utf-8")).hexdigest()
++    raw_path = f"recycled/admin-submissions/{receipt_id}.md"
++    out_path = REPO_ROOT / raw_path
++    if not out_path.resolve().is_relative_to(REPO_ROOT.resolve() / "recycled" / "admin-submissions"):
++        raise ValueError("submission_path_escape")
++    now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
++    fm = {
++        "title": doc["title"], "source_type": "admin_submission", "truth_level": "L4",
++        "verification_status": "to_verify", "created_at": now, "updated_at": now,
++        "origin_repo": "nestjs-remix-monorepo", "origin_path": "api/rag/admin/cleanup/apply",
++        "origin_type": "admin_submission", "source_level": "secondary", "trust_level": "to_verify",
++        "status": "recycled", "can_feed_wiki": True, "can_feed_content_directly": False,
++        "can_feed_chatbot_directly": False, "recycled_at": now[:10],
++        "doc_id": str(uuid.uuid5(uuid.NAMESPACE_URL, "admin-submission:" + receipt_id)),
++        "content_hash": content_hash, "source_identity_hash": "sha256:" + hashlib.sha256(source_key.encode("utf-8")).hexdigest(),
++        "declared_source": doc["source"],
++        "source_url_verified": False, "acquisition_method": "submitted_text",
++    }
++    if doc.get("source_url"):
++        fm["source_url"] = source_key
++    for key in ("domain", "category"):
++        if key in doc:
++            fm["declared_" + key] = doc[key]
++    schema = json.loads(_gates.RECYCLED_FM_SCHEMA.read_text(encoding="utf-8"))
++    jsonschema.Draft202012Validator.check_schema(schema)
++    jsonschema.Draft202012Validator(schema).validate(fm)
++    candidate = build_frontmatter(fm) + "\n" + doc["content"]
++    receipt = {"id": receipt_id, "destination": "raw", "raw_path": raw_path,
++               "content_hash": content_hash, "status": "to_verify", "retrievable": False,
++               "duplicate": False, "action": "PLAN"}
++    if not commit:
++        return receipt
++    check_submission_secrets(candidate)
++    # Lock only this producer's receipt/manifest sequence. Other historical
++    # writers still need coordination; this is not a whole-repository transaction.
++    lock_path = subprocess.run(["git", "-C", str(REPO_ROOT), "rev-parse", "--git-path", "raw-admin-acquisition.lock"],
++                               capture_output=True, text=True, timeout=5, check=True).stdout.strip()
++    lock = Path(lock_path)
++    if not lock.is_absolute():
++        lock = REPO_ROOT / lock
++    with lock.open("a") as held:
++        fcntl.flock(held, fcntl.LOCK_EX | fcntl.LOCK_NB)
++        if out_path.exists():
++            existing = out_path.read_text(encoding="utf-8")
++            match = _gates.FRONTMATTER_RE.match(existing)
++            if not match or existing[len(match.group(0)):].removeprefix("\n") != doc["content"]:
++                raise ValueError("submission_receipt_collision")
++            old = _gates._split_frontmatter(existing)
++            if old.get("content_hash") != content_hash or old.get("doc_id") != fm["doc_id"]:
++                raise ValueError("submission_receipt_collision")
++            receipt["duplicate"] = True
++        else:
++            publish_append_only(out_path, candidate)
++        # On failure preserve immutable source. Retrying the same request repairs
++        # its manifests before returning success, never creates another source.
++        refresh_submission_manifests()
++    receipt["action"] = "RECEIVED"
++    return receipt
++
++
+ def update_worklist_item(wid: str, *, status: str, source: dict, capture: dict) -> bool:
+     """Bascule l'item <wid> de la worklist (édition ligne par clé, formatage/commentaires
+     préservés) puis RE-VALIDE contre le schema worklist — revert si invalide. Idempotent
+@@ -372,14 +497,32 @@ def update_worklist_item(wid: str, *, status: str, source: dict, capture: dict)
+ 
+ def main() -> int:
+     ap = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
+-    ap.add_argument("--item", required=True, help="id d'un item de ingestion-worklist.yaml")
++    ap.add_argument("--item", help="id d'un item de ingestion-worklist.yaml")
+     ap.add_argument("--url", help="URL unique à capturer")
+     ap.add_argument("--urls-file", help="fichier d'URLs (une par ligne) à capturer en lot")
+     ap.add_argument("--plan", action="store_true", help="OFFLINE (défaut si --commit absent)")
+     ap.add_argument("--commit", action="store_true", help="LIVE : robots + fetch + écriture (sinon plan)")
+     ap.add_argument("--rate-limit", type=float, default=DEFAULT_RATE_LIMIT_S)
+     ap.add_argument("--json", action="store_true")
++    ap.add_argument("--submission-stdin", action="store_true", help="Receive declared admin text as recycled RAW (JSON stdin, no network)")
+     args = ap.parse_args()
++    if args.submission_stdin:
++        if args.item or args.url or args.urls_file or (args.plan and args.commit):
++            ap.error("--submission-stdin cannot be combined with URL capture arguments")
++        try:
++            raw_input = sys.stdin.buffer.read(1024 * 1024 + 1)
++            if len(raw_input) > 1024 * 1024:
++                raise ValueError("submission_too_large")
++            result = ingest_admin_submission(json.loads(raw_input), commit=args.commit)
++        except Exception as exc:
++            # Do not return source text, scanner findings, process args or secrets.
++            result = {"action": "ERROR", "destination": "raw", "error": type(exc).__name__}
++            print(json.dumps(result))
++            return 1
++        print(json.dumps(result, ensure_ascii=False))
++        return 0
++    if not args.item:
++        ap.error("--item is required for URL capture")
+ 
+     if not WORKLIST_FILE.exists():
+         _fatal(f"worklist absente: {WORKLIST_FILE}")
+diff --git a/_scripts/tests/test_admin_submission.py b/_scripts/tests/test_admin_submission.py
+new file mode 100644
+index 0000000..3dabe36
+--- /dev/null
++++ b/_scripts/tests/test_admin_submission.py
+@@ -0,0 +1,139 @@
++"""RAW admin text intake: real schema, manifests and append-only files in temp git."""
++import importlib.util
++import json
++import shutil
++import subprocess
++from pathlib import Path
++
++import pytest
++
++ROOT = Path(__file__).parents[2]
++
++
++@pytest.fixture
++def producer(tmp_path, monkeypatch):
++    # Load code from a disposable copy so the native manifest generator also runs
++    # against fixtures only. No corpus or Git remote is accessed.
++    shutil.copytree(ROOT / '_scripts', tmp_path / '_scripts', ignore=shutil.ignore_patterns('__pycache__'))
++    shutil.copytree(ROOT / '_schemas', tmp_path / '_schemas')
++    (tmp_path / 'manifests').mkdir()
++    subprocess.run(['git', 'init', '-q', str(tmp_path)], check=True)
++    spec = importlib.util.spec_from_file_location('submission_runner', tmp_path / '_scripts/auto-capture-runner.py')
++    runner = importlib.util.module_from_spec(spec)
++    spec.loader.exec_module(runner)
++    monkeypatch.setattr(runner, 'check_submission_secrets', lambda _: None)
++    return runner, tmp_path
++
++
++def document(**extra):
++    return {'title': 'Entretien du filtre', 'content': 'Texte soumis : remplacer le filtre selon le plan du constructeur.\n',
++            'source': 'manual/filtre', 'source_url': 'https://manufacturer.example/filtre', **extra}
++
++
++def test_submission_keeps_body_and_declared_provenance_without_authority(producer):
++    r, root = producer
++    doc = document()
++    result = r.ingest_admin_submission(doc, commit=True)
++    assert result['action'] == 'RECEIVED'
++    assert result['status'] == 'to_verify'
++    assert result['retrievable'] is False
++    text = (root / result['raw_path']).read_text()
++    fm = r._gates._split_frontmatter(text)
++    assert text.endswith(doc['content'])
++    assert fm['truth_level'] == 'L4'
++    assert fm['source_url_verified'] is False
++    assert fm['origin_type'] == 'admin_submission'
++    assert fm['can_feed_chatbot_directly'] is False
++    assert fm['can_feed_content_directly'] is False
++    # The actual Gate A and generator check consume the persisted bytes.
++    assert r._gates.gate_recycled_frontmatter() == ([], 1)
++    check = subprocess.run(['python3', str(root / '_scripts/regen-manifests.py'), '--check'], capture_output=True)
++    assert check.returncode == 0, check.stderr
++    assert result['raw_path'] in json.loads((root / 'manifests/checksums.json').read_text())
++
++
++def test_same_canonical_url_and_body_preserve_receipt_and_file(producer):
++    r, root = producer
++    first = r.ingest_admin_submission(document(source_url='https://MANUFACTURER.example:443/filtre#one'), commit=True)
++    path = root / first['raw_path']
++    before, stamp = path.read_bytes(), path.stat().st_mtime_ns
++    second = r.ingest_admin_submission(document(source_url='https://manufacturer.example/filtre#two'), commit=True)
++    assert second['id'] == first['id']
++    assert second['duplicate'] is True
++    assert path.read_bytes() == before and path.stat().st_mtime_ns == stamp
++    assert len(list((root / 'recycled').rglob('*.md'))) == 1
++
++
++def test_changed_body_creates_immutable_new_version(producer):
++    r, root = producer
++    first = r.ingest_admin_submission(document(), commit=True)
++    before = (root / first['raw_path']).read_bytes()
++    second = r.ingest_admin_submission(document(content='Autre texte technique.'), commit=True)
++    assert second['id'] != first['id']
++    assert (root / first['raw_path']).read_bytes() == before
++    assert len(list((root / 'recycled').rglob('*.md'))) == 2
++
++
++@pytest.mark.parametrize('update', [
++    {'truth_level': 'L1'}, {'decision': {'proposed': {'retrievable': True}}},
++    {'content': ''}, {'content': 'person@example.com'}, {'source_url': 'http://example.com'},
++    {'source_url': 'https://user:pass@example.com'}, {'title': None},
++])
++def test_invalid_or_authority_bearing_submission_never_written(update, producer):
++    r, root = producer
++    with pytest.raises((ValueError, TypeError)):
++        r.ingest_admin_submission(document(**update), commit=True)
++    assert not (root / 'recycled').exists()
++
++
++def test_missing_schema_and_secret_scan_failure_prevent_write(producer, monkeypatch):
++    r, root = producer
++    with monkeypatch.context() as patcher:
++        patcher.setattr(r._gates, 'RECYCLED_FM_SCHEMA', root / 'absent.json')
++        with pytest.raises(FileNotFoundError):
++            r.ingest_admin_submission(document(), commit=True)
++    monkeypatch.setattr(r, 'check_submission_secrets', lambda _: (_ for _ in ()).throw(ValueError('secret')))
++    with pytest.raises(ValueError):
++        r.ingest_admin_submission(document(), commit=True)
++    assert not (root / 'recycled').exists()
++
++
++def test_failed_manifest_refresh_never_reports_success_and_retry_repairs(producer, monkeypatch):
++    r, root = producer
++    with monkeypatch.context() as patcher:
++        patcher.setattr(r, 'refresh_submission_manifests', lambda: (_ for _ in ()).throw(ValueError('manifest failed')))
++        with pytest.raises(ValueError):
++            r.ingest_admin_submission(document(), commit=True)
++    assert len(list((root / 'recycled').rglob('*.md'))) == 1
++    repaired = r.ingest_admin_submission(document(), commit=True)
++    assert repaired['action'] == 'RECEIVED' and repaired['duplicate'] is True
++    assert repaired['raw_path'] in json.loads((root / 'manifests/checksums.json').read_text())
++
++
++def test_plan_is_offline_and_does_not_write(producer, monkeypatch):
++    r, root = producer
++    monkeypatch.setattr(r, 'check_submission_secrets', lambda _: pytest.fail('scanner in plan'))
++    assert r.ingest_admin_submission(document(), commit=False)['action'] == 'PLAN'
++    assert not (root / 'recycled').exists()
++    assert not list((root / 'manifests').iterdir())
++
++
++def test_symlink_escape_and_receipt_collision_refused(producer):
++    r, root = producer
++    result = r.ingest_admin_submission(document(), commit=False)
++    (root / 'recycled').mkdir()
++    (root / 'escape').mkdir()
++    (root / 'recycled/admin-submissions').symlink_to(root / 'escape', target_is_directory=True)
++    with pytest.raises(ValueError, match='path_escape'):
++        r.ingest_admin_submission(document(), commit=True)
++    assert not list((root / 'escape').iterdir())
++
++
++def test_busy_producer_lock_prevents_second_writer(producer):
++    import fcntl
++    r, root = producer
++    with (root / '.git/raw-admin-acquisition.lock').open('a') as held:
++        fcntl.flock(held, fcntl.LOCK_EX | fcntl.LOCK_NB)
++        with pytest.raises(BlockingIOError):
++            r.ingest_admin_submission(document(), commit=True)
++    assert not (root / 'recycled').exists()

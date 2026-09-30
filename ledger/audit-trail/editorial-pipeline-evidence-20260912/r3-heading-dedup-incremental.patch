@@ -1,0 +1,218 @@
+--- a/backend/src/modules/admin/services/keyword-plan-gates.service.ts
++++ b/backend/src/modules/admin/services/keyword-plan-gates.service.ts
+@@ -13,6 +13,7 @@
+  */
+ 
+ import { Injectable, Logger } from '@nestjs/common';
++import { normalizeSeoText } from '@repo/seo-roles';
+ import { hasDeclaredSourceReferences } from '../../blog/utils/source-provenance.util';
+ import {
+   type GateResult,
+@@ -837,15 +838,29 @@
+     fixes: PriorityFix[];
+   } {
+     const paragraphMap = new Map<string, ConseilSectionRow>();
++    const headingMap = new Map<string, ConseilSectionRow>();
+     const affectedSections = new Map<string, ConseilSectionRow>();
+     let dupCount = 0;
++    let headingDupCount = 0;
+ 
+     for (const row of sections) {
++      // Compare declared section headings, not repeated labels from navigation/TOC.
++      const heading = row.title ? normalizeSeoText(row.title) : '';
++      if (heading) {
++        const existing = headingMap.get(heading);
++        if (existing && existing.section_type !== row.section_type) {
++          headingDupCount++;
++          affectedSections.set(existing.section_type, existing);
++          affectedSections.set(row.section_type, row);
++        } else if (!existing) {
++          headingMap.set(heading, row);
++        }
++      }
+       if (!row.content) continue;
+       const text = this.stripHtml(row.content);
+       const paragraphs = text
+         .split(/\.\s+/)
+-        .map((p) => p.trim().toLowerCase())
++        .map((p) => normalizeSeoText(p))
+         .filter((p) => p.length > 40);
+ 
+       for (const p of paragraphs) {
+@@ -864,11 +879,11 @@
+     return {
+       result: {
+         gate: 'GA3_CROSS_SECTION_DEDUP',
+-        status: dupCount === 0 ? 'pass' : 'warn',
++        status: dupCount === 0 && headingDupCount === 0 ? 'pass' : 'warn',
+         message:
+-          dupCount === 0
+-            ? 'No duplicate paragraphs across sections'
+-            : `${dupCount} duplicate paragraph(s) found across sections`,
++          dupCount === 0 && headingDupCount === 0
++            ? 'No duplicate detected in supplied paragraphs or declared headings across sections'
++            : `${dupCount} duplicate paragraph(s), ${headingDupCount} duplicate heading(s) found across sections`,
+       },
+       fixes: [...affectedSections.values()].map((row) => ({
+         section: row.section_type,
+@@ -1017,6 +1032,8 @@
+ 
+ export interface ConseilSectionRow {
+   section_type: string;
++  /** Declared section title; omitted by callers that only supply body text. */
++  title?: string | null;
+   quality_score: number | null;
+   content_len: number | null;
+   content?: string | null;
+--- a/backend/src/modules/admin/services/conseil-quality-scorer.service.ts
++++ b/backend/src/modules/admin/services/conseil-quality-scorer.service.ts
+@@ -71,6 +71,7 @@
+ const AuditSectionSchema = z.object({
+   sgc_id: z.union([z.string(), z.number()]),
+   sgc_section_type: z.string().nullable(),
++  sgc_title: z.string().nullable(),
+   sgc_content: z.string().nullable(),
+   sgc_sources: z.string().nullable(),
+   sgc_quality_score: z.number().nullable(),
+@@ -101,7 +102,7 @@
+     const { data, error, count } = await this.client
+       .from('__seo_gamme_conseil')
+       .select(
+-        'sgc_id, sgc_section_type, sgc_content, sgc_sources, sgc_quality_score',
++        'sgc_id, sgc_section_type, sgc_title, sgc_content, sgc_sources, sgc_quality_score',
+         { count: 'exact' },
+       )
+       .eq('sgc_pg_id', pgId)
+@@ -132,6 +133,7 @@
+         return {
+           rowId: String(row.sgc_id),
+           sectionType: section,
++          title: row.sgc_title,
+           storedScore: row.sgc_quality_score,
+           score: null,
+           penalties: [],
+@@ -143,6 +145,7 @@
+       const result = this.scoreSection(section, content, row.sgc_sources);
+       auditRows.push({
+         section_type: section,
++        title: row.sgc_title,
+         quality_score: result.score,
+         content_len: this.stripHtml(content).length,
+         content,
+@@ -151,6 +154,7 @@
+       return {
+         rowId: String(row.sgc_id),
+         sectionType: section,
++        title: row.sgc_title,
+         storedScore: row.sgc_quality_score,
+         ...result,
+       };
+--- a/backend/src/modules/admin/services/keyword-plan-gates.dedup.test.ts
++++ b/backend/src/modules/admin/services/keyword-plan-gates.dedup.test.ts
+@@ -103,3 +103,62 @@
+     expect(gates.shouldSkipGamme(report)).toBe(true);
+   });
+ });
++
++describe('GA3 titles and normalized text', () => {
++  it.each(['symptomes', ' SYMPTÔMES ! ', 'Sympto\u0302mes'])(
++    'detects Symptômes / %s across distinct sections',
++    (variant) => {
++      const sections = rows();
++      Object.assign(sections[0], { title: 'Symptômes' });
++      Object.assign(sections[1], { title: variant });
++      const before = JSON.stringify(sections);
++      const report = gates.auditFromSections(sections);
++      expect(report.gate_report?.GA3_CROSS_SECTION_DEDUP.status).toBe('warn');
++      expect(report.gate_report?.GA3_CROSS_SECTION_DEDUP.message).toContain(
++        'heading',
++      );
++      expect(report.sections_to_improve.sort()).toEqual(['S1', 'S2']);
++      expect(gates.shouldSkipGamme(report)).toBe(false);
++      expect(JSON.stringify(sections)).toBe(before);
++    },
++  );
++
++  it('detects accent and whitespace variants in repeated paragraphs', () => {
++    const sections = rows();
++    sections[0].content =
++      'Le contrôle précis du véhicule nécessite une vérification documentée avant toute intervention';
++    sections[1].content =
++      'LE CONTROLE PRECIS DU VEHICULE   NECESSITE UNE VERIFICATION DOCUMENTEE AVANT TOUTE INTERVENTION';
++    expect(
++      gates.auditFromSections(sections).sections_to_improve.sort(),
++    ).toEqual(['S1', 'S2']);
++  });
++
++  it('does not equate different headings or absent headings', () => {
++    const sections = rows();
++    Object.assign(sections[0], { title: 'Symptômes au démarrage' });
++    Object.assign(sections[1], { title: 'Symptômes au freinage' });
++    Object.assign(sections[2], { title: '   ' });
++    Object.assign(sections[3], { title: null });
++    expect(
++      gates.auditFromSections(sections).gate_report?.GA3_CROSS_SECTION_DEDUP
++        .status,
++    ).toBe('pass');
++  });
++});
++
++it('keeps S2 and the integrated S2_DIAG for review when both have the same heading', () => {
++  const sections = rows();
++  const symptoms = sections.find((section) => section.section_type === 'S2')!;
++  symptoms.title = 'Symptômes';
++  sections.push({
++    ...symptoms,
++    section_type: 'S2_DIAG',
++    title: 'symptomes',
++    content: 'Un autre texte de diagnostic',
++  });
++  const report = gates.auditFromSections(sections);
++  expect(report.sections_to_improve.sort()).toEqual(['S2', 'S2_DIAG']);
++  expect(report.sections_to_create).toEqual([]);
++  expect(gates.shouldSkipGamme(report)).toBe(false);
++});
+--- a/backend/src/modules/admin/controllers/internal-seo-audit.r3.test.ts
++++ b/backend/src/modules/admin/controllers/internal-seo-audit.r3.test.ts
+@@ -18,6 +18,7 @@
+   PACK_DEFINITIONS.standard.requiredSections.map((section, i) => ({
+     sgc_id: String(i + 1),
+     sgc_section_type: section as string,
++    sgc_title: `Titre ${section}`,
+     sgc_content: 'banane '.repeat(60).trim(),
+     sgc_sources: '["reference non verifiee"]',
+     sgc_quality_score: 100,
+@@ -134,6 +135,33 @@
+       ).length,
+     ).toBe(stored.length);
+   });
++  it('reads real section titles and routes normalized title duplicates to both sections', async () => {
++    stored.forEach((row) => {
++      row.sgc_content = `Texte distinct ${row.sgc_section_type}`;
++    });
++    stored[0].sgc_title = 'Symptômes';
++    stored[1].sgc_title = 'symptomes';
++    const response = await audit().expect(200);
++    const sectionRead = requests.find((url) =>
++      url.pathname.endsWith('/__seo_gamme_conseil'),
++    );
++    expect(sectionRead?.searchParams.get('select')?.split(',')).toContain(
++      'sgc_title',
++    );
++    const fixes = response.body.data.audit.priority_fixes.filter(
++      (f: { issue: string }) => f.issue === 'duplicate_content',
++    );
++    expect(fixes.map((f: { section: string }) => f.section).sort()).toEqual([
++      'S1',
++      'S2',
++    ]);
++    expect(response.body.data.sections[0].title).toBe('Symptômes');
++    expect(response.body.data.canSkip).toBe(false);
++  });
++  it('does not certify an audit when the selected title column is absent', async () => {
++    Reflect.deleteProperty(stored[0], 'sgc_title');
++    await audit().expect(503);
++  });
+   it('does not pass unknown identities or duplicate section rows silently', async () => {
+     stored.push(
+       { ...stored[0], sgc_id: '80' },

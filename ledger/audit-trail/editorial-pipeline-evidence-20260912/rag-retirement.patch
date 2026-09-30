@@ -1,0 +1,918 @@
+diff --git a/app/services/index_retirement.py b/app/services/index_retirement.py
+new file mode 100644
+index 0000000..a8364ed
+--- /dev/null
++++ b/app/services/index_retirement.py
+@@ -0,0 +1,40 @@
++"""Confirmed, bounded deletion shared by existing index consumers.
++
++Filter equality on Weaviate text can be tokenized. Recheck exact properties in
++Python and delete only the UUIDs of matching objects, never a textual bulk filter.
++No scheduler, persistence, new collection or producer is introduced here.
++"""
++from typing import Any
++
++
++def retire_exact_objects(collection, *, identity: dict[str, Any],
++                         different_hash: str | None = None) -> int:
++    from weaviate.classes.query import Filter
++
++    if not identity or any(value in (None, '') for value in identity.values()):
++        raise ValueError('Retirement requires a complete identity')
++    where = None
++    for key, value in identity.items():
++        clause = Filter.by_property(key).equal(value)
++        where = clause if where is None else where & clause
++    if different_hash is not None:
++        where = where & Filter.by_property('content_hash').not_equal(different_hash)
++
++    def exact(obj):
++        props = obj.properties
++        return (all(props.get(key) == value for key, value in identity.items())
++                and (different_hash is None or
++                     (bool(props.get('content_hash')) and props['content_hash'] != different_hash)))
++
++    def candidates():
++        objects = collection.query.fetch_objects(filters=where, limit=201).objects
++        if len(objects) > 200:
++            raise RuntimeError('Retirement exceeds bounded scope (200 objects); explicit reconciliation required')
++        return [obj for obj in objects if exact(obj)]
++
++    selected = candidates()
++    for obj in selected:
++        collection.data.delete_by_id(obj.uuid)
++    if candidates():
++        raise RuntimeError('Index retirement incomplete: exact objects remain')
++    return len(selected)
+diff --git a/app/services/knowledge_service.py b/app/services/knowledge_service.py
+index 0771140..4279519 100644
+--- a/app/services/knowledge_service.py
++++ b/app/services/knowledge_service.py
+@@ -776,21 +776,33 @@ class KnowledgeService:
+ 
+         doc = self.get_document(doc_id)
+         if not doc:
+-            return False
++            # Retry after the file was removed but the acknowledgement was lost.
++            # Only our complete tombstone identity can authorize this exact retry;
++            # older records without namespace information need reconciliation.
++            records = [r for r in self.list_tombstones()
++                       if r.get("doc_id") == doc_id and r.get("source_type")
++                       and r.get("source_uri") and r.get("source_path")]
++            if len(records) != 1:
++                return False
++            record = records[0]
++            doc = KnowledgeDocument(
++                id=doc_id, title=record.get("title", ""), content="",
++                source_type=record["source_type"], category="",
++                source_path=record["source_path"], source_uri=record["source_uri"],
++            )
+ 
+         file_path = self.knowledge_path / doc.source_path
+         try:
+-            if file_path.exists():
+-                if leave_tombstone and doc.source_uri:
++            # Keep the file as retry material until the index acknowledges removal.
++            # The tombstone prevents create_document from reviving this source.
++            if leave_tombstone and doc.source_uri:
++                if not self.is_tombstoned(doc.source_uri):
+                     self._write_tombstone(doc)
+-                file_path.unlink()
+-
+-                # Best-effort Weaviate cleanup
+-                self._delete_weaviate_chunks(doc)
+-                return True
++            self._delete_weaviate_chunks(doc)
++            file_path.unlink(missing_ok=True)
++            return True
+         except Exception as e:
+             logger.error(f"Error deleting document {doc_id}: {e}")
+-
+         return False
+ 
+     # ── Tombstone support ──────────────────────────────────
+@@ -808,6 +820,8 @@ class KnowledgeService:
+         tombstone_dir = self._tombstone_dir()
+         tombstone_dir.mkdir(parents=True, exist_ok=True)
+         record = {
++            "doc_id": doc.id,
++            "source_type": doc.source_type,
+             "source_uri": doc.source_uri,
+             "source_path": doc.source_path,
+             "title": doc.title,
+@@ -815,7 +829,12 @@ class KnowledgeService:
+             "reason": "deleted_by_user",
+         }
+         path = self._tombstone_path(doc.source_uri)
+-        path.write_text(json.dumps(record, ensure_ascii=False, indent=2), encoding="utf-8")
++        temporary = path.with_name(f".{path.name}.{uuid.uuid4().hex}.tmp")
++        try:
++            temporary.write_text(json.dumps(record, ensure_ascii=False, indent=2), encoding="utf-8")
++            os.replace(temporary, path)
++        finally:
++            temporary.unlink(missing_ok=True)
+         logger.info(f"Tombstone written for source_uri={doc.source_uri}")
+ 
+     def is_tombstoned(self, source_uri: str) -> bool:
+@@ -851,25 +870,21 @@ class KnowledgeService:
+         return records
+ 
+     def _delete_weaviate_chunks(self, doc: "KnowledgeDocument") -> None:
+-        """Best-effort deletion of Weaviate chunks belonging to this document."""
+-        try:
+-            from app.services.weaviate_client import get_weaviate_client
+-            from weaviate.classes.query import Filter
++        """Confirm withdrawal by exact source_path in the resolved namespace.
+ 
+-            weaviate_client = get_weaviate_client()
+-            target = weaviate_client.resolve_collection(
+-                namespace=f"knowledge:{doc.source_type}",
+-            )
+-            collection = weaviate_client.client.collections.get(target)
+-            # Delete all chunks whose parent_id matches this doc
+-            collection.data.delete_many(
+-                where=Filter.by_property("parent_id").equal(doc.id),
+-            )
+-            logger.info(f"Weaviate chunks deleted for parent_id={doc.id} in {target}")
+-        except ImportError:
+-            logger.debug("Weaviate client not available, skipping vector cleanup")
+-        except Exception as exc:
+-            logger.warning(f"Weaviate chunk cleanup failed: {exc}")
++        The orchestrator hashes path+content into parent_id; the CRUD display ID
++        is not that identity. source_path is stable across replaced versions.
++        Other collections and differently prefixed paths need explicit lineage.
++        Errors propagate so callers retain retry material and cannot claim success.
++        """
++        from app.services.weaviate_client import get_weaviate_client
++        from app.services.index_retirement import retire_exact_objects
++
++        weaviate_client = get_weaviate_client()
++        target = weaviate_client.resolve_collection(namespace=f"knowledge:{doc.source_type}")
++        collection = weaviate_client.client.collections.get(target)
++        retire_exact_objects(collection, identity={"source_path": doc.source_path})
++        logger.info(f"Weaviate chunks deleted for source_path={doc.source_path} in {target}")
+ 
+     def promote_document(self, doc_id: str) -> Optional[KnowledgeDocument]:
+         """Promote a document to the next truth level.
+diff --git a/docs/editorial-retirement.md b/docs/editorial-retirement.md
+new file mode 100644
+index 0000000..e9f3b8f
+--- /dev/null
++++ b/docs/editorial-retirement.md
+@@ -0,0 +1,71 @@
++# Retraits et remplacements — candidat isolé, 2026-09-12
++
++Aucun changement de collection, migration, activation, corpus réel ou scheduler.
++Ce document décrit le candidat ; il ne crée pas une autorité WIKI ni un contrat canon.
++
++## Consommateurs couverts
++
++1. `import_wiki_exports.py` : un export approuvé, éligible, au chemin
++   `exports/rag/<entity_type>/<slug>.md`, dont le SHA-256 correspond au corps Markdown
++   parsé UTF-8, devient la version courante dans la collection configurée du F5.
++   L'identité est `(canonical_source, source_layer, origin_batch_kind, source_path)` ;
++   le hash et `chunk_index` distinguent la version et son objet. Le nouvel objet reçoit
++   un UUID déterministe. Après insertion confirmée, seuls les objets de cette même
++   identité avec un autre hash sont retirés. Un rejeu identique termine aussi ce retrait.
++   Le verrou CLI déclaré est obligatoire : aucun autre verrou de secours.
++2. `KnowledgeService.delete_document` : le retrait explicite existant écrit son
++   tombstone, confirme la disparition des objets portant exactement `source_path`
++   dans la collection résolue, puis retire le fichier. Le `parent_id` du pipeline est
++   un hash chemin+contenu, différent de l'identifiant affiché par CRUD : il ne sert plus
++   de faux raccordement. Les nouveaux tombstones conservent doc_id/source_type pour
++   reprendre un appel dont l'accusé de réception s'est perdu après suppression du fichier.
++   Les anciens tombstones sans cette identité restent à réconcilier explicitement.
++
++Les deux entrées réutilisent `index_retirement.retire_exact_objects` : lecture bornée
++à 201 objets, refus au-delà de 200 avant suppression, comparaison exacte des propriétés
++(pour exclure les faux positifs dus à la tokenisation), suppression par UUID, contrôle
++final des objets résiduels. Aucune suppression par préfixe. Une interruption peut laisser
++un état partiel, mais ne produit pas de succès ; le rejeu termine le travail. Il n'y a pas
++une transaction atomique entre Weaviate et le système de fichiers.
++
++## États qui ne valent pas retrait
++
++Export absent, répertoire indisponible, filtrage d'entité, limite CLI, document rejeté,
++hash incohérent ou erreur de validation ne déclenchent jamais une purge des absents.
++Un export rejeté conserve l'ancienne version et rend le run non réussi : la décision de
++rejet n'est pas assimilée à un tombstone. `--force-reembedding` échoue explicitement :
++l'importeur ne possède pas de calcul d'embeddings, et ce drapeau ajoutait des doublons.
++Le code CLI renvoie 5 pour un run incomplet ; il n'annonce plus toujours 0.
++
++## Limites et raccordement restant
++
++Le F5 n'est pas le consommateur actif des anciennes collections (v2 absent dans
++l'inventaire précédent). Le miroir de fichiers, `__rag_knowledge`, les anciennes classes,
++les projections SEO et les caches/rendus R* ne sont pas invalidés par ce correctif.
++Les variantes de chemin (`wiki/...`, `exports/rag/...`, pluriels, chemins absolus) ne sont
++pas assimilées automatiquement. Les anciens objets sans hash/provenance restent exclus.
++La validité et la monotonie du snapshot WIKI doivent être établies par l'amont avant
++activation ; ce correctif ne transforme pas un checkout arbitraire en promotion autorisée.
++
++Le manifest WIKI RAG déclare `id/path/content_hash/target_classes/tombstone` pour
++`wiki_ingester.py`, alors que cet ancien script lit `content/source_path`. Le F5 lit
++un troisième format, du frontmatter typé, vers v2. Aucun tombstone WIKI n'est actuellement
++raccordé ici. Ne pas inventer une conversion implicite des identifiants ou des classes.
++
++L'outbox canonique `__rag_change_events` appartient au refresh ciblé SEO. Les contrats
++observés ne définissent pas encore comment représenter un retrait (new_hash non nul,
++absence d'entity_id dans les types SQL) ni comment projeter ces trois identités. Préparer
++l'amendement de représentation et la cartographie inverse dans le vault avant de câbler
++la consommation ; aucun nouveau registre ni scheduler dans ce candidat.
++
++## Validation
++
++`/tmp/rag-editorial-retirement-20260912/bin/python -m pytest -q
++ tests/test_f5_knowledge_service_readonly.py tests/test_editorial_retirement.py
++ tests/test_f5_import_body.py tests/test_f5_import_wiki_exports.py` : 54 PASS.
++
++Index simulé, fichiers temporaires, construction de filtres SDK réelle sans réseau,
++gardes L5 natives testées. Pas de preuve Weaviate serveur, HTTP, navigateur ou activation.
++Journaux bruts et codes retour dans le dossier de preuves du rapport vault. Les versions
++SDK/FastAPI sont celles lues dans le conteneur ; l'environnement temporaire a résolu
++Pydantic 2.13.5. L'ancien venv Pydantic 2.11.7 est conservé. Aucune dépendance runtime modifiée.
+diff --git a/scripts/importers/import_wiki_exports.py b/scripts/importers/import_wiki_exports.py
+index 0fef148..998c848 100644
+--- a/scripts/importers/import_wiki_exports.py
++++ b/scripts/importers/import_wiki_exports.py
+@@ -11,7 +11,7 @@ Flow ::
+                 ↓ Pydantic v2 parse
+                 ↓ filter (5 mandatory criteria)
+                 ↓ idempotency check (natural key)
+-                ↓ chunk + embed + write to KB_Knowledge_v2
++                ↓ write one body to KB_Knowledge_v2 + retire replaced source versions
+ 
+ Behaviour boundaries ::
+ 
+@@ -49,7 +49,7 @@ CLI ::
+     python scripts/importers/import_wiki_exports.py --apply
+     python scripts/importers/import_wiki_exports.py --entity-type gamme
+     python scripts/importers/import_wiki_exports.py --apply --limit 50
+-    python scripts/importers/import_wiki_exports.py --apply --force-reembedding
++    # --force-reembedding is refused until an embedding pipeline is connected
+ """
+ 
+ from __future__ import annotations
+@@ -57,6 +57,7 @@ from __future__ import annotations
+ import argparse
+ import errno
+ import fcntl
++import hashlib
+ import json
+ import logging
+ import os
+@@ -127,8 +128,8 @@ def acquire_lock(path: str):
+         Path(path).parent.mkdir(parents=True, exist_ok=True)
+         fd = os.open(path, os.O_CREAT | os.O_RDWR, 0o600)
+     except (OSError, PermissionError) as exc:
+-        logger.warning("F.5 lock: %s not writable (%s) — falling back to /tmp", path, exc)
+-        fd = os.open("/tmp/rag-import.lock", os.O_CREAT | os.O_RDWR, 0o600)
++        logger.error("F.5 lock: cannot use declared lock %s (%s); refusing alternate lock", path, exc)
++        sys.exit(EXIT_RUNTIME_ERROR)
+ 
+     try:
+         fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+@@ -161,13 +162,9 @@ def assert_wiki_path_valid() -> Path:
+         logger.error("F.5 import: %s is not a Git repository", WIKI_PATH)
+         sys.exit(EXIT_WIKI_PATH_INVALID)
+     exports_root = WIKI_PATH / EXPORTS_RAG_SUBDIR
+-    if not exports_root.exists():
+-        # exports/rag/ is gitignored and generated post-promotion. No exports
+-        # yet is normal — log info and proceed (we'll find 0 files).
+-        logger.info(
+-            "F.5 import: %s does not exist yet (gitignored — generated post-promotion). "
+-            "0 files to import.", exports_root,
+-        )
++    if not exports_root.is_dir() or exports_root.is_symlink():
++        logger.error("F.5 import: exports unavailable or symlinked: %s", exports_root)
++        sys.exit(EXIT_WIKI_PATH_INVALID)
+     return exports_root
+ 
+ 
+@@ -207,11 +204,12 @@ SKIP_REASONS = {
+     "missing_content_hash": "content_hash absent",
+     "pydantic_validation_error": "frontmatter does not match schema",
+     "missing_frontmatter": "no YAML frontmatter found",
++    "empty_body": "export Markdown body is empty",
+ }
+ 
+ 
+-def parse_frontmatter_yaml(md_path: Path) -> Optional[Dict[str, Any]]:
+-    """Return the YAML frontmatter dict, or None if absent/malformed."""
++def parse_export_document(md_path: Path) -> Optional[tuple[Dict[str, Any], str]]:
++    """Read metadata and the actual Markdown body from one consistent parse."""
+     try:
+         import frontmatter
+     except ImportError:  # pragma: no cover
+@@ -225,7 +223,13 @@ def parse_frontmatter_yaml(md_path: Path) -> Optional[Dict[str, Any]]:
+         return None
+     if not post.metadata:
+         return None
+-    return dict(post.metadata)
++    return dict(post.metadata), post.content
++
++
++def parse_frontmatter_yaml(md_path: Path) -> Optional[Dict[str, Any]]:
++    """Compatibility parser for callers that need only schema metadata."""
++    document = parse_export_document(md_path)
++    return document[0] if document is not None else None
+ 
+ 
+ def evaluate_filters(meta: Dict[str, Any]) -> Optional[str]:
+@@ -288,8 +292,32 @@ def chunk_already_in_v2(client, *, canonical_source: str, source_path: str,
+         & Filter.by_property("content_hash").equal(content_hash)
+         & Filter.by_property("chunk_index").equal(chunk_index)
+     )
+-    response = coll.query.fetch_objects(filters=where, limit=1)
+-    return len(response.objects) > 0
++    # Text filters may tokenize paths; an approximate hit is not an identity proof.
++    response = coll.query.fetch_objects(filters=where, limit=201)
++    if len(response.objects) > 200:
++        raise RuntimeError("Idempotency scope exceeds 200 objects; reconciliation required")
++    identity = {"canonical_source": canonical_source, "source_path": source_path,
++                "content_hash": content_hash, "chunk_index": chunk_index,
++                "source_layer": SOURCE_LAYER_EXPORTS_RAG,
++                "origin_batch_kind": ORIGIN_BATCH_KIND_WIKI}
++    return any(all(obj.properties.get(key) == value for key, value in identity.items())
++               for obj in response.objects)
++
++
++def retire_replaced_versions(client, *, source_path: str, content_hash: str) -> int:
++    """Reconcile only this F.5 source after its admitted replacement exists.
++
++    Never infer retirement from a missing file or a directory-wide inventory.
++    A partial/failed deletion raises; replay must complete it before success.
++    """
++    from app.services.index_retirement import retire_exact_objects
++
++    return retire_exact_objects(client.collections.get(TARGET_COLLECTION), identity={
++        "canonical_source": CANONICAL_SOURCE_WIKI,
++        "source_layer": SOURCE_LAYER_EXPORTS_RAG,
++        "origin_batch_kind": ORIGIN_BATCH_KIND_WIKI,
++        "source_path": source_path,
++    }, different_hash=content_hash)
+ 
+ 
+ # ---------------------------------------------------------------------------
+@@ -346,6 +374,7 @@ def run(*, apply: bool, entity_filter: Optional[str], limit: Optional[int],
+         "skipped_filter": 0,
+         "failed_validation": 0,
+         "errors": 0,
++        "retired_replaced": 0,
+     }
+     skip_reasons: Dict[str, int] = {}
+ 
+@@ -356,12 +385,26 @@ def run(*, apply: bool, entity_filter: Optional[str], limit: Optional[int],
+         batch_lineage_id, TARGET_COLLECTION,
+     )
+ 
++    # This importer forwards one body; it has no embedding implementation.
++    # The old flag bypassed deduplication and appended a random object ID.
++    if force_reembedding:
++        logger.error("F.5 force-reembedding unsupported: no embedding pipeline is connected")
++        return {**counters, "errors": 1, "success": False,
++                "skip_reasons": {}, "wiki_commit": wiki_commit,
++                "lineage_id": batch_lineage_id, "target_collection": TARGET_COLLECTION}
++
+     seen = 0
+     for md_path in iter_export_files(exports_root, entity_filter):
+         if limit is not None and seen >= limit:
+             break
+         seen += 1
+ 
++        # Bind identity to the declared export root before any index operation.
++        if md_path.is_symlink() or not md_path.resolve().is_relative_to(exports_root.resolve()):
++            logger.error("F.5 import: escaping/symlinked export: %s", md_path)
++            counters["errors"] += 1
++            continue
++
+         # Best-effort entity_type detection from path.
+         try:
+             relative = md_path.relative_to(exports_root)
+@@ -370,14 +413,15 @@ def run(*, apply: bool, entity_filter: Optional[str], limit: Optional[int],
+         except ValueError:
+             entity_type, slug = "unknown", md_path.stem
+ 
+-        meta = parse_frontmatter_yaml(md_path)
+-        if meta is None:
++        document = parse_export_document(md_path)
++        if document is None:
+             counters["failed_validation"] += 1
+             skip_reasons["missing_frontmatter"] = skip_reasons.get("missing_frontmatter", 0) + 1
+             write_quarantine(reason="missing_frontmatter", entity_type=entity_type,
+                              slug=slug, md_path=md_path, meta=None)
+             continue
+ 
++        meta, body = document
+         # Pydantic schema validation (catches drift from JSON Schema).
+         try:
+             _FRONTMATTER_VALIDATOR.validate_python(meta)
+@@ -392,6 +436,11 @@ def run(*, apply: bool, entity_filter: Optional[str], limit: Optional[int],
+                              md_path=md_path, meta=meta, errors=errors_list)
+             continue
+ 
++        if relative.as_posix() != f"{meta['entity_type']}/{meta['slug']}.md":
++            logger.error("F.5 import: export path/identity mismatch: %s", relative)
++            counters["errors"] += 1
++            continue
++
+         # Semantic filter (5 conservative criteria).
+         skip_reason = evaluate_filters(meta)
+         if skip_reason:
+@@ -401,6 +450,18 @@ def run(*, apply: bool, entity_filter: Optional[str], limit: Optional[int],
+                              slug=slug, md_path=md_path, meta=meta)
+             continue
+ 
++        if not body.strip():
++            counters["failed_validation"] += 1
++            skip_reasons["empty_body"] = skip_reasons.get("empty_body", 0) + 1
++            write_quarantine(reason="empty_body", entity_type=entity_type,
++                             slug=slug, md_path=md_path, meta=meta)
++            continue
++
++        if meta['content_hash'] != hashlib.sha256(body.encode('utf-8')).hexdigest():
++            logger.error("F.5 import: declared content_hash does not match parsed body: %s", md_path)
++            counters["errors"] += 1
++            continue
++
+         source_path = str(md_path.relative_to(WIKI_PATH))
+         content_hash = meta["content_hash"]
+         chunk_index = 0  # one chunk per file for now ; multi-chunk pipeline is upstream
+@@ -417,6 +478,13 @@ def run(*, apply: bool, entity_filter: Optional[str], limit: Optional[int],
+             chunk_index=chunk_index,
+         ):
+             counters["skipped_idempotent"] += 1
++            if apply:
++                try:
++                    counters["retired_replaced"] += retire_replaced_versions(
++                        client, source_path=source_path, content_hash=content_hash)
++                except Exception as exc:
++                    logger.error("F.5 replay reconciliation failed for %s (%s)", source_path, exc)
++                    counters["errors"] += 1
+             continue
+ 
+         if not apply:
+@@ -424,14 +492,13 @@ def run(*, apply: bool, entity_filter: Optional[str], limit: Optional[int],
+             continue
+ 
+         # ----- live insert path -----
+-        # NOTE : full embedding + chunking is delegated to the pre-existing
+-        # WeaviateClient.write_object pipeline. This script's job is to
+-        # validate, filter, and feed metadata. The body content + embedding
+-        # generation is handled the same way as v1 ingestion.
++        # One document per object. Forward the parsed Markdown body directly.
++        # Any server-side vectorization depends on the deployed collection config;
++        # this call does not invoke an application embedding/chunking pipeline.
+         try:
+             target_collection = client.collections.get(TARGET_COLLECTION)
+             properties = {
+-                "content": meta.get("body", "") or "",  # body is set elsewhere if present
++                "content": body,
+                 "title": meta.get("title", ""),
+                 "source_path": source_path,
+                 "source_type": entity_type,
+@@ -447,14 +514,21 @@ def run(*, apply: bool, entity_filter: Optional[str], limit: Optional[int],
+                 "embedding_model": embedding_model,
+                 "origin_batch_kind": ORIGIN_BATCH_KIND_WIKI,
+             }
+-            target_collection.data.insert(properties=properties)
++            # Stable natural-key UUID prevents duplicates after ambiguous insert replies.
++            object_id = str(uuid.uuid5(uuid.NAMESPACE_URL, json.dumps(
++                [CANONICAL_SOURCE_WIKI, source_path, content_hash, chunk_index])))
++            target_collection.data.insert(properties=properties, uuid=object_id)
+             counters["imported"] += 1
++            counters["retired_replaced"] += retire_replaced_versions(
++                client, source_path=source_path, content_hash=content_hash)
+         except Exception as exc:
+             logger.error("F.5 import: insert failed for %s (%s)", source_path, exc)
+             counters["errors"] += 1
+ 
+     summary = {
+         **counters,
++        "success": seen > 0 and not (counters["errors"] or counters["failed_validation"] or counters["skipped_filter"]),
++        "scope": {"entity_filter": entity_filter, "limit": limit, "seen": seen},
+         "skip_reasons": skip_reasons,
+         "wiki_commit": wiki_commit,
+         "lineage_id": batch_lineage_id,
+@@ -479,7 +553,7 @@ def main() -> int:
+     parser.add_argument("--limit", type=int, default=None,
+                         help="Stop after N files (test mode)")
+     parser.add_argument("--force-reembedding", action="store_true",
+-                        help="Skip the idempotency check — re-process every file")
++                        help="Unsupported until an embedding pipeline is connected; fails explicitly")
+     parser.add_argument("--json-out", default=None,
+                         help="Write the summary JSON to this path")
+     args = parser.parse_args()
+@@ -504,7 +578,7 @@ def main() -> int:
+     if args.json_out:
+         Path(args.json_out).write_text(rendered + "\n", encoding="utf-8")
+ 
+-    return EXIT_OK
++    return EXIT_OK if summary["success"] else EXIT_RUNTIME_ERROR
+ 
+ 
+ if __name__ == "__main__":
+diff --git a/tests/test_editorial_retirement.py b/tests/test_editorial_retirement.py
+new file mode 100644
+index 0000000..7c4b527
+--- /dev/null
++++ b/tests/test_editorial_retirement.py
+@@ -0,0 +1,218 @@
++"""Native retirement methods against an in-memory index and temporary files.
++No service bootstrap, credentials, network or live writes. Guard invocation is retained.
++"""
++import hashlib
++import importlib.util
++import json
++import sys
++from pathlib import Path
++from types import ModuleType, SimpleNamespace
++
++import pytest
++from scripts.importers import import_wiki_exports as importer
++
++
++class Predicate:
++    def __init__(self, fn):
++        self.fn = fn
++    def __and__(self, other):
++        return Predicate(lambda row: self.fn(row) and other.fn(row))
++
++
++class Property:
++    def __init__(self, key):
++        self.key = key
++    def equal(self, value):
++        return Predicate(lambda row: row.get(self.key) == value)
++    def not_equal(self, value):
++        return Predicate(lambda row: self.key in row and row[self.key] != value)
++
++
++@pytest.fixture
++def index(monkeypatch):
++    rows = []
++    state = {'failed': False, 'partial': False, 'ghost': False}
++    ghosts = []
++    def delete_by_id(object_id):
++        if state['failed']:
++            raise OSError('index unavailable')
++        row = next((r for r in rows if str(id(r)) == object_id), None)
++        if row is not None and not state['partial']:
++            rows.remove(row)
++            if state['ghost']:
++                ghosts.append(row)
++    def fetch_objects(*, filters, limit):
++        found = [r for r in [*rows, *ghosts] if state.get('broad') or filters.fn(r)][:limit]
++        return SimpleNamespace(objects=[SimpleNamespace(properties=r, uuid=str(id(r))) for r in found])
++    collection = SimpleNamespace(data=SimpleNamespace(delete_by_id=delete_by_id),
++                                 query=SimpleNamespace(fetch_objects=fetch_objects))
++    client = SimpleNamespace(collections=SimpleNamespace(get=lambda _: collection))
++    query = ModuleType('weaviate.classes.query')
++    query.Filter = SimpleNamespace(by_property=Property)
++    monkeypatch.setitem(sys.modules, 'weaviate.classes.query', query)
++    return rows, state, client
++
++
++def test_replacement_filter_preserves_other_paths_producers_and_current_version(index):
++    rows, _, client = index
++    base = dict(canonical_source=importer.CANONICAL_SOURCE_WIKI,
++                source_layer=importer.SOURCE_LAYER_EXPORTS_RAG,
++                origin_batch_kind=importer.ORIGIN_BATCH_KIND_WIKI,
++                source_path='exports/rag/gamme/a.md', content_hash='old')
++    protected = [dict(base, content_hash='new'), dict(base, source_path='exports/rag/gamme/b.md'),
++                 dict(base, canonical_source='other'), dict(base, source_layer='other'),
++                 dict(base, origin_batch_kind='other')]
++    rows.extend([base, *protected])
++    assert importer.retire_replaced_versions(client, source_path=base['source_path'], content_hash='new') == 1
++    assert rows == protected
++    assert importer.retire_replaced_versions(client, source_path=base['source_path'], content_hash='new') == 0
++
++
++@pytest.mark.parametrize('failure', ['failed', 'partial', 'ghost'])
++def test_replacement_refuses_unconfirmed_index_deletion(index, failure):
++    rows, state, client = index
++    rows.extend([dict(canonical_source=importer.CANONICAL_SOURCE_WIKI,
++                     source_layer=importer.SOURCE_LAYER_EXPORTS_RAG,
++                     origin_batch_kind=importer.ORIGIN_BATCH_KIND_WIKI,
++                     source_path='exports/rag/gamme/a.md', content_hash=h) for h in ['old1', 'old2']])
++    state[failure] = True
++    with pytest.raises((OSError, RuntimeError)):
++        importer.retire_replaced_versions(client, source_path='exports/rag/gamme/a.md', content_hash='new')
++
++
++@pytest.fixture
++def service(tmp_path, monkeypatch, index):
++    rows, state, client = index
++    config = ModuleType('app.config')
++    config.get_settings = lambda: SimpleNamespace(knowledge_path=str(tmp_path))
++    guards = []
++    deps = ModuleType('app.dependencies')
++    deps.assert_writeable = lambda op: guards.append(op)
++    wc = ModuleType('app.services.weaviate_client')
++    wc.get_weaviate_client = lambda: SimpleNamespace(client=client, resolve_collection=lambda **_: 'fixture')
++    for key, module in [('app.config', config), ('app.dependencies', deps), ('app.services.weaviate_client', wc)]:
++        monkeypatch.setitem(sys.modules, key, module)
++    spec = importlib.util.spec_from_file_location('retirement_knowledge_fixture',
++        Path(__file__).parents[1] / 'app/services/knowledge_service.py')
++    module = importlib.util.module_from_spec(spec)
++    monkeypatch.setitem(sys.modules, spec.name, module)
++    spec.loader.exec_module(module)
++    svc = module.KnowledgeService()
++    path = tmp_path / 'gamme/a.md'
++    path.parent.mkdir()
++    path.write_text('body')
++    doc = module.KnowledgeDocument(id='gamme.a', title='A', content='body', source_type='gamme',
++        category='gamme', source_path='gamme/a.md', source_uri='fixture://source-a')
++    svc.get_document = lambda _: doc if path.exists() else None
++    # Mirrors orchestrator.pipeline.Document.source_id, not the CRUD display ID.
++    content_digest = hashlib.sha256(doc.content.encode()).hexdigest()[:16]
++    source_id = hashlib.sha256(f'{doc.source_path}:{content_digest}'.encode()).hexdigest()
++    rows.extend([{'parent_id': source_id, 'source_path': doc.source_path},
++                 {'parent_id': 'gamme.b', 'source_path': 'gamme/b.md'}])
++    return svc, doc, path, rows, state, guards
++
++
++def test_explicit_native_withdrawal_removes_only_document_and_replay_is_idempotent(service):
++    svc, doc, path, rows, _, guards = service
++    assert svc.delete_document(doc.id)
++    assert not path.exists() and rows == [{'parent_id': 'gamme.b', 'source_path': 'gamme/b.md'}]
++    assert svc.is_tombstoned(doc.source_uri)
++    assert svc.delete_document(doc.id)
++    assert rows == [{'parent_id': 'gamme.b', 'source_path': 'gamme/b.md'}]
++    assert guards == ['delete_document', 'delete_document']
++
++
++def test_native_withdrawal_keeps_retry_material_when_index_is_unavailable(service):
++    svc, doc, path, rows, state, _ = service
++    state['failed'] = True
++    assert not svc.delete_document(doc.id)
++    assert path.exists() and len(rows) == 2 and svc.is_tombstoned(doc.source_uri)
++    state['failed'] = False
++    assert svc.delete_document(doc.id)
++    assert not path.exists() and rows == [{'parent_id': 'gamme.b', 'source_path': 'gamme/b.md'}]
++
++
++def test_native_withdrawal_cannot_acknowledge_residual_index_rows(service):
++    svc, doc, path, rows, state, _ = service
++    state['ghost'] = True
++    assert not svc.delete_document(doc.id)
++    assert path.exists()
++
++
++def test_tokenized_query_false_matches_are_not_deleted(index):
++    rows, state, client = index
++    from app.services.index_retirement import retire_exact_objects
++    rows.extend([{'parent_id': 'gamme.a'}, {'parent_id': 'gamme.a-b'}])
++    state['broad'] = True
++    assert retire_exact_objects(client.collections.get('fixture'), identity={'parent_id': 'gamme.a'}) == 1
++    assert rows == [{'parent_id': 'gamme.a-b'}]
++
++
++def test_oversized_scope_fails_before_any_deletion(index):
++    rows, _, client = index
++    from app.services.index_retirement import retire_exact_objects
++    rows.extend([{'parent_id': 'gamme.a'} for _ in range(201)])
++    with pytest.raises(RuntimeError, match='bounded scope'):
++        retire_exact_objects(client.collections.get('fixture'), identity={'parent_id': 'gamme.a'})
++    assert len(rows) == 201
++
++
++def test_idempotency_does_not_confuse_tokenized_path_or_other_producer(index):
++    rows, state, client = index
++    row = dict(canonical_source=importer.CANONICAL_SOURCE_WIKI,
++               source_layer=importer.SOURCE_LAYER_EXPORTS_RAG,
++               origin_batch_kind=importer.ORIGIN_BATCH_KIND_WIKI,
++               source_path='exports/rag/gamme/a-b.md', content_hash='new', chunk_index=0)
++    rows.append(row)
++    state['broad'] = True
++    identity = dict(canonical_source=importer.CANONICAL_SOURCE_WIKI,
++                    source_path='exports/rag/gamme/a.md', content_hash='new', chunk_index=0)
++    assert not importer.chunk_already_in_v2(client, **identity)
++    row['source_path'] = identity['source_path']
++    row['origin_batch_kind'] = 'legacy_migration'
++    assert not importer.chunk_already_in_v2(client, **identity)
++    row['origin_batch_kind'] = importer.ORIGIN_BATCH_KIND_WIKI
++    assert importer.chunk_already_in_v2(client, **identity)
++
++
++def test_lock_failure_never_creates_an_alternate_concurrent_writer(monkeypatch, tmp_path):
++    calls = []
++    def denied(path, *args):
++        calls.append(path)
++        raise PermissionError('fixture lock unavailable')
++    monkeypatch.setattr(importer.os, 'open', denied)
++    with pytest.raises(SystemExit) as exc:
++        importer.acquire_lock(str(tmp_path / 'declared.lock'))
++    assert exc.value.code == importer.EXIT_RUNTIME_ERROR
++    assert calls == [str(tmp_path / 'declared.lock')]
++
++
++@pytest.mark.parametrize('success,expected', [(True, 0), (False, 5)])
++def test_cli_exit_code_reflects_effective_completion(monkeypatch, tmp_path, success, expected):
++    import os
++    monkeypatch.setattr(sys, 'argv', ['import_wiki_exports.py'])
++    monkeypatch.setattr(importer, 'acquire_lock', lambda _: os.open(tmp_path / 'cli.lock', os.O_CREAT | os.O_RDWR, 0o600))
++    monkeypatch.setattr(importer, 'run', lambda **_: {'success': success})
++    assert importer.main() == expected
++
++
++def test_unavailable_export_root_is_an_error_not_empty_success(monkeypatch, tmp_path):
++    (tmp_path / '.git').mkdir()
++    monkeypatch.setattr(importer, 'WIKI_PATH', tmp_path)
++    with pytest.raises(SystemExit) as exc:
++        importer.assert_wiki_path_valid()
++    assert exc.value.code == importer.EXIT_WIKI_PATH_INVALID
++
++
++def test_shared_retirement_builds_real_sdk_filter_without_network():
++    pytest.importorskip('weaviate.classes.query')
++    from app.services.index_retirement import retire_exact_objects
++    queries = []
++    def fetch_objects(*, filters, limit):
++        assert type(filters).__module__.startswith('weaviate.')
++        queries.append(filters)
++        return SimpleNamespace(objects=[])
++    collection = SimpleNamespace(query=SimpleNamespace(fetch_objects=fetch_objects))
++    assert retire_exact_objects(collection, identity={'canonical_source': 'automecanik-wiki',
++        'source_path': 'exports/rag/gamme/a.md'}, different_hash='b' * 64) == 0
++    assert len(queries) == 2
+diff --git a/tests/test_f5_import_body.py b/tests/test_f5_import_body.py
+new file mode 100644
+index 0000000..cc10474
+--- /dev/null
++++ b/tests/test_f5_import_body.py
+@@ -0,0 +1,174 @@
++"""Actual importer loop and strict Pydantic schema, in-memory collection only."""
++import hashlib
++import shutil
++import sys
++from types import ModuleType, SimpleNamespace
++
++import frontmatter
++import pytest
++
++from scripts.importers import import_wiki_exports as importer
++
++
++@pytest.fixture
++def pipeline(tmp_path, monkeypatch):
++    root = tmp_path / 'wiki'
++    exports = root / 'exports/rag/gamme'
++    exports.mkdir(parents=True)
++    path = exports / 'plaquette-de-frein.md'
++    shutil.copyfile(__import__('pathlib').Path(__file__).parent / 'fixtures/wiki_exports/gamme/valid-plaquette-de-frein.md', path)
++    original = frontmatter.load(path)
++    original['content_hash'] = hashlib.sha256(original.content.encode()).hexdigest()
++    path.write_text(frontmatter.dumps(original))
++    rows = []
++    calls = []
++    collection = SimpleNamespace(data=SimpleNamespace(insert=lambda *, properties, uuid=None: rows.append(properties)))
++    client = SimpleNamespace(collections=SimpleNamespace(get=lambda _: collection, exists=lambda _: True))
++    config = ModuleType('app.config')
++    config.get_settings = lambda: SimpleNamespace(embedding_model='fixture-no-embedding')
++    weaviate = ModuleType('app.services.weaviate_client')
++    weaviate.WeaviateClient = lambda: SimpleNamespace(client=client)
++    monkeypatch.setitem(sys.modules, 'app.config', config)
++    monkeypatch.setitem(sys.modules, 'app.services.weaviate_client', weaviate)
++    monkeypatch.setattr(importer, 'WIKI_PATH', root)
++    monkeypatch.setattr(importer, 'QUARANTINE_DIR', tmp_path / 'quarantine')
++    monkeypatch.setattr(importer, 'assert_wiki_path_valid', lambda: root / 'exports/rag')
++    monkeypatch.setattr(importer, 'get_wiki_head_commit', lambda: 'fixture-commit')
++    def exists(_client, **identity):
++        calls.append(identity)
++        return any(all(row.get(key) == value for key, value in identity.items()) for row in rows)
++    monkeypatch.setattr(importer, 'chunk_already_in_v2', exists)
++    def reconcile(_client, *, source_path, content_hash):
++        stale = [row for row in rows if row.get('canonical_source') == importer.CANONICAL_SOURCE_WIKI
++                 and row.get('source_layer') == importer.SOURCE_LAYER_EXPORTS_RAG
++                 and row.get('origin_batch_kind') == importer.ORIGIN_BATCH_KIND_WIKI
++                 and row.get('source_path') == source_path and row.get('content_hash') != content_hash]
++        for row in stale:
++            rows.remove(row)
++        return len(stale)
++    monkeypatch.setattr(importer, 'retire_replaced_versions', reconcile, raising=False)
++    return path, rows, calls
++
++
++def run():
++    return importer.run(apply=True, entity_filter=None, limit=None, force_reembedding=False)
++
++
++def test_import_preserves_real_markdown_body_and_skips_unchanged_replay(pipeline):
++    path, rows, calls = pipeline
++    expected = frontmatter.load(path).content
++    assert run()['imported'] == 1
++    assert rows[0]['content'] == expected
++    assert expected.strip()
++    assert run()['skipped_idempotent'] == 1
++    assert len(rows) == 1 and len(calls) == 2
++
++
++def test_empty_body_is_refused_before_index_lookup(pipeline):
++    path, rows, calls = pipeline
++    post = frontmatter.load(path)
++    post.content = ' \n '
++    path.write_text(frontmatter.dumps(post))
++    result = run()
++    assert result['failed_validation'] == 1
++    assert result['skip_reasons'] == {'empty_body': 1}
++    assert not rows and not calls
++
++
++def test_frontmatter_cannot_replace_the_document_body(pipeline):
++    path, rows, calls = pipeline
++    post = frontmatter.load(path)
++    post['body'] = 'forged alternative body'
++    path.write_text(frontmatter.dumps(post))
++    result = run()
++    assert result['failed_validation'] == 1
++    assert result['skip_reasons'] == {'pydantic_validation_error': 1}
++    assert not rows and not calls
++
++
++def test_new_version_retires_previous_hash_and_preserves_other_sources(pipeline):
++    path, rows, _ = pipeline
++    run()
++    untouched = dict(rows[0], source_path='exports/rag/gamme/disque-de-frein.md')
++    rows.append(untouched)
++    post = frontmatter.load(path)
++    post.content = 'Version remplaçante validée.'
++    post['content_hash'] = hashlib.sha256(post.content.encode()).hexdigest()
++    path.write_text(frontmatter.dumps(post))
++    result = run()
++    assert result['retired_replaced'] == 1
++    assert len(rows) == 2 and untouched in rows
++    assert [r['content'] for r in rows if r is not untouched] == [post.content]
++    assert run()['retired_replaced'] == 0
++    assert len(rows) == 2
++
++
++def test_replay_finishes_retirement_after_interrupted_cleanup(pipeline, monkeypatch):
++    path, rows, _ = pipeline
++    run()
++    post = frontmatter.load(path)
++    post.content = 'Version après interruption.'
++    post['content_hash'] = hashlib.sha256(post.content.encode()).hexdigest()
++    path.write_text(frontmatter.dumps(post))
++    reconcile = importer.retire_replaced_versions
++    def interrupted(*args, **kwargs):
++        raise OSError('simulated index interruption')
++    monkeypatch.setattr(importer, 'retire_replaced_versions', interrupted)
++    result = run()
++    assert result['errors'] == 1 and not result['success']
++    assert len(rows) == 2
++    monkeypatch.setattr(importer, 'retire_replaced_versions', reconcile)
++    result = run()
++    assert result['skipped_idempotent'] == 1 and result['retired_replaced'] == 1
++    assert result['success'] and len(rows) == 1
++
++
++def test_absent_or_rejected_export_is_not_a_bulk_retirement(pipeline):
++    path, rows, _ = pipeline
++    run()
++    post = frontmatter.load(path)
++    post['review_status'] = 'rejected'
++    path.write_text(frontmatter.dumps(post))
++    result = run()
++    assert not result['success'] and len(rows) == 1
++    path.unlink()
++    result = run()
++    assert not result['success'] and len(rows) == 1
++
++
++def test_force_reembedding_cannot_append_duplicate_objects(pipeline):
++    _, rows, _ = pipeline
++    run()
++    result = importer.run(apply=True, entity_filter=None, limit=None, force_reembedding=True)
++    assert result['errors'] == 1 and not result['success']
++    assert len(rows) == 1
++
++
++def test_declared_hash_must_match_body_before_replacing_any_index_version(pipeline):
++    path, rows, _ = pipeline
++    run()
++    post = frontmatter.load(path)
++    post['content_hash'] = 'e' * 64
++    path.write_text(frontmatter.dumps(post))
++    result = run()
++    assert not result['success'] and result['errors'] == 1
++    assert len(rows) == 1 and rows[0]['content_hash'] != post['content_hash']
++
++
++@pytest.mark.parametrize('entity_filter,limit', [('vehicle', None), (None, 0)])
++def test_partial_or_other_scope_never_retires_unseen_sources(pipeline, entity_filter, limit):
++    _, rows, _ = pipeline
++    run()
++    before = list(rows)
++    result = importer.run(apply=True, entity_filter=entity_filter, limit=limit, force_reembedding=False)
++    assert not result['success'] and rows == before
++
++
++def test_export_identity_mismatch_cannot_replace_indexed_source(pipeline):
++    path, rows, _ = pipeline
++    run()
++    post = frontmatter.load(path)
++    post['slug'] = 'another-source'
++    path.write_text(frontmatter.dumps(post))
++    result = run()
++    assert result['errors'] == 1 and len(rows) == 1

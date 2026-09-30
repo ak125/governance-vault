@@ -1,0 +1,28 @@
+PASS src/modules/seo/validation/page-role-html.test.ts (10.229 s)
+PASS src/modules/admin/controllers/internal-seo-audit.r3.test.ts (7.937 s)
+PASS tests/unit/page-role-validator.test.ts
+PASS src/modules/admin/services/conseil-quality-backfill.test.ts
+PASS src/modules/seo/validation/page-role-sections.test.ts
+PASS src/modules/admin/services/conseil-quality-scorer.service.test.ts
+PASS src/modules/admin/services/keyword-plan-gates.dedup.test.ts
+PASS src/modules/admin/services/keyword-plan-gates.sources.test.ts
+
+Test Suites: 8 passed, 8 total
+Tests:       154 passed, 154 total
+Snapshots:   0 total
+Time:        19.296 s, estimated 20 s
+[32m[Nest] 958382  - [39m13/09/2026 17:43:36 [32m    LOG[39m [38;5;3m[KeywordPlanGatesService] [39m[32mAudit: 7/7 sections (100%), avg=100, improve=2, create=0, priority=0[39m
+[32m[Nest] 958382  - [39m13/09/2026 17:43:36 [32m    LOG[39m [38;5;3m[KeywordPlanGatesService] [39m[32mAudit: 7/7 sections (100%), avg=100, improve=7, create=0, priority=0[39m
+[32m[Nest] 958382  - [39m13/09/2026 17:43:36 [32m    LOG[39m [38;5;3m[KeywordPlanGatesService] [39m[32mAudit: 7/7 sections (100%), avg=100, improve=2, create=0, priority=0[39m
+[32m[Nest] 958382  - [39m13/09/2026 17:43:36 [32m    LOG[39m [38;5;3m[KeywordPlanGatesService] [39m[32mAudit: 7/7 sections (100%), avg=100, improve=2, create=0, priority=0[39m
+[32m[Nest] 958382  - [39m13/09/2026 17:43:36 [32m    LOG[39m [38;5;3m[KeywordPlanGatesService] [39m[32mAudit: 7/7 sections (100%), avg=100, improve=3, create=0, priority=0[39m
+[32m[Nest] 958382  - [39m13/09/2026 17:43:36 [32m    LOG[39m [38;5;3m[KeywordPlanGatesService] [39m[32mAudit: 7/7 sections (100%), avg=100, improve=0, create=0, priority=0[39m
+[32m[Nest] 958382  - [39m13/09/2026 17:43:36 [32m    LOG[39m [38;5;3m[KeywordPlanGatesService] [39m[32mAudit: 7/7 sections (100%), avg=100, improve=0, create=0, priority=0[39m
+[32m[Nest] 958382  - [39m13/09/2026 17:43:36 [32m    LOG[39m [38;5;3m[KeywordPlanGatesService] [39m[32mAudit: 7/7 sections (100%), avg=100, improve=2, create=0, priority=0[39m
+[32m[Nest] 958382  - [39m13/09/2026 17:43:36 [32m    LOG[39m [38;5;3m[KeywordPlanGatesService] [39m[32mAudit: 7/7 sections (100%), avg=100, improve=2, create=0, priority=0[39m
+[32m[Nest] 958382  - [39m13/09/2026 17:43:36 [32m    LOG[39m [38;5;3m[KeywordPlanGatesService] [39m[32mAudit: 7/7 sections (100%), avg=100, improve=2, create=0, priority=0[39m
+[32m[Nest] 958382  - [39m13/09/2026 17:43:36 [32m    LOG[39m [38;5;3m[KeywordPlanGatesService] [39m[32mAudit: 7/7 sections (100%), avg=100, improve=2, create=0, priority=0[39m
+[32m[Nest] 958382  - [39m13/09/2026 17:43:36 [32m    LOG[39m [38;5;3m[KeywordPlanGatesService] [39m[32mAudit: 7/7 sections (100%), avg=100, improve=0, create=0, priority=0[39m
+[32m[Nest] 958382  - [39m13/09/2026 17:43:36 [32m    LOG[39m [38;5;3m[KeywordPlanGatesService] [39m[32mAudit: 7/7 sections (100%), avg=100, improve=2, create=0, priority=0[39m
+[32m[Nest] 958382  - [39m13/09/2026 17:43:36 [32m    LOG[39m [38;5;3m[KeywordPlanGatesService] [39m[32mAudit: 7/7 sections (100%), avg=100, improve=1, create=0, priority=5[39m
+[32m[Nest] 958382  - [39m13/09/2026 17:43:36 [32m    LOG[39m [38;5;3m[KeywordPlanGatesService] [39m[32mAudit: 7/7 sections (100%), avg=100, improve=0, create=0, priority=0[39m

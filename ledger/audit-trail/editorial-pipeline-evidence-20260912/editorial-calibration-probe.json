@@ -1,0 +1,102 @@
+{
+  "scope": "Arithmetic scorer corpus and native independent quality fixtures. No complete promotion decision on synthetic cases; no factual truth certification.",
+  "score_cases": [
+    {
+      "case": "brief_explanation_without_irrelevant_sections",
+      "score": 0.56,
+      "at_least_current_floor": false,
+      "interpretation": "Useful-scoped form; technical truth not evaluated by this probe"
+    },
+    {
+      "case": "repeated_paragraphs_with_one_resolved_link",
+      "score": 1.0,
+      "at_least_current_floor": true,
+      "interpretation": "Duplicate filler; distinct source kinds refer to the same witness"
+    },
+    {
+      "case": "contradictory_text_same_structure",
+      "score": 1.0,
+      "at_least_current_floor": true,
+      "interpretation": "Contradiction must be caught by specialized evidence gates, not this score"
+    },
+    {
+      "case": "unsubstantiated_procedure_same_structure",
+      "score": 1.0,
+      "at_least_current_floor": true,
+      "interpretation": "Procedure evidence is not established by heading/source labels"
+    },
+    {
+      "case": "all_sections_no_links",
+      "score": 0.8,
+      "at_least_current_floor": false,
+      "interpretation": "No internal link despite all sections and high labels"
+    },
+    {
+      "case": "all_sections_broken_link",
+      "score": 0.8,
+      "at_least_current_floor": false,
+      "interpretation": "Broken internal link"
+    },
+    {
+      "case": "all_sections_no_source",
+      "score": 0.5,
+      "at_least_current_floor": false,
+      "interpretation": "No source declarations"
+    },
+    {
+      "case": "all_sections_medium_sources",
+      "score": 0.84,
+      "at_least_current_floor": false,
+      "interpretation": "Same form with medium labels"
+    }
+  ],
+  "same_entity_payload_score_by_intended_role": {
+    "R2 transactional intent": 1.0,
+    "R8 vehicle context": 1.0
+  },
+  "native_quality_cases": [
+    {
+      "fixture": "valid-plaquette-de-frein.md",
+      "failures": [],
+      "warnings": []
+    },
+    {
+      "fixture": "valid-non-safety-filtre.md",
+      "failures": [],
+      "warnings": []
+    },
+    {
+      "fixture": "invalid-source-slug-unknown.md",
+      "failures": [
+        "source_policy_violated: diagnostic_relations[0] policy=2_medium_concordant but < 2 distinct sources",
+        "source_slug_unknown: diagnostic_relations[0] cites 'some_inexistent_source_slug' (base 'some_inexistent_source_slug') absent from _meta/source-catalog.yaml",
+        "source_slug_unknown: diagnostic_relations[0] cites 'another_unknown_one' (base 'another_unknown_one') absent from _meta/source-catalog.yaml"
+      ],
+      "warnings": []
+    },
+    {
+      "fixture": "invalid-overclaimed-brochure-high.md",
+      "failures": [
+        "source_policy_violated: diagnostic_relations[0] policy=1_high but no source with type allowing 'high' confidence",
+        "confidence_overclaimed: diagnostic_relations[0] confidence=high but no source has eligible source_type"
+      ],
+      "warnings": []
+    },
+    {
+      "fixture": "invalid-no-relation-to-part.md",
+      "failures": [
+        "relation_to_part_missing: diagnostic_relations[0] symptom=bruit_test"
+      ],
+      "warnings": []
+    },
+    {
+      "fixture": "invalid-maintenance-advice-missing.md",
+      "failures": [
+        "maintenance_advice_missing: slug 'filtre-a-huile' matches kg_nodes.MaintenanceInterval but entity_data.maintenance.educational_advice is empty (ADR-032 §D1)"
+      ],
+      "warnings": []
+    }
+  ],
+  "thresholds_changed": false,
+  "promotions": 0
+}

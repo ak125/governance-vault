@@ -1,0 +1,19 @@
+backend/src/modules/admin/services/conseil-quality-backfill.test.ts:103:    expect(await service.backfillQualityScores()).toEqual({
+backend/src/modules/admin/services/conseil-quality-backfill.test.ts:119:    expect(await service.backfillQualityScores()).toEqual({
+backend/src/modules/admin/services/conseil-quality-backfill.test.ts:135:    expect(await service.backfillQualityScores()).toEqual({
+backend/src/modules/admin/services/conseil-quality-backfill.test.ts:145:    await expect(service.backfillQualityScores()).rejects.toMatchObject({
+backend/src/modules/admin/services/conseil-quality-backfill.test.ts:154:    expect(await service.backfillQualityScores()).toEqual({
+backend/src/modules/admin/services/conseil-quality-backfill.test.ts:159:    expect(await service.backfillQualityScores()).toEqual({
+backend/src/modules/admin/services/conseil-quality-scorer.service.ts:300:  async backfillQualityScores(): Promise<BackfillResult> {
+backend/src/modules/admin/services/keyword-plan-gates.service.ts:626:  runAuditGates(
+backend/src/modules/admin/services/keyword-plan-gates.service.ts:687:   * Uses runAuditGates() internally.
+backend/src/modules/admin/services/keyword-plan-gates.service.ts:689:  auditFromSections(
+backend/src/modules/admin/services/keyword-plan-gates.service.ts:714:    const report = this.runAuditGates(existingSections, packLevel);
+backend/src/modules/admin/services/keyword-plan-gates.sources.test.ts:6:  gates.runAuditGates([
+backend/src/modules/admin/services/keyword-plan-gates.sources.test.ts:60:    const result = gates.auditFromSections(sections);
+backend/src/modules/admin/services/keyword-plan-gates.sources.test.ts:66:    const result = gates.auditFromSections(rows());
+backend/src/modules/admin/controllers/admin-conseil.controller.ts:5: * POST /api/admin/conseil/backfill-scores
+backend/src/modules/admin/controllers/admin-conseil.controller.ts:78:   * POST /api/admin/conseil/backfill-scores
+backend/src/modules/admin/controllers/admin-conseil.controller.ts:81:  @Post('backfill-scores')
+backend/src/modules/admin/controllers/admin-conseil.controller.ts:83:    this.logger.log('POST /api/admin/conseil/backfill-scores');
+backend/src/modules/admin/controllers/admin-conseil.controller.ts:85:    const result = await this.qualityScorer.backfillQualityScores();

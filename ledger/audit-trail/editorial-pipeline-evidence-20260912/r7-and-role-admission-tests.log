@@ -1,0 +1,37 @@
+PASS src/modules/seo-projection/seo-projection-feeder.test.ts (9.977 s)
+  ● Console
+
+    console.log
+      ◇ injected env (0) from .env.test // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+[32m[Nest] 338201  - [39m12/09/2026 16:36:45 [32m    LOG[39m [38;5;3m[SeoProjectionFeederService] [39m[32m[READ_ONLY] feeder R1 skip (aucun enqueue) — exportsDir=/abs/exports.[39m
+[33m[Nest] 338201  - [39m12/09/2026 16:36:45 [33m   WARN[39m [38;5;3m[SeoProjectionFeederService] [39m[33mFeeder R1 : dossier d'exports absent/illisible (/abs/exports) — 0 export, skip. (ENOENT)[39m
+[32m[Nest] 338201  - [39m12/09/2026 16:36:45 [32m    LOG[39m [38;5;3m[SeoProjectionFeederService] [39m[32mFeeder R1 : 2 export(s) gamme découvert(s) → 1 write-job enqueue (manual).[39m
+[32m[Nest] 338201  - [39m12/09/2026 16:36:45 [32m    LOG[39m [38;5;3m[SeoProjectionFeederService] [39m[32mFeeder R1 déclenché manuellement (jobId=feed-1).[39m
+[32m[Nest] 338201  - [39m12/09/2026 16:36:45 [32m    LOG[39m [38;5;3m[SeoProjectionFeederService] [39m[32mFeeder single-entity : gamme/filtre-a-huile role=R3_CONSEILS → 1 write-job (jobId=write-1).[39m
+[32m[Nest] 338201  - [39m12/09/2026 16:36:45 [32m    LOG[39m [38;5;3m[SeoProjectionFeederService] [39m[32mSEO_PROJECTION_R1_FEED_ENABLED!=true — feeder R1 non planifié (flag OFF, rollout owner-gated).[39m
+[32m[Nest] 338201  - [39m12/09/2026 16:36:45 [32m    LOG[39m [38;5;3m[SeoProjectionFeederService] [39m[32m🗑️ Repeatable feeder R1 obsolète supprimé: repeat:seo-projection-r1-feed:0 2 * * *[39m
+[33m[Nest] 338201  - [39m12/09/2026 16:36:45 [33m   WARN[39m [38;5;3m[SeoProjectionFeederService] [39m[33m🧹 Feeder R1 OFF — 1 repeatable résiduel supprimé (activation passée non nettoyée) : le writer nocturne ne se déclenchera plus.[39m
+[32m[Nest] 338201  - [39m12/09/2026 16:36:45 [32m    LOG[39m [38;5;3m[SeoProjectionFeederService] [39m[32mSEO_PROJECTION_R1_FEED_ENABLED!=true — feeder R1 non planifié (flag OFF, rollout owner-gated).[39m
+[32m[Nest] 338201  - [39m12/09/2026 16:36:45 [32m    LOG[39m [38;5;3m[SeoProjectionFeederService] [39m[32m✅ Feeder R1 OFF — aucun repeatable résiduel (rien à nettoyer).[39m
+[32m[Nest] 338201  - [39m12/09/2026 16:36:45 [32m    LOG[39m [38;5;3m[SeoProjectionFeederService] [39m[32mSEO_PROJECTION_R1_FEED_ENABLED!=true — feeder R1 non planifié (flag OFF, rollout owner-gated).[39m
+[32m[Nest] 338201  - [39m12/09/2026 16:36:45 [32m    LOG[39m [38;5;3m[SeoProjectionFeederService] [39m[32m✅ Feeder R1 OFF — aucun repeatable résiduel (rien à nettoyer).[39m
+[32m[Nest] 338201  - [39m12/09/2026 16:36:45 [32m    LOG[39m [38;5;3m[SeoProjectionFeederService] [39m[32m🚀 Feeder R1 planifié (cron="0 2 * * *" UTC, exportsDir="/abs/exports").[39m
+[32m[Nest] 338201  - [39m12/09/2026 16:36:45 [32m    LOG[39m [38;5;3m[SeoProjectionFeederService] [39m[32m🗑️ Repeatable feeder R1 obsolète supprimé: repeat:seo-projection-r1-feed:0 2 * * *[39m
+[32m[Nest] 338201  - [39m12/09/2026 16:36:45 [32m    LOG[39m [38;5;3m[SeoProjectionFeederService] [39m[32m✅ Feeder R1 repeatable enregistré (cron="0 2 * * *" UTC).[39m
+PASS src/modules/admin/services/r7-brand-enricher.editorial.test.ts
+  ● Console
+
+    console.log
+      ◇ injected env (0) from .env.test // tip: ⌁ auth for agents [www.vestauth.com]
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+
+Test Suites: 2 passed, 2 total
+Tests:       21 passed, 21 total
+Snapshots:   0 total
+Time:        10.369 s
+Ran all test suites within paths "src/modules/admin/services/r7-brand-enricher.editorial.test.ts", "src/modules/seo-projection/seo-projection-feeder.test.ts".

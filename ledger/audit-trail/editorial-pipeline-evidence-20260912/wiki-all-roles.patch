@@ -1,0 +1,260 @@
+diff --git a/_scripts/README-build-exports-seo.md b/_scripts/README-build-exports-seo.md
+index bbdc0bc..2cfcb87 100644
+--- a/_scripts/README-build-exports-seo.md
++++ b/_scripts/README-build-exports-seo.md
+@@ -104,3 +104,17 @@ canon wiki puis régénérer.
+ - **PR-7** : RPC `get_active_seo_projection` + GRANT anon + adapter pages.
+ 
+ Ces composants attendent l'instruction explicite séparée (owner-gated : apply migration, GRANT, flag, deploy).
++
++## Retrait et perte d'approbation
++
++Le builder prépare le périmètre demandé avant d'écrire. Si un ancien export JSON
++n'a plus de source éligible (fiche retirée, approbation perdue ou export SEO refusé),
++la commande termine en erreur `UNRECONCILED` et conserve l'export comme preuve.
++Aucun autre export du lot n'est écrit avant cette vérification. Le mode `--entity-id`
++ne contrôle que l'export de cette entité ; le mode complet contrôle les répertoires
++SEO des types supportés. Le dry-run rapporte la même incohérence sans écrire.
++
++Ce garde ne constitue pas un tombstone ni une autorisation de supprimer : le retrait
++aval, ses dépendances et l'invalidation DB/cache/index restent à réconcilier par le
++parcours gouverné avant publication. Un échec de builder ne doit pas être annoncé
++comme un snapshot complet fraîchement publiable.
+diff --git a/_scripts/build_exports_seo.py b/_scripts/build_exports_seo.py
+index 1953d5b..bc73ace 100644
+--- a/_scripts/build_exports_seo.py
++++ b/_scripts/build_exports_seo.py
+@@ -665,14 +665,45 @@ def main(wiki_root: Path, entity_id: str | None, dry_run: bool) -> None:
+     else:
+         candidates = _iter_canon_files(wiki_root)
+ 
+-    written = 0
++    # Plan the whole requested scope before writing. A rejected/deleted source
++    # must not leave a formerly approved export while the run reports success.
++    # Its absence is not deletion authority: preserve it for governed withdrawal.
++    payloads: list[dict] = []
+     skipped = 0
+     for src in candidates:
+         commit_sha, commit_date = _wiki_file_commit_meta(wiki_root, src)
+         payload = build_export(src, wiki_root, commit_sha, commit_date)
+         if payload is None:
+             skipped += 1
+-            continue
++        else:
++            payloads.append(payload)
++
++    exports_root = wiki_root / "exports" / "seo"
++    expected = {
++        exports_root / p["entity_type"] / f"{p['entity_id'].split(':', 1)[1]}.json"
++        for p in payloads
++    }
++    if entity_id:
++        scoped_export = exports_root / entity_type / f"{slug}.json"
++        existing = {scoped_export} if scoped_export.exists() else set()
++    else:
++        existing = {
++            path
++            for kind in SEO_ENTITY_TYPES_BASE | {DIAGNOSTIC_CONDITIONAL_TYPE}
++            for path in (exports_root / kind).glob("*.json")
++            if path.is_file()
++        }
++    unreconciled = sorted(existing - expected)
++    if unreconciled:
++        for path in unreconciled:
++            click.echo(f"UNRECONCILED {path.relative_to(wiki_root)} (preserved)", err=True)
++        raise click.ClickException(
++            "Retained SEO exports have no eligible source in the requested scope; "
++            "governed withdrawal reconciliation required before publication."
++        )
++
++    written = 0
++    for payload in payloads:
+         if dry_run:
+             click.echo(
+                 f"DRY_RUN would-write exports/seo/{payload['entity_type']}/{payload['entity_id'].split(':', 1)[1]}.json"
+diff --git a/_scripts/compute-confidence-score.py b/_scripts/compute-confidence-score.py
+index 35697de..cc8368d 100755
+--- a/_scripts/compute-confidence-score.py
++++ b/_scripts/compute-confidence-score.py
+@@ -66,20 +66,22 @@ def split_frontmatter(text: str) -> tuple[str, str]:
+ 
+ 
+ def count_filled_sections(body: str, required: list[str]) -> int:
+-    headings = [h.lower() for h in H2_RE.findall(body)]
++    headings = list(H2_RE.finditer(body))
+     filled = 0
+     for sec in required:
+         sec_low = sec.lower()
+-        if any(sec_low in h or h in sec_low for h in headings):
+-            # Check section has content (≥ 20 non-whitespace chars after heading)
+-            pattern = re.compile(rf"^##\s+.*{re.escape(sec[:8])}", re.MULTILINE | re.IGNORECASE)
+-            m = pattern.search(body)
+-            if m:
+-                start = m.end()
+-                next_h2 = H2_RE.search(body, start)
+-                section_body = body[start : next_h2.start() if next_h2 else len(body)]
+-                if len(re.sub(r"\s+", "", section_body)) >= 20:
+-                    filled += 1
++        for index, heading in enumerate(headings):
++            title = heading.group(1).lower()
++            if sec_low not in title and title not in sec_low:
++                continue
++            # Only the body after the COMPLETE heading contributes substance.
++            # Matching the first eight title characters counted the remaining
++            # title as content and let empty sections pass the 20-char floor.
++            end = headings[index + 1].start() if index + 1 < len(headings) else len(body)
++            section_body = body[heading.end():end]
++            if len(re.sub(r"\s+", "", section_body)) >= 20:
++                filled += 1
++                break
+     return filled
+ 
+ 
+diff --git a/_scripts/test_build_exports_seo.py b/_scripts/test_build_exports_seo.py
+index da22829..d034061 100644
+--- a/_scripts/test_build_exports_seo.py
++++ b/_scripts/test_build_exports_seo.py
+@@ -733,3 +733,111 @@ def test_entity_data_vehicle_engine_maps_validate_against_schema() -> None:
+     schema = json.loads(VEHICLE_SCHEMA_PATH.read_text(encoding="utf-8"))
+     ed = _vehicle_fm_with_engine_maps()["entity_data"]
+     jsonschema.validate(ed, schema)  # conforme vehicle.schema v1.1.0
++
++
++# Explicit structured content for every requested public role. These test the
++# export boundary, not source truth or live publication; roles are declared by
++# the fixture rather than inferred from an arbitrary article body.
++EDITORIAL_ROLE_CASES = [
++    ('gamme', 'R1_ROUTER'), ('gamme', 'R2_PRODUCT'),
++    ('gamme', 'R3_CONSEILS'), ('gamme', 'R6_GUIDE_ACHAT'),
++    ('constructeur', 'R7_BRAND'), ('vehicle', 'R8_VEHICLE'),
++]
++
++
++@pytest.mark.parametrize('entity_type,role', EDITORIAL_ROLE_CASES)
++def test_explicit_editorial_role_preserves_structured_evidence(tmp_path, entity_type, role):
++    content = f'Fixture éditoriale {role} sans affirmation mécanique.'
++    src = _write_wiki_fiche(
++        tmp_path, entity_type, 'fixture-editorial', roles_allowed=[role],
++        extra_fm={
++            'source_refs': [{'id': 'oem:fixture', 'type': 'oem'}],
++            'entity_data': {'blocks': [{
++                'role': role, 'section': 'fixture', 'content_md': content,
++                'source_ids': ['oem:fixture'], 'truth_level': 'sourced',
++            }]},
++        },
++    )
++    payload = builder.build_export(src, tmp_path, 'a' * 40)
++    assert payload is not None
++    _validate(payload)
++    assert payload['roles_allowed'] == [role]
++    assert len(payload['blocks']) == 1
++    assert payload['blocks'][0]['content_md'] == content
++    assert payload['blocks'][0]['source_ids'] == ['oem:fixture']
++    assert payload['blocks'][0]['role'] == role
++
++
++@pytest.mark.parametrize('entity_type,role', EDITORIAL_ROLE_CASES)
++def test_editorial_role_losing_approval_is_not_exported(tmp_path, entity_type, role):
++    src = _write_wiki_fiche(
++        tmp_path, entity_type, 'fixture-editorial', roles_allowed=[role],
++        review_status='pending',
++    )
++    assert builder.build_export(src, tmp_path, 'a' * 40) is None
++
++
++def test_r9_is_not_silently_promoted_to_public_editorial_contract():
++    import jsonschema
++    payload = _valid_payload()
++    payload['roles_allowed'] = ['R9_GOVERNANCE']
++    with pytest.raises(jsonschema.ValidationError):
++        _validate(payload)
++
++
++def _invoke_fixture_builder(tmp_path, monkeypatch, extra_args=()):
++    from click.testing import CliRunner
++    schema = tmp_path / '_meta/schema/exports-seo.schema.json'
++    schema.parent.mkdir(parents=True, exist_ok=True)
++    schema.write_bytes(SCHEMA_PATH.read_bytes())
++    # Git metadata resolution is separately tested; no real repository/commit
++    # mutations are necessary to exercise output reconciliation.
++    monkeypatch.setattr(builder, '_assert_full_clone', lambda root: None)
++    monkeypatch.setattr(builder, '_wiki_file_commit_meta', lambda root, src: ('a' * 40, '2026-09-12T00:00:00Z'))
++    return CliRunner().invoke(builder.main, ['--wiki-root', str(tmp_path), *extra_args])
++
++
++@pytest.mark.parametrize('single', [False, True])
++def test_cli_refuses_retained_export_after_approval_loss(tmp_path, monkeypatch, single):
++    _write_wiki_fiche(tmp_path, 'gamme', 'fixture-old', review_status='pending')
++    old = tmp_path / 'exports/seo/gamme/fixture-old.json'
++    old.parent.mkdir(parents=True)
++    old.write_text('historical export evidence')
++    args = ['--entity-id', 'gamme:fixture-old'] if single else []
++    result = _invoke_fixture_builder(tmp_path, monkeypatch, args)
++    assert result.exit_code != 0
++    assert 'UNRECONCILED' in result.output
++    assert old.read_text() == 'historical export evidence'
++
++
++def test_cli_refuses_orphan_export_before_writing_other_candidates(tmp_path, monkeypatch):
++    _write_wiki_fiche(tmp_path, 'gamme', 'fixture-new')
++    old = tmp_path / 'exports/seo/gamme/fixture-removed.json'
++    old.parent.mkdir(parents=True)
++    old.write_text('preserved withdrawal evidence')
++    result = _invoke_fixture_builder(tmp_path, monkeypatch)
++    assert result.exit_code != 0
++    assert 'UNRECONCILED' in result.output
++    assert old.read_text() == 'preserved withdrawal evidence'
++    assert not (old.parent / 'fixture-new.json').exists()
++
++
++def test_cli_dry_run_reports_unreconciled_export_without_writing(tmp_path, monkeypatch):
++    old = tmp_path / 'exports/seo/constructeur/fixture-removed.json'
++    old.parent.mkdir(parents=True)
++    old.write_text('preserved')
++    result = _invoke_fixture_builder(tmp_path, monkeypatch, ['--dry-run'])
++    assert result.exit_code != 0
++    assert 'UNRECONCILED' in result.output
++    assert old.read_text() == 'preserved'
++
++
++def test_cli_coherent_export_succeeds_and_replays_identically(tmp_path, monkeypatch):
++    _write_wiki_fiche(tmp_path, 'gamme', 'fixture-new')
++    result = _invoke_fixture_builder(tmp_path, monkeypatch)
++    assert result.exit_code == 0, result.output
++    out = tmp_path / 'exports/seo/gamme/fixture-new.json'
++    before = out.read_bytes()
++    result = _invoke_fixture_builder(tmp_path, monkeypatch)
++    assert result.exit_code == 0, result.output
++    assert out.read_bytes() == before
+diff --git a/_scripts/tests/test_confidence_schema_contract.py b/_scripts/tests/test_confidence_schema_contract.py
+index c436ef1..d56d75a 100644
+--- a/_scripts/tests/test_confidence_schema_contract.py
++++ b/_scripts/tests/test_confidence_schema_contract.py
+@@ -63,3 +63,27 @@ def test_source_metadata_stays_strict():
+     fm["source_refs"][0]["unrecognized_evidence"] = True
+     with pytest.raises(ValidationError):
+         VALIDATOR.validate(fm)
++
++
++def test_long_heading_without_body_is_not_substance():
++    body = '\n'.join(
++        f"## {heading} avec un titre artificiellement tres long sans explication\n"
++        for heading in SCORER.SECTIONS_REQUIRED['gamme']
++    )
++    assert SCORER.count_filled_sections(body, SCORER.SECTIONS_REQUIRED['gamme']) == 0
++
++
++def test_next_heading_cannot_fill_previous_section():
++    body = '## Definition\n\n## Another long heading that contains no explanation\n'
++    assert SCORER.count_filled_sections(body, ['Definition']) == 0
++
++
++@pytest.mark.parametrize('content, expected', [('x' * 19, 0), ('x' * 20, 1), (' \n\t', 0)])
++def test_substance_boundary_excludes_heading_and_whitespace(content, expected):
++    body = f'## Definition with a long explanatory-looking heading\n{content}\n'
++    assert SCORER.count_filled_sections(body, ['Definition']) == expected
++
++
++def test_duplicate_heading_counts_required_section_only_once():
++    body = '## Definition\n' + 'x' * 20 + '\n## Definition\n' + 'y' * 20
++    assert SCORER.count_filled_sections(body, ['Definition']) == 1

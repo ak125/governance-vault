@@ -1,0 +1,48 @@
+{
+  "observed_date": "2026-09-13",
+  "scope_requested": "Continuer le raccordement de la boucle apres les corrections de scores/doublons",
+  "scope_actually_scanned": "Instructions operateur R3, dispatch retire, projection et decision de lecture",
+  "files_read_count": 20,
+  "files": [
+    "app:workspaces/seo-batch/.claude/skills/seo-content-loop/SKILL.md",
+    "app:workspaces/seo-batch/.claude/agents/keyword-planner.md",
+    "app:workspaces/seo-batch/.claude/agents/r3-keyword-planner.md",
+    "app:workspaces/seo-batch/.claude/agents/r3-keyword-plan-batch.md",
+    "app:workspaces/seo-batch/.claude/agents/conseil-batch.md",
+    "app:audit/registry/canonical.json (jq filtre)",
+    "app:backend/src/workers/processors/pipeline-chain.processor.ts",
+    "app:backend/src/modules/admin/controllers/admin-pipeline.controller.ts",
+    "app:backend/src/modules/seo-projection/seo-projection-admin.controller.ts",
+    "app:backend/src/modules/seo-projection/seo-projection-gate.service.ts",
+    "app:backend/src/modules/admin/services/execution-router.service.ts (extraits)",
+    "app:backend/src/config/execution-registry.constants.ts (extraits)",
+    "app:backend/src/modules/seo-projection/seo-projection-feed.processor.ts",
+    "app:backend/src/modules/seo-projection/seo-projection-feeder.service.ts (extraits)",
+    "app:backend/src/modules/blog/services/r3-projection-decision.service.ts (extraits)",
+    "app:backend/src/modules/admin/services/execution-router.service.test.ts (cas R3)",
+    "app:backend/src/modules/blog/services/r3-projection-decision.service.test.ts (cas pret/servi)",
+    "app:scripts/agents/validate-agents-md.sh (extraits)",
+    "wiki:_meta/quality-gates.md (decision automatique)",
+    "wiki:_meta/source-policy.md (perimetre editorial)"
+  ],
+  "roots": {
+    "app": "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912",
+    "wiki": "/opt/automecanik/wiki-editorial-qualification-20260912"
+  },
+  "authorization": "Poursuite et corrections demandees; candidats isoles",
+  "corrections_applied": ["r3-keyword-planner.md", "r3-keyword-plan-batch.md", "keyword-planner.md", "conseil-batch.md"],
+  "corrections_proposed": ["Identifier appelant effectif audit", "Completer liaison de rendu R3 suivant son contrat", "Acquisition utile et preuves WIKI"],
+  "validation_executed": {
+    "tests": "45 PASS /2 suites existantes, doubles de DB et reader",
+    "yaml": "4 frontmatters PASS",
+    "instructions": "0 blocage;2 avertissements preexistants sur lignes inchangees de conseil-batch",
+    "diff": "PASS",
+    "runtime": "Non execute; aucun reseau/DB dans les tests"
+  },
+  "evidence": ["r3-operator-routing-tests.log", "r3-operator-routing.patch"],
+  "patch_sha256": "ba67c4720cdd2e1819a61ad91e3da27be7158506cfd8fd1bd48d6ee796f2be38",
+  "excluded_paths": ["DB/corpus partages", "Flags et services runtime", "SEO indexe", "Autres roles R1/R2/R4/R5/R6/R7/R8"],
+  "unscanned_zones": ["Execution effective de la boucle en service", "Renderer R3 futur et activation", "Decouverte de sources", "Appelants externes de l'audit"],
+  "remaining_unknowns": ["Presence de projection ne prouve pas rendu public", "Audit de sections ne dispose pas d'appelant confirme", "Instructions corrigees non publiees/deployees", "Les autres controles qualite restent partiels"],
+  "final_status": "PARTIAL_COVERAGE"
+}

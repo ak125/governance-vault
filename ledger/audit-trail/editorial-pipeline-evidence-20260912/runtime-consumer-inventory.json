@@ -1,0 +1,72 @@
+{
+  "observation_date": "2026-09-12",
+  "read_only": true,
+  "db_mutations": 0,
+  "source_identity": "Supabase project matched to backend SUPABASE_URL; internal Weaviate schema through rag-api-prod",
+  "supabase": {
+    "project_ref": "cxpojprgwgubzjyqzmoq",
+    "seo_entity_facts": 0,
+    "seo_entity_fact_versions": 0,
+    "seo_content_blocks": 0,
+    "seo_content_block_versions": 0,
+    "seo_projection_runs": 0,
+    "rag_knowledge_rows": 619,
+    "empty_rag_bodies": 0,
+    "retrievable_rag_rows": 502,
+    "status_retrievable_counts": [
+      {
+        "status": "active",
+        "retrievable": false,
+        "rows": 4
+      },
+      {
+        "status": "active",
+        "retrievable": true,
+        "rows": 494
+      },
+      {
+        "status": "archived",
+        "retrievable": false,
+        "rows": 4
+      },
+      {
+        "status": "merged",
+        "retrievable": false,
+        "rows": 12
+      },
+      {
+        "status": "merged",
+        "retrievable": true,
+        "rows": 1
+      },
+      {
+        "status": "quarantined",
+        "retrievable": false,
+        "rows": 97
+      },
+      {
+        "status": "superseded",
+        "retrievable": true,
+        "rows": 7
+      }
+    ]
+  },
+  "weaviate": {
+    "observed_container": "weaviate-prod",
+    "KB_Knowledge_v2_present": false,
+    "counts": {
+      "KB_Knowledge": 9945,
+      "KB_Catalog": 7035,
+      "KB_Diagnostic": 421,
+      "KB_Media": 176
+    },
+    "observed_vectorizer": "none for the five KB_ collections, including RouterMemory",
+    "knowledge_collection_env_override": null
+  },
+  "limits": [
+    "Counts are point-in-time, not validation of document content",
+    "SQL __rag_knowledge is distinct from Weaviate KB_Knowledge and the absent v2 collection",
+    "8 non-active rows retain retrievable=true; inspected SQL consumer paths also filter status=active, so exposure is not established",
+    "No migration, repair, reindex, deletion, feature flag change or query embedding performed"
+  ]
+}

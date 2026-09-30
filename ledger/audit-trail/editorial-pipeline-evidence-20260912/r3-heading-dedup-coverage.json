@@ -1,0 +1,60 @@
+{
+  "scope_requested": "Ameliorer et continuer les controles de qualite et de structure, en respectant les pages regroupees",
+  "scope_actually_scanned": "Lectures ciblees des fichiers listes ; correction du gate GA3 existant et du transport des titres dans auditGamme, sans changement de regles de role ni de contenu partage",
+  "files_read_count": 19,
+  "files_read": [
+    "backend/src/modules/admin/services/keyword-plan-gates.service.ts",
+    "backend/src/modules/admin/services/conseil-quality-scorer.service.ts",
+    "backend/src/modules/admin/services/keyword-plan-gates.dedup.test.ts",
+    "backend/src/modules/admin/controllers/internal-seo-audit.r3.test.ts",
+    "backend/tests/unit/page-role-validator.test.ts",
+    "backend/src/modules/seo/validation/page-role-validator.service.ts",
+    "backend/src/modules/seo/interceptors/page-role-validation.interceptor.ts",
+    "backend/src/modules/seo/types/page-role.types.ts",
+    "packages/seo-roles/src/forbidden-overlap.ts",
+    "packages/seo-roles/src/text-normalize.ts",
+    "packages/seo-role-contracts/src/contracts/r3.ts",
+    "backend/src/config/keyword-plan.constants.ts",
+    "backend/src/config/conseil-pack.constants.ts",
+    "backend/src/modules/admin/services/conseil-quality-scorer.service.test.ts",
+    "backend/src/modules/admin/controllers/internal-seo-audit.controller.ts",
+    "backend/src/modules/blog/services/blog-seo.service.ts",
+    "backend/src/modules/blog/services/r3-projection-decision.service.ts",
+    "backend/src/modules/seo-monitoring/services/r-content-auditor.service.ts",
+    "scripts/seo/seo-r3-consolidation-evidence.ts"
+  ],
+  "excluded_paths": [
+    "donnees privees et secrets",
+    "runtime en ecriture",
+    "RLS et migrations"
+  ],
+  "unscanned_zones": [
+    "inventaire exhaustif des URL retirees",
+    "comparaison semantique des paraphrases",
+    "qualite factuelle de toutes les pages",
+    "rendu public apres deploiement"
+  ],
+  "corrections_proposed": [
+    "transporter sgc_title dans le diagnostic R3",
+    "comparaison normalisee des titres et paragraphes dans GA3",
+    "signaler les deux sections et empecher leur exclusion des travaux"
+  ],
+  "corrections_applied": [
+    "quatre fichiers du candidat isole suivant demandes explicites ameliorer et continuer ; contenus partages inchanges"
+  ],
+  "validation_executed": [
+    "avant correction : cinq nouveaux tests en echec, vingt autres passent",
+    "tests via le client Supabase installe et transport memoire GET uniquement ; colonne sgc_title demandee, controles de donnees invalides",
+    "73 tests PASS dans 5 suites ciblees",
+    "ESLint 0 erreur et 0 warning",
+    "git diff --check et staged diff --check passent sur les quatre fichiers"
+  ],
+  "remaining_unknowns": [
+    "contradiction entre vocabulaire R5 historique et S2_DIAG dans R3 : non modifiee",
+    "controle de toutes les redirections et rattachement aux revisions de pages non implementes dans ce lot",
+    "aucun test contre la base partagee",
+    "typecheck global/CI/deploiement non executes"
+  ],
+  "final_status": "PARTIAL_COVERAGE",
+  "bounded_correction_verdict": "VALIDATED_FOR_SCOPE_ONLY"
+}

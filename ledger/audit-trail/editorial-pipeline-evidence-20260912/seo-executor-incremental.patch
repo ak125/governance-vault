@@ -1,0 +1,88 @@
+--- a/agents/seo-content/AGENTS.md
++++ b/agents/seo-content/AGENTS.md
+@@ -1,4 +1,9 @@
+ # IA-SEO Master — AutoMecanik
++
++> Statut : protocole historique AI-COS, conserve pour la continuite des contrats.
++> AI-COS a ete supprime selon l'owner. Ce fichier ne configure aucun executant
++> actif et ne demande pas sa remise en service. Pour un run autorise, identifier
++> d'abord le point d'entree reel et les instructions effectivement chargees.
+ 
+ ## Rôle
+ 
+@@ -12,7 +17,8 @@
+ 
+ ## Hiérarchie
+ 
+-- Reporte à IA-CMO ; identité dans le registre Paperclip, jamais en dur ici.
++- Hierarchie historique : IA-CMO / Paperclip. Elle ne prouve pas un routage actif.
++  Le responsable et le suivi du run courant doivent etre verifies avant tout envoi.
+ - Périmètre SEO ; RAG Lead porte la couverture documentaire du chatbot.
+ - Vérité : RAW → WIKI → exports → consommateurs. RAG réservé au chatbot.
+ - Les mots-clés observés signalent la demande ; ils ne prouvent aucun fait.
+@@ -24,14 +30,16 @@
+ 
+ ## Infrastructure
+ 
+-API interne NestJS DEV pour les audits, Paperclip pour le suivi autorisé.
++API interne NestJS DEV pour les audits. Le suivi du run doit etre explicitement
++identifie et autorise ; la reference historique a Paperclip ne vaut pas activation.
+ Base URL et topologie : `.claude/rules/deployment.md`. Aucun hôte, port, identifiant
+ ou secret en dur ici. Clé interne en en-tête, jamais dans un ticket ou un rapport.
+-Pas de SQL direct, de commandes serveur ou de skills Claude exécutés depuis AI-COS.
++Ce protocole ne donne aucun droit SQL direct, commande serveur ou activation de
++service. Hermes ne recoit aucun droit d'intervention applicative supplementaire.
+ Vérifier que les endpoints et instructions candidats sont effectivement déployés
+ et chargés : leur présence dans un dépôt n'établit pas leur disponibilité.
+ 
+-## Protocole heartbeat
++## Protocole de controle pour un run autorise
+ 
+ ### 1. Inventaire réel
+ 
+@@ -63,8 +71,15 @@
+ 
+ Conserver anciennes notes, recalculs, pénalités, sections à créer/améliorer,
+ identités inconnues et doublons. Une priorité zéro ne supprime pas une correction.
+-`canSkip` porte uniquement sur ces contrôles heuristiques ; les preuves WIKI et
+-la page réellement servie restent à vérifier séparément.
++`storedCanSkip` porte sur les controles des sections stockees. `canSkip` exige
++aussi un HTML evalue et valide dans `renderedPage` ; un bon score stocke seul ne
++permet pas de passer la gamme. Conserver URL, date, empreinte et requiredAction.
++`pageReviewRequired` reste a traiter meme si sections_to_improve est vide :
++un defaut de rendu ou une redirection ne prescrit pas une reecriture des textes.
++Le statut evaluated signifie controle execute, pas qualite certifiee. Respecter
++sourceVersionMatch=not_evaluated ; les preuves WIKI, la correspondance de revision
++et la qualite factuelle restent a verifier. Si ces champs manquent, le contrat
++de rendu n'est pas disponible : signaler le perimetre non verifie.
+ 
+ Prioriser un défaut observé ou une preuve modifiée ; faute de signal, parcourir
+ les candidats dans l'ordre retourné. Conserver les identités déjà auditées et le
+@@ -80,6 +95,11 @@
+ permettra de constater l'amélioration. Ne pas inventer URL, compatibilité, volume
+ ou affirmation technique. Distinguer absence de preuve et preuve non vérifiée.
+ Une capture RAW d'URL ne prouve ni sa qualification WIKI ni une découverte utile.
++Une collecte de documents de depots compte des occurrences et contenus distincts,
++pas de nouvelles preuves automobiles. La reevaluation de propositions existantes
++ne comble pas leurs manques. Etablir separement le lien entre defaut observe,
++source recherchee, passage capture, qualification WIKI et section consommatrice.
++Un service termine sans erreur ne prouve pas qu'une page a ete amelioree.
+ 
+ Réutiliser les types de tickets existants selon les preuves disponibles :
+ 
+@@ -109,10 +129,11 @@
+ - Idempotence : vérifier les tickets ouverts avant création ou mise à jour.
+ - Conserver les plafonds existants : 9 tickets par heartbeat au total, dont au
+   plus 5 P1, 3 P2 et 1 signal KW global. Les tickets AUDIT_SEO comptent dans ce total.
+-- P1 SEO : manque de preuve bloquant établi → IA-CMO ; P1 technique → IA-CTO.
++- Routage historique : P1 SEO vers IA-CMO, P1 technique vers IA-CTO.
++  Ne pas l'executer sans destinataire actif et autorisation du run verifies.
+   P2 : composition manquante avec preuve acceptée ; P3 : audit/amélioration/signal.
+ - Budget : restitution concise, progression conservée, pas de fausse exhaustivité.
+ - Reprise réseau : 0 retry sur 4xx/5xx, 1 retry sur timeout réseau.
+-- Consulter le canon et les APIs disponibles avant de conclure. AI-COS HTTP-only
+-  ne possède pas de grep local ; `.claude/rules/agent-doc-search.md` décrit cette
+-  frontière. La documentation aide à comprendre, elle ne tranche pas les faits.
++- Consulter le canon et les APIs disponibles avant de conclure. Les droits du
++  point d'entree courant doivent etre verifies ; ne pas les deduire de l'ancien
++  AI-COS HTTP-only. La documentation aide a comprendre, elle ne tranche pas les faits.

@@ -1,0 +1,10 @@
+[1m[33mwarning[]8;;https://squawkhq.com/docs/ban-concurrent-index-creation-in-transaction\ban-concurrent-index-creation-in-transaction]8;;\][0m[1m: While regular index creation can happen inside a transaction, this is not allowed when the `CONCURRENTLY` option is used.[0m
+  [1m[94m ╭▸ [0mbackend/supabase/migrations/20260912231807_seo_projection_refresh_ack.sql:11:14
+   [1m[94m│[0m
+[1m[94m11[0m [1m[94m│[0m CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_rce_projection_refresh_pending
+   [1m[94m│[0m              [1m[33m━━━━━━━━━━━━[0m
+   [1m[94m│[0m
+   [1m[94m╰ [0m[1mhelp[0m: Build the index outside any transactions.
+
+Find detailed examples and solutions for each rule at https://squawkhq.com/docs/rules
+Found 1 issue in 1 file (checked 1 source file)

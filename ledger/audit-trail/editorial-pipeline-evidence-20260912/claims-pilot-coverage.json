@@ -1,0 +1,184 @@
+{
+  "scope_requested": "Continuer les corrections robustes des contenus et du systeme de controle.",
+  "scope_actually_scanned": "Controle natif des ancres de claims ; douze declarations historiques du filtre-a-huile ; echeance entretien ; effet structurel du validateur sur les 15 propositions WIKI.",
+  "files_read_count": 18,
+  "files_read": [
+    "/opt/automecanik/wiki-editorial-qualification-20260912/CLAUDE.md",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_meta/agent-exit-contract.md",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/filtre-a-huile.md",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/_coverage/filtre-a-huile.coverage.yaml",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_meta/source-catalog.yaml",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_meta/schema/coverage-map.schema.json",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/check-coverage-map.py",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/tests/test_check_coverage_map.py",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/tests/conftest.py",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/tests/requirements-dev.txt",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/gen_coverage_map.py",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/citation-readiness-report.py",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/compute-confidence-score.py",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/promotion_decision.py",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/test_promotion_decision.py",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/.github/workflows/wiki-quality-gates.yml",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/sources/auto-captures/filtre-a-huile/filtron-eu-wl-filtre-a-huile-clapets-b8431d6f.md",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/sources/auto-captures/filtre-a-huile/mahle-aftermarket-com-wl-filtre-a-huile-conception-media-fa488c04.md"
+  ],
+  "read_depth": "Certaines lectures de code et de la capture MAHLE ciblees par extraits. Aucune lecture exhaustive du monorepo ou du corpus.",
+  "automated_scan": {
+    "command": "check-coverage-map.py --all --strict --format json",
+    "proposal_count": 15,
+    "results": [
+      {
+        "slug": "citroen-c3",
+        "status": "PASS",
+        "coverage_entries": 5,
+        "h2_sections": 7
+      },
+      {
+        "slug": "courroie-d-accessoire",
+        "status": "WARN",
+        "coverage_entries": 0,
+        "h2_sections": 8
+      },
+      {
+        "slug": "dacia",
+        "status": "FAIL",
+        "coverage_entries": 5,
+        "h2_sections": 6
+      },
+      {
+        "slug": "disque-de-frein",
+        "status": "WARN",
+        "coverage_entries": 0,
+        "h2_sections": 14
+      },
+      {
+        "slug": "filtre-a-huile",
+        "status": "FAIL",
+        "coverage_entries": 14,
+        "h2_sections": 9
+      },
+      {
+        "slug": "ford-focus-3",
+        "status": "FAIL",
+        "coverage_entries": 5,
+        "h2_sections": 7
+      },
+      {
+        "slug": "peugeot-206",
+        "status": "FAIL",
+        "coverage_entries": 5,
+        "h2_sections": 7
+      },
+      {
+        "slug": "plaquette-de-frein",
+        "status": "FAIL",
+        "coverage_entries": 12,
+        "h2_sections": 9
+      },
+      {
+        "slug": "renault-clio-3",
+        "status": "FAIL",
+        "coverage_entries": 7,
+        "h2_sections": 7
+      },
+      {
+        "slug": "renault-megane-3",
+        "status": "FAIL",
+        "coverage_entries": 5,
+        "h2_sections": 7
+      },
+      {
+        "slug": "renault-scenic-ii",
+        "status": "WARN",
+        "coverage_entries": 0,
+        "h2_sections": 6
+      },
+      {
+        "slug": "support-moteur",
+        "status": "WARN",
+        "coverage_entries": 0,
+        "h2_sections": 8
+      },
+      {
+        "slug": "thermostat",
+        "status": "WARN",
+        "coverage_entries": 0,
+        "h2_sections": 8
+      },
+      {
+        "slug": "vanne-egr",
+        "status": "WARN",
+        "coverage_entries": 0,
+        "h2_sections": 9
+      },
+      {
+        "slug": "volkswagen-golf-6",
+        "status": "FAIL",
+        "coverage_entries": 6,
+        "h2_sections": 7
+      }
+    ],
+    "scope": "Parsing de la proposition et controle schema/source FK/section/extrait ; pas validation semantique des autres fiches"
+  },
+  "excluded_paths": [
+    "Code applicatif et trois documents seo-batch utilisateur",
+    "Autres documents du corpus RAW",
+    "Infra, cron, secrets, DB, contenus servis"
+  ],
+  "unscanned_zones": [
+    "Verite des assertions dans les 14 autres propositions",
+    "Droits de publication des sources",
+    "Verification documentaire exhaustive normes/diagnostic/montage/OE-OES",
+    "CI distante et production"
+  ],
+  "corrections_proposed": [
+    "Verifier les extraits declares dans les vraies sections via le validateur existant",
+    "Remplacer les deux generalisations entretien par echeance constructeur, texte et structure alignes"
+  ],
+  "corrections_applied": {
+    "authorization": "Instructions utilisateur corriger, ameliorer et continuer ; candidat isole uniquement",
+    "files": [
+      "_scripts/check-coverage-map.py",
+      "_scripts/tests/test_check_coverage_map.py",
+      "_scripts/tests/requirements-dev.txt",
+      "proposals/filtre-a-huile.md",
+      "proposals/_coverage/filtre-a-huile.coverage.yaml",
+      "_meta/source-catalog.yaml",
+      "log.md"
+    ]
+  },
+  "validation_executed": [
+    "Avant: 12 nouveaux contre-exemples erroneement acceptes, 12 autres tests passes",
+    "Apres: 197 tests cibles PASS (24 coverage et suites promotion/production de carte/citabilite)",
+    "Compilation Python PASS",
+    "Frontmatter fiche PASS et score calcule0.46 PASS",
+    "Ancre entretien, SHA corps/fichier MAHLE et gate natif raw_ref PASS",
+    "Promotion native BLOCKED avec COVERAGE_STRICT_FAIL et SUBSTANCE_SCORE",
+    "Scan structurel 15 propositions: 1PASS/6WARN/8FAIL, 34 erreurs d ancrage"
+  ],
+  "validation_limits": [
+    "Presence d un extrait ne prouve pas le fait ou son appui documentaire",
+    "text_anchor absent reste optionnel selon le schema existant",
+    "Code et HTML bruts exclus de la preuve de prose ; pas navigateur ni preuve CSS/rendu",
+    "10 ancres du filtre restent en echec apres correction entretien",
+    "Les autres echecs sont exposes ; le candidat global n est pas pret a passer la CI couverture",
+    "197 tests ne constituent pas toute la CI ; aucun nouveau test app requis, application inchangee"
+  ],
+  "remaining_unknowns": [
+    "Rattachements/perimetres des 10 declarations restantes et qualite des assertions hors carte",
+    "Calibration globale des scores, metriques SEO reelles et reality manifest stale",
+    "Licence des archives inconnue",
+    "Etat des lignes DB et du contenu servi"
+  ],
+  "candidate_sha256": {
+    "_scripts/check-coverage-map.py": "ac21b879157cdbf39e66b27f847f739f25bcd3fd671bf2453a9afcc9e0a89c23",
+    "_scripts/tests/test_check_coverage_map.py": "05fa0bd14b3f3b00c5754cb9a46a7357f1c891e6e5ee782a76444725f9bb5f4c",
+    "_scripts/tests/requirements-dev.txt": "95cd4096fd2935c8056445d05a32649d242cc88c5f292ce1cf9f18ce84ffb759",
+    "proposals/filtre-a-huile.md": "8d93f1f93f7759ee2fe0ed0c29f38b4ea1fbca3166a344c6bc4225f350ff5e81",
+    "proposals/_coverage/filtre-a-huile.coverage.yaml": "14c090a6465e48f6a87062d4ef2f565d0ac7cec98bb893ad850158692416e846",
+    "_meta/source-catalog.yaml": "50c9255885f60c0bbbe9bf063ca7aa8554d007ca3efdd062ca0758dcdda2ebb5",
+    "log.md": "515653f3d2eb64c4a972adb9983d26d8947bfd974933160e395f8fc1b0b5b3e5"
+  },
+  "final_status": "PARTIAL_COVERAGE",
+  "bounded_validation": "VALIDATED_FOR_SCOPE_ONLY"
+}

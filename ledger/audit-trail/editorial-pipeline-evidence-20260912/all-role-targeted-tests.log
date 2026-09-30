@@ -1,0 +1,66 @@
+PASS src/modules/admin/services/r7-brand-enricher.editorial.test.ts (9.951 s)
+  ● Console
+
+    console.log
+      ◇ injected env (0) from .env.test // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+PASS tests/unit/page-role-validator.test.ts
+  ● Console
+
+    console.log
+      ◇ injected env (0) from .env.test // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+PASS src/modules/admin/services/r1-keyword-plan-batch.service.test.ts
+  ● Console
+
+    console.log
+      ◇ injected env (0) from .env.test // tip: ⌘ enable debugging { debug: true }
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+[32m[Nest] 336470  - [39m12/09/2026 16:32:43 [32m    LOG[39m [38;5;3m[SupabaseBaseService] [39m[32m✅ SupabaseBaseService initialized[39m
+[32m[Nest] 336470  - [39m12/09/2026 16:32:43 [32m    LOG[39m [38;5;3m[SupabaseBaseService] [39m[32m📍 URL: http://localhost:54321[39m
+[32m[Nest] 336470  - [39m12/09/2026 16:32:43 [32m    LOG[39m [38;5;3m[SupabaseBaseService] [39m[32m🔑 Service key present: Yes[39m
+[32m[Nest] 336470  - [39m12/09/2026 16:32:43 [32m    LOG[39m [38;5;3m[SupabaseBaseService] [39m[32m🔓 RLS: Bypassed automatically with service_role key[39m
+[32m[Nest] 336470  - [39m12/09/2026 16:32:43 [32m    LOG[39m [38;5;3m[SupabaseBaseService] [39m[32m✅ SupabaseBaseService initialized[39m
+[32m[Nest] 336470  - [39m12/09/2026 16:32:43 [32m    LOG[39m [38;5;3m[SupabaseBaseService] [39m[32m📍 URL: http://localhost:54321[39m
+[32m[Nest] 336470  - [39m12/09/2026 16:32:43 [32m    LOG[39m [38;5;3m[SupabaseBaseService] [39m[32m🔑 Service key present: Yes[39m
+[32m[Nest] 336470  - [39m12/09/2026 16:32:43 [32m    LOG[39m [38;5;3m[SupabaseBaseService] [39m[32m🔓 RLS: Bypassed automatically with service_role key[39m
+[32m[Nest] 336470  - [39m12/09/2026 16:32:43 [32m    LOG[39m [38;5;3m[SupabaseBaseService] [39m[32m✅ SupabaseBaseService initialized[39m
+[32m[Nest] 336470  - [39m12/09/2026 16:32:43 [32m    LOG[39m [38;5;3m[SupabaseBaseService] [39m[32m📍 URL: http://localhost:54321[39m
+[32m[Nest] 336470  - [39m12/09/2026 16:32:43 [32m    LOG[39m [38;5;3m[SupabaseBaseService] [39m[32m🔑 Service key present: Yes[39m
+[32m[Nest] 336470  - [39m12/09/2026 16:32:43 [32m    LOG[39m [38;5;3m[SupabaseBaseService] [39m[32m🔓 RLS: Bypassed automatically with service_role key[39m
+[32m[Nest] 336470  - [39m12/09/2026 16:32:43 [32m    LOG[39m [38;5;3m[SupabaseBaseService] [39m[32m✅ SupabaseBaseService initialized[39m
+[32m[Nest] 336470  - [39m12/09/2026 16:32:43 [32m    LOG[39m [38;5;3m[SupabaseBaseService] [39m[32m📍 URL: http://localhost:54321[39m
+[32m[Nest] 336470  - [39m12/09/2026 16:32:43 [32m    LOG[39m [38;5;3m[SupabaseBaseService] [39m[32m🔑 Service key present: Yes[39m
+[32m[Nest] 336470  - [39m12/09/2026 16:32:43 [32m    LOG[39m [38;5;3m[SupabaseBaseService] [39m[32m🔓 RLS: Bypassed automatically with service_role key[39m
+[32m[Nest] 336470  - [39m12/09/2026 16:32:43 [32m    LOG[39m [38;5;3m[SupabaseBaseService] [39m[32m✅ SupabaseBaseService initialized[39m
+[32m[Nest] 336470  - [39m12/09/2026 16:32:43 [32m    LOG[39m [38;5;3m[SupabaseBaseService] [39m[32m📍 URL: http://localhost:54321[39m
+[32m[Nest] 336470  - [39m12/09/2026 16:32:43 [32m    LOG[39m [38;5;3m[SupabaseBaseService] [39m[32m🔑 Service key present: Yes[39m
+[32m[Nest] 336470  - [39m12/09/2026 16:32:43 [32m    LOG[39m [38;5;3m[SupabaseBaseService] [39m[32m🔓 RLS: Bypassed automatically with service_role key[39m
+PASS src/modules/blog/services/r6-guide.service.redirect.test.ts
+  ● Console
+
+    console.log
+      ◇ injected env (0) from .env.test // tip: ⌁ auth for agents [www.vestauth.com]
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+PASS src/modules/seo-projection/seo-projection-gate.test.ts
+  ● Console
+
+    console.log
+      ◇ injected env (0) from .env.test // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+
+Test Suites: 5 passed, 5 total
+Tests:       69 passed, 69 total
+Snapshots:   0 total
+Time:        13.572 s
+Ran all test suites within paths "src/modules/admin/services/r7-brand-enricher.editorial.test.ts", "src/modules/admin/services/r1-keyword-plan-batch.service.test.ts", "src/modules/blog/services/r6-guide.service.redirect.test.ts", "src/modules/seo-projection/seo-projection-gate.test.ts", "tests/unit/page-role-validator.test.ts".

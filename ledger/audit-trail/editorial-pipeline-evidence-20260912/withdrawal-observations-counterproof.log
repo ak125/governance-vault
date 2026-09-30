@@ -1,0 +1,113 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+_ test_non_json_source_metadata_reports_invalid_without_losing_export[2026-09-13] _
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-409/test_non_json_source_metadata_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fb8cc82a050>
+value = '2026-09-13'
+
+    @pytest.mark.parametrize('value', ['2026-09-13', '!!set {invalid: null}', '.nan'])
+    def test_non_json_source_metadata_reports_invalid_without_losing_export(tmp_path, monkeypatch, value):
+        src = _write_wiki_fiche(tmp_path, 'gamme', 'fixture-old', review_status='deprecated')
+        src.write_text(src.read_text().replace('---\n', f'---\nlineage_id: {value}\n', 1))
+        out = _retained_export(tmp_path)
+        before = out.read_bytes()
+        result = _invoke_fixture_builder(tmp_path, monkeypatch, ['--format', 'json'])
+        assert result.exit_code != 0
+>       row, = json.loads(result.stdout)['observations']
+
+_scripts/test_build_exports_seo.py:974: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.10/json/__init__.py:346: in loads
+    return _default_decoder.decode(s)
+/usr/lib/python3.10/json/decoder.py:337: in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <json.decoder.JSONDecoder object at 0x7fb8cd3f98a0>, s = '', idx = 0
+
+    def raw_decode(self, s, idx=0):
+        """Decode a JSON document from ``s`` (a ``str`` beginning with
+        a JSON document) and return a 2-tuple of the Python
+        representation and the index in ``s`` where the document ended.
+    
+        This can be used to decode a JSON document from a string that may
+        have extraneous data at the end.
+    
+        """
+        try:
+            obj, end = self.scan_once(s, idx)
+        except StopIteration as err:
+>           raise JSONDecodeError("Expecting value", s, err.value) from None
+E           json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+/usr/lib/python3.10/json/decoder.py:355: JSONDecodeError
+_ test_non_json_source_metadata_reports_invalid_without_losing_export[!!set {invalid: null}] _
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-409/test_non_json_source_metadata_1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fb8cc287ac0>
+value = '!!set {invalid: null}'
+
+    @pytest.mark.parametrize('value', ['2026-09-13', '!!set {invalid: null}', '.nan'])
+    def test_non_json_source_metadata_reports_invalid_without_losing_export(tmp_path, monkeypatch, value):
+        src = _write_wiki_fiche(tmp_path, 'gamme', 'fixture-old', review_status='deprecated')
+        src.write_text(src.read_text().replace('---\n', f'---\nlineage_id: {value}\n', 1))
+        out = _retained_export(tmp_path)
+        before = out.read_bytes()
+        result = _invoke_fixture_builder(tmp_path, monkeypatch, ['--format', 'json'])
+        assert result.exit_code != 0
+>       row, = json.loads(result.stdout)['observations']
+
+_scripts/test_build_exports_seo.py:974: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/lib/python3.10/json/__init__.py:346: in loads
+    return _default_decoder.decode(s)
+/usr/lib/python3.10/json/decoder.py:337: in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <json.decoder.JSONDecoder object at 0x7fb8cd3f98a0>, s = '', idx = 0
+
+    def raw_decode(self, s, idx=0):
+        """Decode a JSON document from ``s`` (a ``str`` beginning with
+        a JSON document) and return a 2-tuple of the Python
+        representation and the index in ``s`` where the document ended.
+    
+        This can be used to decode a JSON document from a string that may
+        have extraneous data at the end.
+    
+        """
+        try:
+            obj, end = self.scan_once(s, idx)
+        except StopIteration as err:
+>           raise JSONDecodeError("Expecting value", s, err.value) from None
+E           json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+/usr/lib/python3.10/json/decoder.py:355: JSONDecodeError
+__ test_non_json_source_metadata_reports_invalid_without_losing_export[.nan] ___
+
+tmp_path = PosixPath('/tmp/pytest-of-deploy/pytest-409/test_non_json_source_metadata_2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fb8cc4ce680>
+value = '.nan'
+
+    @pytest.mark.parametrize('value', ['2026-09-13', '!!set {invalid: null}', '.nan'])
+    def test_non_json_source_metadata_reports_invalid_without_losing_export(tmp_path, monkeypatch, value):
+        src = _write_wiki_fiche(tmp_path, 'gamme', 'fixture-old', review_status='deprecated')
+        src.write_text(src.read_text().replace('---\n', f'---\nlineage_id: {value}\n', 1))
+        out = _retained_export(tmp_path)
+        before = out.read_bytes()
+        result = _invoke_fixture_builder(tmp_path, monkeypatch, ['--format', 'json'])
+        assert result.exit_code != 0
+        row, = json.loads(result.stdout)['observations']
+>       assert row['reason'] == 'SOURCE_UNREADABLE_OR_INVALID'
+E       AssertionError: assert 'SOURCE_DEPRE...AWAL_DECISION' == 'SOURCE_UNREADABLE_OR_INVALID'
+E         
+E         - SOURCE_UNREADABLE_OR_INVALID
+E         + SOURCE_DEPRECATED_WITHOUT_WITHDRAWAL_DECISION
+
+_scripts/test_build_exports_seo.py:975: AssertionError
+=========================== short test summary info ============================
+FAILED _scripts/test_build_exports_seo.py::test_non_json_source_metadata_reports_invalid_without_losing_export[2026-09-13]
+FAILED _scripts/test_build_exports_seo.py::test_non_json_source_metadata_reports_invalid_without_losing_export[!!set {invalid: null}]
+FAILED _scripts/test_build_exports_seo.py::test_non_json_source_metadata_reports_invalid_without_losing_export[.nan]
+3 failed, 82 deselected in 0.24s

@@ -1,0 +1,54 @@
+E......FF.....F
+======================================================================
+ERROR: test_catalogue_identifies_exact_input_snapshots (test_catalogue.CatalogueTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/deploy/knowledge-navigation-candidate-20260913/collection/test_catalogue.py", line 129, in test_catalogue_identifies_exact_input_snapshots
+    provenance=result['provenance']
+KeyError: 'provenance'
+
+======================================================================
+FAIL: test_invalid_current_digest_is_rejected_before_any_write (test_catalogue.CatalogueTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/deploy/knowledge-navigation-candidate-20260913/collection/test_catalogue.py", line 139, in test_invalid_current_digest_is_rejected_before_any_write
+    with self.assertRaises(ValueError):collect.render_catalogue(index)
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_late_render_error_keeps_previous_projection_intact (test_catalogue.CatalogueTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/deploy/knowledge-navigation-candidate-20260913/collection/test_catalogue.py", line 151, in test_late_render_error_keeps_previous_projection_intact
+    self.assertEqual(before,after)
+AssertionError: {'nav[5150 chars]enus/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa[688 chars]|\n'} != {'nav[5150 chars]enus/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb[1456 chars]|\n'}
+Diff is 51867 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_policy_or_collector_change_cannot_report_source_deletion (test_catalogue.CatalogueTests) (field='policy_sha256')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/deploy/knowledge-navigation-candidate-20260913/collection/test_catalogue.py", line 116, in test_policy_or_collector_change_cannot_report_source_deletion
+    self.assertEqual(changes['counts']['removed'],0)
+AssertionError: 1 != 0
+
+======================================================================
+FAIL: test_policy_or_collector_change_cannot_report_source_deletion (test_catalogue.CatalogueTests) (field='collector_sha256')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/deploy/knowledge-navigation-candidate-20260913/collection/test_catalogue.py", line 116, in test_policy_or_collector_change_cannot_report_source_deletion
+    self.assertEqual(changes['counts']['removed'],0)
+AssertionError: 1 != 0
+
+======================================================================
+FAIL: test_unknown_comparison_method_cannot_report_unchanged (test_catalogue.CatalogueTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/deploy/knowledge-navigation-candidate-20260913/collection/test_catalogue.py", line 123, in test_unknown_comparison_method_cannot_report_unchanged
+    self.assertEqual(changes['counts']['unchanged'],0)
+AssertionError: 1 != 0
+
+----------------------------------------------------------------------
+Ran 16 tests in 0.045s
+
+FAILED (failures=5, errors=1)

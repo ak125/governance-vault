@@ -1,0 +1,2 @@
+src/modules/seo-projection/seo-projection-writer-role-scope.test.ts(793,19): error TS2339: Property 'rolesBlocked' does not exist on type '{ runId: string; entitiesWritten: number; rolesWritten: number; snapshot: unknown; }'.
+EXIT_CODE=2

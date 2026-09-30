@@ -1,0 +1,59 @@
+The plugin "vite-tsconfig-paths" is detected. Vite now supports tsconfig paths resolution natively via the resolve.tsconfigPaths option. You can remove the plugin and set resolve.tsconfigPaths: true in your Vite config instead.
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.9 [39m[90m/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/frontend[39m
+
+ [31m❯[39m tests/unit/r6-quality-tiers.test.tsx [2m([22m[2m3 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[32m 43[2mms[22m[39m
+     [32m✓[39m renders a valid comparison[32m 31[2mms[22m[39m
+[31m     [31m×[31m retains the section anchor and explains missing comparative information[39m[32m 5[2mms[22m[39m
+[31m     [31m×[31m does not present stale cards when the server marks the section for review[39m[32m 6[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/unit/r6-quality-tiers.test.tsx[2m > [22mR6 quality comparison[2m > [22mretains the section anchor and explains missing comparative information
+[31m[1mAssertionError[22m: expected null to be truthy[39m
+
+[32m- Expected:[39m
+true
+
+[31m+ Received:[39m
+null
+
+[36m [2m❯[22m tests/unit/r6-quality-tiers.test.tsx:[2m15:57[22m[39m
+    [90m 13|[39m   it("retains the section anchor and explains missing comparative info…
+    [90m 14|[39m     const { container } = render(<R6QualityTiersTable tiers={[]} gamme…
+    [90m 15|[39m     [34mexpect[39m(container[33m.[39m[34mquerySelector[39m([32m"#niveaux-qualite"[39m))[33m.[39m[34mtoBeTruthy[39m()[33m;[39m
+    [90m   |[39m                                                         [31m^[39m
+    [90m 16|[39m     expect(screen.getByText("Les informations comparatives ne sont pas…
+    [90m 17|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/unit/r6-quality-tiers.test.tsx[2m > [22mR6 quality comparison[2m > [22mdoes not present stale cards when the server marks the section for review
+[31m[1mAssertionError[22m: expected <div …(1)></div> to be null[39m
+
+[32m- Expected:[39m
+null
+
+[31m+ Received:[39m
+<div
+  class="inline-flex items-center gap-1 rounded-full border font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 px-2.5 py-0.5 text-xs text-foreground bg-emerald-100 text-emerald-800 border-emerald-300"
+>
+  Origine
+</div>
+
+[36m [2m❯[22m tests/unit/r6-quality-tiers.test.tsx:[2m20:43[22m[39m
+    [90m 18|[39m   it("does not present stale cards when the server marks the section f…
+    [90m 19|[39m     render(<R6QualityTiersTable tiers={[tier]} gammeName="Filtre à hui…
+    [90m 20|[39m     [34mexpect[39m(screen[33m.[39m[34mqueryByText[39m([32m"Origine"[39m))[33m.[39m[34mtoBeNull[39m()[33m;[39m
+    [90m   |[39m                                           [31m^[39m
+    [90m 21|[39m   })[33m;[39m
+    [90m 22|[39m })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[90m (3)[39m
+[2m   Start at [22m 00:16:47
+[2m   Duration [22m 758ms[2m (transform 64ms, setup 0ms, import 206ms, tests 43ms, environment 399ms)[22m
+

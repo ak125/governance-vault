@@ -1,0 +1,15 @@
+{
+  "mode": "commit",
+  "item": "wl-filtre-a-huile-ue-definitions",
+  "gamme": "filtre-a-huile",
+  "urls_total": 1,
+  "reports": [
+    {
+      "url": "https://eur-lex.europa.eu/legal-content/FR/TXT/?uri=CELEX%3A02010XC0528%2801%29-20230417",
+      "action": "ERROR",
+      "detail": "fetch_failed:CaptureHTTPError:unsupported_mime"
+    }
+  ],
+  "worklist_updated": null,
+  "next": "python _scripts/gates.py --gate I --gate J"
+}

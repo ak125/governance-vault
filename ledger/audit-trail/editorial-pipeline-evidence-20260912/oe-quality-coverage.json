@@ -1,0 +1,94 @@
+{
+  "scope_requested": "Continuer la correction robuste du systeme editorial.",
+  "scope_actually_scanned": "Affirmations OE/OES du candidat filtre-a-huile, definitions primaires et demande native de capture.",
+  "files_read_count": 17,
+  "files_read": [
+    "/opt/automecanik/wiki-editorial-qualification-20260912/CLAUDE.md",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_meta/agent-exit-contract.md",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/filtre-a-huile.md",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/_coverage/filtre-a-huile.coverage.yaml",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_meta/source-catalog.yaml",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/compute-confidence-score.py",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_meta/schema/frontmatter.schema.json",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_meta/schema/source-catalog-entry.schema.json",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/log.md",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/CLAUDE.md",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/docs/agent-capture-policy.md",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/manifests/ingestion-allowlist.yaml",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/manifests/ingestion-worklist.yaml",
+    "/opt/automecanik/governance-editorial-pipeline-20260912/ledger/audit-trail/editorial-pipeline-evidence-20260912/CHECKPOINT.md",
+    "/opt/automecanik/governance-editorial-pipeline-20260912/ledger/audit-trail/editorial-pipeline-evidence-20260912/iso-pilot-verification.md",
+    "/opt/automecanik/governance-editorial-pipeline-20260912/ledger/audit-trail/editorial-pipeline-evidence-20260912/proof-gate-coverage.json",
+    "/opt/automecanik/governance-editorial-pipeline-20260912/ledger/audit-trail/2026-09-12-editorial-pipeline-codex.md"
+  ],
+  "read_depth": "Lectures ciblees des blocs cites et des schemas ; instructions WIKI/RAW et AEC lues en entier. Hashes de code/archives verifies automatiquement, non comptabilises comme lecture editoriale.",
+  "excluded_paths": [
+    "Autres pages/propositions R",
+    "Sources RAW non referencees",
+    "Application et trois docs seo-batch utilisateur",
+    "Runtime, DB, infra, cron, exports, secrets"
+  ],
+  "unscanned_zones": [
+    "Corpus 7000+ contenus",
+    "Contenu actuellement servi",
+    "Exhaustivite du guide et relations diagnostiques",
+    "Droits de reutilisation publique des sources"
+  ],
+  "corrections_proposed": [
+    "Retrait du classement universel et des attributions globales par marque",
+    "Deux definitions europeennes et recommandations par reference",
+    "Catalogue precis et demande de capture native"
+  ],
+  "corrections_applied": [
+    "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/filtre-a-huile.md",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/_coverage/filtre-a-huile.coverage.yaml",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_meta/source-catalog.yaml",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/log.md",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/manifests/ingestion-allowlist.yaml",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/manifests/ingestion-worklist.yaml"
+  ],
+  "authorization": "Demandes utilisateur explicites de correction et continuation, candidat uniquement.",
+  "validation_executed": [
+    "Frontmatter PASS",
+    "Confidence check PASS 0.46",
+    "Deux entrees catalogue schema PASS",
+    "Structural coverage FAIL : 1 ancre diagnostique, deux ancres de section presentes",
+    "Promotion dry-run BLOCKED : six proof_unavailable et une ancre + substance 0.46",
+    "RAW I/J PASS",
+    "Capture ERROR unsupported_mime, aucun fichier",
+    "Quatre empreintes proof-gate et deux archives SHA inchangees",
+    "git diff --check WIKI/RAW PASS"
+  ],
+  "claim_counts": {
+    "before": {
+      "total": 14,
+      "captured": 8,
+      "pending_capture": 6,
+      "verified": 0
+    },
+    "after": {
+      "total": 14,
+      "captured": 8,
+      "pending_capture": 6,
+      "verified": 0
+    },
+    "retired": 2,
+    "added_distinct_pending": 2
+  },
+  "remaining_unknowns": [
+    "Archives UE/ISO absentes",
+    "Assertion diagnostique non qualifiee",
+    "Montage/reutilisation/exhaustivite",
+    "Performance SEO/GEO reelle",
+    "Cause exacte du MIME refuse non diagnostiquee ; aucune hypothese anti-bot confirmee"
+  ],
+  "final_status": "PARTIAL_COVERAGE",
+  "candidate_sha256": {
+    "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/filtre-a-huile.md": "130262252708d081e7bfca34b24ae6a6bd15d4a961195ddce9c2bae7007b4725",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/_coverage/filtre-a-huile.coverage.yaml": "95a438e0cd3fa03969ef7025e970bfcad70f080ad9fb37fc1ef4acd4523b4582",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_meta/source-catalog.yaml": "49603e58df7aee3705b5c9284374e8a8c905b91ddb5a27c48b328e6a499acf83",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/log.md": "2ddda392da2d08ef3ee78d235443af0049018e816998756b05cb69ae1cdc7e3c",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/manifests/ingestion-allowlist.yaml": "91b976387b0f003abf16671db82d31ab80c8610cedd7ef5ca44c31d03f667644",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/manifests/ingestion-worklist.yaml": "2463b46be02fc6f66512f6b9c1c8031193ae2d764303eab9d7c89faf0258efa7"
+  }
+}

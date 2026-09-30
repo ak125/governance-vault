@@ -1,0 +1,38 @@
+PASS backend/src/modules/blog/services/r3-projection-decision.service.test.ts (9.975 s)
+  ● Console
+
+    console.log
+      ◇ injected env (0) from backend/.env.test // tip: ⌘ enable debugging { debug: true }
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+[31m[Nest] 801868  - [39m13/09/2026 11:50:37 [31m  ERROR[39m [38;5;3m[ExecutionRouterService] [39m[31mExecutionRouter error: No registry entry for role: R3_CONSEILS[39m
+[31m[Nest] 801868  - [39m13/09/2026 11:50:37 [31m  ERROR[39m [38;5;3m[ExecutionRouterService] [39m[31mExecutionRouter error: No registry entry for role: R1_ROUTER[39m
+PASS backend/src/modules/admin/services/execution-router.service.test.ts
+  ● Console
+
+    console.log
+      ◇ injected env (0) from backend/.env.test // tip: ⌘ suppress logs { quiet: true }
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+
+Test Suites: 2 passed, 2 total
+Tests:       45 passed, 45 total
+Snapshots:   0 total
+Time:        10.467 s
+Ran all test suites within paths "backend/src/modules/admin/services/execution-router.service.test.ts", "backend/src/modules/blog/services/r3-projection-decision.service.test.ts".
+[95m[Nest] 801868  - [39m13/09/2026 11:50:37 [95m  DEBUG[39m [38;5;3m[ExecutionRouterService] [39m[95mExecution logged: role=R7_BRAND success=1 skipped=0 failed=0 duration=1ms[39m
+[95m[Nest] 801868  - [39m13/09/2026 11:50:37 [95m  DEBUG[39m [38;5;3m[ExecutionRouterService] [39m[95mExecution logged: role=R7_BRAND success=1 skipped=0 failed=0 duration=0ms[39m
+[95m[Nest] 801868  - [39m13/09/2026 11:50:37 [95m  DEBUG[39m [38;5;3m[ExecutionRouterService] [39m[95mExecution logged: role=R7_BRAND success=1 skipped=0 failed=0 duration=1ms[39m
+[95m[Nest] 801868  - [39m13/09/2026 11:50:37 [95m  DEBUG[39m [38;5;3m[ExecutionRouterService] [39m[95mExecution logged: role=R7_BRAND success=0 skipped=0 failed=1 duration=1ms[39m
+[95m[Nest] 801868  - [39m13/09/2026 11:50:37 [95m  DEBUG[39m [38;5;3m[ExecutionRouterService] [39m[95mExecution logged: role=R7_BRAND success=0 skipped=0 failed=1 duration=1ms[39m
+[95m[Nest] 801868  - [39m13/09/2026 11:50:37 [95m  DEBUG[39m [38;5;3m[ExecutionRouterService] [39m[95mExecution logged: role=R7_BRAND success=0 skipped=0 failed=1 duration=0ms[39m
+[95m[Nest] 801868  - [39m13/09/2026 11:50:37 [95m  DEBUG[39m [38;5;3m[ExecutionRouterService] [39m[95mExecution logged: role=R7_BRAND success=0 skipped=0 failed=1 duration=0ms[39m
+[95m[Nest] 801868  - [39m13/09/2026 11:50:37 [95m  DEBUG[39m [38;5;3m[ExecutionRouterService] [39m[95mExecution logged: role=R7_BRAND success=0 skipped=0 failed=1 duration=0ms[39m
+[95m[Nest] 801868  - [39m13/09/2026 11:50:37 [95m  DEBUG[39m [38;5;3m[ExecutionRouterService] [39m[95mExecution logged: role=R7_BRAND success=0 skipped=0 failed=1 duration=0ms[39m
+[95m[Nest] 801868  - [39m13/09/2026 11:50:37 [95m  DEBUG[39m [38;5;3m[ExecutionRouterService] [39m[95mExecution logged: role=R7_BRAND success=0 skipped=0 failed=1 duration=0ms[39m
+[95m[Nest] 801868  - [39m13/09/2026 11:50:37 [95m  DEBUG[39m [38;5;3m[ExecutionRouterService] [39m[95mExecution logged: role=R7_BRAND success=0 skipped=0 failed=1 duration=0ms[39m
+[95m[Nest] 801868  - [39m13/09/2026 11:50:37 [95m  DEBUG[39m [38;5;3m[ExecutionRouterService] [39m[95mExecution logged: role=R7_BRAND success=0 skipped=0 failed=1 duration=0ms[39m
+[95m[Nest] 801868  - [39m13/09/2026 11:50:37 [95m  DEBUG[39m [38;5;3m[ExecutionRouterService] [39m[95mExecution logged: role=R7_BRAND success=0 skipped=0 failed=1 duration=0ms[39m
+[95m[Nest] 801868  - [39m13/09/2026 11:50:37 [95m  DEBUG[39m [38;5;3m[ExecutionRouterService] [39m[95mExecution logged: role=R8_VEHICLE success=1 skipped=0 failed=0 duration=0ms[39m

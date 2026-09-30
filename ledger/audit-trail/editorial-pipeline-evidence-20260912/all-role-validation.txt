@@ -1,0 +1,6 @@
+Native fixture validations only.
+Sync 14 PASS; WIKI export 68 PASS; R7 final 6 PASS (4 failures before); contracts 73 PASS; writer 20 PASS; role admission + R7 21 PASS; other targeted run 69 PASS; R2 structure 14 PASS.
+Counts overlap; do not add as unique tests.
+ESLint 3 changed TS files PASS exit 0; backend tsc --noEmit PASS exit 0.
+WIKI pre-commit affected-file hooks PASS.
+No runtime activation, DB write, publication, or browser rendering validation.

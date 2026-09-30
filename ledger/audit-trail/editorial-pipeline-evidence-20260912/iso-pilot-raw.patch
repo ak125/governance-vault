@@ -1,0 +1,97 @@
+--- a/manifests/ingestion-allowlist.yaml
++++ b/manifests/ingestion-allowlist.yaml
+@@ -14,6 +14,7 @@
+ 
+ # ── Sources AUTORISÉES (équipementiers + constructeurs + technique) ───────────
+ allow:
++  - { domain: "iso.org", source_type: technical_datasheet, level: 2, license_status: unknown, notes: "Candidat ISO pilote: fiches publiques de metadonnees 4548-2/-9/-12 uniquement. Aucun texte integral payant, contournement ou preuve de performance produit. Controle reseau natif obligatoire." }
+   - { domain: "mahle-aftermarket.com", source_type: manufacturer_maintenance, level: 2, license_status: unknown, notes: "Passage technique Spin-on oil filter mix up: differences internes selon moteur; examen WIKI, sans reprise des chiffres promotionnels ou hydrauliques." }
+   - { domain: "filtron.eu", source_type: manufacturer_maintenance, level: 2, license_status: unknown, notes: "Pilote filtre a huile: explication technique des clapets, examen WIKI uniquement." }
+   # ── FACTUEL — product_catalog (équipementiers). NB : la DB interne AutoMecanik reste
+--- a/manifests/ingestion-worklist.yaml
++++ b/manifests/ingestion-worklist.yaml
+@@ -202,3 +202,84 @@
+       Selectionner le passage Spin-on oil filter mix up, sans generaliser la partie
+       hydraulique, les chiffres promotionnels ou les exemples de produit. Aucun
+       tableau de compatibilite ni intervalle moteur deduit. Candidat uniquement.
++
++  - id: wl-filtre-a-huile-iso-4548-2
++    subject_type: gamme
++    entity_ref:
++      pg_id: 7
++    gamme: filtre-a-huile
++    topic: Perimetre des essais de clapet de derivation
++    target_consumer:
++    - WIKI
++    priority: P1
++    rationale: 'Affirmation ISO 4548-2 presente dans le candidat mais preuve archivee manquante. Fiche publique ISO
++      1997: edition et objet seulement; aucune certification ou valeur produit deduite.'
++    discovery:
++      mode: provided
++    source:
++      authoritative_domain: iso.org
++      url: https://www.iso.org/standard/21712.html
++      source_type: technical_datasheet
++      license: null
++      license_status: unknown
++    capture:
++      status: TODO
++      content_hash: null
++      captured_at: null
++      raw_path: null
++    notes: Tentative native 2026-09-14 - HTTP403, aucune capture. Besoin editorial cible. Notice publique seulement; norme integrale non acquise/non lue. Ne pas contourner
++      robots, refus HTTP, authentification ou paywall. Etat candidat non active en runtime.
++
++  - id: wl-filtre-a-huile-iso-4548-9
++    subject_type: gamme
++    entity_ref:
++      pg_id: 7
++    gamme: filtre-a-huile
++    topic: Perimetre des essais de clapets anti-retour
++    target_consumer:
++    - WIKI
++    priority: P1
++    rationale: 'Affirmation ISO 4548-9 presente dans le candidat mais preuve archivee manquante. Fiche publique ISO
++      2008: edition et objet seulement; aucune certification ou valeur produit deduite.'
++    discovery:
++      mode: provided
++    source:
++      authoritative_domain: iso.org
++      url: https://www.iso.org/standard/44520.html
++      source_type: technical_datasheet
++      license: null
++      license_status: unknown
++    capture:
++      status: TODO
++      content_hash: null
++      captured_at: null
++      raw_path: null
++    notes: Non tente apres refus HTTP403 de la premiere notice; ne pas deduire un refus propre a cette URL. Besoin editorial cible. Notice publique seulement; norme integrale non acquise/non lue. Ne pas contourner
++      robots, refus HTTP, authentification ou paywall. Etat candidat non active en runtime.
++
++  - id: wl-filtre-a-huile-iso-4548-12
++    subject_type: gamme
++    entity_ref:
++      pg_id: 7
++    gamme: filtre-a-huile
++    topic: Perimetre de mesure de filtration et conditions de comparaison
++    target_consumer:
++    - WIKI
++    priority: P1
++    rationale: 'Affirmation ISO 4548-12 presente dans le candidat mais preuve archivee manquante. Fiche publique ISO
++      2017: edition et objet seulement; aucune certification ou valeur produit deduite.'
++    discovery:
++      mode: provided
++    source:
++      authoritative_domain: iso.org
++      url: https://www.iso.org/standard/62763.html
++      source_type: technical_datasheet
++      license: null
++      license_status: unknown
++    capture:
++      status: TODO
++      content_hash: null
++      captured_at: null
++      raw_path: null
++    notes: Non tente apres refus HTTP403 de la premiere notice; ne pas deduire un refus propre a cette URL. Besoin editorial cible. Notice publique seulement; norme integrale non acquise/non lue. Ne pas contourner
++      robots, refus HTTP, authentification ou paywall. Etat candidat non active en runtime.

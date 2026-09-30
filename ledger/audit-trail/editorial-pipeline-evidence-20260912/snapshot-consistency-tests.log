@@ -1,0 +1,23 @@
+PASS src/modules/seo-projection/seo-projection-snapshot.test.ts (9.794 s)
+  ● Console
+
+    console.log
+      ◇ injected env (0) from .env.test // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+PASS src/modules/seo-projection/seo-projection-writer-role-scope.test.ts
+  ● Console
+
+    console.log
+      ◇ injected env (0) from .env.test // tip: ⌘ override existing { override: true }
+
+      at _log (../../../../node_modules/dotenv/lib/main.js:131:11)
+
+
+Test Suites: 2 passed, 2 total
+Tests:       30 passed, 30 total
+Snapshots:   0 total
+Time:        10.389 s
+Ran all test suites within paths "src/modules/seo-projection/seo-projection-writer-role-scope.test.ts", "src/modules/seo-projection/seo-projection-snapshot.test.ts".
+EXIT_CODE=0

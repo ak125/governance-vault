@@ -1,0 +1,447 @@
+diff --git a/backend/src/modules/rag-proxy/rag-proxy.controller.ts b/backend/src/modules/rag-proxy/rag-proxy.controller.ts
+index 6c8b71333..0ba3948e9 100644
+--- a/backend/src/modules/rag-proxy/rag-proxy.controller.ts
++++ b/backend/src/modules/rag-proxy/rag-proxy.controller.ts
+@@ -21,6 +21,7 @@ import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+ import type { Response } from 'express';
+ import { RagProxyService } from './rag-proxy.service';
+ import { RagCleanupService } from './services/rag-cleanup.service';
++import { RawAcquisitionClientService } from './services/raw-acquisition-client.service';
+ import { RagImageManagementService } from './services/rag-image-management.service';
+ import { RagVideoManagementService } from './services/rag-video-management.service';
+ import { RagGammeDetectionService } from './services/rag-gamme-detection.service';
+@@ -61,6 +62,7 @@ export class RagProxyController {
+     private readonly ragGammeDetectionService: RagGammeDetectionService,
+     private readonly ragPhase2aShadowAuditService: RagPhase2aShadowAuditService,
+     private readonly webhookAuditService: WebhookAuditService,
++    private readonly rawAcquisitionClient: RawAcquisitionClientService,
+   ) {}
+ 
+   @Post('chat')
+@@ -448,16 +450,20 @@ export class RagProxyController {
+   @HttpCode(HttpStatus.OK)
+   @UseGuards(AuthenticatedGuard, IsAdminGuard)
+   @ApiOperation({
+-    summary: 'Apply an ingestion decision (upsert/archive/quarantine)',
++    summary:
++      'Receive submitted source material in RAW for later WIKI validation',
++  })
++  @ApiResponse({
++    status: 200,
++    description: 'RAW receipt; source remains to_verify and non-retrievable',
+   })
+-  @ApiResponse({ status: 200, description: 'Applied document ID' })
+   async cleanupApply(
+-    @Body() body: { doc: RagDocInput; decision: IngestDecision },
++    @Body() body: { doc: RagDocInput; decision?: IngestDecision },
+   ) {
+-    if (!body.doc || !body.decision) {
+-      throw new BadRequestException('Missing required fields: doc, decision');
++    if (!body?.doc) {
++      throw new BadRequestException('Missing required field: doc');
+     }
+-    return this.ragCleanupService.applyIngest(body.doc, body.decision);
++    return this.rawAcquisitionClient.receiveDocument(body.doc);
+   }
+ 
+   @Post('admin/cleanup/batch')
+diff --git a/backend/src/modules/rag-proxy/rag-proxy.module.ts b/backend/src/modules/rag-proxy/rag-proxy.module.ts
+index eb658e915..363a9eaf4 100644
+--- a/backend/src/modules/rag-proxy/rag-proxy.module.ts
++++ b/backend/src/modules/rag-proxy/rag-proxy.module.ts
+@@ -7,6 +7,7 @@ import { RagProxyService } from './rag-proxy.service';
+ // Existing extracted services
+ import { FrontmatterValidatorService } from './services/frontmatter-validator.service';
+ import { RagCleanupService } from './services/rag-cleanup.service';
++import { RawAcquisitionClientService } from './services/raw-acquisition-client.service';
+ import { WebhookAuditService } from './services/webhook-audit.service';
+ 
+ // P1 — extracted sub-services (dependency order)
+@@ -60,6 +61,7 @@ import { RagPhase2aShadowAuditService } from './services/rag-phase2a-shadow-audi
+     // Existing services
+     FrontmatterValidatorService,
+     RagCleanupService,
++    RawAcquisitionClientService,
+     WebhookAuditService,
+     // P1 sub-services (leaf deps first)
+     RagCircuitBreakerService,
+@@ -69,7 +71,8 @@ import { RagPhase2aShadowAuditService } from './services/rag-phase2a-shadow-audi
+     RagGammeDetectionService,
+     RagWebhookCompletionService,
+     // NB: RagIngestionService + RagWebIngestDbService RETIRÉS — rag-purge B9 (ADR-031/046).
+-    // Plus d'ingestion RAG déclenchée par l'app ; entrée = sync wiki→rag. Services bannerisés (salvage).
++    // Entrée de connaissance RAG = sync wiki→rag. cleanup/apply transmet le texte au producteur RAW.
++    // Le chemin vidéo historique reste à migrer ; aucune affirmation de purge complète ici.
+     // PDF merge pipeline
+     PdfTextExtractorService,
+     PdfRagClassifierService,
+diff --git a/backend/src/modules/rag-proxy/rag-proxy.raw-acquisition.test.ts b/backend/src/modules/rag-proxy/rag-proxy.raw-acquisition.test.ts
+new file mode 100644
+index 000000000..e0de06f54
+--- /dev/null
++++ b/backend/src/modules/rag-proxy/rag-proxy.raw-acquisition.test.ts
+@@ -0,0 +1,74 @@
++import { GUARDS_METADATA, PATH_METADATA } from '@nestjs/common/constants';
++import { RagProxyController } from './rag-proxy.controller';
++import { AuthenticatedGuard } from '../../auth/authenticated.guard';
++import { IsAdminGuard } from '../../auth/is-admin.guard';
++
++describe('legacy cleanup/apply delegates source receipt to RAW', () => {
++  const doc = {
++    title: 'Filtre',
++    content: 'Texte soumis.',
++    source: 'manual/filtre',
++    domain: 'auto',
++    category: 'knowledge',
++    truth_level: 'L1' as const,
++  };
++
++  it('never applies a browser-supplied RAG publication decision', async () => {
++    const receiveDocument = jest
++      .fn()
++      .mockResolvedValue({ destination: 'raw', status: 'to_verify' });
++    const applyIngest = jest.fn(() => {
++      throw new Error('RAG write forbidden');
++    });
++    const controller: RagProxyController = Object.assign(
++      Object.create(RagProxyController.prototype),
++      {
++        rawAcquisitionClient: { receiveDocument },
++        ragCleanupService: { applyIngest },
++      },
++    );
++    const result = await controller.cleanupApply({
++      doc,
++      decision: {
++        decision: 'ACCEPT_UPSERT',
++        reasons: [],
++        fingerprint: 'forged',
++        parent_source: 'canonical/forged',
++        proposed: { status: 'active', retrievable: true },
++      },
++    });
++    expect(result).toEqual({ destination: 'raw', status: 'to_verify' });
++    expect(receiveDocument).toHaveBeenCalledWith(doc);
++    expect(applyIngest).not.toHaveBeenCalled();
++  });
++
++  it('accepts source material without a client decision and preserves producer failures', async () => {
++    const receiveDocument = jest
++      .fn()
++      .mockRejectedValue(new Error('RAW unavailable'));
++    const controller: RagProxyController = Object.assign(
++      Object.create(RagProxyController.prototype),
++      {
++        rawAcquisitionClient: { receiveDocument },
++      },
++    );
++    await expect(controller.cleanupApply({ doc })).rejects.toThrow(
++      'RAW unavailable',
++    );
++    await expect(
++      controller.cleanupApply({ doc: undefined as never }),
++    ).rejects.toMatchObject({ status: 400 });
++    expect(receiveDocument).toHaveBeenCalledTimes(1);
++  });
++
++  it('preserves the route and both access guards', () => {
++    const method = RagProxyController.prototype.cleanupApply;
++    expect(Reflect.getMetadata(PATH_METADATA, method)).toBe(
++      'admin/cleanup/apply',
++    );
++    expect(Reflect.getMetadata(GUARDS_METADATA, method)).toEqual([
++      AuthenticatedGuard,
++      IsAdminGuard,
++    ]);
++  });
++});
+diff --git a/backend/src/modules/rag-proxy/services/raw-acquisition-client.service.test.ts b/backend/src/modules/rag-proxy/services/raw-acquisition-client.service.test.ts
+new file mode 100644
+index 000000000..5807ff5da
+--- /dev/null
++++ b/backend/src/modules/rag-proxy/services/raw-acquisition-client.service.test.ts
+@@ -0,0 +1,143 @@
++import { ConfigService } from '@nestjs/config';
++import { execFile } from 'node:child_process';
++import { RawAcquisitionClientService } from './raw-acquisition-client.service';
++
++jest.mock('node:child_process', () => ({ execFile: jest.fn() }));
++const execute = execFile as unknown as jest.Mock;
++const id = 'a'.repeat(64);
++const receipt = {
++  id,
++  action: 'RECEIVED',
++  destination: 'raw',
++  raw_path: `recycled/admin-submissions/${id}.md`,
++  content_hash: `sha256:${'b'.repeat(64)}`,
++  status: 'to_verify',
++  retrievable: false,
++  duplicate: false,
++};
++const doc = {
++  title: 'Filtre',
++  content: 'Contenu technique soumis.',
++  source: 'manual/filtre',
++};
++
++function client(configured = true) {
++  return new RawAcquisitionClientService({
++    get: (name: string) =>
++      configured
++        ? {
++            RAW_ACQUISITION_SCRIPT:
++              '/trusted/raw/_scripts/auto-capture-runner.py',
++            RAW_GITLEAKS_BIN: '/trusted/bin/gitleaks',
++          }[name]
++        : undefined,
++  } as unknown as ConfigService);
++}
++
++function result(output: unknown, error: unknown = null) {
++  const end = jest.fn();
++  execute.mockImplementation((_cmd, _args, _opts, callback) => {
++    callback(
++      error,
++      typeof output === 'string' ? output : JSON.stringify(output),
++      '',
++    );
++    return { stdin: { on: jest.fn(), end } };
++  });
++  return end;
++}
++
++beforeEach(() => execute.mockReset());
++
++describe('RAW acquisition boundary', () => {
++  it('passes declared material over stdin and strips browser authority', async () => {
++    const end = result(receipt);
++    expect(
++      await client().receiveDocument({
++        ...doc,
++        truth_level: 'L1',
++        retrievable: true,
++        decision: { proposed: { status: 'active' } },
++        fingerprint: 'forged',
++      }),
++    ).toEqual(receipt);
++    expect(JSON.parse(end.mock.calls[0][0])).toEqual(doc);
++    expect(execute.mock.calls[0][1]).toEqual([
++      '/trusted/raw/_scripts/auto-capture-runner.py',
++      '--submission-stdin',
++      '--commit',
++      '--json',
++    ]);
++    expect(execute.mock.calls[0][2].env).not.toHaveProperty(
++      'SUPABASE_SERVICE_ROLE_KEY',
++    );
++    expect(execute.mock.calls[0][2]).not.toHaveProperty('shell');
++  });
++
++  it('refuses an unavailable producer without a fallback', async () => {
++    await expect(client(false).receiveDocument(doc)).rejects.toMatchObject({
++      status: 503,
++    });
++    expect(execute).not.toHaveBeenCalled();
++  });
++
++  it('validates before invoking the producer', async () => {
++    await expect(
++      client().receiveDocument({ ...doc, content: null }),
++    ).rejects.toMatchObject({ status: 400 });
++    await expect(
++      client().receiveDocument({ ...doc, content: 'é'.repeat(600_000) }),
++    ).rejects.toMatchObject({ status: 400 });
++    expect(execute).not.toHaveBeenCalled();
++  });
++
++  it.each([
++    'not-json',
++    { ...receipt, retrievable: true },
++    { ...receipt, status: 'active' },
++    { ...receipt, action: 'PLAN' },
++    { ...receipt, raw_path: '../escape.md' },
++    { ...receipt, id: 'c'.repeat(64) },
++  ])(
++    'rejects malformed or authority-bearing producer receipts: %p',
++    async (output) => {
++      result(output);
++      await expect(client().receiveDocument(doc)).rejects.toMatchObject({
++        status: 503,
++      });
++    },
++  );
++
++  it('distinguishes a material rejection from producer failure', async () => {
++    result(
++      { action: 'ERROR', destination: 'raw', error: 'ValueError' },
++      { code: 1 },
++    );
++    await expect(client().receiveDocument(doc)).rejects.toMatchObject({
++      status: 422,
++    });
++    result(
++      { action: 'ERROR', destination: 'raw', error: 'FileNotFoundError' },
++      { code: 1 },
++    );
++    await expect(client().receiveDocument(doc)).rejects.toMatchObject({
++      status: 503,
++    });
++  });
++
++  it('never treats a timed-out process as a successful receipt', async () => {
++    result(receipt, { killed: true, code: 1 });
++    await expect(client().receiveDocument(doc)).rejects.toMatchObject({
++      status: 503,
++    });
++  });
++
++  it('keeps duplicate identity in the receipt', async () => {
++    result({ ...receipt, duplicate: true });
++    expect(await client().receiveDocument(doc)).toMatchObject({
++      id,
++      duplicate: true,
++      retrievable: false,
++    });
++  });
++});
+diff --git a/backend/src/modules/rag-proxy/services/raw-acquisition-client.service.ts b/backend/src/modules/rag-proxy/services/raw-acquisition-client.service.ts
+new file mode 100644
+index 000000000..d1b29c809
+--- /dev/null
++++ b/backend/src/modules/rag-proxy/services/raw-acquisition-client.service.ts
+@@ -0,0 +1,135 @@
++import {
++  BadRequestException,
++  Injectable,
++  ServiceUnavailableException,
++  UnprocessableEntityException,
++} from '@nestjs/common';
++import { ConfigService } from '@nestjs/config';
++import { execFile } from 'node:child_process';
++import { isAbsolute } from 'node:path';
++import { z } from 'zod';
++
++const submissionSchema = z.object({
++  title: z.string().trim().min(1).max(1000),
++  content: z.string().min(1).max(900_000),
++  source: z.string().trim().min(1).max(2000),
++  source_url: z.string().max(4000).optional(),
++  domain: z.string().max(200).optional(),
++  category: z.string().max(200).optional(),
++});
++
++const receiptSchema = z.object({
++  id: z.string().regex(/^[a-f0-9]{64}$/),
++  action: z.literal('RECEIVED'),
++  destination: z.literal('raw'),
++  raw_path: z.string().regex(/^recycled\/admin-submissions\/[a-f0-9]{64}\.md$/),
++  content_hash: z.string().regex(/^sha256:[a-f0-9]{64}$/),
++  status: z.literal('to_verify'),
++  retrievable: z.literal(false),
++  duplicate: z.boolean(),
++});
++
++export type RawAcquisitionReceipt = z.infer<typeof receiptSchema>;
++
++/**
++ * Calls the RAW-owned producer. No DB writes and no consumer fallback.
++ * The deployment must provide the producer script and its secret scanner;
++ * AUTOMECANIK_RAW_PATH remains a consumer setting, never a writable destination.
++ */
++@Injectable()
++export class RawAcquisitionClientService {
++  constructor(private readonly config: ConfigService) {}
++
++  async receiveDocument(input: unknown): Promise<RawAcquisitionReceipt> {
++    // Only declared source material crosses this boundary. A browser-provided
++    // decision, truth level, fingerprint or retrievable flag has no authority.
++    const parsed = submissionSchema.safeParse(input);
++    if (!parsed.success) {
++      throw new BadRequestException('Invalid RAW document submission');
++    }
++    const body = JSON.stringify(parsed.data);
++    if (Buffer.byteLength(body, 'utf8') > 1024 * 1024) {
++      throw new BadRequestException('RAW document submission is too large');
++    }
++    const script = this.config.get<string>('RAW_ACQUISITION_SCRIPT');
++    const scanner = this.config.get<string>('RAW_GITLEAKS_BIN');
++    if (!script || !isAbsolute(script) || !scanner || !isAbsolute(scanner)) {
++      throw new ServiceUnavailableException(
++        'RAW acquisition producer is not configured',
++      );
++    }
++
++    const output = await new Promise<{
++      stdout: string;
++      code: string | number | null;
++    }>((resolve, reject) => {
++      const child = execFile(
++        'python3',
++        [script, '--submission-stdin', '--commit', '--json'],
++        {
++          encoding: 'utf8',
++          timeout: 120_000,
++          maxBuffer: 64 * 1024,
++          // The producer does not inherit database, GitHub or application tokens.
++          env: {
++            PATH: process.env.PATH,
++            LANG: 'C.UTF-8',
++            RAW_GITLEAKS_BIN: scanner,
++          },
++        },
++        (error, stdout) => {
++          if (error && (error.killed || error.code !== 1)) {
++            reject(
++              new ServiceUnavailableException(
++                'RAW acquisition producer is unavailable',
++              ),
++            );
++            return;
++          }
++          resolve({ stdout, code: error?.code ?? 0 });
++        },
++      );
++      child.stdin?.on('error', () => {
++        reject(
++          new ServiceUnavailableException(
++            'RAW acquisition producer input failed',
++          ),
++        );
++      });
++      child.stdin?.end(body);
++    });
++
++    let decoded: unknown;
++    try {
++      decoded = JSON.parse(output.stdout);
++    } catch {
++      throw new ServiceUnavailableException('Invalid RAW acquisition receipt');
++    }
++    if (output.code !== 0) {
++      const refusal = z
++        .object({
++          action: z.literal('ERROR'),
++          destination: z.literal('raw'),
++          error: z.string(),
++        })
++        .safeParse(decoded);
++      if (refusal.success && refusal.data.error === 'ValueError') {
++        throw new UnprocessableEntityException(
++          'RAW rejected the submitted source material',
++        );
++      }
++      throw new ServiceUnavailableException(
++        'RAW acquisition could not be completed',
++      );
++    }
++    const receipt = receiptSchema.safeParse(decoded);
++    if (
++      !receipt.success ||
++      receipt.data.raw_path !==
++        `recycled/admin-submissions/${receipt.data.id}.md`
++    ) {
++      throw new ServiceUnavailableException('Invalid RAW acquisition receipt');
++    }
++    return receipt.data;
++  }
++}

@@ -1,0 +1,695 @@
+--- a/backend/src/modules/admin/services/conseil-quality-scorer.service.ts
++++ b/backend/src/modules/admin/services/conseil-quality-scorer.service.ts
+@@ -11,7 +11,11 @@
+ } from '@nestjs/common';
+ import { ConfigService } from '@nestjs/config';
+ import { z } from 'zod';
+-import { PageRoleValidatorService } from '../../seo/validation/page-role-validator.service';
++import { createHash } from 'node:crypto';
++import {
++  PageRoleValidatorService,
++  type PageValidationResult,
++} from '../../seo/validation/page-role-validator.service';
+ import {
+   KeywordPlanGatesService,
+   type ConseilSectionRow,
+@@ -68,6 +72,30 @@
+   skipped: number;
+ }
+ 
++// Resource bounds for one explicit audit GET; these are not quality thresholds.
++const RENDERED_HTML_MAX_BYTES = 2 * 1024 * 1024;
++const RENDERED_HTML_TIMEOUT_MS = 15_000;
++
++export interface RenderedR3Audit {
++  scope: 'served_html';
++  sourceVersionMatch: 'not_evaluated';
++  requestedUrl: string | null;
++  checkedAt: string;
++  status: 'evaluated' | 'unavailable' | 'redirected';
++  requiredAction:
++    | 'none'
++    | 'review_rendered_page'
++    | 'review_redirect'
++    | 'retry_rendered_audit'
++    | 'configure_audit_target';
++  reason?: string;
++  httpStatus?: number;
++  location?: string | null;
++  htmlSha256?: string;
++  bodyBytes?: number;
++  roleValidation?: PageValidationResult;
++}
++
+ // Validate the DB boundary before scoring; malformed rows cannot disappear from an audit.
+ const AuditSectionSchema = z.object({
+   sgc_id: z.union([z.string(), z.number()]),
+@@ -83,14 +111,14 @@
+   private readonly log = new Logger(ConseilQualityScorerService.name);
+ 
+   constructor(
+-    configService: ConfigService,
++    private readonly auditConfig: ConfigService,
+     private readonly auditGates: KeywordPlanGatesService,
+     private readonly roleValidator: PageRoleValidatorService,
+   ) {
+-    super(configService);
+-  }
+-
+-  /** Read-only diagnosis of stored R3 content, using fresh heuristic scores and existing gates. */
++    super(auditConfig);
++  }
++
++  /** Read-only stored-content diagnosis plus a bounded GET of the configured served page. */
+   async auditGamme(pgId: string, packLevel: PackLevel = 'standard') {
+     const { data: gamme, error: gammeError } = await this.client
+       .from('pieces_gamme')
+@@ -197,10 +225,22 @@
+     }
+     if (roleSectionsToReview.size > 0)
+       audit.audit_summary += `, role_review=${roleSectionsToReview.size}`;
++    const storedCanSkip =
++      unmappedSectionIds.length === 0 &&
++      duplicates.size === 0 &&
++      roleValidation.isValid &&
++      this.auditGates.shouldSkipGamme(audit, packLevel);
++    const renderedPage = await this.auditRenderedPage(
++      gamme.pg_alias,
++      auditRows.map((row) => row.section_type),
++    );
+     return {
+       pgId,
+       pgAlias: gamme.pg_alias,
+       pack: packLevel,
++      renderedPage,
++      storedCanSkip,
++      pageReviewRequired: renderedPage.requiredAction !== 'none',
+       scoreBasis: 'recomputed_heuristic' as const,
+       roleValidation: { ...roleValidation, scope: 'stored_sections' as const },
+       sections,
+@@ -209,11 +249,142 @@
+       audit,
+       // A clean heuristic audit is not factual qualification or publication approval.
+       canSkip:
+-        unmappedSectionIds.length === 0 &&
+-        duplicates.size === 0 &&
+-        roleValidation.isValid &&
+-        this.auditGates.shouldSkipGamme(audit, packLevel),
++        storedCanSkip &&
++        renderedPage.status === 'evaluated' &&
++        renderedPage.roleValidation?.isValid === true,
+     };
++  }
++
++  /**
++   * RR streams directly to Express, so the Nest return-value interceptor does
++   * not see that HTML. The explicit audit reads the served document instead.
++   * Never forward the audit caller's credentials, follow a redirect, or turn a
++   * rendering finding into a stored-section rewrite without revision evidence.
++   */
++  private async auditRenderedPage(
++    pgAlias: string,
++    expectedSections: readonly string[],
++  ): Promise<RenderedR3Audit> {
++    const evidence: RenderedR3Audit = {
++      scope: 'served_html',
++      sourceVersionMatch: 'not_evaluated',
++      requestedUrl: null,
++      checkedAt: new Date().toISOString(),
++      status: 'unavailable',
++      requiredAction: 'configure_audit_target',
++    };
++    let target: URL;
++    try {
++      // BASE_URL already configures SEO consumers. No implicit production fallback.
++      const base = new URL(this.auditConfig.get<string>('BASE_URL') ?? '');
++      if (
++        !['http:', 'https:'].includes(base.protocol) ||
++        base.username ||
++        base.password ||
++        base.pathname !== '/' ||
++        base.search ||
++        base.hash
++      )
++        return { ...evidence, reason: 'invalid_base_url' };
++      if (typeof pgAlias !== 'string' || !/^[a-z0-9][a-z0-9-]*$/.test(pgAlias))
++        return { ...evidence, reason: 'invalid_gamme_alias' };
++      target = new URL(`/blog-pieces-auto/conseils/${pgAlias}`, base);
++    } catch {
++      return { ...evidence, reason: 'invalid_base_url' };
++    }
++    evidence.requestedUrl = target.href;
++    evidence.requiredAction = 'retry_rendered_audit';
++    try {
++      const response = await fetch(target, {
++        method: 'GET',
++        redirect: 'manual',
++        signal: AbortSignal.timeout(RENDERED_HTML_TIMEOUT_MS),
++        headers: {
++          Accept: 'text/html',
++          'User-Agent': 'automecanik-r3-audit/1.0 (read-only)',
++        },
++      });
++      evidence.httpStatus = response.status;
++      if (response.status >= 300 && response.status < 400) {
++        await response.body?.cancel();
++        return {
++          ...evidence,
++          status: 'redirected',
++          requiredAction: 'review_redirect',
++          location: response.headers.get('location'),
++        };
++      }
++      if (response.status !== 200) {
++        await response.body?.cancel();
++        return { ...evidence, reason: 'http_status' };
++      }
++      if (
++        response.headers
++          .get('content-type')
++          ?.split(';')[0]
++          .trim()
++          .toLowerCase() !== 'text/html'
++      ) {
++        await response.body?.cancel();
++        return { ...evidence, reason: 'non_html_response' };
++      }
++      if (
++        Number(response.headers.get('content-length')) > RENDERED_HTML_MAX_BYTES
++      ) {
++        await response.body?.cancel();
++        return { ...evidence, reason: 'html_size_limit' };
++      }
++      if (!response.body) return { ...evidence, reason: 'empty_response' };
++      const reader = response.body.getReader();
++      const chunks: Buffer[] = [];
++      let size = 0;
++      try {
++        while (true) {
++          const { done, value } = await reader.read();
++          if (done) break;
++          size += value.byteLength;
++          if (size > RENDERED_HTML_MAX_BYTES) {
++            await reader.cancel();
++            return { ...evidence, reason: 'html_size_limit' };
++          }
++          chunks.push(Buffer.from(value));
++        }
++      } finally {
++        reader.releaseLock();
++      }
++      const body = Buffer.concat(chunks);
++      const roleValidation = this.roleValidator.validatePageWithHtml(
++        target.pathname,
++        '',
++        body.toString('utf8'),
++        undefined,
++        expectedSections,
++      );
++      return {
++        ...evidence,
++        status: 'evaluated',
++        requiredAction: roleValidation.isValid
++          ? 'none'
++          : 'review_rendered_page',
++        htmlSha256: createHash('sha256').update(body).digest('hex'),
++        bodyBytes: size,
++        roleValidation,
++      };
++    } catch (error) {
++      const name =
++        typeof error === 'object' &&
++        error !== null &&
++        'name' in error &&
++        typeof error.name === 'string'
++          ? error.name
++          : '';
++      return {
++        ...evidence,
++        reason: ['TimeoutError', 'AbortError'].includes(name)
++          ? 'request_timeout'
++          : 'fetch_failed',
++      };
++    }
+   }
+ 
+   // ── Public API ───────────────────────────────────────────
+--- a/backend/src/modules/admin/controllers/internal-seo-audit.r3.test.ts
++++ b/backend/src/modules/admin/controllers/internal-seo-audit.r3.test.ts
+@@ -1,3 +1,5 @@
++import { createServer } from 'node:http';
++import type { AddressInfo } from 'node:net';
+ import { Test } from '@nestjs/testing';
+ import { PageRoleValidatorService } from '../../seo/validation/page-role-validator.service';
+ import { ConfigService } from '@nestjs/config';
+@@ -14,6 +16,7 @@
+   getEffectiveSupabaseKey: () => 'fixture-only-key',
+ }));
+ 
++const nativeFetch = globalThis.fetch;
+ const KEY = 'fixture-internal-key';
+ const rows = () =>
+   PACK_DEFINITIONS.standard.requiredSections.map((section, i) => ({
+@@ -32,9 +35,25 @@
+   let failRead = false;
+   let truncated = false;
+   let requests: URL[];
++  let pageFetch: jest.SpyInstance;
++  let baseUrl: string | undefined;
++  let gammeAlias: string;
++  const pageUrl =
++    'https://pages.example.invalid/blog-pieces-auto/conseils/fixture';
++  const pageHtml = `<html><head><link rel="canonical" href="${pageUrl}"></head><body><article><p>Les outils necessaires au demontage.</p></article></body></html>`;
++  const pageResponse = (html = pageHtml) =>
++    new Response(html, {
++      status: 200,
++      headers: { 'content-type': 'text/html; charset=utf-8' },
++    });
+ 
+   beforeEach(async () => {
+     stored = rows();
++    baseUrl = 'https://pages.example.invalid';
++    gammeAlias = 'fixture';
++    pageFetch = jest
++      .spyOn(globalThis, 'fetch')
++      .mockImplementation(async () => pageResponse());
+     missing = false;
+     failRead = false;
+     truncated = false;
+@@ -48,7 +67,7 @@
+         if (url.pathname.endsWith('/pieces_gamme')) {
+           expect(url.searchParams.get('pg_id')).toBe('eq.1');
+           return new Response(
+-            JSON.stringify(missing ? [] : [{ pg_id: 1, pg_alias: 'fixture' }]),
++            JSON.stringify(missing ? [] : [{ pg_id: 1, pg_alias: gammeAlias }]),
+             {
+               status: 200,
+               headers: { 'Content-Type': 'application/json' },
+@@ -88,11 +107,13 @@
+           provide: ConfigService,
+           useValue: {
+             get: (name: string) =>
+-              name === 'INTERNAL_API_KEY'
+-                ? KEY
+-                : name === 'SUPABASE_URL'
+-                  ? 'https://example.invalid'
+-                  : 'fixture-only-key',
++              name === 'BASE_URL'
++                ? baseUrl
++                : name === 'INTERNAL_API_KEY'
++                  ? KEY
++                  : name === 'SUPABASE_URL'
++                    ? 'https://example.invalid'
++                    : 'fixture-only-key',
+           },
+         },
+         ConseilQualityScorerService,
+@@ -108,6 +129,7 @@
+   });
+   afterEach(async () => {
+     await app.close();
++    pageFetch.mockRestore();
+   });
+   const audit = (suffix = '1') =>
+     request(app.getHttpServer())
+@@ -232,6 +254,249 @@
+     await audit().expect(404);
+     expect(requests).toHaveLength(1);
+   });
++
++  it('audits served HTML with attribution and never forwards internal credentials', async () => {
++    const response = await audit().expect(200);
++    expect(pageFetch).toHaveBeenCalledTimes(1);
++    const [target, init] = pageFetch.mock.calls[0];
++    expect(String(target)).toBe(pageUrl);
++    expect(init).toEqual(
++      expect.objectContaining({ method: 'GET', redirect: 'manual' }),
++    );
++    const headers = new Headers(init.headers);
++    expect(headers.get('x-internal-key')).toBeNull();
++    expect(headers.get('cookie')).toBeNull();
++    expect(headers.get('authorization')).toBeNull();
++    expect(response.body.data.renderedPage).toEqual(
++      expect.objectContaining({
++        scope: 'served_html',
++        status: 'evaluated',
++        requestedUrl: pageUrl,
++        requiredAction: 'none',
++        sourceVersionMatch: 'not_evaluated',
++        htmlSha256: expect.stringMatching(/^[a-f0-9]{64}$/),
++        roleValidation: expect.objectContaining({ isValid: true }),
++      }),
++    );
++    expect(response.body.data.renderedPage).not.toHaveProperty('html');
++  });
++  it('keeps a broken rendered article in the work queue without rewriting stored sections', async () => {
++    const before = (await audit().expect(200)).body.data;
++    pageFetch.mockImplementation(async () =>
++      pageResponse(
++        pageHtml.replace(
++          '</article>',
++          '<div id="diagnostic-rapide">Diagnostic</div></article>',
++        ),
++      ),
++    );
++    const data = (await audit().expect(200)).body.data;
++    expect(data.canSkip).toBe(false);
++    expect(data.pageReviewRequired).toBe(true);
++    expect(data.renderedPage.requiredAction).toBe('review_rendered_page');
++    expect(data.renderedPage.roleValidation.isValid).toBe(false);
++    expect(data.audit.sections_to_improve).toEqual(
++      before.audit.sections_to_improve,
++    );
++  });
++  it('detects a stored diagnostic that disappeared from the rendered article', async () => {
++    stored.push({
++      ...stored[0],
++      sgc_id: '90',
++      sgc_section_type: 'S2_DIAG',
++      sgc_title: 'Diagnostic rapide',
++      sgc_content: 'Symptomes et code DTC : verifier le signal.',
++    });
++    jest
++      .spyOn(app.get(KeywordPlanGatesService), 'shouldSkipGamme')
++      .mockReturnValue(true);
++    const data = (await audit().expect(200)).body.data;
++    expect(data.storedCanSkip).toBe(true);
++    expect(data.canSkip).toBe(false);
++    expect(data.renderedPage.requiredAction).toBe('review_rendered_page');
++    expect(data.renderedPage.roleValidation.violations).toEqual(
++      expect.arrayContaining([
++        expect.objectContaining({
++          details: expect.objectContaining({ flag: 'R3_DIAGNOSTIC_MISSING' }),
++        }),
++      ]),
++    );
++  });
++
++  it('requires a clean served page even when the stored checks permit skipping', async () => {
++    jest
++      .spyOn(app.get(KeywordPlanGatesService), 'shouldSkipGamme')
++      .mockReturnValue(true);
++    expect((await audit().expect(200)).body.data.canSkip).toBe(true);
++    pageFetch.mockRejectedValue(new TypeError('fetch failed'));
++    const data = (await audit().expect(200)).body.data;
++    expect(data.storedCanSkip).toBe(true);
++    expect(data.canSkip).toBe(false);
++    expect(data.renderedPage).toMatchObject({
++      status: 'unavailable',
++      requiredAction: 'retry_rendered_audit',
++    });
++  });
++  it.each([301, 302, 307, 308])(
++    'surfaces redirect %s without following it or recreating a retired page',
++    async (status) => {
++      pageFetch.mockImplementation(
++        async () =>
++          new Response(null, {
++            status,
++            headers: { location: '/destination#section' },
++          }),
++      );
++      const data = (await audit().expect(200)).body.data;
++      expect(data.canSkip).toBe(false);
++      expect(data.renderedPage).toMatchObject({
++        status: 'redirected',
++        httpStatus: status,
++        location: '/destination#section',
++        requiredAction: 'review_redirect',
++      });
++      expect(pageFetch).toHaveBeenCalledTimes(1);
++    },
++  );
++  it.each([404, 429, 500])(
++    'does not validate an HTTP %s error body as content',
++    async (status) => {
++      pageFetch.mockImplementation(
++        async () =>
++          new Response(pageHtml, {
++            status,
++            headers: { 'content-type': 'text/html' },
++          }),
++      );
++      const data = (await audit().expect(200)).body.data;
++      expect(data.canSkip).toBe(false);
++      expect(data.renderedPage.status).toBe('unavailable');
++      expect(data.renderedPage.httpStatus).toBe(status);
++      expect(data.renderedPage.roleValidation).toBeUndefined();
++    },
++  );
++  it('rejects a non-HTML response', async () => {
++    pageFetch.mockImplementation(
++      async () =>
++        new Response('{}', { headers: { 'content-type': 'application/json' } }),
++    );
++    const data = (await audit().expect(200)).body.data;
++    expect(data.renderedPage.reason).toBe('non_html_response');
++    expect(data.canSkip).toBe(false);
++  });
++  it('rejects oversized HTML without scoring a truncated document', async () => {
++    pageFetch.mockImplementation(async () =>
++      pageResponse('x'.repeat(2 * 1024 * 1024 + 1)),
++    );
++    const data = (await audit().expect(200)).body.data;
++    expect(data.renderedPage.reason).toBe('html_size_limit');
++    expect(data.renderedPage.roleValidation).toBeUndefined();
++    expect(data.canSkip).toBe(false);
++  });
++  it.each([
++    undefined,
++    '',
++    'not-a-url',
++    'https://user:secret@example.invalid',
++    'https://example.invalid/path',
++  ])(
++    'requires an explicit, unambiguous environment origin (%#)',
++    async (value) => {
++      baseUrl = value;
++      const data = (await audit().expect(200)).body.data;
++      expect(data.renderedPage).toMatchObject({
++        status: 'unavailable',
++        reason: 'invalid_base_url',
++        requiredAction: 'configure_audit_target',
++      });
++      expect(data.canSkip).toBe(false);
++      expect(pageFetch).not.toHaveBeenCalled();
++    },
++  );
++
++  it('reaches a real HTTP fixture through the audit endpoint without leaking its key', async () => {
++    const hits: Array<{
++      path: string | undefined;
++      method: string | undefined;
++      key: string | string[] | undefined;
++    }> = [];
++    let status = 200;
++    const server = createServer((req, res) => {
++      hits.push({
++        path: req.url,
++        method: req.method,
++        key: req.headers['x-internal-key'],
++      });
++      res.writeHead(
++        status,
++        status === 200
++          ? { 'content-type': 'text/html' }
++          : { location: '/do-not-follow' },
++      );
++      res.end(status === 200 ? pageHtml : '');
++    });
++    await new Promise<void>((resolve) =>
++      server.listen(0, '127.0.0.1', resolve),
++    );
++    baseUrl = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
++    pageFetch.mockImplementation(nativeFetch);
++    try {
++      const data = (await audit().expect(200)).body.data;
++      expect(data.renderedPage).toMatchObject({
++        status: 'evaluated',
++        roleValidation: { isValid: true },
++      });
++      expect(hits).toEqual([
++        {
++          path: '/blog-pieces-auto/conseils/fixture',
++          method: 'GET',
++          key: undefined,
++        },
++      ]);
++      status = 301;
++      const redirected = (await audit().expect(200)).body.data;
++      expect(redirected.renderedPage.requiredAction).toBe('review_redirect');
++      expect(hits).toHaveLength(2);
++      expect(hits.some((hit) => hit.path === '/do-not-follow')).toBe(false);
++    } finally {
++      server.closeAllConnections();
++      await new Promise<void>((resolve, reject) =>
++        server.close((error) => (error ? reject(error) : resolve())),
++      );
++    }
++  });
++  it('does not return a validated result after an interrupted body read', async () => {
++    pageFetch.mockImplementation(
++      async () =>
++        new Response(
++          new ReadableStream({
++            start(controller) {
++              controller.error(new Error('truncated transport'));
++            },
++          }),
++          { headers: { 'content-type': 'text/html' } },
++        ),
++    );
++    const data = (await audit().expect(200)).body.data;
++    expect(data.renderedPage.reason).toBe('fetch_failed');
++    expect(data.renderedPage.roleValidation).toBeUndefined();
++    expect(data.canSkip).toBe(false);
++  });
++  it('surfaces a timed-out request and keeps the stored diagnosis', async () => {
++    pageFetch.mockRejectedValue(new DOMException('Timed out', 'TimeoutError'));
++    const data = (await audit().expect(200)).body.data;
++    expect(data.renderedPage.reason).toBe('request_timeout');
++    expect(data.sections).toHaveLength(stored.length);
++    expect(data.canSkip).toBe(false);
++  });
++  it('refuses path traversal or foreign URLs in a stored gamme alias', async () => {
++    gammeAlias = '../../api/private';
++    const data = (await audit().expect(200)).body.data;
++    expect(data.renderedPage.reason).toBe('invalid_gamme_alias');
++    expect(data.canSkip).toBe(false);
++    expect(pageFetch).not.toHaveBeenCalled();
++  });
++
+   it('fails visibly on a read failure or a truncated result', async () => {
+     failRead = true;
+     await audit().expect(503);
+--- a/backend/src/modules/admin/controllers/internal-seo-audit.controller.ts
++++ b/backend/src/modules/admin/controllers/internal-seo-audit.controller.ts
+@@ -1,9 +1,10 @@
+ /**
+- * Internal SEO audit endpoint for AI-COS Paperclip agents.
++ * Internal read-only SEO audit endpoints.
+  * Protected by X-Internal-Key header (same guard as internal-pipeline).
+  * NOT exposed through Caddy in prod (localhost only).
+  *
+- * GET /api/internal/seo/audit/coverage  — coverage gaps for AI-COS heartbeat
++ * R3 audit combines stored-section checks with one bounded served-page GET.
++ * Coverage remains an inventory of work candidates.
+  */
+ 
+ import {
+@@ -74,7 +75,7 @@
+     this.supabase = createClient(url, key);
+   }
+ 
+-  /** Fresh read-only R3 diagnosis; no plan write, enrichment dispatch or publication. */
++  /** Stored + served R3 diagnosis; no plan write, enrichment dispatch or publication. */
+   @Get('audit/r3/:pgId')
+   async auditR3(
+     @Param('pgId') pgId: string,
+--- a/backend/src/modules/seo/interceptors/page-role-validation.interceptor.ts
++++ b/backend/src/modules/seo/interceptors/page-role-validation.interceptor.ts
+@@ -2,7 +2,9 @@
+  * 🎯 INTERCEPTOR VALIDATION RÔLES DE PAGES SEO
+  *
+  * Phase B: Enforcement Pipeline
+- * Valide chaque page HTML contre les règles de son rôle.
++ * Valide les chaines HTML retournees par les controleurs Nest.
++ * React Router ecrit directement dans Express : ce flux SSR ne produit pas une
++ * chaine interceptee ici. L'audit R3 explicite lit la page servie pour le controler.
+  *
+  * Mode: Monitoring (logs violations, ne bloque pas)
+  */
+--- a/workspaces/seo-batch/.claude/agents/r3-keyword-planner.md
++++ b/workspaces/seo-batch/.claude/agents/r3-keyword-planner.md
+@@ -58,9 +58,30 @@
+ dans l'environnement ciblé avant de l'utiliser : du code candidat ne prouve pas
+ un endpoint déployé. Conserver son résultat et le périmètre exact de l'appel.
+ 
++L'audit effectue aussi un GET borne vers la page servie, sur `BASE_URL` configure
++pour l'environnement cible. Aucune URL ne vient de l'appelant, aucune cle interne
++n'est transmise a la page, aucune redirection n'est suivie. Une configuration
++absente/invalide ou une lecture echouee laisse `renderedPage.status=unavailable`
++et `canSkip=false` ; ne pas changer silencieusement d'environnement.
++
++Traiter `renderedPage.requiredAction` : `review_rendered_page` demande une revue
++du rendu, `review_redirect` une verification du cycle de vie/destination,
++`retry_rendered_audit` une nouvelle lecture apres resolution de l'indisponibilite,
++`configure_audit_target` une correction explicite de la cible. `pageReviewRequired`
++maintient ces taches meme si la liste des sections a ameliorer est vide. Une erreur
++de rendu ne justifie pas de reecrire automatiquement une section en base.
++Le statut `evaluated` indique que le HTML a ete lu et analyse, pas qu'il est
++conforme : examiner `roleValidation.isValid` et `requiredAction`. Si S2_DIAG est
++enregistree mais absente du HTML, l'audit le signale comme defaut de rendu.
++Conserver l'URL, la date et `htmlSha256` du resultat ; `sourceVersionMatch` reste
++`not_evaluated` : ces preuves ne garantissent pas que la page servie correspond a
++la revision des sections lues. Ne jamais recreer une page redirigee pour satisfaire
++l'audit. Aucun scheduler n'est active par cet appel.
++
+ La réponse distingue `storedScore` et les scores `recomputed_heuristic`, puis
+ retourne `audit`, `duplicateSections`, `unmappedSectionIds` et `canSkip`.
+-`canSkip` concerne ces contrôles heuristiques seulement ; ce n'est ni une preuve
++`storedCanSkip` ne concerne que les controles des sections ; `canSkip` exige aussi
++un controle HTML servi valide. Ce n'est ni une preuve
+ factuelle ni une autorisation de publication. Une lecture tronquée ou échouée
+ interrompt l'audit. Une identité inconnue ou plusieurs lignes pour une même
+ section demandent une correction explicite, sans fusion ni suppression automatique.
+@@ -75,8 +96,10 @@
+ 
+ ## P1 — Intention et collecte ciblée
+ 
+-Déterminer l'intention R3 avec les contrats courants ; orienter le diagnostic
+-approfondi vers R5, le choix d'achat vers R6 et la compatibilité vers le catalogue.
++Déterminer l'intention R3 avec les contrats courants ; conserver le diagnostic
++integre dans S2_DIAG (ADR-027), le choix d'achat sur sa surface R6 active et la
++compatibilite dans le catalogue. Les anciennes pages de detail R5 sont retirees ;
++leur redirection ne doit pas declencher une recreation.
+ Pour chaque manque utile, préciser les informations recherchées et les preuves
+ attendues. Utiliser la collecte RAW existante, puis la qualification WIKI, selon
+ le skill seo-content-loop. Une capture d'URL fournie ne prouve pas une capacité de
+--- a/backend/src/modules/seo/validation/page-role-validator.service.ts
++++ b/backend/src/modules/seo/validation/page-role-validator.service.ts
+@@ -1189,12 +1189,13 @@
+     content: string,
+     html: string,
+     declaredRole?: PageRole,
++    expectedR3Sections: readonly string[] = [],
+   ): PageValidationResult {
+     const isR3Conseils =
+       getPageRoleFromUrl(url) === PageRole.R3_BLOG &&
+       getR3SubRoleFromUrl(url) === 'conseils';
+     const result = isR3Conseils
+-      ? this.validateR3Html(url, html)
++      ? this.validateR3Html(url, html, expectedR3Sections)
+       : this.validatePage(url, content, declaredRole);
+     if (isR3Conseils && declaredRole && declaredRole !== PageRole.R3_BLOG) {
+       result.declaredRole = declaredRole;
+@@ -1222,7 +1223,11 @@
+    * This is structural/lexical evidence, not CSS visibility or factual review.
+    * Only a uniquely identified diagnostic subtree gets diagnostic rules.
+    */
+-  private validateR3Html(url: string, html: string): PageValidationResult {
++  private validateR3Html(
++    url: string,
++    html: string,
++    expectedSections: readonly string[],
++  ): PageValidationResult {
+     const document = parseDocument(html);
+     const inert = DomUtils.findAll(
+       (node) => ['script', 'style', 'template'].includes(node.name),
+@@ -1271,6 +1276,16 @@
+       document.children,
+     );
+     const sections: Array<{ sectionType: string; content: string }> = [];
++    if (
++      expectedSections.includes('S2_DIAG') &&
++      markers.length === 0 &&
++      anchors.length === 0
++    ) {
++      invalid(
++        'R3_DIAGNOSTIC_MISSING',
++        'Stored S2_DIAG is missing from the rendered article',
++      );
++    }
+     if (markers.length || anchors.length) {
+       const diagnostic = markers[0];
+       const insideArticle =

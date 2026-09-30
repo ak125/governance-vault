@@ -1,0 +1,325 @@
+--- a/_scripts/check-coverage-map.py
++++ b/_scripts/check-coverage-map.py
+@@ -23,6 +23,10 @@
+      `_meta/source-catalog.yaml` (FAIL sinon — anti-gonflement du score, ADR-089 §3).
+   4. Ancrage : chaque `coverage_entries[].section` correspond à un H2 OU H3 réel de la fiche
+      (les fiches structurent en sous-sections ; H4+ = niveau-item, hors ancrage).
++  5. Quand text_anchor est déclaré, son texte doit apparaître dans un bloc de prose
++     de cette section unique. Markdown analysé, pas de correspondance floue : les
++     exemples de code, commentaires et URL de lien ne constituent pas une preuve.
++     Cette présence ne valide ni la vérité du claim ni son appui par la source.
+ 
+ Usage:
+   python3 _scripts/check-coverage-map.py --all
+@@ -36,6 +40,9 @@
+ import json
+ import re
+ import sys
++import unicodedata
++
++from markdown_it import MarkdownIt
+ from pathlib import Path
+ 
+ import yaml
+@@ -45,8 +52,6 @@
+ except ImportError:  # pragma: no cover
+     Draft202012Validator = None
+ 
+-H2_RE = re.compile(r"^(##\s+.+?)\s*$", re.MULTILINE)
+-H3_RE = re.compile(r"^(###\s+.+?)\s*$", re.MULTILINE)
+ FRONTMATTER_RE = re.compile(r"^---\n(.*?)\n---\n?(.*)$", re.DOTALL)
+ 
+ 
+@@ -80,12 +85,45 @@
+     return (fm if isinstance(fm, dict) else {}), m.group(2)
+ 
+ 
+-def _fiche_h2(body: str) -> set[str]:
+-    return {h.strip() for h in H2_RE.findall(body)}
+-
+-
+-def _fiche_h3(body: str) -> set[str]:
+-    return {h.strip() for h in H3_RE.findall(body)}
++def _normalize_anchor(text: str) -> str:
++    # Keep negations, numbers, punctuation and accents: this is an excerpt check,
++    # never a semantic similarity score. NFC accepts equivalent Unicode spelling.
++    return " ".join(unicodedata.normalize("NFC", text).casefold().split())
++
++
++def _prose_sections(body: str) -> dict[str, list[list[str]]]:
++    """H2/H3 label -> occurrences -> prose blocks (children included).
++
++    CommonMark parsing avoids treating headings inside fenced code or comments
++    as actual sections. Matching within one block prevents assembling a claim
++    from unrelated paragraphs. Repeated headings remain ambiguous, not merged.
++    """
++    tokens = MarkdownIt("commonmark").enable("table").parse(body)
++    headings = [(i, int(t.tag[1:]), "#" * int(t.tag[1:]) + " " + tokens[i + 1].content.strip())
++                for i, t in enumerate(tokens)
++                if t.type == "heading_open" and t.level == 0]
++    sections: dict[str, list[list[str]]] = {}
++    for pos, (index, depth, label) in enumerate(headings):
++        if depth not in (2, 3):
++            continue
++        end = next((j for j, d, _ in headings[pos + 1:] if d <= depth), len(tokens))
++        blocks = []
++        for j in range(index + 3, end):
++            token = tokens[j]
++            if token.type != "inline" or tokens[j - 1].type == "heading_open":
++                continue
++            children = token.children or []
++            # Raw inline HTML may contain hidden content. Conservatively require
++            # an excerpt in ordinary Markdown prose instead of interpreting CSS.
++            if any(c.type == "html_inline" for c in children):
++                continue
++            visible = "".join(c.content if c.type in ("text", "code_inline") else
++                              " " if c.type in ("softbreak", "hardbreak") else ""
++                              for c in children)
++            if visible.strip():
++                blocks.append(_normalize_anchor(visible))
++        sections.setdefault(label, []).append(blocks)
++    return sections
+ 
+ 
+ def check_fiche(md_path: Path, root: Path, catalog: set[str], schema) -> dict:
+@@ -94,11 +132,9 @@
+     fails: list[str] = []
+     warns: list[str] = []
+     fm, body = _split_md(md_path.read_text(encoding="utf-8"))
+-    h2 = _fiche_h2(body)
+-    # Ancrage valide = H2 OU H3 : les fiches structurent en sous-sections (ex. un claim
+-    # "version" vit sous `## Particularités d'entretien` → `### Spécificités par version`).
+-    # H4+ reste niveau-item (## blocs détaillés), volontairement hors ancrage.
+-    valid_sections = h2 | _fiche_h3(body)
++    sections = _prose_sections(body)
++    h2 = {s for s in sections if s.startswith("## ")}
++    valid_sections = set(sections)
+     cov_path = root / "proposals" / "_coverage" / f"{slug}.coverage.yaml"
+ 
+     if not cov_path.is_file():
+@@ -145,6 +181,16 @@
+         sec = e.get("section")
+         if sec and sec not in valid_sections:
+             fails.append(f"entry[{i}].section='{sec}' ne correspond à aucun H2/H3 de la fiche")
++        elif sec and len(sections[sec]) != 1:
++            fails.append(f"entry[{i}].section='{sec}' ambiguë: titre répété")
++        elif "text_anchor" in e and sec in sections:
++            anchor = e["text_anchor"]
++            normalized = _normalize_anchor(anchor) if isinstance(anchor, str) else ""
++            if not normalized or not any(normalized in block for block in sections[sec][0]):
++                fails.append(
++                    f"entry[{i}].text_anchor absent de la prose de '{sec}' "
++                    f"(claim_id={e.get('claim_id')})"
++                )
+ 
+     status = "FAIL" if fails else ("WARN" if warns else "PASS")
+     return {"slug": slug, "status": status, "fails": fails, "warns": warns,
+--- a/_scripts/tests/test_check_coverage_map.py
++++ b/_scripts/tests/test_check_coverage_map.py
+@@ -131,3 +131,37 @@
+     assert ccm.main() == 1  # FAIL → enforcement exit 1
+     monkeypatch.setattr("sys.argv", ["check-coverage-map.py", "--all", "--wiki-root", str(root)])
+     assert ccm.main() == 0  # report-only → exit 0 malgré le FAIL
++
++
++@pytest.mark.parametrize("body,anchor,section,expected", [
++    ("## Fonctionnement\nLe **filtre** retient les particules.\n", "Le filtre retient les particules.", "## Fonctionnement", "PASS"),
++    ("## Fonctionnement\nLe filtre\nretient les particules.\n", "Le filtre retient les particules.", "## Fonctionnement", "PASS"),
++    ("## Fonctionnement\nMédia prévu.\n", "Me\u0301dia prévu.", "## Fonctionnement", "PASS"),
++    ("## Fonctionnement\nAutre texte.\n## FAQ\nAffirmation ailleurs.\n", "Affirmation ailleurs.", "## Fonctionnement", "FAIL"),
++    ("## Fonctionnement\nAncienne phrase modifiée.\n", "Affirmation supprimée.", "## Fonctionnement", "FAIL"),
++    ("## Fonctionnement\ntexte\n### Enfant\nAffirmation enfant.\n", "Affirmation enfant.", "## Fonctionnement", "PASS"),
++    ("## Fonctionnement\n### Enfant\ntexte\n### Voisin\nAffirmation ailleurs.\n", "Affirmation ailleurs.", "### Enfant", "FAIL"),
++    ("## Fonctionnement\nLe filtre retient\n\nles particules.\n", "Le filtre retient les particules.", "## Fonctionnement", "FAIL"),
++    ("## Fonctionnement\n<!-- Affirmation cachee. -->\n", "Affirmation cachee.", "## Fonctionnement", "FAIL"),
++    ("## Fonctionnement\n```\nAffirmation exemple.\n```\n", "Affirmation exemple.", "## Fonctionnement", "FAIL"),
++    ("```\n## Fonctionnement\nAffirmation exemple.\n```\n", "Affirmation exemple.", "## Fonctionnement", "FAIL"),
++    ("## Fonctionnement\n[Source](https://example.test/affirmation-inventee)\n", "affirmation-inventee", "## Fonctionnement", "FAIL"),
++    ("## Fonctionnement\ntexte\n## Fonctionnement\nAffirmation ambigue.\n", "Affirmation ambigue.", "## Fonctionnement", "FAIL"),
++    ("## Fonctionnement\nLe filtre ne convient pas.\n", "Le filtre convient.", "## Fonctionnement", "FAIL"),
++    ("## Fonctionnement\nValeur 40 bar.\n", "Valeur 4 bar.", "## Fonctionnement", "FAIL"),
++    ("## Fonctionnement\ntexte\n", "   ", "## Fonctionnement", "FAIL"),
++])
++def test_text_anchor_is_present_in_its_real_section(tmp_path, body, anchor, section, expected):
++    entry = {**_valid_entry(section=section), "text_anchor": anchor}
++    root = _make_wiki(tmp_path, catalog_slugs=["oem_x"], fiche_body=body,
++                      coverage={"fiche": "demo", "schema_version": "1.0.0", "coverage_entries": [entry]})
++    result = _check(root)
++    assert result["status"] == expected, result
++    if expected == "FAIL":
++        assert any("text_anchor" in f or "section" in f for f in result["fails"]), result
++
++
++def test_missing_optional_anchor_keeps_schema_contract(tmp_path):
++    root = _make_wiki(tmp_path, catalog_slugs=["oem_x"], fiche_body="## Fonctionnement\ntexte\n",
++                      coverage={"fiche": "demo", "schema_version": "1.0.0", "coverage_entries": [_valid_entry()]})
++    assert _check(root)["status"] == "PASS"
+--- a/_scripts/tests/requirements-dev.txt
++++ b/_scripts/tests/requirements-dev.txt
+@@ -4,3 +4,6 @@
+ pytest>=7.0
+ pyyaml>=5.4
+ jsonschema>=4.18      # Draft202012Validator
++
++# Runtime parser used by coverage checks; same dependency file installed by CI.
++markdown-it-py==3.0.0
+--- a/proposals/filtre-a-huile.md
++++ b/proposals/filtre-a-huile.md
+@@ -131,8 +131,7 @@
+   - remplacement_piece
+   - diagnostic_avant_achat
+   maintenance:
+-    educational_advice: "Remplacer le filtre à huile systématiquement à chaque vidange,\
+-      \ jamais le réutiliser, et toujours commander la référence d'origine du moteur."
++    educational_advice: "Respecter les échéances de remplacement du filtre indiquées par le constructeur du véhicule."
+     related_pages:
+     - huile-moteur
+     - filtre-a-air
+@@ -200,11 +199,10 @@
+       truth_level: sourced
+     maintenance_interval:
+       content_md: >-
+-        L'élément papier d'un filtre à huile est conçu pour être remplacé à chaque vidange : garder un
+-        filtre saturé fait ouvrir le by-pass prématurément et laisse circuler de l'huile non filtrée. Un
+-        filtre papier jetable ne se nettoie pas et ne se réutilise pas. La capacité de rétention doit être
+-        cohérente avec l'intervalle de service du moteur (intervalles longs en huile synthétique).
+-      source_ids: [raw:filtre-a-huile-faq-symptoms, oem:mann-filter, web:fram-synthetic]
++        Respecter les échéances de remplacement du filtre indiquées par le constructeur du véhicule.
++        Consulter le programme d'entretien applicable au véhicule pour déterminer la date ou le
++        kilométrage de remplacement ; aucune durée universelle n'est déduite du seul type d'huile.
++      source_ids: [mahle_oem_conception_filtre_huile]
+       truth_level: sourced
+     replacement_guidance:
+       content_md: >-
+@@ -218,11 +216,11 @@
+     faq:
+       content_md: >-
+         Peut-on nettoyer et réutiliser un filtre à huile ? Non pour un élément papier jetable. Quand le
+-        remplacer ? À chaque vidange. Faut-il commander par dimension ? Non : par référence d'origine du
++        remplacer ? Selon les échéances du constructeur du véhicule. Faut-il commander par dimension ? Non : par référence d'origine du
+         moteur, car le type, le filetage/joint et les clapets en dépendent. Un voyant de pression d'huile
+         vient-il toujours du filtre ? Non — c'est plus souvent le niveau, la pompe ou le capteur ; le filtre
+         colmaté n'est qu'une cause possible.
+-      source_ids: [raw:filtre-a-huile-faq-symptoms, raw:filtre-a-huile-selection-criteria, oem:filtron-clapets]
++      source_ids: [raw:filtre-a-huile-faq-symptoms, raw:filtre-a-huile-selection-criteria, oem:filtron-clapets, mahle_oem_conception_filtre_huile]
+       truth_level: sourced
+   media:
+   - slot: hero
+@@ -248,7 +246,7 @@
+ ## En bref (facettes décisionnelles)
+ 
+ - **Fonction** : retenir les contaminants de l'huile moteur pour protéger les organes lubrifiés.
+-- **Critères de choix prioritaires** : type d'origine (vissé spin-on ou cartouche) · filetage et joint conformes · média prévu pour le moteur · type de clapets · capacité adaptée à l'intervalle de vidange.
++- **Critères de choix prioritaires** : type d'origine (vissé spin-on ou cartouche) · filetage et joint conformes · média prévu pour le moteur · type de clapets · programme d'entretien du véhicule.
+ - **Compatibilité** : pièce moteur — apparier le type, le filetage/joint et les clapets à la référence d'origine, jamais une dimension approximative.
+ - _Matière sourcée web-research équipementier/normative (MANN+HUMMEL/MANN-FILTER, Mahle, Denso, Bosch/Blue Print/Filtron, Donaldson, normes ISO 4548, Règlement UE 461/2010)._
+ 
+@@ -277,12 +275,12 @@
+ 2. **Conception et filetage** — deux filtres vissés d'apparence identique peuvent avoir des caractéristiques internes différentes selon le moteur : filetage, présence d'un anti-retour ou réglage du by-pass. La ressemblance extérieure ne suffit pas pour choisir une référence ([MAHLE](https://www.mahle-aftermarket.com/na/en/products-and-services/filters/oil-filters/)).
+ 3. **Média filtrant** — le média et la finesse de filtration peuvent différer selon le moteur. Le matériau seul ne permet pas d'établir ici une hiérarchie universelle de qualité ; confirmer le choix de la référence dans le catalogue pour le véhicule concerné ([MAHLE](https://www.mahle-aftermarket.com/na/en/products-and-services/filters/oil-filters/)).
+ 4. **Clapets adaptés à la conception** — leur présence dépend du filtre et du moteur. Ne pas choisir un filtre sur la seule présence d'un anti-retour ; vérifier sa référence dans le catalogue de compatibilité ([Filtron](https://filtron.eu/en/insights/filter-guide/spin-on-oil-filter-valves.html)).
+-5. **Capacité de rétention ↔ intervalle de vidange** — un intervalle long (huile synthétique) exige une capacité de rétention supérieure et un média qui tient la chaleur et la durée ([FRAM](https://www.fram.com/vehicle-maintenance-center/post/do-synthetic-oils-require-specialized-oil-filters)).
++5. **Programme d'entretien** — respecter les échéances de remplacement du filtre indiquées par le constructeur du véhicule. Le programme d'entretien applicable permet de déterminer quand remplacer le filtre ([MAHLE](https://www.mahle-aftermarket.com/na/en/products-and-services/filters/oil-filters/)).
+ 6. **Référence d'origine du moteur** — l'indicateur d'interchangeabilité le plus fiable : commander par référence OE / véhicule, jamais par dimension approximative ([MANN-FILTER](https://www.mann-filter.com/en.html)).
+ 
+ ## Entretien & bonnes pratiques de montage
+ 
+-- **Remplacement à chaque vidange** : l'élément papier est conçu pour être changé à chaque vidange ; un filtre saturé fait ouvrir le by-pass prématurément (huile non filtrée). Un filtre papier jetable **ne se nettoie pas et ne se réutilise pas** ([SlashGear](https://www.slashgear.com/1862496/oil-filters-clean-reuse/), [Firestone](https://www.firestonecompleteautocare.com/blog/oil-change/change-oil-filter/)).
++- **Échéance de remplacement** : respecter les échéances de remplacement du filtre indiquées par le constructeur du véhicule ([MAHLE](https://www.mahle-aftermarket.com/na/en/products-and-services/filters/oil-filters/)). Consulter son programme d'entretien ; ne pas déduire une durée universelle du seul type d'huile.
+ - **Filtre vissé** : vérifier que l'ancien joint est parti (éviter le **double joint**), huiler le joint neuf, visser à la main jusqu'au contact puis serrer d'une fraction de tour selon la notice — sans clé ni sur-serrage ([PMM](https://pmmonline.co.uk/technical/how-to-fit-spin-on-oil-filters/)).
+ - **Cartouche** : remplacer les joints toriques neufs fournis (placés dans leur gorge), ne pas oublier le tube central, respecter le couple du couvercle ([ECOGARD](https://ecogard.com/resources/articles/cartridge-oil-filter-replacement-missteps/)).
+ 
+@@ -297,7 +295,7 @@
+ 
+ **Peut-on nettoyer et réutiliser un filtre à huile ?** Non pour un élément papier jetable : le média ne se nettoie pas sans l'endommager ([SlashGear](https://www.slashgear.com/1862496/oil-filters-clean-reuse/)).
+ 
+-**Quand remplacer le filtre à huile ?** À chaque vidange ([Firestone](https://www.firestonecompleteautocare.com/blog/oil-change/change-oil-filter/)).
++**Quand remplacer le filtre à huile ?** Selon les échéances indiquées par le constructeur du véhicule dans le programme d'entretien applicable ([MAHLE](https://www.mahle-aftermarket.com/na/en/products-and-services/filters/oil-filters/)).
+ 
+ **Faut-il commander par dimension ?** Non — par **référence d'origine du moteur**, car le type, le filetage/joint et les clapets en dépendent ([MANN-FILTER](https://www.mann-filter.com/en.html)).
+ 
+@@ -307,6 +305,6 @@
+ 
+ La reconstruction du 27 juin 2026 s'appuyait sur le dossier web-research `automecanik-raw/sources/web-research/filtre-a-huile/`. Ses compteurs historiques (59 sources, 29 déclarées primary) ne prouvent ni l'archivage ni l'appui de chaque affirmation.
+ 
+-Révision candidate du 14 septembre 2026 : passages FILTRON sur les clapets et MAHLE sur les différences de conception reliés à leurs captures RAW immuables, empreintes et entrées de couverture. Les critères de choix et leur version structurée ne reprennent plus la hiérarchie de médias issue d'une source transmission. Les autres affirmations, notamment normes, diagnostic, entretien et équivalence OE/OES, restent à qualifier séparément.
++Révision candidate du 14 septembre 2026 : passages FILTRON sur les clapets et MAHLE sur les différences de conception reliés à leurs captures RAW immuables, empreintes et entrées de couverture. Les critères de choix et leur version structurée ne reprennent plus la hiérarchie de médias issue d'une source transmission. L'échéance d'entretien renvoie désormais au programme du constructeur, sur la base du passage MAHLE déjà archivé. Les autres affirmations, notamment normes, diagnostic, montage, réutilisation et équivalence OE/OES, restent à qualifier séparément.
+ 
+ `review_status: proposed`, exports désactivés. L'archivage ne vaut pas validation : la décision de promotion appartient au moteur WIKI natif et à ses contrôles de preuve et de droits. Les captures à licence inconnue restent destinées à l'examen interne. Les relations diagnostiques conservent `reviewed: false` et `diagnostic_safe: false`.
+--- a/proposals/_coverage/filtre-a-huile.coverage.yaml
++++ b/proposals/_coverage/filtre-a-huile.coverage.yaml
+@@ -105,14 +105,14 @@
+     source_status: pending_capture
+ 
+   # --- claim maintenance OEM générique → high (§9.1 oem_manual) ---
+-  - claim_id: filtre-huile-remplacement-chaque-vidange
++  - claim_id: filtre-huile-echeance-constructeur
+     section: "## Entretien & bonnes pratiques de montage"
+-    text_anchor: "remplacer le filtre à chaque vidange (élément papier jetable)"
+-    source_slug: oem_filter_maintenance_general
+-    evidence_type: oem_workshop_excerpt
++    text_anchor: "respecter les échéances de remplacement du filtre indiquées par le constructeur du véhicule"
++    source_slug: mahle_oem_conception_filtre_huile
++    evidence_type: oem_technical_page
+     confidence: high
+     source_policy: 1_high
+-    source_status: pending_capture
++    source_status: captured
+ 
+   # --- claims conservés honnêtement (sources medium/low, non-PRIMARY) ---
+   - claim_id: filtre-huile-clapets-cartouche-dans-boitier
+@@ -120,15 +120,6 @@
+     text_anchor: "sur cartouche, by-pass et anti-retour sont souvent dans le boîtier moteur"
+     source_slug: mann_filter_oem_filtre_huile
+     evidence_type: oem_datasheet
+-    confidence: medium
+-    source_policy: 2_medium_concordant
+-    source_status: pending_capture
+-
+-  - claim_id: filtre-huile-capacite-retention-intervalle
+-    section: "## Critères de choix selon le véhicule"
+-    text_anchor: "la capacité de rétention de salissures conditionne la tenue entre deux vidanges"
+-    source_slug: oem_filter_maintenance_general
+-    evidence_type: oem_workshop_excerpt
+     confidence: medium
+     source_policy: 2_medium_concordant
+     source_status: pending_capture
+@@ -143,6 +134,12 @@
+     source_status: pending_capture
+ 
+ notes: |
++  Lot claims-pilot 2026-09-14 : echeance renvoyee au constructeur, passage MAHLE
++  deja archive ; remplace le claim chaque-vidange. Le claim capacite/intervalle
++  est retire avec sa generalisation non etayee, pas compte comme lacune resolue
++  par une nouvelle preuve. Trace et disposition des 12 anciennes declarations
++  dans le rapport du lot. Les autres ancres restent a reparer, sans les faire
++  passer par simple reformulation ni leur attribuer verified.
+   Revision candidate 2026-09-14 : retrait de la declaration historique de hierarchie
+   des medias ; remplacement par une affirmation bornee a la conception moteur et
+   ajout de la ressemblance insuffisante. Deux ancres presentes dans la fiche,
+--- a/_meta/source-catalog.yaml
++++ b/_meta/source-catalog.yaml
+@@ -528,6 +528,10 @@
+       Source composite : les sections hydrauliques, performances commerciales,
+       intervalles generiques et exemple OX 345 D ne fondent PAS ces affirmations.
+       Pas de hierarchie universelle des medias ni de preuve de compatibilite catalogue.
++      Passage additionnel reutilise le 2026-09-14 : introduction, phrase sur les
++      maintenance intervals stipulated by the automobile manufacturers. Appuie
++      le respect des echeances constructeur, pas une duree universelle ni la
++      regle chaque-vidange ; aucune nouvelle capture pour la meme source.
+       Date de publication inconnue. Licence inconnue, CAPTURED_NEEDS_REVIEW ;
+       active signifie archive disponible, pas faits verifies ou publication autorisee.
+ 
+--- a/log.md
++++ b/log.md
+@@ -128,3 +128,10 @@
+ - Remplacement de la hierarchie universelle de medias fondee sur transmission ; criteres Markdown, resume et bloc structure alignees. Ancien claim remplace, pas conserve comme preuve.
+ - Proprietes selon moteur seulement ; aucune valeur de pression, intervalle, compatibilite exacte ou performance marketing extrapolee. Provenance historique distinguee de la validation actuelle.
+ - Validation native et limites : voir preuves mahle-pilot-* du dossier editorial. Proposition et exports inchanges ; aucune promotion appliquee.
++
++## 2026-09-14 — candidat claims-pilot : ancrage réel et échéance constructeur
++
++- Validateur coverage natif : text_anchor déclaré doit exister dans un bloc de prose de sa section H2/H3 unique. Parsing CommonMark, exclusions code/commentaires/URL, normalisation Unicode/espaces ; pas de similarité sémantique ni preuve factuelle implicite. Champ absent reste optionnel selon schéma canon.
++- Dépendance markdown-it-py 3.0.0 utilisée et déclarée dans les exigences déjà installées par CI. Aucune nouvelle règle canon ni workflow parallèle.
++- Filtre à huile : échéance constructeur remplace chaque-vidange et raccourci huile synthétique/intervalle long. Réemploi MAHLE immuable ; carte 14 déclarations dont 4 captured, aucune verified. Les 12 anciennes entrées pending examinées et dispositions dans les preuves du lot.
++- 197 tests ciblés PASS ; schéma fiche et score0.46 PASS. Promotion BLOCKED avec COVERAGE_STRICT_FAIL (10 ancres restantes) et SUBSTANCE_SCORE. Contrôle structurel 15 propositions : 1PASS/6WARN/8FAIL ; corpus non corrigé artificiellement. Aucun export/DB/site modifié.

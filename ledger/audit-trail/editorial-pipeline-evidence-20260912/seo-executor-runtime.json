@@ -1,0 +1,350 @@
+{
+  "observed_at_utc": "2026-09-13T16:21:22.305050+00:00",
+  "dev": {
+    "health": 200,
+    "head": "466cc15ce9b385a61503cc0224f40bec700ec41a",
+    "compiled_r3_route": false,
+    "compiled_sha256": "8576d87a0e4963b94517f8511180c9fd216963ad6c598b7cc60171566e9775df"
+  },
+  "knowledge_service": "Result=success\nExecMainStartTimestamp=Sun 2026-09-13 08:00:59 CEST\nExecMainExitTimestamp=Sun 2026-09-13 08:01:34 CEST\nExecMainStatus=0",
+  "knowledge_timer": "NextElapseUSecRealtime=Mon 2026-09-14 08:00:00 CEST\nLastTriggerUSec=Sun 2026-09-13 08:00:59 CEST",
+  "last_run": {
+    "at": "20260913T060059.292712Z",
+    "report": "/home/deploy/.local/state/knowledge-jobs/runs/20260913T060059.292712Z",
+    "errors": {},
+    "model_calls": 0,
+    "collection": {
+      "checked_at": "2026-09-13T06:00:59.385679+00:00",
+      "collector_sha256": "411dd503963a633626b7b002c4309064b2a1f0d794f23c8da980df151063e2d9",
+      "changed_sources": [
+        "github-nestjs",
+        "github-alliance",
+        "github-auto-pieces",
+        "vps-nestjs",
+        "vps-vault"
+      ],
+      "documents": 16998,
+      "unique_contents": 7343,
+      "duplicate_occurrences": 9655,
+      "source_errors": {},
+      "github_reused": 4,
+      "model_calls": 0,
+      "navigation": "/home/deploy/.local/lib/knowledge-jobs/collection/data/navigation/README.md"
+    },
+    "corpus_sha256": "d401ee8a11d92e98e5fc23ac8d02afea65218c3292f6fd167599269c065d51ae",
+    "wiki": {
+      "eligible": 0,
+      "promoted": 0,
+      "blocked": 15,
+      "decisions": {
+        "proposals/citroen-c3.md": {
+          "status": "BLOCKED",
+          "score": 0.31,
+          "reasons": [
+            "SOURCE_DIVERSITY",
+            "SUBSTANCE_SCORE",
+            "TRUTH_LEVEL"
+          ]
+        },
+        "proposals/courroie-d-accessoire.md": {
+          "status": "BLOCKED",
+          "score": 0.24,
+          "reasons": [
+            "SAFETY_HUMAN_REVIEW",
+            "SOURCE_DIVERSITY",
+            "SUBSTANCE_SCORE"
+          ]
+        },
+        "proposals/dacia.md": {
+          "status": "BLOCKED",
+          "score": 0.31,
+          "reasons": [
+            "SOURCE_DIVERSITY",
+            "SUBSTANCE_SCORE",
+            "TRUTH_LEVEL"
+          ]
+        },
+        "proposals/disque-de-frein.md": {
+          "status": "BLOCKED",
+          "score": 0.36,
+          "reasons": [
+            "GATE_RISK",
+            "SAFETY_HUMAN_REVIEW",
+            "SOURCE_DIVERSITY",
+            "SUBSTANCE_SCORE"
+          ]
+        },
+        "proposals/filtre-a-huile.md": {
+          "status": "BLOCKED",
+          "score": 0.46,
+          "reasons": [
+            "SUBSTANCE_SCORE"
+          ]
+        },
+        "proposals/ford-focus-3.md": {
+          "status": "BLOCKED",
+          "score": 0.32,
+          "reasons": [
+            "GATE_RISK",
+            "SOURCE_DIVERSITY",
+            "SUBSTANCE_SCORE",
+            "TRUTH_LEVEL"
+          ]
+        },
+        "proposals/peugeot-206.md": {
+          "status": "BLOCKED",
+          "score": 0.36,
+          "reasons": [
+            "SOURCE_DIVERSITY",
+            "SUBSTANCE_SCORE",
+            "TRUTH_LEVEL"
+          ]
+        },
+        "proposals/plaquette-de-frein.md": {
+          "status": "BLOCKED",
+          "score": 0.49,
+          "reasons": [
+            "SAFETY_HUMAN_REVIEW",
+            "SOURCE_DIVERSITY",
+            "SUBSTANCE_SCORE"
+          ]
+        },
+        "proposals/renault-clio-3.md": {
+          "status": "BLOCKED",
+          "score": 0.34,
+          "reasons": [
+            "NUMERIC_HIGH_HARM",
+            "SOURCE_DIVERSITY",
+            "SUBSTANCE_SCORE",
+            "TRUTH_LEVEL"
+          ]
+        },
+        "proposals/renault-megane-3.md": {
+          "status": "BLOCKED",
+          "score": 0.32,
+          "reasons": [
+            "GATE_RISK",
+            "SOURCE_DIVERSITY",
+            "SUBSTANCE_SCORE",
+            "TRUTH_LEVEL"
+          ]
+        },
+        "proposals/renault-scenic-ii.md": {
+          "status": "BLOCKED",
+          "score": 0.24,
+          "reasons": [
+            "SOURCE_DIVERSITY",
+            "SUBSTANCE_SCORE"
+          ]
+        },
+        "proposals/support-moteur.md": {
+          "status": "BLOCKED",
+          "score": 0.24,
+          "reasons": [
+            "SOURCE_DIVERSITY",
+            "SUBSTANCE_SCORE"
+          ]
+        },
+        "proposals/thermostat.md": {
+          "status": "BLOCKED",
+          "score": 0.24,
+          "reasons": [
+            "SOURCE_DIVERSITY",
+            "SUBSTANCE_SCORE"
+          ]
+        },
+        "proposals/vanne-egr.md": {
+          "status": "BLOCKED",
+          "score": 0.24,
+          "reasons": [
+            "SOURCE_DIVERSITY",
+            "SUBSTANCE_SCORE"
+          ]
+        },
+        "proposals/volkswagen-golf-6.md": {
+          "status": "BLOCKED",
+          "score": 0.3,
+          "reasons": [
+            "SOURCE_DIVERSITY",
+            "SUBSTANCE_SCORE",
+            "TRUTH_LEVEL"
+          ]
+        }
+      },
+      "status": "validated"
+    },
+    "retention": {
+      "removed_snapshots": 0,
+      "removed_objects": 0
+    },
+    "notification": "delivered"
+  },
+  "source_configuration": {
+    "version": 1,
+    "github": [
+      {
+        "id": "github-nestjs",
+        "repo": "ak125/nestjs-remix-monorepo",
+        "project": "automecanik",
+        "role": "application"
+      },
+      {
+        "id": "github-raw",
+        "repo": "ak125/automecanik-raw",
+        "project": "automecanik",
+        "role": "raw"
+      },
+      {
+        "id": "github-wiki",
+        "repo": "ak125/automecanik-wiki",
+        "project": "automecanik",
+        "role": "wiki"
+      },
+      {
+        "id": "github-vault",
+        "repo": "ak125/governance-vault",
+        "project": "automecanik",
+        "role": "governance"
+      },
+      {
+        "id": "github-rag",
+        "repo": "ak125/automecanik-rag",
+        "project": "automecanik",
+        "role": "consumer"
+      },
+      {
+        "id": "github-alliance",
+        "repo": "ak125/alliance-delivery",
+        "project": "alliance",
+        "role": "application"
+      },
+      {
+        "id": "github-auto-pieces",
+        "repo": "ak125/auto-pieces-equipements-site",
+        "project": "auto-pieces",
+        "role": "application"
+      }
+    ],
+    "vps": [
+      {
+        "id": "vps-nestjs",
+        "host": "dev-automecanik",
+        "root": "/opt/automecanik/app",
+        "project": "automecanik",
+        "role": "application"
+      },
+      {
+        "id": "vps-raw",
+        "host": "dev-automecanik",
+        "root": "/opt/automecanik/automecanik-raw",
+        "project": "automecanik",
+        "role": "raw"
+      },
+      {
+        "id": "vps-wiki",
+        "host": "dev-automecanik",
+        "root": "/opt/automecanik/automecanik-wiki",
+        "project": "automecanik",
+        "role": "wiki"
+      },
+      {
+        "id": "vps-vault",
+        "host": "dev-automecanik",
+        "root": "/opt/automecanik/governance-vault",
+        "project": "automecanik",
+        "role": "governance"
+      },
+      {
+        "id": "vps-rag-knowledge",
+        "host": "dev-automecanik",
+        "root": "/opt/automecanik/rag/knowledge",
+        "project": "automecanik",
+        "role": "consumer"
+      },
+      {
+        "id": "vps-alliance",
+        "host": "alliance-dev",
+        "root": "/home/dev/alliance-delivery",
+        "project": "alliance",
+        "role": "application"
+      }
+    ]
+  },
+  "active_cron_scripts": [
+    {
+      "schedule": "0 3 * * 0",
+      "scripts": [
+        "/opt/automecanik/app/scripts/claude-hooks/clean-settings-local.sh"
+      ]
+    },
+    {
+      "schedule": "*/5 * * * *",
+      "scripts": [
+        "/opt/automecanik/app/scripts/claude-hooks/clean-orphan-claude.sh"
+      ]
+    },
+    {
+      "schedule": "0 3 * * *",
+      "scripts": []
+    },
+    {
+      "schedule": "0 4 * * *",
+      "scripts": []
+    },
+    {
+      "schedule": "*/30 * * * *",
+      "scripts": [
+        "/opt/automecanik/rag/scripts/pipeline/auto-enrich-pipeline.sh"
+      ]
+    },
+    {
+      "schedule": "*/5 * * * *",
+      "scripts": [
+        "/home/deploy/bin/vault-sync.sh"
+      ]
+    },
+    {
+      "schedule": "0 * * * *",
+      "scripts": [
+        "/opt/automecanik/app/scripts/cron/sync-rag-from-wiki.sh"
+      ]
+    },
+    {
+      "schedule": "30 3 * * *",
+      "scripts": [
+        "scripts/cron/prune-merged-worktrees.sh"
+      ]
+    },
+    {
+      "schedule": "*/10 * * * *",
+      "scripts": [
+        "/opt/automecanik/app/scripts/ops/sync-dev-runtime.sh"
+      ]
+    },
+    {
+      "schedule": "*/30 * * * *",
+      "scripts": [
+        "/opt/automecanik/app/scripts/ops/registry-self-heal.sh"
+      ]
+    }
+  ],
+  "legacy_enrich_last_errors": [
+    "[2026-09-13T17:30:01+02:00] ERROR: INTERNAL_API_KEY not set",
+    "[2026-09-13T17:30:01+02:00] ERROR: INTERNAL_API_KEY not set",
+    "[2026-09-13T18:00:01+02:00] ERROR: INTERNAL_API_KEY not set",
+    "[2026-09-13T18:00:01+02:00] ERROR: INTERNAL_API_KEY not set"
+  ],
+  "hermes": {
+    "ssh_user": "admin-hermes",
+    "home_hermes_access": "permission_denied",
+    "private_schedule": "not_inspected",
+    "knowledge_notify_role": "notification_only_in_inspected_runner",
+    "no_privilege_change": true
+  },
+  "code_hashes": {
+    "/home/deploy/.local/lib/knowledge-jobs/run.py": "e4bfc17d126877beb1e8670f6310571f7397a0ce084212d5aa4a517ee76965dc",
+    "/home/deploy/.local/lib/knowledge-jobs/collection/collect.py": "3c7654c9f825159f691e5425cb66d45fa024bf9874befd4d687c4c0b33448daa",
+    "/home/deploy/.local/lib/knowledge-jobs/collection/sources.json": "0b7ed4abdc040305e5296c792570a12ed0a2c1acd34a593104afdca828b8bc79",
+    "/opt/automecanik/rag/scripts/pipeline/auto-enrich-pipeline.sh": "1828062a1cb52273625f4ef99616cab850ae591e2623e216d5c785edae1fc302"
+  }
+}

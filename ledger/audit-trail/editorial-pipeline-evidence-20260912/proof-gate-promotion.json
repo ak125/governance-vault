@@ -1,0 +1,208 @@
+{
+  "threshold": 0.85,
+  "apply": false,
+  "apply_failures": 0,
+  "tier_A": 0,
+  "tier_B": 1,
+  "eligible": 0,
+  "blocked": 1,
+  "unknown_fail_closed": 0,
+  "report": [
+    {
+      "file": "proposals/filtre-a-huile.md",
+      "schema_version": "promotion-decision/v1",
+      "substance_tier": "A",
+      "promotion_status": "BLOCKED",
+      "eligible": false,
+      "blocking_reasons": [
+        {
+          "code": "COVERAGE_STRICT_FAIL",
+          "owner_stage": "COVERAGE",
+          "detector_stage": "COVERAGE_MAP",
+          "evidence": {
+            "fails": [
+              "proof_unavailable:claim_id=filtre-huile-efficacite-iso-4548-12:source_slug=iso_4548_12_2017_notice:source_pending,page_not_archived,archive_hash_missing_or_invalid",
+              "proof_unavailable:claim_id=filtre-huile-bypass-clapet-iso-4548-2:source_slug=iso_4548_2_1997_notice:source_pending,page_not_archived,archive_hash_missing_or_invalid",
+              "proof_unavailable:claim_id=filtre-huile-anti-retour-iso-4548-9:source_slug=iso_4548_9_2008_notice:source_pending,page_not_archived,archive_hash_missing_or_invalid",
+              "proof_unavailable:claim_id=filtre-huile-bypass-huile-non-filtree:source_slug=filtron_oem_clapets_filtre_huile:source_pending",
+              "entry[8].text_anchor absent de la prose de '## Symptômes & diagnostic' (claim_id=filtre-huile-bypass-huile-non-filtree)",
+              "proof_unavailable:claim_id=filtre-huile-trois-niveaux-qualite-oe-oes-equivalent:source_slug=eu_reg_461_2010_block_exemption:source_pending,page_not_archived,archive_hash_missing_or_invalid",
+              "entry[9].text_anchor absent de la prose de '## Marques & qualité' (claim_id=filtre-huile-trois-niveaux-qualite-oe-oes-equivalent)",
+              "proof_unavailable:claim_id=filtre-huile-oes-droit-rechange:source_slug=eu_reg_461_2010_block_exemption:source_pending,page_not_archived,archive_hash_missing_or_invalid",
+              "entry[10].text_anchor absent de la prose de '## Marques & qualité' (claim_id=filtre-huile-oes-droit-rechange)"
+            ],
+            "warns": []
+          }
+        },
+        {
+          "code": "SUBSTANCE_SCORE",
+          "owner_stage": "SUBSTANCE",
+          "detector_stage": "PROMOTE_EVALUATE_TIER",
+          "evidence": {
+            "score": 0.46,
+            "threshold": 0.85,
+            "engine": "legacy"
+          }
+        }
+      ],
+      "evaluation": {
+        "tier": "B",
+        "confidence_score": 0.46,
+        "score_details": {
+          "score": 0.46,
+          "components": {
+            "sources": {
+              "weight": 0.4,
+              "ratio": 0.6,
+              "reference_count": 10,
+              "defaulted_confidence_indices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9
+              ],
+              "points": 0.24
+            },
+            "sections": {
+              "weight": 0.3,
+              "ratio": 0.4,
+              "required": [
+                "Définition",
+                "Fonctionnement",
+                "Symptômes d'usure",
+                "Choix selon véhicule",
+                "FAQ"
+              ],
+              "filled": [
+                "Fonctionnement",
+                "FAQ"
+              ],
+              "unmatched_required": [
+                "Définition",
+                "Symptômes d'usure",
+                "Choix selon véhicule"
+              ],
+              "points": 0.12
+            },
+            "internal_links": {
+              "weight": 0.2,
+              "ratio": 0.0,
+              "resolved": 0,
+              "total": 0,
+              "unresolved": [],
+              "points": 0.0
+            },
+            "source_kinds": {
+              "weight": 0.1,
+              "ratio": 1.0,
+              "distinct_count": 2,
+              "points": 0.1
+            }
+          },
+          "scope": "metadata_structure_proxy_not_factual_or_seo_validation"
+        },
+        "gate_engine": "legacy",
+        "gate_status": {
+          "source": "pass",
+          "claim": "pass",
+          "contradiction": "pass",
+          "risk": "pass",
+          "confidence": "pass"
+        },
+        "shadow_score": {
+          "shadow_tier": "A",
+          "shadow_total": 89,
+          "shadow_dims": {
+            "E": 10.0,
+            "C": 20.0,
+            "D": 15.0,
+            "F": 1.0,
+            "A": 24.9
+          },
+          "shadow_applicable": [
+            "A",
+            "C",
+            "D",
+            "E",
+            "F"
+          ],
+          "shadow_floors_failed": [],
+          "shadow_blocked": [],
+          "shadow_notes": [
+            "reality-check SKIPPÉ (manifest status=stale)",
+            "A:page_unproven=6 (confidence capped at medium)"
+          ],
+          "manifest_status": "stale",
+          "scorer": "shadow_score.score@6dim-v0"
+        }
+      },
+      "inputs": {
+        "schema_version": "promotion-decision/v1",
+        "input_manifest": [
+          {
+            "role": "candidate",
+            "path": "proposals/filtre-a-huile.md",
+            "sha256": "b8acbe5ee367b05e95359e35a227023baf4116c4f33bf0e01d825d5deb2069b6"
+          },
+          {
+            "role": "canon_target",
+            "path": "wiki/gamme/filtre-a-huile.md",
+            "sha256": null
+          },
+          {
+            "role": "coverage_map",
+            "path": "proposals/_coverage/filtre-a-huile.coverage.yaml",
+            "sha256": "246c4f0f4a6188b7d37b2d75a33918e234b3376b2691d48a50bcbe58c12ec424"
+          },
+          {
+            "role": "coverage_schema",
+            "path": "_meta/schema/coverage-map.schema.json",
+            "sha256": "b1d4e60efd19643c0978001cca6736b6bb61d86e3ecfd337c966ac882aeeca5d"
+          },
+          {
+            "role": "raw_archive",
+            "path": "sources/auto-captures/filtre-a-huile/filtron-eu-wl-filtre-a-huile-clapets-b8431d6f.md",
+            "sha256": "809c3efd864a3be850c5e63ba2d400064b61dcd4090342b171d45ceba11c0178"
+          },
+          {
+            "role": "raw_archive",
+            "path": "sources/auto-captures/filtre-a-huile/mahle-aftermarket-com-wl-filtre-a-huile-conception-media-fa488c04.md",
+            "sha256": "8358e439faddebc32395175c9fb161ee7d9abce755ead940aeadb7b6ddc5f589"
+          },
+          {
+            "role": "raw_checksums",
+            "path": "manifests/checksums.json",
+            "sha256": "5aa73c5303abeed293fecf09af6357348f41ed8db7342f51c278d07d0a1c47c3"
+          },
+          {
+            "role": "raw_inventory",
+            "path": "manifests/source-inventory.csv",
+            "sha256": "8e3ea4b99c368d3f9387616fb2a886a91df83e26d2a7cd4d790c980b9f3d9cc6"
+          },
+          {
+            "role": "reality_manifest",
+            "path": "_meta/reality-manifest.json",
+            "sha256": "8d38fe921b908d1dbf1b67f6f50c97ab2ee31c714a1aa2367a84dc5a7bbe1c7f"
+          },
+          {
+            "role": "source_catalog",
+            "path": "_meta/source-catalog.yaml",
+            "sha256": "402b7a8820fe71f1fad0e8d87ca16555e06f4456637bfd15a3a24f7d9c280fce"
+          }
+        ],
+        "wiki_revision": "01cea8d-dirty",
+        "raw_revision": "7565934-dirty",
+        "evaluation_engine_revision": "962a11d9cec8efb679460847bfdd15f35a8d4b3ac1bcdcec05ec393994ff4d0d",
+        "decision_engine_revision": "4c37a7eb17cdd8b09039ee75c7ed397795f904f0418c0f750799dbe4177f1c47"
+      },
+      "tier": "B",
+      "confidence_score": 0.46
+    }
+  ]
+}

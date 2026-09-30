@@ -1,0 +1,5 @@
+REFUSED HTTP scheme: invalid_https_url
+REFUSED private DNS: non_public_address
+REFUSED oversized stream: body_too_large
+REFUSED PDF as HTML: binary_signature
+4/4 unsafe cases refused

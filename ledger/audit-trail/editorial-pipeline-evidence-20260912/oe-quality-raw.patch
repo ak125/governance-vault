@@ -1,0 +1,52 @@
+diff --git a/manifests/ingestion-allowlist.yaml b/manifests/ingestion-allowlist.yaml
+index 6e10763..61f7181 100644
+--- a/manifests/ingestion-allowlist.yaml
++++ b/manifests/ingestion-allowlist.yaml
+@@ -14,6 +14,7 @@ schema_version: "1.0.0"
+ 
+ # ── Sources AUTORISÉES (équipementiers + constructeurs + technique) ───────────
+ allow:
++  - { domain: "eur-lex.europa.eu", source_type: technical_datasheet, level: 2, license_status: unknown, notes: "Candidat filtre a huile : definitions des pieces origine et qualite equivalente, lignes directrices consolidees 2023, paragraphes 18-20. Source institutionnelle, aucun classement de marques deduit. Capture native uniquement." }
+   - { domain: "iso.org", source_type: technical_datasheet, level: 2, license_status: unknown, notes: "Candidat ISO pilote: fiches publiques de metadonnees 4548-2/-9/-12 uniquement. Aucun texte integral payant, contournement ou preuve de performance produit. Controle reseau natif obligatoire." }
+   - { domain: "mahle-aftermarket.com", source_type: manufacturer_maintenance, level: 2, license_status: unknown, notes: "Passage technique Spin-on oil filter mix up: differences internes selon moteur; examen WIKI, sans reprise des chiffres promotionnels ou hydrauliques." }
+   - { domain: "filtron.eu", source_type: manufacturer_maintenance, level: 2, license_status: unknown, notes: "Pilote filtre a huile: explication technique des clapets, examen WIKI uniquement." }
+diff --git a/manifests/ingestion-worklist.yaml b/manifests/ingestion-worklist.yaml
+index 451aeda..b473531 100644
+--- a/manifests/ingestion-worklist.yaml
++++ b/manifests/ingestion-worklist.yaml
+@@ -283,3 +283,35 @@ worklist:
+       raw_path: null
+     notes: Non tente apres refus HTTP403 de la premiere notice; ne pas deduire un refus propre a cette URL. Besoin editorial cible. Notice publique seulement; norme integrale non acquise/non lue. Ne pas contourner
+       robots, refus HTTP, authentification ou paywall. Etat candidat non active en runtime.
++
++  - id: wl-filtre-a-huile-ue-definitions
++    subject_type: gamme
++    entity_ref:
++      pg_id: 7
++    gamme: filtre-a-huile
++    topic: Definitions des pieces origine et de qualite equivalente
++    target_consumer: [WIKI]
++    priority: P1
++    rationale: >-
++      Corriger le classement universel OE/OES/equivalent attribue a tort au reglement
++      461/2010. Paragraphes 18-20 des lignes directrices consolidees au 17 avril 2023 ;
++      pas de garantie identique pour toutes les references d'une marque.
++    discovery:
++      mode: provided
++    source:
++      authoritative_domain: eur-lex.europa.eu
++      url: https://eur-lex.europa.eu/legal-content/FR/TXT/?uri=CELEX%3A02010XC0528%2801%29-20230417
++      source_type: technical_datasheet
++      license: null
++      license_status: unknown
++    capture:
++      status: TODO
++      content_hash: null
++      captured_at: null
++      raw_path: null
++    notes: >-
++      Tentative native du 14 septembre 2026 : fetch_failed:CaptureHTTPError:unsupported_mime ; aucune archive.
++      Texte institutionnel public utilise pour ses definitions, type technique existant.
++      Ne pas contourner refus HTTP, robots ou protection. Consultation web ne vaut pas
++      archive RAW. Texte consolide documentaire ; pas de conseil juridique specifique.
++      Candidat uniquement, aucune activation du runtime.

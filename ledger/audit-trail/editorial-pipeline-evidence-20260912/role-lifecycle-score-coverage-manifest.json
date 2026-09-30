@@ -1,0 +1,59 @@
+{
+  "scope_requested": "Verifier les pages R retirees/regroupees, leurs destinations et la validite des scores avant enrichissement",
+  "scope_actually_scanned": "Perimetre documentaire/code explicitement liste et 12 GET (2 environnements, 6 chemins chacun) ; aucune couverture exhaustive implicite",
+  "files_read_count": 18,
+  "files_read": [
+    "backend/src/modules/blog/services/r3-guide.service.ts",
+    "backend/src/modules/blog/services/r3-guide.service.test.ts",
+    "backend/src/modules/blog/interfaces/r3-guide.interfaces.ts",
+    "frontend/app/types/r3-guide.types.ts",
+    "frontend/app/components/blog/conseil/section-config.tsx",
+    "frontend/app/routes/blog-pieces-auto.conseils.$pg_alias.tsx",
+    "frontend/app/components/guide/MiniDiagnosticTable.tsx",
+    "frontend/app/components/guide/GuideCard.tsx",
+    "frontend/tests/unit/r3-diagnostic-fragment.test.tsx",
+    "backend/src/modules/admin/services/quality-scoring-engine.service.ts",
+    "backend/src/modules/admin/services/quality-scoring-engine.service.test.ts",
+    "backend/src/config/scoring-profiles.config.ts",
+    "backend/src/config/scoring-profiles.config.spec.ts",
+    "packages/seo-role-contracts/src/index.ts",
+    "backend/src/config/feature-flags.service.ts",
+    "backend/src/modules/blog/services/r6-guide.service.ts",
+    "frontend/app/routes/blog-pieces-auto.article.$slug.tsx",
+    "vault:ledger/decisions/adr/ADR-027-r5-consolidation-into-r3-s2-diag.md"
+  ],
+  "excluded_paths": [
+    "secrets et variables de processus",
+    "donnees partagees en ecriture"
+  ],
+  "unscanned_zones": [
+    "inventaire complet des anciennes URL",
+    "toutes les pages R rendues",
+    "Search Console",
+    "validation apres deploiement"
+  ],
+  "corrections_proposed": [
+    "ancre R3 S2_DIAG stable avec compatibilite anciens fragments",
+    "score admin v2.3 limite aux preuves attribuables a la page"
+  ],
+  "corrections_applied": [
+    "corrections preparees seulement dans le candidat isole suivant demandes explicites corriger et ameliorer"
+  ],
+  "validation_executed": [
+    "Jest R3 24 PASS",
+    "Vitest rendu diagnostic 3 PASS",
+    "Jest scores admin 29 PASS",
+    "GET lecture seule 12 resultats consignes",
+    "ESLint backend/frontend ancre 0 erreur, 2 warnings any des tests META amont",
+    "git diff --check PASS"
+  ],
+  "remaining_unknowns": [
+    "consolidation R6 effective globale",
+    "redirects de tous les slugs R5",
+    "qualite factuelle de chaque page",
+    "performance Google",
+    "typecheck global et CI non executes"
+  ],
+  "final_status": "PARTIAL_COVERAGE",
+  "bounded_correction_verdict": "VALIDATED_FOR_SCOPE_ONLY"
+}

@@ -1,0 +1,6 @@
+
+/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/admin/services/buying-guide-enricher.service.ts
+  137:11  warning  ⚠️ Legacy SEO role literal in OUTPUT context. Use normalizeRoleId() / @repo/seo-roles canonical RoleId. (Legacy values OK in inputs, tests, fixtures, mappings de référence.)  no-restricted-syntax
+
+✖ 1 problem (0 errors, 1 warning)
+

@@ -1,0 +1,206 @@
+{
+  "threshold": 0.85,
+  "apply": false,
+  "apply_failures": 0,
+  "tier_A": 0,
+  "tier_B": 1,
+  "eligible": 0,
+  "blocked": 1,
+  "unknown_fail_closed": 0,
+  "report": [
+    {
+      "file": "proposals/filtre-a-huile.md",
+      "schema_version": "promotion-decision/v1",
+      "substance_tier": "A",
+      "promotion_status": "BLOCKED",
+      "eligible": false,
+      "blocking_reasons": [
+        {
+          "code": "COVERAGE_STRICT_FAIL",
+          "owner_stage": "COVERAGE",
+          "detector_stage": "COVERAGE_MAP",
+          "evidence": {
+            "fails": [
+              "proof_unavailable:claim_id=filtre-huile-efficacite-iso-4548-12:source_slug=iso_4548_12_2017_notice:source_pending,page_not_archived,archive_hash_missing_or_invalid",
+              "proof_unavailable:claim_id=filtre-huile-bypass-clapet-iso-4548-2:source_slug=iso_4548_2_1997_notice:source_pending,page_not_archived,archive_hash_missing_or_invalid",
+              "proof_unavailable:claim_id=filtre-huile-anti-retour-iso-4548-9:source_slug=iso_4548_9_2008_notice:source_pending,page_not_archived,archive_hash_missing_or_invalid",
+              "proof_unavailable:claim_id=filtre-huile-bypass-huile-non-filtree:source_slug=filtron_oem_clapets_filtre_huile:source_pending",
+              "entry[8].text_anchor absent de la prose de '## Symptômes & diagnostic' (claim_id=filtre-huile-bypass-huile-non-filtree)",
+              "proof_unavailable:claim_id=filtre-huile-definition-piece-origine:source_slug=eu_lignes_directrices_pieces_2023:source_pending,page_not_archived,archive_hash_missing_or_invalid",
+              "proof_unavailable:claim_id=filtre-huile-definition-qualite-equivalente:source_slug=eu_lignes_directrices_pieces_2023:source_pending,page_not_archived,archive_hash_missing_or_invalid"
+            ],
+            "warns": []
+          }
+        },
+        {
+          "code": "SUBSTANCE_SCORE",
+          "owner_stage": "SUBSTANCE",
+          "detector_stage": "PROMOTE_EVALUATE_TIER",
+          "evidence": {
+            "score": 0.46,
+            "threshold": 0.85,
+            "engine": "legacy"
+          }
+        }
+      ],
+      "evaluation": {
+        "tier": "B",
+        "confidence_score": 0.46,
+        "score_details": {
+          "score": 0.46,
+          "components": {
+            "sources": {
+              "weight": 0.4,
+              "ratio": 0.6,
+              "reference_count": 10,
+              "defaulted_confidence_indices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9
+              ],
+              "points": 0.24
+            },
+            "sections": {
+              "weight": 0.3,
+              "ratio": 0.4,
+              "required": [
+                "Définition",
+                "Fonctionnement",
+                "Symptômes d'usure",
+                "Choix selon véhicule",
+                "FAQ"
+              ],
+              "filled": [
+                "Fonctionnement",
+                "FAQ"
+              ],
+              "unmatched_required": [
+                "Définition",
+                "Symptômes d'usure",
+                "Choix selon véhicule"
+              ],
+              "points": 0.12
+            },
+            "internal_links": {
+              "weight": 0.2,
+              "ratio": 0.0,
+              "resolved": 0,
+              "total": 0,
+              "unresolved": [],
+              "points": 0.0
+            },
+            "source_kinds": {
+              "weight": 0.1,
+              "ratio": 1.0,
+              "distinct_count": 2,
+              "points": 0.1
+            }
+          },
+          "scope": "metadata_structure_proxy_not_factual_or_seo_validation"
+        },
+        "gate_engine": "legacy",
+        "gate_status": {
+          "source": "pass",
+          "claim": "pass",
+          "contradiction": "pass",
+          "risk": "pass",
+          "confidence": "pass"
+        },
+        "shadow_score": {
+          "shadow_tier": "A",
+          "shadow_total": 89,
+          "shadow_dims": {
+            "D": 15.0,
+            "A": 24.9,
+            "E": 10.0,
+            "C": 20.0,
+            "F": 1.0
+          },
+          "shadow_applicable": [
+            "A",
+            "C",
+            "D",
+            "E",
+            "F"
+          ],
+          "shadow_floors_failed": [],
+          "shadow_blocked": [],
+          "shadow_notes": [
+            "reality-check SKIPPÉ (manifest status=stale)",
+            "A:page_unproven=6 (confidence capped at medium)"
+          ],
+          "manifest_status": "stale",
+          "scorer": "shadow_score.score@6dim-v0"
+        }
+      },
+      "inputs": {
+        "schema_version": "promotion-decision/v1",
+        "input_manifest": [
+          {
+            "role": "candidate",
+            "path": "proposals/filtre-a-huile.md",
+            "sha256": "130262252708d081e7bfca34b24ae6a6bd15d4a961195ddce9c2bae7007b4725"
+          },
+          {
+            "role": "canon_target",
+            "path": "wiki/gamme/filtre-a-huile.md",
+            "sha256": null
+          },
+          {
+            "role": "coverage_map",
+            "path": "proposals/_coverage/filtre-a-huile.coverage.yaml",
+            "sha256": "95a438e0cd3fa03969ef7025e970bfcad70f080ad9fb37fc1ef4acd4523b4582"
+          },
+          {
+            "role": "coverage_schema",
+            "path": "_meta/schema/coverage-map.schema.json",
+            "sha256": "b1d4e60efd19643c0978001cca6736b6bb61d86e3ecfd337c966ac882aeeca5d"
+          },
+          {
+            "role": "raw_archive",
+            "path": "sources/auto-captures/filtre-a-huile/filtron-eu-wl-filtre-a-huile-clapets-b8431d6f.md",
+            "sha256": "809c3efd864a3be850c5e63ba2d400064b61dcd4090342b171d45ceba11c0178"
+          },
+          {
+            "role": "raw_archive",
+            "path": "sources/auto-captures/filtre-a-huile/mahle-aftermarket-com-wl-filtre-a-huile-conception-media-fa488c04.md",
+            "sha256": "8358e439faddebc32395175c9fb161ee7d9abce755ead940aeadb7b6ddc5f589"
+          },
+          {
+            "role": "raw_checksums",
+            "path": "manifests/checksums.json",
+            "sha256": "5aa73c5303abeed293fecf09af6357348f41ed8db7342f51c278d07d0a1c47c3"
+          },
+          {
+            "role": "raw_inventory",
+            "path": "manifests/source-inventory.csv",
+            "sha256": "8e3ea4b99c368d3f9387616fb2a886a91df83e26d2a7cd4d790c980b9f3d9cc6"
+          },
+          {
+            "role": "reality_manifest",
+            "path": "_meta/reality-manifest.json",
+            "sha256": "8d38fe921b908d1dbf1b67f6f50c97ab2ee31c714a1aa2367a84dc5a7bbe1c7f"
+          },
+          {
+            "role": "source_catalog",
+            "path": "_meta/source-catalog.yaml",
+            "sha256": "49603e58df7aee3705b5c9284374e8a8c905b91ddb5a27c48b328e6a499acf83"
+          }
+        ],
+        "wiki_revision": "01cea8d-dirty",
+        "raw_revision": "7565934-dirty",
+        "evaluation_engine_revision": "962a11d9cec8efb679460847bfdd15f35a8d4b3ac1bcdcec05ec393994ff4d0d",
+        "decision_engine_revision": "4c37a7eb17cdd8b09039ee75c7ed397795f904f0418c0f750799dbe4177f1c47"
+      },
+      "tier": "B",
+      "confidence_score": 0.46
+    }
+  ]
+}

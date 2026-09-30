@@ -1,0 +1,206 @@
+{
+  "scope_requested": "Corriger les scores et poursuivre la boucle de contenu",
+  "scope_actually_scanned": "Calcul de confiance, shadow, adaptateurs promoteur/pilote, snapshot des entrees, lot de propositions; lectures ciblees des contrats de source/capture",
+  "files_read_count": 25,
+  "files_read": [
+    {
+      "path": ".github/workflows/wiki-quality-gates.yml",
+      "read_scope": "full_or_targeted_excerpt",
+      "sha256": "35b4c1b50a901b14beaa6b84a272199293cf0baff96ffcf6ad1275967c8a3604"
+    },
+    {
+      "path": "CLAUDE.md",
+      "read_scope": "full_or_targeted_excerpt",
+      "sha256": "507ec6e1bc8141d6d8f8ec3d05b6057480895052c9878dd7300e1b1225b4c615"
+    },
+    {
+      "path": "_meta/agent-exit-contract.md",
+      "read_scope": "full_or_targeted_excerpt",
+      "sha256": "65d51c022ce438ddd27146b6da132d2e83d161a8e2dc2f30c90f339eb24dea21"
+    },
+    {
+      "path": "_meta/quality-gates.md",
+      "read_scope": "full_or_targeted_excerpt",
+      "sha256": "709f135c9ec1cedb9d9e3e532fbb4c6f15b8a3c25057ff9a04f2ba42d164e4d1"
+    },
+    {
+      "path": "_meta/schema/coverage-map.schema.json",
+      "read_scope": "full_or_targeted_excerpt",
+      "sha256": "b1d4e60efd19643c0978001cca6736b6bb61d86e3ecfd337c966ac882aeeca5d"
+    },
+    {
+      "path": "_meta/schema/frontmatter.schema.json",
+      "read_scope": "full_or_targeted_excerpt",
+      "sha256": "2d4f5c25fd3792051ff730bb1b86aa1e41dc36b4ebb1dd991f33e4cc2b8fa601"
+    },
+    {
+      "path": "_meta/source-policy.md",
+      "read_scope": "full_or_targeted_excerpt",
+      "sha256": "18eb81965f2a64699b40ea59fa01198041b4cfee33c58f46ae36dd9d481da062"
+    },
+    {
+      "path": "_scripts/check-coverage-map.py",
+      "read_scope": "full_or_targeted_excerpt",
+      "sha256": "6ce348b30e5db0bf5a080e85707c016c918174ac1343f7900a1ed93f664d067f"
+    },
+    {
+      "path": "_scripts/compute-confidence-score.py",
+      "read_scope": "full_or_targeted_excerpt",
+      "sha256": "2f7216c249b81d053ff1d0a2519fee174da6971400e0a710a984e4b83a9588ab"
+    },
+    {
+      "path": "_scripts/gates/confidence_gate.py",
+      "read_scope": "full_or_targeted_excerpt",
+      "sha256": "d39b441f924f2c1774bfd4b1b44c1779fce86a3446283c42b6024852704ac4cd"
+    },
+    {
+      "path": "_scripts/gen_coverage_map.py",
+      "read_scope": "full_or_targeted_excerpt",
+      "sha256": "bf9b7638d04c62eb0e5695762e39c0a9ade9a822eecdb3434949ab63dff18a5c"
+    },
+    {
+      "path": "_scripts/promote.py",
+      "read_scope": "full_or_targeted_excerpt",
+      "sha256": "917c893748ea9f4e7d26a583434d990d7199a475fff944e802ad75dac1da9aba"
+    },
+    {
+      "path": "_scripts/promotion_decision.py",
+      "read_scope": "full_or_targeted_excerpt",
+      "sha256": "bef7c5be72ffa5b042dc8c1a3c4392ec322007dc1b79b3a4062be38c7714dc79"
+    },
+    {
+      "path": "_scripts/quality-gates.py",
+      "read_scope": "full_or_targeted_excerpt",
+      "sha256": "3e58641d31a8b59fd81add29a016e616d9435373eefb37d01c80fb0d395bf816"
+    },
+    {
+      "path": "_scripts/raw_to_wiki_content_loop_pilot.py",
+      "read_scope": "full_or_targeted_excerpt",
+      "sha256": "39d3cd0aae89ef6316720d3812d02e04ec0580a157fdaa791c98b6781f8ebaed"
+    },
+    {
+      "path": "_scripts/reality_manifest.py",
+      "read_scope": "full_or_targeted_excerpt",
+      "sha256": "a828584639f2c13c71aadd5c6b28a7f2bf0ea86eeae99bfed704e7b4adab7513"
+    },
+    {
+      "path": "_scripts/shadow_score.py",
+      "read_scope": "full_or_targeted_excerpt",
+      "sha256": "31cb36cfdf1aa66b01d2cac2f7758113f7b28c380e770234ec6dea10a15f1820"
+    },
+    {
+      "path": "_scripts/test_promote.py",
+      "read_scope": "full_or_targeted_excerpt",
+      "sha256": "cdb5c13150d1a18e38b11ebcf69e5e12d4095e5f850a389879e544b13f1ac540"
+    },
+    {
+      "path": "_scripts/test_promotion_decision.py",
+      "read_scope": "full_or_targeted_excerpt",
+      "sha256": "3d4b972f1baebf3da408f3e33289cb45f31257a2824eaf14d56f094e1f12b008"
+    },
+    {
+      "path": "_scripts/test_raw_to_wiki_content_loop_pilot.py",
+      "read_scope": "full_or_targeted_excerpt",
+      "sha256": "15b0aa6b114bed007185c3bd908841c769f0566af874369d4bbcd0cd15686651"
+    },
+    {
+      "path": "_scripts/test_shadow_score.py",
+      "read_scope": "full_or_targeted_excerpt",
+      "sha256": "e89a7b35e5f5085e5e3740ca856de4e9f61e56f69002bef4287a2d800624d116"
+    },
+    {
+      "path": "_scripts/tests/test_confidence_schema_contract.py",
+      "read_scope": "full_or_targeted_excerpt",
+      "sha256": "17bf25943679225c71870caa7e5c4376955bcfe44ec85d40d1929428af463acd"
+    },
+    {
+      "path": "_scripts/tests/test_gap1_pipeline.py",
+      "read_scope": "full_or_targeted_excerpt",
+      "sha256": "940522a64305f34a7a25b768be76827dea27fdc886adc7ef95e07a2efa4a5f0e"
+    },
+    {
+      "path": "proposals/_coverage/filtre-a-huile.coverage.yaml",
+      "read_scope": "full_or_targeted_excerpt",
+      "sha256": "eed21ec2d6c7e3f9782bb792a0363ec299c8269afae567414eb98c16c90ca487"
+    },
+    {
+      "path": "proposals/filtre-a-huile.md",
+      "read_scope": "full_or_targeted_excerpt",
+      "sha256": "811a538b769a021bbda5d8ff71cdd501fdfee5fb93cfd6783e89e344080ad5ff"
+    }
+  ],
+  "additional_context_reads": [
+    "app/CLAUDE.md",
+    "app/.claude/rules/{guardrails,security-hooks,deployment}.md",
+    "app/.claude/canon-mirrors/agent-exit-contract.md",
+    "app/audit/registry/canonical.json (filtered query)",
+    "app/.claude/knowledge/REPO_MAP.md (head)",
+    "app/log.md (tail80)",
+    "raw/CLAUDE.md",
+    "raw/docs/agent-capture-policy.md",
+    "raw/_scripts/auto-capture-runner.py (head)",
+    "vault/CLAUDE.md",
+    "vault/existing operational report"
+  ],
+  "excluded_paths": [
+    "PROD",
+    "database",
+    "active knowledge-jobs configuration",
+    "shared RAW/WIKI content writes",
+    "AI-COS"
+  ],
+  "unscanned_zones": [
+    "Full automotive claim factual accuracy",
+    "Complete SEO duplicate corpus",
+    "Automated source discovery implementation"
+  ],
+  "corrections_applied": [
+    ".github/workflows/wiki-quality-gates.yml",
+    "_scripts/compute-confidence-score.py",
+    "_scripts/promote.py",
+    "_scripts/promotion_decision.py",
+    "_scripts/raw_to_wiki_content_loop_pilot.py",
+    "_scripts/shadow_score.py",
+    "_scripts/test_promote.py",
+    "_scripts/test_promotion_decision.py",
+    "_scripts/test_raw_to_wiki_content_loop_pilot.py",
+    "_scripts/test_shadow_score.py",
+    "_scripts/tests/test_confidence_schema_contract.py"
+  ],
+  "authorization": "User: corrige et ameliorer et continue; isolated candidate code and operational evidence",
+  "validation_executed": {
+    "pytest": "224 passed / 6 files",
+    "new_test_cases": 14,
+    "failures_reproduced_before_fix": 12,
+    "files": [
+      "tests/test_confidence_schema_contract.py",
+      "test_promote.py",
+      "test_promotion_decision.py",
+      "test_raw_to_wiki_content_loop_pilot.py",
+      "test_shadow_score.py",
+      "tests/test_gap1_pipeline.py"
+    ],
+    "py_compile": "5 implementation files PASS",
+    "diff_check": "PASS",
+    "remote_ci": "not_run",
+    "runtime_changed": false,
+    "dry_run": true,
+    "proposals": 15,
+    "eligible": 0,
+    "evaluation_errors": 0,
+    "corpus_unchanged_sha256": true,
+    "scalar_formula_parity_count": 15,
+    "scalar_formula_differences": [],
+    "yaml_ci_valid": true
+  },
+  "remaining_unknowns": [
+    "No new automotive source captured in this lot",
+    "Source captured/verified metadata alone is not claim truth or ranking evidence",
+    "Stale reality manifest remains stale",
+    "Editorial richness and heading proxies remain heuristic",
+    "Candidate changes not published or active in daily service"
+  ],
+  "patch_sha256": "f7278cf0ab80938feb5adc35670985127df08d18a6f71775e6a7b60c121edf8d",
+  "final_status": "VALIDATED_FOR_SCOPE_ONLY",
+  "overall_status": "PARTIAL_COVERAGE"
+}

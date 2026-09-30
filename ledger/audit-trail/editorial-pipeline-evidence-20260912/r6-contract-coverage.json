@@ -1,0 +1,109 @@
+{
+  "scope_requested": "Continuer la correction robuste des roles, scores et sources des pages R.",
+  "scope_actually_scanned": "Contrat R6 criteria V1/comparaison V2, sourceVerified, source humanizer partage, ecriture legacy conditionnee a la version, composants et loader R6. Lectures ciblees, pas audit integral des modules.",
+  "files_read_count": 17,
+  "files_read": [
+    "backend/src/modules/blog/interfaces/r6-guide.interfaces.ts",
+    "backend/src/modules/blog/services/r6-guide.service.ts",
+    "backend/src/modules/blog/utils/source-provenance.util.ts",
+    "backend/src/modules/admin/services/buying-guide/buying-guide-db.service.ts",
+    "frontend/app/types/r6-guide.types.ts",
+    "frontend/app/components/blog/guide-achat/R6QualityTiersTable.tsx",
+    "frontend/app/routes/blog-pieces-auto.guide-achat.$pg_alias.tsx",
+    "backend/src/modules/blog/services/r6-guide.service.content.test.ts",
+    "frontend/tests/unit/r6-quality-tiers.test.tsx",
+    "frontend/tests/unit/r6-guide-loader.test.ts",
+    "backend/src/config/source-provenance.constants.ts",
+    "backend/src/database/services/supabase-base.service.ts",
+    "frontend/vitest.config.ts",
+    "frontend/tsconfig.json",
+    "frontend/package.json",
+    "frontend/tests/unit/chat-widget-sse.test.tsx",
+    "backend/src/modules/blog/services/r6-guide.service.redirect.test.ts"
+  ],
+  "context_reads": [
+    "CLAUDE.md integral",
+    "audit/registry/canonical.json via jq",
+    "REPO_MAP.md debut",
+    "log.md queue",
+    "Supabase SKILL.md",
+    "SDK PostgREST et types React Router installes (extraits)",
+    "changelog Supabase et documentation search_docs"
+  ],
+  "excluded_paths": [
+    "Corpus RAW/WIKI",
+    "Autres producteurs DB",
+    "Infra/PROD/secrets",
+    "Docs seo-batch utilisateur non indexees"
+  ],
+  "unscanned_zones": [
+    "Etat historique et actuel des lignes DB",
+    "RLS et execution Postgres reelle",
+    "Navigation navigateur DEV/PREPROD/PROD",
+    "CI complete"
+  ],
+  "corrections_proposed": [
+    "backend/src/modules/blog/interfaces/r6-guide.interfaces.ts",
+    "backend/src/modules/blog/services/r6-guide.service.ts",
+    "backend/src/modules/blog/utils/source-provenance.util.ts",
+    "backend/src/modules/admin/services/buying-guide/buying-guide-db.service.ts",
+    "frontend/app/types/r6-guide.types.ts",
+    "frontend/app/components/blog/guide-achat/R6QualityTiersTable.tsx",
+    "frontend/app/routes/blog-pieces-auto.guide-achat.$pg_alias.tsx",
+    "backend/src/modules/blog/services/r6-guide.service.content.test.ts",
+    "frontend/tests/unit/r6-quality-tiers.test.tsx",
+    "frontend/tests/unit/r6-guide-loader.test.ts"
+  ],
+  "corrections_applied": {
+    "authorization": "Instructions utilisateur corriger/ameliorer/continuer; code candidat isole uniquement",
+    "files": [
+      "backend/src/modules/blog/interfaces/r6-guide.interfaces.ts",
+      "backend/src/modules/blog/services/r6-guide.service.ts",
+      "backend/src/modules/blog/utils/source-provenance.util.ts",
+      "backend/src/modules/admin/services/buying-guide/buying-guide-db.service.ts",
+      "frontend/app/types/r6-guide.types.ts",
+      "frontend/app/components/blog/guide-achat/R6QualityTiersTable.tsx",
+      "frontend/app/routes/blog-pieces-auto.guide-achat.$pg_alias.tsx",
+      "backend/src/modules/blog/services/r6-guide.service.content.test.ts",
+      "frontend/tests/unit/r6-quality-tiers.test.tsx",
+      "frontend/tests/unit/r6-guide-loader.test.ts"
+    ]
+  },
+  "validation_executed": [
+    "Avant: 18 echecs/2 succes backend; 2 echecs/1 succes frontend",
+    "Apres: 49 tests backend R6 et donnees + 24 tests R3 pour helper partage = 73 succes",
+    "5 tests frontend composant/loader succes",
+    "Typage backend complet succes",
+    "Typage frontend: 15 TS2307 dependances absentes dans fichiers non modifies, aucun diagnostic dans les fichiers touches",
+    "ESLint cible zero erreur; 3 avertissements backend et 1 frontend legacy preexistants",
+    "SDK Supabase reel avec fetch simule: filtre UPDATE et select des lignes affectees verifies sans reseau/DB"
+  ],
+  "validation_limits": [
+    "SDK wire contract simule; ne prouve pas RLS ni mutation atomique executee sur PostgreSQL",
+    "sourceVerified non-legacy preserve une declaration booleenne existante; aucune preuve documentaire retrospective ajoutee",
+    "Validation des tiers structurelle/deduplication seulement, pas expertise factuelle des comparatifs",
+    "Pipeline legacy V1 encore present mais non reactive; re-sourcing WIKI reste requis"
+  ],
+  "remaining_unknowns": [
+    "Qualite reelle des affirmations et criteres deja stockes",
+    "Qualification WIKI/RAW du passage MAHLE selectionne precedemment",
+    "CI et typage frontend complet avec dependances reproduites",
+    "Effet du deploiement coordonne backend/frontend et caches existants"
+  ],
+  "head": "0c31807c8453c251d70c7575eafcc973f04eed14",
+  "origin_main": "4b9d2ffd149f74498280b4691cc7daadad4d4f47",
+  "candidate_sha256": {
+    "backend/src/modules/blog/interfaces/r6-guide.interfaces.ts": "55e109ef3ea1c1e6ad1cd4adb4286acfe2de50979c8d37eb38b7e0dfd8abe07f",
+    "backend/src/modules/blog/services/r6-guide.service.ts": "4269dc47a0f6de8e73b1b673c3ed4220f848a151ab5dd4af828f5df968ffb7d2",
+    "backend/src/modules/blog/utils/source-provenance.util.ts": "81c8bc2f2596772e1155fadbb33bee14f142bf7f9a4f62f1bb26bb4a04d8565d",
+    "backend/src/modules/admin/services/buying-guide/buying-guide-db.service.ts": "863d3ee3154d2afb0a0e028ecec1955040e86a0f0cf202dd39666fb6439803d9",
+    "frontend/app/types/r6-guide.types.ts": "b4a488d5fd5aab973e0244a9de7d803ea5455bce4a9efcc430db46e0e78364a6",
+    "frontend/app/components/blog/guide-achat/R6QualityTiersTable.tsx": "00adf3f46c7c9df8fc0c9c6ffa0685f79b7225aa313953f90c33f787b2452863",
+    "frontend/app/routes/blog-pieces-auto.guide-achat.$pg_alias.tsx": "382fda55e21f88ce46cee35aca690c24e5941e40b37732a0102279fefceac90b",
+    "backend/src/modules/blog/services/r6-guide.service.content.test.ts": "6283d0971f329c321bc9401eac77f79b6a6161be121cc23fb0e1c828264b8ccd",
+    "frontend/tests/unit/r6-quality-tiers.test.tsx": "80ced1af516cb86c206aef4785e867bccb883a482dc92b6c421debacaca4d016",
+    "frontend/tests/unit/r6-guide-loader.test.ts": "44e788d4ff67d6492e64047d5e99cfa05eae86b49ba0001ef7bfe272d66da2ce"
+  },
+  "final_status": "PARTIAL_COVERAGE",
+  "bounded_validation": "VALIDATED_FOR_SCOPE_ONLY"
+}

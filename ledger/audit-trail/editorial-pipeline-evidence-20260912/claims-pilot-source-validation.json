@@ -1,0 +1,25 @@
+{
+  "status": "VALIDATED_FOR_SCOPE_ONLY",
+  "source_slug": "mahle_oem_conception_filtre_huile",
+  "file_sha256": "sha256:8358e439faddebc32395175c9fb161ee7d9abce755ead940aeadb7b6ddc5f589",
+  "body_sha256": "sha256:fa488c047addedba6909fc86d9a4c3d1b6529dc93c7039a84f0589342fc0a77b",
+  "passage_sha256": "2ba5e324524e469222ed2f7c43132794aa573dc9273e2b8dcae35f64a6967f27",
+  "passage_locator": "Introduction, phrase contenant maintenance intervals stipulated by the automobile manufacturers",
+  "native_raw_ref_failures": [],
+  "native_raw_ref_warnings": [],
+  "claim": "filtre-huile-echeance-constructeur",
+  "anchor_in_section": true,
+  "raw_unchanged_from_previous_capture": true,
+  "new_capture_count": 0,
+  "review_status": "proposed",
+  "exportable": {
+    "rag": false,
+    "seo": false,
+    "support": false
+  },
+  "limitations": [
+    "Respecter les echeances est extrait ; consulter le programme et ne pas deduire une duree universelle sont des recommandations editoriales.",
+    "Aucun intervalle precis ni regle de reutilisation ou montage validee.",
+    "Droits publics inconnus ; captured, pas verified."
+  ]
+}

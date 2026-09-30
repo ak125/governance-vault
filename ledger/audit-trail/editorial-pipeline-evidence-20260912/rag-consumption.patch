@@ -1,0 +1,164 @@
+diff --git a/scripts/importers/import_wiki_exports.py b/scripts/importers/import_wiki_exports.py
+index 0fef148..f3d6912 100644
+--- a/scripts/importers/import_wiki_exports.py
++++ b/scripts/importers/import_wiki_exports.py
+@@ -207,11 +207,12 @@ SKIP_REASONS = {
+     "missing_content_hash": "content_hash absent",
+     "pydantic_validation_error": "frontmatter does not match schema",
+     "missing_frontmatter": "no YAML frontmatter found",
++    "empty_body": "export Markdown body is empty",
+ }
+ 
+ 
+-def parse_frontmatter_yaml(md_path: Path) -> Optional[Dict[str, Any]]:
+-    """Return the YAML frontmatter dict, or None if absent/malformed."""
++def parse_export_document(md_path: Path) -> Optional[tuple[Dict[str, Any], str]]:
++    """Read metadata and the actual Markdown body from one consistent parse."""
+     try:
+         import frontmatter
+     except ImportError:  # pragma: no cover
+@@ -225,7 +226,13 @@ def parse_frontmatter_yaml(md_path: Path) -> Optional[Dict[str, Any]]:
+         return None
+     if not post.metadata:
+         return None
+-    return dict(post.metadata)
++    return dict(post.metadata), post.content
++
++
++def parse_frontmatter_yaml(md_path: Path) -> Optional[Dict[str, Any]]:
++    """Compatibility parser for callers that need only schema metadata."""
++    document = parse_export_document(md_path)
++    return document[0] if document is not None else None
+ 
+ 
+ def evaluate_filters(meta: Dict[str, Any]) -> Optional[str]:
+@@ -370,14 +377,15 @@ def run(*, apply: bool, entity_filter: Optional[str], limit: Optional[int],
+         except ValueError:
+             entity_type, slug = "unknown", md_path.stem
+ 
+-        meta = parse_frontmatter_yaml(md_path)
+-        if meta is None:
++        document = parse_export_document(md_path)
++        if document is None:
+             counters["failed_validation"] += 1
+             skip_reasons["missing_frontmatter"] = skip_reasons.get("missing_frontmatter", 0) + 1
+             write_quarantine(reason="missing_frontmatter", entity_type=entity_type,
+                              slug=slug, md_path=md_path, meta=None)
+             continue
+ 
++        meta, body = document
+         # Pydantic schema validation (catches drift from JSON Schema).
+         try:
+             _FRONTMATTER_VALIDATOR.validate_python(meta)
+@@ -401,6 +409,13 @@ def run(*, apply: bool, entity_filter: Optional[str], limit: Optional[int],
+                              slug=slug, md_path=md_path, meta=meta)
+             continue
+ 
++        if not body.strip():
++            counters["failed_validation"] += 1
++            skip_reasons["empty_body"] = skip_reasons.get("empty_body", 0) + 1
++            write_quarantine(reason="empty_body", entity_type=entity_type,
++                             slug=slug, md_path=md_path, meta=meta)
++            continue
++
+         source_path = str(md_path.relative_to(WIKI_PATH))
+         content_hash = meta["content_hash"]
+         chunk_index = 0  # one chunk per file for now ; multi-chunk pipeline is upstream
+@@ -424,14 +439,13 @@ def run(*, apply: bool, entity_filter: Optional[str], limit: Optional[int],
+             continue
+ 
+         # ----- live insert path -----
+-        # NOTE : full embedding + chunking is delegated to the pre-existing
+-        # WeaviateClient.write_object pipeline. This script's job is to
+-        # validate, filter, and feed metadata. The body content + embedding
+-        # generation is handled the same way as v1 ingestion.
++        # One document per object. Forward the parsed Markdown body directly.
++        # Any server-side vectorization depends on the deployed collection config;
++        # this call does not invoke an application embedding/chunking pipeline.
+         try:
+             target_collection = client.collections.get(TARGET_COLLECTION)
+             properties = {
+-                "content": meta.get("body", "") or "",  # body is set elsewhere if present
++                "content": body,
+                 "title": meta.get("title", ""),
+                 "source_path": source_path,
+                 "source_type": entity_type,
+diff --git a/tests/test_f5_import_body.py b/tests/test_f5_import_body.py
+new file mode 100644
+index 0000000..73e923b
+--- /dev/null
++++ b/tests/test_f5_import_body.py
+@@ -0,0 +1,73 @@
++"""Actual importer loop and strict Pydantic schema, in-memory collection only."""
++import shutil
++import sys
++from types import ModuleType, SimpleNamespace
++
++import frontmatter
++import pytest
++
++from scripts.importers import import_wiki_exports as importer
++
++
++@pytest.fixture
++def pipeline(tmp_path, monkeypatch):
++    root = tmp_path / 'wiki'
++    exports = root / 'exports/rag/gamme'
++    exports.mkdir(parents=True)
++    path = exports / 'plaquette-de-frein.md'
++    shutil.copyfile(__import__('pathlib').Path(__file__).parent / 'fixtures/wiki_exports/gamme/valid-plaquette-de-frein.md', path)
++    rows = []
++    calls = []
++    collection = SimpleNamespace(data=SimpleNamespace(insert=lambda *, properties: rows.append(properties)))
++    client = SimpleNamespace(collections=SimpleNamespace(get=lambda _: collection, exists=lambda _: True))
++    config = ModuleType('app.config')
++    config.get_settings = lambda: SimpleNamespace(embedding_model='fixture-no-embedding')
++    weaviate = ModuleType('app.services.weaviate_client')
++    weaviate.WeaviateClient = lambda: SimpleNamespace(client=client)
++    monkeypatch.setitem(sys.modules, 'app.config', config)
++    monkeypatch.setitem(sys.modules, 'app.services.weaviate_client', weaviate)
++    monkeypatch.setattr(importer, 'WIKI_PATH', root)
++    monkeypatch.setattr(importer, 'QUARANTINE_DIR', tmp_path / 'quarantine')
++    monkeypatch.setattr(importer, 'assert_wiki_path_valid', lambda: root / 'exports/rag')
++    monkeypatch.setattr(importer, 'get_wiki_head_commit', lambda: 'fixture-commit')
++    def exists(_client, **identity):
++        calls.append(identity)
++        return any(all(row.get(key) == value for key, value in identity.items()) for row in rows)
++    monkeypatch.setattr(importer, 'chunk_already_in_v2', exists)
++    return path, rows, calls
++
++
++def run():
++    return importer.run(apply=True, entity_filter=None, limit=None, force_reembedding=False)
++
++
++def test_import_preserves_real_markdown_body_and_skips_unchanged_replay(pipeline):
++    path, rows, calls = pipeline
++    expected = frontmatter.load(path).content
++    assert run()['imported'] == 1
++    assert rows[0]['content'] == expected
++    assert expected.strip()
++    assert run()['skipped_idempotent'] == 1
++    assert len(rows) == 1 and len(calls) == 2
++
++
++def test_empty_body_is_refused_before_index_lookup(pipeline):
++    path, rows, calls = pipeline
++    post = frontmatter.load(path)
++    post.content = ' \n '
++    path.write_text(frontmatter.dumps(post))
++    result = run()
++    assert result['failed_validation'] == 1
++    assert result['skip_reasons'] == {'empty_body': 1}
++    assert not rows and not calls
++
++
++def test_frontmatter_cannot_replace_the_document_body(pipeline):
++    path, rows, calls = pipeline
++    post = frontmatter.load(path)
++    post['body'] = 'forged alternative body'
++    path.write_text(frontmatter.dumps(post))
++    result = run()
++    assert result['failed_validation'] == 1
++    assert result['skip_reasons'] == {'pydantic_validation_error': 1}
++    assert not rows and not calls

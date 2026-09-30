@@ -1,0 +1,15 @@
+app/components/RichTextEditor.tsx(11,42): error TS2307: Cannot find module '@tiptap/react' or its corresponding type declarations.
+frontend/tests/e2e/responsive.spec.ts(8,30): error TS2307: Cannot find module '@playwright/test' or its corresponding type declarations.
+playwright.config.ts(1,39): error TS2307: Cannot find module '@playwright/test' or its corresponding type declarations.
+tests/e2e/cache-control-on-error.spec.ts(1,30): error TS2307: Cannot find module '@playwright/test' or its corresponding type declarations.
+tests/e2e/critical-path.spec.ts(16,41): error TS2307: Cannot find module '@playwright/test' or its corresponding type declarations.
+tests/e2e/mobile-audit-complete.spec.ts(16,41): error TS2307: Cannot find module '@playwright/test' or its corresponding type declarations.
+tests/e2e/mobile-pivot.spec.ts(12,30): error TS2307: Cannot find module '@playwright/test' or its corresponding type declarations.
+tests/e2e/pieces-route-seo.spec.ts(1,30): error TS2307: Cannot find module '@playwright/test' or its corresponding type declarations.
+tests/e2e/react19-hydration.spec.ts(18,62): error TS2307: Cannot find module '@playwright/test' or its corresponding type declarations.
+tests/e2e/responsive.spec.ts(8,30): error TS2307: Cannot find module '@playwright/test' or its corresponding type declarations.
+tests/e2e/search-first-mobile.spec.ts(6,30): error TS2307: Cannot find module '@playwright/test' or its corresponding type declarations.
+tests/e2e/sentry-lazy-loading.spec.ts(1,30): error TS2307: Cannot find module '@playwright/test' or its corresponding type declarations.
+tests/e2e/url-validation.spec.ts(10,30): error TS2307: Cannot find module '@playwright/test' or its corresponding type declarations.
+tests/visual/pages.visual.spec.ts(1,30): error TS2307: Cannot find module '@playwright/test' or its corresponding type declarations.
+tests/visual/playwright.visual.config.ts(1,39): error TS2307: Cannot find module '@playwright/test' or its corresponding type declarations.

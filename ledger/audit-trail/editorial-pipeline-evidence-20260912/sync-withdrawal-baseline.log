@@ -1,0 +1,68 @@
+sync-from-wiki: 1 export files, written=0, skipped=0, failed=0 (dry-run; pass --apply to commit)
+.sync-from-wiki: no export files under /tmp/tmpgt1tg353/wiki-repo/exports/rag; mirror not refreshed
+.FAIL  gammes/oil.md: write failed: disk unavailable
+sync-from-wiki: 1 export files, written=0, skipped=0, failed=1
+.sync-from-wiki: 1 export files, written=1, skipped=0, failed=0
+manifest write FAILED: manifest unavailable
+.sync-from-wiki: source unavailable: /tmp/tmpcs9e11av/wiki-repo/exports/rag
+.sync-from-wiki: 1 export files, written=1, skipped=0, failed=0
+manifest written: /tmp/tmp3fq2_c3s/rag-repo/knowledge/.last-sync.json
+F....sync-from-wiki: 2 export files, written=2, skipped=0, failed=0
+manifest written: /tmp/tmp2thmu4sj/rag-repo/knowledge/.last-sync.json
+sync-from-wiki: 1 export files, written=1, skipped=0, failed=0
+manifest written: /tmp/tmp2thmu4sj/rag-repo/knowledge/.last-sync.json
+Fsync-from-wiki: 1 export files, written=1, skipped=0, failed=0
+manifest written: /tmp/tmpj8wirgkn/rag-repo/knowledge/.last-sync.json
+Fsync-from-wiki: 1 export files, written=1, skipped=0, failed=0
+manifest written: /tmp/tmpkaxsivlz/rag-repo/knowledge/.last-sync.json
+Fsync-from-wiki: 1 export files, written=1, skipped=0, failed=0
+manifest written: /tmp/tmpngjmev5c/rag-repo/knowledge/.last-sync.json
+sync-from-wiki: 1 export files, written=0, skipped=1, failed=0
+manifest written: /tmp/tmpngjmev5c/rag-repo/knowledge/.last-sync.json
+.
+======================================================================
+FAIL: test_partial_source_cannot_claim_global_mirror_freshness (test_sync_wiki_exports_to_rag.SyncContractTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/scripts/rag-sync/test_sync_wiki_exports_to_rag.py", line 134, in test_partial_source_cannot_claim_global_mirror_freshness
+    self.assertEqual(self.run_sync(source=self.exports / 'gammes'), 1)
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_removed_export_blocks_refresh_and_preserves_evidence (test_sync_wiki_exports_to_rag.SyncContractTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/scripts/rag-sync/test_sync_wiki_exports_to_rag.py", line 119, in test_removed_export_blocks_refresh_and_preserves_evidence
+    self.assertEqual(self.run_sync(), 1)
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_target_symlink_escape_rejected_before_copy (test_sync_wiki_exports_to_rag.SyncContractTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/scripts/rag-sync/test_sync_wiki_exports_to_rag.py", line 143, in test_target_symlink_escape_rejected_before_copy
+    self.assertEqual(self.run_sync(), 1)
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_unmanaged_mirror_file_is_reported_without_deletion (test_sync_wiki_exports_to_rag.SyncContractTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/scripts/rag-sync/test_sync_wiki_exports_to_rag.py", line 128, in test_unmanaged_mirror_file_is_reported_without_deletion
+    self.assertEqual(self.run_sync(), 1)
+AssertionError: 0 != 1
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.026s
+
+FAILED (failures=4)
+DRY   gammes/oil.md → /tmp/tmpp1jomg35/rag-repo/knowledge/gammes/oil.md
+WRITE gammes/oil.md
+WRITE oil.md
+WRITE gammes/oil.md
+WRITE gammes/withdrawn.md
+WRITE gammes/oil.md
+WRITE gammes/oil.md
+WRITE gammes/oil.md
+WRITE gammes/oil.md
+SKIP  gammes/oil.md (sha256 match)

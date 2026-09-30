@@ -1,0 +1,56 @@
+PASS src/modules/blog/services/r6-guide.service.content.test.ts (9.969 s)
+[32m[Nest] 1132184  - [39m14/09/2026 00:26:28 [32m    LOG[39m [38;5;3m[R6GuideService] [39m[32mR6 Guide [v2]: filtre-a-huile → pg_id=7[39m
+[32m[Nest] 1132184  - [39m14/09/2026 00:26:28 [32m    LOG[39m [38;5;3m[R6GuideService] [39m[32mR6 Guide [v2]: filtre-a-huile → pg_id=7[39m
+[32m[Nest] 1132184  - [39m14/09/2026 00:26:28 [32m    LOG[39m [38;5;3m[R6GuideService] [39m[32mR6 Guide [v2]: filtre-a-huile → pg_id=7[39m
+[33m[Nest] 1132184  - [39m14/09/2026 00:26:28 [33m   WARN[39m [38;5;3m[R6GuideService] [39m[33mR6_QUALITY_TIERS_REVIEW_REQUIRED: pg_alias=filtre-a-huile, field=sgpg_selection_criteria[39m
+[32m[Nest] 1132184  - [39m14/09/2026 00:26:28 [32m    LOG[39m [38;5;3m[R6GuideService] [39m[32mR6 Guide [v2]: filtre-a-huile → pg_id=7[39m
+[33m[Nest] 1132184  - [39m14/09/2026 00:26:28 [33m   WARN[39m [38;5;3m[R6GuideService] [39m[33mR6_QUALITY_TIERS_REVIEW_REQUIRED: pg_alias=filtre-a-huile, field=sgpg_selection_criteria[39m
+[32m[Nest] 1132184  - [39m14/09/2026 00:26:28 [32m    LOG[39m [38;5;3m[R6GuideService] [39m[32mR6 Guide [v2]: filtre-a-huile → pg_id=7[39m
+[33m[Nest] 1132184  - [39m14/09/2026 00:26:28 [33m   WARN[39m [38;5;3m[R6GuideService] [39m[33mR6_QUALITY_TIERS_REVIEW_REQUIRED: pg_alias=filtre-a-huile, field=sgpg_selection_criteria[39m
+[32m[Nest] 1132184  - [39m14/09/2026 00:26:28 [32m    LOG[39m [38;5;3m[R6GuideService] [39m[32mR6 Guide [v2]: filtre-a-huile → pg_id=7[39m
+[33m[Nest] 1132184  - [39m14/09/2026 00:26:28 [33m   WARN[39m [38;5;3m[R6GuideService] [39m[33mR6_QUALITY_TIERS_REVIEW_REQUIRED: pg_alias=filtre-a-huile, field=sgpg_selection_criteria[39m
+[32m[Nest] 1132184  - [39m14/09/2026 00:26:28 [32m    LOG[39m [38;5;3m[R6GuideService] [39m[32mR6 Guide [v2]: filtre-a-huile → pg_id=7[39m
+[33m[Nest] 1132184  - [39m14/09/2026 00:26:28 [33m   WARN[39m [38;5;3m[R6GuideService] [39m[33mR6_QUALITY_TIERS_REVIEW_REQUIRED: pg_alias=filtre-a-huile, field=sgpg_selection_criteria[39m
+[32m[Nest] 1132184  - [39m14/09/2026 00:26:28 [32m    LOG[39m [38;5;3m[R6GuideService] [39m[32mR6 Guide [v2]: filtre-a-huile → pg_id=7[39m
+[33m[Nest] 1132184  - [39m14/09/2026 00:26:28 [33m   WARN[39m [38;5;3m[R6GuideService] [39m[33mR6_QUALITY_TIERS_REVIEW_REQUIRED: pg_alias=filtre-a-huile, field=sgpg_selection_criteria[39m
+[32m[Nest] 1132184  - [39m14/09/2026 00:26:28 [32m    LOG[39m [38;5;3m[R6GuideService] [39m[32mR6 Guide [v2]: filtre-a-huile → pg_id=7[39m
+[33m[Nest] 1132184  - [39m14/09/2026 00:26:28 [33m   WARN[39m [38;5;3m[R6GuideService] [39m[33mR6_QUALITY_TIERS_REVIEW_REQUIRED: pg_alias=filtre-a-huile, field=sgpg_selection_criteria[39m
+[32m[Nest] 1132184  - [39m14/09/2026 00:26:28 [32m    LOG[39m [38;5;3m[R6GuideService] [39m[32mR6 Guide [v2]: filtre-a-huile → pg_id=7[39m
+[33m[Nest] 1132184  - [39m14/09/2026 00:26:28 [33m   WARN[39m [38;5;3m[R6GuideService] [39m[33mR6_QUALITY_TIERS_REVIEW_REQUIRED: pg_alias=filtre-a-huile, field=sgpg_selection_criteria[39m
+[32m[Nest] 1132184  - [39m14/09/2026 00:26:28 [32m    LOG[39m [38;5;3m[R6GuideService] [39m[32mR6 Guide [v2]: filtre-a-huile → pg_id=7[39m
+[33m[Nest] 1132184  - [39m14/09/2026 00:26:28 [33m   WARN[39m [38;5;3m[R6GuideService] [39m[33mR6_QUALITY_TIERS_REVIEW_REQUIRED: pg_alias=filtre-a-huile, field=sgpg_selection_criteria[39m
+[32m[Nest] 1132184  - [39m14/09/2026 00:26:28 [32m    LOG[39m [38;5;3m[R6GuideService] [39m[32mR6 Guide [v2]: filtre-a-huile → pg_id=7[39m
+[33m[Nest] 1132184  - [39m14/09/2026 00:26:28 [33m   WARN[39m [38;5;3m[R6GuideService] [39m[33mR6_QUALITY_TIERS_REVIEW_REQUIRED: pg_alias=filtre-a-huile, field=sgpg_selection_criteria[39m
+[32m[Nest] 1132184  - [39m14/09/2026 00:26:28 [32m    LOG[39m [38;5;3m[R6GuideService] [39m[32mR6 Guide [v2]: filtre-a-huile → pg_id=7[39m
+[33m[Nest] 1132184  - [39m14/09/2026 00:26:28 [33m   WARN[39m [38;5;3m[R6GuideService] [39m[33mR6_QUALITY_TIERS_REVIEW_REQUIRED: pg_alias=filtre-a-huile, field=sgpg_selection_criteria[39m
+[32m[Nest] 1132184  - [39m14/09/2026 00:26:28 [32m    LOG[39m [38;5;3m[R6GuideService] [39m[32mR6 Guide [v1]: filtre-a-huile → pg_id=7[39m
+[32m[Nest] 1132184  - [39m14/09/2026 00:26:28 [32m    LOG[39m [38;5;3m[R6GuideService] [39m[32mR6 Guide [v1]: filtre-a-huile → pg_id=7[39m
+[32m[Nest] 1132184  - [39m14/09/2026 00:26:28 [32m    LOG[39m [38;5;3m[R6GuideService] [39m[32mR6 Guide [v1]: filtre-a-huile → pg_id=7[39m
+[32m[Nest] 1132184  - [39m14/09/2026 00:26:28 [32m    LOG[39m [38;5;3m[R6GuideService] [39m[32mR6 Guide [v2]: filtre-a-huile → pg_id=7[39m
+[32m[Nest] 1132184  - [39m14/09/2026 00:26:28 [32m    LOG[39m [38;5;3m[R6GuideService] [39m[32mR6 Guide [v2]: filtre-a-huile → pg_id=7[39m
+[32m[Nest] 1132184  - [39m14/09/2026 00:26:28 [32m    LOG[39m [38;5;3m[R6GuideService] [39m[32mR6 Guide [v2]: filtre-a-huile → pg_id=7[39m
+[32m[Nest] 1132184  - [39m14/09/2026 00:26:28 [32m    LOG[39m [38;5;3m[R6GuideService] [39m[32mR6 Guide [v2]: filtre-a-huile → pg_id=7[39m
+[32m[Nest] 1132184  - [39m14/09/2026 00:26:28 [32m    LOG[39m [38;5;3m[R6GuideService] [39m[32mR6 Guide [v2]: filtre-a-huile → pg_id=7[39m
+[32m[Nest] 1132184  - [39m14/09/2026 00:26:28 [32m    LOG[39m [38;5;3m[BuyingGuideEnricherService] [39m[32mEnriching pgId=7 (Filtre à huile, family=filtration) dryRun=true[39m
+[32m[Nest] 1132184  - [39m14/09/2026 00:26:28 [32m    LOG[39m [38;5;3m[BuyingGuideEnricherService] [39m[32mEnriching pgId=7 (Filtre à huile, family=filtration) dryRun=false[39m
+[33m[Nest] 1132184  - [39m14/09/2026 00:26:28 [33m   WARN[39m [38;5;3m[BuyingGuideEnricherService] [39m[33mQUALITY_GATE_BLOCKED: pgId=7, score=100, reasons=GUIDANCE_COPIES_LABEL (rows: 1, 2, 3, 4, 5)[39m
+[32m[Nest] 1132184  - [39m14/09/2026 00:26:28 [32m    LOG[39m [38;5;3m[BuyingGuideEnricherService] [39m[32mEnriching pgId=7 (Filtre à huile, family=filtration) dryRun=true[39m
+[32m[Nest] 1132184  - [39m14/09/2026 00:26:28 [32m    LOG[39m [38;5;3m[BuyingGuideEnricherService] [39m[32mEnriching pgId=7 (Filtre à huile, family=filtration) dryRun=false[39m
+[33m[Nest] 1132184  - [39m14/09/2026 00:26:28 [33m   WARN[39m [38;5;3m[BuyingGuideEnricherService] [39m[33mQUALITY_GATE_BLOCKED: pgId=7, score=41, reasons=GENERIC_PHRASES | MISSING_REQUIRED_TERMS | TOO_SHORT | CONTENT_OVERLAP[39m
+[32m[Nest] 1132184  - [39m14/09/2026 00:26:28 [32m    LOG[39m [38;5;3m[BuyingGuideEnricherService] [39m[32mEnriching pgId=7 (Filtre à huile, family=filtration) dryRun=true[39m
+[32m[Nest] 1132184  - [39m14/09/2026 00:26:28 [32m    LOG[39m [38;5;3m[BuyingGuideEnricherService] [39m[32mEnriching pgId=7 (Filtre à huile, family=filtration) dryRun=false[39m
+[33m[Nest] 1132184  - [39m14/09/2026 00:26:28 [33m   WARN[39m [38;5;3m[BuyingGuideEnricherService] [39m[33mQUALITY_GATE_BLOCKED: pgId=7, score=100, reasons=DUPLICATE_SELECTION_CRITERIA (rows: 2)[39m
+[32m[Nest] 1132184  - [39m14/09/2026 00:26:28 [32m    LOG[39m [38;5;3m[BuyingGuideEnricherService] [39m[32mEnriching pgId=7 (Filtre à huile, family=filtration) dryRun=true[39m
+[32m[Nest] 1132184  - [39m14/09/2026 00:26:28 [32m    LOG[39m [38;5;3m[BuyingGuideEnricherService] [39m[32mEnriching pgId=7 (Filtre à huile, family=filtration) dryRun=false[39m
+[32m[Nest] 1132184  - [39m14/09/2026 00:26:28 [32m    LOG[39m [38;5;3m[BuyingGuideEnricherService] [39m[32mGatekeeper-only write for pgId=7 (all sections skipped, RAG-incomplete cluster)[39m
+[32m[Nest] 1132184  - [39m14/09/2026 00:26:28 [32m    LOG[39m [38;5;3m[BuyingGuideEnricherService] [39m[32mEnriching pgId=7 (Filtre à huile, family=filtration) dryRun=true[39m
+[32m[Nest] 1132184  - [39m14/09/2026 00:26:28 [32m    LOG[39m [38;5;3m[BuyingGuideEnricherService] [39m[32mEnriching pgId=7 (Filtre à huile, family=filtration) dryRun=false[39m
+[32m[Nest] 1132184  - [39m14/09/2026 00:26:28 [32m    LOG[39m [38;5;3m[BuyingGuideEnricherService] [39m[32msg_content_draft SKIPPED for pgId=7 — R1 content managed by R1ContentPipelineService[39m
+PASS src/modules/admin/services/buying-guide-enricher.quality.test.ts
+PASS src/modules/blog/services/r6-guide.service.redirect.test.ts
+PASS tests/unit/buying-guide-data.service.test.ts
+
+Test Suites: 4 passed, 4 total
+Tests:       49 passed, 49 total
+Snapshots:   0 total
+Time:        10.576 s, estimated 11 s

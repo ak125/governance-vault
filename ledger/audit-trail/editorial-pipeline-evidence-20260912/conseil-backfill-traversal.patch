@@ -1,0 +1,412 @@
+diff --git a/backend/src/modules/admin/services/conseil-quality-backfill.test.ts b/backend/src/modules/admin/services/conseil-quality-backfill.test.ts
+new file mode 100644
+index 000000000..7438b609e
+--- /dev/null
++++ b/backend/src/modules/admin/services/conseil-quality-backfill.test.ts
+@@ -0,0 +1,166 @@
++import { createClient } from '@supabase/supabase-js';
++import { ConseilQualityScorerService } from './conseil-quality-scorer.service';
++
++type Row = {
++  sgc_id: string;
++  sgc_quality_score: number | null;
++  sgc_section_type: string;
++  sgc_content: string;
++  sgc_sources: string | null;
++};
++const rowsOf = (count: number): Row[] =>
++  Array.from({ length: count }, (_, i) => ({
++    sgc_id: `00000000-0000-0000-0000-${String(i + 1).padStart(12, '0')}`,
++    sgc_quality_score: null,
++    sgc_section_type: 'S1',
++    sgc_content: 'Filtre.',
++    sgc_sources: null,
++  }));
++
++// Real Supabase query builder, memory transport. No external request or real key.
++function harness(
++  rows: Row[],
++  options: {
++    failIds?: Set<string>;
++    beforePatch?: (row: Row) => void;
++    failRead?: boolean;
++  } = {},
++) {
++  const attempts: string[] = [];
++  const reads: URL[] = [];
++  const transport = jest.fn(
++    async (input: RequestInfo | URL, init?: RequestInit) => {
++      const url = new URL(String(input));
++      const reply = (data: unknown, status = 200) =>
++        new Response(JSON.stringify(data), {
++          status,
++          headers: { 'Content-Type': 'application/json' },
++        });
++      if (init?.method === 'PATCH') {
++        const id = url.searchParams.get('sgc_id')?.slice(3);
++        const row = rows.find((r) => r.sgc_id === id);
++        if (!row) return reply([]);
++        attempts.push(row.sgc_id);
++        options.beforePatch?.(row);
++        if (options.failIds?.has(row.sgc_id))
++          return reply(
++            { message: 'fixture write failure', code: 'TEST_ERROR' },
++            400,
++          );
++        if (
++          url.searchParams.get('sgc_quality_score') === 'is.null' &&
++          row.sgc_quality_score !== null
++        )
++          return reply([]);
++        const update = JSON.parse(String(init.body)) as {
++          sgc_quality_score: number;
++        };
++        row.sgc_quality_score = update.sgc_quality_score;
++        return reply([{ sgc_id: row.sgc_id }]);
++      }
++      reads.push(url);
++      if (reads.length > 10) throw new Error('Non-terminating traversal');
++      if (options.failRead)
++        return reply(
++          { message: 'fixture read failure', code: 'TEST_ERROR' },
++          400,
++        );
++      let selected = rows.filter((r) => r.sgc_quality_score === null);
++      const cursor = url.searchParams.get('sgc_id');
++      if (cursor?.startsWith('gt.'))
++        selected = selected.filter((r) => r.sgc_id > cursor.slice(3));
++      if (url.searchParams.get('order') === 'sgc_id.asc')
++        selected = [...selected].sort((a, b) =>
++          a.sgc_id.localeCompare(b.sgc_id),
++        );
++      const offset = Number(url.searchParams.get('offset') ?? 0);
++      const limit = Number(url.searchParams.get('limit') ?? 100);
++      return reply(selected.slice(offset, offset + limit));
++    },
++  );
++  const client = createClient('https://example.invalid', 'fixture-only-key', {
++    global: { fetch: transport },
++    auth: {
++      persistSession: false,
++      autoRefreshToken: false,
++      detectSessionInUrl: false,
++    },
++  });
++  const service = Object.create(
++    ConseilQualityScorerService.prototype,
++  ) as ConseilQualityScorerService;
++  Object.defineProperty(service, 'client', { value: client });
++  Object.defineProperty(service, 'log', {
++    value: { log: jest.fn(), error: jest.fn() },
++  });
++  return { service, reads, attempts };
++}
++
++describe('Conseil backfill traversal through real Supabase query builder', () => {
++  it('visits all 250 rows even though successful writes shrink the NULL selection', async () => {
++    const rows = rowsOf(250);
++    const { service, attempts, reads } = harness(rows);
++    expect(await service.backfillQualityScores()).toEqual({
++      updated: 250,
++      failed: 0,
++      skipped: 0,
++    });
++    expect(rows.filter((r) => r.sgc_quality_score === null)).toHaveLength(0);
++    expect(new Set(attempts).size).toBe(250);
++    expect(
++      reads.every((url) => url.searchParams.get('order') === 'sgc_id.asc'),
++    ).toBe(true);
++  });
++
++  it('does not loop on failed rows and still reaches later batches', async () => {
++    const rows = rowsOf(250);
++    const failIds = new Set(rows.slice(0, 100).map((r) => r.sgc_id));
++    const { service, attempts } = harness(rows, { failIds });
++    expect(await service.backfillQualityScores()).toEqual({
++      updated: 150,
++      failed: 100,
++      skipped: 0,
++    });
++    expect(new Set(attempts).size).toBe(250);
++    expect(attempts).toHaveLength(250);
++  });
++
++  it('leaves a concurrently populated score untouched and does not count it as updated', async () => {
++    const rows = rowsOf(1);
++    const { service } = harness(rows, {
++      beforePatch: (row) => {
++        row.sgc_quality_score = 91;
++      },
++    });
++    expect(await service.backfillQualityScores()).toEqual({
++      updated: 0,
++      failed: 0,
++      skipped: 1,
++    });
++    expect(rows[0].sgc_quality_score).toBe(91);
++  });
++
++  it('fails explicitly on a read error instead of inventing 100 failed rows', async () => {
++    const { service } = harness(rowsOf(1), { failRead: true });
++    await expect(service.backfillQualityScores()).rejects.toMatchObject({
++      message: 'fixture read failure',
++    });
++  });
++
++  it('is idempotent on a second pass and preserves existing scores', async () => {
++    const rows = rowsOf(101);
++    rows[0].sgc_quality_score = 91;
++    const { service } = harness(rows);
++    expect(await service.backfillQualityScores()).toEqual({
++      updated: 100,
++      failed: 0,
++      skipped: 0,
++    });
++    expect(await service.backfillQualityScores()).toEqual({
++      updated: 0,
++      failed: 0,
++      skipped: 0,
++    });
++    expect(rows[0].sgc_quality_score).toBe(91);
++  });
++});
+diff --git a/backend/src/modules/admin/services/conseil-quality-scorer.service.ts b/backend/src/modules/admin/services/conseil-quality-scorer.service.ts
+index c071b9578..ac5f7f5b2 100644
+--- a/backend/src/modules/admin/services/conseil-quality-scorer.service.ts
++++ b/backend/src/modules/admin/services/conseil-quality-scorer.service.ts
+@@ -5,6 +5,8 @@
+ 
+ import { Injectable, Logger } from '@nestjs/common';
+ import { SupabaseBaseService } from '@database/services/supabase-base.service';
++import { hasDeclaredSourceReferences } from '../../blog/utils/source-provenance.util';
++import { deduplicateWords } from '../../blog/utils/html-normalize.utils';
+ import {
+   type PackLevel,
+   PACK_DEFINITIONS,
+@@ -26,8 +28,16 @@ export interface PackCoverageResult {
+   presentSections: string[];
+   missingSections: string[];
+   coverage: number;
++  /** Average of exactly one valid score per required section, otherwise null. */
+   avgQuality: number | null;
++  /** Structural presence only; does not imply score qualification. */
+   packComplete: boolean;
++  /** Existing score thresholds only, not a factual or SEO ranking verdict. */
++  qualityStatus: 'not_evaluable' | 'below_threshold' | 'meets_thresholds';
++  unscoredSections: string[];
++  invalidScoreSections: string[];
++  duplicateSections: string[];
++  lowQualitySections: string[];
+ }
+ 
+ export interface GammeCoverageResult {
+@@ -41,6 +51,8 @@ export interface GammeCoverageResult {
+ export interface BackfillResult {
+   updated: number;
+   failed: number;
++  /** Rows no longer matching the conditional update; not successful writes. */
++  skipped: number;
+ }
+ 
+ @Injectable()
+@@ -50,7 +62,7 @@ export class ConseilQualityScorerService extends SupabaseBaseService {
+   // ── Public API ───────────────────────────────────────────
+ 
+   /**
+-   * Score a single section (0-100) based on content quality criteria.
++   * Heuristic section score (0-100), not a verdict on factual truth or ranking.
+    */
+   scoreSection(
+     sectionType: string,
+@@ -63,11 +75,18 @@ export class ConseilQualityScorerService extends SupabaseBaseService {
+     let score = 100;
+     const penalties: Array<{ flag: string; points: number }> = [];
+ 
+-    const stripped = this.stripHtml(content);
++    // Measure text, not markup or accidental consecutive word padding. Reuse
++    // the existing normalizer to its fixed point without rewriting the content.
++    let stripped = this.stripHtml(content);
++    let deduplicated = deduplicateWords(stripped);
++    while (deduplicated !== stripped) {
++      stripped = deduplicated;
++      deduplicated = deduplicateWords(stripped);
++    }
+     const wordCount = stripped.split(/\s+/).filter(Boolean).length;
+ 
+     // Content length
+-    if (content.length < criteria.minContentLength) {
++    if (stripped.length < criteria.minContentLength) {
+       const p = 20;
+       score -= p;
+       penalties.push({ flag: 'CONTENT_TOO_SHORT', points: p });
+@@ -148,8 +167,8 @@ export class ConseilQualityScorerService extends SupabaseBaseService {
+       }
+     }
+ 
+-    // Sources
+-    if (!sources || sources === '[]' || sources === 'null') {
++    // Declared references only; evidence qualification belongs to WIKI gates.
++    if (!hasDeclaredSourceReferences(sources)) {
+       const p = 15;
+       score -= p;
+       penalties.push({ flag: 'NO_SOURCES', points: p });
+@@ -200,16 +219,49 @@ export class ConseilQualityScorerService extends SupabaseBaseService {
+         (t) => !presentTypes.has(t),
+       );
+ 
+-      const scores = sections
+-        .filter(
+-          (s) =>
+-            // `sgc_section_type` est une chaîne DB arbitraire testée pour appartenance à la
+-            // liste canonique : on élargit le RÉCEPTEUR, sans affaiblir le type du pack.
+-            (pack.requiredSections as readonly string[]).includes(
+-              s.sgc_section_type,
+-            ) && s.sgc_quality_score !== null,
+-        )
+-        .map((s) => s.sgc_quality_score!);
++      const unscoredSections: string[] = [];
++      const invalidScoreSections: string[] = [];
++      const duplicateSections: string[] = [];
++      const lowQualitySections: string[] = [];
++      const scores: number[] = [];
++
++      for (const sectionType of pack.requiredSections) {
++        const rows = sections.filter((s) => s.sgc_section_type === sectionType);
++        if (rows.length === 0) continue;
++        if (rows.length > 1) duplicateSections.push(sectionType);
++        if (rows.some((s) => s.sgc_quality_score === null)) {
++          unscoredSections.push(sectionType);
++        }
++        if (
++          rows.some(
++            (s) =>
++              s.sgc_quality_score !== null &&
++              (!Number.isFinite(s.sgc_quality_score) ||
++                s.sgc_quality_score < 0 ||
++                s.sgc_quality_score > 100),
++          )
++        ) {
++          invalidScoreSections.push(sectionType);
++        }
++        // No arbitrary selection/weighting when several rows claim the same section.
++        if (rows.length !== 1) continue;
++        const score = rows[0].sgc_quality_score;
++        if (
++          score === null ||
++          !Number.isFinite(score) ||
++          score < 0 ||
++          score > 100
++        ) {
++          continue;
++        }
++        scores.push(score);
++        if (score < pack.minSectionScore) lowQualitySections.push(sectionType);
++      }
++
++      const evaluable = scores.length === pack.requiredSections.length;
++      const average = evaluable
++        ? scores.reduce((sum, score) => sum + score, 0) / scores.length
++        : null;
+ 
+       return {
+         packLevel,
+@@ -217,11 +269,18 @@ export class ConseilQualityScorerService extends SupabaseBaseService {
+         presentSections,
+         missingSections,
+         coverage: presentSections.length / pack.requiredSections.length,
+-        avgQuality:
+-          scores.length > 0
+-            ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
+-            : null,
++        avgQuality: average === null ? null : Math.round(average),
+         packComplete: missingSections.length === 0,
++        qualityStatus:
++          average === null
++            ? 'not_evaluable'
++            : lowQualitySections.length === 0 && average >= pack.minPackScore
++              ? 'meets_thresholds'
++              : 'below_threshold',
++        unscoredSections,
++        invalidScoreSections,
++        duplicateSections,
++        lowQualitySections,
+       };
+     };
+ 
+@@ -243,20 +302,26 @@ export class ConseilQualityScorerService extends SupabaseBaseService {
+ 
+     let updated = 0;
+     let failed = 0;
+-    let offset = 0;
++    let skipped = 0;
++    let lastId: string | null = null;
+     const batchSize = 100;
+ 
+     while (true) {
+-      const { data, error } = await this.client
++      // Successful updates remove rows from this selection. A positional offset
++      // would skip the next batch; traverse stable IDs instead, including failures.
++      let query = this.client
+         .from('__seo_gamme_conseil')
+         .select('sgc_id, sgc_section_type, sgc_content, sgc_sources')
+         .is('sgc_quality_score', null)
+-        .range(offset, offset + batchSize - 1);
++        .order('sgc_id', { ascending: true })
++        .limit(batchSize);
++      if (lastId !== null) query = query.gt('sgc_id', lastId);
++      const { data, error } = await query;
+ 
+       if (error) {
+         this.log.error(`Backfill query error: ${error.message}`);
+-        failed += batchSize;
+-        break;
++        // The unread row count is unknown; do not fabricate per-row failures.
++        throw error;
+       }
+ 
+       if (!data || data.length === 0) break;
+@@ -269,31 +334,37 @@ export class ConseilQualityScorerService extends SupabaseBaseService {
+             row.sgc_sources,
+           );
+ 
+-          const { error: updateError } = await this.client
++          const { data: written, error: updateError } = await this.client
+             .from('__seo_gamme_conseil')
+             .update({ sgc_quality_score: score })
+-            .eq('sgc_id', row.sgc_id);
++            .eq('sgc_id', row.sgc_id)
++            .is('sgc_quality_score', null)
++            .select('sgc_id');
+ 
+           if (updateError) {
+             failed++;
+-          } else {
++          } else if (written?.length === 1) {
+             updated++;
++          } else {
++            skipped++;
+           }
+         } catch {
+           failed++;
+         }
+       }
+ 
++      lastId = data[data.length - 1].sgc_id;
+       this.log.log(
+-        `Backfill progress: ${updated} updated, ${failed} failed (batch at offset ${offset})`,
++        `Backfill progress: ${updated} updated, ${failed} failed, ${skipped} skipped (after ${lastId})`,
+       );
+ 
+       if (data.length < batchSize) break;
+-      offset += batchSize;
+     }
+ 
+-    this.log.log(`Backfill complete: ${updated} updated, ${failed} failed`);
+-    return { updated, failed };
++    this.log.log(
++      `Backfill complete: ${updated} updated, ${failed} failed, ${skipped} skipped`,
++    );
++    return { updated, failed, skipped };
+   }
+ 
+   // ── Private helpers ──────────────────────────────────────

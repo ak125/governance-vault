@@ -1,0 +1,5 @@
+npm warn Unknown project config "puppeteer-skip-download". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> @fafa/backend@0.0.1 typecheck
+> NODE_OPTIONS='--max-old-space-size=4096' tsc --noEmit --incremental --tsBuildInfoFile node_modules/.cache/tsc/backend-typecheck.tsbuildinfo
+

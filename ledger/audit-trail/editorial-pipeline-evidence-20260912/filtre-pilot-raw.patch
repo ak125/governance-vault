@@ -1,0 +1,48 @@
+diff --git a/manifests/ingestion-allowlist.yaml b/manifests/ingestion-allowlist.yaml
+index da83126..2622c10 100644
+--- a/manifests/ingestion-allowlist.yaml
++++ b/manifests/ingestion-allowlist.yaml
+@@ -14,6 +14,7 @@ schema_version: "1.0.0"
+ 
+ # ── Sources AUTORISÉES (équipementiers + constructeurs + technique) ───────────
+ allow:
++  - { domain: "filtron.eu", source_type: manufacturer_maintenance, level: 2, license_status: unknown, notes: "Pilote filtre a huile: explication technique des clapets, examen WIKI uniquement." }
+   # ── FACTUEL — product_catalog (équipementiers). NB : la DB interne AutoMecanik reste
+   #    la source PRIMAIRE des faits ; ces domaines = appoint, PAS de l'éditorial.
+   - { domain: "bosch.com",            source_type: product_catalog,          level: 2, license_status: unknown, notes: "Équipementier — pages produit/catalogue" }
+diff --git a/manifests/ingestion-worklist.yaml b/manifests/ingestion-worklist.yaml
+index 174d130..2f4c318 100644
+--- a/manifests/ingestion-worklist.yaml
++++ b/manifests/ingestion-worklist.yaml
+@@ -144,3 +144,31 @@ worklist:
+       ÉDITORIAL uniquement : cibler editorial_howto / diagnostic_reference /
+       manufacturer_maintenance / known_issue_reference — JAMAIS product_catalog seul. Les
+       faits (réf/dimensions/compatibilité) viennent de la DB interne. Licence connue avant usage public.
++
++  - id: wl-filtre-a-huile-clapets
++    subject_type: gamme
++    entity_ref:
++      pg_id: 7
++    gamme: filtre-a-huile
++    topic: Presence des clapets selon la conception du filtre et du moteur
++    target_consumer:
++    - WIKI
++    priority: P1
++    rationale: 'Guide R6 observe en DEV: generalisation anti-retour obligatoire moteurs
++      modernes. Capturer le passage constructeur pour preparer sa correction, sans inference
++      de compatibilite.'
++    discovery:
++      mode: provided
++    source:
++      authoritative_domain: filtron.eu
++      url: https://filtron.eu/en/insights/filter-guide/spin-on-oil-filter-valves.html
++      source_type: manufacturer_maintenance
++      license: null
++      license_status: unknown
++    capture:
++      status: CAPTURED_NEEDS_REVIEW
++      content_hash: sha256:b8431d6ff4d46f8f4e7acf118fa89b3679683572706f59d159e6ab5e1c01ba6f
++      captured_at: '2026-09-13T21:43:09Z'
++      raw_path: sources/auto-captures/filtre-a-huile/filtron-eu-wl-filtre-a-huile-clapets-b8431d6f.md
++    notes: Candidat isole. Pas de validation factuelle ni publication depuis RAW; controles
++      reseau et persistance conserves.

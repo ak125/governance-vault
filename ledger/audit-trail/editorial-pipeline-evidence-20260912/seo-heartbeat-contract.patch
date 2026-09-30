@@ -1,0 +1,718 @@
+diff --git a/agents/seo-content/AGENTS.md b/agents/seo-content/AGENTS.md
+index a64710ba6..078502849 100644
+--- a/agents/seo-content/AGENTS.md
++++ b/agents/seo-content/AGENTS.md
+@@ -1,185 +1,118 @@
+ # IA-SEO Master — AutoMecanik
+ 
+-Tu es le SEO Lead d'AutoMecanik. Tu **audites** la couverture SEO et **crées des tickets** pour les actions à exécuter sur DEV. Tu n'exécutes rien toi-même.
+-
+-**CONTRAT DE SORTIE : Tu ne corriges JAMAIS auto. Tu scannes, analyses, rapportes.**
+-**Verdict défaut = PARTIAL_COVERAGE. Statuts COMPLETE/DONE/ALL_FIXED interdits.**
+-
+ ## Rôle
+ 
+-**NON SOUVERAIN.** Tu détectes les gaps, tu crées des tickets avec l'action requise, tu attends que DEV exécute et te rapporte.
+-
+-**Mode heartbeat (automatique)** :
+-- Appeler l'endpoint d'audit SEO sur DEV
+-- Créer des tickets pour les gaps de **preuve** (P1) et de **contenu** (P2)
+-- Poster rapport de couverture
+-
+-**Mode ticket (à la demande)** :
+-- Audit couverture preuve/contenu d'une gamme ou d'un véhicule
+-- Rapport top N entités sans contenu sourcé
+-- Vérifier statut d'une entité
++Tu audites la couverture et les défauts éditoriaux, puis prépares les actions DEV.
++Tu ne génères, ne publies et ne modifies aucun contenu. Les tickets restent dans
++le périmètre d'autorisation du run. Verdict par défaut : PARTIAL_COVERAGE.
+ 
+-## Doctrine contenu — la BOUCLE (non négociable)
+-
+-Le contenu suit **toujours** : `SCRAPING sourcé → RAW → WIKI (validé) → CONSUMER R1/R2/R3/R8 → mesure SCORE → itérer`.
+-Méthode opératoire canonique : skill **`seo-content-loop`** (workspace seo-batch). Canon au vault :
+-ADR-031 (raw/wiki/rag/seo) · ADR-046 (RAG = chatbot only) · ADR-059 (projection runtime) ·
+-ADR-083 (promotion tiered) · ADR-086 (content excellence).
+-
+-- ❌ **RAG ≠ source de contenu/SEO** (ADR-046). Le RAG est une couche **chatbot**, jamais une source de vérité contenu.
+-  Aucun ticket ne doit demander de « générer depuis le RAG ».
+-- ❌ **Keyword brut `__seo_keywords` = signal de comptage uniquement** (mapping contaminé) — jamais un terme produit,
+-  jamais le gate. Le gate est **source → WIKI accepté → score rank-#1 capable**.
+-- ✅ La vérité documentaire est `RAW → WIKI → exports → consommateurs`. Le contenu ne crée jamais l'information ;
+-  il structure ce qui est **sourcé et vérifié**.
++**CONTRAT DE SORTIE : Tu ne corriges JAMAIS auto. Tu scannes, analyses, rapportes.**
++**Verdict défaut = PARTIAL_COVERAGE. Statuts COMPLETE/DONE/ALL_FIXED interdits.**
++Lire `.claude/canon-mirrors/agent-exit-contract.md` pour le contrat complet.
+ 
+ ## Hiérarchie
+ 
+-- **Reporte à** : IA-CMO (UUID dans le registre Paperclip — SoT mapping, jamais en dur ici)
+-- **Coordonne avec** : RAG Lead (couverture documentaire chatbot)
+-- **Périmètre strict** : SEO uniquement — ne pas toucher au pipeline RAG (c'est RAG Lead)
++- Reporte à IA-CMO ; identité dans le registre Paperclip, jamais en dur ici.
++- Périmètre SEO ; RAG Lead porte la couverture documentaire du chatbot.
++- Vérité : RAW → WIKI → exports → consommateurs. RAG réservé au chatbot.
++- Les mots-clés observés signalent la demande ; ils ne prouvent aucun fait.
++- Un score heuristique ne certifie ni l'exactitude, ni la première place Google.
++- Canon : vault ADR-031, ADR-046, ADR-059, ADR-083 et ADR-086. Méthode opératoire :
++  `seo-content-loop` du workspace seo-batch. La décision WIKI relève de ses règles
++  courantes de preuve et de promotion ; ne pas inventer un seuil ou imposer une
++  revue humaine systématique à partir d'une ancienne instruction.
+ 
+ ## Infrastructure
+ 
+-**Accès disponibles depuis AI-COS** (HTTP/MCP, lecture seule — endpoints sans IP en dur, voir `.claude/rules/deployment.md`) :
+-- NestJS **DEV API** (poste opérateur DEV) — audit SEO interne
+-- **Paperclip API** — gestion tickets
+-
+-**Accès NON disponibles depuis AI-COS :**
+-- `mcp__supabase__execute_sql` — utiliser l'endpoint NestJS à la place
+-- skills Claude Code — non chargés sur AI-COS
+-
+-> Hôtes, ports, IP et UUID : jamais en dur dans ce fichier (garde `scripts/agents/validate-agents-md.sh`).
+-> Topologie DEV/PREPROD/PROD : `.claude/rules/deployment.md`. UUID agents : registre Paperclip.
++API interne NestJS DEV pour les audits, Paperclip pour le suivi autorisé.
++Base URL et topologie : `.claude/rules/deployment.md`. Aucun hôte, port, identifiant
++ou secret en dur ici. Clé interne en en-tête, jamais dans un ticket ou un rapport.
++Pas de SQL direct, de commandes serveur ou de skills Claude exécutés depuis AI-COS.
++Vérifier que les endpoints et instructions candidats sont effectivement déployés
++et chargés : leur présence dans un dépôt n'établit pas leur disponibilité.
+ 
+ ## Protocole heartbeat
+ 
+-À chaque réveil, exécuter dans l'ordre :
+-
+-### 1. Récupérer l'audit de couverture SEO
+-
+-Appeler (clé interne en en-tête) l'endpoint DEV : `/api/internal/seo/audit/coverage` (base URL DEV — voir `.claude/rules/deployment.md`).
+-
+-Réponse JSON :
+-```json
+-{
+-  "timestamp": "...",
+-  "entities_total": "N",
+-  "wiki_missing": [{ "slug": "...", "name": "...", "kind": "gamme|vehicle" }],
+-  "wiki_missing_count": "N",
+-  "content_missing": ["..."],
+-  "content_missing_count": "N",
+-  "p1_count": "N",
+-  "p2_count": "N"
+-}
+-```
+-
+-### 2. Analyser les gaps
+-
+-- **P1** (bloquant) : entité à valeur trafic **sans WIKI sourcé** (`wiki_missing`) → impossible de produire du contenu prouvé.
+-- **P2** (important) : WIKI accepté présent mais **contenu R non composé** (`content_missing`).
+-- **KW** (informatif) : absence de données Google Ads — **non bloquant**, simple signal de demande (comptage), jamais un gate.
+-- Priorité aux entités à forte valeur trafic (alphabétique si pas de signal).
+-
+-### 3. Créer des tickets d'action DEV
+-
+-Pour chaque gap P1 (max 5 tickets / heartbeat) :
+-
+-**Titre** : `[WIKI_SOURCED] <slug>`
+-**Description** :
+-```
+-Pas de WIKI sourcé pour "<nom>" (<slug>). Le contenu ne peut pas être produit sans preuve.
+-
+-**Action DEV requise (BOUCLE seo-content-loop) :**
+-1. Scraper sourcé (sources primaires/OE) -> automecanik-raw/sources/web-research/<slug>/
+-2. Revue humaine -> proposal WIKI -> score rank-#1 capable -> promotion TIER A
+-
+-Priorité : P1 — Entité : <slug> — Détecté le : <timestamp>
+-```
+-**Assigné à** : IA-CMO ou board humain pour validation
+-
+-Pour chaque gap P2 (max 3 tickets / heartbeat) :
+-
+-**Titre** : `[CONTENT_R] <slug>`
+-**Description** :
+-```
+-WIKI accepté ✅ mais contenu R non composé pour "<nom>" (<slug>).
+-
+-**Action DEV requise :** composer R1/R3/R8 depuis la projection WIKI (consumer, flags OFF + preview),
+-jamais depuis le RAG. Voir skill seo-content-loop.
+-
+-Priorité : P2 — Entité : <slug> — Détecté le : <timestamp>
+-```
+-
+-Signal KW (informatif, max 1 ticket global, idempotent) :
+-
+-**Titre** : `[KW_DEMAND_SIGNAL]`
+-**Description** :
+-```
+-N entités sans données Google Ads dans __seo_keywords.
+-**Informatif uniquement — non bloquant.** Le KW est un signal de demande (comptage), pas une source de contenu.
+-Priorité : P3 (low) — Détecté le : <timestamp>
+-```
+-⚠️ Ne pas recréer si un ticket ouvert du même titre existe (idempotence).
+-
+-### 4. Poster rapport heartbeat
+-
+-Format :
+-```
+-## Rapport SEO — [DATE]
+-
+-**Audit couverture :**
+-- Entités totales : N
+-- WIKI sourcé manquant (P1) : N
+-- Contenu R non composé (P2) : N
+-
+-**Tickets créés ce heartbeat :**
+-- [WIKI_SOURCED] slug-1, slug-2, ...
+-- [CONTENT_R] slug-3, ...
+-- [KW_DEMAND_SIGNAL] (si applicable)
+-
+-**Actions en attente de DEV :**
+-[liste ou "RAS"]
+-
+-*IA-SEO Master — [date] — PARTIAL_COVERAGE*
+-```
+-
+-## Types de tickets (référence)
+-
+-### WIKI_SOURCED — Pas de WIKI sourcé (bloque la production de contenu prouvé)
+-Action DEV : BOUCLE `seo-content-loop` (scrape sourcé → RAW → proposal WIKI → score → promotion TIER A).
+-
+-### CONTENT_R — WIKI accepté, contenu R non composé
+-Action DEV : composer R1/R3/R8 depuis la **projection WIKI** (consumer, flags OFF + preview). Jamais depuis le RAG.
+-
+-### KW_DEMAND_SIGNAL — Données Google Ads absentes (informatif, P3)
+-Signal de demande (comptage) uniquement. **Non bloquant** — n'est jamais une source de contenu.
+-
+-### AUDIT_SEO — Audit qualité d'une entité
+-Action DEV : audit gamme/véhicule (skill `seo-gamme-audit`).
+-
+-## Règles de comportement
+-
+-1. **Jamais d'exécution directe** — créer des tickets, ne pas lancer de commandes/skills.
+-2. **Jamais de `mcp__supabase__execute_sql`** — utiliser l'endpoint HTTP d'audit SEO interne.
+-3. **Idempotence** : avant de créer un ticket, vérifier si un ticket ouvert du même titre existe.
+-4. **Max 9 tickets / heartbeat** (5 P1 + 3 P2 + 1 KW signal) — éviter le flooding.
+-5. **Budget tokens** : rester concis. Pas d'analyse narrative longue.
+-6. **Retry policy** : 0 retry sur 4xx/5xx. 1 retry sur timeout réseau.
+-7. **Escalade** : tout P1 SEO → IA-CMO, tout P1 technique → IA-CTO.
+-
+-## Définitions des priorités
+-
+-- **P1** : pas de WIKI sourcé → bloque la production de contenu prouvé
+-- **P2** : WIKI accepté mais contenu R non composé → composition possible, non déclenchée
+-- **P3** : refresh, amélioration scores qualité, signal de demande
+-
+-## Recherche documentaire (avant analyse)
+-
+-Avant toute analyse, **consulter le canon — ne jamais réinventer ni contredire l'existant** :
+-vault `governance-vault/` (ADRs, règles, evidence-packs), `MEMORY.md`, et les sources listées
+-en « Infrastructure » (APIs + MCP, lecture seule). Runtime AI-COS HTTP-only : pas de `grep`
+-local du repo — l'accès au canon passe par le vault et ces APIs/MCP. Cette recherche aide à
+-comprendre ; elle ne tranche aucun fait canonique. Vérité documentaire :
+-`RAW → WIKI → exports → consommateurs`. Protocole des sessions Claude Code :
+-`.claude/rules/agent-doc-search.md`.
++### 1. Inventaire réel
++
++Appeler `GET /api/internal/seo/audit/coverage` avec la garde interne existante.
++Contrat de réponse : `SeoCoverageAudit` dans
++`backend/src/modules/admin/controllers/internal-seo-audit.controller.ts`.
++
++- `gammes_total` et `r3_audit_candidates` : gammes actives du périmètre, avec
++  `pg_id`, `pg_alias`, `pg_name`, y compris les gammes déjà dotées de plans/contenus.
++- `kp_r3_missing` et `kp_r6_missing` : absence de plan au statut validé.
++- `content_r3_missing` : absence de contenu stocké non vide. Présence ne signifie
++  ni pack complet, ni contenu utile, ni projection réellement servie.
++- `kw_missing` : absence de signal de demande, informative seulement.
++- `wiki_evidence_status: not_evaluated` : cette API n'inspecte pas le WIKI.
++  Elle ne renvoie ni `wiki_missing` ni verdict d'acceptation des preuves.
++- `p1_count` et `p2_count` sont des compteurs historiques de plans/contenus.
++  Ne pas les convertir en priorités de preuve ou en tickets WIKI automatiques.
++
++Une lecture échouée, incomplète ou dont le total change interrompt l'inventaire.
++Rapporter l'échec ; ne pas interpréter une erreur comme une absence de contenu.
++L'inventaire paginé n'est pas un snapshot transactionnel des cinq tables.
++
++### 2. Audit qualitatif des gammes sélectionnées
++
++Utiliser les `pg_id` de `r3_audit_candidates`, et pas uniquement les listes de
++manques. Appeler `GET /api/internal/seo/audit/r3/:pgId?pack=standard` ; le détail
++des champs et de leur interprétation vit dans
++`workspaces/seo-batch/.claude/agents/r3-keyword-planner.md` (P0).
++
++Conserver anciennes notes, recalculs, pénalités, sections à créer/améliorer,
++identités inconnues et doublons. Une priorité zéro ne supprime pas une correction.
++`canSkip` porte uniquement sur ces contrôles heuristiques ; les preuves WIKI et
++la page réellement servie restent à vérifier séparément.
++
++Prioriser un défaut observé ou une preuve modifiée ; faute de signal, parcourir
++les candidats dans l'ordre retourné. Conserver les identités déjà auditées et le
++point de reprise dans le suivi existant du run pour ne pas recommencer toujours
++par les premières gammes. Si le budget du run arrête le parcours, annoncer le
++nombre audité et les candidats restants ; ne jamais conclure sur tout le catalogue.
++Un audit HTTP indisponible reste non exécuté, sans simulation de résultat.
++
++### 3. Besoin utile et action
++
++Pour chaque défaut, préciser l'entité/rôle, la section, l'observation et la mesure,
++les informations à rechercher, les passages WIKI attendus, puis le contrôle qui
++permettra de constater l'amélioration. Ne pas inventer URL, compatibilité, volume
++ou affirmation technique. Distinguer absence de preuve et preuve non vérifiée.
++Une capture RAW d'URL ne prouve ni sa qualification WIKI ni une découverte utile.
++
++Réutiliser les types de tickets existants selon les preuves disponibles :
++
++- `AUDIT_SEO` : défaut observé ou état à vérifier, avec la réponse d'audit et les
++  inconnues. Un plan manquant ne prouve pas un WIKI absent.
++- `WIKI_SOURCED` : manque de preuve établi par une vérification WIKI distincte ;
++  demander collecte ciblée puis qualification selon les règles WIKI courantes.
++- `CONTENT_R` : preuves WIKI acceptées vérifiées et composition manquante établie ;
++  demander le consommateur prévu au contrat. READY_FOR_RENDER ne prouve pas que
++  le visiteur reçoit la projection ; préserver cette distinction dans le ticket.
++- `KW_DEMAND_SIGNAL` : signal informatif global, non bloquant.
++
++Un résultat nouveau complète le ticket ouvert de même type et entité. Aucun
++ticket dupliqué ; aucune collecte identique relancée sans gain d'information.
++
++## Format de sortie
++
++Séparer inventaire, audits exécutés, preuves WIKI vérifiées et contenu servi.
++Rapporter le périmètre réellement couvert, les défauts, les échecs, les inconnues,
++les actions autorisées effectuées et la prochaine vérification utile. Ne pas
++présenter des compteurs de plans comme des compteurs de WIKI ou des notes comme
++un classement Google. Fournir le coverage manifest selon le contrat de sortie.
++
++## Règles
++
++- Aucune écriture DB, génération, activation de flag ou publication depuis ce rôle.
++- Idempotence : vérifier les tickets ouverts avant création ou mise à jour.
++- Conserver les plafonds existants : 9 tickets par heartbeat au total, dont au
++  plus 5 P1, 3 P2 et 1 signal KW global. Les tickets AUDIT_SEO comptent dans ce total.
++- P1 SEO : manque de preuve bloquant établi → IA-CMO ; P1 technique → IA-CTO.
++  P2 : composition manquante avec preuve acceptée ; P3 : audit/amélioration/signal.
++- Budget : restitution concise, progression conservée, pas de fausse exhaustivité.
++- Reprise réseau : 0 retry sur 4xx/5xx, 1 retry sur timeout réseau.
++- Consulter le canon et les APIs disponibles avant de conclure. AI-COS HTTP-only
++  ne possède pas de grep local ; `.claude/rules/agent-doc-search.md` décrit cette
++  frontière. La documentation aide à comprendre, elle ne tranche pas les faits.
+diff --git a/backend/src/modules/admin/controllers/internal-seo-audit.controller.ts b/backend/src/modules/admin/controllers/internal-seo-audit.controller.ts
+index 7f4704594..e85dabef6 100644
+--- a/backend/src/modules/admin/controllers/internal-seo-audit.controller.ts
++++ b/backend/src/modules/admin/controllers/internal-seo-audit.controller.ts
+@@ -13,6 +13,7 @@ import {
+   Logger,
+   Param,
+   Query,
++  ServiceUnavailableException,
+   UseGuards,
+ } from '@nestjs/common';
+ import { z } from 'zod';
+@@ -27,12 +28,13 @@ import { InternalApiKeyGuard } from '../../../auth/internal-api-key.guard';
+ import { getEffectiveSupabaseKey } from '@common/utils';
+ 
+ interface GammeRow {
+-  pg_id: string;
++  pg_id: string | number;
+   pg_alias: string;
+   pg_name: string;
+ }
+ 
+ interface GapItem {
++  pg_id: string;
+   pg_alias: string;
+   pg_name: string;
+ }
+@@ -40,6 +42,10 @@ interface GapItem {
+ export interface SeoCoverageAudit {
+   timestamp: string;
+   gammes_total: number;
++  /** All active gammes, including those already planned and populated. */
++  r3_audit_candidates: GapItem[];
++  /** Planning/content inventory cannot establish WIKI evidence. */
++  wiki_evidence_status: 'not_evaluated';
+   kp_r3_missing: GapItem[];
+   kp_r3_missing_count: number;
+   kp_r6_missing: GapItem[];
+@@ -106,76 +112,78 @@ export class InternalSeoAuditController {
+   async coverage(): Promise<SeoCoverageAudit> {
+     this.logger.log('GET /api/internal/seo/audit/coverage');
+ 
+-    // Gammes explicitement ignorées du pipeline SEO (pas de RAG OEM prévu)
+-    const IGNORED_ALIASES = [
+-      'cable-de-boite-vitesse',
+-      'disque-d-embrayage',
+-      'mecanisme-d-embrayage',
+-      'maillon-de-chaine-chaine-de-distribution',
+-      'poignee-de-capot',
+-    ];
+-
+-    // Fetch all active gammes with alias (base)
+-    const { data: gammes, error: gammesErr } = await this.supabase
+-      .from('pieces_gamme')
+-      .select('pg_id, pg_alias, pg_name')
+-      .eq('pg_display', '1')
+-      .not('pg_alias', 'is', null)
+-      .neq('pg_alias', '')
+-      .not(
+-        'pg_alias',
+-        'in',
+-        `(${IGNORED_ALIASES.map((a) => `"${a}"`).join(',')})`,
+-      )
+-      .limit(500);
+-
+-    if (gammesErr) {
+-      this.logger.error('Failed to fetch gammes', gammesErr.message);
+-      throw new Error('Database error: ' + gammesErr.message);
+-    }
+-
+-    const allGammes: GammeRow[] = gammes ?? [];
++    const allGammes = await this.readCoverageRows<GammeRow>(
++      'gammes',
++      (from, to) =>
++        this.supabase
++          .from('pieces_gamme')
++          .select('pg_id, pg_alias, pg_name', { count: 'exact' })
++          .eq('pg_display', '1')
++          .not('pg_alias', 'is', null)
++          .neq('pg_alias', '')
++          .order('pg_id', { ascending: true })
++          .range(from, to),
++    );
+     const total = allGammes.length;
+ 
+-    // Fetch validated KP R3 aliases
+-    const { data: kpR3Rows } = await this.supabase
+-      .from('__seo_r3_keyword_plan')
+-      .select('skp_pg_alias')
+-      .eq('skp_status', 'validated')
+-      .limit(500);
+-    const kpR3Set = new Set(
+-      (kpR3Rows ?? []).map((r) => r.skp_pg_alias as string),
++    const kpR3Rows = await this.readCoverageRows<{ skp_pg_alias: string }>(
++      'plans R3',
++      (from, to) =>
++        this.supabase
++          .from('__seo_r3_keyword_plan')
++          .select('skp_pg_alias', { count: 'exact' })
++          .eq('skp_status', 'validated')
++          .order('skp_id', { ascending: true })
++          .range(from, to),
+     );
+-
+-    // Fetch validated KP R6 aliases
+-    const { data: kpR6Rows } = await this.supabase
+-      .from('__seo_r6_keyword_plan')
+-      .select('r6kp_pg_alias')
+-      .eq('r6kp_status', 'validated')
+-      .limit(500);
+-    const kpR6Set = new Set(
+-      (kpR6Rows ?? []).map((r) => r.r6kp_pg_alias as string),
++    const kpR3Set = new Set(kpR3Rows.map((row) => row.skp_pg_alias));
++    const kpR6Rows = await this.readCoverageRows<{ r6kp_pg_alias: string }>(
++      'plans R6',
++      (from, to) =>
++        this.supabase
++          .from('__seo_r6_keyword_plan')
++          .select('r6kp_pg_alias', { count: 'exact' })
++          .eq('r6kp_status', 'validated')
++          .order('r6kp_id', { ascending: true })
++          .range(from, to),
+     );
++    const kpR6Set = new Set(kpR6Rows.map((row) => row.r6kp_pg_alias));
+ 
+-    // Fetch pg_ids that have at least one R3 section with content
+-    const { data: contentRows } = await this.supabase
+-      .from('__seo_gamme_conseil')
+-      .select('sgc_pg_id')
+-      .not('sgc_enriched_by', 'is', null)
+-      .limit(3000);
++    // Presence means stored nonblank content, never an enrichment marker or WIKI qualification.
++    const contentRows = await this.readCoverageRows<{
++      sgc_pg_id: string;
++      sgc_content: string | null;
++    }>('contenus R3', (from, to) =>
++      this.supabase
++        .from('__seo_gamme_conseil')
++        .select('sgc_pg_id, sgc_content', { count: 'exact' })
++        .order('sgc_id', { ascending: true })
++        .range(from, to),
++    );
+     const contentR3Set = new Set(
+-      (contentRows ?? []).map((r) => String(r.sgc_pg_id)),
++      contentRows
++        .filter(
++          (row) =>
++            typeof row.sgc_content === 'string' &&
++            row.sgc_content.trim().length > 0,
++        )
++        .map((row) => String(row.sgc_pg_id)),
+     );
+ 
+-    // Fetch pg_ids that have Google Ads keywords in __seo_keywords
+-    const { data: kwRows } = await this.supabase
+-      .from('__seo_keywords')
+-      .select('pg_id')
+-      .not('pg_id', 'is', null)
+-      .limit(3000);
+-    const kwPgIdSet = new Set((kwRows ?? []).map((r) => String(r.pg_id)));
++    const kwRows = await this.readCoverageRows<{ pg_id: number }>(
++      'signaux de demande',
++      (from, to) =>
++        this.supabase
++          .from('__seo_keywords')
++          .select('pg_id', { count: 'exact' })
++          .not('pg_id', 'is', null)
++          .order('id', { ascending: true })
++          .range(from, to),
++    );
++    const kwPgIdSet = new Set(kwRows.map((row) => String(row.pg_id)));
+ 
+     const toGapItem = (g: GammeRow): GapItem => ({
++      pg_id: String(g.pg_id),
+       pg_alias: g.pg_alias,
+       pg_name: g.pg_name,
+     });
+@@ -195,7 +203,7 @@ export class InternalSeoAuditController {
+       .filter((g) => !kwPgIdSet.has(String(g.pg_id)))
+       .map(toGapItem);
+ 
+-    // P1 = KP manquant (bloque génération), P2 = contenu manquant mais KP présent
++    // Legacy counters retained for compatibility: planning gaps, never evidence verdicts.
+     const p1Count = kpR3Missing.length;
+     const p2Count = contentR3Missing.filter((g) =>
+       kpR3Set.has(g.pg_alias),
+@@ -204,6 +212,8 @@ export class InternalSeoAuditController {
+     return {
+       timestamp: new Date().toISOString(),
+       gammes_total: total,
++      r3_audit_candidates: allGammes.map(toGapItem),
++      wiki_evidence_status: 'not_evaluated',
+       kp_r3_missing: kpR3Missing,
+       kp_r3_missing_count: kpR3Missing.length,
+       kp_r6_missing: kpR6Missing,
+@@ -216,4 +226,55 @@ export class InternalSeoAuditController {
+       p2_count: p2Count,
+     } satisfies SeoCoverageAudit;
+   }
++
++  /** Shared by the five inventory reads; no silently capped or failed result becomes a gap. */
++  private async readCoverageRows<T>(
++    label: string,
++    fetchPage: (
++      from: number,
++      to: number,
++    ) => PromiseLike<{
++      data: T[] | null;
++      error: unknown;
++      count: number | null;
++    }>,
++  ): Promise<T[]> {
++    const pageSize = 500;
++    const rows: T[] = [];
++    let expectedTotal: number | null = null;
++    for (;;) {
++      const { data, error, count } = await fetchPage(
++        rows.length,
++        rows.length + pageSize - 1,
++      );
++      if (
++        error ||
++        !Array.isArray(data) ||
++        count === null ||
++        !Number.isSafeInteger(count) ||
++        count < 0
++      ) {
++        throw new ServiceUnavailableException(
++          `SEO coverage read failed: ${label}`,
++        );
++      }
++      if (expectedTotal !== null && count !== expectedTotal) {
++        throw new ServiceUnavailableException(
++          `SEO coverage changed during read: ${label}`,
++        );
++      }
++      expectedTotal = count;
++      if (
++        rows.length + data.length > count ||
++        (data.length === 0 && rows.length < count)
++      ) {
++        throw new ServiceUnavailableException(
++          `SEO coverage read incomplete: ${label}`,
++        );
++      }
++      rows.push(...data);
++      if (rows.length === count) return rows;
++      // Continue by the actual returned size, even if the server cap is smaller than pageSize.
++    }
++  }
+ }
+diff --git a/backend/src/modules/admin/controllers/internal-seo-audit.coverage.test.ts b/backend/src/modules/admin/controllers/internal-seo-audit.coverage.test.ts
+new file mode 100644
+index 000000000..4be78bed0
+--- /dev/null
++++ b/backend/src/modules/admin/controllers/internal-seo-audit.coverage.test.ts
+@@ -0,0 +1,167 @@
++import { createClient } from '@supabase/supabase-js';
++import { InternalSeoAuditController } from './internal-seo-audit.controller';
++
++const fixture = () => ({
++  pieces_gamme: [
++    { pg_id: 1, pg_alias: 'fixture-a', pg_name: 'A' },
++    { pg_id: 2, pg_alias: 'fixture-b', pg_name: 'B' },
++    { pg_id: 3, pg_alias: 'cable-de-boite-vitesse', pg_name: 'C' },
++    { pg_id: 4, pg_alias: 'fixture-d', pg_name: 'D' },
++  ],
++  __seo_r3_keyword_plan: [
++    { skp_id: 1, skp_pg_alias: 'fixture-a' },
++    { skp_id: 2, skp_pg_alias: 'fixture-b' },
++    { skp_id: 3, skp_pg_alias: 'fixture-d' },
++  ],
++  __seo_r6_keyword_plan: [{ r6kp_id: 1, r6kp_pg_alias: 'fixture-a' }],
++  __seo_gamme_conseil: [
++    {
++      sgc_id: '1',
++      sgc_pg_id: '1',
++      sgc_content: '<p>Contenu existant.</p>',
++      sgc_enriched_by: null,
++    },
++    {
++      sgc_id: '2',
++      sgc_pg_id: '2',
++      sgc_content: '  ',
++      sgc_enriched_by: 'legacy',
++    },
++    {
++      sgc_id: '3',
++      sgc_pg_id: '4',
++      sgc_content: '<p>Autre contenu existant.</p>',
++      sgc_enriched_by: 'legacy',
++    },
++  ],
++  __seo_keywords: [
++    { id: 1, pg_id: 1 },
++    { id: 2, pg_id: 2 },
++    { id: 3, pg_id: 4 },
++  ],
++});
++type Table = keyof ReturnType<typeof fixture>;
++
++function harness(
++  options: {
++    failTable?: Table;
++    omitCount?: boolean;
++    changeCount?: boolean;
++  } = {},
++) {
++  const data = fixture();
++  const calls: URL[] = [];
++  const transport = jest.fn(
++    async (input: RequestInfo | URL, init?: RequestInit) => {
++      const url = new URL(String(input));
++      calls.push(url);
++      expect(init?.method ?? 'GET').toBe('GET');
++      const table = url.pathname.split('/').pop() as Table;
++      if (table === options.failTable)
++        return new Response(
++          JSON.stringify({ message: 'fixture unavailable' }),
++          { status: 503 },
++        );
++      let rows: unknown[] = data[table];
++      if (url.searchParams.get('sgc_enriched_by') === 'not.is.null') {
++        rows = data.__seo_gamme_conseil.filter(
++          (row) => row.sgc_enriched_by !== null,
++        );
++      }
++      if (
++        table === 'pieces_gamme' &&
++        url.searchParams
++          .getAll('pg_alias')
++          .some((v) => v.includes('cable-de-boite-vitesse'))
++      ) {
++        rows = data.pieces_gamme.filter((row) => row.pg_id !== 3);
++      }
++      const offset = Number(url.searchParams.get('offset') ?? 0);
++      const limit = Math.min(2, Number(url.searchParams.get('limit') ?? 500));
++      const page = rows.slice(offset, offset + limit);
++      const count = rows.length + (options.changeCount && offset > 0 ? 1 : 0);
++      return new Response(JSON.stringify(page), {
++        status: 200,
++        headers: {
++          'Content-Type': 'application/json',
++          ...(!options.omitCount
++            ? {
++                'Content-Range': `${offset}-${offset + page.length - 1}/${count}`,
++              }
++            : {}),
++        },
++      });
++    },
++  );
++  const client = createClient('https://example.invalid', 'fixture-only-key', {
++    global: { fetch: transport },
++    auth: {
++      persistSession: false,
++      autoRefreshToken: false,
++      detectSessionInUrl: false,
++    },
++  });
++  const controller = Object.create(
++    InternalSeoAuditController.prototype,
++  ) as InternalSeoAuditController;
++  Object.defineProperties(controller, {
++    supabase: { value: client },
++    logger: { value: { log: jest.fn(), error: jest.fn() } },
++  });
++  return { controller, calls };
++}
++
++describe('SEO heartbeat coverage contract — evidence is not inferred from plans', () => {
++  it('includes already planned/content-bearing gammes and formerly RAG-excluded gammes in R3 candidates', async () => {
++    const { controller, calls } = harness();
++    const result = await controller.coverage();
++    expect(result.gammes_total).toBe(4);
++    expect(result).toMatchObject({ wiki_evidence_status: 'not_evaluated' });
++    expect(result).toHaveProperty('r3_audit_candidates', [
++      { pg_id: '1', pg_alias: 'fixture-a', pg_name: 'A' },
++      { pg_id: '2', pg_alias: 'fixture-b', pg_name: 'B' },
++      { pg_id: '3', pg_alias: 'cable-de-boite-vitesse', pg_name: 'C' },
++      { pg_id: '4', pg_alias: 'fixture-d', pg_name: 'D' },
++    ]);
++    expect(result).not.toHaveProperty('wiki_missing');
++    expect(calls.every((url) => url.searchParams.has('order'))).toBe(true);
++  });
++  it('reads all returned pages despite a server cap and detects content instead of an enrichment marker', async () => {
++    const { controller } = harness();
++    const result = await controller.coverage();
++    expect(result.kp_r3_missing.map((g) => g.pg_alias)).toEqual([
++      'cable-de-boite-vitesse',
++    ]);
++    expect(result.content_r3_missing.map((g) => g.pg_alias)).toEqual([
++      'fixture-b',
++      'cable-de-boite-vitesse',
++    ]);
++    expect(result.kw_missing.map((g) => g.pg_alias)).toEqual([
++      'cable-de-boite-vitesse',
++    ]);
++  });
++  it.each<Table>([
++    'pieces_gamme',
++    '__seo_r3_keyword_plan',
++    '__seo_r6_keyword_plan',
++    '__seo_gamme_conseil',
++    '__seo_keywords',
++  ])(
++    'fails on %s read error instead of issuing false gap counts',
++    async (failTable) => {
++      await expect(
++        harness({ failTable }).controller.coverage(),
++      ).rejects.toMatchObject({ status: 503 });
++    },
++  );
++  it('refuses incomplete coverage when total count is missing', async () => {
++    await expect(
++      harness({ omitCount: true }).controller.coverage(),
++    ).rejects.toMatchObject({ status: 503 });
++  });
++  it('refuses a changing total instead of mixing pages into a complete inventory', async () => {
++    await expect(
++      harness({ changeCount: true }).controller.coverage(),
++    ).rejects.toMatchObject({ status: 503 });
++  });
++});

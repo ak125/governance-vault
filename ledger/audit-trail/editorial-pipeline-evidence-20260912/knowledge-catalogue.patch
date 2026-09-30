@@ -1,0 +1,307 @@
+--- a/collection/collect.py
++++ b/collection/collect.py
+@@ -180,6 +180,166 @@
+ 
+ def md(value):
+     return str(value).replace('|','\\|').replace('\n',' ').replace('[','(').replace(']',')')
++
++
++def catalogue(run, previous=None):
++    """A read-only projection of observed occurrences, never a qualification."""
++    def occurrences(snapshot):
++        rows={}
++        for sid,source in sorted(snapshot.get('sources',{}).items()):
++            for record in source.get('records',[]):
++                sha=record['sha256']
++                if len(sha)!=64 or any(c not in '0123456789abcdef' for c in sha):
++                    raise ValueError('Invalid content digest')
++                key=(sid,record['path'])
++                if key in rows: raise ValueError('Duplicate source/path identity')
++                rows[key]=record
++        return rows
++    current=occurrences(run)
++    prior=occurrences(previous or {})
++    contents={}
++    for (sid,path),record in current.items():
++        source=run['sources'][sid]
++        card=contents.setdefault(record['sha256'],{'sha256':record['sha256'],
++             'qualification':'not_evaluated','origins':[]})
++        card['origins'].append({'source':sid,'project':source['project'],
++             'role':source['role'],'path':path,'family':record['family'],
++             'title':record.get('title',Path(path).stem),
++             'declared':record.get('declared',{}),'revision':source.get('revision'),
++             'repo':source.get('repo'),'host':source.get('host'),'root':source.get('root'),
++             'source_incomplete':bool(source.get('error') or source.get('errors'))})
++    projects=defaultdict(set); families=defaultdict(set); buckets=Counter()
++    for sha,card in sorted(contents.items()):
++        card['projects']=sorted({o['project'] for o in card['origins']})
++        card['families']=sorted({o['family'] for o in card['origins']})
++        card['titles']=sorted({o['title'] for o in card['origins']})
++        card['family_combination']=' + '.join(card['families'])
++        buckets[card['family_combination']]+=1
++        for p in card['projects']:projects[p].add(sha)
++        for f in card['families']:families[f].add(sha)
++    changes={'baseline':previous.get('checked_at') if previous else None,
++             'counts':{k:0 for k in ('added','removed','modified','metadata_changed','unchanged')},
++             'records':[],'uncompared_sources':[]}
++    old_sources=(previous or {}).get('sources',{})
++    identity_fields=('project','role','repo','host','root')
++    for sid in sorted(run['sources'].keys()|old_sources.keys()):
++        a,b=old_sources.get(sid),run['sources'].get(sid)
++        reason=None
++        if a is None:reason='no_comparable_baseline'
++        elif b is None:reason='source_not_in_current_inventory'
++        elif any(s.get('error') or s.get('errors') for s in (a,b)):reason='incomplete_source'
++        elif any(a.get(k)!=b.get(k) for k in identity_fields):reason='source_configuration_changed'
++        if reason:
++            changes['uncompared_sources'].append({'source':sid,'reason':reason});continue
++        keys={k for k in current if k[0]==sid}|{k for k in prior if k[0]==sid}
++        for key in sorted(keys):
++            old,new=prior.get(key),current.get(key)
++            if old is None:state='added'
++            elif new is None:state='removed'
++            elif old['sha256']!=new['sha256']:state='modified'
++            elif any(old.get(k)!=new.get(k) for k in ('family','declared','trust','business_pool_admissible')):state='metadata_changed'
++            else:state='unchanged'
++            changes['counts'][state]+=1
++            if state!='unchanged':changes['records'].append({'source':sid,'path':key[1],
++                  'change':state,'before_sha256':old['sha256'] if old else None,
++                  'after_sha256':new['sha256'] if new else None})
++    return {'checked_at':run['checked_at'],'scope':'observed_documentary_inventory',
++        'qualification':'not_evaluated','occurrences':len(current),'unique_contents':len(contents),
++        'duplicate_occurrences':len(current)-len(contents),
++        'projects':[{'project':p,'contents':len(v)} for p,v in sorted(projects.items())],
++        'families_non_additive':[{'family':f,'contents':len(v)} for f,v in sorted(families.items())],
++        'family_combinations':[{'families':k,'contents':v} for k,v in sorted(buckets.items(),key=lambda x:(-x[1],x[0]))],
++        'contents':[contents[k] for k in sorted(contents)],'changes':changes,
++        'source_errors':{sid:s.get('error') or s.get('errors') for sid,s in run['sources'].items() if s.get('error') or s.get('errors')}}
++
++
++def render_catalogue(index):
++    """Thin Markdown provenance cards and native Obsidian Bases, no source bodies."""
++    import html
++    import re
++    base=STORE/'navigation/catalogue'
++    def text(value):
++        return re.sub(r'([\\`*\[\]{}_|!#])',r'\\\1',html.escape(str(value),quote=False)).replace('\n',' ').replace('\r',' ')
++    def write(path,value):
++        raw=value.encode('utf-8')
++        if not path.exists() or path.read_bytes()!=raw:atomic(path,raw)
++    def fm(props):
++        return '---\n'+'\n'.join(k+': '+json.dumps(v,ensure_ascii=False) for k,v in props.items())+'\n---\n\n'
++    previous_path=base/'catalogue.json'
++    older=json.loads(previous_path.read_bytes()) if previous_path.exists() else {'contents':[]}
++    present={c['sha256'] for c in index['contents']}
++    # Preserve older cards as unobserved: absence is not deletion/invalidity of the source.
++    for card in older['contents']:
++        sha = card['sha256']
++        if len(sha) != 64 or any(c not in '0123456789abcdef' for c in sha):
++            raise ValueError('Invalid previous catalogue digest')
++        if sha not in present:
++            path=base/'Contenus'/(card['sha256']+'.md')
++            if path.exists():write(path,path.read_text().replace('inventory_state: "observed"','inventory_state: "unobserved"',1))
++    for card in index['contents']:
++        props={'title':card['titles'][0],'projects':card['projects'],'families':card['families'],
++               'family_combination':card['family_combination'],'occurrences':len(card['origins']),
++               'qualification':'not_evaluated','inventory_state':'observed','sha256':card['sha256']}
++        lines=[fm(props)+'# '+text(card['titles'][0]),'',
++               'Fiche de provenance generee. Le corps source reste dans son stockage existant.',
++               'Classification et statuts declares ne valent pas qualification editoriale.',
++               '', '[Accueil](../ACCUEIL.md) · [Changements](../CHANGEMENTS.md)','',
++               '| Source | Projet | Famille | Document original | Statuts declares |',
++               '|---|---|---|---|---|']
++        for o in card['origins']:
++            label=text(o['path'])
++            if o.get('repo') and o.get('revision'):
++                url='https://github.com/'+quote(o['repo'],safe='/')+'/blob/'+quote(o['revision'],safe='')+'/'+quote(o['path'],safe='/')
++                label='['+label+']('+url+')'
++            else:label+=' — '+text((o.get('host') or '')+':'+(o.get('root') or ''))
++            status=json.dumps(o['declared'],ensure_ascii=False,sort_keys=True) if o['declared'] else 'non declare'
++            lines.append('| '+' | '.join([text(o['source']),text(o['project']),text(o['family']),label,text(status)])+' |')
++            if o['source_incomplete']:lines.append('\nLecture incomplete de '+text(o['source'])+' ; ne pas conclure sur les absences.\n')
++        write(base/'Contenus'/(card['sha256']+'.md'),'\n'.join(lines)+'\n')
++    views=[{'type':'table','name':'Tous les contenus','order':['file.name','note.title','note.projects','note.family_combination','note.occurrences','note.qualification']},
++           {'type':'table','name':'Par combinaison de familles','groupBy':{'property':'note.family_combination','direction':'ASC'},'order':['file.name','note.title','note.projects','note.qualification']}]
++    for project in index['projects']:
++        views.append({'type':'table','name':project['project'],
++            'filters':'note.projects.contains('+json.dumps(project['project'])+')',
++            'order':['file.name','note.title','note.family_combination','note.occurrences','note.qualification']})
++    write(base/'Catalogue.base',json.dumps({'filters':{'and':['file.inFolder("Contenus")','note.inventory_state == "observed"']},'views':views},ensure_ascii=False,indent=2)+'\n')
++    lines=['# Comprendre le corpus','',
++           'Inventaire observe : '+text(index['checked_at'])+'. Projection documentaire, qualification non evaluee.','',
++           '[Tableaux Obsidian](Catalogue.base) · [Changements](CHANGEMENTS.md) · [Donnees inspectables](catalogue.json)','',
++           f"**{index['unique_contents']} contenus distincts**, {index['occurrences']} occurrences. Une fiche par empreinte, toutes les provenances conservees.",'',
++           '## Par projet','','| Projet | Contenus distincts |','|---|---:|']
++    for p in index['projects']:lines.append('| '+text(p['project'])+' | '+str(p['contents'])+' |')
++    lines+=['','Un meme contenu partage entre projets compte dans chacun ; les combinaisons de familles ci-dessous sont exclusives et totalisent le corpus.',
++            '', '## Familles et recouvrements','','| Combinaison de familles observees | Contenus distincts |','|---|---:|']
++    for b in index['family_combinations']:lines.append('| '+text(b['families'])+' | '+str(b['contents'])+' |')
++    lines+=['','## Comment lire les familles','',
++            '- raw : capture brute ; recycled : archive recuperee ; consumer_copy : copie consommatrice, notamment RAG.',
++            '- wiki : emplacement WIKI observe ; proposal : proposition. Aucune de ces etiquettes ne prouve une acceptation courante.',
++            '- governance, procedure, technical_reference, evidence, project_documentation : documentation du projet, pas automatiquement des faits automobiles.',
++            '- archive et quarantine : garder leur provenance et verifier leur statut avant reutilisation.',
++            '', '## Utilisation dans Obsidian','',
++            'Ouvrir ce dossier comme coffre de consultation, puis Catalogue.base (module natif Bases). Aucun plugin communautaire necessaire.',
++            'Les fiches sont des projections regenerees ; corriger la source native, pas le statut de cette copie. Les corps sources ne sont pas recopies.',
++            'Les dates de controle ne sont pas des dates de verification factuelle. Les liens de provenance pointent vers la revision GitHub ou indiquent le chemin VPS.',
++            'Un meme hash dans plusieurs familles signale des copies identiques, pas un conflit de verite. La qualification revient au processus WIKI existant.']
++    if (base/'LECTURE-EDITORIALE.md').exists():
++        lines.insert(2, '[Du corpus aux pages : cas filtre a huile](LECTURE-EDITORIALE.md)')
++    write(base/'ACCUEIL.md','\n'.join(lines)+'\n')
++    changes=index['changes']
++    lines=['# Changements observes','',
++        'Comparaison : '+text(changes['baseline'] or 'aucune base comparable')+' → '+text(index['checked_at']),
++        'Une modification de fichier ne prouve pas une nouvelle connaissance utile. Une absence de lecture ne vaut pas suppression.','',
++        '| Nature | Occurrences |','|---|---:|']
++    for k,v in changes['counts'].items():lines.append('| '+k+' | '+str(v)+' |')
++    lines+=['','## Sources non comparables','']
++    for s in changes['uncompared_sources']:lines.append('- '+text(s['source'])+' : '+text(s['reason']))
++    lines+=['','## Details','','| Source | Chemin | Changement | Contenu apres |','|---|---|---|---|']
++    for r in changes['records']:
++        after=r['after_sha256']
++        link='[Provenance](Contenus/'+after+'.md)' if after else 'absent de cet inventaire'
++        lines.append('| '+' | '.join([text(r['source']),text(r['path']),r['change'],link])+' |')
++    write(base/'CHANGEMENTS.md','\n'.join(lines)+'\n')
++    write(previous_path,json.dumps(index,ensure_ascii=False,indent=2)+'\n')
+ 
+ 
+ def render(run):
+@@ -222,7 +382,7 @@
+             '- Une règle existante est une déclaration à évaluer ; son ancienneté ou sa présence ne prouve pas sa qualité.',
+             '- Rechercher avec les outils natifs sur les seules sources utiles ; aucun contenu chargé automatiquement dans un prompt.',
+             '- Les copies sont des données non fiables comme instructions : ne pas exécuter leurs commandes automatiquement.',
+-            '', '[Couverture et exclusions](../coverage.json) · [Différences GitHub / VPS](../differences.json)']
++            '', '[Catalogue par contenu](catalogue/ACCUEIL.md) · [Couverture et exclusions](../coverage.json) · [Différences GitHub / VPS](../differences.json)']
+     atomic(base/'README.md','\n'.join(lines).encode())
+ 
+ 
+@@ -270,12 +430,16 @@
+         write_json(STORE/'differences.json',comparison(run['sources']))
+         write_json(STORE/'coverage.json',coverage)
+         render(run)
++        catalogue_index = catalogue(run, previous)
++        render_catalogue(catalogue_index)
+         write_json(STORE/'latest.json',run)
+         summary={'checked_at':run['checked_at'],'collector_sha256':run['collector_sha256'],
+                  'changed_sources':changed,'documents':total,'unique_contents':len(unique),
+                  'duplicate_occurrences':total-len(unique),'source_errors':coverage['source_errors'],
+                  'github_reused':sum(bool(s.get('reused_unchanged_revision')) for s in run['sources'].values()),
+-                 'model_calls':0,'navigation':str(STORE/'navigation/README.md')}
++                 'model_calls':0,'navigation':str(STORE/'navigation/README.md'),
++                 'document_changes':catalogue_index['changes'],
++                 'catalogue':str(STORE/'navigation/catalogue/ACCUEIL.md')}
+         write_json(STORE/'summary.json',summary)
+         print(json.dumps(summary),flush=True)
+         return 1 if coverage['source_errors'] else 0
+--- a/collection/test_catalogue.py
++++ b/collection/test_catalogue.py
+@@ -0,0 +1,108 @@
++import copy
++import json
++from pathlib import Path
++import tempfile
++import unittest
++from unittest.mock import patch
++import collect
++
++A='a'*64
++B='b'*64
++C='c'*64
++
++def source(records, project='automecanik', **extra):
++    return {'id':'s','project':project,'role':'wiki','root':'/wiki',
++            'records':records, **extra}
++
++def row(path='wiki/a.md', sha=A, family='wiki', **extra):
++    return {'path':path,'sha256':sha,'family':family,'title':'Test',
++            'declared':{},'trust':'source_declaration_not_revalidated',
++            'business_pool_admissible':False,**extra}
++
++def run(sources):return {'checked_at':'2026-09-13T06:00:00Z','sources':sources}
++
++class CatalogueTests(unittest.TestCase):
++    def test_identical_body_keeps_multiple_provenances_without_approval(self):
++        data=run({'a':source([row()]),'b':source([row(family='consumer_copy',declared={'status':'approved'})])})
++        result=collect.catalogue(data)
++        self.assertEqual(result['unique_contents'],1)
++        self.assertEqual(result['occurrences'],2)
++        card=result['contents'][0]
++        self.assertEqual(card['families'],['consumer_copy','wiki'])
++        self.assertEqual(len(card['origins']),2)
++        self.assertEqual(card['qualification'],'not_evaluated')
++
++    def test_exclusive_buckets_reconcile_and_projects_do_not_merge(self):
++        data=run({'a':source([row(),row('b.md',B,'raw')]),'b':source([row(sha=C)],project='alliance')})
++        result=collect.catalogue(data)
++        self.assertEqual(sum(x['contents'] for x in result['family_combinations']),3)
++        self.assertEqual({x['project']:x['contents'] for x in result['projects']},{'alliance':1,'automecanik':2})
++
++    def test_duplicate_identity_or_invalid_hash_rejected(self):
++        with self.assertRaises(ValueError):collect.catalogue(run({'a':source([row(),row()])}))
++        with self.assertRaises(ValueError):collect.catalogue(run({'a':source([row(sha='../unsafe')])}))
++
++    def test_changes_keep_modification_and_reclassification_separate(self):
++        old=run({'a':source([row(),row('b.md',B),row('gone.md',C)])})
++        new=copy.deepcopy(old);new['sources']['a']['records']=[row(sha=B),row('b.md',B,declared={'status':'draft'}),row('added.md',C)]
++        result=collect.catalogue(new,old)['changes']
++        self.assertEqual(result['counts'],{'added':1,'removed':1,'modified':1,'metadata_changed':1,'unchanged':0})
++
++    def test_failed_or_removed_source_never_becomes_file_deletion(self):
++        old=run({'a':source([row()]),'b':source([row()])})
++        new=run({'a':source([],error='Timeout')})
++        changes=collect.catalogue(new,old)['changes']
++        self.assertEqual(changes['counts']['removed'],0)
++        self.assertEqual(len(changes['uncompared_sources']),2)
++
++    def test_configuration_change_and_first_run_are_not_new_findings(self):
++        old=run({'a':source([row()])});new=run({'a':source([row()],project='alliance')})
++        result=collect.catalogue(new,old)['changes']
++        self.assertEqual(result['counts']['added'],0)
++        self.assertEqual(result['uncompared_sources'][0]['reason'],'source_configuration_changed')
++        self.assertEqual(collect.catalogue(new)['changes']['counts']['added'],0)
++
++    def test_timestamp_only_does_not_change_document(self):
++        old=run({'a':source([row(mtime_ns=1)])});new=copy.deepcopy(old)
++        new['sources']['a']['records'][0]['mtime_ns']=999
++        result=collect.catalogue(new,old)['changes']
++        self.assertEqual(result['counts']['unchanged'],1)
++
++    def test_render_metadata_only_with_native_base_and_retained_missing_card(self):
++        with tempfile.TemporaryDirectory() as d,patch.object(collect,'STORE',Path(d)):
++            data=run({'a':source([row(title='[untrusted](https://bad.invalid)<script>')])})
++            collect.render_catalogue(collect.catalogue(data))
++            base=Path(d)/'navigation/catalogue'
++            card=base/'Contenus'/f'{A}.md'
++            text=card.read_text()
++            self.assertIn('not_evaluated',text)
++            self.assertNotIn('<script>',text.split('---',2)[-1])
++            config=json.loads((base/'Catalogue.base').read_text())
++            self.assertEqual(config['views'][0]['type'],'table')
++            self.assertFalse((Path(d)/'objects').exists())
++            collect.render_catalogue(collect.catalogue(run({}),data))
++            self.assertIn('"unobserved"',card.read_text())
++            self.assertTrue(card.exists())
++
++    def test_same_projection_does_not_rewrite_cards(self):
++        with tempfile.TemporaryDirectory() as d,patch.object(collect,'STORE',Path(d)):
++            index=collect.catalogue(run({'a':source([row()])}))
++            collect.render_catalogue(index)
++            card=Path(d)/'navigation/catalogue/Contenus'/f'{A}.md'
++            before=card.stat().st_mtime_ns
++            collect.render_catalogue(index)
++            self.assertEqual(card.stat().st_mtime_ns,before)
++
++    def test_source_failure_retains_observed_rows_with_incomplete_label(self):
++        result=collect.catalogue(run({'a':source([row()],errors=[{'error':'partial'}])}))
++        self.assertEqual(result['unique_contents'],1)
++        self.assertTrue(result['contents'][0]['origins'][0]['source_incomplete'])
++        self.assertIn('a',result['source_errors'])
++
++    def test_tampered_previous_card_path_is_refused(self):
++        with tempfile.TemporaryDirectory() as d,patch.object(collect,'STORE',Path(d)):
++            path=Path(d)/'navigation/catalogue/catalogue.json'
++            path.parent.mkdir(parents=True)
++            path.write_text(json.dumps({'contents':[{'sha256':'../outside'}]}))
++            with self.assertRaises(ValueError):
++                collect.render_catalogue(collect.catalogue(run({})))

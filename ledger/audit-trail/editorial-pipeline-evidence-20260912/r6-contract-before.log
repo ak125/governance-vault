@@ -1,0 +1,503 @@
+FAIL src/modules/blog/services/r6-guide.service.content.test.ts (9.9 s)
+  ● R6 quality tier contract and declared source verification › preserves both documented V2 containers: [{"tier_id":"oe","label":"Origine","description":"Référence documentée pour cette application.","available":true}]
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  - 1
+    + Received  + 0
+
+    @@ -5,8 +5,7 @@
+            "description": "Référence documentée pour cette application.",
+            "label": "Origine",
+            "tier_id": "oe",
+          },
+        ],
+    -   "qualityTiersReviewRequired": false,
+        "roleVersion": "v2",
+      }
+
+      23 |   it.each([[tier], { tiers: [tier], intro_text: 'Comparaison' }].map(value => [value]))('preserves both documented V2 containers: %j', async (value) => {
+      24 |     const { service } = reader({ sgpg_selection_criteria: value });
+    > 25 |     expect(await service.getR6GuidePayload('filtre-a-huile')).toMatchObject({
+         |                                                               ^
+      26 |       roleVersion: 'v2', qualityTiers: [tier], qualityTiersReviewRequired: false,
+      27 |     });
+      28 |   });
+
+      at src/modules/blog/services/r6-guide.service.content.test.ts:25:63
+
+  ● R6 quality tier contract and declared source verification › preserves both documented V2 containers: {"tiers":[{"tier_id":"oe","label":"Origine","description":"Référence documentée pour cette application.","available":true}],"intro_text":"Comparaison"}
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  - 1
+    + Received  + 0
+
+    @@ -5,8 +5,7 @@
+            "description": "Référence documentée pour cette application.",
+            "label": "Origine",
+            "tier_id": "oe",
+          },
+        ],
+    -   "qualityTiersReviewRequired": false,
+        "roleVersion": "v2",
+      }
+
+      23 |   it.each([[tier], { tiers: [tier], intro_text: 'Comparaison' }].map(value => [value]))('preserves both documented V2 containers: %j', async (value) => {
+      24 |     const { service } = reader({ sgpg_selection_criteria: value });
+    > 25 |     expect(await service.getR6GuidePayload('filtre-a-huile')).toMatchObject({
+         |                                                               ^
+      26 |       roleVersion: 'v2', qualityTiers: [tier], qualityTiersReviewRequired: false,
+      27 |     });
+      28 |   });
+
+      at src/modules/blog/services/r6-guide.service.content.test.ts:25:63
+
+  ● R6 quality tier contract and declared source verification › reports incomplete/invalid V2 tiers without converting compatibility data: [{"key":"marque","label":"Marque du véhicule","guidance":"Vérifier le catalogue.","priority":"required"}]
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  - 2
+    + Received  + 8
+
+      Object {
+        "canonicalRoleUrl": "/blog-pieces-auto/guide-achat/filtre-a-huile",
+    -   "qualityTiers": Array [],
+    -   "qualityTiersReviewRequired": true,
+    +   "qualityTiers": Array [
+    +     Object {
+    +       "guidance": "Vérifier le catalogue.",
+    +       "key": "marque",
+    +       "label": "Marque du véhicule",
+    +       "priority": "required",
+    +     },
+    +   ],
+      }
+
+      36 |     const { service, row } = reader({ sgpg_selection_criteria: value });
+      37 |     const before = JSON.stringify(row);
+    > 38 |     expect(await service.getR6GuidePayload('filtre-a-huile')).toMatchObject({
+         |                                                               ^
+      39 |       qualityTiers: [], qualityTiersReviewRequired: true,
+      40 |       canonicalRoleUrl: '/blog-pieces-auto/guide-achat/filtre-a-huile',
+      41 |     });
+
+      at src/modules/blog/services/r6-guide.service.content.test.ts:38:63
+
+  ● R6 quality tier contract and declared source verification › reports incomplete/invalid V2 tiers without converting compatibility data: {"tiers":[{"key":"marque","label":"Marque du véhicule","guidance":"Vérifier le catalogue.","priority":"required"}]}
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  - 2
+    + Received  + 8
+
+      Object {
+        "canonicalRoleUrl": "/blog-pieces-auto/guide-achat/filtre-a-huile",
+    -   "qualityTiers": Array [],
+    -   "qualityTiersReviewRequired": true,
+    +   "qualityTiers": Array [
+    +     Object {
+    +       "guidance": "Vérifier le catalogue.",
+    +       "key": "marque",
+    +       "label": "Marque du véhicule",
+    +       "priority": "required",
+    +     },
+    +   ],
+      }
+
+      36 |     const { service, row } = reader({ sgpg_selection_criteria: value });
+      37 |     const before = JSON.stringify(row);
+    > 38 |     expect(await service.getR6GuidePayload('filtre-a-huile')).toMatchObject({
+         |                                                               ^
+      39 |       qualityTiers: [], qualityTiersReviewRequired: true,
+      40 |       canonicalRoleUrl: '/blog-pieces-auto/guide-achat/filtre-a-huile',
+      41 |     });
+
+      at src/modules/blog/services/r6-guide.service.content.test.ts:38:63
+
+  ● R6 quality tier contract and declared source verification › reports incomplete/invalid V2 tiers without converting compatibility data: [{"tier_id":"oe","label":"Origine","description":"Référence documentée pour cette application.","available":true},{"key":"marque","label":"Marque du véhicule","guidance":"Vérifier le catalogue.","priority":"required"}]
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  -  2
+    + Received  + 14
+
+      Object {
+        "canonicalRoleUrl": "/blog-pieces-auto/guide-achat/filtre-a-huile",
+    -   "qualityTiers": Array [],
+    -   "qualityTiersReviewRequired": true,
+    +   "qualityTiers": Array [
+    +     Object {
+    +       "available": true,
+    +       "description": "Référence documentée pour cette application.",
+    +       "label": "Origine",
+    +       "tier_id": "oe",
+    +     },
+    +     Object {
+    +       "guidance": "Vérifier le catalogue.",
+    +       "key": "marque",
+    +       "label": "Marque du véhicule",
+    +       "priority": "required",
+    +     },
+    +   ],
+      }
+
+      36 |     const { service, row } = reader({ sgpg_selection_criteria: value });
+      37 |     const before = JSON.stringify(row);
+    > 38 |     expect(await service.getR6GuidePayload('filtre-a-huile')).toMatchObject({
+         |                                                               ^
+      39 |       qualityTiers: [], qualityTiersReviewRequired: true,
+      40 |       canonicalRoleUrl: '/blog-pieces-auto/guide-achat/filtre-a-huile',
+      41 |     });
+
+      at src/modules/blog/services/r6-guide.service.content.test.ts:38:63
+
+  ● R6 quality tier contract and declared source verification › reports incomplete/invalid V2 tiers without converting compatibility data: [null]
+
+    TypeError: Cannot read properties of null (reading 'label')
+
+      277 |     const qualityTiers: R6QualityTier[] = rawTiers
+      278 |       .filter((t) => {
+    > 279 |         const label = t.label || '';
+          |                         ^
+      280 |         const guidance =
+      281 |           ((t as unknown as Record<string, unknown>).guidance as string) || '';
+      282 |         return !this.isRagChunk(label) && !this.isRagChunk(guidance);
+
+      at src/modules/blog/services/r6-guide.service.ts:279:25
+          at Array.filter (<anonymous>)
+      at R6GuideService.buildV2Payload (src/modules/blog/services/r6-guide.service.ts:278:8)
+      at R6GuideService.getR6GuidePayload (src/modules/blog/services/r6-guide.service.ts:202:22)
+      at src/modules/blog/services/r6-guide.service.content.test.ts:38:12
+
+  ● R6 quality tier contract and declared source verification › reports incomplete/invalid V2 tiers without converting compatibility data: {"tiers":"invalid"}
+
+    TypeError: rawTiers.filter is not a function
+
+      276 |     // Sanitize: filter out RAG chunks and clean markdown artifacts from labels
+      277 |     const qualityTiers: R6QualityTier[] = rawTiers
+    > 278 |       .filter((t) => {
+          |        ^
+      279 |         const label = t.label || '';
+      280 |         const guidance =
+      281 |           ((t as unknown as Record<string, unknown>).guidance as string) || '';
+
+      at R6GuideService.buildV2Payload (src/modules/blog/services/r6-guide.service.ts:278:8)
+      at R6GuideService.getR6GuidePayload (src/modules/blog/services/r6-guide.service.ts:202:22)
+      at src/modules/blog/services/r6-guide.service.content.test.ts:38:12
+
+  ● R6 quality tier contract and declared source verification › reports incomplete/invalid V2 tiers without converting compatibility data: [{"tier_id":"oe","label":"Origine","description":"Référence documentée pour cette application.","available":"false"}]
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  - 2
+    + Received  + 8
+
+      Object {
+        "canonicalRoleUrl": "/blog-pieces-auto/guide-achat/filtre-a-huile",
+    -   "qualityTiers": Array [],
+    -   "qualityTiersReviewRequired": true,
+    +   "qualityTiers": Array [
+    +     Object {
+    +       "available": "false",
+    +       "description": "Référence documentée pour cette application.",
+    +       "label": "Origine",
+    +       "tier_id": "oe",
+    +     },
+    +   ],
+      }
+
+      36 |     const { service, row } = reader({ sgpg_selection_criteria: value });
+      37 |     const before = JSON.stringify(row);
+    > 38 |     expect(await service.getR6GuidePayload('filtre-a-huile')).toMatchObject({
+         |                                                               ^
+      39 |       qualityTiers: [], qualityTiersReviewRequired: true,
+      40 |       canonicalRoleUrl: '/blog-pieces-auto/guide-achat/filtre-a-huile',
+      41 |     });
+
+      at src/modules/blog/services/r6-guide.service.content.test.ts:38:63
+
+  ● R6 quality tier contract and declared source verification › reports incomplete/invalid V2 tiers without converting compatibility data: [{"tier_id":"oe","label":"Origine","description":"   ","available":true}]
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  - 2
+    + Received  + 8
+
+      Object {
+        "canonicalRoleUrl": "/blog-pieces-auto/guide-achat/filtre-a-huile",
+    -   "qualityTiers": Array [],
+    -   "qualityTiersReviewRequired": true,
+    +   "qualityTiers": Array [
+    +     Object {
+    +       "available": true,
+    +       "description": "",
+    +       "label": "Origine",
+    +       "tier_id": "oe",
+    +     },
+    +   ],
+      }
+
+      36 |     const { service, row } = reader({ sgpg_selection_criteria: value });
+      37 |     const before = JSON.stringify(row);
+    > 38 |     expect(await service.getR6GuidePayload('filtre-a-huile')).toMatchObject({
+         |                                                               ^
+      39 |       qualityTiers: [], qualityTiersReviewRequired: true,
+      40 |       canonicalRoleUrl: '/blog-pieces-auto/guide-achat/filtre-a-huile',
+      41 |     });
+
+      at src/modules/blog/services/r6-guide.service.content.test.ts:38:63
+
+  ● R6 quality tier contract and declared source verification › reports incomplete/invalid V2 tiers without converting compatibility data: null
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  - 1
+    + Received  + 0
+
+      Object {
+        "canonicalRoleUrl": "/blog-pieces-auto/guide-achat/filtre-a-huile",
+        "qualityTiers": Array [],
+    -   "qualityTiersReviewRequired": true,
+      }
+
+      36 |     const { service, row } = reader({ sgpg_selection_criteria: value });
+      37 |     const before = JSON.stringify(row);
+    > 38 |     expect(await service.getR6GuidePayload('filtre-a-huile')).toMatchObject({
+         |                                                               ^
+      39 |       qualityTiers: [], qualityTiersReviewRequired: true,
+      40 |       canonicalRoleUrl: '/blog-pieces-auto/guide-achat/filtre-a-huile',
+      41 |     });
+
+      at src/modules/blog/services/r6-guide.service.content.test.ts:38:63
+
+  ● R6 quality tier contract and declared source verification › reports incomplete/invalid V2 tiers without converting compatibility data: []
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  - 1
+    + Received  + 0
+
+      Object {
+        "canonicalRoleUrl": "/blog-pieces-auto/guide-achat/filtre-a-huile",
+        "qualityTiers": Array [],
+    -   "qualityTiersReviewRequired": true,
+      }
+
+      36 |     const { service, row } = reader({ sgpg_selection_criteria: value });
+      37 |     const before = JSON.stringify(row);
+    > 38 |     expect(await service.getR6GuidePayload('filtre-a-huile')).toMatchObject({
+         |                                                               ^
+      39 |       qualityTiers: [], qualityTiersReviewRequired: true,
+      40 |       canonicalRoleUrl: '/blog-pieces-auto/guide-achat/filtre-a-huile',
+      41 |     });
+
+      at src/modules/blog/services/r6-guide.service.content.test.ts:38:63
+
+  ● R6 quality tier contract and declared source verification › reports incomplete/invalid V2 tiers without converting compatibility data: [{"tier_id":"oe","label":"Origine","description":"Référence documentée pour cette application.","available":true},{"tier_id":"oe-2","label":"ORIGÍNE.","description":"Référence documentée pour cette application.","available":true}]
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  -  2
+    + Received  + 14
+
+      Object {
+        "canonicalRoleUrl": "/blog-pieces-auto/guide-achat/filtre-a-huile",
+    -   "qualityTiers": Array [],
+    -   "qualityTiersReviewRequired": true,
+    +   "qualityTiers": Array [
+    +     Object {
+    +       "available": true,
+    +       "description": "Référence documentée pour cette application.",
+    +       "label": "Origine",
+    +       "tier_id": "oe",
+    +     },
+    +     Object {
+    +       "available": true,
+    +       "description": "Référence documentée pour cette application.",
+    +       "label": "ORIGÍNE.",
+    +       "tier_id": "oe-2",
+    +     },
+    +   ],
+      }
+
+      36 |     const { service, row } = reader({ sgpg_selection_criteria: value });
+      37 |     const before = JSON.stringify(row);
+    > 38 |     expect(await service.getR6GuidePayload('filtre-a-huile')).toMatchObject({
+         |                                                               ^
+      39 |       qualityTiers: [], qualityTiersReviewRequired: true,
+      40 |       canonicalRoleUrl: '/blog-pieces-auto/guide-achat/filtre-a-huile',
+      41 |     });
+
+      at src/modules/blog/services/r6-guide.service.content.test.ts:38:63
+
+  ● R6 quality tier contract and declared source verification › reports incomplete/invalid V2 tiers without converting compatibility data: [{"tier_id":"oe","label":"Origine","description":"Référence documentée pour cette application.","available":true},{"tier_id":"oe","label":"Autre catégorie","description":"Référence documentée pour cette application.","available":true}]
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  -  2
+    + Received  + 14
+
+      Object {
+        "canonicalRoleUrl": "/blog-pieces-auto/guide-achat/filtre-a-huile",
+    -   "qualityTiers": Array [],
+    -   "qualityTiersReviewRequired": true,
+    +   "qualityTiers": Array [
+    +     Object {
+    +       "available": true,
+    +       "description": "Référence documentée pour cette application.",
+    +       "label": "Origine",
+    +       "tier_id": "oe",
+    +     },
+    +     Object {
+    +       "available": true,
+    +       "description": "Référence documentée pour cette application.",
+    +       "label": "Autre catégorie",
+    +       "tier_id": "oe",
+    +     },
+    +   ],
+      }
+
+      36 |     const { service, row } = reader({ sgpg_selection_criteria: value });
+      37 |     const before = JSON.stringify(row);
+    > 38 |     expect(await service.getR6GuidePayload('filtre-a-huile')).toMatchObject({
+         |                                                               ^
+      39 |       qualityTiers: [], qualityTiersReviewRequired: true,
+      40 |       canonicalRoleUrl: '/blog-pieces-auto/guide-achat/filtre-a-huile',
+      41 |     });
+
+      at src/modules/blog/services/r6-guide.service.content.test.ts:38:63
+
+  ● R6 quality tier contract and declared source verification › refuses the historical RAG verification stamp in v1
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  - 1
+    + Received  + 1
+
+      Object {
+    -   "sourceVerified": false,
+    +   "sourceVerified": true,
+      }
+
+      51 |     for (const source of ['rag', 'rag-legacy']) {
+      52 |       const { service } = reader({ sgpg_role_version: version, sgpg_source_type: source, sgpg_source_verified: true });
+    > 53 |       expect(await service.getR6GuidePayload('filtre-a-huile')).toMatchObject({ sourceVerified: false });
+         |                                                                 ^
+      54 |     }
+      55 |   });
+      56 |   it('preserves an explicit non-legacy verification declaration without inventing one', async () => {
+
+      at src/modules/blog/services/r6-guide.service.content.test.ts:53:65
+
+  ● R6 quality tier contract and declared source verification › refuses the historical RAG verification stamp in v2
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  - 1
+    + Received  + 1
+
+      Object {
+    -   "sourceVerified": false,
+    +   "sourceVerified": true,
+      }
+
+      51 |     for (const source of ['rag', 'rag-legacy']) {
+      52 |       const { service } = reader({ sgpg_role_version: version, sgpg_source_type: source, sgpg_source_verified: true });
+    > 53 |       expect(await service.getR6GuidePayload('filtre-a-huile')).toMatchObject({ sourceVerified: false });
+         |                                                                 ^
+      54 |     }
+      55 |   });
+      56 |   it('preserves an explicit non-legacy verification declaration without inventing one', async () => {
+
+      at src/modules/blog/services/r6-guide.service.content.test.ts:53:65
+
+  ● R6 quality tier contract and declared source verification › does not convert the string false into a truthy verified badge
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  - 1
+    + Received  + 1
+
+      Object {
+    -   "sourceVerified": false,
+    +   "sourceVerified": "false",
+      }
+
+      62 |   it('does not convert the string false into a truthy verified badge', async () => {
+      63 |     const { service } = reader({ sgpg_source_type: 'wiki', sgpg_source_verified: 'false' });
+    > 64 |     expect(await service.getR6GuidePayload('filtre-a-huile')).toMatchObject({ sourceVerified: false });
+         |                                                               ^
+      65 |   });
+      66 |   it('does not manufacture verification from perfect legacy scores', () => {
+      67 |     // Exercise the pure payload builder without creating a DB client.
+
+      at Object.<anonymous> (src/modules/blog/services/r6-guide.service.content.test.ts:64:63)
+
+  ● R6 quality tier contract and declared source verification › does not manufacture verification from perfect legacy scores
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  - 3
+    + Received  + 3
+
+      Object {
+        "sgpg_source_type": "rag-legacy",
+    -   "sgpg_source_verified": false,
+    -   "sgpg_source_verified_at": null,
+    -   "sgpg_source_verified_by": null,
+    +   "sgpg_source_verified": true,
+    +   "sgpg_source_verified_at": "2026-09-13T22:16:46.504Z",
+    +   "sgpg_source_verified_by": "pipeline:rag-enrich",
+      }
+
+      67 |     // Exercise the pure payload builder without creating a DB client.
+      68 |     const writer = Object.create(BuyingGuideDbService.prototype) as BuyingGuideDbService;
+    > 69 |     expect(writer.buildUpdatePayload({}, 'rag://fixture', 'fixture', 1, 100)).toMatchObject({
+         |                                                                               ^
+      70 |       sgpg_source_type: 'rag-legacy', sgpg_source_verified: false,
+      71 |       sgpg_source_verified_by: null, sgpg_source_verified_at: null,
+      72 |     });
+
+      at Object.<anonymous> (src/modules/blog/services/r6-guide.service.content.test.ts:69:79)
+
+  ● R6 quality tier contract and declared source verification › uses a neutral provenance label when there is no verification evidence
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "Référence documentaire"
+    Received: "Source vérifiée"
+
+      73 |   });
+      74 |   it('uses a neutral provenance label when there is no verification evidence', () => {
+    > 75 |     expect(humanizeProvenance({ type: 'web', ref: 'fixture' })).toBe('Référence documentaire');
+         |                                                                 ^
+      76 |   });
+      77 | });
+      78 |
+
+      at Object.<anonymous> (src/modules/blog/services/r6-guide.service.content.test.ts:75:65)
+
+[32m[Nest] 1125638  - [39m14/09/2026 00:16:46 [32m    LOG[39m [38;5;3m[R6GuideService] [39m[32mR6 Guide [v2]: filtre-a-huile → pg_id=7[39m
+[32m[Nest] 1125638  - [39m14/09/2026 00:16:46 [32m    LOG[39m [38;5;3m[R6GuideService] [39m[32mR6 Guide [v2]: filtre-a-huile → pg_id=7[39m
+[32m[Nest] 1125638  - [39m14/09/2026 00:16:46 [32m    LOG[39m [38;5;3m[R6GuideService] [39m[32mR6 Guide [v2]: filtre-a-huile → pg_id=7[39m
+[32m[Nest] 1125638  - [39m14/09/2026 00:16:46 [32m    LOG[39m [38;5;3m[R6GuideService] [39m[32mR6 Guide [v2]: filtre-a-huile → pg_id=7[39m
+[32m[Nest] 1125638  - [39m14/09/2026 00:16:46 [32m    LOG[39m [38;5;3m[R6GuideService] [39m[32mR6 Guide [v2]: filtre-a-huile → pg_id=7[39m
+[32m[Nest] 1125638  - [39m14/09/2026 00:16:46 [32m    LOG[39m [38;5;3m[R6GuideService] [39m[32mR6 Guide [v2]: filtre-a-huile → pg_id=7[39m
+[32m[Nest] 1125638  - [39m14/09/2026 00:16:46 [32m    LOG[39m [38;5;3m[R6GuideService] [39m[32mR6 Guide [v2]: filtre-a-huile → pg_id=7[39m
+[32m[Nest] 1125638  - [39m14/09/2026 00:16:46 [32m    LOG[39m [38;5;3m[R6GuideService] [39m[32mR6 Guide [v2]: filtre-a-huile → pg_id=7[39m
+[32m[Nest] 1125638  - [39m14/09/2026 00:16:46 [32m    LOG[39m [38;5;3m[R6GuideService] [39m[32mR6 Guide [v2]: filtre-a-huile → pg_id=7[39m
+[32m[Nest] 1125638  - [39m14/09/2026 00:16:46 [32m    LOG[39m [38;5;3m[R6GuideService] [39m[32mR6 Guide [v2]: filtre-a-huile → pg_id=7[39m
+[32m[Nest] 1125638  - [39m14/09/2026 00:16:46 [32m    LOG[39m [38;5;3m[R6GuideService] [39m[32mR6 Guide [v2]: filtre-a-huile → pg_id=7[39m
+[32m[Nest] 1125638  - [39m14/09/2026 00:16:46 [32m    LOG[39m [38;5;3m[R6GuideService] [39m[32mR6 Guide [v2]: filtre-a-huile → pg_id=7[39m
+[32m[Nest] 1125638  - [39m14/09/2026 00:16:46 [32m    LOG[39m [38;5;3m[R6GuideService] [39m[32mR6 Guide [v2]: filtre-a-huile → pg_id=7[39m
+[32m[Nest] 1125638  - [39m14/09/2026 00:16:46 [32m    LOG[39m [38;5;3m[R6GuideService] [39m[32mR6 Guide [v1]: filtre-a-huile → pg_id=7[39m
+[32m[Nest] 1125638  - [39m14/09/2026 00:16:46 [32m    LOG[39m [38;5;3m[R6GuideService] [39m[32mR6 Guide [v1]: filtre-a-huile → pg_id=7[39m
+[32m[Nest] 1125638  - [39m14/09/2026 00:16:46 [32m    LOG[39m [38;5;3m[R6GuideService] [39m[32mR6 Guide [v2]: filtre-a-huile → pg_id=7[39m
+[32m[Nest] 1125638  - [39m14/09/2026 00:16:46 [32m    LOG[39m [38;5;3m[R6GuideService] [39m[32mR6 Guide [v2]: filtre-a-huile → pg_id=7[39m
+[32m[Nest] 1125638  - [39m14/09/2026 00:16:46 [32m    LOG[39m [38;5;3m[R6GuideService] [39m[32mR6 Guide [v2]: filtre-a-huile → pg_id=7[39m
+[32m[Nest] 1125638  - [39m14/09/2026 00:16:46 [32m    LOG[39m [38;5;3m[R6GuideService] [39m[32mR6 Guide [v2]: filtre-a-huile → pg_id=7[39m
+Test Suites: 1 failed, 1 total
+Tests:       18 failed, 2 passed, 20 total
+Snapshots:   0 total
+Time:        10.076 s, estimated 11 s

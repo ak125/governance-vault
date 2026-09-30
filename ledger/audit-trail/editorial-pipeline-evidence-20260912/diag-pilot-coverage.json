@@ -1,0 +1,101 @@
+{
+  "scope_requested": "Continuer la correction robuste du systeme editorial",
+  "scope_actually_scanned": "Diagnostic du candidat filtre-a-huile et consigne constructeur, capture et tracabilite",
+  "files_read_count": 12,
+  "files_read": [
+    "/opt/automecanik/wiki-editorial-qualification-20260912/CLAUDE.md",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_meta/agent-exit-contract.md",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/filtre-a-huile.md",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/_coverage/filtre-a-huile.coverage.yaml",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_meta/source-policy.md",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_meta/schema/frontmatter.schema.json",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_meta/schema/coverage-map.schema.json",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/quality-gates.py",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_scripts/promotion_decision.py",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/manifests/ingestion-allowlist.yaml",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/sources/auto-captures/filtre-a-huile/user-manual-renault-com-wl-filtre-a-huile-alerte-pression-re-a64b110a.md",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/sources/auto-captures/filtre-a-huile/filtron-eu-wl-filtre-a-huile-clapets-b8431d6f.md"
+  ],
+  "read_depth": "Lectures manuelles ciblees ; deux archives lues, instructions WIKI/AEC en entier. Schema catalogue, manifestes et invariants charges par validation automatique, non comptabilises comme lecture editoriale. Politique RAW reutilisee du tour precedent.",
+  "excluded_paths": [
+    "Autres propositions/pages R",
+    "DB __diag_symptom et moteur live",
+    "Corpus non reference",
+    "Runtime, infra, cron, secrets, exports",
+    "Application et trois docs seo-batch utilisateur"
+  ],
+  "unscanned_zones": [
+    "Exhaustivite du guide",
+    "Liens causaux diagnostiques",
+    "Montage et reutilisation",
+    "Droits de reutilisation des sources",
+    "Contenu servi et performance SEO/GEO"
+  ],
+  "corrections_proposed": [
+    "Retirer causalites et frequences non etablies",
+    "Aligner texte et structures diagnostiques",
+    "Ajouter consigne constructeur contextualisee avec capture native"
+  ],
+  "corrections_applied": [
+    "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/filtre-a-huile.md",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/_coverage/filtre-a-huile.coverage.yaml",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_meta/source-catalog.yaml",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/log.md",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/manifests/ingestion-allowlist.yaml",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/manifests/ingestion-worklist.yaml",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/manifests/source-inventory.csv",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/manifests/checksums.json",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/manifests/lineage-map.json",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/sources/auto-captures/filtre-a-huile/user-manual-renault-com-wl-filtre-a-huile-alerte-pression-re-a64b110a.md"
+  ],
+  "authorization": "Demandes utilisateur de correction et continuation ; candidats uniquement",
+  "validation_executed": [
+    "Frontmatter PASS",
+    "Catalogue schema PASS",
+    "Calcul0.46 PASS",
+    "Coverage structure PASS15 declarations",
+    "Promotion BLOCKED cinqpreuvespending +SUBSTANCE_SCORE",
+    "RAW I/J PASS",
+    "3archives SHA PASS",
+    "Anciens checksums de fichiers preserves",
+    "Identifiants/sources relations et flags false preserves, confiance low",
+    "Code proof-gate4empreintes inchangees",
+    "Diff whitespace PASS"
+  ],
+  "remaining_unknowns": [
+    "Relations diagnostiques non validees",
+    "Preuves ISO/UE absentes",
+    "Droits publics non qualifies",
+    "Montage/reutilisation/exhaustivite",
+    "Source FRAM composite non qualifiee"
+  ],
+  "claim_counts": {
+    "before": {
+      "total": 14,
+      "captured": 8,
+      "pending_capture": 6,
+      "verified": 0
+    },
+    "after": {
+      "total": 15,
+      "captured": 10,
+      "pending_capture": 5,
+      "verified": 0
+    },
+    "retired_unproven": 1,
+    "new_distinct_captured": 2
+  },
+  "final_status": "PARTIAL_COVERAGE",
+  "candidate_sha256": {
+    "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/filtre-a-huile.md": "86968daab70f2cdbf14292dccb6badf2cc1853871a3c438a83e3555ada4509d6",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/proposals/_coverage/filtre-a-huile.coverage.yaml": "5f4bc12690476c9a4edaf24851e63962a2fce4477710cd72a9404bfb325d910b",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/_meta/source-catalog.yaml": "25ea21e69face58331d51f596950a9f2cfa83821090593325267ac6ef8fe5b37",
+    "/opt/automecanik/wiki-editorial-qualification-20260912/log.md": "9fe33fa008774a7b02b78073817fe3d9220359658204c197877d4d3689f28a69",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/manifests/ingestion-allowlist.yaml": "5a096bbd6d9ef2296c0478194122b3240a436eeb1ea846d2fd12d1c4058b5178",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/manifests/ingestion-worklist.yaml": "09392775d801233aa544db6395af112d99d7ffdb32aa57b73a406727ef48aa2d",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/manifests/source-inventory.csv": "ef011dde6330ea89fc8456777e8b06ff58735fe916e65da33eae0096346a0161",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/manifests/checksums.json": "22fd090c76b04d89254f8a2f1c3eac3f208e96a9087289700bca50193cc95ef2",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/manifests/lineage-map.json": "da8aaf43dd13cdd6ed0ca3b00b06f861e82db2637fd71ea167fea128209122d5",
+    "/home/deploy/worktrees/raw-filtre-pilot-20260913/sources/auto-captures/filtre-a-huile/user-manual-renault-com-wl-filtre-a-huile-alerte-pression-re-a64b110a.md": "fc3dc89072596e51a15b1520f44c9b74f8180379a0eeb957ebb5de0fa2349235"
+  }
+}

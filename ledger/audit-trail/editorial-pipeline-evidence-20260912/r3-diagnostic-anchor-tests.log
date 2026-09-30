@@ -1,0 +1,15 @@
+[31m[Nest] 909758  - [39m13/09/2026 15:58:40 [31m  ERROR[39m [38;5;3m[R3GuideService] [39m[31m[r3-cache] miss-error key=r3-guide:v4:emetteur-d-embrayage duration_ms=0[39m
+Error: transient supabase
+    at Object.<anonymous> (/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/blog/services/r3-guide.service.test.ts:257:32)
+[31m[Nest] 909758  - [39m13/09/2026 15:58:40 [31m  ERROR[39m [38;5;3m[R3GuideService] [39m[31m[r3-cache] set-failed key=r3-guide:v4:emetteur-d-embrayage — payload returned uncached[39m
+Error: redis ECONNRESET
+    at Object.<anonymous> (/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/blog/services/r3-guide.service.test.ts:314:32)
+[31m[Nest] 909758  - [39m13/09/2026 15:58:40 [31m  ERROR[39m [38;5;3m[R3GuideService] [39m[31m[r3-cache] set-failed key=r3-guide:v4:emetteur-d-embrayage — payload returned uncached[39m
+Error: redis blip
+    at Object.<anonymous> (/opt/automecanik/app/.claude/worktrees/editorial-pipeline-20260912/backend/src/modules/blog/services/r3-guide.service.test.ts:324:54)
+PASS src/modules/blog/services/r3-guide.service.test.ts (10.196 s)
+
+Test Suites: 1 passed, 1 total
+Tests:       24 passed, 24 total
+Snapshots:   0 total
+Time:        10.379 s, estimated 11 s
