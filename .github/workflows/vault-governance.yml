@@ -126,6 +126,52 @@ jobs:
           name: vault-pollution-report
           path: 99-meta/vault-pollution-report.md
 
+  vault-scripts-tests:
+    name: "Vault Scripts Tests"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install pinned dependencies
+        run: pip install --quiet -r _scripts/requirements-ci.txt
+
+      - name: Run _scripts tests
+        # Les validateurs du vault et leurs tests : un check modifié sans ses tests ne passe pas.
+        run: python -m pytest -q _scripts -p no:cacheprovider
+
+  vault-lint-gate:
+    name: "Vault Lint Gate (ADR-020)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install pinned dependencies
+        run: pip install --quiet -r _scripts/requirements-ci.txt
+
+      - name: Gate weekly-lint + index MOC-Decisions
+        # Les checks de weekly-lint (vault seul) et sync_moc_decisions --check, sur chaque PR.
+        run: bash _scripts/ci-vault-gate.sh pr --out-dir lint-gate
+
+      - name: Upload lint findings on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vault-lint-gate
+          path: lint-gate/
+          if-no-files-found: ignore
+
   g4-canon-write-block:
     name: "G4: CI read-only sur canon"
     runs-on: ubuntu-latest
