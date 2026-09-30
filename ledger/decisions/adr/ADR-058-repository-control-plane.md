@@ -5,6 +5,7 @@ status: proposed
 date: 2026-05-13
 deciders: [Fafa]
 decision_makers: [Fafa]
+amended_by: ["ADR-097"]
 related: [ADR-015, ADR-048, ADR-049, ADR-053, MOC-Decisions, MOC-Repository-Control-Plane]
 ---
 
