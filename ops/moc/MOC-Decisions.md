@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-09-24
+updated: 2026-09-30
 ---
 
 # MOC: Decisions
@@ -108,8 +108,8 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 
 > Projection mécanique du frontmatter ADR (PR-3 sync_moc_decisions).
 > Toute édition manuelle entre les markers est écrasée à chaque sync.
-> Pour annoter, éditer le frontmatter ADR ou la table « ADR Actifs » ci-dessus.
-> Dernier sync : 2026-09-24.
+> Pour corriger un statut ou un titre, éditer le frontmatter de l'ADR puis relancer `--write`.
+> Dernier sync : 2026-09-30.
 
 | ID | Titre | Statut canonique | Date | Fichier |
 |----|-------|------------------|------|---------|
