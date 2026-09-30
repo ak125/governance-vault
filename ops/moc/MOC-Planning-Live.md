@@ -1,6 +1,6 @@
 ---
 type: moc
-status: proposed
+status: canon
 updated: 2026-08-14
 schema_version: planning.v1
 semantic_hash: 205ade8c0c693182
