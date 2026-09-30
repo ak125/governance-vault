@@ -7,12 +7,11 @@ decision_makers:
   - "@automecanik.seo"
 supersedes: []
 superseded_by: []
-related_rules:
-  - performance-budget-ttfb
-  - seo-http-status-contract
-  - rpc-governance
+related_rules: []
 related_incidents:
-  - INC-2026-005-gsc-5xx-vehicle-page-cold-rpc
+  - INC-2026-005
+related_adr:
+  - ADR-003
 reviewed_by: "Claude Opus 4.7"
 implementation_evidence:
   status_review_at: 2026-04-27

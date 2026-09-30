@@ -66,7 +66,7 @@ Au 2026-05-14, un grep `repository contract system|contract meta-model|9 concept
 - `.spec/00-canon/repository-registry/{ownership,domains,status-overrides,delete-policy}.yaml` (ADR-058 Layer 2)
 - `packages/seo-role-contracts/src/contracts/*.ts` (ADR-047)
 - Wiki frontmatter v1.0.0 schema (ADR-039)
-- *Futur* : `.spec/00-canon/db-architecture.contract.json` (PR-3 monorepo, post-merge ADR-062)
+- `.spec/00-canon/repository-registry/db.yaml` (DB Contract V1, PR-3a monorepo #511, 2026-05-14 ; annoncé ici comme *futur* `.spec/00-canon/db-architecture.contract.json`, nom jamais créé)
 
 **Anti-pattern** : générer le contract depuis un script tooling qui lit le derived artifact à canoniser — dérivation circulaire (parallel-truth, viole Loi A), pas un contract.
 
@@ -80,7 +80,7 @@ Au 2026-05-14, un grep `repository contract system|contract meta-model|9 concept
 **Obligation de test** : tout generator doit ship **1 test round-trip SHA-256 obligatoire** (input contract → generator → output → re-run → hash égal). Pattern ADR-058 §V1-5 (tests round-trip Zod). Sans ce test, generator considéré non-conformant (cf. §Tiers de conformance).
 
 **Instances canon** :
-- `scripts/registry/build-canonical.js` (ADR-058 Layer 3 projection)
+- `scripts/registry/build-canonical-registry.js` (ADR-058 Layer 3 projection)
 - `scripts/audit/build-deep-inventory.js` (Layer 1 inventory)
 - `scripts/audit/build-db-usage-map.js` (Layer 1 db)
 
@@ -110,7 +110,7 @@ Au 2026-05-14, un grep `repository contract system|contract meta-model|9 concept
 > *L'enforcement engine ne décide pas — il applique. Sa configuration doit être traçable à un contract canon (ADR, rule vault, schema versionné).*
 
 **Instances canon** :
-- `dep-cruise` rules (`.dependency-cruiser.cjs` configuré depuis `.spec/00-canon/dependency-rules.md`)
+- `dep-cruise` rules (`.dependency-cruiser.cjs` ; ses règles générées `.dependency-cruiser.generated.cjs` viennent de `.spec/00-canon/repository-registry/architecture.yaml`, via `npm run architecture:build`)
 - `ast-grep` rules (`.ast-grep/rules/*.yml` configurées depuis ADRs + `feedback_*` memories, ex. `backend-no-remote-io-in-onmoduleinit.yml`)
 - `validate-invariants.ts` (ADR-058 §V1-4, 4 invariants relationnels)
 - Zod schemas `@repo/registry`, `@repo/seo-role-contracts`
@@ -128,7 +128,7 @@ Au 2026-05-14, un grep `repository contract system|contract meta-model|9 concept
 
 **Instances canon** :
 - `.github/workflows/registry-build.yml` Phase 1 freshness warn (ADR-058)
-- `.github/workflows/registry-build.yml` Phase 2 block-new (ADR-058, ratchet promu)
+- `.github/workflows/registry-new-file-gate.yml` Phase 2 block-new (ADR-058 PR-G, ratchet promu)
 - Pre-commit `scripts/knowledge/refresh-knowledge.py` (Knowledge Layer `.claude/knowledge/modules/*.md`)
 - `.husky/pre-commit` ast-grep `backend-no-remote-io-in-onmoduleinit` (CLAUDE.md §Non-blocking onModuleInit)
 
@@ -225,7 +225,7 @@ Les instances `partial / governed-baseline` ne sont **pas** régressions — ell
 
 ### Cross-contract dependencies
 
-Un contract peut **dépendre** d'un autre. Exemple : `db-architecture.contract.json` (PR-3 monorepo) dépendra de `ownership.yaml` (ADR-058) pour la résolution `owner_team` par schéma DB.
+Un contract peut **dépendre** d'un autre. Exemple : le contrat DB (annoncé comme `db-architecture.contract.json`, livré en `repository-registry/db.yaml` par PR-3a #511, sans champ `depends_on` à ce jour) dépendra de `ownership.yaml` (ADR-058) pour la résolution `owner_team` par schéma DB.
 
 **Convention** : frontmatter contract porte un champ `depends_on:` listant les paths absolus ou IDs des contracts amont :
 

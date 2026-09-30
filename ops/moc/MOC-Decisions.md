@@ -177,7 +177,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-068 | R2 — Doctrine STRICT : 4 actions auto INTERDITES (suppress + désindex + canonical sibling + sitemap exclusion). Une page valide DOIT rester candidate INDEX. | Accepted | 2026-05-16 | [[ADR-068-r2-doctrine-strict-no-auto-deindex]] |
 | ADR-070 | R2 — R8+R1 first, R2 second : formule canon `R2Content = render(R8 + R1 + KG + WIKI)`, INTERNAL DIFFERENCE EXHAUSTION, technical criteria = evidence | Accepted | 2026-05-16 | [[ADR-070-r8-r1-first-r2-second-active-disambiguation]] |
 | ADR-072 | R2 — Paradigme architectural industry-standard : CQRS + DDD bounded contexts + Published Snapshot Artifact + Outbox pattern + Schema Registry + OpenTelemetry canon + GitOps publication | Accepted | 2026-05-16 | [[ADR-072-r2-cqrs-ddd-snapshot-artifact]] |
-| ADR-073 |  | Proposed | 2026-05-17 | [[ADR-073-fact-graph-l3-l4-extension-to-adr-070]] |
+| ADR-073 | Canonical Fact Graph (L3) + Editorial Evidence Cache (L4) — Extension to ADR-070 | Proposed | 2026-05-17 | [[ADR-073-fact-graph-l3-l4-extension-to-adr-070]] |
 | ADR-074 | Unified Indexability Decision Plane (UIDP) V1 | Proposed | 2026-05-18 | [[ADR-074-unified-indexability-decision-plane]] |
 | ADR-076 | Soft-404 R2-PRODUIT — Multi-tier alternatives + JSON-LD ItemList + append-only telemetry | Accepted | 2026-05-18 | [[ADR-076-soft-404-r2-strategy]] |
 | ADR-077 | Diagnostic Control Plane V1 — Evidence-Gated V1.5 Registry (10 deferral gates G1..G10) | Accepted | 2026-05-19 | [[ADR-077-diagnostic-cp-v1-evidence-gates]] |
@@ -347,11 +347,3 @@ Voir [[adr-template]] dans `_templates/`.
 - [[MOC-Rules]] - Règles canoniques T/G/AI/V
 - [[MOC-Incidents]] - Post-mortems (sources de nouvelles ADR)
 - [[MOC-Compliance]] - Checklists, evidence-packs
-
----
-
-_Derniere mise a jour: 2026-05-02_
-
-_Synchronisé manuellement vs frontmatter ADR le 2026-05-02. Q4 follow-up :
-auto-générer cette table depuis `_scripts/sync-moc-decisions.py` (à créer)
-pour éviter dérive future._

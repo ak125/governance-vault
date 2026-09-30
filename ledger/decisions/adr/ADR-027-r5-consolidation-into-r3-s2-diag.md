@@ -13,7 +13,7 @@ related_adr: ["ADR-015", "ADR-022", "ADR-025"]
 reviewed_by: "@fafa"
 ---
 
-# ADR-026: R5 Diagnostic Consolidation into R3 S2_DIAG — Canonical SEO Architecture
+# ADR-027: R5 Diagnostic Consolidation into R3 S2_DIAG — Canonical SEO Architecture
 
 ## Contexte
 
