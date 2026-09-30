@@ -7,13 +7,12 @@ decision_makers:
   - "@automecanik.seo"
 supersedes: []
 superseded_by: []
-related_rules:
-  - db-governance-policy
+related_rules: []
 related_incidents:
-  - INC-2026-005-gsc-5xx-vehicle-page-cold-rpc
-related_adrs:
-  - ADR-016-vehicle-page-matview-persistence
-  - ADR-017-rpc-pieces-cast-cleanup
+  - INC-2026-005
+related_adr:
+  - ADR-016
+  - ADR-017
 reviewed_by: "Claude Opus 4.7"
 tags:
   - adr/deferred
