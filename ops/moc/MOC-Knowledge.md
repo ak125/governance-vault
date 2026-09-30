@@ -96,6 +96,10 @@ Base de connaissances architecturale.
 - [[supabase-management-token]] - Provisioning + règles strictes pour le secret `SUPABASE_ACCESS_TOKEN` (Management API readonly token, vault-only, scope `organizations:read` + `projects:read`, masking + redaction artifact, rotation procédure). Consommé par routine `vault-supabase-cost-check.yml`.
 - [[supabase-cost-surface-drift-v1]] - Méthodologie V1 du workflow `vault-supabase-cost-check.yml` (refonte 2026-05-18) : structural drift detection sur la cost surface Supabase (plan tier + projects + add-ons) sans projection $ — Management API v1 ne l'expose pas. Defense-in-depth 5 couches, snapshot canonique sha256 replay-safe, P1/P2 severity ladder.
 
+## Session debriefs
+
+- [[adr-024-r1-cache-session-debrief-20260427]] - Session debrief 2026-04-27 : ADR-024 R1 Gamme Page Cache phases 1-6a livrees, scheduling J+14 pour promotion (8 PRs vault + 4 PRs monorepo, 238/238 cached)
+
 ## References
 
 - [[airlock-decisions-reference]] - Mapping Airlock DEC-002..013 ↔ ADR canoniques (leve l'ambiguite avec les DEC legacy)
