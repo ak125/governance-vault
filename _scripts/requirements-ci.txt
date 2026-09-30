@@ -1,0 +1,4 @@
+# Dépendances Python des jobs CI du vault (.github/workflows/vault-governance.yml).
+# Même convention d'épinglage que _scripts/planning/requirements.txt.
+pyyaml==6.0.*
+pytest==8.4.*

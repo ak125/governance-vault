@@ -46,7 +46,7 @@ Voir `99-meta/ci-policy.md`. Le check requis `G4: CI read-only sur canon` n'exec
 
 ```
 governance-vault/
-├── .github/workflows/    # 6 workflows ; 5 checks requis sur main (voir branch-protection)
+├── .github/workflows/    # 6 workflows ; checks requis sur main : voir branch-protection
 ├── .githooks/            # pre-commit (G2 + liens casses), pre-push (+ signatures G3)
 ├── .spec/00-canon/planning/  # Enums du planning (ADR-053)
 ├── _scripts/             # Scripts (check-orphans, check-broken-links, preflight-write, sync_moc_decisions.py, ...)

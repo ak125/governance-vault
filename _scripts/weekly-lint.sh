@@ -17,7 +17,9 @@
 #  11. check-canon-cross-repo.py     (nouveau — vault ADRs/MOCs refs vers monorepo .spec/00-canon/, ADR-048 sprint 3 axe transverse)
 #  12. test_governance_constants.py  (parité enums constants ↔ schemas, PR-2)
 #  13. check-no-direct-schema-enum-access.sh (PR-2)
-#  8, 10 et 11 sont « skipped » (visible dans le rapport) quand --monorepo n'existe pas, ce qui est le cas en CI.
+#  8, 10 et 11 sont « skipped » (visible dans le rapport) quand --monorepo n'existe pas, ce qui est le cas en CI,
+#  et avec --no-monorepo : ce mode ne lance que les checks du vault, sans dépendre de la machine ni de la date
+#  (il est utilisé par _scripts/ci-vault-gate.sh).
 #
 # Un check moderne qui plante (pas de JSON exploitable sur stdout) produit un finding
 # `weekly-lint/check-crashed` de severite error ; un check legacy est jugé sur son vrai code de sortie.
@@ -30,7 +32,7 @@
 # Exit 0 toujours — on n'échoue pas le workflow, on remonte les findings via issue.
 #
 # Usage :
-#   _scripts/weekly-lint.sh --output findings.json --markdown report.md [--monorepo PATH]
+#   _scripts/weekly-lint.sh --output findings.json --markdown report.md [--monorepo PATH | --no-monorepo]
 #
 # ADR-022 scope note (2026-04-23) :
 #   Les schemas `_scripts/schemas/vehicle-{model,variations,role-map}.schema.json`
@@ -47,18 +49,20 @@ set -euo pipefail
 OUTPUT_JSON=""
 OUTPUT_MD=""
 MONOREPO_PATH="${MONOREPO_PATH:-/opt/automecanik/app}"
+NO_MONOREPO=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --output) OUTPUT_JSON="$2"; shift 2 ;;
     --markdown) OUTPUT_MD="$2"; shift 2 ;;
     --monorepo) MONOREPO_PATH="$2"; shift 2 ;;
+    --no-monorepo) NO_MONOREPO=1; shift ;;
     *) echo "Unknown arg: $1" >&2; exit 2 ;;
   esac
 done
 
 if [[ -z "$OUTPUT_JSON" || -z "$OUTPUT_MD" ]]; then
-  echo "Usage: $0 --output findings.json --markdown report.md [--monorepo PATH]" >&2
+  echo "Usage: $0 --output findings.json --markdown report.md [--monorepo PATH | --no-monorepo]" >&2
   exit 2
 fi
 
@@ -175,14 +179,19 @@ else
   echo "{\"check\":\"no-direct-schema-enum-access\",\"findings\":[{\"severity\":\"error\",\"file\":\"_scripts\",\"message\":\"${NDS_MSG}\",\"rule\":\"governance/no-direct-schema-enum-access\"}],\"summary\":{\"error\":1,\"warning\":0,\"info\":0}}" >> "$MODERN_RESULTS"
 fi
 
-if [[ -d "$MONOREPO_PATH/.spec/00-canon" ]]; then
+if [[ "$NO_MONOREPO" -eq 0 && -d "$MONOREPO_PATH/.spec/00-canon" ]]; then
   run_modern "canon-backlinks" $PY_BIN _scripts/check-canon-backlinks.py . --monorepo "$MONOREPO_PATH"
   run_modern "canon-freshness" $PY_BIN _scripts/check-canon-freshness.py . --monorepo "$MONOREPO_PATH"
   run_modern "canon-cross-repo" $PY_BIN _scripts/check-canon-cross-repo.py . --monorepo "$MONOREPO_PATH"
 else
-  echo '{"check": "canon-backlinks", "findings": [], "summary": {"error":0,"warning":0,"info":0}, "skipped": "monorepo path not available in this environment"}' >> "$MODERN_RESULTS"
-  echo '{"check": "canon-freshness", "findings": [], "summary": {"error":0,"warning":0,"info":0}, "skipped": "monorepo path not available in this environment"}' >> "$MODERN_RESULTS"
-  echo '{"check": "canon-cross-repo", "findings": [], "summary": {"error":0,"warning":0,"info":0}, "skipped": "monorepo path not available in this environment"}' >> "$MODERN_RESULTS"
+  if [[ "$NO_MONOREPO" -eq 1 ]]; then
+    SKIP_REASON="disabled by --no-monorepo (vault-only checks)"
+  else
+    SKIP_REASON="monorepo path not available in this environment"
+  fi
+  for canon_check in canon-backlinks canon-freshness canon-cross-repo; do
+    echo "{\"check\": \"$canon_check\", \"findings\": [], \"summary\": {\"error\":0,\"warning\":0,\"info\":0}, \"skipped\": \"$SKIP_REASON\"}" >> "$MODERN_RESULTS"
+  done
 fi
 
 # --- Aggregate ---
