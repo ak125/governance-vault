@@ -146,7 +146,7 @@ Sources connues à 2026-04-28 :
 - `support` — fiches client (chatbot consommateur, regroupe faq/policies/guides/reference)
 - `diagnostic` — fiches symptômes (outil diagnostic auto + R3 S2_DIAG)
 
-**Convention de chemin figée** : `wiki/<entity_type_singular>/` (relatif au repo) ou `/opt/automecanik-wiki/wiki/<entity_type_singular>/` (full path). Pas de variantes pluriel (`wiki/gammes/` interdit). La redondance `automecanik-wiki/wiki/` est cosmétique acceptée — schema v1.0 ancre cette structure.
+**Convention de chemin figée** : `wiki/<entity_type_singular>/` (relatif au repo) ou `/opt/automecanik/automecanik-wiki/wiki/<entity_type_singular>/` (full path). Pas de variantes pluriel (`wiki/gammes/` interdit). La redondance `automecanik-wiki/wiki/` est cosmétique acceptée — schema v1.0 ancre cette structure.
 
 **proposals/ FLAT + index obligatoire** :
 - `proposals/_index.md` humanly readable

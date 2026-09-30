@@ -167,11 +167,11 @@ utiliser GraphQL directement.
 ```bash
 gh api graphql -f query='
   query($login: String!, $number: Int!) {
-    organization(login: $login) {
+    user(login: $login) {
       projectV2(number: $number) { id }
     }
   }' -f login=ak125 -F number=$PROJECT_NUM \
-  --jq '.data.organization.projectV2.id'
+  --jq '.data.user.projectV2.id'
 ```
 
 **2. Créer un champ single-select** (ex: `Priority`) :
