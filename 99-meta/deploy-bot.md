@@ -30,7 +30,7 @@ Au 2026-09-30 (`619a690`), `main` compte 419 commits. Par auteur : `auto pieces 
 
 Des commits normatifs (ADR, regles) existent donc sous ce nom : ils viennent des sessions de travail, pas d'un automate.
 
-Le writer planning poussait directement sur `main` ; il n'y a plus rien publie depuis le 2026-08-14 (diagnostic dans [[governance-runtime-map]], Couche D). `sync-canon.sh` n'a plus tourne depuis le 2026-02-02 ([[sync-log]]).
+Le writer planning poussait directement sur `main` ; il n'y a plus rien publie depuis le 2026-08-14 (diagnostic dans [[governance-runtime-map]], Couche D). `sync-canon.sh` n'a plus tourne depuis le 2026-02-02 ([[sync-log]]) ; il est retire par [[ADR-101-vault-decides-canon-authority|ADR-101]].
 
 Les commits fusionnes par GitHub (committer `GitHub`, du 2026-04-04 au 2026-09-30) ont tous `auto pieces equipement` pour auteur, meme quand la branche a ete ecrite sous `Deploy Bot`. Apres le 2026-07-04, les seuls commits `Deploy Bot` de `main` sont ceux du writer planning.
 
@@ -40,7 +40,7 @@ Les commits fusionnes par GitHub (committer `GitHub`, du 2026-04-04 au 2026-09-3
 
 | Regle | Etat reel |
 |-------|-----------|
-| G1 Canon fait foi | Regle inchangee ([[rules-vault]]). Dernier sync canon consigne : 2026-02-02 ([[sync-log]]) |
+| G1 Le vault decide | Reecrite par ADR-101 ([[rules-vault]]). Aucune synchronisation monorepo → vault ; dernier sync consigne : 2026-02-02 ([[sync-log]]) |
 | G2 Zero orphelin | Check requis en PR. Les pushes directs du writer planning (jusqu'au 2026-08-14) n'etaient verifies qu'apres coup, par le run de CI sur `main` |
 | G3 Commits signes | Signature K001 (`/home/deploy/.ssh/vault_signing_key`) via `commit.gpgsign true`, voir [[key-registry]] |
 | G4 CI read-only | Aucun commit de `main` n'a pour auteur un bot GitHub Actions ; les workflows du vault sont en `contents: read` (voir [[ci-policy]]) |

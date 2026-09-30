@@ -1,7 +1,8 @@
 # Rules - AutoMecanik
 
-> **Source de verite** - Regles non-negociables au 2026-01-06
-> **Version**: 2.0.0 | **Status**: CANON
+> Regles non-negociables au 2026-10-01. T2, T5, T6 et T7 corrigees par [[ADR-101-vault-decides-canon-authority|ADR-101]] d'apres l'etat de `main` du monorepo.
+> **Version**: 3.0.0 | **Status**: CANON (regle du vault, normative au sens de G1)
+> Ancienne copie de `.spec/00-canon/rules.md` (monorepo, prose de reference sans autorite) ; diverge volontairement depuis ADR-101.
 
 ---
 
@@ -48,13 +49,15 @@ const product = await prisma.product.findUnique({ where: { id } });
 
 // ✅ OBLIGATOIRE
 const { data, error } = await this.supabase
-  .from('__products')
+  .from('pieces')
   .select('*')
-  .eq('id', id)
+  .eq('piece_id', id)
   .single();
 ```
 
-**Tables** : Prefixe `__` (ex: `__products`, `__orders`, `__users`)
+**Tables** : les noms viennent du schema genere (`packages/database-types/src/supabase-generated.types.ts`
+du monorepo). Il n'y a pas de prefixe uniforme : `pieces`, `___xtr_order`, `__seo_*` coexistent.
+Ne jamais inventer un nom de table : le lire dans le schema genere.
 
 ---
 
@@ -97,27 +100,27 @@ export class CreateProductDto extends createZodDto(CreateProductSchema) {}
 
 ---
 
-### T5: Paiements HMAC
+### T5: Paiements - Signatures Verifiees
 
-**OBLIGATOIRE** : Verifier les signatures HMAC sur tous les callbacks paiement.
+**OBLIGATOIRE:** Verifier la signature de tout retour de paiement **avant** de passer une commande a « payee ».
 
-| Gateway | Algorithme |
-|---------|------------|
-| Paybox | HMAC-SHA512 |
-| SystemPay | HMAC-SHA256 |
+| Gateway | Requete sortante | Retour (callback / IPN) |
+|---------|------------------|-------------------------|
+| Paybox | HMAC-SHA512 | Signature RSA verifiee avec la cle publique Paybox |
+| SystemPay | HMAC-SHA256 | HMAC-SHA256 recalcule, comparaison a temps constant |
 
 ```typescript
-// ✅ OBLIGATOIRE - Verification signature
-function verifyPayboxSignature(params: Record<string, string>, signature: string): boolean {
-  const expectedSignature = crypto
-    .createHmac('sha512', process.env.PAYBOX_HMAC_KEY)
-    .update(sortedParams)
-    .digest('hex')
-    .toUpperCase();
+// ✅ OBLIGATOIRE - comparaison a temps constant sur des tampons de meme longueur
+// (pattern de cyberplus.service.ts et payment-validation.service.ts)
+const a = Buffer.from(expectedSignature);
+const b = Buffer.from(receivedSignature);
+return a.length === b.length && timingSafeEqual(a, b);
 
-  return signature === expectedSignature;
-}
+// ❌ INTERDIT - comparaison de signatures par === (fuite temporelle)
+return signature === expectedSignature;
 ```
+
+Les cles et certificats ne sont jamais ecrits dans le code ni dans la documentation.
 
 ---
 
@@ -139,28 +142,30 @@ gh pr create --title "feat: xxx"
 gh pr merge
 ```
 
-**Raison** : `main` = production automatique (GitHub Actions)
+**Raison** : `main` est protegee ; un merge sur `main` redeploie le container PREPROD de CI (`ci.yml`). La PROD part d'un tag `v*` (`deploy-prod.yml`), decision owner.
 
 ---
 
-### T7: Tests (curl + Playwright + RTL)
+### T7: Tests - Suites du Workspace
 
-**OBLIGATOIRE** : Utiliser curl, Playwright, @testing-library/react.
+**OBLIGATOIRE:** Les tests s'ecrivent avec l'outil de leur perimetre, dans la suite de leur workspace executee en CI (`ci.yml`).
 
-| Type | Outil | Usage |
-|------|-------|-------|
-| API | `curl` | Tests manuels endpoints |
-| E2E | Playwright | Tests bout-en-bout |
-| Composants | @testing-library/react | Tests unitaires React |
-
-**INTERDIT** : Jest, Vitest
+| Perimetre | Outil |
+|-----------|-------|
+| Backend (unitaires, integration) | Jest (`backend/`) |
+| Frontend (unitaires, composants) | Vitest + @testing-library/react (`frontend/`) |
+| E2E, accessibilite, visuel | Playwright |
+| API (verification manuelle) | `curl` |
 
 ```bash
-# ✅ CORRECT - Test API
-curl -X GET http://localhost:3000/api/products/123 | jq
+# ✅ Backend
+cd backend && npx jest <chemin>
 
-# ✅ CORRECT - Test E2E
-cd frontend && npm run test:a11y
+# ✅ Frontend
+cd frontend && npx vitest run <chemin>
+
+# ✅ API
+curl -s http://localhost:3000/health
 ```
 
 ---
@@ -175,9 +180,9 @@ cd frontend && npm run test:a11y
 | Prisma en prod | Viole T2 |
 | Sessions en memoire | Viole T3 |
 | Body sans validation | Viole T4 |
-| Callback sans HMAC | Viole T5 |
+| Retour paiement sans verification de signature, ou comparaison par `===` | Viole T5 |
 | Push main direct | Viole T6 |
-| Jest/Vitest | Viole T7 |
+| Runner de test hors du tableau T7 | Viole T7 |
 
 ### Autres interdits
 
@@ -246,11 +251,11 @@ Avant tout merge sur main, verifier :
 - [ ] Supabase SDK utilise, pas Prisma (T2)
 - [ ] Sessions Redis configurees (T3)
 - [ ] Schemas Zod pour validation (T4)
-- [ ] Signatures HMAC verifiees (T5)
+- [ ] Signatures de paiement verifiees, comparaison a temps constant (T5)
 - [ ] Validation manuelle obtenue (T6)
-- [ ] Tests curl/Playwright/RTL (T7)
+- [ ] Tests dans la suite du workspace (Jest / Vitest / Playwright) (T7)
 
 ---
 
-_Derniere mise a jour: 2026-01-06_
-_Status: CANON - Source de verite_
+_Derniere mise a jour: 2026-10-01 (ADR-101)_
+_Status: CANON - Regle du vault_

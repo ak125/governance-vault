@@ -105,9 +105,9 @@ Aucune de ces lectures n'écrit dans le vault.
 
 ## Workflow de Synchronisation Manuelle
 
-Obsolète. `_scripts/sync-canon.sh` écrit des chemins v1 que le check requis `No V1 Paths (ADR-015)`
-rejette, et un push direct sur `main` est refusé par la protection. Voir [[cron-setup]] et [[sync-log]]
-(journal figé au 2026-02-02).
+Retirée. `_scripts/sync-canon.sh` (monorepo → vault) est supprimé par
+[[ADR-101-vault-decides-canon-authority|ADR-101]] : la seule synchronisation va du vault vers le
+monorepo (`sync_canon_mirrors.py`, ADR-061 §3). Journal historique : [[sync-log]] (figé au 2026-02-02).
 
 ---
 

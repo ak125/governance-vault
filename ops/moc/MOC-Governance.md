@@ -2,7 +2,7 @@
 type: moc
 status: canon
 role: master-index
-updated: 2026-09-30
+updated: 2026-10-01
 ---
 
 # MOC: Governance
@@ -37,9 +37,9 @@ Les regles G1-G4 de gouvernance du vault lui-meme. Voir [[rules-vault]].
 
 | Regle | Description | Enforcement |
 |-------|-------------|-------------|
-| G1 | Canon fait foi | Sync one-way depuis `.spec/00-canon/` |
+| G1 | Le vault decide (ADR-101) | Decision = ADR `accepted` ; divergence decision/code signalee |
 | G2 | Zero orphelin | `_scripts/check-orphans.sh` |
-| G3 | Commits signes | SSH signing (ed25519) via git config |
+| G3 | Commits signes | Check requis `G3: Commits signes` + hook `pre-push` |
 | G4 | CI read-only sur canon | `AI_VAULT_WRITE=false` en prod |
 
 ---
@@ -52,7 +52,7 @@ Voir [[MOC-Rules]] pour la taxonomie complete (T / G / AI / V / R-SEO / R-SEO-KW
 
 ## Single Source of Truth
 
-> Le `governance-vault` est la **source de verite unique des documents de gouvernance operationnelle** (ADR, rules, MOCs, audit-trail, evidence-packs, runbooks, registry agents — formalise par [[ADR-015-vault-single-source-of-truth]]). Le **canon architectural** (contrats de schemas, code patterns figes) reste dans `.spec/00-canon/` du monorepo. Les deux sont distincts et ne se recouvrent pas.
+> Le `governance-vault` est la **source de verite unique des documents de gouvernance operationnelle** (ADR, rules, MOCs, audit-trail, evidence-packs, runbooks, registry agents — formalise par [[ADR-015-vault-single-source-of-truth]]). Le **canon architectural** (contrats de schemas, code patterns figes) reste dans `.spec/00-canon/` du monorepo ; son rang est fixe par [[rules-vault]] G1 (contrat consomme = fait foi dans son domaine, prose sans consommateur = aucune autorite).
 
 ### Glossaire `canon` (polysemie levee)
 

@@ -58,7 +58,7 @@ chaque ajout de script governance ou modification de write/read path.
 | `cron-sync-moc-decisions.sh`, `cron-sync-canon-mirrors.sh` (→ `sync_canon_mirrors.py`) | wrappers cron auto-PR | **aucun cron installé** |
 | `compute-canon-hashes.py` | hashes des rules publiées | `canon-publish.yml`, `sync_canon_mirrors.py`, `test_canon_hashes.py` |
 | `build-opa-bundles.sh` | bundles OPA | `opa-policy-build.yml` |
-| `sync-canon.sh`, `evidence-pack.sh` | — | `gov` (manuel) |
+| `evidence-pack.sh` | — | `gov` (manuel) |
 | `preflight-write.sh`, `new-incident.sh` | — | manuel |
 | `setup-branch-protection.sh` | protection de `main` versionnée ([[branch-protection]]) | manuel ; `--check` = comparaison en lecture seule avec la protection en vigueur |
 | `planning/run-cron.sh` (→ `planning/sync_planning.py`) | writer planning (ADR-053) | `/etc/cron.d/planning-live` |
@@ -96,7 +96,7 @@ Cron machine DEV :
 | `_scripts/planning/run-cron.sh` (`/etc/cron.d/planning-live`) | oui, **à l'arrêt** | voir ci-dessous |
 | `cron-sync-moc-decisions.sh` (prévu lundi 01:30 UTC) | non | — |
 | `cron-sync-canon-mirrors.sh` | non | — |
-| sync-canon dry-run, audit-signatures, check-orphans ([[cron-setup]]) | non | — |
+| audit-signatures, check-orphans ([[cron-setup]]) | non | — |
 
 Les deux wrappers auto-PR non installés commencent par
 `git checkout main && git reset --hard origin/main` dans le checkout où ils

@@ -16,7 +16,7 @@ Canonical path (runtime sur DEV VPS) : `/opt/automecanik/governance-vault/` (clo
 
 - `/opt/automecanik/app/.local/governance-vault/` — DEPRECATED depuis 2026-04-18 (voir [[ADR-015-vault-single-source-of-truth|ADR-015]])
 - `/opt/automecanik/app/.local/*` — gitignoré, ton travail sera perdu
-- `/opt/automecanik/app/.spec/` — canon architectural uniquement (règle [[rules-vault|G1]])
+- `/opt/automecanik/app/.spec/` — fichiers du monorepo, jamais un emplacement du vault (règle [[rules-vault|G1]])
 
 Voir aussi [[ADR-015-vault-single-source-of-truth|ADR-015]] pour la décision formelle et [[ADR-012-aicos-vps-architecture|ADR-012]] pour l'architecture 3-VPS.
 
@@ -110,7 +110,7 @@ autres interdits reposent sur les hooks locaux ou sur la revue.
 - Créer un document sans lien depuis une MOC ou INDEX (violation [[rules-vault|G2]])
 - Commit non-signé sur branche mergeable (violation [[rules-vault|G3]])
 - `git push --force` sur `main` du vault (branch protection active)
-- Modifier un document `status: canon` sans ADR nouvelle ou superseding (violation [[rules-vault|G1]])
+- Prendre ou modifier une décision sans ADR (violation [[rules-vault|G1]])
 - Renuméroter un ADR existant `status: accepted` (immutable)
 - Écrire depuis un workflow GitHub Actions (violation [[rules-vault|G4]] : CI Read-Only, `AI_VAULT_WRITE=false`)
 
@@ -128,7 +128,7 @@ autres interdits reposent sur les hooks locaux ou sur la revue.
 | Un audit / retro | [[MOC-AuditTrail]] |
 | Un evidence-pack compliance | [[MOC-Compliance]] |
 | Savoirs opérationnels | [[MOC-Knowledge]] |
-| Le canon architectural | `/opt/automecanik/app/.spec/00-canon/` ([[rules-vault|G1]] : canon fait foi) |
+| Les contrats du monorepo | `.spec/00-canon/` du monorepo : font foi dans leur domaine s'ils sont consommés, sinon prose de référence ([[rules-vault]] G1, ADR-101) |
 
 ---
 

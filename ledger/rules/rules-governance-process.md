@@ -1,24 +1,31 @@
 # Rules - Governance Process (G5-G8)
 
-> **Source de verite** - Regles de gouvernance processus au 2026-04-17
-> **Version**: 2.0.0 | **Status**: CANON
+> Regles de gouvernance processus au 2026-10-01 (G5 reecrite par [[ADR-101-vault-decides-canon-authority|ADR-101]])
+> **Version**: 3.0.0 | **Status**: CANON (regle du vault, normative au sens de G1)
 > **Taxonomie**: G = Governance (G1-G4 = vault dans rules-vault.md, G5-G8 = processus ici)
 > **Complement de:** rules-technical.md (T1-T7 = technique, G5+ = processus)
 
 ---
 
-## G5: Canon-Only Policy
+## G5: Autorite Documentaire
 
-**OBLIGATOIRE:** Seuls les fichiers dans `.spec/00-canon/` font autorite.
+**OBLIGATOIRE:** Une decision ne se tire que d'une source qui fait autorite
+(ADR-101 D1-D2). En cas de conflit, l'ordre est celui du tableau.
 
 | Source | Autorite |
 |--------|----------|
-| `.spec/00-canon/*` | CANON - Source de verite |
+| ADR du vault `status: accepted` sans `superseded_by` actif, regles `ledger/rules/rules-*.md` | Decide |
+| `.spec/00-canon/**` du monorepo consomme par du code, un generateur ou un check CI (contrat, ADR-062) | Fait foi dans son domaine ; ne contredit pas un ADR accepte |
+| `.spec/00-canon/**` du monorepo sans consommateur (prose de reference) | Aide a comprendre ; ne tranche aucun conflit, quel que soit son en-tete |
+| ADR `proposed`, `deprecated` ou `superseded` | Contexte historique ; jamais une justification d'implementation |
 | `.spec/features/*` | Supplementaire - peut etre obsolete |
-| `.spec/.archive/*` | Archive - NE JAMAIS REFERENCER |
 | `_bmad-output/*` | Artefacts versionnes - read-only |
 
-**Raison:** Prevenir la confusion documentaire et garantir une source de verite unique.
+**Divergence** entre une decision et l'etat du depot : c'est un constat, a
+signaler, puis a resoudre par une PR de code ou un ADR d'amendement (ADR-101 D3).
+Jamais appliquee a l'aveugle, jamais ignoree.
+
+**Raison:** Prevenir la confusion documentaire et garantir une source de decision unique.
 
 ---
 
@@ -176,7 +183,7 @@ Avant G10, toute divergence strategique exigeait PR vault + debat de cadrage (fr
 
 Avant tout workflow BMAD:
 
-- [ ] Sources = canon uniquement (G5)
+- [ ] Sources qui font autorite uniquement, divergences signalees (G5)
 - [ ] Claims avec preuves (G6)
 - [ ] RAG alignment verifie (G7)
 - [ ] Obsolete archive (G8)
@@ -201,5 +208,5 @@ Apres chaque deliverable:
 
 ---
 
-_Derniere mise a jour: 2026-04-17_
+_Derniere mise a jour: 2026-10-01 (ADR-101)_
 _Status: CANON - Complement de rules-technical.md_

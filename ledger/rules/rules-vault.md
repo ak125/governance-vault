@@ -1,7 +1,7 @@
 # Rules - Vault Governance (G1-G4)
 
-> **Source de verite** - Regles de gouvernance du vault lui-meme au 2026-04-17
-> **Version**: 2.0.0 | **Status**: CANON
+> Regles de gouvernance du vault lui-meme au 2026-10-01 (G1 reecrite par [[ADR-101-vault-decides-canon-authority|ADR-101]])
+> **Version**: 3.0.0 | **Status**: CANON
 > **Taxonomie**: G = Governance (G1-G4 = vault ici, G5-G8 = processus dans rules-governance-process.md)
 
 ---
@@ -12,25 +12,32 @@ Les regles **G1-G4** definissent comment le vault Obsidian lui-meme doit etre go
 
 ---
 
-## G1: Canon Fait Foi
+## G1: Le Vault Decide
 
-**OBLIGATOIRE:** Le canon architectural reste **exclusivement** dans le monorepo (`.spec/00-canon/`).
+**OBLIGATOIRE:** Les decisions de gouvernance vivent dans le vault ; le monorepo
+les execute ([[ADR-060-repository-roles-doctrine|ADR-060]], ADR-101).
 
 | Source | Role |
 |--------|------|
-| `.spec/00-canon/*` (monorepo) | **CANON** - Source de verite technique |
-| `governance-vault/ledger/*` | **LEDGER** - Miroir enrichi operationnel |
+| `ledger/decisions/adr/` : ADR `accepted` sans `superseded_by` actif | **DECIDE** - normatif |
+| `ledger/rules/rules-*.md` | **DECIDE** - normatif ; modifie par PR signee, un changement de decision passe par un ADR |
+| `.spec/00-canon/**` (monorepo) consomme par du code, un generateur ou un check CI | **CONTRAT** - fait foi dans son domaine, ne contredit pas un ADR accepte |
+| `.spec/00-canon/**` (monorepo) sans consommateur | **PROSE DE REFERENCE** - aucune autorite, quel que soit son en-tete |
+| Etat de `main` du monorepo | **FAIT** - dit ce qui est, pas ce qui doit etre |
 | `governance-vault/ops/*` | **OPS** - MOC, templates, scripts |
 
-**En cas de conflit:** `.spec/00-canon/` fait foi.
-
 **Consequence:**
-- Une regle technique modifiee dans le vault SANS PR sur le canon = **violation G1**
-- Le vault peut enrichir (exemples, post-mortems, ADR) mais ne peut pas contredire le canon
+- Une decision nait dans un ADR du vault, fusionne **avant** l'execution
+- Un ADR qui decrit faussement l'existant se corrige par amendement
+- Une divergence entre une decision et le code est un **constat** : la signaler,
+  puis la resoudre par une PR de code ou un ADR d'amendement. Jamais appliquee a
+  l'aveugle, jamais ignoree
+- Aucune synchronisation monorepo → vault : la seule direction est
+  vault → monorepo (miroirs d'[[ADR-061-workspace-governance|ADR-061]] §3)
 
 **Verification:**
-- [ ] Chaque regle technique du vault a une source dans `.spec/00-canon/` ?
-- [ ] Les divergences sont documentees dans un ADR ?
+- [ ] Chaque decision appliquee est portee par un ADR `accepted` ?
+- [ ] Les divergences constatees sont signalees et suivies (PR de code ou ADR) ?
 
 ---
 
@@ -50,7 +57,7 @@ Les regles **G1-G4** definissent comment le vault Obsidian lui-meme doit etre go
 
 **Verification:**
 ```bash
-./scripts/check-orphans.sh .
+_scripts/check-orphans.sh .
 # Sortie: ❌ Orphans found: N (si violation)
 #         ✅ No orphans found (si conforme)
 ```
@@ -74,9 +81,10 @@ git config --global user.signingkey <KEY_ID>
 git log --show-signature -5
 ```
 
-**CI enforcement:**
-- GitHub Actions refuse les PR avec commits non signes
-- Branch protection: `require_signed_commits: true` sur `main`
+**Enforcement:**
+- Check requis `G3: Commits signes` (`.github/workflows/vault-governance.yml`) : une PR dont un commit n'est pas signe ne peut pas etre fusionnee
+- Hook `pre-push` local : refuse de pousser un commit non signe
+- Exigences de protection de `main` : declarees dans `_scripts/setup-branch-protection.sh`, etat reel documente dans [[branch-protection]]
 
 **Verification:**
 - [ ] `git config --get commit.gpgsign` renvoie `true` ?
@@ -117,14 +125,14 @@ git log --show-signature -5
 
 ### Avant toute modification du vault:
 
-- [ ] G1: Modification est-elle cohérente avec `.spec/00-canon/` ?
+- [ ] G1: Une decision nouvelle ou modifiee passe-t-elle par un ADR ?
 - [ ] G2: Le nouveau document sera-t-il lie depuis un MOC ?
 - [ ] G3: Mon commit sera-t-il signe ?
 - [ ] G4: Suis-je autorise (humain) a modifier cette zone ?
 
 ### Avant tout merge vers `main`:
 
-- [ ] `./scripts/check-orphans.sh .` passe (G2)
+- [ ] `_scripts/check-orphans.sh .` passe (G2)
 - [ ] Tous les commits de la PR sont signes (G3)
 - [ ] Aucune modification automatique sur zones canoniques (G4)
 - [ ] Frontmatter YAML valide sur les nouveaux `.md`
@@ -135,7 +143,7 @@ git log --show-signature -5
 
 | Violation | Severite | Action |
 |-----------|----------|--------|
-| G1 (divergence canon sans ADR) | Critique | Revert + Escalade CEO |
+| G1 (decision sans ADR, ou divergence non signalee) | Critique | Revert + Escalade CEO |
 | G2 (orphelin non resolu) | Haute | Blocage pre-commit / CI |
 | G3 (commit non signe) | Critique | Rejet PR automatique |
 | G4 (IA ecrit zone read-only) | Critique | Revert + Kill-switch |
@@ -144,13 +152,13 @@ git log --show-signature -5
 
 ## References
 
-- **rules-technical.md** - T1-T7: Regles techniques code (canon)
+- **rules-technical.md** - T1-T7: Regles techniques code
 - **rules-governance-process.md** - G5-G8: Regles de gouvernance processus
 - **rules-ai-cos.md** - AI1-AI10: Regles d'or agents IA
-- **scripts/check-orphans.sh** - Enforcement G2
-- `.spec/00-canon/` (monorepo) - Source de verite technique
+- **_scripts/check-orphans.sh** - Enforcement G2
+- **ADR-101** - Autorite du vault et rang des fichiers `.spec/00-canon/` du monorepo
 
 ---
 
-_Derniere mise a jour: 2026-04-17_
+_Derniere mise a jour: 2026-10-01 (ADR-101)_
 _Status: CANON - Gouvernance du vault lui-meme_

@@ -15,9 +15,9 @@ Au 2026-09-30, `ledger/rules/` compte 13 fichiers de regles. L'index complet (pr
 
 ## Regles Vault (G1-G4)
 
-### G1: Canon Fait Foi
+### G1: Le Vault Decide
 
-Le canon architectural reste **exclusivement** dans le monorepo (`.spec/00-canon/`). Ce vault est un **miroir enrichi operationnel**, non normatif. En cas de conflit, `.spec/00-canon/` fait foi.
+Les ADR `accepted` et les regles de `ledger/rules/` sont normatifs ; le monorepo les execute ([[ADR-101-vault-decides-canon-authority|ADR-101]]). Dans `.spec/00-canon/` du monorepo, les contrats consommes par du code, un generateur ou un check CI font foi dans leur domaine ; le reste est de la prose de reference sans autorite. Une divergence entre une decision et le code est un constat, resolu par une PR de code ou un ADR d'amendement.
 
 ### G2: Zero Orphelin
 
@@ -106,9 +106,6 @@ _scripts/check-broken-links.sh .
 # Verifier les signatures (G3) localement
 git log --show-signature -5
 
-# _scripts/sync-canon.sh : obsolete, ecrit des chemins v1 rejetes par le check requis
-# « No V1 Paths (ADR-015) » ; ne pas l'utiliser (voir 99-meta/cron-setup.md)
-
 # Activer les hooks locaux pre-commit et pre-push (une fois)
 git config core.hooksPath .githooks
 
@@ -163,7 +160,7 @@ Chiffres releves a la main a cette date, non mis a jour automatiquement. Pour le
 ## Liens
 
 - **Monorepo**: https://github.com/ak125/nestjs-remix-monorepo
-- **Canon source**: `.spec/00-canon/` dans le monorepo
+- **Contrats du monorepo**: `.spec/00-canon/` (rang fixe par ADR-101 D2)
 - **Repo ce vault**: https://github.com/ak125/governance-vault
 - **Plan original**: `.spec/governance/governance-vault-plan.md`, absent de `main` du monorepo (verifie le 2026-09-30)
 

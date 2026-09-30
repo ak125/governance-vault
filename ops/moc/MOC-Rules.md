@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-09-30
+updated: 2026-10-01
 ---
 
 # MOC: Rules
@@ -31,12 +31,12 @@ Index des regles canoniques du projet AutoMecanik, organisees par prefixe (voir 
 
 ## Regles Techniques (T)
 
-- [[rules-technical]] - **T1-T7** : Architecture 3-Tier, Supabase SDK, Sessions Redis, Validation Zod, HMAC Paiements, Git Workflow, Tests
+- [[rules-technical]] - **T1-T7** : Architecture 3-Tier, Supabase SDK, Sessions Redis, Validation Zod, Signatures Paiements, Git Workflow, Tests
 
 ## Regles de Gouvernance (G)
 
-- [[rules-vault]] - **G1-G4** : Canon Fait Foi, Zero Orphelin, Commits Signes, CI Read-Only
-- [[rules-governance-process]] - **G5-G8** : Canon-Only Policy, Proof Requirements, RAG Corpus Alignment, Obsolete Handling
+- [[rules-vault]] - **G1-G4** : Le Vault Decide, Zero Orphelin, Commits Signes, CI Read-Only
+- [[rules-governance-process]] - **G5-G8** : Autorite Documentaire, Proof Requirements, RAG Corpus Alignment, Obsolete Handling
   - Le fichier contient aussi G9 (Sunset Clause) et G10 (Exploration Budget), ajoutes par [[ADR-081-doctrine-agility-amendments]], au statut `proposed` au 2026-09-30 : non indexes ici tant que l'ADR n'est pas accepte (decision owner).
 
 ## Regles Deployment (D)

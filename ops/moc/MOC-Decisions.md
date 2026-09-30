@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-09-30
+updated: 2026-10-01
 ---
 
 # MOC: Decisions
@@ -106,7 +106,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 > Projection mécanique du frontmatter ADR (PR-3 sync_moc_decisions).
 > Toute édition manuelle entre les markers est écrasée à chaque sync.
 > Pour corriger un statut ou un titre, éditer le frontmatter de l'ADR puis relancer `--write`.
-> Dernier sync : 2026-09-30.
+> Dernier sync : 2026-10-01.
 
 | ID | Titre | Statut canonique | Date | Fichier |
 |----|-------|------------------|------|---------|
@@ -200,6 +200,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-095 | Gate dure anti-duplicate balises R0→R8 | Accepted | 2026-06-27 | [[ADR-095-balise-anti-duplicate-hard-gate]] |
 | ADR-096 | Governed Automatic Source Discovery, Scoring & Capture (RAW intelligent scraper — 4 entity types) | Accepted | 2026-07-15 | [[ADR-096-governed-automatic-source-discovery]] |
 | ADR-099 | SEO Projection — lieu d'exécution du forward writer (conteneur PROD), transport des exports par le pin du sous-module, object-store sur l'hôte PROD, immuabilité write-once, rollout par drapeaux d'environnement : amende ADR-059 et ADR-090 | Accepted | 2026-09-24 | [[ADR-099-seo-projection-writer-runtime-placement-and-exports-transport]] |
+| ADR-101 | Le vault décide : autorité des ADR et des règles du vault, rang des fichiers `.spec/00-canon/` du monorepo, correction des copies de règles legacy, retrait de sync-canon.sh — amende ADR-015 §5 | Accepted | 2026-10-01 | [[ADR-101-vault-decides-canon-authority]] |
 
 <!-- AUTO-GENERATED:moc-decisions-canonical-index end -->
 
