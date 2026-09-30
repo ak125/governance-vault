@@ -216,7 +216,3 @@ Voir [[_templates/incident-template|_templates/incident-template.md]]
 - [[MOC-Decisions]] — ADRs canoniques (souvent produites par des post-mortems)
 - [[MOC-Rules]] — Regles T/G/AI/V (peuvent evoluer suite a incident)
 - [[airlock-decisions-reference]] — DEC-004 Kill-Switch Global + DEC-007 Incident Response
-
----
-
-_Derniere mise a jour: 2026-05-02_

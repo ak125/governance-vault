@@ -71,7 +71,3 @@ Templates reutilisables pour creer de nouveaux documents conformes.
 - [[MOC-Decisions]] - ADR associees
 - [[MOC-Compliance]] - Plans d'execution, evidence-packs
 - [[validator-engine-spec]] - SPEC-002 Validator (consomme les bundles)
-
----
-
-_Derniere mise a jour: 2026-04-17_

@@ -2,7 +2,7 @@
 type: moc
 status: canon
 role: master-index
-updated: 2026-05-14
+updated: 2026-09-30
 ---
 
 # MOC: Governance
@@ -25,6 +25,9 @@ updated: 2026-05-14
 | [[MOC-Knowledge]] | Base de connaissances (specs, guides) |
 | [[MOC-AuditTrail]] | Audit-trail, bundles rejetes, audits RPC |
 | [[MOC-Policies]] | Bundle specs, prompts systeme, processus |
+| [[MOC-Repository-Control-Plane]] | Repository Control Plane du monorepo (ADR-058) : registry en couches, gates CI progressifs |
+| [[MOC-Roadmap-2026]] | Chantiers transverses 2026 (identifiants et rangs de priorite ; n'ordonne pas l'execution hebdomadaire) |
+| [[MOC-Planning-Live]] | Planning vivant, section auto-generee par le moteur de sync (ADR-053) |
 
 ---
 
@@ -77,6 +80,9 @@ Lorsque le mot `canon` est utilise sans qualificatif, il faut preferer l'interpr
 - [[deploy-bot]] - Role du bot CI/CD (non-SPOF)
 - [[claude-desktop-instructions]] - Onboarding Claude Desktop (MCP filesystem, condense CLAUDE.md + AGENTS.md)
 - [[obsidian-setup]] - Topologie canonique coffre Obsidian (1 clone = 1 vault, plugins Dataview/Templater/Git, SSH signing G3)
+- [[branch-protection]] - Politique de protection de la branche main
+- [[canon-dispatch-setup]] - Identifiants GitHub App du workflow canon-publish (dispatch vers les depots consommateurs)
+- [[governance-runtime-map]] - Carte des scripts et chemins d'ecriture/lecture du vault (instantane du 2026-05-10)
 
 ## Archive
 
