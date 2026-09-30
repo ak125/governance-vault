@@ -3,7 +3,6 @@ id: ADR-053
 title: Planning Live System (cross-repo PR/ADR aggregation)
 status: accepted
 date: 2026-05-08
-deciders: [Fafa]
 decision_makers: [Fafa]
 related: [MOC-Roadmap-2026, MOC-Planning-Live, ADR-034]
 # --- état spécifique Planning Live (NOT a canon ADR field) ---
