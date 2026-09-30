@@ -19,6 +19,8 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 
 ## ADR Actifs
 
+> **Table historique, gelée le 2026-09-30.** Tenue à la main jusqu'à ADR-096 ; à cette date, 17 ADR n'y figurent pas et le statut d'ADR-065 y est périmé (accepté depuis). Elle est conservée pour ses annotations d'époque. **La liste et les statuts canoniques sont dans la section « ADR Canonical Index (auto-generated) » ci-dessous**, projetée du frontmatter par `_scripts/sync_moc_decisions.py --write` et contrôlée par `_scripts/check-moc-integrity.py`. N'ajoutez plus de ligne ici.
+
 | ID | Titre | Status | Date | Fichier |
 |----|-------|--------|------|---------|
 | ADR-001 | Environment Separation (DEV/PREPROD/PROD) | Accepted | 2026-02-03 | [[ADR-001-environment-separation]] |
