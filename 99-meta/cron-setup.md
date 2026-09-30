@@ -7,12 +7,14 @@
 
 ## Principe Fondamental
 
-> **Aucune écriture automatique sur `main`.**
-> Les crons servent à NOTIFIER ou à ouvrir une auto-PR, jamais à pousser sur `main`.
+> **Aucune écriture automatique dans le vault.**
+> Les crons servent à NOTIFIER, pas à MODIFIER.
 
-Exception de fait : le writer planning (ADR-053) est conçu pour pousser
-directement sur `main`. La protection de branche le refuse depuis
-`enforce_admins` (voir [[branch-protection]]) ; le correctif est une décision owner.
+Écarts de fait avec ce principe, non tranchés ici (décision owner) :
+- le writer planning (ADR-053) est conçu pour pousser directement sur `main` ;
+  la protection de branche le refuse depuis `enforce_admins` (voir [[branch-protection]]) ;
+- les wrappers `cron-sync-moc-decisions.sh` et `cron-sync-canon-mirrors.sh`
+  (non installés, voir plus bas) ouvrent des auto-PR.
 
 ---
 
@@ -23,9 +25,8 @@ directement sur `main`. La protection de branche le refuse depuis
 `_scripts/sync-canon.sh` lit `.spec/00-canon/` du monorepo et écrit dans
 `02-decisions/adr`, `03-rules/technical` et `06-knowledge` : des chemins v1 que le
 check requis `No V1 Paths (ADR-015)` rejette. Avec `--commit`, il fait
-`git add -A` puis un commit signé de tout l'arbre. Son sens monorepo → vault
-contredit ADR-015 (le vault est la SoT canon) et ADR-060 (le vault décide, le
-monorepo exécute). Ne pas l'installer en cron et ne pas utiliser `--commit`.
+`git add -A` puis un commit signé de tout l'arbre. Ne pas l'installer en cron
+et ne pas utiliser `--commit`.
 Le journal [[sync-log]] est figé au 2026-02-02.
 
 ### 2. Audit Signatures (Mensuel)
@@ -156,11 +157,10 @@ consignes dans [[governance-runtime-map]], Couche D.
 
 | Action | Raison |
 |--------|--------|
-| `--commit` en cron | Aucun commit automatique hors auto-PR |
-| `git push` sur `main` en cron | Push direct refusé (`enforce_admins`) ; passer par une auto-PR |
-| `git reset --hard` dans le checkout runtime partagé | Détruit le travail en cours ; wrappers auto-PR sur clone dédié uniquement |
-| GitHub Actions write sur le contenu | CI en lecture seule (G4) |
-| Sync `.spec/00-canon` → vault | Le vault est la SoT canon (ADR-015, ADR-060) ; seul le sens vault → monorepo existe (canon mirrors, ADR-061 §3, par auto-PR) |
+| `--commit` en cron | Aucun commit automatique |
+| `git push` en cron | Aucun push automatique |
+| GitHub Actions write | CI en lecture seule |
+| Sync bidirectionnel | Canon → Vault uniquement |
 
 ---
 

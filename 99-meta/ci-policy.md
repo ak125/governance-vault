@@ -31,7 +31,7 @@
 | `git commit` depuis CI | Commits non signés | `permissions: contents: read` (aucun push possible) |
 | GitHub Actions écrivant | Contourne validation | Pas de token write |
 | Sync automatique | Pas de validation humaine | Script dry-run |
-| IA commit directement sur `main` | Pas de traçabilité humaine | PR requise (push direct refusé, `enforce_admins`). La protection n'exige aucune revue : voir [[branch-protection]] |
+| IA commit directement | Pas de traçabilité humaine | Revue obligatoire. Mécaniquement : PR requise (push direct refusé, `enforce_admins`), mais la protection n'exige aucune revue, voir [[branch-protection]] |
 
 ---
 
@@ -48,7 +48,7 @@
 │         ▼                    ▼                          │
 │  ┌─────────────────────────────────────┐               │
 │  │         Validation Rules            │ ◄─── READ     │
-│  │        (sans acces au vault)        │     ONLY      │
+│  │    (lit .spec/00-canon/rules.md)    │     ONLY      │
 │  └──────────────────┬──────────────────┘               │
 │                     │                                   │
 │                     ▼                                   │
@@ -72,6 +72,9 @@
 │  └─────────────────────────────────────┘               │
 └─────────────────────────────────────────────────────────┘
 ```
+
+État au 2026-09-30 : aucun workflow ni script du monorepo ne lit `.spec/00-canon/rules.md` ;
+les lectures réelles du vault par la CI du monorepo sont listées ci-dessous.
 
 ---
 

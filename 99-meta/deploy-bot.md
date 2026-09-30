@@ -40,6 +40,7 @@ Les commits fusionnes par GitHub (committer `GitHub`, du 2026-04-04 au 2026-09-3
 
 | Regle | Etat reel |
 |-------|-----------|
+| G1 Canon fait foi | Regle inchangee ([[rules-vault]]). Dernier sync canon consigne : 2026-02-02 ([[sync-log]]) |
 | G2 Zero orphelin | Check requis en PR. Les pushes directs du writer planning (jusqu'au 2026-08-14) n'etaient verifies qu'apres coup, par le run de CI sur `main` |
 | G3 Commits signes | Signature K001 (`/home/deploy/.ssh/vault_signing_key`) via `commit.gpgsign true`, voir [[key-registry]] |
 | G4 CI read-only | Aucun commit de `main` n'a pour auteur un bot GitHub Actions ; les workflows du vault sont en `contents: read` (voir [[ci-policy]]) |
