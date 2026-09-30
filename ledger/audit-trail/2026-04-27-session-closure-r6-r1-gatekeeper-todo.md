@@ -78,7 +78,7 @@ WHERE 'ALL_SECTIONS_SKIPPED' = ANY(sg.sgpg_gatekeeper_flags)
 ORDER BY pg.pg_alias;
 ```
 
-**Pourquoi** : ces 15 RAG `.md` ont des sections vides ou polluées que l'enricher anti-wiki rejette. Elles sont identifiées depuis [`2026-04-21-pipeline-content-hardening.md §P0.5.c1`](ledger/audit-trail/2026-04-21-pipeline-content-hardening.md). Le signal `ALL_SECTIONS_SKIPPED` est désormais opérationnellement actionable mais ne corrige pas les RAG.
+**Pourquoi** : ces 15 RAG `.md` ont des sections vides ou polluées que l'enricher anti-wiki rejette. Elles sont identifiées depuis [`2026-04-21-pipeline-content-hardening.md §P0.5.c1`](2026-04-21-pipeline-content-hardening.md). Le signal `ALL_SECTIONS_SKIPPED` est désormais opérationnellement actionable mais ne corrige pas les RAG.
 
 **Action concrète** : pour chaque pg_id, scanner le `.md` correspondant dans `/opt/automecanik/rag/knowledge/gammes/<pg_alias>.md` et :
 - Soit fixer les sections manquantes (`anti_mistakes`, `selection_criteria`, `decision_tree`, `use_cases`)

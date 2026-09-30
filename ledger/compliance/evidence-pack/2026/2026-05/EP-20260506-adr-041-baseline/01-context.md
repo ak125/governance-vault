@@ -2,7 +2,7 @@
 
 ## Pourquoi cet evidence-pack
 
-Suite à l'acceptance d'[ADR-041](../../../../decisions/adr/ADR-041-r1-router-posture-empirical-reaffirm.md) (status `accepted` 2026-05-06, vault PR #178, commit `e676072`), il faut mesurer empiriquement la trajectoire SERP des pages R1 sur ≥30 jours pour qualifier le canon "LIVE" et arbitrer la sous-décision 2.A (règle longueur Option 1 vs Option 2).
+Suite à l'acceptance d'[ADR-041](../../../../../decisions/adr/ADR-041-r1-router-posture-empirical-reaffirm.md) (status `accepted` 2026-05-06, vault PR #178, commit `e676072`), il faut mesurer empiriquement la trajectoire SERP des pages R1 sur ≥30 jours pour qualifier le canon "LIVE" et arbitrer la sous-décision 2.A (règle longueur Option 1 vs Option 2).
 
 Cet evidence-pack pose la **baseline T0** (snapshot 2026-05-06) et planifie les snapshots subséquents (T+7, T+14, T+30) jusqu'au 2026-06-05.
 
