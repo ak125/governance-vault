@@ -3,7 +3,7 @@
 **Owner :** `@ak125/seo-team`
 **Table :** `__soft_404_events`
 **Vue :** `v_soft_404_demand_30d`
-**Rétention :** 90 jours (cron purge à câbler post-merge dans `seo-routines`)
+**Rétention :** 90 jours — job pg_cron `soft-404-events-retention` (`20 3 * * *` UTC), migration monorepo `20260929_soft_404_events_retention_cron.sql` ([#1620](https://github.com/ak125/nestjs-remix-monorepo/pull/1620)), actif depuis le 2026-09-30
 **ADR :** [ADR-076](../ledger/decisions/adr/ADR-076-soft-404-r2-strategy.md)
 
 ## Quoi
@@ -68,7 +68,21 @@ GROUP BY ua_class
 ORDER BY hits DESC;
 ```
 
-### Purge manuelle 90j (au cas où le cron a sauté)
+### Vérifier le job de rétention
+
+```sql
+SELECT j.schedule, j.active, r.status, r.return_message, r.start_time
+FROM cron.job j
+LEFT JOIN LATERAL (
+  SELECT * FROM cron.job_run_details d
+  WHERE d.jobid = j.jobid ORDER BY d.start_time DESC LIMIT 1
+) r ON true
+WHERE j.jobname = 'soft-404-events-retention';
+```
+
+Attendu : `active = true`, dernier run `succeeded` avec `DELETE n`.
+
+### Purge manuelle 90j (uniquement si le job a échoué)
 
 ```sql
 DELETE FROM __soft_404_events
