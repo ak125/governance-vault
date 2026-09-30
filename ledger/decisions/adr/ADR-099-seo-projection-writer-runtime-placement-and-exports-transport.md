@@ -57,9 +57,10 @@ l'enregistre sans réécrire le corps historique.
   sous-module, image construite avec son contenu au moment du build. D2 converge avec ce précédent
   sans le rendre normatif.
 - Aucun ADR accepté ne place le writer sur DEV, n'exige GrowthBook pour ce flux ni ne fixe
-  l'object-store ailleurs qu'ADR-059. Recherche faite dans `ledger/decisions/adr/` et `ops/rules/`
+  l'object-store ailleurs qu'ADR-059. Recherche faite dans `ledger/decisions/adr/` et `ledger/rules/`
   sur « object-store », « seo_projection_read_v1 », « exports-snapshots », « forward writer » et
-  « submodule ».
+  « submodule ». (Chemin corrigé le 2026-09-30 : le texte citait `ops/rules/`, qui n'existe pas ;
+  la recherche a été refaite dans `ledger/rules/` : 0 occurrence des cinq termes.)
 
 ## Décision
 

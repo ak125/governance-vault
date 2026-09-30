@@ -153,7 +153,7 @@ export type RoleContract = z.infer<typeof RoleContract>;
 
 ## Statut
 
-- **Statut** : `proposed` (cet ADR + [[ADR-046-r-stack-single-generator-and-layers]] vault PR Phase 0)
+- **Statut** : `accepted` le 2026-05-07 (PR vault #198) ; proposé avec [[ADR-046-r-stack-single-generator-and-layers]] dans la PR vault Phase 0 (#183)
 - **Implémentation** : Phase 2 du plan refondation R-stack (2 sem, 4 PRs)
   - PR-F : créer `packages/seo-role-contracts/`
   - PR-G : migrer `forbidden-overlap` de seo-roles vers contracts

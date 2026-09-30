@@ -155,9 +155,9 @@ remote-write.
 
 ## Statut
 
-- **Statut** : `proposed` (cet ADR — ratification dans la même PR vault
-  Phase 0 que [[ADR-046-r-stack-single-generator-and-layers]] ratify et
-  [[ADR-047-seo-role-contracts-as-code]] ratify)
+- **Statut** : `accepted` le 2026-05-07 (PR vault #198, avec la ratification de
+  [[ADR-047-seo-role-contracts-as-code]] ; [[ADR-046-r-stack-single-generator-and-layers]]
+  a été ratifié dans la PR vault #195)
 - **Implémentation** : Phase 0 baseline du plan refondation R-stack
   - **PR-X1 monorepo** (Action 6 master plan, ~1.5j) : table SQL +
     RPC + partition cron + RLS
