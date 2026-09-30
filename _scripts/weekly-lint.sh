@@ -5,8 +5,9 @@
 #   1. check-orphans.sh              (G2 — Zero Orphelin, existant)
 #   2. check-broken-links.sh         (wikilinks cassés, existant)
 #   3. check-v1-paths.sh             (ADR-015 drift, existant)
-#   4. check-vault-pollution.sh      (ADR-060 §1A invariant 5 — remplace audit-signatures.sh depuis #267 ;
-#                                     les signatures G3 sont verifiees par PR, workflow vault-governance)
+#   4. check-vault-pollution.sh      (ADR-060 §1A invariant 5, ajouté par #267)
+#   Les signatures G3 ne sont pas contrôlées ici : _scripts/check-signatures.sh les vérifie
+#   sur chaque PR (workflow vault-governance) et au pre-push.
 #   5. check-frontmatter-schema.py   (nouveau — conformité YAML)
 #   6. check-adr-supersedes.py       (nouveau — chaînes supersedes)
 #   7. check-obsolete-rules.py       (nouveau — status deprecated sans replacement)
