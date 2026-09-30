@@ -79,9 +79,10 @@ def _render_moc(*, items, semantic_hash_value, ack_block) -> str:
         for i in sorted(items, key=lambda x: (x.get('priority',''), x.get('canonical_id','')))
     ) or "| (none) | | | | |"
     ack_yaml = "ack: {}" if not ack_block else _yaml_dump_ack(ack_block)
+    # status : enum de moc.schema.json (canon|draft). ADR-053 fait de ce MOC la SoT planning.
     return f"""---
 type: moc
-status: proposed
+status: canon
 updated: {today}
 schema_version: planning.v1
 semantic_hash: {semantic_hash_value}

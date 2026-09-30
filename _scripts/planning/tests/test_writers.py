@@ -1,7 +1,9 @@
 """Tests for writers.py — snapshot append-only, MOC skip-on-hash, GH project best-effort."""
 import json
+import re
 
 
+from _scripts.governance_constants import MOC_STATUSES
 from _scripts.planning import writers
 
 
@@ -58,6 +60,14 @@ def test_moc_writer_writes_when_hash_changes(tmp_path):
                                   ack_block={})
     assert changed is True
     assert "new" in moc_path.read_text()
+
+
+def test_moc_writer_status_is_a_valid_moc_status(tmp_path):
+    """check-frontmatter-schema.py rejette un statut MOC hors enum (le writer ecrivait `proposed`)."""
+    moc_path = tmp_path / "MOC.md"
+    writers.write_moc(moc_path, items=[], semantic_hash_value="new", ack_block={})
+    status = re.search(r"^status:\s*(\S+)\s*$", moc_path.read_text(), re.M).group(1)
+    assert status in MOC_STATUSES
 
 
 def test_gh_project_writer_returns_best_effort_on_failure(monkeypatch, tmp_path):
