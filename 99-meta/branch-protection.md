@@ -2,7 +2,7 @@
 type: policy
 status: canon
 rule: G2,G3,G4
-updated: 2026-09-30
+updated: 2026-10-01
 ---
 
 # Politique de Protection de Branche (main)
@@ -15,7 +15,7 @@ updated: 2026-09-30
 
 ## Regle
 
-> **La branche `main` est verrouillee cote serveur**. Aucun push direct n'est possible, meme pour les admins (`enforce_admins: true`). Toute modification passe par une PR qui doit satisfaire les 5 required status checks.
+> **La branche `main` est verrouillee cote serveur**. Aucun push direct n'est possible, meme pour les admins (`enforce_admins: true`). Toute modification passe par une PR qui doit satisfaire les required status checks (liste ci-dessous).
 
 Cette protection est la **quatrieme ligne de defense** apres :
 
@@ -30,11 +30,11 @@ Les deux hooks ne sont actifs que si `core.hooksPath` vaut `.githooks` dans le c
 
 ## Configuration Appliquee
 
-Valeurs lues par `gh api repos/ak125/governance-vault/branches/main/protection` le 2026-09-30.
+Valeurs lues par `gh api repos/ak125/governance-vault/branches/main/protection` le 2026-09-30 ; les checks requis sont ceux de la section suivante.
 
 | Parametre | Valeur | Justification |
 |-----------|--------|---------------|
-| `required_status_checks.contexts` | 5 checks CI (voir ci-dessous) | G2, G3, G4 et No V1 Paths doivent passer |
+| `required_status_checks.checks` | checks CI lies a GitHub Actions (voir ci-dessous) | Chaque check de la section suivante doit passer |
 | `required_status_checks.strict` | `true` | La branche PR doit etre a jour avec `main` |
 | `enforce_admins` | `true` | Personne ne contourne, y compris l'owner |
 | `required_linear_history` | `true` | Pas de merge commits : squash ou rebase (en pratique squash, voir « Methode de Merge ») |
@@ -47,9 +47,9 @@ Valeurs lues par `gh api repos/ak125/governance-vault/branches/main/protection` 
 
 ---
 
-## Required Status Checks (5 jobs)
+## Required Status Checks
 
-Le merge est bloque tant que l'un de ces 5 checks n'a pas le status **SUCCESS** :
+Le merge est bloque tant que l'un de ces checks n'a pas le status **SUCCESS**. Cette table reprend la liste de `_scripts/setup-branch-protection.sh` ; `_scripts/test_setup_branch_protection.py` verifie qu'elles sont identiques et que chaque check est rapporte par un job sur toute PR vers `main`.
 
 | Check name (cote GitHub) | Job key (cote workflow) | Role |
 |--------------------------|--------------------------|------|
@@ -58,16 +58,30 @@ Le merge est bloque tant que l'un de ces 5 checks n'a pas le status **SUCCESS** 
 | `G3: Commits signes` | `g3-signed-commits` | Execute `check-signatures.sh` : en PR, chaque commit `base..head` ; sur un push, `HEAD~1..HEAD` seulement |
 | `G4: CI read-only sur canon` | `g4-canon-write-block` | Marqueur : le job affiche 3 lignes et ne verifie rien. La lecture seule vient de `permissions: contents: read` en tete du workflow |
 | `No V1 Paths (ADR-015)` | `v1-paths` | Execute `check-v1-paths.sh`, exit 1 si un fichier suivi est sous un dossier v1 a la racine (`0X-…/`) ou sous `scripts/` |
+| `Vault Scripts Tests` | `vault-scripts-tests` | `pytest _scripts` : les validateurs du vault et leurs tests |
+| `Vault Lint Gate (ADR-020)` | `vault-lint-gate` | Execute `ci-vault-gate.sh pr` : checks de `weekly-lint.sh` sur le vault seul et `sync_moc_decisions.py --check` (index [[MOC-Decisions]]) |
+
+Les deux derniers ont ete ajoutes par la PR #360 ; ils ne bloquent le merge qu'une fois la protection mise a jour (PATCH de la sous-ressource, voir « Setup / Re-application »). `setup-branch-protection.sh --check` dit si c'est fait.
 
 Tournent sans etre requis (ils ne bloquent pas le merge) : `No Operational Sections (ADR-060 §1A inv. 5)` (job `vault-pollution`, meme workflow) et `Self-Review Marker` (`vault-self-review-marker.yml`).
 
-> **Important** : les `contexts` de la protection matchent le **display name** du job (`name:` field dans le YAML), pas le job key. Si tu renommes un job dans le workflow, il faut mettre a jour la protection en consequence.
+> **Important** : un check requis designe le **display name** du job (`name:` field dans le YAML), pas le job key, et il est lie a l'app GitHub Actions (`app_id` 15368). Renommer un job impose de mettre a jour, dans la meme PR, le script et cette table (le test ci-dessus echoue sinon), puis la protection.
 
 ---
 
 ## Setup / Re-application
 
-La configuration est versionnee dans `_scripts/setup-branch-protection.sh`. En cas de perte ou de recreation du repo :
+La configuration est versionnee dans `_scripts/setup-branch-protection.sh`.
+
+Verifier que la protection en vigueur est celle du script (lecture seule, sortie 1 et diff si elle differe) :
+
+```bash
+_scripts/setup-branch-protection.sh --check
+```
+
+Ajouter ou retirer un check requis sur la protection existante : PATCH de la sous-ressource `required_status_checks` avec la liste `checks` complete et l'`app_id`, puis `--check`. Ne jamais passer par `contexts` : ce champ deprecie ignore sans erreur un nom jamais observe (voir [[vault-branch-protection-contexts-vs-checks-gotcha-20260504]]).
+
+En cas de perte ou de recreation du repo (PUT complet, puis relecture comparee a la demande : le script sort 1 si GitHub a abandonne un champ) :
 
 ```bash
 _scripts/setup-branch-protection.sh
@@ -75,13 +89,7 @@ _scripts/setup-branch-protection.sh
 
 Le script utilise `gh api` avec un JSON body complet (via `--input -`) pour eviter le piege `-F restrictions=` qui passe une chaine vide au lieu de `null` (bug 422 historique).
 
-Le JSON du script decrit l'etat en vigueur : le 2026-09-30, le diff entre ce JSON et le GET de la protection (champs du PUT) est nul, donc relancer le script ne change rien. Jusqu'a cette date, le script declarait les **job keys** (`g2-orphans`…) et omettait `No V1 Paths` : le relancer aurait exige 4 checks qu'aucun job ne rapporte, bloquant toutes les PR, et retire le check v1-paths.
-
-Verifier la configuration en vigueur :
-
-```bash
-gh api repos/ak125/governance-vault/branches/main/protection | jq .
-```
+Historique : le 2026-09-30, le diff entre le JSON du script et le GET de la protection etait nul. Jusqu'a cette date, le script declarait les **job keys** (`g2-orphans`…) et omettait `No V1 Paths` : le relancer aurait exige 4 checks qu'aucun job ne rapporte, bloquant toutes les PR, et retire le check v1-paths.
 
 ---
 
@@ -180,36 +188,10 @@ Les niveaux sont **redondants par conception**. Le local attrape la plupart des 
 ## Verification d'Integrite
 
 ```bash
-# Verifier que la protection est bien active
-gh api repos/ak125/governance-vault/branches/main/protection \
-  | jq '{
-      enforce_admins: .enforce_admins.enabled,
-      linear_history: .required_linear_history.enabled,
-      checks: [.required_status_checks.contexts[]],
-      force_push: .allow_force_pushes.enabled,
-      deletions: .allow_deletions.enabled
-    }'
+_scripts/setup-branch-protection.sh --check
 ```
 
-Resultat attendu :
-
-```json
-{
-  "enforce_admins": true,
-  "linear_history": true,
-  "checks": [
-    "G2: Zero Orphelin",
-    "Broken Wikilinks",
-    "G3: Commits signes",
-    "G4: CI read-only sur canon",
-    "No V1 Paths (ADR-015)"
-  ],
-  "force_push": false,
-  "deletions": false
-}
-```
-
-Si l'une de ces valeurs differe (`enforce_admins` ou `linear_history` a `false`, un check absent, `force_push` ou `deletions` a `true`), la protection est **compromise** — relancer `setup-branch-protection.sh`.
+Le script compare a sa demande les checks requis (nom et `app_id`), `strict`, `enforce_admins`, `required_linear_history`, les reviews, `restrictions`, `allow_force_pushes`, `allow_deletions`, `block_creations` et `required_conversation_resolution`. Tout ecart (check absent ou lie a une autre app, `enforce_admins` ou `linear_history` a `false`, `force_push` ou `deletions` a `true`…) est affiche en diff et sort 1 : la protection est **compromise** ou la mise a jour de la sous-ressource n'a pas ete faite. `required_signatures` est hors du script (voir « Signatures Requises »).
 
 ---
 
@@ -222,4 +204,4 @@ Si l'une de ces valeurs differe (`enforce_admins` ou `linear_history` a `false`,
 
 ---
 
-_Derniere mise a jour: 2026-09-30_
+_Derniere mise a jour: 2026-10-01_

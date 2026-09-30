@@ -78,7 +78,7 @@ CLAUDE.md          # Instructions agents (ce fichier est un extrait)
 7. Valider : `_scripts/check-orphans.sh .` et `_scripts/check-broken-links.sh .`
 8. Proposer le commit signé : `git commit -S -m "docs(<type>): ..."`
 9. Push + PR via `gh pr create --base main`
-10. Attendre les 5 checks requis verts (voir [[branch-protection]]), puis merge squash : `gh pr merge <N> --squash --match-head-commit <sha>` ; la protection n'exige aucune review
+10. Attendre que tous les checks requis soient verts (liste dans [[branch-protection]]), puis merge squash : `gh pr merge <N> --squash --match-head-commit <sha>` ; la protection n'exige aucune review
 
 ## Anti-patterns (interdits)
 

@@ -1,7 +1,7 @@
 ---
 type: meta
 status: canon
-updated: 2026-09-30
+updated: 2026-10-01
 ---
 
 # Governance Runtime Map
@@ -13,8 +13,8 @@ chaque ajout de script governance ou modification de write/read path.
 > **État vérifié le 2026-09-30** sur `_scripts/`, `.github/workflows/`, l'API de
 > protection de branche, la crontab et `/etc/cron.d` de la machine DEV. De la
 > série PR-1..6 : le générateur `sync_moc_decisions.py` (PR-3) est livré, mais son
-> cron n'a jamais été installé ; `ci-vault-gate.sh` (PR-4) n'existe pas.
-> `enforce_admins` est actif sur `main`.
+> cron n'a jamais été installé ; `ci-vault-gate.sh` (PR-4) est livré en mode `pr`
+> par la PR #360 (mise à jour du 2026-10-01). `enforce_admins` est actif sur `main`.
 
 ## Composants par couche
 
@@ -33,9 +33,9 @@ chaque ajout de script governance ou modification de write/read path.
 - `ops/moc/MOC-Decisions.md` : projection des frontmatters ADR entre markers
   `<!-- AUTO-GENERATED:* -->`. Régénérée **à la main** par
   `sync_moc_decisions.py --write` dans la PR qui modifie un ADR (ex. #330, #353) :
-  le cron prévu n'est pas installé. Sur `main` au 2026-09-30, `--check` sort en
-  erreur alors que seule la ligne « Dernier sync » diffère ; correction proposée
-  dans #356.
+  le cron prévu n'est pas installé. `--check` ignore la ligne « Dernier sync »
+  (#356) et tourne sur chaque PR via `ci-vault-gate.sh pr` (#360) : une PR qui
+  modifie un ADR sans régénérer l'index a un job rouge.
 - `ops/moc/MOC-Planning-Live.md` + `ledger/snapshots/planning/` : projection
   planning (ADR-053), écrite par le cron planning — à l'arrêt, voir Couche D.
 - `ops/moc/MOC-AuditTrail.md` : à projeter en follow-up (hors scope PR-1..6)
@@ -54,21 +54,26 @@ chaque ajout de script governance ou modification de write/read path.
 | `check-no-direct-schema-enum-access.sh` (→ `check_no_direct_schema_enum_access.py`), `test_governance_constants.py` | frontière schemas ↔ constants (PR-2 / PR-2b) | weekly-lint |
 | `check-canon-backlinks.py`, `check-canon-freshness.py`, `check-canon-cross-repo.py` | cohérence vault ↔ monorepo | weekly-lint, seulement si le monorepo est présent : marqués `skipped` en GHA |
 | `audit-signatures.sh` | rapport de signatures | manuel (cité dans l'en-tête de `weekly-lint.sh`, pas exécuté par lui) |
-| `sync_moc_decisions.py` | générateur MOC-Decisions (PR-3) | manuel (`--write` dans les PR ADR) |
+| `sync_moc_decisions.py` | générateur MOC-Decisions (PR-3) | manuel (`--write` dans les PR ADR) ; `--check` par `ci-vault-gate.sh pr` |
 | `cron-sync-moc-decisions.sh`, `cron-sync-canon-mirrors.sh` (→ `sync_canon_mirrors.py`) | wrappers cron auto-PR | **aucun cron installé** |
 | `compute-canon-hashes.py` | hashes des rules publiées | `canon-publish.yml`, `sync_canon_mirrors.py`, `test_canon_hashes.py` |
 | `build-opa-bundles.sh` | bundles OPA | `opa-policy-build.yml` |
 | `sync-canon.sh`, `evidence-pack.sh` | — | `gov` (manuel) |
-| `preflight-write.sh`, `new-incident.sh`, `setup-branch-protection.sh` | — | manuel |
+| `preflight-write.sh`, `new-incident.sh` | — | manuel |
+| `setup-branch-protection.sh` | protection de `main` versionnée ([[branch-protection]]) | manuel ; `--check` = comparaison en lecture seule avec la protection en vigueur |
 | `planning/run-cron.sh` (→ `planning/sync_planning.py`) | writer planning (ADR-053) | `/etc/cron.d/planning-live` |
-| `weekly-lint.sh` | **🔧 Governance Runtime Entrypoint** (agrégateur) | `vault-weekly-lint.yml` |
-| `ci-vault-gate.sh` | gate strict prévu (PR-4) | **n'existe pas** |
+| `weekly-lint.sh` | **🔧 Governance Runtime Entrypoint** (agrégateur) | `vault-weekly-lint.yml` ; `ci-vault-gate.sh pr` (`--no-monorepo`) |
+| `ci-vault-gate.sh` | gate de PR (PR-4) : weekly-lint sans les checks cross-repo + `sync_moc_decisions.py --check` ; mode `pr` seul (mode `weekly` et issue `infra-fail` non implémentés) | check `Vault Lint Gate (ADR-020)` |
+| `test_*.py` (`_scripts/`, `_scripts/planning/tests/`) | tests des validateurs et générateurs | check `Vault Scripts Tests` (`pytest _scripts`) |
 
 > **Reframing** : `weekly-lint.sh` n'est plus « juste du lint » : il agrège tous
-> les checks et produit `findings.json` + `report.md`. Il ne bloque rien :
-> aucun check requis ne l'appelle, et le workflow hebdomadaire ouvre une issue
-> quand de nouveaux findings apparaissent. Les gates bloquants sont les 5 checks
-> requis de `vault-governance.yml` ([[branch-protection]]).
+> les checks et produit `findings.json` + `report.md`. Il tourne en entier chaque
+> lundi (`vault-weekly-lint.yml`, non bloquant : issue quand de nouveaux findings
+> apparaissent) et, sans les 3 checks cross-repo, sur chaque PR via
+> `ci-vault-gate.sh pr` (rouge sur toute erreur). Les gates bloquants sont les
+> checks requis de `vault-governance.yml` ([[branch-protection]]) ; le job du gate
+> en fait partie une fois la protection mise à jour
+> (`setup-branch-protection.sh --check` dit si c'est fait).
 
 ### Couche D — Automation (CI + cron)
 
@@ -76,7 +81,7 @@ GHA workflows (6 fichiers `.github/workflows/`) :
 
 | Workflow | Déclenchement | Rôle |
 |----------|---------------|------|
-| `vault-governance.yml` | PR vers `main` ; push sur `main` et `refactor/**` | 5 checks requis (G2, Broken Wikilinks, G3, G4, No V1 Paths) + `No Operational Sections` (non requis) |
+| `vault-governance.yml` | PR vers `main` ; push sur `main` et `refactor/**` | checks requis G2, Broken Wikilinks, G3, G4, No V1 Paths ; `Vault Scripts Tests` et `Vault Lint Gate (ADR-020)` (ajoutés par #360, requis une fois la protection mise à jour) ; `No Operational Sections` (non requis) |
 | `vault-self-review-marker.yml` | PR vers `main` (opened, edited, synchronize, reopened) | `Self-Review Marker` (non requis) |
 | `vault-weekly-lint.yml` | lundi 02:00 UTC + manuel | weekly-lint complet, diff avec le run précédent, issue (`governance`, `weekly-lint`) si nouveaux findings ; non bloquant |
 | `vault-supabase-cost-check.yml` | lundi 08:00 UTC + manuel | dérive de la surface de coût DB (ADR-028, ADR-034) |
@@ -123,22 +128,25 @@ monorepo pour l'autre. Ne les installer que sur un clone dédié.
   `main` est de toute façon refusé (`enforce_admins`). Le correctif (clone dédié
   + auto-PR, ou retrait) amende ADR-053 : décision owner.
 
-Branch protection main : 5 checks requis, `enforce_admins: true`, PR requise
-(0 review), historique linéaire — détail dans [[branch-protection]].
+Branch protection main : checks requis, `enforce_admins: true`, PR requise
+(0 review), historique linéaire — liste et détail dans [[branch-protection]] ;
+`_scripts/setup-branch-protection.sh --check` compare la protection en vigueur
+à la configuration versionnée.
 
 ## Modèle 3 couches de protection
 
-État de la protection effective du vault :
+État de la protection effective du vault (vérifié le 2026-09-30 ; ligne L2 mise à jour le 2026-10-01 pour la PR #360) :
 
-| Couche | Mécanisme | État vault 2026-09-30 | Couvert par |
+| Couche | Mécanisme | État vault | Couvert par |
 |--------|-----------|------------------------|-------------|
 | **L1 — Canonique (logique)** | ADRs / SoT / canonical routes / role canon / URL ownership / write-path | ✅ Actif | ADR-015, R-SEO-09, frontmatter schemas, série PR-1..3 |
-| **L2 — CI (structurel)** | 5 checks requis sur chaque PR + weekly-lint hebdomadaire (non bloquant) + parity test enums + AST no-direct-schema | 🟡 Partiel : `ci-vault-gate.sh` (mode strict) jamais créé ; `sync_moc_decisions.py --check` non branché en CI ; checks cross-repo seulement sur la machine DEV | `vault-governance.yml`, PR-2 / PR-2b |
+| **L2 — CI (structurel)** | checks requis sur chaque PR, dont le gate `ci-vault-gate.sh pr` (weekly-lint sans cross-repo + `sync_moc_decisions.py --check`) et `pytest _scripts` + weekly-lint hebdomadaire complet (non bloquant) + parity test enums + AST no-direct-schema | 🟡 Partiel : gate livré par #360, bloquant une fois la protection mise à jour ; mode `weekly` et issue `infra-fail` non implémentés ; checks cross-repo seulement sur la machine DEV ; projection planning non vérifiée | `vault-governance.yml`, PR-2 / PR-2b, #360 |
 | **L3 — GitHub branch (runtime)** | `enforce_admins=true` + check requis G3 + PR requise | ✅ Actif (constaté le 2026-09-30 ; `required_signatures` false, 0 review requise) | [[branch-protection]] |
 
 Le push direct sur `main` est refusé à tous, admins compris. Ce qui reste ouvert
-est en L2 : la cohérence des projections (MOC-Decisions, planning) n'est vérifiée
-par aucun check requis.
+est en L2 : la projection planning n'est vérifiée par aucun check, les checks
+cross-repo ne tournent que sur la machine DEV, et le gate de PR ne bloque le
+merge qu'une fois ajouté aux checks requis.
 
 ## Write paths
 
@@ -192,6 +200,6 @@ par aucun check requis.
 - Ajout d'un nouveau write path → mettre à jour write paths
 - Installation, retrait ou panne d'un cron (planning, sync-moc, canon-mirrors)
   → mettre à jour Couche D
-- Création de `ci-vault-gate.sh` ou branchement de `--check` en CI → revoir L2
-  dans le tableau 3-couches
+- Ajout ou retrait d'un check requis, mode `weekly` ou issue `infra-fail` de
+  `ci-vault-gate.sh` → revoir L2 dans le tableau 3-couches
 - ADR canon-doc `governance-runtime-boundaries.md` créée → linker depuis ce map

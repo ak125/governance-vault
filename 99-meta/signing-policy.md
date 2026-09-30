@@ -192,7 +192,7 @@ Quand une cle est compromise ou perimee:
 - [[rules-vault]] - Regle G3 (canonique)
 - [[key-registry]] - Registre des cles autorisees
 - [[ci-policy]] - Politique CI/CD (G4)
-- [[branch-protection]] - Protection serveur de main (5 checks requis, dont G2-G4)
+- [[branch-protection]] - Protection serveur de main (checks requis, dont G2-G4)
 - [[sync-log]] - Journal historique des syncs canon → vault (2026-02-02, plus alimente)
 
 ---

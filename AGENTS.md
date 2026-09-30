@@ -74,7 +74,7 @@ Les deux evidence-packs créés depuis le refactor v2 (EP-20260418, EP-20260506)
    git push -u origin <branch>
    gh pr create --base main
    ```
-10. Attendre les 5 checks requis verts (liste dans [[branch-protection]]), puis fusionner en squash :
+10. Attendre que tous les checks requis soient verts (liste dans [[branch-protection]]), puis fusionner en squash :
     `gh pr merge <N> --squash --match-head-commit <sha>`. La protection n'exige aucune review ;
     le commit squash est signé par GitHub.
 

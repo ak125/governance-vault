@@ -1,7 +1,7 @@
 # Configuration Cron - Governance Vault
 
 **Statut**: Manuel. Aucun des crons décrits ici n'est installé. Seuls crons installés qui touchent le vault : le writer planning (ADR-053, à l'arrêt) et `vault-sync.sh` (hors dépôt) — état détaillé dans [[governance-runtime-map]], Couche D.
-**Dernière mise à jour**: 2026-09-30
+**Dernière mise à jour**: 2026-10-01
 
 ---
 
@@ -128,8 +128,10 @@ travail en cours du checkout runtime partagé.
 En attendant, la projection est régénérée à la main (`--write`) dans chaque PR
 qui modifie un ADR. Une seule auto-PR a existé (#250, fermée le 2026-05-10).
 Les critères de stabilisation prévus (≥3 cycles OK, 0 commit fantôme) n'ont
-jamais été mesurés, et `ci-vault-gate.sh` (PR-4), qui devait brancher
-`sync_moc_decisions.py --check` en CI, n'a pas été créé.
+jamais été mesurés : le cron n'a jamais tourné. La dérive de l'index est
+détectée sur chaque PR depuis la PR #360 : `ci-vault-gate.sh pr` (PR-4) exécute
+`sync_moc_decisions.py --check` (check `Vault Lint Gate (ADR-020)`), et une PR
+qui modifie un ADR sans régénérer l'index a ce check rouge.
 
 ### sync-canon-mirrors
 
