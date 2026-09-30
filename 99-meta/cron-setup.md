@@ -1,7 +1,7 @@
 # Configuration Cron - Governance Vault
 
-**Statut**: Manuel (non automatisé) + 1 cron actif VPS DEV (PR-3)
-**Dernière mise à jour**: 2026-05-10
+**Statut**: Manuel. Aucun des crons décrits ici n'est installé. Seuls crons installés qui touchent le vault : le writer planning (ADR-053, à l'arrêt) et `vault-sync.sh` (hors dépôt) — état détaillé dans [[governance-runtime-map]], Couche D.
+**Dernière mise à jour**: 2026-09-30
 
 ---
 
@@ -10,50 +10,51 @@
 > **Aucune écriture automatique dans le vault.**
 > Les crons servent à NOTIFIER, pas à MODIFIER.
 
+Écarts de fait avec ce principe, non tranchés ici (décision owner) :
+- le writer planning (ADR-053) est conçu pour pousser directement sur `main` ;
+  la protection de branche le refuse depuis `enforce_admins` (voir [[branch-protection]]) ;
+- les wrappers `cron-sync-moc-decisions.sh` et `cron-sync-canon-mirrors.sh`
+  (non installés, voir plus bas) ouvrent des auto-PR.
+
 ---
 
-## Crons Recommandés
+## Crons Recommandés (non installés)
 
-### 1. Sync Canon (Dry-Run Quotidien)
+### 1. Sync Canon — obsolète, ne pas installer
 
-Vérifie si des fichiers canon ont changé, sans modifier le vault.
-
-```bash
-# Ajouter au crontab de deploy
-crontab -e
-
-# Tous les jours à 6h - dry-run uniquement
-0 6 * * * /opt/automecanik/governance-vault/scripts/sync-canon.sh --dry-run >> /var/log/governance-vault/sync-canon.log 2>&1
-```
-
-**Action manuelle requise**: Si des changements sont détectés:
-```bash
-cd /opt/automecanik/governance-vault
-./scripts/sync-canon.sh --commit  # Applique + commit signé
-git push origin main
-```
+`_scripts/sync-canon.sh` lit `.spec/00-canon/` du monorepo et écrit dans
+`02-decisions/adr`, `03-rules/technical` et `06-knowledge` : des chemins v1 que le
+check requis `No V1 Paths (ADR-015)` rejette. Avec `--commit`, il fait
+`git add -A` puis un commit signé de tout l'arbre. Ne pas l'installer en cron
+et ne pas utiliser `--commit`.
+Le journal [[sync-log]] est figé au 2026-02-02.
 
 ### 2. Audit Signatures (Mensuel)
 
 Vérifie l'intégrité de la piste d'audit.
 
 ```bash
-# Premier du mois à 8h - génère rapport
-0 8 1 * * /opt/automecanik/governance-vault/scripts/audit-signatures.sh --report >> /var/log/governance-vault/audit.log 2>&1
+# Premier du mois à 8h (heure de la machine) - génère rapport
+0 8 1 * * /opt/automecanik/governance-vault/_scripts/audit-signatures.sh --report >> /var/log/governance-vault/audit.log 2>&1
 ```
+
+`--report` écrit `99-meta/reports/YYYY-MM-signature-audit.md` dans le checkout,
+sans le commiter.
 
 **Action manuelle requise**: Si commits non signés détectés:
 1. Lire le rapport dans `99-meta/reports/`
-2. Investiguer chaque commit
+2. Investiguer chaque commit (les commits squash de `main` sont signés par
+   GitHub : les vérifier par l'API, voir [[signing-policy]])
 3. Documenter si incident
 
 ### 3. Check Orphans (Hebdomadaire)
 
-Vérifie que tous les documents sont liés.
+Vérifie que tous les documents sont liés. Déjà couvert à chaque PR par le check
+requis `G2: Zero Orphelin` et par les hooks locaux.
 
 ```bash
-# Dimanche à 7h
-0 7 * * 0 /opt/automecanik/app/.spec/governance/scripts/check-orphans.sh /opt/automecanik/governance-vault >> /var/log/governance-vault/orphans.log 2>&1
+# Dimanche à 7h (heure de la machine)
+0 7 * * 0 /opt/automecanik/governance-vault/_scripts/check-orphans.sh /opt/automecanik/governance-vault >> /var/log/governance-vault/orphans.log 2>&1
 ```
 
 ---
@@ -77,59 +78,78 @@ sudo tee /etc/logrotate.d/governance-vault <<EOF
 EOF
 ```
 
+État au 2026-09-30 : le répertoire existe (il ne contient que `planning-sync.log`) ;
+`/etc/logrotate.d/governance-vault` n'existe pas, le log n'est pas roté.
+
+Horaires : `cron` interprète les champs dans le fuseau de la machine
+(Europe/Paris sur la machine DEV), pas en UTC.
+
 ---
 
 ## Notifications (Optionnel)
 
-Pour recevoir des alertes en cas de problème:
-
-```bash
-# Ajouter à la fin de chaque cron
-# ... | mail -s "Governance Vault Alert" admin@automecanik.com
-```
-
----
-
-## Cron actifs sur VPS DEV (Phase A — PR-3 observation)
-
-### sync-moc-decisions (lundi 01:30 UTC)
-
-Génère la projection canonique des frontmatters ADR vers la section
-`<!-- AUTO-GENERATED:moc-decisions-canonical-index ... -->` de
-`ops/moc/MOC-Decisions.md`. Si diff, ouvre auto-PR signée G3 ; sinon no-op.
-
-```bash
-# Crontab deploy@VPS-DEV
-30 1 * * 1 /opt/automecanik/governance-vault/_scripts/cron-sync-moc-decisions.sh \
-  >> /var/log/governance-vault/sync-moc-decisions.log 2>&1
-```
-
-**Pattern canonique** (cf. `vault-canon-read-only-on-gha.md`) :
-- Pull origin main
-- Run `sync_moc_decisions --write` sur branche temp `govvault/cron-moc-sync-YYYY-MM-DD`
-- Si diff : commit signé G3 + push + auto-PR via `gh pr create --label auto`
-- Si no-op : exit 0, branche supprimée
-
-**Action manuelle requise** : reviewer humain valide ou ferme l'auto-PR.
-
-**Phase de stabilisation 3-7j** : pendant cette fenêtre, observer :
-1. ≥3 cycles sync OK consécutifs (no-op ou auto-merge SAFE)
-2. 0 commit fantôme (faux drift détecté par le générateur)
-3. 0 issue `infra-fail` ouverte non résolue
-
-Une fois ces critères validés → ouvrir PR-4 (`ci-vault-gate.sh` strict mode)
-qui wire `sync_moc_decisions --check` dans le gate bloquant CI.
-
-Ou utiliser un webhook Discord/Slack:
+Aucun MTA n'est installé sur la machine DEV : `MAILTO` et `mail` n'envoient rien.
+Pour une alerte réelle, utiliser un webhook :
 
 ```bash
 # Script wrapper avec notification
 #!/bin/bash
-OUTPUT=$(/opt/automecanik/governance-vault/scripts/sync-canon.sh --dry-run 2>&1)
-if echo "$OUTPUT" | grep -q "changes detected"; then
-  curl -X POST "$SLACK_WEBHOOK" -d "{\"text\": \"Canon changes detected - review required\"}"
-fi
+/opt/automecanik/governance-vault/_scripts/check-orphans.sh /opt/automecanik/governance-vault >/dev/null 2>&1 || \
+  curl -X POST "$SLACK_WEBHOOK" -d '{"text": "Governance vault: orphans detected - review required"}'
 ```
+
+---
+
+## Cron prévus, non installés
+
+### sync-moc-decisions (lundi 01:30 UTC prévu)
+
+Générerait la projection canonique des frontmatters ADR vers la section
+`<!-- AUTO-GENERATED:moc-decisions-canonical-index ... -->` de
+`ops/moc/MOC-Decisions.md`. Si diff, ouvre une auto-PR signée G3 ; sinon no-op.
+
+```bash
+# Crontab deploy@VPS-DEV (non installée)
+30 1 * * 1 /opt/automecanik/governance-vault/_scripts/cron-sync-moc-decisions.sh \
+  >> /var/log/governance-vault/sync-moc-decisions.log 2>&1
+```
+
+**Pattern** (`_scripts/cron-sync-moc-decisions.sh`) :
+- `git checkout main` + `git reset --hard origin/main` dans le checkout où il tourne
+- Run `sync_moc_decisions.py --write` sur branche temp `govvault/cron-moc-sync-YYYY-MM-DD`
+- Si diff : commit signé G3 + push de la branche + auto-PR via `gh pr create --label auto`
+- Si no-op : exit 0, branche supprimée
+
+**À installer uniquement sur un clone dédié** : le `reset --hard` détruirait le
+travail en cours du checkout runtime partagé.
+
+**Action manuelle requise** : reviewer humain valide ou ferme l'auto-PR.
+
+En attendant, la projection est régénérée à la main (`--write`) dans chaque PR
+qui modifie un ADR. Une seule auto-PR a existé (#250, fermée le 2026-05-10).
+Les critères de stabilisation prévus (≥3 cycles OK, 0 commit fantôme) n'ont
+jamais été mesurés, et `ci-vault-gate.sh` (PR-4), qui devait brancher
+`sync_moc_decisions.py --check` en CI, n'a pas été créé.
+
+### sync-canon-mirrors
+
+`_scripts/cron-sync-canon-mirrors.sh` (vault → monorepo, ADR-061 §3) suit le même
+pattern côté monorepo et commence par `git reset --hard origin/main` dans le
+checkout principal du monorepo. Même règle : clone dédié uniquement.
+
+---
+
+## Cron installé : writer planning (ADR-053)
+
+```bash
+# /etc/cron.d/planning-live
+0 8 * * * deploy /opt/automecanik/governance-vault/_scripts/planning/run-cron.sh
+```
+
+Tourne à 08:00 heure de Paris (06:00 UTC en été), pas à 08:00 UTC comme
+l'indiquent le commentaire du fichier et ADR-053. Rien publié sur `main` depuis
+le 2026-08-14, aucune exécution journalisée depuis le 2026-09-14 : diagnostic et
+consignes dans [[governance-runtime-map]], Couche D.
 
 ---
 
@@ -149,13 +169,14 @@ fi
 ```bash
 # Lister les crons actifs
 crontab -l
+cat /etc/cron.d/planning-live
 
 # Tester manuellement chaque script
-/opt/automecanik/governance-vault/scripts/sync-canon.sh --dry-run
-/opt/automecanik/governance-vault/scripts/audit-signatures.sh
-/opt/automecanik/app/.spec/governance/scripts/check-orphans.sh /opt/automecanik/governance-vault
+/opt/automecanik/governance-vault/_scripts/audit-signatures.sh
+/opt/automecanik/governance-vault/_scripts/check-orphans.sh /opt/automecanik/governance-vault
+python3 /opt/automecanik/governance-vault/_scripts/sync_moc_decisions.py --check
 ```
 
 ---
 
-*Voir aussi: [[signing-policy]], [[key-registry]]*
+*Voir aussi: [[signing-policy]], [[key-registry]], [[governance-runtime-map]], [[branch-protection]]*

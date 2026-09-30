@@ -2,6 +2,8 @@
 
 Log de synchronisation canon → vault
 
+> **Historique (constat du 2026-09-30).** 19 entrees, toutes du 2026-02-02, avec pour destination `.local/governance-vault/` du monorepo (emplacement deprecie) et l'ancienne arborescence v1 (`03-rules/`, `06-knowledge/`). Aucune entree depuis ; aucun cron `sync-canon.sh` n'est installe. Le fichier n'est pas un journal vivant.
+
 ---
 
 ## 2026-02-02T14:23:37+01:00 SYNC

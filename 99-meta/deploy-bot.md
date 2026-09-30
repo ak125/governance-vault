@@ -1,78 +1,79 @@
 ---
 type: meta
 status: canon
-updated: 2026-04-24
+updated: 2026-09-30
 ---
 
 # Deploy Bot — Role et Perimetre
 
-**Statut**: Actif
-**Nature**: Bot d'automation CI/CD (pas un agent IA, pas un humain)
+**Statut**: Actif comme identite git ; le writer planning qui committait sous ce nom est a l'arret
+**Nature**: identite git partagee de la machine DEV (ni un service distinct, ni un agent IA, ni une personne)
 **Depuis**: 2026-02
 
 ---
 
 ## Pourquoi cette page existe
 
-Sur les 108 commits du vault au 2026-04-24, **69 (64 %)** sont signes de `Deploy Bot <deploy@automecanik>`. Un lecteur externe du `git log` peut en deduire a tort que le vault est gere par un solo operator ou un single-point-of-failure humain. Cette page documente explicitement le role du bot pour couper cette ambiguite.
+`Deploy Bot` est le `user.name` git de la machine DEV : configuration globale de l'utilisateur `deploy`, reprise par le checkout du monorepo et par celui du vault. Toute session qui committe depuis cette machine (humaine, Claude Code ou script) le fait sous ce nom. Le nom d'auteur dit donc **d'ou** un commit a ete cree, pas **qui** l'a ecrit.
+
+Au 2026-09-30 (`619a690`), `main` compte 419 commits. Par auteur : `auto pieces equipement` 256, `Deploy Bot` 148, `Fafa` 10, `Claude Code` 4, `Claude Sandbox` 1.
 
 ---
 
-## Role
+## Ce que recouvrent les 148 commits `Deploy Bot`
 
-Deploy Bot execute les commits automatiques issus des workflows et scripts d'orchestration :
+| Origine | Commits | Periode | Reconnaissable a |
+|---------|---------|---------|------------------|
+| Writer planning (cron `/etc/cron.d/planning-live`, ADR-053) | 63 | 2026-05-08 → 2026-08-14 | sujet `chore(planning): …` |
+| Tail des bundles Airlock | 11 | 2026-02 | sujet `tail(bundle): …` |
+| Sessions de travail sur la machine DEV (ADR, regles, docs, scripts) | 74 | 2026-02-02 → 2026-07-04 | tout le reste |
 
-- **Sync canon** : miroir one-way depuis `.spec/00-canon/` du monorepo vers `ledger/` (G1).
-- **Reports periodiques** : retrospectives hebdomadaires, sync-log, last-sync-timestamp, rapports `99-meta/reports/`.
-- **Bundles evidence-pack** : packaging automatique depuis les resultats de CI monorepo.
-- **Housekeeping** : batch ADR-renumbering, archive moves, footer timestamp updates.
+Des commits normatifs (ADR, regles) existent donc sous ce nom : ils viennent des sessions de travail, pas d'un automate.
 
-Il **n'ecrit jamais** de contenu normatif (ADR, rules, incidents, policies). Tout changement normatif passe par un commit humain (Fafa, auto pieces equipement) ou par Claude Code / Claude Sandbox avec PR review.
+Le writer planning poussait directement sur `main` ; il n'y a plus rien publie depuis le 2026-08-14 (diagnostic dans [[governance-runtime-map]], Couche D). `sync-canon.sh` n'a plus tourne depuis le 2026-02-02 ([[sync-log]]).
+
+Les commits fusionnes par GitHub (committer `GitHub`, du 2026-04-04 au 2026-09-30) ont tous `auto pieces equipement` pour auteur, meme quand la branche a ete ecrite sous `Deploy Bot`. Apres le 2026-07-04, les seuls commits `Deploy Bot` de `main` sont ceux du writer planning.
 
 ---
 
-## Enforcement
+## Regles applicables
 
-Deploy Bot respecte strictement les regles G1-G4 :
-
-| Regle | Respect |
-|-------|---------|
-| G1 Canon fait foi | Commits sync-canon uniquement, jamais de modification de canon |
-| G2 Zero orphelin | Tout fichier cree est link dans un MOC avant commit |
-| G3 Commits signes | Cle SSH ed25519 enregistree dans [[key-registry]], chaque commit signe |
-| G4 CI read-only | Ne push jamais depuis l'interieur d'un workflow GitHub Actions (voir [[ci-policy]]) |
+| Regle | Etat reel |
+|-------|-----------|
+| G1 Canon fait foi | Regle inchangee ([[rules-vault]]). Dernier sync canon consigne : 2026-02-02 ([[sync-log]]) |
+| G2 Zero orphelin | Check requis en PR. Les pushes directs du writer planning (jusqu'au 2026-08-14) n'etaient verifies qu'apres coup, par le run de CI sur `main` |
+| G3 Commits signes | Signature K001 (`/home/deploy/.ssh/vault_signing_key`) via `commit.gpgsign true`, voir [[key-registry]] |
+| G4 CI read-only | Aucun commit de `main` n'a pour auteur un bot GitHub Actions ; les workflows du vault sont en `contents: read` (voir [[ci-policy]]) |
 
 ---
 
 ## Infrastructure
 
-- **VPS** : DEV (46.224.118.55), dans `/opt/automecanik/governance-vault/`.
+- **Machine** : DEV, checkout `/opt/automecanik/governance-vault/`.
 - **User** : `deploy` (non-root).
-- **Cle SSH signing** : `/home/deploy/.ssh/vault_signing_key` (ed25519). Pub key dans [[key-registry]].
-- **Declencheurs** : cron jobs (voir [[cron-setup]]), hooks post-receive, scripts `_scripts/sync-*.sh`.
+- **Cle SSH signing** : `/home/deploy/.ssh/vault_signing_key` (ed25519, K001). Pub key dans [[key-registry]].
+- **Declencheurs automatiques** : le seul cron qui committe dans le vault est le writer planning (voir [[cron-setup]]). Aucun hook post-receive n'existe.
 
 ---
 
 ## Non-SPOF
 
-Malgre sa part de 64 % des commits, Deploy Bot n'est **pas** un SPOF humain :
-
-- C'est un bot automation. Son "absence" (machine down) interrompt juste les syncs automatiques — le vault reste editable par les humains.
-- Sa cle privee est isolee (DEV VPS, user non-root, non exportable). Compromission necessite acces root VPS DEV.
-- Les commits normatifs (ADR, rules, incidents) viennent d'humains (Fafa, Claude Code avec PR review). Un lecteur peut filtrer par auteur pour distinguer.
-
-Le vrai SPOF est la cle GPG/SSH de Fafa (humain unique auteur de changements canon). Mitigation : voir [[signing-policy]] section "Rotation & Backup".
+- L'absence de la machine DEV arrete le writer planning (deja a l'arret) et `vault-sync.sh`. Le vault reste modifiable par PR depuis tout clone disposant d'une cle de signature (K002, voir [[key-registry]]).
+- La cle K001 est sur la machine DEV, sous un user non-root. Sa compromission permettrait de signer sous K001. G3 accepte aussi une signature par une cle absente d'`allowed_signers` (statut `U`, voir [[signing-policy]]).
+- Rotation ou compromission de cle : voir [[signing-policy]] section « Rotation de Cle ».
 
 ---
 
 ## Distinguer les auteurs
 
-```bash
-# Commits normatifs humains (ADR, rules, incidents)
-git log --author='Fafa\|auto pieces' --format='%h %s'
+Le nom d'auteur ne distingue ni humain et agent, ni travail manuel et automate. Filtrer plutot par sujet ou par committer :
 
-# Commits automation
-git log --author='Deploy Bot' --format='%h %s'
+```bash
+# Automatismes (writer planning, tail Airlock)
+git log --format='%h %ad %s' --date=short | grep -E ' (chore\(planning\)|tail\(bundle\)):'
+
+# Commits de main fusionnes par PR (committer GitHub)
+git log --committer='GitHub' --format='%h %an %s'
 ```
 
 ---
@@ -82,9 +83,10 @@ git log --author='Deploy Bot' --format='%h %s'
 - [[signing-policy]] — G3 policy SSH ed25519
 - [[key-registry]] — registre des cles signataires
 - [[ci-policy]] — G4 CI read-only
-- [[cron-setup]] — tasks periodiques declencheurs du bot
+- [[cron-setup]] — crons (writer planning)
+- [[governance-runtime-map]] — etat runtime du writer planning
 - [[MOC-Governance]] — master index
 
 ---
 
-_Derniere mise a jour: 2026-04-24_
+_Derniere mise a jour: 2026-09-30_
