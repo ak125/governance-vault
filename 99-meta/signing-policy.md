@@ -2,13 +2,13 @@
 type: policy
 status: canon
 rule: G3
-updated: 2026-04-17
+updated: 2026-09-30
 ---
 
 # Politique de Signature des Commits (G3)
 
 **Statut**: Actif depuis 2026-02-02
-**Enforcement**: Obligatoire sur `main` (CI job `g3-signed-commits`)
+**Enforcement**: check requis `G3: Commits signes` (job `g3-signed-commits`, voir [[branch-protection]]) + hook local `.githooks/pre-push`
 **Regle canonique**: [[rules-vault]] G3
 
 ---
@@ -16,13 +16,21 @@ updated: 2026-04-17
 ## Regle
 
 > **Tous les commits de ce vault DOIVENT etre signes cryptographiquement au moment de leur push.**
-> Un commit non signe sera rejete par le CI G3 au niveau de la PR et ne pourra pas atteindre `main`.
+> Un commit non signe dans une PR fait echouer le check requis G3 : la PR ne peut pas etre fusionnee dans `main`.
 
 ### Niveau d'enforcement
 
-G3 est enforce **au niveau PR** (CI job `g3-signed-commits` verifie `%G?` = G sur chaque commit du push/PR).
+G3 est enforce **au niveau PR**. Le job `g3-signed-commits` execute `_scripts/check-signatures.sh` (meme script que le hook pre-push) :
 
-**Note sur main** : sur plan GitHub Free, le merge rebase reecrit les commits sans re-signer (voir [[branch-protection]] section "Artefact Connu : Signature Chain au Merge Rebase"). Un `git verify-commit` local sur main trouvera donc des commits sans signature pour chaque PR mergee. C'est un **artefact attendu**, pas une violation : la signature a ete verifiee une fois par CI au moment du merge, et la trace existe dans les GitHub Actions logs + audit log. La chain-of-custody est **distribuee** (PR CI logs + GitHub audit) plutot que purement locale.
+| Evenement | Commits verifies |
+|-----------|------------------|
+| PR vers `main` | chaque commit `base..head` de la PR |
+| Push sur `main` ou `refactor/**` | le dernier commit seulement (`HEAD~1..HEAD`) |
+| Hook local pre-push | `merge-base(origin/main)..HEAD` |
+
+Le script rejette les statuts `%G?` `N` (non signe) et `B` (signature invalide) ; il accepte tous les autres. Une signature SSH valide par une cle absente d'`allowed_signers` donne `U` et passe : G3 exige une signature, pas une cle du [[key-registry]].
+
+**Note sur main** : les PR sont fusionnees en squash ; le commit cree sur `main` est signe par GitHub (`verification.reason = valid`), pas par K001/K002. `git verify-commit` local echoue sur ces commits (cle GitHub absente d'`allowed_signers`) : verifier par l'API. Les 22 commits non signes issus des merges rebase historiques (avril 2026, PR #336) et les pushes directs sans PR sont detailles dans [[branch-protection]], section « Methode de Merge et Chaine de Signature ».
 
 ---
 
@@ -106,7 +114,7 @@ Format de `~/.ssh/allowed_signers`:
 
 ```
 <email> <algo> <public-key>
-automecanik.seo@gmail.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAI...
+vault-signing@automecanik.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAI... K001-deploy-vps
 ```
 
 Une ligne par cle autorisee. Si une cle n'est pas dans ce fichier, `git log --show-signature` affichera "No signature" meme si le commit est bien signe.
@@ -117,9 +125,10 @@ Une ligne par cle autorisee. Si une cle n'est pas dans ce fichier, `git log --sh
 
 | Violation | Action |
 |-----------|--------|
-| Commit non signe push sur `main` | Rejet par CI `g3-signed-commits` |
+| Commit non signe dans une PR | Check requis G3 en echec, merge bloque ; le hook pre-push (s'il est installe) refuse deja le push |
+| Push direct sur `main` | Refuse par la protection (PR requise, `enforce_admins: true`) |
 | Signature invalide (`%G? = B`) | Rejet, investigation cle |
-| Cle non enregistree dans `allowed_signers` | Affiche "No signature" localement (non bloquant CI) |
+| Cle non enregistree dans `allowed_signers` | Statut `U` : `No principal matched` localement, **accepte** par G3 (non bloquant CI) |
 
 ### Test local (doit echouer)
 
@@ -127,7 +136,7 @@ Une ligne par cle autorisee. Si une cle n'est pas dans ce fichier, `git log --sh
 git config commit.gpgsign false
 echo "test" > test.md && git add test.md
 git commit -m "test unsigned"
-# Le CI bloquera le push suivant sur main
+# Le hook pre-push refusera le push ; en PR, le check G3 echouera
 git reset --hard HEAD~1
 git config commit.gpgsign true
 ```
@@ -140,7 +149,8 @@ Aucune exception sur `main`.
 
 Pour les branches de travail (`feature/*`, `refactor/*`):
 - La signature reste obligatoire par defaut
-- Le CI verifie uniquement les commits merges dans `main`
+- Le hook pre-push verifie les commits de la branche avant chaque push
+- Le CI verifie tous les commits de la branche des qu'une PR vers `main` est ouverte ; un push sur `refactor/**` ne verifie que le dernier commit
 
 Pour tests WIP temporaires (a ne pas push):
 ```bash
@@ -152,13 +162,16 @@ git commit --no-gpg-sign -m "WIP: test local only"
 
 ## Pre-Commit Hook (local)
 
-Le vault fournit un hook `pre-commit` dans `.githooks/pre-commit` qui verifie G2 (orphans) et les wikilinks casses. Pour l'installer:
+Le vault fournit deux hooks dans `.githooks/` :
+
+- `pre-commit` : G2 (orphans) et wikilinks casses ; ne verifie **pas** la signature (git signe automatiquement avec `commit.gpgsign true`) ;
+- `pre-push` : G2, wikilinks et signatures (`_scripts/check-signatures.sh`, range `merge-base(origin/main)..HEAD`).
+
+Pour les installer :
 
 ```bash
 git config core.hooksPath .githooks
 ```
-
-Le hook ne verifie **pas** la signature (git s'en charge automatiquement apres `commit.gpgsign true`).
 
 ---
 
@@ -179,9 +192,9 @@ Quand une cle est compromise ou perimee:
 - [[rules-vault]] - Regle G3 (canonique)
 - [[key-registry]] - Registre des cles autorisees
 - [[ci-policy]] - Politique CI/CD (G4)
-- [[branch-protection]] - Protection serveur de main (combine G1-G4)
-- [[sync-log]] - Journal des syncs signes
+- [[branch-protection]] - Protection serveur de main (5 checks requis, dont G2-G4)
+- [[sync-log]] - Journal historique des syncs canon → vault (2026-02-02, plus alimente)
 
 ---
 
-_Derniere mise a jour: 2026-04-17_
+_Derniere mise a jour: 2026-09-30_

@@ -1,12 +1,12 @@
 ---
 type: moc
 status: canon
-updated: 2026-04-30
+updated: 2026-09-30
 ---
 
 # MOC: Rules
 
-Index des regles canoniques du projet AutoMecanik, organisees par taxonomie unique **T / G / AI / V**.
+Index des regles canoniques du projet AutoMecanik, organisees par prefixe (voir Taxonomie).
 
 ---
 
@@ -19,10 +19,10 @@ Index des regles canoniques du projet AutoMecanik, organisees par taxonomie uniq
 | **G** | Governance (process) | [[rules-governance-process]] | Processus, RAG, canon |
 | **AI** | AI-COS | [[rules-ai-cos]] | Agents IA (golden rules) |
 | **V** | V-Level SEO | [[rules-seo-vlevel]] | Classification keywords SEO |
-| **R-SEO** | SEO PageRole | [[rules-seo-pagerole]] | Validation PageRole CI |
+| **R-SEO** | SEO PageRole | [[rules-seo-pagerole]] | Validation PageRole CI, immutabilite des URL (R-SEO-09) |
 | **R-SEO-KW** | SEO KW import | [[rules-seo-kw-import]] | Import Google Ads KP + alias enrichment |
 | **AP** | Anti-Patterns | [[rules-ai-antipatterns]] | Anti-patterns IA a eviter |
-| **D** | Deployment | [[rules-deployment-workflow]] | Triggers DEV/PROD (push main vs tag v*) |
+| **D** | Deployment | [[rules-deployment-workflow]] | Triggers de deploiement (push main vs tag v*) |
 | **Q** | Engineering Quality | [[rules-engineering-quality]] | Best-approach mandate (anti-bricolage), verify-before-create (DB et files), modernization continue |
 | **DoD** | Engineering Definition of Done | [[rules-engineering-definition-of-done]] | 9 invariants requis avant transition REVIEW→MERGED (tests, ownership, rollback, observabilite, drift, docs, monitoring, no TODO, no silent skip) |
 | **AEC** | Agent Exit Contract | [[rules-agent-exit-contract]] | Coverage manifest obligatoire, no overclaim, statuts autorises, 5 etats separes — applique a TOUT agent/audit |
@@ -37,10 +37,11 @@ Index des regles canoniques du projet AutoMecanik, organisees par taxonomie uniq
 
 - [[rules-vault]] - **G1-G4** : Canon Fait Foi, Zero Orphelin, Commits Signes, CI Read-Only
 - [[rules-governance-process]] - **G5-G8** : Canon-Only Policy, Proof Requirements, RAG Corpus Alignment, Obsolete Handling
+  - Le fichier contient aussi G9 (Sunset Clause) et G10 (Exploration Budget), ajoutes par [[ADR-081-doctrine-agility-amendments]], au statut `proposed` au 2026-09-30 : non indexes ici tant que l'ADR n'est pas accepte (decision owner).
 
 ## Regles Deployment (D)
 
-- [[rules-deployment-workflow]] - **D1-D6** : push main = DEV preprod, tag v* = PROD, workflow nominal, rollback
+- [[rules-deployment-workflow]] - **D1-D6** : triggers de deploiement (push main, tag v*), workflow nominal, rollback
 
 ## Regles AI-COS (AI)
 
@@ -49,7 +50,7 @@ Index des regles canoniques du projet AutoMecanik, organisees par taxonomie uniq
 ## Regles SEO (V, R-SEO)
 
 - [[rules-seo-vlevel]] - **V1-V6** : Classification keywords (V1 super-champion, V2 TOP 20, V3 champion local, V4 variant, V5 volume=0, V6 bloc B)
-- [[rules-seo-pagerole]] - **R-SEO-01 a R-SEO-08** : Validation PageRole pour CI
+- [[rules-seo-pagerole]] - **R-SEO-01 a R-SEO-09** : Validation PageRole pour CI (R-SEO-01 a 08) ; URL Immutability, aucune URL existante en production ne doit etre modifiee (R-SEO-09)
 - [[rules-seo-kw-import]] - **R-SEO-KW-01 a R-SEO-KW-07** : Import Google Ads KP + alias enrichment (review rejets, arbre decision, batch YAML, cross-gamme scope check, RAG_ONLY_ENRICHED state)
 
 ## Anti-patterns (AP)

@@ -6,6 +6,10 @@ BRANCH="${BRANCH:-main}"
 
 echo "Configuring branch protection for ${REPO}:${BRANCH}..."
 
+# contexts = noms affiches des jobs (champ `name:` de
+# .github/workflows/vault-governance.yml), pas les cles de job : un context
+# qu'aucun job ne rapporte bloque toutes les PR. Renommer un job impose de
+# mettre a jour cette liste dans la meme PR.
 gh api -X PUT "repos/${REPO}/branches/${BRANCH}/protection" \
   -H "Accept: application/vnd.github+json" \
   --input - <<'JSON'
@@ -13,10 +17,11 @@ gh api -X PUT "repos/${REPO}/branches/${BRANCH}/protection" \
   "required_status_checks": {
     "strict": true,
     "contexts": [
-      "g2-orphans",
-      "broken-links",
-      "g3-signed-commits",
-      "g4-canon-write-block"
+      "G2: Zero Orphelin",
+      "Broken Wikilinks",
+      "G3: Commits signes",
+      "G4: CI read-only sur canon",
+      "No V1 Paths (ADR-015)"
     ]
   },
   "enforce_admins": true,

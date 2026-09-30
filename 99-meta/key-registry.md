@@ -1,6 +1,6 @@
 # Registre des Clés de Signature
 
-**Dernière mise à jour**: 2026-04-17
+**Dernière mise à jour**: 2026-09-30
 **Gestionnaire**: @Fafa
 
 ---
@@ -40,6 +40,10 @@ automecanik.seo@gmail.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGzlu+W6fcbvbqo1wX
 
 Le meme contenu est embarque dans `.github/workflows/vault-governance.yml` (job `g3-signed-commits`) pour que `%G?` retourne `G` sur le runner CI.
 
+Ce fichier ne restreint pas G3 : `_scripts/check-signatures.sh` ne rejette que `N` et `B`, donc une signature valide par une cle absente de ce registre (`U`) passe. Voir [[signing-policy]].
+
+**Cote GitHub** : K001 n'est pas enregistree comme cle de signature du compte ; l'API affiche `verification.reason = unknown_key` pour les commits qu'elle signe (ex. `4c94c7d`, `871ecc2`). Les commits de `main` issus d'un squash sont signes par GitHub, pas par K001/K002.
+
 ---
 
 ## Procédure de Révocation
@@ -65,4 +69,4 @@ Le meme contenu est embarque dans `.github/workflows/vault-governance.yml` (job 
 Toute modification de ce fichier doit être:
 - Signée
 - Justifiée dans le message de commit
-- Tracée dans [[sync-log]]
+- Tracée dans [[sync-log]] (journal historique, plus alimenté depuis le 2026-02-02 : les modifications du 2026-04-18 n'y figurent pas)
