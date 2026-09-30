@@ -2,7 +2,8 @@
 
 > Contrat Layer 2 exigé par [[ADR-096-governed-automatic-source-discovery]] §D3, gouverné
 > selon ADR-062. Fichier : `ledger/policies/source-score-weights.v1.json`.
-> **Statut : `proposed` — revue owner requise, aucun merge automatique.**
+> **Statut : `accepted` (2026-08-15).** L'acceptation porte sur le framework et ses
+> valeurs V0, et autorise la projection. Elle ne valide **aucun profil**.
 
 ## Pourquoi ce contrat existe
 
@@ -154,8 +155,43 @@ préexistante. Elle calibre **les profils gamme uniquement**. Elle ne valide ni 
 `diagnostic`, ni `constructeur`, et aucune moyenne inter-types ne peut le laisser croire :
 §OPÉRATIONNEL exige que *chaque* pilote franchisse *son* plancher.
 
-Un profil `shadow_unvalidated` peut produire un score en **report-only**. Il ne doit pas servir
-de critère de sélection pour une capture durable.
+### Trois choses distinctes, que le contrat sépare mécaniquement
+
+```
+contract.status = accepted        le framework et les valeurs V0 peuvent être PROJETÉS
+
+profile.calibration = shadow_*    les scores peuvent être calculés, observés, calibrés
+                                  mais ne peuvent PAS piloter une capture durable
+
+profile.calibration = validated   seul état autorisant une sélection durable,
+                                  et seulement sous réserve de D2, D7 et des autres gates
+```
+
+`calibration_status_policy` porte cette matrice en machine-readable :
+
+| statut | `durable_selection` | usage |
+|---|---|---|
+| `shadow_unvalidated` | `false` | report-only |
+| `shadow_calibration` | `false` | report-only |
+| `validated` | `true` | sélection autorisée |
+
+Et la règle normative ne procède pas par énumération : **`calibration.status != validated`
+⇒ jamais critère de sélection durable**. Un statut inconnu ou absent est traité comme
+non-validated — fail-closed.
+
+**Pourquoi cette précision était nécessaire.** La rédaction initiale ne nommait que
+`shadow_unvalidated`. Or `gamme` est en `shadow_calibration`, et c'est le **seul** profil
+doté d'une référence — `plaquette-de-frein-reference-v1`, qui porte `PROVISIONAL_DRAFT`.
+Le seul profil que la règle ne couvrait pas était donc précisément celui qui pouvait
+piloter une capture, sur la foi d'annotations non validées.
+
+**Calibrer n'est pas valider.** Le passage à `validated` exige une référence humaine
+validée : un acte distinct de l'acceptation du contrat, et distinct par profil.
+
+Cette séparation résout aussi trois questions restées ouvertes : `vehicle`, `diagnostic`
+et `constructeur` peuvent demeurer `derived_by_rule` sans risque, les poids V0 peuvent
+rencontrer des sources réelles en shadow, et une erreur de classification sur
+`probable_causes_with_gammes` ne peut pas devenir une décision de capture.
 
 ## Projection — l'infrastructure existe, la sémantique de hash JSON manque
 
