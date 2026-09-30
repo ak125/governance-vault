@@ -10,7 +10,7 @@
 
 **Tous les documents de gouvernance vivent dans ce repo uniquement.**
 
-Canonical path (runtime sur DEV VPS) : `/opt/automecanik/governance-vault/` (cloné depuis `git@github.com:ak125/governance-vault.git`)
+Canonical path (runtime sur DEV VPS) : `/opt/automecanik/governance-vault/` (cloné depuis `https://github.com/ak125/governance-vault.git`)
 
 **Jamais** dans :
 
@@ -28,15 +28,20 @@ Voir aussi [[ADR-015-vault-single-source-of-truth|ADR-015]] pour la décision fo
 |------|-------------|----------|
 | Incident / post-mortem | `ledger/incidents/YYYY/YYYY-MM-DD-<slug>.md` | `_templates/incident-template.md` |
 | ADR (décision architecturale) | `ledger/decisions/adr/ADR-NNN-<slug>.md` | `_templates/adr-template.md` |
-| Règle T/G/AI/V | `ops/rules/rules-<taxonomie>.md` | `_templates/rule-template.md` |
-| Policy | `ledger/policies/` ou `ops/policies/` | — |
+| Règle T/G/AI/V | `ledger/rules/rules-<domaine>.md` | `_templates/rule-template.md` |
+| Policy | `ledger/policies/` ; policies du vault lui-même : `99-meta/` ; policies de contenu : `policies/<domaine>/` | — |
 | Audit report | `ledger/audit-trail/YYYY-MM-DD-<slug>.md` | — |
-| Evidence-pack | `ledger/audits/evidence-packs/EP-YYYYMMDD-<slug>/` | `_scripts/evidence-pack.sh` |
+| Evidence-pack | `ledger/compliance/evidence-pack/YYYY/YYYY-MM/EP-YYYYMMDD-<slug>/` + `INDEX-EP-YYYYMMDD-<slug>.md` | manuel (voir note) |
 | Agent registry / specs | `ledger/agents/` | — |
 | Compliance | `ledger/compliance/` | — |
 | Savoir opérationnel | `ledger/knowledge/` | libre markdown |
 | MOC (Map of Content) | `ops/moc/MOC-<scope>.md` | voir MOCs existantes |
-| Déploiement | `ledger/deployments/` | `_templates/deployment-template.md` |
+| Déploiement | aucun dossier défini (`ledger/deployments/` n'existe pas ; le choisir = décision owner) | `_templates/deployment-template.md` |
+
+Note evidence-pack : `_scripts/evidence-pack.sh` (générateur Airlock) écrit encore sous le chemin v1
+`06-compliance/evidence-pack/…` et lit `02-decisions/`, `04-audit-trail/`, `05-incidents/`. Sa sortie serait
+rejetée par le check requis `No V1 Paths (ADR-015)` : ne pas l'utiliser tant qu'il n'est pas porté en v2.
+Les deux evidence-packs créés depuis le refactor v2 (EP-20260418, EP-20260506) l'ont été à la main.
 
 ---
 
@@ -52,7 +57,7 @@ Voir aussi [[ADR-015-vault-single-source-of-truth|ADR-015]] pour la décision fo
    - Exemples : `docs/inc-2026-003-xyz`, `adr/ADR-NNN-yyy`, `chore/archive-zzz`
 4. **Utiliser les helpers** si dispo :
    - `_scripts/new-incident.sh <severity> <slug>` → scaffold incident
-   - `_scripts/evidence-pack.sh` → scaffold evidence-pack
+   - evidence-pack : création manuelle (voir la note sous le tableau)
 5. Écrire le fichier avec **frontmatter YAML conforme** au template de son type
 6. **Lier depuis une MOC** (`ops/moc/MOC-*.md`) ou un INDEX — règle [[rules-vault|G2]] "Zéro orphelin"
 7. Valider localement :
@@ -69,13 +74,17 @@ Voir aussi [[ADR-015-vault-single-source-of-truth|ADR-015]] pour la décision fo
    git push -u origin <branch>
    gh pr create --base main
    ```
-10. Attendre CI G1-G4 vert, review, merge rebase (linear history)
+10. Attendre les 5 checks requis verts (liste dans [[branch-protection]]), puis fusionner en squash :
+    `gh pr merge <N> --squash --match-head-commit <sha>`. La protection n'exige aucune review ;
+    le commit squash est signé par GitHub.
 
 ---
 
 ## Preflight automatique (ADR-015 §Guardrails)
 
-**Pourquoi** : le cron `vault-sync.sh` sync `main` toutes les 5 min, mais ça ne couvre pas la fenêtre entre 2 ticks. Si un agent démarre dans cette fenêtre avec un clone périmé, il risque de recréer le bug PR #7 (2026-04-18 : clone 16 commits en retard → PR sur structure v1 vs main v2).
+**Pourquoi** : le cron `vault-sync.sh` (hors dépôt, crontab de la machine DEV) avance toutes les 5 min la ref `main`
+du checkout runtime. Quand ce checkout n'est pas sur `main`, seule la ref bouge : l'arbre de travail n'est pas mis
+à jour. Il ne couvre ni la fenêtre entre 2 ticks, ni les autres clones. Si un agent démarre dans cette fenêtre avec un clone périmé, il risque de recréer le bug PR #7 (2026-04-18 : clone 16 commits en retard → PR sur structure v1 vs main v2).
 
 **Que vérifie `_scripts/preflight-write.sh`** :
 1. Canonical path (pas dans `.local/governance-vault/`)
@@ -89,7 +98,12 @@ Voir aussi [[ADR-015-vault-single-source-of-truth|ADR-015]] pour la décision fo
 
 ---
 
-## Anti-patterns (BLOQUÉS par G1-G4)
+## Anti-patterns (interdits)
+
+Bloqués mécaniquement : G2, G3, les wikilinks cassés et les chemins v1 (checks requis) ainsi que le push
+direct ou forcé sur `main` (protection de branche), voir [[branch-protection]]. Le check requis G4 est un
+marqueur qui ne vérifie rien : la lecture seule vient des permissions `contents: read` des workflows. Les
+autres interdits reposent sur les hooks locaux ou sur la revue.
 
 - Écrire dans `/opt/automecanik/app/.local/governance-vault/*` (PR #81 ajoute hook pre-commit)
 - Créer un document sans frontmatter YAML
@@ -122,9 +136,9 @@ Voir aussi [[ADR-015-vault-single-source-of-truth|ADR-015]] pour la décision fo
 
 | VPS | Rôle | Write access vault ? |
 |-----|------|---------------------|
-| **DEV** (46.224.118.55) | Dev, CI artefacts, vault runtime canonique | Oui (via PR signée) |
-| **PROD** (49.12.233.2) | Production | Non (read-only mirror via sync-canon) |
-| **AI-COS** (178.104.1.118) | Agents IA, Airlock | Non (git clone read-only via HTTPS) |
+| **DEV** | Dev, CI artefacts, vault runtime canonique | Oui (via PR signée) |
+| **PROD** | Production | Non (miroir en lecture seule, ADR-012) |
+| **AI-COS** | Agents IA, Airlock | Non (git clone read-only via HTTPS) |
 
 Aucune VPS ne doit écrire de gouvernance hors du workflow GitHub PR.
 
@@ -139,4 +153,4 @@ Aucune VPS ne doit écrire de gouvernance hors du workflow GitHub PR.
 
 ---
 
-_Dernière mise à jour : 2026-04-18 — ADR-015 accepted_
+_Dernière mise à jour : 2026-09-30 — chemins réels, checks requis, méthode de merge_

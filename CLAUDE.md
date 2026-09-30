@@ -67,18 +67,21 @@ Tout document canonique doit avoir:
 ```yaml
 ---
 type: adr | rule | plan | checklist | retrospective | audit-report | evidence-pack | moc | index | policy | spec | knowledge | template
-status: canon | draft | superseded | deprecated
+status: <valeur du schema de son type>
 updated: YYYY-MM-DD
 ---
 ```
 
-Pour les ADR specifiquement:
+Les valeurs autorisees de `status` sont celles des schemas `_scripts/schemas/<type>.schema.json`
+(adr, rule, moc, incident), en minuscules : ils font foi. Ne pas recopier leurs enums ici.
+
+Pour les ADR specifiquement (champs requis par `adr.schema.json` : id, title, status, date, decision_makers):
 
 ```yaml
 ---
 id: ADR-XXX
 title: "..."
-status: Proposed | Accepted | Superseded
+status: proposed   # enum : _scripts/schemas/adr.schema.json
 date: YYYY-MM-DD
 decision_makers: [...]
 supersedes: []
@@ -108,7 +111,8 @@ Quand l'utilisateur demande une modification:
 1. **Lire les MOCs pertinents** pour comprendre le contexte (pas juste le fichier cible)
 2. **Verifier** si le changement touche du canon (auquel cas refuser et rediriger vers le monorepo)
 3. **Appliquer** le changement + lier depuis un MOC/INDEX si creation
-4. **Executer** `_scripts/check-orphans.sh .` et `_scripts/check-broken-links.sh .`
+4. **Executer** `_scripts/preflight-write.sh` avant d'ecrire (obligatoire, voir `AGENTS.md`), puis
+   `_scripts/check-orphans.sh .` et `_scripts/check-broken-links.sh .` avant de committer
 5. **Proposer** un commit message clair + rappeler qu'il doit etre signe (G3)
 
 ---
@@ -130,9 +134,10 @@ Quand l'utilisateur demande une modification:
 |--------|------|
 | `_scripts/check-orphans.sh` | G2 enforcement (exit 1 si orphelins) |
 | `_scripts/check-broken-links.sh` | Detection wikilinks casses (exit 1 si casses) |
-| `_scripts/sync-canon.sh --dry-run` | Preview sync depuis `.spec/00-canon/` |
+| `_scripts/preflight-write.sh` | Preflight obligatoire avant ecriture (clone a jour, arbre propre, pas de chemin v1) |
+| `_scripts/sync-canon.sh` | Obsolete : ecrit sous des chemins v1 rejetes par `No V1 Paths` ; ne pas utiliser (voir [[cron-setup]]) |
 | `_scripts/audit-signatures.sh` | Audit retro des signatures git |
-| `_scripts/evidence-pack.sh` | Generer un nouveau evidence-pack |
+| `_scripts/evidence-pack.sh` | Generateur Airlock, encore sur chemins v1 : ne pas utiliser (voir `AGENTS.md`) |
 
 ---
 
@@ -144,4 +149,4 @@ Quand l'utilisateur demande une modification:
 
 ---
 
-_Dernière mise a jour: 2026-05-07_
+_Dernière mise a jour: 2026-09-30_
