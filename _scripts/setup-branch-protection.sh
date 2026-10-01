@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
-# Configuration versionnee de la protection de main (99-meta/branch-protection.md).
+# Configuration versionnee de la protection de main et des methodes de merge du depot
+# (99-meta/branch-protection.md).
 #
-#   setup-branch-protection.sh           PUT complet, signatures requises, puis relecture :
-#                                        (re)cree la protection
-#   setup-branch-protection.sh --check   relecture seule : compare la protection en vigueur
+#   setup-branch-protection.sh           PUT complet, signatures requises, methodes de merge,
+#                                        puis relecture : (re)cree la configuration
+#   setup-branch-protection.sh --check   relecture seule : compare la configuration en vigueur
 #                                        a ce fichier, ne modifie rien
 #
 # Pour ajouter ou retirer un check sur une protection existante : PATCH de la
@@ -11,12 +12,14 @@
 # (ledger/knowledge/vault-branch-protection-contexts-vs-checks-gotcha-20260504.md).
 # Pour activer ou retirer les signatures requises : POST ou DELETE de la
 # sous-ressource required_signatures, puis --check.
-# Sorties : 0 conforme, 1 protection differente de ce fichier, 2 usage ou prerequis.
+# Pour changer une methode de merge : PATCH repos/<depot> avec le champ, puis --check.
+# Sorties : 0 conforme, 1 configuration differente de ce fichier, 2 usage ou prerequis.
 set -euo pipefail
 
 REPO="${REPO:-ak125/governance-vault}"
 BRANCH="${BRANCH:-main}"
 EP="repos/${REPO}/branches/${BRANCH}/protection"
+REPO_EP="repos/${REPO}"
 
 case "${1:-}" in
   "") MODE=apply ;;
@@ -65,6 +68,13 @@ BODY="$(cat <<'JSON'
 JSON
 )"
 
+# Methodes de merge : reglage du depot (PATCH repos/<depot>), pas de la protection de
+# branche. Le merge rebase recree les commits de la PR sans signature : avec lui, un
+# commit non signe peut entrer sur main malgre G3 et required_signatures. Le squash est
+# la seule methode prescrite. Les commits de merge sont deja exclus de main par
+# required_linear_history : leur reglage n'est pas declare ici.
+MERGE='{"allow_squash_merge": true, "allow_rebase_merge": false}'
+
 # Memes champs, forme de la demande (PUT) et forme de la reponse (GET).
 WANT='{
   strict: .required_status_checks.strict,
@@ -90,17 +100,23 @@ GOT='{
 }'
 
 verify() {
-  local current
+  local current repo rc=0
   current="$(gh api "$EP")" || { echo "ERREUR : lecture de la protection impossible" >&2; return 2; }
+  repo="$(gh api "$REPO_EP")" || { echo "ERREUR : lecture des reglages du depot impossible" >&2; return 2; }
   if ! diff <(jq -S "$WANT" <<<"$BODY") <(jq -S "$GOT" <<<"$current"); then
     echo "ERREUR : la protection de ${REPO}:${BRANCH} differe de ce fichier (< attendu, > en vigueur)" >&2
-    return 1
+    rc=1
   fi
+  if ! diff <(jq -S . <<<"$MERGE") <(jq -S '{allow_squash_merge, allow_rebase_merge}' <<<"$repo"); then
+    echo "ERREUR : les methodes de merge de ${REPO} different de ce fichier (< attendu, > en vigueur)" >&2
+    rc=1
+  fi
+  return "$rc"
 }
 
 if [[ "$MODE" == check ]]; then
   verify
-  echo "OK : la protection de ${REPO}:${BRANCH} est conforme a ce fichier."
+  echo "OK : la protection de ${REPO}:${BRANCH} et les methodes de merge sont conformes a ce fichier."
   exit 0
 fi
 
@@ -112,6 +128,7 @@ if [[ "$(jq -r .required_signatures <<<"$BODY")" == true ]]; then
 else
   gh api -X DELETE "$EP/required_signatures" -H "Accept: application/vnd.github+json" >/dev/null
 fi
+gh api -X PATCH "$REPO_EP" -H "Accept: application/vnd.github+json" --input - <<<"$MERGE" >/dev/null
 # Le 200 ne prouve rien (drop silencieux possible) : relire et comparer a la demande.
 verify
-echo "OK : protection appliquee et relue conforme a ce fichier."
+echo "OK : protection et methodes de merge appliquees, relues conformes a ce fichier."
