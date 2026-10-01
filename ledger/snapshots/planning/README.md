@@ -2,6 +2,9 @@
 
 Snapshots immuables par run du système Planning Live (ADR-053).
 
+> **Figé** : le dernier snapshot date du 2026-08-14. Le writer est retiré par [[ADR-104-planning-live-writer-retired|ADR-104]] ;
+> aucun nouveau snapshot n'est écrit. Les fichiers existants sont conservés (G8).
+
 ## Format
 
 ### Canonique (immutable, append-only)
@@ -32,8 +35,6 @@ doit cibler `run-*.json` directement.
 ## Consumed by
 
 - `_scripts/check-moc-integrity.py` (validation cohérence avec MOC)
-- `_scripts/planning/sync_planning.py` (lecture pour comparaison hash)
-- (futur) `_scripts/planning/intelligence.py` (analytics sur 30j+ snapshots)
 
 ## See also
 
