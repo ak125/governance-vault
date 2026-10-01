@@ -60,20 +60,28 @@ Il ne porte **pas** sur `R6_SUPPORT` (`/support/*`, `/cgv`), visé par la règle
    - 73 ont un article conseils, donc 301 vers les conseils à l'activation.
    - 148 n'en ont pas : servis en `noindex, follow`, URL et canonical inchangées.
    - 0 guide sans gamme.
+
+   S'y ajoutent 3 guides historiques (`__blog_guide`, non dépréciés) sans guide d'achat, servis
+   eux aussi par la page guide. Aucun n'a d'article conseils : drapeau allumé, ils sont servis en
+   `noindex, follow`.
 6. **Maillage interne non aligné.** Le site lie les guides par trois voies, mesurées en D5 :
    - les blocs « ressources liées » des pages gamme R1 ;
    - des liens écrits dans le code du frontend ;
    - des liens écrits dans le contenu HTML lui-même.
 
    Activé tel quel, le drapeau ferait pointer ces liens vers des 301 ou des pages hors index.
-   Sur 84 articles conseils qui lient un guide, 72 lient celui de leur propre gamme : ce lien
+   Sur les 73 pages conseils servies, 56 sections S3 lient le guide de leur propre gamme : ce lien
    reviendrait par 301 sur la page elle-même.
 7. **Le cache des blocs R1 n'a pas de writer.** `__seo_r1_related_blocks_cache` a été rempli une
    seule fois le 2026-06-11 (ADR-024 phase 5, monorepo #940). Ses endpoints de reconstruction ont
    été retirés, et le producteur prévu par ADR-090 §C2 n'existe pas encore.
 8. **Un défaut existe déjà, drapeau éteint.** L'encart de la page conseils et les « Liens utiles »
-   de la page gamme ne vérifient pas qu'un guide est publié. 12 pages conseils sur 85 et 14 pages
-   gamme sur 232 lient donc un guide non publié.
+   de la page gamme ne vérifient pas qu'un guide est publié. 14 pages gamme sur 232 lient donc un
+   guide non publié. Les 73 pages conseils servies ont toutes un guide publié.
+9. **Une page conseils n'est servie que si l'article a une gamme.** 85 articles conseils sont
+   stockés ; 12 portent une gamme absente de `pieces_gamme`. Ces 12 sont servis par la route
+   article `/blog-pieces-auto/article/{slug}`. Les 73 autres y sont redirigés en 301 vers leur page
+   conseils, qui ne rend pas le corps stocké de l'article (`ba_content`).
 
 ## Décision
 
@@ -115,7 +123,8 @@ projeter dans R3 est hors périmètre et relèvera d'une décision distincte.
 **Une seule règle, décidée par le backend.** Sur une page hors de la surface guide (page gamme,
 article conseils, fiche référence…), un lien vers une page détail de guide est servi :
 
-- drapeau éteint : seulement si le guide est publié non-draft ;
+- drapeau éteint : seulement si le guide est publié, c'est-à-dire guide d'achat non-draft
+  (`__seo_gamme_purchase_guide`) ou guide historique non déprécié (`__blog_guide`) ;
 - drapeau allumé : jamais. Le lien pointe directement vers l'article conseils de la gamme s'il
   existe et n'est pas la page courante. Sinon, il n'y a pas de lien. Un lien en double est retiré.
 
@@ -127,8 +136,8 @@ de §C2 « lien vers non-indexé interdit ».
 | Famille de liens | Mesure | Application |
 |---|---|---|
 | Blocs R1 (`__seo_r1_related_blocks_cache`) | 221 lignes sur 238, toutes vers un guide publié | chemin de lecture backend tant que le cache n'a pas de writer ; le writer d'ADR-059 l'appliquera à l'écriture |
-| Liens du code : encart de la page conseils, « Liens utiles » de la page gamme, section S3 | 85 pages conseils, 232 pages gamme | le backend transmet la cible du lien |
-| Liens écrits dans le contenu HTML | lignes contenant un lien de guide : 84 articles conseils, 148 sections S3, 39 contenus de page gamme (`sg_content`), 4 fiches référence | chemin de lecture backend, sans réécrire le contenu stocké |
+| Liens du code : encart de la page conseils, « Liens utiles » de la page gamme, section S3 | 73 pages conseils, 232 pages gamme | le backend transmet la cible du lien |
+| Liens écrits dans le contenu HTML | liens servis : 58 sections S3 de pages conseils (148 sections stockées), 12 articles de la route article (Contexte, point 9), 39 contenus de page gamme (`sg_content`), 4 fiches référence | chemin de lecture backend, sans réécrire le contenu stocké |
 
 - Tout autre producteur de lien vers un guide trouvé par la PR hors de la surface guide applique
   la même règle.
@@ -137,9 +146,9 @@ de §C2 « lien vers non-indexé interdit ».
   sont corrigés quand leur producteur les régénère.
 - La PR mesure le coût de rendu de la règle sur le contenu HTML : le nettoyage HTML a déjà causé
   une régression de réactivité (INP) en septembre 2026.
-- Drapeau éteint, la règle retire aussi les liens actuels vers un guide non publié : ceux du code
-  sur 26 pages (Contexte, point 8), et ceux de 4 sections S3 et 2 fiches référence. Ce changement
-  est déclaré dans la PR.
+- Drapeau éteint, la règle retire aussi les liens servis vers un guide non publié : ceux du code
+  sur 14 pages gamme (Contexte, point 8), et ceux de 2 sections S3, dont le lien porte un slug
+  accentué qui ne correspond à aucun guide. Ce changement est déclaré dans la PR.
 
 **Hors règle :**
 
@@ -166,8 +175,8 @@ est le retrait de ces liens vers des guides non publiés.
 4. Câblage du drapeau en PROD (owner) : ajouter `SEO_R6_CONSOLIDATION_ENABLED_OVERRIDE` depuis la
    variable `PROD_SEO_R6_CONSOLIDATION_ENABLED` dans `deploy-prod.yml`, sur le modèle des
    variables `PROD_SEO_PROJECTION_*`. Puis passer la variable à `true` et créer le tag PROD.
-5. Contrôle après le tag : sur un échantillon de pages gamme, conseils et référence, 0 lien servi
-   vers une page détail `/guide-achat/`.
+5. Contrôle après le tag : sur un échantillon de pages gamme, conseils, article et référence,
+   0 lien servi vers une page détail `/guide-achat/`.
 6. Observation (voir Métriques).
 
 ## Options considérées
@@ -179,7 +188,7 @@ est le retrait de ces liens vers des guides non publiés.
 - **301 de tous les guides, même sans conseils** : rejeté. Ce serait une redirection vers 404,
   ou vers une page hors sujet.
 - **Activer sans aligner le maillage** : rejeté. Les 221 blocs R1 lieraient des 301 ou des pages
-  hors index, et 72 articles conseils renverraient par 301 vers eux-mêmes.
+  hors index, et 56 sections S3 renverraient par 301 vers leur propre page conseils.
 - **Réécrire le contenu stocké pour retirer les liens** : rejeté. `sg_content` n'a pas de writer et
   ne se modifie pas à la main ; les autres contenus se corrigent par leur producteur.
 
@@ -219,7 +228,7 @@ est le retrait de ces liens vers des guides non publiés.
 - Clics des pages conseils au moins égaux à la base de 764 sur 90 jours, à saisonnalité
   comparable.
 - `sitemap-blog.xml` : 0 URL `/guide-achat/` après sa prochaine génération normale.
-- Pages gamme, conseils et référence servies : 0 lien vers une page détail `/guide-achat/`.
+- Pages gamme, conseils, article et référence servies : 0 lien vers une page détail `/guide-achat/`.
 
 ## Rollback
 
