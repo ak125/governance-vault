@@ -30,7 +30,7 @@ Les deux hooks ne sont actifs que si `core.hooksPath` vaut `.githooks` dans le c
 
 ## Configuration Appliquee
 
-Valeurs lues par `gh api repos/ak125/governance-vault/branches/main/protection` le 2026-09-30 ; les checks requis sont ceux de la section suivante.
+Valeurs declarees par `_scripts/setup-branch-protection.sh` ; les checks requis sont ceux de la section suivante. `setup-branch-protection.sh --check` dit si la protection en vigueur leur est conforme (voir « Verification d'Integrite »).
 
 | Parametre | Valeur | Justification |
 |-----------|--------|---------------|
@@ -39,7 +39,7 @@ Valeurs lues par `gh api repos/ak125/governance-vault/branches/main/protection` 
 | `enforce_admins` | `true` | Personne ne contourne, y compris l'owner |
 | `required_linear_history` | `true` | Pas de merge commits : squash ou rebase (en pratique squash, voir « Methode de Merge ») |
 | `required_pull_request_reviews` | `count: 0`, `dismiss_stale: true` | Solo repo : reviews non requises, mais les reviews obsoletes sont auto-dismissed |
-| `required_signatures` | `false` | Voir « Signatures Requises » |
+| `required_signatures` | `true` | Chaque commit de la PR doit etre verifie par GitHub. Voir « Signatures Requises » |
 | `restrictions` | `null` | Personne n'est explicitement autorise a bypasser |
 | `allow_force_pushes` | `false` | Pas de reecriture d'historique sur main |
 | `allow_deletions` | `false` | Impossible de supprimer main |
@@ -61,7 +61,7 @@ Le merge est bloque tant que l'un de ces checks n'a pas le status **SUCCESS**. C
 | `Vault Scripts Tests` | `vault-scripts-tests` | `pytest _scripts` : les validateurs du vault et leurs tests |
 | `Vault Lint Gate (ADR-020)` | `vault-lint-gate` | Execute `ci-vault-gate.sh pr` : checks de `weekly-lint.sh` sur le vault seul et `sync_moc_decisions.py --check` (index [[MOC-Decisions]]) |
 
-Les deux derniers ont ete ajoutes par la PR #360 ; ils ne bloquent le merge qu'une fois la protection mise a jour (PATCH de la sous-ressource, voir « Setup / Re-application »). `setup-branch-protection.sh --check` dit si c'est fait.
+Les deux derniers ont ete ajoutes par la PR #360 et sont requis depuis le 2026-10-01 (PATCH de la sous-ressource, puis `--check` conforme).
 
 Tournent sans etre requis (ils ne bloquent pas le merge) : `No Operational Sections (ADR-060 §1A inv. 5)` (job `vault-pollution`, meme workflow) et `Self-Review Marker` (`vault-self-review-marker.yml`).
 
@@ -79,9 +79,9 @@ Verifier que la protection en vigueur est celle du script (lecture seule, sortie
 _scripts/setup-branch-protection.sh --check
 ```
 
-Ajouter ou retirer un check requis sur la protection existante : PATCH de la sous-ressource `required_status_checks` avec la liste `checks` complete et l'`app_id`, puis `--check`. Ne jamais passer par `contexts` : ce champ deprecie ignore sans erreur un nom jamais observe (voir [[vault-branch-protection-contexts-vs-checks-gotcha-20260504]]).
+Ajouter ou retirer un check requis sur la protection existante : PATCH de la sous-ressource `required_status_checks` avec la liste `checks` complete et l'`app_id`, puis `--check`. Activer ou retirer les signatures requises : POST ou DELETE de la sous-ressource `required_signatures`, puis `--check`. Ne jamais passer par `contexts` : ce champ deprecie ignore sans erreur un nom jamais observe (voir [[vault-branch-protection-contexts-vs-checks-gotcha-20260504]]).
 
-En cas de perte ou de recreation du repo (PUT complet, puis relecture comparee a la demande : le script sort 1 si GitHub a abandonne un champ) :
+En cas de perte ou de recreation du repo (PUT complet, puis sous-ressource `required_signatures`, puis relecture comparee a la demande : le script sort 1 si GitHub a abandonne un champ) :
 
 ```bash
 _scripts/setup-branch-protection.sh
@@ -115,9 +115,32 @@ Chaque desactivation laisse une trace dans les **audit logs GitHub** (irreversib
 
 ## Signatures Requises
 
-`required_signatures` vaut `false` (GET du 2026-09-30). L'option est disponible : le depot est public, et la limite de plan GitHub ne vise que les depots prives. Le job `g3-signed-commits` verifie les commits de la PR ; il ne couvre pas le commit que GitHub cree au merge (voir section suivante).
+Declarees par `setup-branch-protection.sh` (`"required_signatures": true`). Ce n'est pas un champ du PUT : le script l'applique par la sous-ressource `branches/main/protection/required_signatures` (POST active, DELETE retire), apres le PUT, puis relit l'ensemble. L'option est disponible : le depot est public, et la limite de plan GitHub ne vise que les depots prives.
 
-Activer `required_signatures` (endpoint distinct `branches/main/protection/required_signatures`, non gere par le script) est une **decision owner**.
+### Ce que cela ajoute a G3
+
+| Controle | Ce qu'il exige | Ou |
+|----------|----------------|----|
+| G3 (`check-signatures.sh`) | Une signature cryptographiquement valide. Une cle absente du [[key-registry]] (`%G?` = `U`) passe | CI, check requis |
+| `required_signatures` | Chaque commit **verifie par GitHub** : cle enregistree comme *Signing Key* sur un compte GitHub, e-mail committer verifie sur ce compte | GitHub, au merge |
+
+G3 prouve qu'une cle a signe ; `required_signatures` prouve que cette cle est rattachee a un compte et a une identite verifies. La documentation GitHub precise que des commits non verifies sur la branche de la PR peuvent bloquer un merge squash, meme si GitHub signe le commit squash final : chaque commit pousse sur une branche de PR doit donc etre verifie.
+
+### Preconditions d'activation
+
+1. Chaque cle qui signe des commits de PR est enregistree comme *Signing Key* sur le compte GitHub (etat par cle : [[key-registry]]).
+2. L'e-mail committer de ces commits est un e-mail verifie de ce compte. Dans le clone du vault, `user.email` de la config locale le fixe ; un clone ou une session qui committe avec une autre identite produit des commits non verifies, que la protection refusera.
+3. Preuve : un commit signe par chaque cle d'agent, pousse apres l'enregistrement, affiche `verified: true` et `reason: valid` dans `gh api repos/ak125/governance-vault/commits/<sha> --jq .commit.verification`.
+
+Sans ces trois points, l'activation bloque toute PR signee par une cle non enregistree. Tant que l'activation n'est pas faite, `--check` sort 1 avec cette seule difference (`required_signatures` : attendu `true`, en vigueur `false`).
+
+### Retrait
+
+`gh api -X DELETE repos/ak125/governance-vault/branches/main/protection/required_signatures` retire l'exigence ; `--check` reste rouge tant que la declaration du script n'est pas modifiee par PR. Le retrait laisse une trace dans les audit logs GitHub : le documenter comme une desactivation d'urgence.
+
+### Hors de ce reglage
+
+Le merge rebase ajoute les commits de la PR « sans verification de signature » (documentation GitHub) et reste autorise au niveau du depot (`allow_rebase_merge: true`). Le desactiver est un reglage du depot, distinct de la protection de branche ; la methode prescrite reste le squash (section suivante).
 
 ---
 
@@ -191,7 +214,7 @@ Les niveaux sont **redondants par conception**. Le local attrape la plupart des 
 _scripts/setup-branch-protection.sh --check
 ```
 
-Le script compare a sa demande les checks requis (nom et `app_id`), `strict`, `enforce_admins`, `required_linear_history`, les reviews, `restrictions`, `allow_force_pushes`, `allow_deletions`, `block_creations` et `required_conversation_resolution`. Tout ecart (check absent ou lie a une autre app, `enforce_admins` ou `linear_history` a `false`, `force_push` ou `deletions` a `true`…) est affiche en diff et sort 1 : la protection est **compromise** ou la mise a jour de la sous-ressource n'a pas ete faite. `required_signatures` est hors du script (voir « Signatures Requises »).
+Le script compare a sa demande les checks requis (nom et `app_id`), `strict`, `enforce_admins`, `required_linear_history`, les reviews, `restrictions`, `allow_force_pushes`, `allow_deletions`, `block_creations` et `required_conversation_resolution`. Tout ecart (check absent ou lie a une autre app, `enforce_admins`, `linear_history` ou `required_signatures` a `false`, `force_push` ou `deletions` a `true`…) est affiche en diff et sort 1 : la protection est **compromise** ou la mise a jour d'une sous-ressource n'a pas ete faite.
 
 ---
 

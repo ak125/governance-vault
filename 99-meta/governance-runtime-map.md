@@ -71,9 +71,8 @@ chaque ajout de script governance ou modification de write/read path.
 > lundi (`vault-weekly-lint.yml`, non bloquant : issue quand de nouveaux findings
 > apparaissent) et, sans les 3 checks cross-repo, sur chaque PR via
 > `ci-vault-gate.sh pr` (rouge sur toute erreur). Les gates bloquants sont les
-> checks requis de `vault-governance.yml` ([[branch-protection]]) ; le job du gate
-> en fait partie une fois la protection mise à jour
-> (`setup-branch-protection.sh --check` dit si c'est fait).
+> checks requis de `vault-governance.yml` ([[branch-protection]]), dont le job du
+> gate depuis le 2026-10-01.
 
 ### Couche D — Automation (CI + cron)
 
@@ -135,18 +134,17 @@ Branch protection main : checks requis, `enforce_admins: true`, PR requise
 
 ## Modèle 3 couches de protection
 
-État de la protection effective du vault (vérifié le 2026-09-30 ; ligne L2 mise à jour le 2026-10-01 pour la PR #360) :
+État de la protection effective du vault (vérifié le 2026-10-01 par `setup-branch-protection.sh --check`) :
 
 | Couche | Mécanisme | État vault | Couvert par |
 |--------|-----------|------------------------|-------------|
 | **L1 — Canonique (logique)** | ADRs / SoT / canonical routes / role canon / URL ownership / write-path | ✅ Actif | ADR-015, R-SEO-09, frontmatter schemas, série PR-1..3 |
-| **L2 — CI (structurel)** | checks requis sur chaque PR, dont le gate `ci-vault-gate.sh pr` (weekly-lint sans cross-repo + `sync_moc_decisions.py --check`) et `pytest _scripts` + weekly-lint hebdomadaire complet (non bloquant) + parity test enums + AST no-direct-schema | 🟡 Partiel : gate livré par #360, bloquant une fois la protection mise à jour ; mode `weekly` et issue `infra-fail` non implémentés ; checks cross-repo seulement sur la machine DEV ; projection planning non vérifiée | `vault-governance.yml`, PR-2 / PR-2b, #360 |
-| **L3 — GitHub branch (runtime)** | `enforce_admins=true` + check requis G3 + PR requise | ✅ Actif (constaté le 2026-09-30 ; `required_signatures` false, 0 review requise) | [[branch-protection]] |
+| **L2 — CI (structurel)** | checks requis sur chaque PR, dont le gate `ci-vault-gate.sh pr` (weekly-lint sans cross-repo + `sync_moc_decisions.py --check`) et `pytest _scripts` + weekly-lint hebdomadaire complet (non bloquant) + parity test enums + AST no-direct-schema | 🟡 Partiel : gate livré par #360, check requis depuis le 2026-10-01 ; mode `weekly` et issue `infra-fail` non implémentés ; checks cross-repo seulement sur la machine DEV ; projection planning non vérifiée | `vault-governance.yml`, PR-2 / PR-2b, #360 |
+| **L3 — GitHub branch (runtime)** | `enforce_admins=true` + check requis G3 + PR requise | ✅ Actif (constaté le 2026-10-01 : 7 checks requis, 0 review requise ; `required_signatures` déclaré `true` par le script, en vigueur une fois les préconditions remplies, voir [[branch-protection]]) | [[branch-protection]] |
 
 Le push direct sur `main` est refusé à tous, admins compris. Ce qui reste ouvert
 est en L2 : la projection planning n'est vérifiée par aucun check, les checks
-cross-repo ne tournent que sur la machine DEV, et le gate de PR ne bloque le
-merge qu'une fois ajouté aux checks requis.
+cross-repo ne tournent que sur la machine DEV.
 
 ## Write paths
 

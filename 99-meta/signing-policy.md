@@ -2,13 +2,13 @@
 type: policy
 status: canon
 rule: G3
-updated: 2026-09-30
+updated: 2026-10-01
 ---
 
 # Politique de Signature des Commits (G3)
 
 **Statut**: Actif depuis 2026-02-02
-**Enforcement**: check requis `G3: Commits signes` (job `g3-signed-commits`, voir [[branch-protection]]) + hook local `.githooks/pre-push`
+**Enforcement**: check requis `G3: Commits signes` (job `g3-signed-commits`, voir [[branch-protection]]) + hook local `.githooks/pre-push` + `required_signatures` declare sur `main` (commits verifies par GitHub)
 **Regle canonique**: [[rules-vault]] G3
 
 ---
@@ -29,6 +29,8 @@ G3 est enforce **au niveau PR**. Le job `g3-signed-commits` execute `_scripts/ch
 | Hook local pre-push | `merge-base(origin/main)..HEAD` |
 
 Le script rejette les statuts `%G?` `N` (non signe) et `B` (signature invalide) ; il accepte tous les autres. Une signature SSH valide par une cle absente d'`allowed_signers` donne `U` et passe : G3 exige une signature, pas une cle du [[key-registry]].
+
+**Verification GitHub** : `required_signatures`, declare par `_scripts/setup-branch-protection.sh`, ajoute ce que G3 ne fait pas. Au merge, GitHub n'accepte que des commits *verifies* : signes par une cle enregistree comme *Signing Key* sur un compte GitHub, avec un e-mail committer verifie sur ce compte. Preconditions, etat et retrait : [[branch-protection]], section « Signatures Requises ».
 
 **Note sur main** : les PR sont fusionnees en squash ; le commit cree sur `main` est signe par GitHub (`verification.reason = valid`), pas par K001/K002. `git verify-commit` local echoue sur ces commits (cle GitHub absente d'`allowed_signers`) : verifier par l'API. Les 22 commits non signes issus des merges rebase historiques (avril 2026, PR #336) et les pushes directs sans PR sont detailles dans [[branch-protection]], section « Methode de Merge et Chaine de Signature ».
 
@@ -85,9 +87,16 @@ git config --global commit.gpgsign true
 echo "$(git config user.email) $(cat ~/.ssh/id_ed25519.pub)" >> ~/.ssh/allowed_signers
 git config --global gpg.ssh.allowedSignersFile ~/.ssh/allowed_signers
 
-# 4. (Optionnel) Ajouter la cle a GitHub comme "Signing Key"
-#    https://github.com/settings/keys -> New SSH key -> type "Signing Key"
+# 4. Enregistrer la cle comme "Signing Key" du compte GitHub (requis par required_signatures)
+gh auth refresh -h github.com -s admin:ssh_signing_key
+gh ssh-key add ~/.ssh/id_ed25519.pub --type signing --title "<ID du key-registry>"
+#    ou : https://github.com/settings/keys -> New SSH key -> type "Signing Key"
+
+# 5. Dans le clone du vault : user.email = un e-mail verifie de ce compte GitHub
+git config user.email "<e-mail verifie du compte>"
 ```
+
+Controle : apres un push, `gh api repos/ak125/governance-vault/commits/<sha> --jq .commit.verification` doit afficher `"verified": true` et `"reason": "valid"`.
 
 ### Windows
 
@@ -128,7 +137,8 @@ Une ligne par cle autorisee. Si une cle n'est pas dans ce fichier, `git log --sh
 | Commit non signe dans une PR | Check requis G3 en echec, merge bloque ; le hook pre-push (s'il est installe) refuse deja le push |
 | Push direct sur `main` | Refuse par la protection (PR requise, `enforce_admins: true`) |
 | Signature invalide (`%G? = B`) | Rejet, investigation cle |
-| Cle non enregistree dans `allowed_signers` | Statut `U` : `No principal matched` localement, **accepte** par G3 (non bloquant CI) |
+| Cle non enregistree dans `allowed_signers` | Statut `U` : `No principal matched` localement, **accepte** par G3 (non bloquant CI) ; la verification GitHub est independante de ce fichier (ligne suivante) |
+| Commit non verifie par GitHub (cle absente des *Signing Keys* du compte, ou e-mail committer non verifie) | Merge refuse par `required_signatures` une fois active : re-signer avec une cle enregistree et l'identite du compte |
 
 ### Test local (doit echouer)
 
@@ -182,8 +192,9 @@ Quand une cle est compromise ou perimee:
 1. Retirer la cle de `~/.ssh/allowed_signers` sur toutes les machines autorisees
 2. Marquer "Revoquee" dans [[key-registry]]
 3. Generer nouvelle cle et ajouter a `allowed_signers`
-4. Si compromission: documenter dans [[MOC-Incidents]]
-5. Commit signe avec la nouvelle cle pour acter la rotation
+4. Retirer l'ancienne cle des *Signing Keys* du compte GitHub et y enregistrer la nouvelle (sinon `required_signatures` refuse ses commits)
+5. Si compromission: documenter dans [[MOC-Incidents]]
+6. Commit signe avec la nouvelle cle pour acter la rotation
 
 ---
 
@@ -197,4 +208,4 @@ Quand une cle est compromise ou perimee:
 
 ---
 
-_Derniere mise a jour: 2026-09-30_
+_Derniere mise a jour: 2026-10-01_
