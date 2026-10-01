@@ -112,8 +112,9 @@ ne produit aucun contenu du vault ([[ADR-102-airlock-rpc-gate-bundle-channel-ret
 - Point 2 : **regle de conduite**. La protection n'exige aucune revue, et un jeton qui peut ouvrir
   une PR peut la fusionner. La rendre mecanique (identite GitHub distincte pour les agents, revue
   requise) est une decision owner
-- Point 3 : `_scripts/check-ci-read-only.py`, execute sur les workflows reels par
-  `_scripts/test_ci_read_only.py` dans le check requis `Vault Scripts Tests`
+- Point 3 : `_scripts/check-ci-read-only.py`, execute sur les workflows reels par le check requis
+  `G4: CI read-only sur canon`, et par `_scripts/test_ci_read_only.py` dans le check requis
+  `Vault Scripts Tests`
 
 **Reponse a incident:** fermer les PR de l'agent, puis revoquer son acces en ecriture (cle de
 signature, voir [[key-registry]] « Procédure de Révocation », et jeton GitHub de la machine qui

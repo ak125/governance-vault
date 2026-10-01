@@ -82,7 +82,7 @@ CLAUDE.md          # Instructions agents (ce fichier est un extrait)
 
 ## Anti-patterns (interdits)
 
-Bloqués mécaniquement : orphelins, wikilinks cassés, commits non signés, chemins v1 (checks requis) et push direct ou forcé sur `main` (protection de branche). L'écriture CI est empêchée par les permissions `contents: read` des workflows, pas par le check G4 (simple marqueur). Le reste repose sur les hooks locaux ou la revue.
+Bloqués mécaniquement : orphelins, wikilinks cassés, commits non signés, chemins v1 (checks requis) et push direct ou forcé sur `main` (protection de branche). L'écriture CI est empêchée par le bloc `permissions:` de chaque workflow, et le check requis G4 (`_scripts/check-ci-read-only.py`) le vérifie à chaque PR. Le reste repose sur les hooks locaux ou la revue.
 
 - Écrire dans `.local/governance-vault/` (pre-commit hook bloque)
 - Créer un document sans frontmatter YAML

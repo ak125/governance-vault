@@ -50,7 +50,7 @@ chaque ajout de script governance ou modification de write/read path.
 | `check-signatures.sh` | G3 (signatures) | check requis `G3: Commits signes`, hook pre-push |
 | `check-vault-pollution.sh` | sections opérationnelles (ADR-060 §1A inv. 5) | check **non requis** `No Operational Sections`, weekly-lint |
 | `check-self-review-marker.sh` | marqueur `Self-review verdict` | check **non requis** `Self-Review Marker` |
-| `check-ci-read-only.py` | G4 : aucun workflow ne peut écrire dans le vault (ADR-102 D3) | check requis `Vault Scripts Tests` (`test_ci_read_only.py` sur les workflows réels) ; job `G4: CI read-only sur canon` une fois son workflow modifié par l'owner |
+| `check-ci-read-only.py` | G4 : aucun workflow ne peut écrire dans le vault (ADR-102 D3) | checks requis `G4: CI read-only sur canon` et `Vault Scripts Tests` (`test_ci_read_only.py` sur les workflows réels) |
 | `check-frontmatter-schema.py`, `check-adr-supersedes.py`, `check-obsolete-rules.py`, `check-moc-integrity.py` | frontmatter, chaînes supersedes, rules obsolètes, invariants MOC | weekly-lint |
 | `check-no-direct-schema-enum-access.sh` (→ `check_no_direct_schema_enum_access.py`), `test_governance_constants.py` | frontière schemas ↔ constants (PR-2 / PR-2b) | weekly-lint |
 | `check-canon-backlinks.py`, `check-canon-freshness.py`, `check-canon-cross-repo.py` | cohérence vault ↔ monorepo | weekly-lint, seulement si le monorepo est présent : marqués `skipped` en GHA |

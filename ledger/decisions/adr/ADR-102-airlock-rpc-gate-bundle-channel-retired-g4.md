@@ -122,8 +122,9 @@ lisent « PR sur le dépôt cible ». Les fiches ne sont pas réécrites une à 
    autre que le `GITHUB_TOKEN` du workflow hors exception nommée (le job `dispatch` de
    `canon-publish.yml`, dont le jeton d'App est limité au dépôt cible). Le test
    `_scripts/test_ci_read_only.py` fait tourner ce contrôle sur les workflows réels dans le check
-   requis `Vault Scripts Tests`. Le job du check requis `G4: CI read-only sur canon` l'exécute
-   aussi une fois son workflow modifié par l'owner (les fichiers `.github/` lui sont réservés).
+   requis `Vault Scripts Tests`. Le job du check requis `G4: CI read-only sur canon`, jusque-là
+   réduit à trois `echo`, l'exécute aussi : son workflow est modifié par un commit de l'owner dans
+   la PR de cet ADR (les fichiers `.github/` lui sont réservés).
 4. **`AI_VAULT_WRITE` est retiré.** Aucune règle ne s'y réfère plus.
 
 ### D4 — Réponse à incident
@@ -166,8 +167,8 @@ signature (« Procédure de Révocation » de [[key-registry]]) et le jeton GitH
   d'`AI_VAULT_WRITE` dans le `CLAUDE.md` du monorepo relèvent d'un suivi monorepo.
 - **Il ne supprime pas** le dossier `/opt/automecanik/airlock` de la machine DEV et n'archive pas le
   dépôt `agent-submissions` : actions owner.
-- **Il ne modifie pas le workflow `vault-governance.yml`** : le branchement du job G4 sur
-  `check-ci-read-only.py` est fourni à l'owner sous forme de patch.
+- **Il ne modifie aucun autre workflow** : dans `vault-governance.yml`, seul le job G4 change
+  (commit de l'owner, D3.3).
 - **Il ne traite pas** l'étape 4 de la procédure d'[[ADR-087-command-center-orchestration|ADR-087]]
   (`proposed`, elle cite `gov`), le writer planning d'[[ADR-053-planning-live-system|ADR-053]]
   (conçu pour pousser sur `main`, refusé par la protection), le texte de G8, la section « Kill
@@ -189,8 +190,6 @@ signature (« Procédure de Révocation » de [[key-registry]]) et le jeton GitH
 
 - La règle « un agent ne fusionne jamais » reste une règle de conduite tant que l'owner n'a pas donné
   aux agents une identité GitHub distincte et exigé une revue.
-- Jusqu'au patch owner, le check requis `G4: CI read-only sur canon` reste un marqueur ; le contrôle
-  réel passe par `Vault Scripts Tests`.
 
 ### Neutres
 
@@ -203,6 +202,7 @@ signature (« Procédure de Révocation » de [[key-registry]]) et le jeton GitH
 | ADR-002, 007, 008, 009, 010, 011, 012, 013 | `amended_by: ["ADR-102"]` (frontmatter seul, corps inchangé) |
 | `ledger/rules/rules-vault.md` | v3.1.0 : G4, checklist, sanctions, références |
 | `_scripts/check-ci-read-only.py`, `_scripts/test_ci_read_only.py` | nouveaux (D3.3) |
+| `.github/workflows/vault-governance.yml` | job `G4: CI read-only sur canon` : exécute `check-ci-read-only.py` ; env `AI_VAULT_WRITE` et `echo` retirés ; nom du check inchangé (commit de l'owner, D3.3) |
 | `_scripts/gov`, `_scripts/evidence-pack.sh`, `.gitattributes` | supprimés / ligne retirée (D5) |
 | `ledger/policies/BUNDLE-SPEC.md`, `ledger/policies/prompts/PROMPT-bundle-producer.v1.md`, `ledger/agents/bundles/BUNDLE-REGISTRY.md`, `ledger/policies/bundle.schema.v1.json`, `ledger/policies/examples/bundle.example.v1/` | archivés sous `ledger/_archive/` (D5) |
 | `ledger/_archive/INDEX-archive.md`, `ops/moc/MOC-Policies.md`, `ledger/agents/bundles/INDEX-agents-bundles.md`, `ops/moc/MOC-Agents.md` | liens vers les archives |

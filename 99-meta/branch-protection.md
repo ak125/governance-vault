@@ -56,7 +56,7 @@ Le merge est bloque tant que l'un de ces checks n'a pas le status **SUCCESS**. C
 | `G2: Zero Orphelin` | `g2-orphans` | Execute `check-orphans.sh`, exit 1 si orphelins |
 | `Broken Wikilinks` | `broken-links` | Execute `check-broken-links.sh`, exit 1 si liens casses |
 | `G3: Commits signes` | `g3-signed-commits` | Execute `check-signatures.sh` : en PR, chaque commit `base..head` ; sur un push, `HEAD~1..HEAD` seulement |
-| `G4: CI read-only sur canon` | `g4-canon-write-block` | Marqueur : le job affiche 3 lignes et ne verifie rien. Le controle reel de G4 (`check-ci-read-only.py`, ADR-102) tourne dans `Vault Scripts Tests` ; ce job l'executera une fois son workflow modifie par l'owner. Nom du check inchange : c'est un contexte requis |
+| `G4: CI read-only sur canon` | `g4-canon-write-block` | `_scripts/check-ci-read-only.py` : aucun workflow ne peut ecrire dans le vault (ADR-102). Avant ADR-102, le job affichait 3 lignes et ne verifiait rien. Nom du check inchange : c'est un contexte requis |
 | `No V1 Paths (ADR-015)` | `v1-paths` | Execute `check-v1-paths.sh`, exit 1 si un fichier suivi est sous un dossier v1 a la racine (`0X-…/`) ou sous `scripts/` |
 | `Vault Scripts Tests` | `vault-scripts-tests` | `pytest _scripts` : les validateurs du vault et leurs tests |
 | `Vault Lint Gate (ADR-020)` | `vault-lint-gate` | Execute `ci-vault-gate.sh pr` : checks de `weekly-lint.sh` sur le vault seul et `sync_moc_decisions.py --check` (index [[MOC-Decisions]]) |

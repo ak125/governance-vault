@@ -38,7 +38,7 @@ Enforcement: CI job `g3-signed-commits`.
 
 Aucune ecriture directe sur `main` : toute modification passe par une PR aux commits signes, sous les checks requis. Un agent prepare une PR, un humain la fusionne. La CI ne produit aucun contenu du vault ([[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4|ADR-102]]).
 
-Enforcement : protection de `main` (voir [[branch-protection]]) + `_scripts/check-ci-read-only.py`, execute sur les workflows reels a chaque PR par le check requis `Vault Scripts Tests`. Voir `99-meta/ci-policy.md`.
+Enforcement : protection de `main` (voir [[branch-protection]]) + `_scripts/check-ci-read-only.py`, execute sur les workflows reels a chaque PR par les checks requis `G4: CI read-only sur canon` et `Vault Scripts Tests`. Voir `99-meta/ci-policy.md`.
 
 ---
 

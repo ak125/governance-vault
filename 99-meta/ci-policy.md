@@ -140,7 +140,7 @@ Si un cas d'usage légitime nécessite une écriture automatisée:
 ## Audit
 
 Cette politique est vérifiée par:
-- À chaque PR : `_scripts/check-ci-read-only.py` sur les workflows réels (`test_ci_read_only.py`, check requis `Vault Scripts Tests`, [[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4|ADR-102]]). Toute nouvelle exception (scope `write`, jeton) s'ajoute dans ce script, par PR
+- À chaque PR : `_scripts/check-ci-read-only.py` sur les workflows réels (checks requis `G4: CI read-only sur canon` et `Vault Scripts Tests`, [[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4|ADR-102]]). Toute nouvelle exception (scope `write`, jeton) s'ajoute dans ce script, par PR
 - Revue trimestrielle des tokens GitHub
 - Audit mensuel des signatures (`_scripts/audit-signatures.sh`) — cron non installé au 2026-09-30, voir [[cron-setup]]
 - Monitoring des push sur le repo

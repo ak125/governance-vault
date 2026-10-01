@@ -40,7 +40,7 @@ Les regles G1-G4 de gouvernance du vault lui-meme. Voir [[rules-vault]].
 | G1 | Le vault decide (ADR-101) | Decision = ADR `accepted` ; divergence decision/code signalee |
 | G2 | Zero orphelin | `_scripts/check-orphans.sh` |
 | G3 | Commits signes | Check requis `G3: Commits signes` + hook `pre-push` |
-| G4 | Ecriture par PR, CI en lecture seule (ADR-102) | Protection de `main` + `_scripts/check-ci-read-only.py` (check requis `Vault Scripts Tests`) ; fusion par un humain (regle de conduite) |
+| G4 | Ecriture par PR, CI en lecture seule (ADR-102) | Protection de `main` + `_scripts/check-ci-read-only.py` (checks requis `G4: CI read-only sur canon` et `Vault Scripts Tests`) ; fusion par un humain (regle de conduite) |
 
 ---
 

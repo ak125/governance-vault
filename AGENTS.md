@@ -101,8 +101,8 @@ du checkout runtime. Quand ce checkout n'est pas sur `main`, seule la ref bouge 
 
 Bloqués mécaniquement : G2, G3, les wikilinks cassés et les chemins v1 (checks requis) ainsi que le push
 direct ou forcé sur `main` (protection de branche), voir [[branch-protection]]. La lecture seule de la CI
-(G4) est vérifiée sur les workflows réels par `_scripts/check-ci-read-only.py`, dans le check requis
-`Vault Scripts Tests`. Rien ne bloque la fusion d'une PR par un agent : c'est une règle de conduite (G4).
+(G4) est vérifiée sur les workflows réels par `_scripts/check-ci-read-only.py`, dans les checks requis
+`G4: CI read-only sur canon` et `Vault Scripts Tests`. Rien ne bloque la fusion d'une PR par un agent : c'est une règle de conduite (G4).
 Les autres interdits reposent sur les hooks locaux ou sur la revue.
 
 - Écrire dans `/opt/automecanik/app/.local/governance-vault/*` (PR #81 ajoute hook pre-commit)
