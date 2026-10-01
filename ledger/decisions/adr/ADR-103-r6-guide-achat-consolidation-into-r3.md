@@ -24,8 +24,9 @@ version: "1.0.0"
   R5 → R3, appliqué aux guides d'achat.
 - **Amende** [[ADR-090-seo-projection-forward-writer-canon|ADR-090]] sur le seul point §C2
   « existence-gating du lien `buying-guide` » (voir D5). Le reste d'ADR-090 reste en vigueur.
-- **Méthode** : chaque chiffre ci-dessous a été mesuré le 2026-10-01 (base de données en lecture
-  seule, `main` du monorepo au commit `4dcd4cf9b`, GSC sur 90 jours).
+- **Méthode** : les chiffres ci-dessous ont été mesurés le 2026-10-01 (base de données en lecture
+  seule, `main` du monorepo au commit `4dcd4cf9b`). Les chiffres GSC (90 jours) sont repris de la
+  description de #1613.
 
 ## Périmètre
 
@@ -41,11 +42,10 @@ Il ne porte **pas** sur `R6_SUPPORT` (`/support/*`, `/cgv`), visé par la règle
 
 ## Contexte
 
-1. **Deux pages pour une même intention.** Le guide d'achat (« comment choisir ») et l'article
-   conseils (R3) d'une même gamme se disputent les mêmes requêtes. R3 porte déjà l'intention
-   « choisir » : la section S3 « Choisir le bon … » existe pour **259 gammes**.
+1. **Deux pages pour une même intention.** Quand une gamme a les deux, le guide d'achat
+   (« comment choisir ») répète la section S3 « Choisir le bon … » de l'article conseils (R3).
 2. **Mesure GSC, 90 jours** : guides d'achat **83 clics / 9,5k impressions** ; conseils
-   **764 clics**. Le guide capte peu et dilue le conseil.
+   **764 clics**. Le guide capte peu de trafic.
 3. **Décision owner du 2026-06-10**, implémentée inerte par le monorepo #925 (`72af6c316`) :
    redirection 301 du guide vers les conseils, seulement si la gamme a un article conseils publié.
 4. **Monorepo #1613** (`4dcd4cf9b`, 2026-10-01), toujours derrière le drapeau éteint
@@ -57,20 +57,28 @@ Il ne porte **pas** sur `R6_SUPPORT` (`/support/*`, `/cgv`), visé par la règle
    - 0 guide sans gamme.
 6. **Maillage interne non aligné.** Mesuré le 2026-10-01, le site lie massivement vers les guides :
    - **221 lignes sur 238** de `__seo_r1_related_blocks_cache` contiennent un lien `buying-guide`
-     vers `/guide-achat/{alias}` (pages gamme R1) ;
+     vers `/guide-achat/{alias}` (pages gamme R1). Ce cache **n'a pas de writer** :
+     - il a été rempli une seule fois le 2026-06-11 (ADR-024 phase 5, monorepo #940) ;
+     - ses endpoints de reconstruction ont été retirés ;
+     - le producteur prévu par ADR-090 §C2 n'existe pas encore ;
    - liens codés en dur dans le frontend :
-     - page conseils (`blog-pieces-auto.conseils.$pg_alias.tsx`, encart « Consultez le guide
-       d'achat ») ;
-     - `ConseilSections.tsx` (section S3) ;
-     - `pieces.$slug.tsx` (« Liens utiles ») ;
-     - `r1-reusable-content.ts` (carte « Guide d'achat ») ;
-     - `ContentGuidePills.tsx` ;
+     - page conseils (`blog-pieces-auto.conseils.$pg_alias.tsx`), encart « Consultez le guide
+       d'achat », affiché sans condition ;
+     - `ConseilSections.tsx`, section S3, affiché seulement si un guide est publié ;
+     - `pieces.$slug.tsx`, « Liens utiles », affiché sans condition ;
+     - deux composants contiennent aussi ce lien (`R1ReusableContent.tsx`, `ContentGuidePills.tsx`)
+       mais aucune route ne les rend ;
    - liens de navigation vers le hub (8 composants, dont `QuickAccessGrid`, `GuidesStrip`,
      `BlogNavigation`, `plan-du-site`) ;
    - redirections héritées vers `/guide-achat/*` (`$.tsx`, `blog-pieces-auto.article.$slug.tsx`).
 
-   Activé tel quel, le drapeau ferait pointer ces liens vers des 301 ou des pages hors index. Sur
-   une page conseils, l'encart renverrait même par 301 vers la page elle-même.
+   Les 221 blocs R1 pointent tous vers un guide publié. Activé tel quel, le drapeau ferait pointer
+   ces liens vers des 301 ou des pages hors index. Sur une page conseils, l'encart renverrait même
+   par 301 vers la page elle-même.
+
+   Un défaut existe déjà, drapeau éteint : l'encart de la page conseils et les « Liens utiles » de
+   la page gamme ne vérifient pas qu'un guide est publié. 12 pages conseils sur 85 et 14 pages
+   gamme sur 232 lient donc un guide non publié.
 
 ## Décision
 
@@ -109,21 +117,29 @@ projeter dans R3 est hors périmètre et relèvera d'une décision distincte.
 
 ### D5 — Maillage interne aligné, condition préalable à l'activation (amende ADR-090 §C2)
 
-Drapeau allumé, **aucun lien interne n'est émis vers une URL de guide retirée**.
+Drapeau allumé, **aucun lien interne n'est émis vers une page détail de guide**.
 
-- **Liens R1 (ADR-090 §C2).** Le *writer* émet un lien `buying-guide` vers un guide seulement si
-  le guide est publié non-draft **et** la consolidation est éteinte. Consolidation allumée, le bloc
-  `buying-guide` ne garde que le lien conseils (déjà prévu par §C2, score 0,9). La décision reste
-  côté writer : le chemin de lecture et le frontend n'arbitrent rien, comme le pose §C2.
-- **Liens codés en dur.** Chaque lien vers un guide est soit retiré, soit remplacé par le lien
-  conseils. La cible est décidée par le backend à partir du même drapeau, puis transmise au
-  frontend, qui ne devine rien.
-- **Redirections héritées.** Pas de chaîne : une redirection qui visait un guide redirigé vise
-  directement la page conseils.
-- **Navigation vers le hub.** Les liens de navigation ne pointent plus vers le hub retiré.
+- **Une seule règle, côté backend.** Un guide peut recevoir un lien seulement s'il est publié
+  non-draft **et** si la consolidation est éteinte. Tout producteur de lien vers un guide applique
+  cette règle. Le frontend affiche un lien de guide uniquement quand le backend le lui indique ; il
+  ne décide rien.
+- **Blocs R1 (amende ADR-090 §C2).**
+  - Tant que `__seo_r1_related_blocks_cache` n'a pas de writer, le chemin de lecture backend
+    applique la règle : consolidation allumée, il retire les liens de guide des blocs servis. Un
+    bloc vidé n'est pas retourné (§C2). Le lien conseils du bloc `buying-guide`, déjà prévu par
+    §C2, reste.
+  - Le jour où le writer d'ADR-059 existe, il applique la même règle à l'écriture.
+  - Le cache lui-même n'est pas réécrit.
+- **Liens codés en dur** (page conseils, page gamme) : affichés seulement si le backend indique un
+  guide pouvant recevoir un lien. Drapeau éteint, cela corrige aussi les 26 pages qui lient
+  aujourd'hui un guide non publié ; ce changement est déclaré dans la PR.
+- **Redirections héritées** vers `/guide-achat/*` (anciennes URL `/guide/*`, anciens articles) :
+  inchangées. Drapeau allumé, elles forment une chaîne de deux 301 vers les conseils, sans boucle.
+  Cette chaîne est tolérée.
+- **Navigation vers le hub** : inchangée. Le hub reste servi, en `noindex, follow`.
 
-Ce travail se fait dans une PR monorepo derrière le même drapeau, éteint par défaut, donc sans
-effet avant l'activation.
+Ce travail se fait dans une PR monorepo derrière le même drapeau, sans autre effet avant
+l'activation que la correction de ces 26 pages.
 
 ### D6 — Ordre d'activation
 
@@ -138,8 +154,8 @@ effet avant l'activation.
 4. Câblage du drapeau en PROD (owner) : ajouter `SEO_R6_CONSOLIDATION_ENABLED_OVERRIDE` depuis la
    variable `PROD_SEO_R6_CONSOLIDATION_ENABLED` dans `deploy-prod.yml`, sur le modèle des
    variables `PROD_SEO_PROJECTION_*`. Puis passer la variable à `true` et créer le tag PROD.
-5. Reconstruction du cache des blocs R1 par le writer, jamais par SQL manuel. Contrôle attendu :
-   0 ligne de `__seo_r1_related_blocks_cache` contenant `/guide-achat/`.
+5. Contrôle après le tag : pages gamme et conseils échantillonnées, 0 lien rendu vers une page
+   détail `/guide-achat/`.
 6. Observation (voir Métriques).
 
 ## Options considérées
@@ -150,8 +166,8 @@ effet avant l'activation.
   URL perdue ; le `noindex, follow` garde la page utile au visiteur.
 - **301 de tous les guides, même sans conseils** : rejeté. Ce serait une redirection vers 404,
   ou vers une page hors sujet.
-- **Activer sans aligner le maillage** : rejeté. Cela créerait 221 liens R1 vers des 301 ou des
-  pages hors index, et des boucles sur les pages conseils.
+- **Activer sans aligner le maillage** : rejeté. Les 221 blocs R1 lieraient des 301 ou des pages
+  hors index, et l'encart des pages conseils renverrait par 301 vers la page elle-même.
 
 ## Ce que cet ADR NE fait PAS
 
@@ -170,8 +186,8 @@ effet avant l'activation.
 
 ### Négatives
 
-- Les 83 clics par trimestre des guides passent par une 301 ou disparaissent de l'index, le temps
-  que R3 les reprenne.
+- Les 83 clics sur 90 jours des guides passent par une 301 ou sortent de l'index, le temps que R3
+  les reprenne.
 - Le retour arrière demande un déploiement PROD (voir Rollback).
 
 ### Constats (ADR-101 D3)
@@ -189,8 +205,7 @@ effet avant l'activation.
 - Clics des pages conseils au moins égaux à la base de 764 sur 90 jours, à saisonnalité
   comparable.
 - `sitemap-blog.xml` : 0 URL `/guide-achat/` après sa prochaine génération normale.
-- Cache des blocs R1 : 0 lien vers `/guide-achat/`.
-- Liens internes du frontend : 0 lien rendu vers un guide retiré.
+- Blocs R1 servis et liens codés en dur : 0 lien rendu vers une page détail `/guide-achat/`.
 
 ## Rollback
 
@@ -206,7 +221,8 @@ Passer `PROD_SEO_R6_CONSOLIDATION_ENABLED` à `false`, puis redéployer PROD (no
 - Générer du contenu pour « combler » les 148 guides sans conseils (D3).
 - Supprimer une page de guide ou lui renvoyer 404 ou 410.
 - Activer le drapeau avant la fusion de la PR « maillage » (D5, D6).
-- Filtrer les liens de guide dans le chemin de lecture ou le frontend au lieu du writer (ADR-090 §C2).
+- Décider dans le frontend si un guide peut recevoir un lien (la règle vit au backend, D5).
+- Réécrire `__seo_r1_related_blocks_cache` à la main (SQL) pour retirer les liens.
 - Déclencher la génération du sitemap pour accélérer le retrait.
 
 ## Références
