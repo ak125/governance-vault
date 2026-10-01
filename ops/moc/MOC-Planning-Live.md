@@ -1,13 +1,19 @@
 ---
 type: moc
 status: canon
-updated: 2026-08-14
+updated: 2026-10-01
 schema_version: planning.v1
 semantic_hash: 205ade8c0c693182
 adr_link: ADR-053
 ---
 
 # MOC-Planning-Live
+
+> **Instantané figé au 2026-08-14 — n'est plus mis à jour.** Le writer automatique, la projection
+> GitHub Project et les alertes P0 ont été retirés par
+> [[ADR-104-planning-live-writer-retired|ADR-104]]. Les tableaux ci-dessous datent du dernier
+> snapshot (`semantic_hash` inchangé) et ne décrivent pas l'état courant des PR : au 2026-10-01,
+> 9 des 52 PR listées ne sont plus ouvertes. L'état d'une PR se lit sur GitHub.
 
 ## Items actifs (auto-generated)
 

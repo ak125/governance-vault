@@ -203,6 +203,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-101 | Le vault décide : autorité des ADR et des règles du vault, rang des fichiers `.spec/00-canon/` du monorepo, correction des copies de règles legacy, retrait de sync-canon.sh — amende ADR-015 §5 | Accepted | 2026-10-01 | [[ADR-101-vault-decides-canon-authority]] |
 | ADR-102 | Airlock réduit au RPC gate, canal de bundles retiré, G4 réécrite (écriture par PR, CI en lecture seule) — amende ADR-002, 007 à 013 | Accepted | 2026-10-01 | [[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4]] |
 | ADR-103 | Guides d'achat (R6_GUIDE_ACHAT) consolidés dans les conseils (R3) — retrait de l'index sous drapeau, maillage interne aligné avant activation : amende ADR-090 §C2 | Accepted | 2026-10-01 | [[ADR-103-r6-guide-achat-consolidation-into-r3]] |
+| ADR-104 | Planning Live : writer automatique, projection GitHub Project et alertes P0 retirés ; MOC figé, taxonomies conservées — amende ADR-053 | Accepted | 2026-10-01 | [[ADR-104-planning-live-writer-retired]] |
 
 <!-- AUTO-GENERATED:moc-decisions-canonical-index end -->
 
