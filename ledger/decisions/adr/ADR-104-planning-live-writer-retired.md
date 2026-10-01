@@ -94,8 +94,8 @@ Constats :
 - **I4** et les taxonomies `.spec/00-canon/planning/*.yml`. Elles sont consommées par la règle
   [[rules-engineering-definition-of-done]], par le check 7 de `check-moc-integrity.py` et par
   `build-planning-registry.js` du monorepo (libellés de PR).
-- Les 62 fichiers de `ledger/snapshots/planning/` et le contenu du MOC (G8 : pas de réécriture de
-  l'histoire). Le `semantic_hash` du MOC reste celui du dernier snapshot, donc le check 7 reste
+- Les snapshots de `ledger/snapshots/planning/` (63 `run-*.json` sur 61 jours, plus 61 pointeurs
+  `latest.json`) et le contenu du MOC (G8 : pas de réécriture de l'histoire). Le `semantic_hash` du MOC reste celui du dernier snapshot, donc le check 7 reste
   cohérent.
 
 ### D5 — Condition d'un éventuel retour
