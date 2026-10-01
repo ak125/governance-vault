@@ -30,20 +30,22 @@ Les deux hooks ne sont actifs que si `core.hooksPath` vaut `.githooks` dans le c
 
 ## Configuration Appliquee
 
-Valeurs declarees par `_scripts/setup-branch-protection.sh` ; les checks requis sont ceux de la section suivante. `setup-branch-protection.sh --check` dit si la protection en vigueur leur est conforme (voir « Verification d'Integrite »).
+Valeurs declarees par `_scripts/setup-branch-protection.sh` ; les checks requis sont ceux de la section suivante. Les deux dernieres lignes sont des reglages du depot (`repos/ak125/governance-vault`), pas de la protection de branche. `setup-branch-protection.sh --check` dit si la configuration en vigueur leur est conforme (voir « Verification d'Integrite »).
 
 | Parametre | Valeur | Justification |
 |-----------|--------|---------------|
 | `required_status_checks.checks` | checks CI lies a GitHub Actions (voir ci-dessous) | Chaque check de la section suivante doit passer |
 | `required_status_checks.strict` | `true` | La branche PR doit etre a jour avec `main` |
 | `enforce_admins` | `true` | Personne ne contourne, y compris l'owner |
-| `required_linear_history` | `true` | Pas de merge commits : squash ou rebase (en pratique squash, voir « Methode de Merge ») |
+| `required_linear_history` | `true` | Pas de merge commits sur `main` ; le rebase etant interdit (ci-dessous), reste le squash |
 | `required_pull_request_reviews` | `count: 0`, `dismiss_stale: true` | Solo repo : reviews non requises, mais les reviews obsoletes sont auto-dismissed |
 | `required_signatures` | `true` | Chaque commit de la PR doit etre verifie par GitHub. Voir « Signatures Requises » |
 | `restrictions` | `null` | Personne n'est explicitement autorise a bypasser |
 | `allow_force_pushes` | `false` | Pas de reecriture d'historique sur main |
 | `allow_deletions` | `false` | Impossible de supprimer main |
 | `required_conversation_resolution` | `true` | Les threads PR doivent etre resolus avant merge |
+| `allow_squash_merge` | `true` | Seule methode de merge prescrite (voir « Methode de Merge ») |
+| `allow_rebase_merge` | `false` | Le rebase recree les commits de la PR sans signature : il ferait entrer sur `main` des commits non signes malgre G3 et `required_signatures` |
 
 ---
 
@@ -138,19 +140,24 @@ Sans ces trois points, l'activation bloque toute PR signee par une cle non enreg
 
 `gh api -X DELETE repos/ak125/governance-vault/branches/main/protection/required_signatures` retire l'exigence ; `--check` reste rouge tant que la declaration du script n'est pas modifiee par PR. Le retrait laisse une trace dans les audit logs GitHub : le documenter comme une desactivation d'urgence.
 
-### Hors de ce reglage
+### Et le merge rebase
 
-Le merge rebase ajoute les commits de la PR « sans verification de signature » (documentation GitHub) et reste autorise au niveau du depot (`allow_rebase_merge: true`). Le desactiver est un reglage du depot, distinct de la protection de branche ; la methode prescrite reste le squash (section suivante).
+Le merge rebase ajoute les commits de la PR « sans verification de signature » (documentation GitHub) : `required_signatures` ne l'empeche pas. Il est interdit par un reglage du depot, distinct de la protection de branche (`allow_rebase_merge: false`, declare par le script, section suivante).
 
 ---
 
 ## Methode de Merge et Chaine de Signature
 
-### Observation (2026-09-30)
+### Methodes autorisees
 
-Les trois methodes de merge sont autorisees au niveau du depot (`allow_squash_merge`, `allow_rebase_merge`, `allow_merge_commit` a `true`) ; `required_linear_history: true` exclut les commits de merge, restent squash et rebase.
+Seul le squash est possible sur `main` :
 
-En pratique, les PR sont fusionnees en **squash** : les 10 PR fusionnees depuis le 2026-07-01 ont toutes GitHub pour committer, un seul parent et une signature GitHub valide (ex. `2f150ef`, PR #353 : `verification.verified = true`, `reason = valid`). Methode prescrite :
+- `allow_rebase_merge: false` (reglage du depot, depuis le 2026-10-01) : le rebase est refuse par GitHub ;
+- `allow_merge_commit` reste `true` au niveau du depot, mais `required_linear_history: true` refuse les commits de merge sur `main`. Ce reglage n'est donc pas declare par le script.
+
+Le script declare `allow_squash_merge: true` et `allow_rebase_merge: false` ; `--check` sort 1 si l'un des deux change. Changer une methode : `gh api -X PATCH repos/ak125/governance-vault -F <champ>=<valeur>`, puis `--check`, et modifier la declaration du script par PR.
+
+Le 2026-09-30, les trois methodes etaient autorisees au niveau du depot. Les PR etaient deja fusionnees en **squash** : les 10 PR fusionnees depuis le 2026-07-01 ont toutes GitHub pour committer, un seul parent et une signature GitHub valide (ex. `2f150ef`, PR #353 : `verification.verified = true`, `reason = valid`). Methode prescrite :
 
 ```bash
 gh pr merge <N> --squash --match-head-commit <sha-de-tete-revu>
@@ -171,7 +178,7 @@ Un `git verify-commit` local sur un commit squash echoue : la cle de GitHub n'es
 
 ### Historique : merges rebase et commits de merge
 
-- **Merges rebase** : 22 commits de PR fusionnees en rebase n'ont pas de signature (PR #3 a #25 du 2026-04-18 au 2026-04-21, puis `b51f69e`, PR #336, le 2026-07-05). Le rebase reecrit les commits ; la signature K001/K002 de la branche ne survit pas. Trace compensatoire : le run G3 de la PR.
+- **Merges rebase** : 22 commits de PR fusionnees en rebase n'ont pas de signature (PR #3 a #25 du 2026-04-18 au 2026-04-21, puis `b51f69e`, PR #336, le 2026-07-05). Le rebase reecrit les commits ; la signature K001/K002 de la branche ne survit pas. Trace compensatoire : le run G3 de la PR. Le rebase est interdit depuis le 2026-10-01 (`allow_rebase_merge: false`).
 - **Commits de merge** : 7 commits de merge PR #316 a #324 (2026-06-14 au 2026-06-19, dernier `636642d`), malgre `required_linear_history`. Coherent avec un contournement admin a une date ou `enforce_admins` n'etait pas effectif.
 
 ### Pushes directs historiques (sans PR)
@@ -214,7 +221,7 @@ Les niveaux sont **redondants par conception**. Le local attrape la plupart des 
 _scripts/setup-branch-protection.sh --check
 ```
 
-Le script compare a sa demande les checks requis (nom et `app_id`), `strict`, `enforce_admins`, `required_linear_history`, les reviews, `restrictions`, `allow_force_pushes`, `allow_deletions`, `block_creations` et `required_conversation_resolution`. Tout ecart (check absent ou lie a une autre app, `enforce_admins`, `linear_history` ou `required_signatures` a `false`, `force_push` ou `deletions` a `true`…) est affiche en diff et sort 1 : la protection est **compromise** ou la mise a jour d'une sous-ressource n'a pas ete faite.
+Le script compare a sa demande les checks requis (nom et `app_id`), `strict`, `enforce_admins`, `required_linear_history`, les reviews, `restrictions`, `allow_force_pushes`, `allow_deletions`, `block_creations`, `required_conversation_resolution` et `required_signatures`, puis, sur les reglages du depot, `allow_squash_merge` et `allow_rebase_merge`. Tout ecart (check absent ou lie a une autre app, `enforce_admins`, `linear_history` ou `required_signatures` a `false`, `force_push`, `deletions` ou `allow_rebase_merge` a `true`…) est affiche en diff et sort 1 : la configuration est **compromise** ou la mise a jour d'une sous-ressource ou d'un reglage n'a pas ete faite.
 
 ---
 

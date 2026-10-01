@@ -140,7 +140,7 @@ Branch protection main : checks requis, `enforce_admins: true`, PR requise
 |--------|-----------|------------------------|-------------|
 | **L1 — Canonique (logique)** | ADRs / SoT / canonical routes / role canon / URL ownership / write-path | ✅ Actif | ADR-015, R-SEO-09, frontmatter schemas, série PR-1..3 |
 | **L2 — CI (structurel)** | checks requis sur chaque PR, dont le gate `ci-vault-gate.sh pr` (weekly-lint sans cross-repo + `sync_moc_decisions.py --check`) et `pytest _scripts` + weekly-lint hebdomadaire complet (non bloquant) + parity test enums + AST no-direct-schema | 🟡 Partiel : gate livré par #360, check requis depuis le 2026-10-01 ; mode `weekly` et issue `infra-fail` non implémentés ; checks cross-repo seulement sur la machine DEV ; projection planning non vérifiée | `vault-governance.yml`, PR-2 / PR-2b, #360 |
-| **L3 — GitHub branch (runtime)** | `enforce_admins=true` + check requis G3 + PR requise | ✅ Actif (constaté le 2026-10-01 : 7 checks requis, 0 review requise ; `required_signatures` déclaré `true` par le script, en vigueur une fois les préconditions remplies, voir [[branch-protection]]) | [[branch-protection]] |
+| **L3 — GitHub branch (runtime)** | `enforce_admins=true` + check requis G3 + PR requise | ✅ Actif (constaté le 2026-10-01 : 7 checks requis, 0 review requise ; `required_signatures` en vigueur ; merge rebase interdit au niveau du dépôt (`allow_rebase_merge: false`), seul le squash fusionne sur `main` ; voir [[branch-protection]]) | [[branch-protection]] |
 
 Le push direct sur `main` est refusé à tous, admins compris. Ce qui reste ouvert
 est en L2 : la projection planning n'est vérifiée par aucun check, les checks
