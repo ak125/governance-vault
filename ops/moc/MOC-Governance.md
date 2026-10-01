@@ -24,7 +24,7 @@ updated: 2026-10-01
 | [[MOC-Incidents]] | Post-mortems et incidents |
 | [[MOC-Knowledge]] | Base de connaissances (specs, guides) |
 | [[MOC-AuditTrail]] | Audit-trail, bundles rejetes, audits RPC |
-| [[MOC-Policies]] | Bundle specs, prompts systeme, processus |
+| [[MOC-Policies]] | Specifications, processus, templates |
 | [[MOC-Repository-Control-Plane]] | Repository Control Plane du monorepo (ADR-058) : registry en couches, gates CI progressifs |
 | [[MOC-Roadmap-2026]] | Chantiers transverses 2026 (identifiants et rangs de priorite ; n'ordonne pas l'execution hebdomadaire) |
 | [[MOC-Planning-Live]] | Planning vivant, section auto-generee par le moteur de sync (ADR-053) |
@@ -40,7 +40,7 @@ Les regles G1-G4 de gouvernance du vault lui-meme. Voir [[rules-vault]].
 | G1 | Le vault decide (ADR-101) | Decision = ADR `accepted` ; divergence decision/code signalee |
 | G2 | Zero orphelin | `_scripts/check-orphans.sh` |
 | G3 | Commits signes | Check requis `G3: Commits signes` + hook `pre-push` |
-| G4 | CI read-only sur canon | `AI_VAULT_WRITE=false` en prod |
+| G4 | Ecriture par PR, CI en lecture seule (ADR-102) | Protection de `main` + `_scripts/check-ci-read-only.py` (checks requis `G4: CI read-only sur canon` et `Vault Scripts Tests`) ; fusion par un humain (regle de conduite) |
 
 ---
 

@@ -1,11 +1,13 @@
 ---
 id: BUNDLE-SPEC
 version: 1.0.0
-status: active
+status: archived
 date: 2026-02-04
 scope: airlock-bundles
 authority: human
 ---
+
+> **[ARCHIVED — ADR-102, 2026-10-01]** Canal de bundles retiré : un agent modifie un dépôt par branche + PR sur ce dépôt, sous ses checks requis, et un humain fusionne. Voir [[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4|ADR-102]] et [[INDEX-archive]].
 
 # Airlock Bundle Spec v1 (Machine-Verifiable Contract)
 

@@ -5,6 +5,7 @@ status: accepted
 date: 2026-03-08
 version: 1.0.0
 decision_makers: [CEO, CTO]
+amended_by: ["ADR-102"]
 ---
 
 # ADR-012 : AI-COS VPS Architecture & Agent Placement

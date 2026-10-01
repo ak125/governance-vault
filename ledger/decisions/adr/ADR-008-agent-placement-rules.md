@@ -8,6 +8,7 @@ decision_makers:
   - Governance
 version: 1.0.0
 supersedes: null
+amended_by: ["ADR-102"]
 ---
 
 # ADR-008: Agent Placement Rules (3 Zones)

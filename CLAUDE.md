@@ -46,9 +46,12 @@ Si FAIL, lier ou archiver dans `ledger/_archive/` (G8).
 
 Ne jamais proposer un commit non signe a l'utilisateur. Si la config signing manque, guider l'utilisateur vers `99-meta/signing-policy.md`.
 
-### G4: CI Read-Only
+### G4: Ecriture par PR, CI en Lecture Seule
 
-NE JAMAIS modifier depuis un workflow GitHub Actions. Le kill-switch `AI_VAULT_WRITE=false` doit rester respecte. Toute tentative de write depuis CI est une violation critique.
+Jamais d'ecriture directe sur `main` : une branche, une PR aux commits signes, sous les checks requis.
+Un agent prepare la PR, il ne la fusionne JAMAIS : la fusion revient a un humain. Aucun workflow
+GitHub Actions n'ecrit dans le vault ; `_scripts/check-ci-read-only.py` le verifie a chaque PR
+(ADR-102). Toute ecriture depuis la CI est une violation critique.
 
 ---
 
@@ -136,7 +139,7 @@ Quand l'utilisateur demande une modification:
 | `_scripts/check-broken-links.sh` | Detection wikilinks casses (exit 1 si casses) |
 | `_scripts/preflight-write.sh` | Preflight obligatoire avant ecriture (clone a jour, arbre propre, pas de chemin v1) |
 | `_scripts/audit-signatures.sh` | Audit retro des signatures git |
-| `_scripts/evidence-pack.sh` | Generateur Airlock, encore sur chemins v1 : ne pas utiliser (voir `AGENTS.md`) |
+| `_scripts/check-ci-read-only.py` | G4 : aucun workflow ne peut ecrire dans le vault (exit 1 sinon) |
 
 ---
 
@@ -148,4 +151,4 @@ Quand l'utilisateur demande une modification:
 
 ---
 
-_Dernière mise a jour: 2026-09-30_
+_Dernière mise a jour: 2026-10-01_

@@ -173,19 +173,21 @@ jobs:
           if-no-files-found: ignore
 
   g4-canon-write-block:
+    # Nom conservé : c'est un check requis de la protection de main (99-meta/branch-protection.md).
     name: "G4: CI read-only sur canon"
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
 
-      - name: Block direct writes to canon from CI
-        env:
-          AI_VAULT_WRITE: "false"
-        run: |
-          # Cette CI ne doit JAMAIS modifier les zones canon.
-          # Verification: le workflow tourne avec contents: read uniquement.
-          echo "AI_VAULT_WRITE=$AI_VAULT_WRITE"
-          echo "Token permissions are read-only (see permissions: at job level)."
-          echo "G4: kill-switch respected."
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install pinned dependencies
+        run: pip install --quiet -r _scripts/requirements-ci.txt
+
+      - name: Check that no workflow can write to the vault (G4, ADR-102 D3)
+        # Permissions racine, scopes write, git commit/push, jetons hors GITHUB_TOKEN.
+        run: python3 _scripts/check-ci-read-only.py .

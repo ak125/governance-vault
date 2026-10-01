@@ -201,6 +201,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-096 | Governed Automatic Source Discovery, Scoring & Capture (RAW intelligent scraper — 4 entity types) | Accepted | 2026-07-15 | [[ADR-096-governed-automatic-source-discovery]] |
 | ADR-099 | SEO Projection — lieu d'exécution du forward writer (conteneur PROD), transport des exports par le pin du sous-module, object-store sur l'hôte PROD, immuabilité write-once, rollout par drapeaux d'environnement : amende ADR-059 et ADR-090 | Accepted | 2026-09-24 | [[ADR-099-seo-projection-writer-runtime-placement-and-exports-transport]] |
 | ADR-101 | Le vault décide : autorité des ADR et des règles du vault, rang des fichiers `.spec/00-canon/` du monorepo, correction des copies de règles legacy, retrait de sync-canon.sh — amende ADR-015 §5 | Accepted | 2026-10-01 | [[ADR-101-vault-decides-canon-authority]] |
+| ADR-102 | Airlock réduit au RPC gate, canal de bundles retiré, G4 réécrite (écriture par PR, CI en lecture seule) — amende ADR-002, 007 à 013 | Accepted | 2026-10-01 | [[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4]] |
 
 <!-- AUTO-GENERATED:moc-decisions-canonical-index end -->
 

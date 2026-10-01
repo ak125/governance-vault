@@ -1,7 +1,7 @@
 ---
 type: meta
 status: canon
-updated: 2026-09-30
+updated: 2026-10-01
 ---
 
 # Deploy Bot — Role et Perimetre
@@ -43,7 +43,7 @@ Les commits fusionnes par GitHub (committer `GitHub`, du 2026-04-04 au 2026-09-3
 | G1 Le vault decide | Reecrite par ADR-101 ([[rules-vault]]). Aucune synchronisation monorepo → vault ; dernier sync consigne : 2026-02-02 ([[sync-log]]) |
 | G2 Zero orphelin | Check requis en PR. Les pushes directs du writer planning (jusqu'au 2026-08-14) n'etaient verifies qu'apres coup, par le run de CI sur `main` |
 | G3 Commits signes | Signature K001 (`/home/deploy/.ssh/vault_signing_key`) via `commit.gpgsign true`, voir [[key-registry]] |
-| G4 CI read-only | Aucun commit de `main` n'a pour auteur un bot GitHub Actions ; les workflows du vault sont en `contents: read` (voir [[ci-policy]]) |
+| G4 ecriture par PR, CI en lecture seule | Aucun commit de `main` n'a pour auteur un bot GitHub Actions ; `_scripts/check-ci-read-only.py` verifie a chaque PR qu'aucun workflow ne peut ecrire dans le vault (voir [[ci-policy]]) |
 
 ---
 
@@ -82,7 +82,7 @@ git log --committer='GitHub' --format='%h %an %s'
 
 - [[signing-policy]] — G3 policy SSH ed25519
 - [[key-registry]] — registre des cles signataires
-- [[ci-policy]] — G4 CI read-only
+- [[ci-policy]] — G4, CI en lecture seule
 - [[cron-setup]] — crons (writer planning)
 - [[governance-runtime-map]] — etat runtime du writer planning
 - [[MOC-Governance]] — master index

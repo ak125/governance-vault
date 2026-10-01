@@ -38,10 +38,9 @@ Voir aussi [[ADR-015-vault-single-source-of-truth|ADR-015]] pour la décision fo
 | MOC (Map of Content) | `ops/moc/MOC-<scope>.md` | voir MOCs existantes |
 | Déploiement | aucun dossier défini (`ledger/deployments/` n'existe pas ; le choisir = décision owner) | `_templates/deployment-template.md` |
 
-Note evidence-pack : `_scripts/evidence-pack.sh` (générateur Airlock) écrit encore sous le chemin v1
-`06-compliance/evidence-pack/…` et lit `02-decisions/`, `04-audit-trail/`, `05-incidents/`. Sa sortie serait
-rejetée par le check requis `No V1 Paths (ADR-015)` : ne pas l'utiliser tant qu'il n'est pas porté en v2.
-Les deux evidence-packs créés depuis le refactor v2 (EP-20260418, EP-20260506) l'ont été à la main.
+Note evidence-pack : un evidence-pack se crée à la main. L'ancien générateur `_scripts/evidence-pack.sh`
+(canal Airlock, chemins v1) est supprimé par ADR-102 ; les deux evidence-packs créés depuis le refactor v2
+(EP-20260418, EP-20260506) l'ont été à la main.
 
 ---
 
@@ -101,9 +100,10 @@ du checkout runtime. Quand ce checkout n'est pas sur `main`, seule la ref bouge 
 ## Anti-patterns (interdits)
 
 Bloqués mécaniquement : G2, G3, les wikilinks cassés et les chemins v1 (checks requis) ainsi que le push
-direct ou forcé sur `main` (protection de branche), voir [[branch-protection]]. Le check requis G4 est un
-marqueur qui ne vérifie rien : la lecture seule vient des permissions `contents: read` des workflows. Les
-autres interdits reposent sur les hooks locaux ou sur la revue.
+direct ou forcé sur `main` (protection de branche), voir [[branch-protection]]. La lecture seule de la CI
+(G4) est vérifiée sur les workflows réels par `_scripts/check-ci-read-only.py`, dans les checks requis
+`G4: CI read-only sur canon` et `Vault Scripts Tests`. Rien ne bloque la fusion d'une PR par un agent : c'est une règle de conduite (G4).
+Les autres interdits reposent sur les hooks locaux ou sur la revue.
 
 - Écrire dans `/opt/automecanik/app/.local/governance-vault/*` (PR #81 ajoute hook pre-commit)
 - Créer un document sans frontmatter YAML
@@ -112,7 +112,8 @@ autres interdits reposent sur les hooks locaux ou sur la revue.
 - `git push --force` sur `main` du vault (branch protection active)
 - Prendre ou modifier une décision sans ADR (violation [[rules-vault|G1]])
 - Renuméroter un ADR existant `status: accepted` (immutable)
-- Écrire depuis un workflow GitHub Actions (violation [[rules-vault|G4]] : CI Read-Only, `AI_VAULT_WRITE=false`)
+- Écrire depuis un workflow GitHub Actions (violation [[rules-vault|G4]] : la CI n'écrit rien)
+- Fusionner une PR, y compris la sienne (violation [[rules-vault|G4]] : un agent prépare, un humain fusionne)
 
 ---
 
@@ -153,4 +154,4 @@ Aucune VPS ne doit écrire de gouvernance hors du workflow GitHub PR.
 
 ---
 
-_Dernière mise à jour : 2026-09-30 — chemins réels, checks requis, méthode de merge_
+_Dernière mise à jour : 2026-10-01 — G4 et canal de bundles retiré (ADR-102)_

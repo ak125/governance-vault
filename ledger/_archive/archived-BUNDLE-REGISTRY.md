@@ -1,11 +1,13 @@
 ---
 id: BUNDLE-REG
 title: Agent Bundle Registry
-status: active
+status: archived
 version: 1.0.0
 last_updated: 2026-02-04
 signature_algorithm: HMAC-SHA256
 ---
+
+> **[ARCHIVED — ADR-102, 2026-10-01]** Canal de bundles retiré : un agent modifie un dépôt par branche + PR sur ce dépôt, sous ses checks requis, et un humain fusionne. Voir [[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4|ADR-102]] et [[INDEX-archive]].
 
 # Agent Bundle Registry
 

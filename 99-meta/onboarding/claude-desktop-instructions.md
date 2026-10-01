@@ -29,7 +29,7 @@ JAMAIS écrire dans :
 - **G1 Le Vault Décide** : aucune décision prise ou modifiée sans ADR (Architectural Decision Record) ; une divergence entre une règle et le code se signale
 - **G2 Zéro-Orphelin** : tout nouveau document doit être lié depuis un MOC (`ops/moc/MOC-*.md`) ou un INDEX-*
 - **G3 Commits-Signés** : proposer uniquement des commits signés ed25519 ; ne jamais contourner la signature
-- **G4 CI-Read-Only** : ne jamais proposer d'écriture depuis un workflow GitHub Actions
+- **G4 Écriture par PR, CI en lecture seule** : toute modification passe par une PR signée ; un agent ne fusionne jamais ; ne jamais proposer d'écriture depuis un workflow GitHub Actions
 
 ## Structure v2 du vault (dossiers principaux)
 
@@ -63,7 +63,7 @@ CLAUDE.md          # Instructions agents (ce fichier est un extrait)
 | ADR | `ledger/decisions/adr/ADR-NNN-<slug>.md` | `_templates/adr-template.md` |
 | Règle T/G/AI/V | `ledger/rules/rules-<domaine>.md` | `_templates/rule-template.md` |
 | Audit report | `ledger/audit-trail/YYYY-MM-DD-<slug>.md` | — |
-| Evidence-pack | `ledger/compliance/evidence-pack/YYYY/YYYY-MM/EP-YYYYMMDD-<slug>/` | manuel (`_scripts/evidence-pack.sh` écrit encore sous un chemin v1) |
+| Evidence-pack | `ledger/compliance/evidence-pack/YYYY/YYYY-MM/EP-YYYYMMDD-<slug>/` | manuel |
 | Knowledge | `ledger/knowledge/` | libre |
 | MOC | `ops/moc/MOC-<scope>.md` | — |
 
@@ -82,7 +82,7 @@ CLAUDE.md          # Instructions agents (ce fichier est un extrait)
 
 ## Anti-patterns (interdits)
 
-Bloqués mécaniquement : orphelins, wikilinks cassés, commits non signés, chemins v1 (checks requis) et push direct ou forcé sur `main` (protection de branche). L'écriture CI est empêchée par les permissions `contents: read` des workflows, pas par le check G4 (simple marqueur). Le reste repose sur les hooks locaux ou la revue.
+Bloqués mécaniquement : orphelins, wikilinks cassés, commits non signés, chemins v1 (checks requis) et push direct ou forcé sur `main` (protection de branche). L'écriture CI est empêchée par le bloc `permissions:` de chaque workflow, et le check requis G4 (`_scripts/check-ci-read-only.py`) le vérifie à chaque PR. Le reste repose sur les hooks locaux ou la revue.
 
 - Écrire dans `.local/governance-vault/` (pre-commit hook bloque)
 - Créer un document sans frontmatter YAML
@@ -91,7 +91,8 @@ Bloqués mécaniquement : orphelins, wikilinks cassés, commits non signés, che
 - Force-push sur `main`
 - Modifier `status: canon` sans ADR
 - Renuméroter un ADR `status: accepted` (immutable)
-- Écrire depuis CI (`AI_VAULT_WRITE=false` doit rester respecté)
+- Écrire depuis CI (G4 : la CI n'écrit rien, vérifié par `_scripts/check-ci-read-only.py`)
+- Fusionner une PR (G4 : la fusion revient à un humain)
 
 ## Conventions nommage
 
@@ -119,7 +120,7 @@ Bloqués mécaniquement : orphelins, wikilinks cassés, commits non signés, che
 |---|---|---|
 | DEV | Dev, CI, vault runtime canonique | Oui (via PR signée) |
 | PROD | Production | Non (miroir en lecture seule) |
-| AI-COS | Agents IA, Airlock | Non (git clone read-only) |
+| AI-COS | Agents IA | Non (git clone read-only) |
 
 ## Limites Claude Desktop dans ce contexte
 
