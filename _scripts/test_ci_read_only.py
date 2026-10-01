@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tests de _scripts/check-ci-read-only.py (G4, ADR-102 D4).
+"""Tests de _scripts/check-ci-read-only.py (G4, ADR-102 D3).
 
 Deux contrats :
 - les workflows reels du vault sont conformes : ce test tourne dans le check requis

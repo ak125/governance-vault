@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""check-ci-read-only.py — G4 : la CI du vault n'ecrit aucun contenu (ADR-102 D4).
+"""check-ci-read-only.py — G4 : la CI du vault n'ecrit aucun contenu (ADR-102 D3).
 
 Verifie chaque workflow `.github/workflows/*.yml` / `*.yaml` :
   1. un bloc `permissions:` au niveau racine. Sans lui, le jeton du workflow prend
