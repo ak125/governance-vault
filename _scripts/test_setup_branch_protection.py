@@ -79,6 +79,19 @@ def test_each_required_check_is_reported_on_every_pr():
     assert not conditional, f"checks requis conditionnels : {conditional}"
 
 
+def test_signatures_are_required():
+    # G3 accepte toute signature valide ; seul GitHub verifie que la cle est rattachee
+    # a un compte dont l'e-mail committer est verifie (99-meta/signing-policy.md).
+    assert declared_body()["required_signatures"] is True
+
+
+def test_doc_config_row_matches_script():
+    text = DOC.read_text(encoding="utf-8")
+    row = re.search(r"^\| `required_signatures` \| `(true|false)` \|", text, re.M)
+    assert row, "ligne `required_signatures` introuvable dans la configuration de branch-protection.md"
+    assert json.loads(row.group(1)) is declared_body()["required_signatures"]
+
+
 def test_doc_table_matches_script():
     text = DOC.read_text(encoding="utf-8")
     section = re.search(r"^## Required Status Checks.*?$(.*?)^## ", text, re.S | re.M)
@@ -90,9 +103,13 @@ def test_doc_table_matches_script():
 # --- comportement du script, `gh` remplace par un stub -------------------------------------
 
 STUB_GH = """#!/usr/bin/env bash
-# api -X PUT <ep> ... : journalise ; api <ep> : renvoie $STUB_GET (ou echoue si absent).
+# api -X <methode> <ep> ... : journalise, et le corps envoye s'il y en a un (--input) ;
+# api <ep> : renvoie $STUB_GET (ou echoue si absent).
 echo "$*" >> "$STUB_LOG"
-if [[ "$1" == api && "$2" == -X ]]; then cat >/dev/null; exit 0; fi
+if [[ "$1" == api && "$2" == -X ]]; then
+  if [[ " $* " == *" --input "* ]]; then cat >> "$STUB_LOG.body"; fi
+  exit 0
+fi
 [[ -n "${STUB_GET:-}" ]] || exit 1
 cat "$STUB_GET"
 """
@@ -109,7 +126,7 @@ def get_response(body):
         },
         "required_pull_request_reviews": {**body["required_pull_request_reviews"],
                                           "require_last_push_approval": False},
-        "required_signatures": {"enabled": False},
+        "required_signatures": {"enabled": body["required_signatures"]},
         "enforce_admins": {"enabled": body["enforce_admins"]},
         "required_linear_history": {"enabled": body["required_linear_history"]},
         "allow_force_pushes": {"enabled": body["allow_force_pushes"]},
@@ -169,6 +186,26 @@ def test_check_detects_admin_bypass(gh):
     got["enforce_admins"]["enabled"] = False
     r, _ = gh("--check", get=got)
     assert r.returncode == 1, r.stdout + r.stderr
+
+
+def test_check_detects_signatures_not_enforced(gh):
+    got = get_response(declared_body())
+    got["required_signatures"]["enabled"] = False
+    r, log = gh("--check", get=got)
+    assert r.returncode == 1, r.stdout + r.stderr
+    assert "-X" not in log
+
+
+def test_apply_sets_signatures_by_their_subresource(gh, tmp_path):
+    # Le PUT ne porte pas required_signatures : la sous-ressource est appelee apres lui.
+    r, log = gh(get=get_response(declared_body()))
+    assert r.returncode == 0, r.stdout + r.stderr
+    calls = [line for line in log.splitlines() if " -X " in f" {line} "]
+    assert [c.split()[2] for c in calls] == ["PUT", "POST"]
+    assert calls[1].split()[3].endswith("/protection/required_signatures")
+    sent = json.loads((tmp_path / "gh.log.body").read_text(encoding="utf-8"))
+    expected = {k: v for k, v in declared_body().items() if k != "required_signatures"}
+    assert sent == expected
 
 
 def test_apply_fails_when_readback_differs(gh):
