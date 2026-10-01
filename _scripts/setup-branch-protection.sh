@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
 # Configuration versionnee de la protection de main (99-meta/branch-protection.md).
 #
-#   setup-branch-protection.sh           PUT complet puis relecture : (re)cree la protection
+#   setup-branch-protection.sh           PUT complet, signatures requises, puis relecture :
+#                                        (re)cree la protection
 #   setup-branch-protection.sh --check   relecture seule : compare la protection en vigueur
 #                                        a ce fichier, ne modifie rien
 #
 # Pour ajouter ou retirer un check sur une protection existante : PATCH de la
 # sous-ressource required_status_checks, puis --check
 # (ledger/knowledge/vault-branch-protection-contexts-vs-checks-gotcha-20260504.md).
+# Pour activer ou retirer les signatures requises : POST ou DELETE de la
+# sous-ressource required_signatures, puis --check.
 # Sorties : 0 conforme, 1 protection differente de ce fichier, 2 usage ou prerequis.
 set -euo pipefail
 
@@ -29,6 +32,8 @@ command -v jq >/dev/null || { echo "jq requis" >&2; exit 2; }
 # jamais observe. Un check qu'aucun job ne rapporte bloque toutes les PR : renommer
 # un job impose de mettre a jour cette liste dans la meme PR
 # (_scripts/test_setup_branch_protection.py le verifie).
+# required_signatures n'est pas un champ du PUT : il est declare ici avec le reste,
+# retire du corps envoye, et applique par sa sous-ressource (POST active, DELETE retire).
 BODY="$(cat <<'JSON'
 {
   "required_status_checks": {
@@ -54,7 +59,8 @@ BODY="$(cat <<'JSON'
   "allow_force_pushes": false,
   "allow_deletions": false,
   "block_creations": false,
-  "required_conversation_resolution": true
+  "required_conversation_resolution": true,
+  "required_signatures": true
 }
 JSON
 )"
@@ -66,7 +72,7 @@ WANT='{
   enforce_admins, required_linear_history,
   reviews: .required_pull_request_reviews,
   restrictions, allow_force_pushes, allow_deletions, block_creations,
-  required_conversation_resolution
+  required_conversation_resolution, required_signatures
 }'
 GOT='{
   strict: .required_status_checks.strict,
@@ -79,7 +85,8 @@ GOT='{
   allow_force_pushes: .allow_force_pushes.enabled,
   allow_deletions: .allow_deletions.enabled,
   block_creations: .block_creations.enabled,
-  required_conversation_resolution: .required_conversation_resolution.enabled
+  required_conversation_resolution: .required_conversation_resolution.enabled,
+  required_signatures: .required_signatures.enabled
 }'
 
 verify() {
@@ -98,7 +105,13 @@ if [[ "$MODE" == check ]]; then
 fi
 
 echo "Configuring branch protection for ${REPO}:${BRANCH}..."
-gh api -X PUT "$EP" -H "Accept: application/vnd.github+json" --input - <<<"$BODY" >/dev/null
+jq 'del(.required_signatures)' <<<"$BODY" \
+  | gh api -X PUT "$EP" -H "Accept: application/vnd.github+json" --input - >/dev/null
+if [[ "$(jq -r .required_signatures <<<"$BODY")" == true ]]; then
+  gh api -X POST "$EP/required_signatures" -H "Accept: application/vnd.github+json" >/dev/null
+else
+  gh api -X DELETE "$EP/required_signatures" -H "Accept: application/vnd.github+json" >/dev/null
+fi
 # Le 200 ne prouve rien (drop silencieux possible) : relire et comparer a la demande.
 verify
 echo "OK : protection appliquee et relue conforme a ce fichier."
