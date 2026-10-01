@@ -46,7 +46,8 @@ Constats :
 3. **Aucune exécution depuis le 2026-09-14.** Le répertoire du verrou `/var/lock/automecanik` est sur
    tmpfs et n'existe plus depuis le redémarrage du 2026-09-17. Le script sort donc avant d'écrire son
    journal. Le cron n'a pas de `MAILTO` et la machine n'a pas de MTA actif : le silence n'a été
-   signalé à personne.
+   signalé à personne. Cet arrêt est **accidentel** : si le répertoire est recréé, le cron reprend
+   ses `git reset --hard` sur le checkout partagé.
 4. **La projection GitHub Project n'a jamais fonctionné.** Le journal compte 4 722 lignes
    `GH Project upsert failed` et aucun succès. Le jeton `gh` de la machine DEV n'a pas le scope
    `project`.
@@ -66,8 +67,15 @@ Constats :
 
 ### D1 — Writer automatique retiré
 
-- Le cron `/etc/cron.d/planning-live` est désinstallé. C'est une action owner : le fichier
-  appartient à root.
+- Le writer est neutralisé sur la machine DEV, sans dépendre de l'arrêt accidentel du constat 3 :
+  son environnement Python (`/opt/automecanik/.venvs/planning-live`) et son fichier
+  d'environnement sont archivés hors du vault. `run-cron.sh` vérifie la présence de ce venv avant
+  de prendre le verrou et avant toute commande git ; sans lui, il sort en erreur.
+- Le fichier `/etc/cron.d/planning-live` appartient à root. Sa suppression est une action owner
+  qui reste à faire. Tant qu'il est installé, il lance chaque jour `run-cron.sh`, qui s'arrête
+  sur le venv absent.
+- Supprimer `_scripts/planning/` de `main` ne suffit pas à arrêter le cron : il exécute le
+  checkout partagé du vault, dont la branche extraite n'est pas forcément `main`.
 - Le dossier `_scripts/planning/` est supprimé : `run-cron.sh`, `sync_planning.py`, les writers, les
   alertes, la projection GitHub Project, `setup-github-project.sh` et leurs tests. Ce code n'a plus
   de chemin d'exécution légitime (constat 7). L'historique git le conserve.
@@ -156,7 +164,10 @@ Dans cette PR :
 
 Actions owner :
 
-- désinstaller `/etc/cron.d/planning-live` (script fourni) ;
+- avant la fusion : archiver le venv et le fichier d'environnement du writer (script fourni, sans
+  root). Le script de fusion refuse de fusionner tant que le venv est présent ;
+- supprimer `/etc/cron.d/planning-live` (script fourni, demande sudo). Cette étape peut venir
+  après la fusion : le writer est déjà neutralisé ;
 - en option, fermer le GitHub Project depuis l'interface.
 
 Après la fusion : fermer les issues #278, #314, #321 et #341 avec un renvoi à cet ADR.

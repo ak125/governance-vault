@@ -1,6 +1,6 @@
 # Configuration Cron - Governance Vault
 
-**Statut**: Manuel. Aucun des crons décrits ici n'est installé. Seul cron installé qui touche le vault : `vault-sync.sh` (hors dépôt). Le writer planning d'ADR-053 est retiré par [[ADR-104-planning-live-writer-retired|ADR-104]] — historique dans [[governance-runtime-map]], Couche D.
+**Statut**: Manuel. Aucun des crons décrits ici n'est installé. Seul cron actif qui touche le vault : `vault-sync.sh` (hors dépôt). Le writer planning d'ADR-053 est retiré par [[ADR-104-planning-live-writer-retired|ADR-104]] : son fichier cron reste installé jusqu'à sa suppression par l'owner, mais il s'arrête avant toute écriture (voir plus bas) — historique dans [[governance-runtime-map]], Couche D.
 **Dernière mise à jour**: 2026-10-01
 
 ---
@@ -140,10 +140,12 @@ checkout principal du monorepo. Même règle : clone dédié uniquement.
 
 ## Writer planning (ADR-053) — retiré
 
-Retiré par [[ADR-104-planning-live-writer-retired|ADR-104]] le 2026-10-01 : `/etc/cron.d/planning-live` est désinstallé
-(action owner) et `_scripts/planning/` est supprimé. Il poussait directement sur
-`main` ; rien n'y était publié depuis le 2026-08-14. Historique et diagnostic dans
-[[governance-runtime-map]], Couche D.
+Retiré par [[ADR-104-planning-live-writer-retired|ADR-104]] le 2026-10-01 : `_scripts/planning/` est supprimé
+et le writer est neutralisé (venv et fichier d'environnement archivés hors du vault ;
+`run-cron.sh` s'arrête sur le venv absent, avant le verrou et avant toute commande git).
+`/etc/cron.d/planning-live` appartient à root et reste installé jusqu'à sa suppression
+par l'owner. Il poussait directement sur `main` ; rien n'y était publié depuis le
+2026-08-14. Historique et diagnostic dans [[governance-runtime-map]], Couche D.
 
 ---
 

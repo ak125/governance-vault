@@ -52,7 +52,7 @@ Les commits fusionnes par GitHub (committer `GitHub`, du 2026-04-04 au 2026-09-3
 - **Machine** : DEV, checkout `/opt/automecanik/governance-vault/`.
 - **User** : `deploy` (non-root).
 - **Cle SSH signing** : `/home/deploy/.ssh/vault_signing_key` (ed25519, K001). Pub key dans [[key-registry]].
-- **Declencheurs automatiques** : aucun cron ne committe dans le vault depuis le retrait du writer planning ([[ADR-104-planning-live-writer-retired|ADR-104]], voir [[cron-setup]]). Aucun hook post-receive n'existe.
+- **Declencheurs automatiques** : aucun cron ne committe dans le vault depuis le retrait du writer planning ([[ADR-104-planning-live-writer-retired|ADR-104]], voir [[cron-setup]]) ; son fichier cron reste installé jusqu'à sa suppression par l'owner mais s'arrête avant toute operation git. Aucun hook post-receive n'existe.
 
 ---
 

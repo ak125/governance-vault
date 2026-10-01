@@ -91,7 +91,7 @@ Cron machine DEV :
 | Cron | Installé | Effet |
 |------|----------|-------|
 | `vault-sync.sh` (crontab `deploy`, toutes les 5 min, hors dépôt) | oui | HEAD sur une autre branche : met à jour la seule ref `main` (fast-forward), sans toucher HEAD ni l'arbre ; HEAD sur `main` et arbre propre : fast-forward |
-| writer planning (`/etc/cron.d/planning-live`, ADR-053) | non — **retiré** par ADR-104 | voir ci-dessous |
+| writer planning (`/etc/cron.d/planning-live`, ADR-053) | fichier oui (root, suppression owner à faire) — writer **neutralisé** par ADR-104 | s'arrête sur le venv absent, avant verrou et git ; voir ci-dessous |
 | `cron-sync-moc-decisions.sh` (prévu lundi 01:30 UTC) | non | — |
 | `cron-sync-canon-mirrors.sh` | non | — |
 | audit-signatures, check-orphans ([[cron-setup]]) | non | — |
@@ -103,9 +103,14 @@ monorepo pour l'autre. Ne les installer que sur un clone dédié.
 
 #### Writer planning (ADR-053) — retiré
 
-- **Retiré le 2026-10-01** par [[ADR-104-planning-live-writer-retired|ADR-104]] : cron désinstallé (action owner),
-  `_scripts/planning/` supprimé, [[MOC-Planning-Live]] figé au 2026-08-14. Les
-  constats ci-dessous sont l'historique qui a motivé le retrait.
+- **Retiré le 2026-10-01** par [[ADR-104-planning-live-writer-retired|ADR-104]] : `_scripts/planning/`
+  supprimé, [[MOC-Planning-Live]] figé au 2026-08-14. Le writer est neutralisé :
+  venv `/opt/automecanik/.venvs/planning-live` et fichier d'environnement archivés
+  hors du vault, donc `run-cron.sh` sort en erreur avant le verrou et avant toute
+  commande git. Le fichier `/etc/cron.d/planning-live` (root) reste installé
+  jusqu'à sa suppression par l'owner ; il exécute le checkout partagé, pas `main`,
+  donc la suppression de `_scripts/planning/` sur `main` ne l'arrête pas à elle
+  seule. Les constats ci-dessous sont l'historique qui a motivé le retrait.
 - **Horaire** : `0 8 * * *` dans `/etc/cron.d/planning-live`, interprété dans le
   fuseau de la machine (Europe/Paris) : 06:00 UTC en été, 07:00 UTC en hiver. Le
   commentaire du fichier et ADR-053 disent « 08:00 UTC ».
@@ -123,7 +128,8 @@ monorepo pour l'autre. Ne les installer que sur un clone dédié.
   d'écrire son log ou son état. Le fichier cron n'a pas de `MAILTO` et aucun MTA
   n'est actif ; le dernier état enregistré reste `ok` (2026-09-14), sans
   `max_age_s`, donc le silence n'est pas détecté. Les 2026-09-15 et 09-16 ne
-  sont pas vérifiables (journal système non lisible par `deploy`).
+  sont pas vérifiables (journal système non lisible par `deploy`). Cet arrêt
+  était accidentel ; ADR-104 le remplace par la neutralisation ci-dessus.
 - **Ne pas « réparer » en recréant le répertoire du verrou** : le script
   reprendrait ses `reset --hard` sur le checkout partagé, et son push direct sur
   `main` est de toute façon refusé (`enforce_admins`). ADR-104 a retenu le
