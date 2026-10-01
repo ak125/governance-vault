@@ -3,7 +3,6 @@
 
 # Shell scripts must always be LF (break otherwise on bash)
 *.sh text eol=lf
-_scripts/gov text eol=lf
 .githooks/* text eol=lf
 
 # Markdown always LF for consistent diffs

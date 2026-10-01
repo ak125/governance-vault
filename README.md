@@ -34,11 +34,11 @@ Tous les commits DOIVENT etre signes cryptographiquement (SSH ed25519 prefere, G
 
 Enforcement: CI job `g3-signed-commits`.
 
-### G4: CI Read-Only sur Canon
+### G4: Ecriture par PR, CI en Lecture Seule
 
-Aucun workflow CI ne doit modifier les zones canoniques. Le kill-switch `AI_VAULT_WRITE=false` est respecte en production.
+Aucune ecriture directe sur `main` : toute modification passe par une PR aux commits signes, sous les checks requis. Un agent prepare une PR, un humain la fusionne. La CI ne produit aucun contenu du vault ([[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4|ADR-102]]).
 
-Voir `99-meta/ci-policy.md`. Le check requis `G4: CI read-only sur canon` n'execute que des `echo` : la lecture seule vient des `permissions: contents: read` declarees par chaque workflow (voir [[branch-protection]]).
+Enforcement : protection de `main` (voir [[branch-protection]]) + `_scripts/check-ci-read-only.py`, execute sur les workflows reels a chaque PR par le check requis `Vault Scripts Tests`. Voir `99-meta/ci-policy.md`.
 
 ---
 
@@ -64,7 +64,7 @@ governance-vault/
 │   ├── decisions/adr/    # Architecture Decision Records (statuts : MOC-Decisions)
 │   ├── incidents/        # Post-mortems
 │   ├── knowledge/        # Specs, patterns, architecture technique
-│   ├── policies/         # Bundle specs, prompts systeme, processus
+│   ├── policies/         # Specifications, processus
 │   ├── rules/            # Regles canoniques (13 fichiers)
 │   ├── snapshots/        # Snapshots du planning (ADR-053)
 │   └── verdicts/         # Verdicts empiriques
@@ -87,7 +87,7 @@ Point d'entree: `ops/moc/MOC-Governance.md`. Autres MOCs:
 - `MOC-Incidents` — post-mortems
 - `MOC-Knowledge` — base de connaissances
 - `MOC-AuditTrail` — bundles rejetes, audits RPC, retrospectives
-- `MOC-Policies` — bundle specs, templates
+- `MOC-Policies` — specifications, processus, templates
 - `MOC-Planning-Live` — planning (ADR-053)
 - `MOC-Repository-Control-Plane` — Repository Control Plane
 - `MOC-Roadmap-2026` — roadmap 2026
@@ -166,4 +166,4 @@ Chiffres releves a la main a cette date, non mis a jour automatiquement. Pour le
 
 ---
 
-_Derniere mise a jour: 2026-09-30_
+_Derniere mise a jour: 2026-10-01_

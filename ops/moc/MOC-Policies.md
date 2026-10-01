@@ -1,12 +1,12 @@
 ---
 type: moc
 status: canon
-updated: 2026-04-17
+updated: 2026-10-01
 ---
 
 # MOC: Policies
 
-Index des **policies operationnelles** du vault : specifications de bundles, schemas JSON, prompts systeme, processus de design.
+Index des **policies operationnelles** du vault : specifications, schemas JSON, processus de design.
 
 > Les **regles canoniques** (T/G/AI/V) sont dans [[MOC-Rules]].
 > Les **decisions d'architecture** sont dans [[MOC-Decisions]].
@@ -15,35 +15,21 @@ Les policies decrivent **comment** appliquer les regles (format, template, schem
 
 ---
 
-## Specifications de Bundles
+## Specifications
 
 | Document | Role |
 |----------|------|
-| [[BUNDLE-SPEC]] | Specification complete d'un bundle (metadata, structure, contrats) |
-| `bundle.schema.v1.json` | Schema JSON v1 pour validation programmatique |
 | [[SOURCE-SCORE-WEIGHTS-SPEC]] | Contrat de poids source_score (ADR-096 D3) — dimensions, hard gates, profils, calibration |
 | `source-score-weights.v1.json` | Contrat Layer 2 machine-readable, projete vers RAW via canon-hashes |
+
+Les specifications, le prompt et l'exemple du canal de bundles sont archives ([[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4|ADR-102]]), voir [[INDEX-archive]].
 
 ## Processus
 
 | Document | Role |
 |----------|------|
-| [[PROCESS-G1-design]] | Processus de design des bundles (phase G1) |
+| [[PROCESS-G1-design]] | Processus de design des fiches agents (niveau G1, ADR-013) |
 | [[exploration-budget]] | Exec contract G10 — scope strict + anti-creep + workflow probe (ADR-081) |
-
-## Prompts Systeme
-
-| Document | Role |
-|----------|------|
-| [[PROMPT-bundle-producer.v1]] | Prompt pour agent producteur de bundle |
-
-## Exemples
-
-- `policies/examples/bundle.example.v1/manifest.json` - Exemple manifest
-- `policies/examples/bundle.example.v1/changes.patch` - Exemple patch
-- `policies/examples/bundle.example.v1/constraints.json` - Exemple contraintes
-- `policies/examples/bundle.example.v1/evidence.json` - Exemple evidence
-- [[report]] - Exemple rapport
 
 ## Templates (\_templates)
 

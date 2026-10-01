@@ -35,7 +35,7 @@ Index des regles canoniques du projet AutoMecanik, organisees par prefixe (voir 
 
 ## Regles de Gouvernance (G)
 
-- [[rules-vault]] - **G1-G4** : Le Vault Decide, Zero Orphelin, Commits Signes, CI Read-Only
+- [[rules-vault]] - **G1-G4** : Le Vault Decide, Zero Orphelin, Commits Signes, Ecriture par PR et CI en Lecture Seule
 - [[rules-governance-process]] - **G5-G8** : Autorite Documentaire, Proof Requirements, RAG Corpus Alignment, Obsolete Handling
   - Le fichier contient aussi G9 (Sunset Clause) et G10 (Exploration Budget), ajoutes par [[ADR-081-doctrine-agility-amendments]], au statut `proposed` au 2026-09-30 : non indexes ici tant que l'ADR n'est pas accepte (decision owner).
 

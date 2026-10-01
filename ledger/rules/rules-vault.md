@@ -1,7 +1,7 @@
 # Rules - Vault Governance (G1-G4)
 
-> Regles de gouvernance du vault lui-meme au 2026-10-01 (G1 reecrite par [[ADR-101-vault-decides-canon-authority|ADR-101]])
-> **Version**: 3.0.0 | **Status**: CANON
+> Regles de gouvernance du vault lui-meme au 2026-10-01 (G1 reecrite par [[ADR-101-vault-decides-canon-authority|ADR-101]], G4 par [[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4|ADR-102]])
+> **Version**: 3.1.0 | **Status**: CANON
 > **Taxonomie**: G = Governance (G1-G4 = vault ici, G5-G8 = processus dans rules-governance-process.md)
 
 ---
@@ -92,32 +92,37 @@ git log --show-signature -5
 
 ---
 
-## G4: CI Read-Only sur Canon
+## G4: Ecriture par PR, CI en Lecture Seule
 
-**OBLIGATOIRE:** La CI et les agents IA sont **read-only** sur les fichiers canoniques.
+**OBLIGATOIRE:** Le vault ne se modifie que par PR. Un agent prepare, un humain fusionne. La CI
+ne produit aucun contenu du vault ([[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4|ADR-102]] D3).
 
-**Zones read-only pour l'IA:**
-- `ledger/rules/*.md` (regles T/G/AI/V)
-- `ledger/decisions/ADR-*.md` (decisions architecturales)
-- `ledger/knowledge/architecture.md` (architecture canonique)
+1. **Aucune ecriture directe sur `main`.** Toute modification passe par une PR aux commits signes
+   (G3), sous les checks requis.
+2. **Un agent prepare, un humain fusionne.** Un agent peut preparer une PR dans toute zone du
+   vault ; il ne fusionne jamais. La fusion d'une PR qui modifie un ADR, une regle ou une policy
+   est une decision (G1).
+3. **La CI ne produit aucun contenu du vault.** Chaque workflow declare un bloc `permissions:` au
+   niveau racine, n'obtient aucun scope `write` hors liste justifiee (`issues`), ne lance ni
+   `git commit` ni `git push`, et n'utilise aucun jeton autre que son `GITHUB_TOKEN` hors exception
+   nommee dans le script de verification.
 
-**Zones write-allowed pour l'IA:**
-- `ops/work/*` (brouillons, explorations)
-- `ledger/incidents/*` (post-mortems avec validation humaine)
-- `99-meta/sync-log.md` (logs automatiques)
+**Enforcement:**
+- Point 1 : protection de `main` (PR requise, checks requis, `enforce_admins`), voir [[branch-protection]]
+- Point 2 : **regle de conduite**. La protection n'exige aucune revue, et un jeton qui peut ouvrir
+  une PR peut la fusionner. La rendre mecanique (identite GitHub distincte pour les agents, revue
+  requise) est une decision owner
+- Point 3 : `_scripts/check-ci-read-only.py`, execute sur les workflows reels par
+  `_scripts/test_ci_read_only.py` dans le check requis `Vault Scripts Tests`
 
-**Modification d'un fichier read-only:**
-1. IA prepare un draft dans `ops/work/proposals/`
-2. Humain (Human CEO) review
-3. Humain applique le changement manuellement OU approuve PR signee
-4. Commit signe dans la branche dediee
-
-**Kill-switch:**
-- `AI_VAULT_WRITE=false` (defaut en prod) bloque toute ecriture IA sur les zones canoniques
+**Reponse a incident:** fermer les PR de l'agent, puis revoquer son acces en ecriture (cle de
+signature, voir [[key-registry]] « Procédure de Révocation », et jeton GitHub de la machine qui
+l'execute). Il n'y a pas de kill-switch : `AI_VAULT_WRITE` est retire (ADR-102 D4).
 
 **Verification:**
-- [ ] Pre-commit hook verifie que l'auteur du commit n'est pas un agent IA pour zones canoniques ?
-- [ ] Variable `AI_VAULT_WRITE` est definie a `false` en production ?
+- [ ] La modification passe par une PR, et non par un push direct ?
+- [ ] Un agent n'a fusionne aucune PR ?
+- [ ] `python3 _scripts/check-ci-read-only.py .` renvoie 0 violation ?
 
 ---
 
@@ -128,13 +133,13 @@ git log --show-signature -5
 - [ ] G1: Une decision nouvelle ou modifiee passe-t-elle par un ADR ?
 - [ ] G2: Le nouveau document sera-t-il lie depuis un MOC ?
 - [ ] G3: Mon commit sera-t-il signe ?
-- [ ] G4: Suis-je autorise (humain) a modifier cette zone ?
+- [ ] G4: Ma modification passe-t-elle par une PR, sans fusion par un agent ?
 
 ### Avant tout merge vers `main`:
 
 - [ ] `_scripts/check-orphans.sh .` passe (G2)
 - [ ] Tous les commits de la PR sont signes (G3)
-- [ ] Aucune modification automatique sur zones canoniques (G4)
+- [ ] La PR n'est pas fusionnee par un agent, et `_scripts/check-ci-read-only.py .` passe (G4)
 - [ ] Frontmatter YAML valide sur les nouveaux `.md`
 
 ---
@@ -146,7 +151,7 @@ git log --show-signature -5
 | G1 (decision sans ADR, ou divergence non signalee) | Critique | Revert + Escalade CEO |
 | G2 (orphelin non resolu) | Haute | Blocage pre-commit / CI |
 | G3 (commit non signe) | Critique | Rejet PR automatique |
-| G4 (IA ecrit zone read-only) | Critique | Revert + Kill-switch |
+| G4 (push direct, fusion par un agent, CI qui ecrit) | Critique | Revert + fermeture des PR de l'agent + revocation de son acces |
 
 ---
 
@@ -156,9 +161,11 @@ git log --show-signature -5
 - **rules-governance-process.md** - G5-G8: Regles de gouvernance processus
 - **rules-ai-cos.md** - AI1-AI10: Regles d'or agents IA
 - **_scripts/check-orphans.sh** - Enforcement G2
+- **_scripts/check-ci-read-only.py** - Enforcement G4 (point 3)
 - **ADR-101** - Autorite du vault et rang des fichiers `.spec/00-canon/` du monorepo
+- **ADR-102** - Airlock reduit au RPC gate, canal de bundles retire, G4 reecrite
 
 ---
 
-_Derniere mise a jour: 2026-10-01 (ADR-101)_
+_Derniere mise a jour: 2026-10-01 (ADR-101, ADR-102)_
 _Status: CANON - Gouvernance du vault lui-meme_

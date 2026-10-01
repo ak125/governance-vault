@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-05-18
+updated: 2026-10-01
 ---
 
 # MOC: Incidents
@@ -99,7 +99,7 @@ Index des incidents et post-mortems. Cette MOC est la porte d'entree pour tout e
 | **Medium** | Bug user-visible contournable, performance degradee, regression sur feature secondaire | < 4h | < 7j |
 | **Low** | Defauts cosmetiques, warnings, issues de devex | < 24h | Optionnel |
 
-Un incident de severite `Critical` ou `High` **DOIT** declencher une activation du kill-switch Airlock (`AI_VAULT_WRITE=false`) si une action IA/agent est suspectee dans la chaine causale.
+Un incident de severite `Critical` ou `High` **DOIT**, si une action IA/agent est suspectee dans la chaine causale, declencher la coupure de l'acces de l'agent : fermer ses PR ouvertes, puis revoquer sa cle de signature (« Procédure de Révocation » de [[key-registry]]) et le jeton GitHub de la machine qui l'execute ([[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4|ADR-102]] D4). L'ancien kill-switch `AI_VAULT_WRITE=false` ne coupait rien et est retire.
 
 ---
 
@@ -215,4 +215,4 @@ Voir [[_templates/incident-template|_templates/incident-template.md]]
 - [[MOC-AuditTrail]] — Retrospectives de phase, bundles rejetes, audits ponctuels
 - [[MOC-Decisions]] — ADRs canoniques (souvent produites par des post-mortems)
 - [[MOC-Rules]] — Regles T/G/AI/V (peuvent evoluer suite a incident)
-- [[airlock-decisions-reference]] — DEC-004 Kill-Switch Global + DEC-007 Incident Response
+- [[airlock-decisions-reference]] — DEC-004 Kill-Switch Global (retire par ADR-102) + DEC-007 Incident Response

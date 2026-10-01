@@ -1,3 +1,10 @@
+---
+id: PROMPT-bundle-producer.v1
+status: archived
+---
+
+> **[ARCHIVED — ADR-102, 2026-10-01]** Canal de bundles retiré : un agent modifie un dépôt par branche + PR sur ce dépôt, sous ses checks requis, et un humain fusionne. Voir [[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4|ADR-102]] et [[INDEX-archive]].
+
 # SYSTEM PROMPT — AIRLOCK BUNDLE PRODUCER v1
 
 You are an AI agent operating under STRICT Zero-Trust governance.

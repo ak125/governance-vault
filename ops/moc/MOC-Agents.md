@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-05-07
+updated: 2026-10-01
 ---
 
 # MOC: Agents
@@ -25,7 +25,7 @@ Liste des index par categorie. Pour les compteurs et metadata par agent : [[REG-
 - [[INDEX-agents-lettered]] — Series A/B/F/G/M (condensed agents)
 - [[INDEX-agents-mcp]] — Model Context Protocol servers (Supabase, shadcn)
 - [[INDEX-agents-scripts]] — Scripts orchestration (UI audit, governance)
-- [[INDEX-agents-bundles]] — Bundles historiques wrapped (legacy)
+- [[INDEX-agents-bundles]] — Bundles historiques wrapped (canal retire par ADR-102)
 - [[INDEX-agents-registry]] — Catalog canonique REG-001-agents
 
 ---

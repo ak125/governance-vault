@@ -44,12 +44,13 @@ chaque ajout de script governance ou modification de write/read path.
 
 | Script | Rôle | Invoqué par |
 |--------|------|-------------|
-| `check-orphans.sh` | G2 (zéro orphelin) | hooks pre-commit + pre-push, check requis `G2: Zero Orphelin`, weekly-lint, `gov`, `preflight-write.sh`, `new-incident.sh` |
+| `check-orphans.sh` | G2 (zéro orphelin) | hooks pre-commit + pre-push, check requis `G2: Zero Orphelin`, weekly-lint, `preflight-write.sh`, `new-incident.sh` |
 | `check-broken-links.sh` | wikilinks cassés | hooks pre-commit + pre-push, check requis `Broken Wikilinks`, weekly-lint, `preflight-write.sh`, `new-incident.sh` |
 | `check-v1-paths.sh` | chemins v1 (ADR-015) | check requis `No V1 Paths (ADR-015)`, weekly-lint, `preflight-write.sh` |
 | `check-signatures.sh` | G3 (signatures) | check requis `G3: Commits signes`, hook pre-push |
 | `check-vault-pollution.sh` | sections opérationnelles (ADR-060 §1A inv. 5) | check **non requis** `No Operational Sections`, weekly-lint |
 | `check-self-review-marker.sh` | marqueur `Self-review verdict` | check **non requis** `Self-Review Marker` |
+| `check-ci-read-only.py` | G4 : aucun workflow ne peut écrire dans le vault (ADR-102 D3) | check requis `Vault Scripts Tests` (`test_ci_read_only.py` sur les workflows réels) ; job `G4: CI read-only sur canon` une fois son workflow modifié par l'owner |
 | `check-frontmatter-schema.py`, `check-adr-supersedes.py`, `check-obsolete-rules.py`, `check-moc-integrity.py` | frontmatter, chaînes supersedes, rules obsolètes, invariants MOC | weekly-lint |
 | `check-no-direct-schema-enum-access.sh` (→ `check_no_direct_schema_enum_access.py`), `test_governance_constants.py` | frontière schemas ↔ constants (PR-2 / PR-2b) | weekly-lint |
 | `check-canon-backlinks.py`, `check-canon-freshness.py`, `check-canon-cross-repo.py` | cohérence vault ↔ monorepo | weekly-lint, seulement si le monorepo est présent : marqués `skipped` en GHA |
@@ -58,7 +59,6 @@ chaque ajout de script governance ou modification de write/read path.
 | `cron-sync-moc-decisions.sh`, `cron-sync-canon-mirrors.sh` (→ `sync_canon_mirrors.py`) | wrappers cron auto-PR | **aucun cron installé** |
 | `compute-canon-hashes.py` | hashes des rules publiées | `canon-publish.yml`, `sync_canon_mirrors.py`, `test_canon_hashes.py` |
 | `build-opa-bundles.sh` | bundles OPA | `opa-policy-build.yml` |
-| `evidence-pack.sh` | — | `gov` (manuel) |
 | `preflight-write.sh`, `new-incident.sh` | — | manuel |
 | `setup-branch-protection.sh` | protection de `main` versionnée ([[branch-protection]]) | manuel ; `--check` = comparaison en lecture seule avec la protection en vigueur |
 | `planning/run-cron.sh` (→ `planning/sync_planning.py`) | writer planning (ADR-053) | `/etc/cron.d/planning-live` |
