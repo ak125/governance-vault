@@ -9,8 +9,8 @@ supersedes: []
 superseded_by: []
 amends: ["ADR-090"]
 extends: ["ADR-027"]
-related_adr: ["ADR-027", "ADR-031", "ADR-040", "ADR-044", "ADR-086", "ADR-090", "ADR-101"]
-related_rules: ["G1", "G2", "AP-10"]
+related_adr: ["ADR-027", "ADR-031", "ADR-040", "ADR-044", "ADR-059", "ADR-086", "ADR-090", "ADR-101"]
+related_rules: ["G1", "G2"]
 related_incidents: []
 version: "1.0.0"
 ---
@@ -245,6 +245,7 @@ Passer `PROD_SEO_R6_CONSOLIDATION_ENABLED` à `false`, puis redéployer PROD (no
 - [[ADR-040-seo-roles-canon-ts-side-only|ADR-040]] — noms de rôles `R6_GUIDE_ACHAT` et `R6_SUPPORT`.
 - [[ADR-086-encyclopedia-editorial-content-contract|ADR-086]] — sections WIKI `R6_GUIDE_ACHAT/*`.
 - [[ADR-090-seo-projection-forward-writer-canon|ADR-090]] — writer des blocs R1, §C2 amendé ici.
+- [[ADR-059-seo-runtime-projection|ADR-059]] — projection SEO ; son writer produira le cache des blocs R1 (D5).
 - [[ADR-101-vault-decides-canon-authority|ADR-101]] — rang des fichiers `.spec/00-canon/**`, constats.
 - [[ADR-031-four-layer-content-architecture|ADR-031]] — un guide d'achat est une section de la fiche gamme.
 - Monorepo : #925 (`72af6c316`), #1613 (`4dcd4cf9b`).
