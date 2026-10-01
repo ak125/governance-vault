@@ -6,13 +6,13 @@ Ce fichier guide les agents Claude (Code, Desktop, Cowork, Agent SDK) quand ils 
 
 ## Regle Maitresse
 
-> **Ce vault n'est PAS le canon.** Le canon architectural reside dans `.spec/00-canon/` du monorepo. Ce vault est un **miroir enrichi operationnel** (G1).
+> **Le vault decide, le monorepo execute** (G1, [[ADR-101-vault-decides-canon-authority|ADR-101]]). Les ADR `accepted` et les regles de `ledger/rules/` sont normatifs. Dans `.spec/00-canon/` du monorepo, seuls les contrats consommes par du code, un generateur ou un check CI font foi, dans leur domaine ; le reste est de la prose de reference sans autorite. Une divergence entre une decision et le code est un constat a signaler, jamais a trancher en silence.
 >
 > Le mot `canon` est polysemique. Pour les acceptions distinctes (canon architectural / document canonique / canonical path / registry / source), voir le glossaire dans [[MOC-Governance]] section "Glossaire `canon`". L'autorite de chaque acception reste dans son document canonique (regle G1, ADR-015, etc.) — jamais dupliquee ici.
 
 Avant toute modification:
 
-1. Identifier si le changement est operationnel (autorise ici) ou canonique (interdit ici — modifier le monorepo)
+1. Identifier si le changement est operationnel (documentation, runbook, MOC) ou une decision (ADR obligatoire, G1)
 2. Lire les MOCs concernees (`ops/moc/MOC-*.md`) pour comprendre le contexte
 3. Respecter la taxonomie T/G/AI/V (voir README)
 
@@ -20,12 +20,12 @@ Avant toute modification:
 
 ## Regles Vault (a respecter imperativement)
 
-### G1: Canon Fait Foi
+### G1: Le Vault Decide
 
-NE JAMAIS modifier un document qui declare `status: canon` sans:
-
-- Ouvrir une ADR si c'est une vraie decision (voir `_templates/adr-template.md`)
-- Ou pointer vers le canon monorepo si c'est une regle technique
+NE JAMAIS prendre ou modifier une decision sans ADR (voir `_templates/adr-template.md`).
+Un document `status: canon` se modifie par PR signee ; si le changement modifie une
+decision, il passe par un ADR. Une divergence constatee entre une regle et le code se
+signale et se resout par une PR de code ou un ADR d'amendement.
 
 ### G2: Zero Orphelin
 
@@ -109,7 +109,7 @@ Utiliser `_templates/rule-template.md`. L'ajouter au fichier de regles approprie
 Quand l'utilisateur demande une modification:
 
 1. **Lire les MOCs pertinents** pour comprendre le contexte (pas juste le fichier cible)
-2. **Verifier** si le changement touche du canon (auquel cas refuser et rediriger vers le monorepo)
+2. **Verifier** si le changement modifie une decision (auquel cas : ADR, G1)
 3. **Appliquer** le changement + lier depuis un MOC/INDEX si creation
 4. **Executer** `_scripts/preflight-write.sh` avant d'ecrire (obligatoire, voir `AGENTS.md`), puis
    `_scripts/check-orphans.sh .` et `_scripts/check-broken-links.sh .` avant de committer
@@ -135,7 +135,6 @@ Quand l'utilisateur demande une modification:
 | `_scripts/check-orphans.sh` | G2 enforcement (exit 1 si orphelins) |
 | `_scripts/check-broken-links.sh` | Detection wikilinks casses (exit 1 si casses) |
 | `_scripts/preflight-write.sh` | Preflight obligatoire avant ecriture (clone a jour, arbre propre, pas de chemin v1) |
-| `_scripts/sync-canon.sh` | Obsolete : ecrit sous des chemins v1 rejetes par `No V1 Paths` ; ne pas utiliser (voir [[cron-setup]]) |
 | `_scripts/audit-signatures.sh` | Audit retro des signatures git |
 | `_scripts/evidence-pack.sh` | Generateur Airlock, encore sur chemins v1 : ne pas utiliser (voir `AGENTS.md`) |
 
@@ -144,7 +143,7 @@ Quand l'utilisateur demande une modification:
 ## Contact
 
 - Owner: Fafa (automecanik.seo@gmail.com)
-- Canon source: https://github.com/ak125/nestjs-remix-monorepo
+- Monorepo (execute): https://github.com/ak125/nestjs-remix-monorepo
 - Ce vault: https://github.com/ak125/governance-vault
 
 ---

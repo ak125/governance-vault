@@ -6,6 +6,7 @@ date: 2026-04-18
 decision_makers: [Fafa]
 supersedes: []
 superseded_by: []
+amended_by: ["ADR-101"]
 related_rules: [G1, G2, G3, G4]
 related_incidents: [2026-04-14-paybox-tunnel-sev1-ipn-blocked]
 reviewed_by: ""

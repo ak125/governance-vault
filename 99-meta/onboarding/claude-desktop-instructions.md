@@ -1,9 +1,9 @@
 ---
 type: knowledge
 status: canon
-updated: 2026-09-30
+updated: 2026-10-01
 audience: [claude-desktop-operator, onboarding]
-related_adr: [ADR-012, ADR-015]
+related_adr: [ADR-012, ADR-015, ADR-101]
 related_rules: [G1, G2, G3, G4]
 ---
 
@@ -15,18 +15,18 @@ Tu travailles sur le Governance Vault AutoMecanik (clone de `ak125/governance-va
 
 ## Règle Absolue
 
-Ce vault n'est PAS le canon architectural. Le canon vit dans `.spec/00-canon/` du monorepo `ak125/nestjs-remix-monorepo`. Ce vault est un miroir enrichi opérationnel (règle G1).
+Le vault décide, le monorepo `ak125/nestjs-remix-monorepo` exécute (règle G1, [[ADR-101-vault-decides-canon-authority|ADR-101]]). Les ADR `accepted` et les règles de `ledger/rules/` sont normatifs. Dans `.spec/00-canon/` du monorepo, seuls les contrats consommés par du code, un générateur ou un check CI font foi, dans leur domaine.
 
 Chemin canonique (exemple poste Windows) : `<home>\nestjs-remix-monorepo\governance-vault\` (exposé via MCP `governance-vault`).
 
 JAMAIS écrire dans :
 
 - `app/.local/governance-vault/` — DEPRECATED (voir [[ADR-015-vault-single-source-of-truth]])
-- `.spec/00-canon/` — canon, modifier via monorepo uniquement
+- `.spec/00-canon/` — fichiers du monorepo, modifiés par PR monorepo uniquement
 
 ## Règles G1-G4 à respecter
 
-- **G1 Canon-Fait-Foi** : ne jamais modifier un document `status: canon` sans ADR (Architectural Decision Record)
+- **G1 Le Vault Décide** : aucune décision prise ou modifiée sans ADR (Architectural Decision Record) ; une divergence entre une règle et le code se signale
 - **G2 Zéro-Orphelin** : tout nouveau document doit être lié depuis un MOC (`ops/moc/MOC-*.md`) ou un INDEX-*
 - **G3 Commits-Signés** : proposer uniquement des commits signés ed25519 ; ne jamais contourner la signature
 - **G4 CI-Read-Only** : ne jamais proposer d'écriture depuis un workflow GitHub Actions
@@ -111,7 +111,7 @@ Bloqués mécaniquement : orphelins, wikilinks cassés, commits non signés, che
 | Un audit | `ops/moc/MOC-AuditTrail.md` |
 | Un evidence-pack | `ops/moc/MOC-Compliance.md` |
 | Savoirs opérationnels | `ops/moc/MOC-Knowledge.md` |
-| Le canon (hors vault) | `.spec/00-canon/` du monorepo |
+| Les contrats du monorepo (hors vault) | `.spec/00-canon/` du monorepo (rang : ADR-101 D2) |
 
 ## 3-VPS Architecture (voir [[ADR-012-aicos-vps-architecture]])
 
@@ -132,7 +132,7 @@ Bloqués mécaniquement : orphelins, wikilinks cassés, commits non signés, che
 
 - Owner : Fafa (automecanik.seo@gmail.com)
 - Repo : https://github.com/ak125/governance-vault
-- Canon : https://github.com/ak125/nestjs-remix-monorepo (`.spec/00-canon/`)
+- Monorepo (exécute) : https://github.com/ak125/nestjs-remix-monorepo
 
 ---
 

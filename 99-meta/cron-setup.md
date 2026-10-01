@@ -20,14 +20,13 @@
 
 ## Crons Recommandés (non installés)
 
-### 1. Sync Canon — obsolète, ne pas installer
+### 1. Sync Canon — retiré
 
-`_scripts/sync-canon.sh` lit `.spec/00-canon/` du monorepo et écrit dans
-`02-decisions/adr`, `03-rules/technical` et `06-knowledge` : des chemins v1 que le
-check requis `No V1 Paths (ADR-015)` rejette. Avec `--commit`, il fait
-`git add -A` puis un commit signé de tout l'arbre. Ne pas l'installer en cron
-et ne pas utiliser `--commit`.
-Le journal [[sync-log]] est figé au 2026-02-02.
+`_scripts/sync-canon.sh` copiait `.spec/00-canon/` du monorepo vers le vault,
+sous des chemins v1 rejetés par le check requis `No V1 Paths (ADR-015)`. Il est
+supprimé par [[ADR-101-vault-decides-canon-authority|ADR-101]] : le vault décide,
+aucune synchronisation ne va du monorepo vers le vault. Journal historique :
+[[sync-log]] (figé au 2026-02-02).
 
 ### 2. Audit Signatures (Mensuel)
 
@@ -162,7 +161,7 @@ consignes dans [[governance-runtime-map]], Couche D.
 | `--commit` en cron | Aucun commit automatique |
 | `git push` en cron | Aucun push automatique |
 | GitHub Actions write | CI en lecture seule |
-| Sync bidirectionnel | Canon → Vault uniquement |
+| Sync monorepo → vault | Seul sens : vault → monorepo (`sync_canon_mirrors.py`, ADR-061 §3) |
 
 ---
 
