@@ -51,8 +51,20 @@ fi
 # Regex des patterns v1 interdits
 V1_PATTERN='^(0[0-9]-[a-z-]+/|scripts/)'
 
-# Tous les fichiers trackés
-V1_FILES="$(git ls-files | grep -E "$V1_PATTERN" || true)"
+# Un inventaire impossible n'est pas un inventaire vide. Ne toucher au rapport
+# qu'apres avoir obtenu et filtre les fichiers avec succes.
+if ! TRACKED_FILES="$(git ls-files)"; then
+  echo "Error: git ls-files a echoue, controle v1 impossible" >&2
+  exit 2
+fi
+
+# grep : 0 = correspondances, 1 = aucune ; tout autre code est une erreur.
+FILTER_STATUS=0
+V1_FILES="$(grep -E "$V1_PATTERN" <<< "$TRACKED_FILES")" || FILTER_STATUS=$?
+if (( FILTER_STATUS > 1 )); then
+  echo "Error: filtrage des paths v1 impossible (grep: $FILTER_STATUS)" >&2
+  exit 2
+fi
 
 REPORT="99-meta/v1-paths-report.md"
 
