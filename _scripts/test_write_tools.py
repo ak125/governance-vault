@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import datetime
 import os
+import shlex
 import shutil
 import subprocess
 from pathlib import Path
@@ -105,6 +106,72 @@ def test_preflight_subdirectory_of_a_repo_is_refused(vault):
     install_tools(sub)
     r = run(sub, env, "preflight-write.sh")
     assert r.returncode == 20, r.stdout + r.stderr
+
+
+@pytest.mark.parametrize("layout", ["vault", "worktree"])
+@pytest.mark.parametrize("failure", ["missing", "not-executable", "directory", "bad-interpreter"])
+def test_preflight_unusable_validator_is_an_error(request, layout, failure):
+    root, env = request.getfixturevalue(layout)
+    validator = root / "_scripts/check-v1-paths.sh"
+    if failure == "missing":
+        validator.unlink()
+    elif failure == "not-executable":
+        validator.chmod(0o644)
+    elif failure == "directory":
+        validator.unlink()
+        validator.mkdir()
+    else:
+        validator.write_text("#!/nonexistent/vault-test-interpreter\n", encoding="utf-8")
+    # Autoriser un arbre sale ne doit jamais rendre le controle v1 facultatif.
+    r = run(root, env, "preflight-write.sh", "--allow-dirty")
+    assert r.returncode == 22, r.stdout + r.stderr
+    assert "ERR" in r.stdout + r.stderr
+    assert "GO" not in r.stdout
+    assert "v1 paths détectés" not in r.stdout
+
+
+@pytest.mark.parametrize("layout", ["vault", "worktree"])
+def test_preflight_git_inventory_error_preserves_report(request, layout, tmp_path):
+    root, env = request.getfixturevalue(layout)
+    report = root / "99-meta/v1-paths-report.md"
+    report.parent.mkdir()
+    report.write_bytes(b"previous report\n")
+    index = tmp_path / "bad-index"
+    index.write_bytes(b"invalid git index\n")
+    # Le vrai Git lit un index illisible uniquement lors de l'inventaire ;
+    # fetch, rev-parse et les autres controles restent fonctionnels.
+    real_git = shutil.which("git", path=env["PATH"])
+    assert real_git is not None
+    bindir = tmp_path / "bin"
+    bindir.mkdir()
+    wrapper = bindir / "git"
+    wrapper.write_text(
+        '#!/bin/sh\nif [ "$1" = ls-files ]; then\n'
+        f"  export GIT_INDEX_FILE={shlex.quote(str(index))}\nfi\n"
+        f'exec {shlex.quote(real_git)} "$@"\n', encoding="utf-8",
+    )
+    wrapper.chmod(0o755)
+    env = {**env, "PATH": str(bindir) + os.pathsep + env["PATH"]}
+    r = run(root, env, "preflight-write.sh", "--allow-dirty")
+    assert r.returncode == 22, r.stdout + r.stderr
+    assert "ERR" in r.stdout + r.stderr
+    assert "GO" not in r.stdout
+    assert "v1 paths détectés" not in r.stdout
+    assert report.read_bytes() == b"previous report\n"
+
+
+@pytest.mark.parametrize("layout", ["vault", "worktree"])
+def test_preflight_actual_v1_violation_is_not_a_control_error(request, layout):
+    root, env = request.getfixturevalue(layout)
+    bad_path = root / "01-incidents/INC-x.md"
+    bad_path.parent.mkdir()
+    bad_path.write_text("x\n", encoding="utf-8")
+    git(root, env, "add", str(bad_path))
+    r = run(root, env, "preflight-write.sh", "--allow-dirty")
+    assert r.returncode == 13, r.stdout + r.stderr
+    assert "v1 paths détectés" in r.stdout
+    assert "GO" not in r.stdout
+    assert "01-incidents/INC-x.md" in (root / "99-meta/v1-paths-report.md").read_text()
 
 
 # --- new-incident.sh ----------------------------------------------------------------------

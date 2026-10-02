@@ -103,3 +103,62 @@ def test_non_git_directory_is_refused(tmp_path, script, bad_path):
     plain.mkdir()
     r = run_check(script, plain, git_env(tmp_path))
     assert r.returncode == 2, r.stdout + r.stderr
+
+
+@pytest.mark.parametrize("existing_report", [False, True])
+def test_v1_git_inventory_error_does_not_modify_report(repo, existing_report):
+    root, env = repo
+    report = root / "99-meta/v1-paths-report.md"
+    if existing_report:
+        report.parent.mkdir()
+        report.write_bytes(b"previous report\n")
+    # Echec reel de Git, sans remplacer le validateur ni simuler son resultat.
+    (root / ".git/index").write_bytes(b"invalid git index\n")
+    r = run_check("check-v1-paths.sh", root, env)
+    assert r.returncode == 2, r.stdout + r.stderr
+    assert "git ls-files" in r.stderr
+    assert "PASS" not in r.stdout
+    if existing_report:
+        assert report.read_bytes() == b"previous report\n"
+    else:
+        assert not report.exists()
+
+
+def test_v1_successfully_empty_inventory_is_accepted(repo):
+    root, env = repo
+    git(root, env, "rm", "--cached", "ledger/ok.md")
+    r = run_check("check-v1-paths.sh", root, env)
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert "PASS" in r.stdout
+    assert not (root / "99-meta/v1-paths-report.md").exists()
+
+
+def test_v1_successful_check_removes_obsolete_report(repo):
+    root, env = repo
+    report = root / "99-meta/v1-paths-report.md"
+    report.parent.mkdir()
+    report.write_bytes(b"previous report\n")
+    r = run_check("check-v1-paths.sh", root, env)
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert "PASS" in r.stdout
+    assert not report.exists()
+
+
+@pytest.mark.parametrize("partial_output", ["", "01-incidents/partial.md\\n"])
+def test_v1_filter_error_does_not_publish_partial_results(repo, tmp_path, partial_output):
+    root, env = repo
+    report = root / "99-meta/v1-paths-report.md"
+    report.parent.mkdir()
+    report.write_bytes(b"previous report\n")
+    # Seul le filtre externe est remplace : le depot et Git restent reels.
+    bindir = tmp_path / "bin"
+    bindir.mkdir()
+    grep = bindir / "grep"
+    grep.write_text(f"#!/bin/sh\nprintf '{partial_output}'\nexit 2\n", encoding="utf-8")
+    grep.chmod(0o755)
+    env = {**env, "PATH": str(bindir) + os.pathsep + env["PATH"]}
+    r = run_check("check-v1-paths.sh", root, env)
+    assert r.returncode == 2, r.stdout + r.stderr
+    assert "Error" in r.stderr
+    assert "PASS" not in r.stdout
+    assert report.read_bytes() == b"previous report\n"

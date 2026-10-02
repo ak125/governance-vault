@@ -26,6 +26,7 @@
 # Exit 13 : BLOCKED — v1 paths détectés (régression ADR-015)
 # Exit 20 : ERR — repo non-git ou vault-dir manquant
 # Exit 21 : ERR — git fetch échoué (réseau)
+# Exit 22 : ERR — contrôle v1 indisponible ou en erreur
 
 set -euo pipefail
 
@@ -117,13 +118,26 @@ else
 fi
 
 # --- Guard 6 : v1 paths (réutilise le script existant) ---
-if [[ -x _scripts/check-v1-paths.sh ]]; then
-  if ! _scripts/check-v1-paths.sh . >/dev/null 2>&1; then
+if [[ ! -f _scripts/check-v1-paths.sh || ! -x _scripts/check-v1-paths.sh ]]; then
+  echo "❌ ERR : contrôle v1 indisponible : _scripts/check-v1-paths.sh absent ou inexécutable." >&2
+  exit 22
+fi
+
+V1_STATUS=0
+_scripts/check-v1-paths.sh . >/dev/null || V1_STATUS=$?
+case "$V1_STATUS" in
+  0) ;;
+  1)
     echo "❌ BLOCKED : v1 paths détectés dans le clone."
     echo "   Run : _scripts/check-v1-paths.sh . pour voir le rapport"
     exit 13
-  fi
-fi
+    ;;
+  *)
+    echo "❌ ERR : contrôle v1 impossible (check-v1-paths.sh: $V1_STATUS)." >&2
+    echo "   Run : _scripts/check-v1-paths.sh . pour diagnostiquer l'erreur" >&2
+    exit 22
+    ;;
+esac
 
 # --- GO ---
 echo "✅ GO — preflight OK"

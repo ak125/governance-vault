@@ -51,7 +51,7 @@ Note evidence-pack : un evidence-pack se crée à la main. L'ancien générateur
    ```bash
    _scripts/preflight-write.sh
    ```
-   Exit 0 = GO. Exit 10-13 = fix requis (voir message). Ne jamais écrire sans GO.
+   Exit 0 = GO. Exit 10-13 = fix requis ; exit 20-22 = contrôle impossible (voir message). Ne jamais écrire sans GO.
 3. Créer une branche : `git checkout -b <type>/<slug>`
    - Exemples : `docs/inc-2026-003-xyz`, `adr/ADR-NNN-yyy`, `chore/archive-zzz`
 4. **Utiliser les helpers** si dispo :
@@ -93,7 +93,7 @@ du checkout runtime. Quand ce checkout n'est pas sur `main`, seule la ref bouge 
 5. Si sur branche : informatif si `origin/main` a avancé
 6. Aucun fichier sous path v1 (réutilise `check-v1-paths.sh`)
 
-**Codes de sortie** : 0 = GO, 10 = clone périmé, 11 = tree sale, 12 = dans .local/, 13 = v1 paths, 20 = repo KO, 21 = fetch KO.
+**Codes de sortie** : 0 = GO, 10 = clone périmé, 11 = tree sale, 12 = dans .local/, 13 = v1 paths, 20 = repo KO, 21 = fetch KO, 22 = contrôle v1 indisponible ou en erreur.
 
 ---
 
@@ -154,4 +154,4 @@ Aucune VPS ne doit écrire de gouvernance hors du workflow GitHub PR.
 
 ---
 
-_Dernière mise à jour : 2026-10-01 — G4 et canal de bundles retiré (ADR-102)_
+_Dernière mise à jour : 2026-10-02 — Codes d'erreur du preflight alignés ; règles G1-G4 inchangées_
