@@ -6,7 +6,7 @@ date: 2026-04-25
 decision_makers: [Fafa]
 supersedes: []
 superseded_by: []
-amended_by: ["ADR-037"]
+amended_by: ["ADR-037", "ADR-105"]
 related_rules: [G1, G2, G4, AP-10, AP-11]
 related_incidents: []
 reviewed_by: "Claude Code Opus 4.7"
