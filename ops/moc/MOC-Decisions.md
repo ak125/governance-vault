@@ -206,6 +206,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-104 | Planning Live : writer automatique, projection GitHub Project et alertes P0 retirés ; MOC figé, taxonomies conservées — amende ADR-053 | Accepted | 2026-10-01 | [[ADR-104-planning-live-writer-retired]] |
 | ADR-105 | `__seo_event_log` : index GIN (payload) retiré ; tout lecteur jsonb apporte son index ciblé — amende ADR-025 | Accepted | 2026-10-03 | [[ADR-105-seo-event-log-gin-index-retired]] |
 | ADR-112 | Base de connaissances diagnostic — affirmations sourcées WIKI, une seule voie d'écriture, moteur déterministe plafonné par la preuve : remplace ADR-032, amende ADR-027, ADR-033, ADR-035, ADR-080 et ADR-090 | Accepted | 2026-10-04 | [[ADR-112-diagnostic-knowledge-base-canon]] |
+| ADR-113 | Couverture de la base de diagnostic — gammes publiées, symptômes du vocabulaire, séries moteur du constructeur : amende ADR-033 et ADR-112 | Accepted | 2026-10-04 | [[ADR-113-diagnostic-coverage-target]] |
 
 <!-- AUTO-GENERATED:moc-decisions-canonical-index end -->
 
