@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-10-03
+updated: 2026-10-04
 ---
 
 # MOC: Decisions
@@ -106,7 +106,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 > Projection mécanique du frontmatter ADR (PR-3 sync_moc_decisions).
 > Toute édition manuelle entre les markers est écrasée à chaque sync.
 > Pour corriger un statut ou un titre, éditer le frontmatter de l'ADR puis relancer `--write`.
-> Dernier sync : 2026-10-03.
+> Dernier sync : 2026-10-04.
 
 | ID | Titre | Statut canonique | Date | Fichier |
 |----|-------|------------------|------|---------|
@@ -141,10 +141,10 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-029 | RAG v2.1 Control Plane Closure — State Machine 7-Stage + Emitter/Detector | Proposed | 2026-04-25 | [[ADR-029-rag-v2.1-control-plane-closure]] |
 | ADR-030 | npm ci --ignore-scripts permanent dans Dockerfile (Alpine musl + @ast-grep/cli) | Accepted | 2026-04-30 | [[ADR-030-npm-ignore-scripts-alpine-musl]] |
 | ADR-031 | Four-Layer Content Architecture — Raw / Wiki / Exports / Consumers (Unified Flow All R0-R8) | Accepted | 2026-04-28 | [[ADR-031-four-layer-content-architecture]] |
-| ADR-032 | Diagnostic & Maintenance Unification — kg_* canon for maintenance/safety/DTC, content via wiki/exports per ADR-031 | Proposed | 2026-04-29 | [[ADR-032-diagnostic-maintenance-unification]] |
+| ADR-032 | Diagnostic & Maintenance Unification — kg_* canon for maintenance/safety/DTC, content via wiki/exports per ADR-031 | Superseded by [[ADR-112-diagnostic-knowledge-base-canon]] | 2026-04-29 | [[ADR-032-diagnostic-maintenance-unification]] |
 | ADR-033 | Wiki Gamme Diagnostic Relations Contract — references-only from R3/R4 to __diag_symptom / __diag_system | Accepted | 2026-04-29 | [[ADR-033-wiki-gamme-diagnostic-relations-contract]] |
 | ADR-034 | AI-COS Operating Contract — Observatory + Single-Trigger Routines | Proposed | 2026-04-30 | [[ADR-034-aicos-operating-contract]] |
-| ADR-035 | Diagnostic Tool Source Trust Flag — is_trusted + source_origin sur __diag_symptom_cause_link | Proposed | 2026-05-02 | [[ADR-035-diagnostic-tool-source-trust-flag]] |
+| ADR-035 | Diagnostic Tool Source Trust — provenance WIKI des liens __diag_symptom_cause_link | Accepted | 2026-05-02 | [[ADR-035-diagnostic-tool-source-trust-flag]] |
 | ADR-036 | Marketing Operating Layer — 3 agents G1 (LEAD/LOCAL/RETENTION) + extension OperatingMatrixService + business_unit séparé ECOMMERCE/LOCAL/HYBRID | Accepted | 2026-04-30 | [[ADR-036-marketing-operating-layer]] |
 | ADR-037 | Agent Naming Canon — frontmatter `role:` Zod-validated, fail-fast, source de vérité unique | Accepted | 2026-04-30 | [[ADR-037-agent-naming-canon]] |
 | ADR-038 | Marketing Agent Naming Canon — frontmatter `role:` + `business_unit:` Zod-validated, fail-fast (étend ADR-037 au scope marketing) | Accepted | 2026-04-30 | [[ADR-038-marketing-agent-naming-canon]] |
@@ -205,6 +205,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-103 | Guides d'achat (R6_GUIDE_ACHAT) consolidés dans les conseils (R3) — retrait de l'index sous drapeau, maillage interne aligné avant activation : amende ADR-090 §C2 | Accepted | 2026-10-01 | [[ADR-103-r6-guide-achat-consolidation-into-r3]] |
 | ADR-104 | Planning Live : writer automatique, projection GitHub Project et alertes P0 retirés ; MOC figé, taxonomies conservées — amende ADR-053 | Accepted | 2026-10-01 | [[ADR-104-planning-live-writer-retired]] |
 | ADR-105 | `__seo_event_log` : index GIN (payload) retiré ; tout lecteur jsonb apporte son index ciblé — amende ADR-025 | Accepted | 2026-10-03 | [[ADR-105-seo-event-log-gin-index-retired]] |
+| ADR-112 | Base de connaissances diagnostic — affirmations sourcées WIKI, une seule voie d'écriture, moteur déterministe plafonné par la preuve : remplace ADR-032, amende ADR-027, ADR-033, ADR-035, ADR-080 et ADR-090 | Accepted | 2026-10-04 | [[ADR-112-diagnostic-knowledge-base-canon]] |
 
 <!-- AUTO-GENERATED:moc-decisions-canonical-index end -->
 
