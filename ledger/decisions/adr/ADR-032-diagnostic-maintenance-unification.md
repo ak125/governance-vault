@@ -1,12 +1,12 @@
 ---
 id: ADR-032
 title: "Diagnostic & Maintenance Unification — kg_* canon for maintenance/safety/DTC, content via wiki/exports per ADR-031"
-status: proposed
+status: superseded
 date: 2026-04-29
 decision_date: null
 decision_makers: ["@fafa"]
 supersedes: []
-superseded_by: []
+superseded_by: ["ADR-112"]
 amends: []
 related_rules: ["G1", "G2", "G3", "Q1", "Q3", "AP-10"]
 related_incidents: []
@@ -16,6 +16,13 @@ implementation_status_updated: 2026-05-05
 ---
 
 # ADR-032: Diagnostic & Maintenance Unification
+
+> ⚠️ **SUPERSEDED par [[ADR-112-diagnostic-knowledge-base-canon|ADR-112]]** (2026-10-04).
+>
+> Resté `proposed` depuis le 2026-04-29. ADR-112 fixe le canon de la base de connaissances diagnostic
+> et fait de `__diag_maintenance_operation` le canon unique de l'entretien (ADR-112 D8). Il reprend
+> D2, D3, D5, D6, D9 et l'amendement du 2026-06-21 comme décisions d'implémentation (ADR-112 D9).
+> Texte conservé pour l'historique.
 
 ## Contexte
 

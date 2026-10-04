@@ -1,159 +1,159 @@
 ---
 id: ADR-035
-title: "Diagnostic Tool Source Trust Flag — is_trusted + source_origin sur __diag_symptom_cause_link"
-status: proposed
-date: 2026-05-02
-decision_date: null
+title: "Diagnostic Tool Source Trust — provenance WIKI des liens __diag_symptom_cause_link"
+status: accepted
+date: "2026-05-02"
+decision_date: "2026-10-04"
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
 amends: []
+amended_by: ["ADR-112"]
 related_rules: ["G1", "G2", "G3", "Q1", "Q2"]
 related_incidents: ["INC-2026-013"]
-related_adr: ["ADR-031", "ADR-032", "ADR-033"]
+related_adr: ["ADR-031", "ADR-032", "ADR-033", "ADR-059", "ADR-112"]
 reviewed_by: ""
+version: "1.0.0"
 ---
 
-# ADR-035 : Diagnostic Tool Source Trust Flag
+# ADR-035 : Diagnostic Tool Source Trust — provenance WIKI des liens
+
+- **Statut** : Accepted (2026-10-04). La fusion par l'owner vaut ratification.
+- **Amendé par** [[ADR-112-diagnostic-knowledge-base-canon|ADR-112]] (même PR) :
+  - D2 gagne un mode « créer ou remplacer » à partir de la phase 3 d'ADR-112 ;
+  - D4 est remplacé par les niveaux plafonnés par la preuve à partir de la phase 4.
+
+  Jusque-là, D1 à D7 s'appliquent tels quels.
+
+> **Révision du 2026-09-30.** La proposition du 2026-05-02 (colonnes `is_trusted` / `source_origin`
+> sur `__diag_symptom_cause_link`) n'a jamais été acceptée ni implémentée. Elle est remplacée par
+> les décisions D1-D7 ci-dessous ; l'option d'origine est conservée en « Options considérées »
+> (option C) pour l'historique. Spec d'implémentation (monorepo, PR #1658) :
+> `docs/superpowers/specs/2026-09-30-diagnostic-wiki-provenance-design.md`.
 
 ## Contexte
 
-Au 2026-05-02, l'incident [[2026-05-02-diagnostic-tool-unsourced-probas|INC-2026-013]] a documenté que les 162 liens `__diag_symptom_cause_link` du moteur diagnostic AutoMecanik portent des `relative_score` copiés depuis le fichier RAG éditorial `bruits-freinage.md` (truth_level L2, sans source OEM/TecDoc/RTA). Ces probabilités sont affichées au client final sur `/diagnostic-auto/*` comme si elles étaient vérifiées.
+Au 2026-05-02, l'incident [[2026-05-02-diagnostic-tool-unsourced-probas|INC-2026-013]] a documenté que les 162 liens `__diag_symptom_cause_link` du moteur diagnostic portent des `relative_score` copiés depuis un fichier RAG éditorial (truth_level L2, sans source OEM/TecDoc/RTA), affichés au client sur `/diagnostic-auto/*` comme s'ils étaient vérifiés.
 
-### Chiffres DB (lecture seule — 2026-05-02, projet Supabase `cxpojprgwgubzjyqzmoq`)
+Au 2026-09-30 (origin/main et DB en lecture seule), la chaîne SCRAPING → RAW → WIKI → DB est coupée à chaque maillon :
 
-| Requête | Résultat |
-|---------|----------|
-| `SELECT to_regclass('public.__diag_symptom_cause_link')` | `__diag_symptom_cause_link` ✅ |
-| `SELECT count(*) FROM __diag_symptom_cause_link` | **162** |
-| `SELECT count(*) FROM __diag_symptom_cause_link WHERE relative_score IS NOT NULL` | **162** (100 % des rows ont un score) |
+| Maillon | État |
+|---|---|
+| RAW → WIKI | 3 relations `diagnostic_relations` (filtre-a-air, filtre-a-carburant, filtre-d-habitacle) ; leurs sources sont `to_capture` au catalogue |
+| WIKI → DB | aucun producteur : rien ne lit `diagnostic_relations` pour alimenter `__diag_*` |
+| DB | aucune colonne ni table de provenance sur les liens |
+| Moteur | le score affiché « NN/100 » dérive de `relative_score`, non sourcé |
 
-La table ne possède aucun champ permettant de distinguer un score issu d'une source primaire vérifiée d'un score éditorial inventé. [[ADR-033-wiki-gamme-diagnostic-relations-contract]] introduit la notion de `evidence.diagnostic_safe` côté markdown mais n'impose pas de contrepartie DB. Cet ADR-035 comble ce gap.
+[[ADR-033-wiki-gamme-diagnostic-relations-contract]] définit côté WIKI `evidence.diagnostic_safe` et la `source_policy`, sans contrepartie DB. Cet ADR définit cette contrepartie.
 
 ## Principe directeur
 
-> Une probabilité ne doit être affichée au client que si elle est issue d'au moins une source normative vérifiée. Dans le cas contraire, seule la liste des causes est présentée, sans chiffre.
+> Une relation symptôme → cause n'est « documentée » en DB que par une provenance WIKI vérifiable, dont toutes les sources sont prouvées dans RAW. Aucun nombre n'est affiché pour un lien tant qu'aucune fréquence sourcée n'existe.
 
 ## Décisions
 
-### D1 — Colonnes `is_trusted` et `source_origin`
+### D1 — Une table de provenance, aucune colonne d'état sur les liens
 
-```sql
-ALTER TABLE __diag_symptom_cause_link
-  ADD COLUMN is_trusted     BOOLEAN NOT NULL DEFAULT FALSE,
-  ADD COLUMN source_origin  TEXT    NOT NULL DEFAULT 'rag_unverified';
-```
+- `__diag_link_provenance` : une ligne par couple (lien, fiche WIKI) ; `link_id` → `__diag_symptom_cause_link(id)` `ON DELETE RESTRICT`. Colonnes : identité de la fiche (`wiki_path`, `gamme_slug`, `wiki_commit`, `content_hash`), contenu de la relation (`relation_to_part`, `part_role`, `confidence`, `source_policy`, `confidence_score_computed`, `reviewed`, `diagnostic_safe`, `sources`), cycle de vie (`first_run_id`, `last_run_id`, `projected_at`, `retired_at`, `retired_run_id`).
+- Un lien est « documenté » si et seulement s'il a une ligne vivante (`retired_at IS NULL`). Retrait doux : une relation qui n'est plus projetée reçoit `retired_at` ; l'historique est conservé.
+- `__diag_projection_runs` (un run = une ligne, `exported = projected + conflicts` par `CHECK`) et `__diag_projection_conflicts` (raison bornée par `CHECK`) rendent chaque run et chaque relation non projetée observables.
+- `__diag_symptom_cause_link` n'est pas modifiée.
+- `wiki_commit` et `content_hash` sont des métadonnées d'audit au sens d'[[ADR-059-seo-runtime-projection]] (§Audit metadata vs replay authority) ; aucune capacité de rejeu n'est revendiquée.
 
-Sémantique :
+Pourquoi pas des colonnes : un booléen `is_trusted` est un état sans sa preuve (qui l'a basculé, sur quelle source, depuis quand). La table porte la preuve elle-même et se recalcule à chaque run depuis le WIKI.
 
-- **`is_trusted = false`** : score non sourcé ou source insuffisante. Défaut pour **toutes les 162 rows existantes**. L'application **ne doit pas** afficher de probabilité chiffrée.
-- **`is_trusted = true`** : score validé selon la règle D2. L'application peut afficher le `relative_score`.
-- **`source_origin`** — valeurs canoniques :
+### D2 — Un seul producteur, qui ne crée rien et ne tranche rien
 
-| Valeur | Signification |
-|--------|---------------|
-| `rag_unverified` | Copié depuis RAG éditorial sans source normative (défaut rows existantes) |
-| `wiki_diagnostic_relations` | Alimenté depuis `diagnostic_relations[]` d'une fiche wiki gamme avec `evidence.diagnostic_safe = true` |
-| `oem_<slug>` | Issu d'un manuel OEM référencé |
-| `tecdoc_<slug>` | Issu d'une source TecDoc vérifiée |
-| `manual_review_<reviewer>` | Revu manuellement par un expert nommé, commit signé G3 |
+- Le seul writer est `DiagnosticProjectionModule` (monorepo), par la RPC `__diag_projection_apply(jsonb)` : une transaction, verrou consultatif, droits `service_role` seuls. Il lit `exports/diagnostic/`, vue dérivée déterministe du WIKI publiée par le builder du WIKI ; il ne lit jamais RAW ni RAG ([[ADR-031-four-layer-content-architecture]]).
+- Il ne crée aucun symptôme, cause ni lien. Une relation se résout vers un lien existant par une règle déterministe ; zéro ou plusieurs candidats donnent un conflit, jamais un choix.
+- Une relation n'est projetée que si toutes ses sources sont `raw_proven` (prédicat G1 : source `active` au catalogue avec `raw_ref.manifest_id`), calculé par le builder du WIKI et recopié tel quel. Sinon : conflit `source_not_raw_proven`.
+- Il ne modifie jamais `reviewed` ni `diagnostic_safe`. Leur passage à `true` reste « strictement manuel ou couvert par règle ADR explicite, jamais en automatique » (ADR-033 D4) et se fait dans le WIKI : ni le writer, ni un script, ni une session IA ne le décident.
 
-### D2 — Règle de remontée `is_trusted = true`
+### D3 — Aucun nombre affiché pour un lien
 
-Un lien passe à `is_trusted = true` **uniquement** si l'une des conditions suivantes est satisfaite, alignée sur la `source_policy` d'ADR-033 D1 :
+- Aucun pourcentage, score sur 100 ni sous-score n'est affiché pour un lien tant qu'aucune fréquence sourcée n'existe.
+- L'ordre existant, fondé sur `relative_score`, reste transitoire pour les liens non documentés ; il n'est jamais affiché. Le retrait de `relative_score` relève d'une spec distincte.
 
-| Condition | Prérequis |
-|-----------|-----------|
-| **1 source haute fiabilité** | `source_origin` = `oem_*` ou `tecdoc_*` ET document source référencé dans `sources[]` de la fiche wiki correspondante avec `evidence.confidence = high` |
-| **2 sources medium concordantes** | Deux fiches wiki distinctes référencent le même `symptom_slug` / cause avec `evidence.confidence = medium` ET `evidence.diagnostic_safe = true` ET `evidence.source_policy = '2_medium_concordant'` |
-| **Revue manuelle** | Reviewer humain (`reviewed_by ≠ auteur_contenu`) crée un commit signé G3 avec annotation explicite, `source_origin = 'manual_review_<reviewer>'` |
+### D4 — Seuls les liens `diagnostic_safe: true` pondèrent le rang
 
-**Interdit** : flip automatique `is_trusted = true` depuis pipeline RAG ou session IA sans revue humaine. Même règle que `evidence.diagnostic_safe` dans ADR-033 D4.
+- En mode primaire (drapeau `PRIMARY`, D5), une contribution pèse 100 si son lien a une ligne vivante avec `diagnostic_safe: true`, 0 sinon (ADR-033, champ `diagnostic_safe` : « autorisé à influencer le moteur diagnostic live »).
+- Un lien documenté mais non `diagnostic_safe` est affiché comme documenté, sans jamais peser sur le rang.
+- `confidence_score_computed` n'est pas une probabilité et ne pondère pas le rang.
 
-### D3 — Comportement applicatif selon `is_trusted`
+### D5 — Activation par drapeaux, défaut OFF
 
-| `is_trusted` | `DiagnosticEngineDataService` | Frontend `/diagnostic-auto/*` |
-|---|---|---|
-| `false` | Retourne liste causes ordonnées (statique ou alphabétique), **sans** `relative_score` | Affiche liste causes sans pourcentage |
-| `true` | Retourne `relative_score` + liste ordonnée par score | Affiche probabilités chiffrées |
+| Drapeau | Effet |
+|---|---|
+| `DIAGNOSTIC_PROJECTION_ENABLED` | run quotidien du writer (PROD seul porte le job planifié) |
+| `DIAGNOSTIC_PROVENANCE_EXPOSE_ENABLED` | le moteur lit et expose la provenance, sans changer le rang |
+| `DIAGNOSTIC_PROVENANCE_PRIMARY_ENABLED` | pondération D4 ; refusée par la plomberie PROD si EXPOSE est OFF |
 
-**Invariant absolu** : aucune probabilité chiffrée ne doit apparaître côté client si `is_trusted = false`.
+Les PR à drapeaux OFF avancent sans attendre cet ADR. Attendent son acceptation : toute activation en PROD et la PR frontend, visible sans drapeau.
 
-### D4 — Découpage en 4 PRs séquentielles
+### D6 — Critères de succès
 
-| Ordre | PR | Repo | Contenu | Prérequis |
-|---|---|---|---|---|
-| 1 | PR-A | nestjs-remix-monorepo | Migration DB : `ADD COLUMN is_trusted BOOLEAN DEFAULT FALSE, source_origin TEXT DEFAULT 'rag_unverified'` + update toutes rows existantes | Aucun |
-| 2 | PR-B | nestjs-remix-monorepo | `DiagnosticEngineDataService` : masquer `relative_score` si `is_trusted = false`, retourner liste causes ordonnée | PR-A mergée |
-| 3 | PR-C | nestjs-remix-monorepo | Frontend `/diagnostic-auto/*` : adapter composant rendu probabilités pour `is_trusted: false` | PR-B mergée |
-| 4 | PR-D | governance-vault | Plan de re-sourcing structurel : documenter pipeline `wiki diagnostic_relations[]` → `is_trusted = true` | PR-A mergée |
+1. Le premier run activé donne `exported = 3`, `projected = 0`, `conflicts = 3` (`source_not_raw_proven`) : le résultat honnête tant qu'aucune source n'est capturée.
+2. Une source passée `active` par le flux gouverné produit une ligne vivante au run suivant, sans intervention manuelle.
+3. Une panne de lecture de la provenance n'est jamais présentée comme une absence de preuve.
+4. Aucune fiche WIKI approuvée n'est modifiée ; aucun symptôme, cause ni lien n'est créé.
 
-### D5 — Critères de succès
+### D7 — Interdictions
 
-1. Après PR-A : `SELECT count(*) FROM __diag_symptom_cause_link WHERE is_trusted = false` = **162**
-2. Après PR-A : `SELECT count(*) FROM __diag_symptom_cause_link WHERE is_trusted = true` = **0**
-3. Après PR-B + PR-C : aucune probabilité chiffrée n'apparaît sur `/diagnostic-auto/*` pour les causes avec `is_trusted = false`
-4. Au fil du re-sourcing : le compteur `WHERE is_trusted = false` décroît progressivement
-5. Horizon T+6 mois : au moins un système complet (ex. freinage, ~20-30 liens) passe à `is_trusted = true` après re-sourcing OEM
+- Écrire `__diag_link_provenance` hors de `__diag_projection_apply`.
+- Projeter une relation dont une source n'est pas `raw_proven`.
+- Afficher un nombre par lien (D3) ; pondérer le rang par un lien non `diagnostic_safe` (D4).
+- Alimenter la provenance depuis RAG ou depuis RAW directement.
 
-### D6 — Interdictions
-
-- Pas de flip `is_trusted = true` via script automatique non supervisé
-- Pas d'affichage de `relative_score` côté client si `is_trusted = false`
-- `source_origin = 'rag_unverified'` est incompatible avec `is_trusted = true` (contrainte CHECK optionnelle à envisager en PR-A)
-
-## Options Considérées
+## Options considérées
 
 ### Option A — Supprimer les `relative_score` existants (rejetée)
 
-Vider tous les scores DB. Pas de distinction `is_trusted`.
+Destructif et irréversible, sans gain de preuve. Rejetée le 2026-05-02, toujours rejetée.
 
-**Rejeté** : destructif et irréversible. Les données ont de la valeur une fois re-sourcées. Perd 8 semaines de travail de scoring sans gain sécurité supplémentaire.
+### Option B — Colonne `score_confidence` low/medium/high (rejetée)
 
-### Option B — Colonne `score_confidence` (text: low/medium/high) (rejetée)
+Analogue à l'anti-pattern `evidence_level` plat rejeté par ADR-033. Rejetée le 2026-05-02, toujours rejetée.
 
-Analogue à l'anti-pattern `evidence_level` plat documenté dans ADR-033 section « Décisions activement rejetées ». Sans booléen binaire, la logique applicative `if is_trusted { show_score }` est ambiguë.
+### Option C — Colonnes `is_trusted` + `source_origin` (proposée le 2026-05-02, remplacée)
 
-**Rejeté** : trop vague, edge-cases non définis, risque de contournement silencieux.
+`ALTER TABLE __diag_symptom_cause_link ADD COLUMN is_trusted BOOLEAN NOT NULL DEFAULT FALSE, ADD COLUMN source_origin TEXT NOT NULL DEFAULT 'rag_unverified'`, bascule `is_trusted = true` selon la `source_policy`.
 
-### Option C — `is_trusted BOOLEAN` + `source_origin TEXT` (retenue)
+**Remplacée** : l'état serait dissocié de sa preuve, sa bascule demanderait un acteur (manuel ou script) que D2 interdit, et la table de liens, lue par le moteur, serait modifiée.
 
-Sémantique binaire claire, invariant testable, découpage 4 PRs séquentiel.
+### Option D — Table de provenance projetée depuis le WIKI (retenue)
 
-**Retenu** : conforme à la philosophie ADR-033 (`diagnostic_safe` côté wiki ↔ `is_trusted` côté DB), implémentation minimaliste, réversible.
+D1-D7. Additive, observable par run, recalculée depuis le WIKI, sans aucune bascule manuelle.
 
 ## Conséquences
 
 ### Positives
 
-- Aucune probabilité non sourcée affichée côté client après PR-B + PR-C
-- Le re-sourcing progressif est traçable via `source_origin` et mesurable via `SELECT count(*) WHERE is_trusted = true`
-- Alignement fort ADR-033 : `evidence.diagnostic_safe = true` côté wiki ↔ `is_trusted = true` côté DB
-- Les RPCs `kg_diagnose_*` existants peuvent retourner `is_trusted` comme champ supplémentaire sans breaking change
+- La provenance de chaque lien est vérifiable : fiche, commit, sources et leur preuve RAW.
+- Le travail de capture RAW (sous-projet suivant) devient mesurable : conflits `source_not_raw_proven` → projections.
+- Aucune table existante n'est modifiée ; chaque étape se coupe par son drapeau.
 
 ### Négatives
 
-- PR-A nécessite migration DB (ADD COLUMN safe, mais déclenche dégradation UX temporaire jusqu'à PR-B+C)
-- Le re-sourcing manuel de 162 liens est estimé T+3 à T+6 mois pour couverture complète
-- Risque de régression si PR-B est déployée sans PR-C : déployer atomiquement ou avec feature flag
+- Au lancement, aucun lien n'est documenté (0 source capturée) : le moteur affiche toutes ses hypothèses comme « non encore documentées ».
+- Le mode primaire reste sans effet tant qu'aucune relation n'est `diagnostic_safe: true`.
 
 ### Neutres
 
-- `source_origin = 'rag_unverified'` reste lisible en DB pour audits futurs
-- ADR-031 (4-layer) et ADR-032 (kg_* canon) ne sont pas impactés
+- `relative_score` reste en DB et ordonne transitoirement les liens non documentés.
+- [[ADR-032-diagnostic-maintenance-unification]] est remplacé par [[ADR-112-diagnostic-knowledge-base-canon|ADR-112]] (2026-10-04) ; cet ADR n'en dépend pas.
 
-## Revue Planifiée
+## Revue planifiée
 
-**Date** : 2026-08-02 (J+90 post-acceptation)
+**Date** : J+90 après acceptation.
 
 **Critères** :
-- `SELECT count(*) WHERE is_trusted = false` < 162 (re-sourcing initié)
-- Au moins 1 système complet (freinage) entièrement re-sourcé (`is_trusted = true`)
-- Aucun `relative_score` affiché côté client pour `is_trusted = false` (audit smoke tests `/diagnostic-auto/*`)
-- Évaluation : le seuil `2_medium_concordant` s'est révélé suffisant ou doit être renforcé
+- runs quotidiens `applied` en PROD, `exported = projected + conflicts` ;
+- évolution du nombre de conflits `source_not_raw_proven` avec la capture RAW ;
+- aucun nombre par lien affiché sur `/diagnostic-auto/*`.
 
 ---
 
 *Proposé le : 2026-05-02*
-*Accepté le : TBD*
-*Dernière revue : 2026-05-02*
+*Révisé le : 2026-09-30 (D1-D7 remplacent la proposition d'origine)*
+*Accepté le : 2026-10-04 (fusion owner = ratification)*
+*Dernière revue : TBD*
