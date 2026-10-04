@@ -10,7 +10,7 @@ superseded_by: []
 amends: ["ADR-027", "ADR-033", "ADR-035", "ADR-080", "ADR-090"]
 extends: ["ADR-031", "ADR-086"]
 related_adr: ["ADR-027", "ADR-031", "ADR-032", "ADR-033", "ADR-035", "ADR-046", "ADR-059", "ADR-072", "ADR-077", "ADR-080", "ADR-083", "ADR-086", "ADR-090", "ADR-091", "ADR-093", "ADR-096"]
-related_rules: ["G1", "G2", "G3", "Q1", "Q2", "AP-10"]
+related_rules: ["G1", "G2", "G3", "Q1", "Q2", "Q3", "AP-11"]
 related_incidents: ["INC-2026-013"]
 version: "1.0.0"
 ---
@@ -50,7 +50,7 @@ version: "1.0.0"
 | Affichage client | L'assistant affiche `relative_score` sous la forme « NN/100 » pour chaque hypothèse (`ResultHypotheses.tsx`) |
 | Autres affirmations | 21 règles de sécurité, 30 opérations d'entretien, 75 liens entretien → symptôme. Cause → pièce : constante TypeScript `CAUSE_GAMME_MAP`, aucune table. Cause → vérification : un texte libre par cause (`verification_method`) |
 | Origine de toutes ces lignes | Amorce posée par migrations, aucune source citée |
-| Graphe `kg_*` | 89 nœuds, 72 arêtes ; tables d'apprentissage vides. Les 19 intervalles `MaintenanceInterval` sont tous `validation_status = pending`, sans aucune source. Leur `source_type = 'oem'` vient d'une réconciliation de schéma (ADR-032, amendement du 2026-06-21), pas d'un document constructeur |
+| Graphe `kg_*` | 89 nœuds, 72 arêtes ; tables d'apprentissage vides. Les 19 intervalles `MaintenanceInterval` sont tous `validation_status = pending`, sans aucune source. 18 portent `source_type = 'oem'`, issu d'une réconciliation de schéma (ADR-032, amendement du 2026-06-21) et non d'un document constructeur ; le 19e (recharge de climatisation) porte `manual` |
 | Deux canons d'entretien servis | Le calendrier lit `kg_*` ; le moteur lit `__diag_maintenance_operation`. Les valeurs divergent : kit de distribution 120 000 km / 72 mois d'un côté, 80 000–160 000 km / 48–72 mois de l'autre ; bougies 60 000 km contre 30 000–60 000 km |
 | WIKI | 4 fiches gamme (les 4 filtres) portent `diagnostic_relations`, toutes `reviewed: false` et `diagnostic_safe: false`. Aucune source capturée dans RAW |
 | Chaîne WIKI → DB | Conçue et codée, rien n'est fusionné : spec #1658, tables #1659, drapeaux PROD #1661, schéma entretien #1663, writer #1669 (drapeau éteint), export WIKI #102 |
@@ -166,12 +166,13 @@ Le client voit trois niveaux, jamais un nombre :
 
 - **Cible** : `__diag_maintenance_operation`, alimenté par la projection à partir de
   `entity_data.maintenance` des fiches gamme, avec des intervalles en fourchette (min/max).
-- `kg_*` ne reçoit **aucun nouveau writer** et **aucune nouvelle ligne**.
+- Pour l'entretien, `kg_*` ne reçoit **aucun nouveau writer** et **aucune nouvelle ligne** : les 19
+  nœuds `MaintenanceInterval` restent en l'état.
 - Le calendrier (`/api/diagnostic-engine/calendar`) reste branché sur les RPC `kg_*` jusqu'à sa
   migration en phase 5. Cette migration se fait dans une PR distincte ; l'URL ne change pas.
 - Aucune interface n'affiche « constructeur » comme origine d'un intervalle sans document constructeur
   capturé dans RAW.
-- Le retrait des lignes `kg_*` est une décision owner distincte. Elle n'est pas prise ici.
+- Le retrait de ces nœuds est une décision owner distincte. Elle n'est pas prise ici.
 - Personnalisation : par carburant (ADR-032 D2, repris). Elle se fait par famille moteur seulement si
   une famille moteur sourcée existe.
 
@@ -190,8 +191,10 @@ Ne sont pas repris :
 - **D1**, en ce qu'il fait de `kg_*` le canon de l'entretien : remplacé par D8 ;
 - **D7**, en tant que source de valeurs : ses 19 intervalles restent servis sans être un canon.
 
-Les autres objets `kg_*` (déclencheurs de sécurité, vue `v_dtc_lookup`, cas) gardent leur état. Ils ne
-reçoivent aucune nouvelle écriture ; leur avenir est une décision distincte.
+Les autres objets `kg_*` (déclencheurs de sécurité, vue `v_dtc_lookup`, cas, familles moteur) gardent
+leur état et restent régis par ADR-086 §6 : leur donnée ne s'alimente que par une voie gouvernée,
+jamais par une écriture directe. Cet ADR ne change pas leur statut ; leur avenir est une décision
+distincte.
 
 ### D10 — Version de la base et rejeu
 
