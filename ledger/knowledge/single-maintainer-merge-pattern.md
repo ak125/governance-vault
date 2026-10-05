@@ -74,8 +74,12 @@ opère en **single-maintainer + admin-merge + CI-gates-as-enforcement** :
   gelé. ADR follow-up envisageable pour onboarder un 2ᵉ humain ou installer
   une GitHub App de gouvernance.
 - **Self-review qualité** — pas de "quatre yeux" sur les ADRs et rules
-  canon. Mitigé par : drafts longs en cours, audit-trail réguliers, possibilité
-  de re-review post-merge via reverts/amendements.
+  canon. **Mitigé depuis 2026-05-04** par le workflow self-review pré-merge
+  ([[vault-self-review-workflow-20260504]]) qui ajoute une checklist sémantique
+  8 items (frontmatter / factuel / math / wikilinks / anti-patterns / cohérence
+  canon / précédent / MOC) avant `gh pr merge --admin`, en complément des 5
+  gates CI structurels. La review humaine reste possible post-merge via
+  reverts/amendements.
 
 ## Procédure de revert vers le mode bi-maintainer
 
@@ -104,4 +108,8 @@ Sessions où ce pattern a été appliqué :
 
 - [[ADR-015-vault-single-source-of-truth]] — vault SoT, principes G1-G4
 - [[rules-governance-process]] — règles G1, G2, G3, G4
+- [[vault-self-review-workflow-20260504]] — checklist sémantique 8 items
+  pré-`--admin` (ajout 2026-05-04, comble le gap "Self-review qualité")
+- [[sandbox-merge-auto-rule-20260428]] — relaxation per-PR GO sur main
+  (ce pattern reste l'enforcement structurel ; sandbox = relaxation tactique)
 - `.github/CODEOWNERS` — bloc commentaire qui pointe vers ce document
