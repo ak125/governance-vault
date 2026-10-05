@@ -210,6 +210,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-108 | Contrat de rendu de la projection R4 : section WIKI `definition` sourcée, correspondance vers les sections référence servies — amende ADR-086 §2bis, étend ADR-059 et ADR-106 | Accepted | 2026-10-05 | [[ADR-108-r4-projection-render-contract]] |
 | ADR-109 | Profil éditorial constructeur et contrat de rendu de la projection R7 — étend ADR-086 §2/§6, ADR-056 et ADR-107 | Accepted | 2026-10-05 | [[ADR-109-r7-constructeur-editorial-and-render-contract]] |
 | ADR-110 | Contrat de rendu de la projection R8 : fiche WIKI par modèle, blocs par motorisation résolus type par type depuis la DB — étend ADR-086 §1/§4, ADR-016 et ADR-059 | Accepted | 2026-10-05 | [[ADR-110-r8-vehicle-engine-scoped-render-contract]] |
+| ADR-111 | Réalimentation de la page gamme (R1) depuis le WIKI : une autorité par champ, FAQ de sélection sourcée, slots R1 jamais réécrits — amende ADR-090 §C2/§C3 et ADR-086 §2bis, étend ADR-107 | Accepted | 2026-10-05 | [[ADR-111-r1-wiki-resourcing]] |
 | ADR-112 | Base de connaissances diagnostic — affirmations sourcées WIKI, une seule voie d'écriture, moteur déterministe plafonné par la preuve : remplace ADR-032, amende ADR-027, ADR-033, ADR-035, ADR-080 et ADR-090 | Accepted | 2026-10-04 | [[ADR-112-diagnostic-knowledge-base-canon]] |
 | ADR-113 | Couverture de la base de diagnostic — gammes publiées, symptômes du vocabulaire, séries moteur du constructeur : amende ADR-033 et ADR-112 | Accepted | 2026-10-04 | [[ADR-113-diagnostic-coverage-target]] |
 
