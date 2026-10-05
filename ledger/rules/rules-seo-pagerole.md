@@ -229,6 +229,43 @@ jobs:
 
 ---
 
+## R-SEO-URL-IMMUTABLE: URLs canon strictement immuables sans validation user
+
+**Règle** : aucun agent (humain ou AI) ne modifie le format des URLs (canonical, routes Remix, slugs, sitemap, robots, redirections 301) sans **demande explicite préalable et validation user documentée**. Le canonical PR-2b (`SeoCanonicalService`) est la SoT figée.
+
+**Surfaces couvertes** (immutables) :
+- Format `/pieces/...`, `/constructeurs/...`, `/produit/...`, `/blog-pieces-auto/...`, `/{static}` (paths)
+- Suffixes / séparateurs : `.html`, `-{pgId}`, `.` vs `-` vs `/`
+- Signature `CanonicalInput.ids` (ajout d'un champ qui change la format string = changement URL)
+- Corps des `case 'R*': return ...` dans `SeoCanonicalService.computePath()`
+- Tests `seo-canonical.service.test.ts` (les URL strings expected)
+- Files `frontend/app/routes/*.tsx` (rename = URL change)
+- `sitemap-v10*` patterns, `robots.txt`, redirections 301 `_index`/`$`-routes
+- `SeoSlugService` : reproduit slugs legacy via golden tests, **jamais** d'optimisation divergente
+- `SeoUnavailablePolicy` : 410 Gone + page contextualisée. **Jamais** redirection vers "URL équivalente modernisée" sans plan 301 validé
+
+**Trigger words** (STOP automatique, demander avant action) : "réécrire URL", "migrer slug", "moderniser path", "supprimer suffixe `.html`", "raccourcir URL", "URL canonique simplifiée", "rename route file", "refonte URL", "harmoniser slugs", "optimize slug", "slug optimizer", "url_title_optimizer".
+
+**Pourquoi** : modifier le canonical impacte directement l'indexation Google. Un changement non concerté peut désindexer massivement le temps que Google recrawl. Le canonical est un **contrat avec le moteur de recherche**, pas un détail d'implémentation.
+
+**Procédure si justification technique forte** (sécurité, duplicate massif, refonte) :
+1. Ouvrir un ADR vault dédié décrivant le problème + format cible + plan 301
+2. Validation explicite user (commentaire approbation sur l'ADR)
+3. Plan rollout 301 staged (DEV → preprod 14j → prod) avec monitoring GSC
+4. **Ensuite** seulement, exécution
+
+**Précédent** (incident 2026-05-08, session SEO seo-v9 PR-5) : commit `369fca35` modifiait unilatéralement R1_GAMME_ROUTER `/pieces/{pgAlias}` → `/pieces/{pgAlias}-{pgId}.html` sans demande user. User a rappelé 2 fois (« il est strictement interdit de toucher aux URLs ») → revert `f065e08c` pushé sur PR-5 #404. Aucune autre URL touchée dans la cascade (audit empirique : 0 fichier `frontend/app/routes/*`, `sitemap-v10*`, `robots-txt*`, `seo-headers*`, `url-builder*` modifié).
+
+**Enforcement** :
+- Pre-commit hook (TODO) : fail si diff touche `seo-canonical.service.ts` `case 'R*': return` lines, `frontend/app/routes/` rename, `sitemap-v10*` URL patterns
+- CI gate (TODO) : `validate-seo-url-immutable.yml` qui compare diff vs SoT figée
+- Self-review checklist PR vault : « Self-review verdict ne valide pas si la PR touche un fichier URL sans ADR référencé »
+- Mémoire AI session : `feedback_no_url_changes_ever.md` (cf. `app/MEMORY.md`)
+
+**Référence ADR** : aucun ADR existant ne formalise cette règle. Ouvrir `ADR-XXX-seo-url-canon-immutable.md` au prochain cycle gouvernance pour ancrer le canon avec procédure 301 staged.
+
+---
+
 ## Voir aussi
 
 - [[08-seo-charter]] - Charte SEO complète
