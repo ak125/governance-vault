@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-10-04
+updated: 2026-10-05
 ---
 
 # MOC: Decisions
@@ -106,7 +106,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 > Projection mécanique du frontmatter ADR (PR-3 sync_moc_decisions).
 > Toute édition manuelle entre les markers est écrasée à chaque sync.
 > Pour corriger un statut ou un titre, éditer le frontmatter de l'ADR puis relancer `--write`.
-> Dernier sync : 2026-10-04.
+> Dernier sync : 2026-10-05.
 
 | ID | Titre | Statut canonique | Date | Fichier |
 |----|-------|------------------|------|---------|
@@ -205,6 +205,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-103 | Guides d'achat (R6_GUIDE_ACHAT) consolidés dans les conseils (R3) — retrait de l'index sous drapeau, maillage interne aligné avant activation : amende ADR-090 §C2 | Accepted | 2026-10-01 | [[ADR-103-r6-guide-achat-consolidation-into-r3]] |
 | ADR-104 | Planning Live : writer automatique, projection GitHub Project et alertes P0 retirés ; MOC figé, taxonomies conservées — amende ADR-053 | Accepted | 2026-10-01 | [[ADR-104-planning-live-writer-retired]] |
 | ADR-105 | `__seo_event_log` : index GIN (payload) retiré ; tout lecteur jsonb apporte son index ciblé — amende ADR-025 | Accepted | 2026-10-03 | [[ADR-105-seo-event-log-gin-index-retired]] |
+| ADR-106 | Contrat de rendu de la projection R3 : correspondance sections WIKI → sections servies, complétude dérivée des tiers ADR-086 — étend ADR-086 §2bis et ADR-059 | Accepted | 2026-10-05 | [[ADR-106-r3-projection-render-contract]] |
 | ADR-112 | Base de connaissances diagnostic — affirmations sourcées WIKI, une seule voie d'écriture, moteur déterministe plafonné par la preuve : remplace ADR-032, amende ADR-027, ADR-033, ADR-035, ADR-080 et ADR-090 | Accepted | 2026-10-04 | [[ADR-112-diagnostic-knowledge-base-canon]] |
 | ADR-113 | Couverture de la base de diagnostic — gammes publiées, symptômes du vocabulaire, séries moteur du constructeur : amende ADR-033 et ADR-112 | Accepted | 2026-10-04 | [[ADR-113-diagnostic-coverage-target]] |
 
