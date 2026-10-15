@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-10-12
+updated: 2026-10-15
 ---
 
 # MOC: Decisions
@@ -106,7 +106,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 > Projection mécanique du frontmatter ADR (PR-3 sync_moc_decisions).
 > Toute édition manuelle entre les markers est écrasée à chaque sync.
 > Pour corriger un statut ou un titre, éditer le frontmatter de l'ADR puis relancer `--write`.
-> Dernier sync : 2026-10-12.
+> Dernier sync : 2026-10-15.
 
 | ID | Titre | Statut canonique | Date | Fichier |
 |----|-------|------------------|------|---------|
@@ -213,6 +213,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-111 | Réalimentation de la page gamme (R1) depuis le WIKI : une autorité par champ, FAQ de sélection sourcée, slots R1 jamais réécrits — amende ADR-090 §C2/§C3 et ADR-086 §2bis, étend ADR-107 | Accepted | 2026-10-05 | [[ADR-111-r1-wiki-resourcing]] |
 | ADR-112 | Base de connaissances diagnostic — affirmations sourcées WIKI, une seule voie d'écriture, moteur déterministe plafonné par la preuve : remplace ADR-032, amende ADR-027, ADR-033, ADR-035, ADR-080 et ADR-090 | Accepted | 2026-10-04 | [[ADR-112-diagnostic-knowledge-base-canon]] |
 | ADR-113 | Couverture de la base de diagnostic — gammes publiées, symptômes du vocabulaire, séries moteur du constructeur : amende ADR-033 et ADR-112 | Accepted | 2026-10-04 | [[ADR-113-diagnostic-coverage-target]] |
+| ADR-114 | Promotion WIKI des fiches sécurité-critiques sur preuve vérifiable (Safety Auto-Gate) : amende ADR-083, ADR-091, ADR-093 et ADR-096 | Accepted | 2026-10-15 | [[ADR-114-wiki-safety-auto-gate]] |
 | ADR-115 | Provenance diagnostic : seule une relation relue est projetée — amende ADR-035 (principe directeur, D2, D6, D7) | Accepted | 2026-10-11 | [[ADR-115-diagnostic-projection-requires-review]] |
 
 <!-- AUTO-GENERATED:moc-decisions-canonical-index end -->
