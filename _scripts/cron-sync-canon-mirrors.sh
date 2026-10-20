@@ -1,108 +1,105 @@
 #!/usr/bin/env bash
-# cron-sync-canon-mirrors.sh — Wrapper VPS DEV pour invocation cron quotidienne
-# de sync_canon_mirrors.py (ADR-061 §3).
-#
-# ## Pattern canonique (ADR-015 + ADR-061 §3 canon mirrors read-only)
-#   1. cd monorepo, pull origin main
-#   2. Run sync_canon_mirrors --write sur branche temp
-#   3. Si diff : commit signé G3, push branche, ouvre auto-PR monorepo
-#   4. Si no-op : exit 0 silencieux
-#
-# AUCUN push direct main monorepo. Toutes les écritures auto-PR.
-#
-# ## Différences vs cron-sync-moc-decisions.sh
-#   - Sync cross-repo (vault → monorepo) au lieu d'intra-vault.
-#   - Le commit + PR se font côté monorepo, pas vault.
-#   - La logique sync est en Python (multi-targets, hash-aware).
-#
-# ## Phase A (observation 3-7j)
-#   Auto-PRs visibles dans `gh pr list --repo ak125/nestjs-remix-monorepo`.
-#   Reviewer humain merge si OK. Une fois stabilisé :
-#       - check-mode wired dans CI monorepo (canon-mirrors-verify)
-#       - cron passe en --check + alerte si drift
-#
-# ## Variables d'environnement attendues
-#   GH_TOKEN          : token avec write:repo sur ak125/nestjs-remix-monorepo
-#   GIT_USER_NAME     : "Deploy Bot" (auto-PR author)
-#   GIT_USER_EMAIL    : automecanik.seo@gmail.com
-#   GPG_KEY_ID        : clé G3 pour signed commit (déjà loadée dans agent)
-#
-# ## Usage manuel (debugging)
-#   bash _scripts/cron-sync-canon-mirrors.sh        # observe diff + auto-PR
-#   bash _scripts/cron-sync-canon-mirrors.sh dry    # dry-run, no PR
+# Synchronise les miroirs dans un worktree Git dedie (ADR-061 §3).
+# Le checkout partage garde sa branche, son index et ses fichiers, meme sales.
+# Les commits restent signes ; la PR reste soumise a fusion humaine.
+# Usage : sans argument = projection + commit + push + PR ; dry = lecture seule.
+# MONOREPO_ROOT : depot DEV de reference (defaut /opt/automecanik/app).
+# Signature Git et authentification gh existantes requises ; aucune configuration ici.
 
 set -euo pipefail
 
 VAULT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 MONOREPO_ROOT="${MONOREPO_ROOT:-/opt/automecanik/app}"
 
-DRY_RUN="${1:-}"
-TODAY="$(date -u +%Y-%m-%d)"
-TIMESTAMP="$(date -u +%Y-%m-%dT%H%M%SZ)"
-BRANCH="govvault/cron-sync-canon-mirrors-${TIMESTAMP}"
-
+if (( $# > 1 )) || [[ "${1:-}" != "" && "${1:-}" != "dry" ]]; then
+  echo "Usage: $0 [dry]" >&2
+  exit 2
+fi
 if [[ ! -d "$MONOREPO_ROOT" ]]; then
   echo "Error: monorepo not found at $MONOREPO_ROOT" >&2
   exit 2
 fi
+MONOREPO_ROOT="$(cd "$MONOREPO_ROOT" && pwd -P)"
 
-# 1. Dry-run mode : preview seul (pas de checkout, pas de PR)
-if [[ "$DRY_RUN" == "dry" ]]; then
+# Preview : aucun fetch, branche, commit ou appel GitHub.
+if [[ "${1:-}" == "dry" ]]; then
   python3 "$VAULT_ROOT/_scripts/sync_canon_mirrors.py" --dry-run --monorepo "$MONOREPO_ROOT"
   exit 0
 fi
+if [[ "$(git -C "$MONOREPO_ROOT" rev-parse --show-toplevel)" != "$MONOREPO_ROOT" ]]; then
+  echo "Error: MONOREPO_ROOT must be a Git checkout root" >&2
+  exit 2
+fi
 
-# 2. Sync monorepo main
-cd "$MONOREPO_ROOT"
-git fetch origin main --quiet
-git checkout main --quiet
-git reset --hard origin/main --quiet
+TODAY="$(date -u +%Y-%m-%d)"
+TIMESTAMP="$(date -u +%Y-%m-%dT%H%M%SZ)"
+RUN_DIR="$(mktemp -d "${TMPDIR:-/tmp}/canon-sync.XXXXXXXX")"
+WORKTREE="$RUN_DIR/worktree"
+BRANCH="govvault/cron-sync-canon-mirrors-${TIMESTAMP}-${RUN_DIR##*.}"
+NO_CHANGES=false
 
-# 3. Run le sync sur branche temp monorepo
-git checkout -b "$BRANCH" --quiet 2>/dev/null || git checkout "$BRANCH" --quiet
+finish() {
+  local result=$?
+  if (( result != 0 )); then
+    echo "Error: sync failed; retain branch $BRANCH and worktree $WORKTREE for recovery (if created)." >&2
+    # Une erreur de l'API peut arriver apres creation de la PR : ne pas supprimer
+    # la branche distante, ni les preuves locales d'un commit/push incomplet.
+    return "$result"
+  fi
+  cd "$MONOREPO_ROOT"
+  # Sans --force : si un hook ou une intervention a laisse du travail, le garder.
+  if ! git worktree remove "$WORKTREE"; then
+    echo "Error: worktree retained for inspection: $WORKTREE" >&2
+    exit 1
+  fi
+  rmdir "$RUN_DIR"
+  if [[ "$NO_CHANGES" == true ]]; then
+    # Supprime uniquement notre ref sans commit nouveau, si elle n'a pas bouge.
+    git update-ref -d "refs/heads/$BRANCH" "$BASE"
+  fi
+}
+trap finish EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
 
-python3 "$VAULT_ROOT/_scripts/sync_canon_mirrors.py" --write --monorepo "$MONOREPO_ROOT"
+# Ref unique par run : pas de checkout/reset de main, ni de course sur FETCH_HEAD.
+# Une branche preexistante n'est jamais reutilisee.
+if git -C "$MONOREPO_ROOT" show-ref --verify --quiet "refs/heads/$BRANCH"; then
+  echo "Error: sync branch already exists: $BRANCH" >&2
+  exit 1
+fi
+git -C "$MONOREPO_ROOT" fetch --quiet --no-write-fetch-head origin "refs/heads/main:refs/heads/$BRANCH"
+BASE="$(git -C "$MONOREPO_ROOT" rev-parse "refs/heads/$BRANCH^{commit}")"
+git -C "$MONOREPO_ROOT" worktree add --quiet "$WORKTREE" "$BRANCH"
+cd "$WORKTREE"
 
-# 4. Detect diff
-if git diff --quiet; then
-  echo "OK: no canon mirror drift today, no PR opened"
-  git checkout main --quiet
-  git branch -D "$BRANCH" --quiet
+python3 "$VAULT_ROOT/_scripts/sync_canon_mirrors.py" --write --monorepo "$WORKTREE"
+
+# Indexer avant le test de diff inclut aussi les miroirs nouvellement crees.
+# Un echec d'indexation est une erreur ; ne jamais le masquer par `|| true`.
+git add --all -- .claude/canon-mirrors/ ':(glob)workspaces/*/.claude/canon-mirrors/**'
+if git diff --cached --quiet; then
+  NO_CHANGES=true
+  echo "OK: no canon mirror drift, no PR opened"
   exit 0
 fi
 
-# 5. Commit signed + push + auto-PR monorepo
-git add .claude/canon-mirrors/ workspaces/*/.claude/canon-mirrors/ 2>/dev/null || true
-git commit -S -m "$(cat <<EOF
-chore(canon-mirrors): auto-sync from vault — ${TODAY}
-
-Generated by governance-vault/_scripts/sync_canon_mirrors.py via cron-sync-canon-mirrors.sh.
-Source: ak125/governance-vault 99-meta/canon-hashes.json manifest.
-
-ADR-061 §3 canon mirrors are read-only mirrors. Edits must come from vault canon source.
-EOF
-)"
-
+git commit -S -m "chore(canon-mirrors): auto-sync from vault — ${TODAY}" \
+  -m "Generated by governance-vault/_scripts/sync_canon_mirrors.py (ADR-061 §3)."
 git push -u origin "$BRANCH" --quiet
 
-# Defense vs orphan branch : si gh pr create échoue, cleanup branche distante.
-if ! gh pr create --repo ak125/nestjs-remix-monorepo \
+gh pr create --repo ak125/nestjs-remix-monorepo \
   --base main \
   --head "$BRANCH" \
   --title "chore(canon-mirrors): auto-sync from vault — ${TODAY}" \
-  --body "Auto-PR par cron VPS DEV \`cron-sync-canon-mirrors.sh\` (ADR-061 §3).
+  --body-file - \
+  --label "auto" <<EOF
+Auto-PR par cron VPS DEV (ADR-061 §3), preparee dans un worktree Git isole.
 
-Sync \`.claude/canon-mirrors/\` + \`workspaces/*/.claude/canon-mirrors/\` depuis le canon source vault.
+Projection des miroirs depuis le manifeste et les sources du governance-vault.
+Le checkout partage et ses modifications en cours sont preserves.
 
-Source of truth : \`governance-vault/99-meta/canon-hashes.json\` manifest + \`ledger/rules/rules-*.md\` canon files.
+Reviewer humain valide ou ferme.
+EOF
 
-Reviewer humain valide ou ferme." \
-  --label "auto"; then
-  echo "::warning:: gh pr create failed — cleaning up orphan branch $BRANCH" >&2
-  git push origin --delete "$BRANCH" --quiet 2>&1 | tail -1
-  git checkout main --quiet
-  exit 1
-fi
-
-git checkout main --quiet
 echo "OK: auto-PR opened on branch $BRANCH"
