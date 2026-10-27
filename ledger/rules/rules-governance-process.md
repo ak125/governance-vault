@@ -1,7 +1,7 @@
 # Rules - Governance Process (G5-G8)
 
-> Regles de gouvernance processus au 2026-10-01 (G5 reecrite par [[ADR-101-vault-decides-canon-authority|ADR-101]])
-> **Version**: 3.0.0 | **Status**: CANON (regle du vault, normative au sens de G1)
+> Regles de gouvernance processus au 2026-10-27 (G5 reecrite par [[ADR-101-vault-decides-canon-authority|ADR-101]], amendee par [[ADR-118-retrait-methodes-bmad-superpowers-spec-kit|ADR-118]])
+> **Version**: 3.1.0 | **Status**: CANON (regle du vault, normative au sens de G1)
 > **Taxonomie**: G = Governance (G1-G4 = vault dans rules-vault.md, G5-G8 = processus ici)
 > **Complement de:** rules-technical.md (T1-T7 = technique, G5+ = processus)
 
@@ -19,7 +19,6 @@
 | `.spec/00-canon/**` du monorepo sans consommateur (prose de reference) | Aide a comprendre ; ne tranche aucun conflit, quel que soit son en-tete |
 | ADR `proposed`, `deprecated` ou `superseded` | Contexte historique ; jamais une justification d'implementation |
 | `.spec/features/*` | Supplementaire - peut etre obsolete |
-| `_bmad-output/*` | Artefacts versionnes - read-only |
 
 **Divergence** entre une decision et l'etat du depot : c'est un constat, a
 signaler, puis a resoudre par une PR de code ou un ADR d'amendement (ADR-101 D3).
@@ -181,7 +180,7 @@ Avant G10, toute divergence strategique exigeait PR vault + debat de cadrage (fr
 
 ## Checklist Governance
 
-Avant tout workflow BMAD:
+Avant tout deliverable:
 
 - [ ] Sources qui font autorite uniquement, divergences signalees (G5)
 - [ ] Claims avec preuves (G6)
@@ -208,5 +207,5 @@ Apres chaque deliverable:
 
 ---
 
-_Derniere mise a jour: 2026-10-01 (ADR-101)_
+_Derniere mise a jour: 2026-10-27 (ADR-118)_
 _Status: CANON - Complement de rules-technical.md_

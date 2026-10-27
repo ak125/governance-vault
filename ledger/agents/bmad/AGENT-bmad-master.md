@@ -1,7 +1,7 @@
 ---
 agent_id: bmad-master
 agent_name: BMad Master
-status: active
+status: disabled
 owner: BMAD Core Team
 governance_verdict: APPROVED
 last_audit: 2026-02-04
@@ -16,7 +16,7 @@ zone: local
 |-------|-------|
 | ID | `bmad-master` |
 | Name | BMad Master |
-| Status | active |
+| Status | **disabled** |
 | Owner | BMAD Core Team |
 | Description | Master Task Executor, Knowledge Custodian, and Workflow Orchestrator |
 
@@ -46,6 +46,7 @@ zone: local
 
 - **Verdict**: APPROVED
 - **Related ADR**: ADR-002, ADR-009, ADR-007, ADR-008
+- **Retired**: 2026-10-26, BMAD method withdrawn by [[ADR-118-retrait-methodes-bmad-superpowers-spec-kit|ADR-118]]; card kept as history
 - **Airlock Required**: no (local workflow only)
 - **Audit Trail**: no
 
