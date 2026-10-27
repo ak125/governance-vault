@@ -216,6 +216,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-114 | Promotion WIKI des fiches sécurité-critiques sur preuve vérifiable (Safety Auto-Gate) : amende ADR-083, ADR-091, ADR-093 et ADR-096 | Accepted | 2026-10-15 | [[ADR-114-wiki-safety-auto-gate]] |
 | ADR-115 | Provenance diagnostic : seule une relation relue est projetée — amende ADR-035 (principe directeur, D2, D6, D7) | Accepted | 2026-10-11 | [[ADR-115-diagnostic-projection-requires-review]] |
 | ADR-116 | Relations de diagnostic hors sécurité relues par une règle de preuve vérifiée par le décideur WIKI : amende ADR-033 (D1, D4) et ADR-112 (principe directeur, D12), étend ADR-093 | Accepted | 2026-10-15 | [[ADR-116-diagnostic-relation-review-rule]] |
+| ADR-117 | Révision en place d'une fiche du canon WIKI écrite par le promoteur, jugée par le décideur unique : amende ADR-093 (L4, Humain = exception point 6) et ADR-116 (D4, Métriques, Retour arrière) | Accepted | 2026-10-22 | [[ADR-117-wiki-promoter-canon-revision]] |
 | ADR-118 | Retrait des méthodes BMAD, Superpowers et Spec Kit : agents BMAD désactivés, amende ADR-008, ADR-009 et ADR-011 | Accepted | 2026-10-27 | [[ADR-118-retrait-methodes-bmad-superpowers-spec-kit]] |
 
 <!-- AUTO-GENERATED:moc-decisions-canonical-index end -->

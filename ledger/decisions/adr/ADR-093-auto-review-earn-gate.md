@@ -8,7 +8,7 @@ decision_date: "2026-07-03"
 decision_makers: ["@ak125"]
 related_adr: ["ADR-083", "ADR-086", "ADR-091", "ADR-088", "ADR-033", "ADR-059", "ADR-090"]
 extends: ["ADR-083"]
-amended_by: ["ADR-114"]
+amended_by: ["ADR-114", "ADR-117"]
 created: 2026-06-20
 updated: 2026-07-03
 ---
