@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-10-01
+updated: 2026-10-27
 ---
 
 # MOC: Agents
@@ -20,7 +20,7 @@ Liste des index par categorie. Pour les compteurs et metadata par agent : [[REG-
 - [[INDEX-agents-backend]] — Services NestJS (SEO, monitoring, cache, sitemap delta)
 - [[INDEX-agents-python]] — Analyzers A1-A12, Fixproof F0/F1/F15 (read-only audits)
 - [[INDEX-agents-skills]] — Modules Claude Agent SDK reutilisables (UI-OS, governance-vault-ops, etc.)
-- [[INDEX-agents-bmad]] — Business Model Agent Development (analyst, architect, dev, pm, sm)
+- [[INDEX-agents-bmad]] — Business Model Agent Development (analyst, architect, dev, pm, sm) — methode retiree, agents `disabled` ([[ADR-118-retrait-methodes-bmad-superpowers-spec-kit|ADR-118]])
 - [[INDEX-agents-github-actions]] — CI/CD automation (deploy, perf-gates, spec-validation)
 - [[INDEX-agents-lettered]] — Series A/B/F/G/M (condensed agents)
 - [[INDEX-agents-mcp]] — Model Context Protocol servers (Supabase, shadcn)
@@ -36,7 +36,7 @@ Chaque agent est affecte a une zone. Voir [[ADR-008-agent-placement-rules]] et [
 
 | Zone | Role | Exemples |
 |------|------|----------|
-| `local` | Dev/CI sandbox | BMAD, Skills, MCP servers, scripts |
+| `local` | Dev/CI sandbox | Skills, MCP servers, scripts |
 | `principal_vps` | Prod controllee | Backend services, AI-COS executors |
 | `external` | Analyzers read-only | Python analyzers (A1-A12), GitHub Actions |
 | `aicos_vps` | Observatoire | AI-COS leads (SEO, Data, RAG), C-Suite |

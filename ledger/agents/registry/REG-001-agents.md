@@ -2,7 +2,7 @@
 id: REG-001
 title: Agent Registry
 status: active
-version: 2.3.0
+version: 2.4.0
 last_audit: 2026-04-04
 total_agents: 144
 ---
@@ -29,7 +29,7 @@ Official source of truth for all agents in the AutoMecanik system.
 |--------|--------|---------|-------|------------|
 | SEO | 24 | 10 | 34 | keyword-planner, content-batch, seo-monitor-*, seo-vlevel, sitemap-delta, 4 sub-leads |
 | Infrastructure | 15 | 20 | 35 | backend-test, db-migration, gh-ci-deploy, metrics-processor, a1-a12 |
-| BMAD | 10 | 0 | 10 | bmad-master, analyst, architect, dev |
+| BMAD | 0 | 0 | 10 | retires par ADR-118 : 10 `disabled` |
 | Gouvernance | 3 | 6 | 9 | governance-vault-ops, code-review, content-audit |
 | UI/Frontend | 7 | 2 | 9 | frontend-design, ui-os, ui-ux-pro-max, responsive-audit |
 | RAG | 1 | 4 | 5 | rag-ops, rag-indexer, rag-validator, rag-retriever |
@@ -37,9 +37,11 @@ Official source of truth for all agents in the AutoMecanik system.
 | Vehicules | 1 | 0 | 1 | vehicle-ops |
 | Paiements | 1 | 0 | 1 | payment-review |
 | Quality/QA | 4 | 0 | 4 | agent.qa.orchestrator, agent.qa.functional, agent.qa.visual, agent.qa.seo-tech |
-| **Sous-total** | **67** | **43** | **110** | Individual agents |
+| **Sous-total** | **57** | **43** | **110** | Individual agents |
 | Lettered Series | 0 | 34 | 34 | G/F/M/A/B-Series (conceptual) |
-| **TOTAL** | **67** | **77** | **144** | |
+| **TOTAL** | **57** | **77** | **144** | |
+
+> Depuis [[ADR-118-retrait-methodes-bmad-superpowers-spec-kit|ADR-118]], la colonne Total inclut les agents `disabled` : Total = Active + Planned + disabled.
 
 ## Related ADRs
 
@@ -49,23 +51,26 @@ Official source of truth for all agents in the AutoMecanik system.
 - ADR-008: Agent Placement Rules (3 Zones → 4 Zones)
 - ADR-011: OpenClaw to Claude API Replacement
 - ADR-012: AI-COS VPS Architecture & Agent Placement
+- ADR-118: Retrait des methodes BMAD, Superpowers et Spec Kit
 
 ---
 
 ## Registry Table — BMAD Agents
 
+> Methode BMAD retiree le 2026-10-26 par [[ADR-118-retrait-methodes-bmad-superpowers-spec-kit|ADR-118]] : les 10 agents sont `disabled`, fiches et verdicts conserves comme historique.
+
 | agent_id | domain | status | zone | trust | output | verdict |
 |----------|--------|--------|------|-------|--------|---------|
-| bmad-master | bmad | active | local | trusted | report | APPROVED |
-| analyst | bmad | active | local | trusted | report | APPROVED |
-| architect | bmad | active | local | trusted | report | APPROVED |
-| dev | bmad | active | local | restricted | bundle | APPROVED_WITH_CONDITIONS |
-| pm | bmad | active | local | trusted | report | APPROVED |
-| quick-flow-solo-dev | bmad | active | local | trusted | report | APPROVED |
-| sm | bmad | active | local | trusted | report | APPROVED |
-| tea | bmad | active | local | trusted | report | APPROVED |
-| tech-writer | bmad | active | local | trusted | report | APPROVED |
-| ux-designer | bmad | active | local | trusted | report | APPROVED |
+| bmad-master | bmad | disabled | local | trusted | report | APPROVED |
+| analyst | bmad | disabled | local | trusted | report | APPROVED |
+| architect | bmad | disabled | local | trusted | report | APPROVED |
+| dev | bmad | disabled | local | restricted | bundle | APPROVED_WITH_CONDITIONS |
+| pm | bmad | disabled | local | trusted | report | APPROVED |
+| quick-flow-solo-dev | bmad | disabled | local | trusted | report | APPROVED |
+| sm | bmad | disabled | local | trusted | report | APPROVED |
+| tea | bmad | disabled | local | trusted | report | APPROVED |
+| tech-writer | bmad | disabled | local | trusted | report | APPROVED |
+| ux-designer | bmad | disabled | local | trusted | report | APPROVED |
 
 ## Registry Table — AI-COS Planned Agents
 
@@ -232,6 +237,6 @@ For CI integration:
 
 ---
 
-_Registry Version: 2.3.0_
-_Last Updated: 2026-04-04_
+_Registry Version: 2.4.0_
+_Last Updated: 2026-10-27_
 _Maintainer: Governance Team_
