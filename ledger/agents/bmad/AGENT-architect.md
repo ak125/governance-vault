@@ -1,7 +1,7 @@
 ---
 agent_id: architect
 agent_name: Winston (System Architect)
-status: active
+status: disabled
 owner: BMAD BMM Team
 governance_verdict: APPROVED
 last_audit: 2026-02-04
@@ -16,7 +16,7 @@ zone: local
 |-------|-------|
 | ID | `architect` |
 | Name | Winston (System Architect) |
-| Status | active |
+| Status | **disabled** |
 | Owner | BMAD BMM Team |
 | Description | System Architect and Technical Design Leader |
 
@@ -46,6 +46,7 @@ zone: local
 
 - **Verdict**: APPROVED
 - **Related ADR**: ADR-002, ADR-009, ADR-008
+- **Retired**: 2026-10-26, BMAD method withdrawn by [[ADR-118-retrait-methodes-bmad-superpowers-spec-kit|ADR-118]]; card kept as history
 - **Airlock Required**: no
 - **Audit Trail**: no
 

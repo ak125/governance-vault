@@ -18,7 +18,7 @@ references:
   - ADR-002 v2.0
   - ADR-009 v2.0
   - REG-001 v1.4.1
-amended_by: ["ADR-102"]
+amended_by: ["ADR-102", "ADR-118"]
 ---
 
 # ADR-011: Remplacement OpenClaw par Claude API

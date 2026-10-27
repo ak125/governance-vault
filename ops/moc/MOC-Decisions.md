@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-10-15
+updated: 2026-10-27
 ---
 
 # MOC: Decisions
@@ -106,7 +106,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 > Projection mécanique du frontmatter ADR (PR-3 sync_moc_decisions).
 > Toute édition manuelle entre les markers est écrasée à chaque sync.
 > Pour corriger un statut ou un titre, éditer le frontmatter de l'ADR puis relancer `--write`.
-> Dernier sync : 2026-10-15.
+> Dernier sync : 2026-10-27.
 
 | ID | Titre | Statut canonique | Date | Fichier |
 |----|-------|------------------|------|---------|
@@ -216,6 +216,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-114 | Promotion WIKI des fiches sécurité-critiques sur preuve vérifiable (Safety Auto-Gate) : amende ADR-083, ADR-091, ADR-093 et ADR-096 | Accepted | 2026-10-15 | [[ADR-114-wiki-safety-auto-gate]] |
 | ADR-115 | Provenance diagnostic : seule une relation relue est projetée — amende ADR-035 (principe directeur, D2, D6, D7) | Accepted | 2026-10-11 | [[ADR-115-diagnostic-projection-requires-review]] |
 | ADR-116 | Relations de diagnostic hors sécurité relues par une règle de preuve vérifiée par le décideur WIKI : amende ADR-033 (D1, D4) et ADR-112 (principe directeur, D12), étend ADR-093 | Accepted | 2026-10-15 | [[ADR-116-diagnostic-relation-review-rule]] |
+| ADR-118 | Retrait des méthodes BMAD, Superpowers et Spec Kit : agents BMAD désactivés, amende ADR-008, ADR-009 et ADR-011 | Accepted | 2026-10-27 | [[ADR-118-retrait-methodes-bmad-superpowers-spec-kit]] |
 
 <!-- AUTO-GENERATED:moc-decisions-canonical-index end -->
 
