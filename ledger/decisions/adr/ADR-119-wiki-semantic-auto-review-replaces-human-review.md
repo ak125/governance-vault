@@ -1,15 +1,15 @@
 ---
 id: ADR-119
-title: "Auto-review de sens à la place de toute relecture humaine des fiches WIKI, familles de sécurité comprises : amende ADR-031, ADR-083, ADR-088, ADR-091, ADR-093, ADR-096 et ADR-114"
+title: "Auto-review de sens à la place de toute relecture humaine des fiches WIKI, familles de sécurité comprises : amende ADR-031, ADR-060, ADR-083, ADR-088, ADR-091, ADR-093, ADR-096 et ADR-114"
 status: accepted
 date: "2026-10-30"
 decision_date: "2026-10-30"
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
-amends: ["ADR-031", "ADR-083", "ADR-088", "ADR-091", "ADR-093", "ADR-096", "ADR-114"]
+amends: ["ADR-031", "ADR-060", "ADR-083", "ADR-088", "ADR-091", "ADR-093", "ADR-096", "ADR-114"]
 extends: []
-related_adr: ["ADR-031", "ADR-033", "ADR-046", "ADR-083", "ADR-088", "ADR-089", "ADR-091", "ADR-093", "ADR-096", "ADR-102", "ADR-112", "ADR-114", "ADR-115", "ADR-116", "ADR-117"]
+related_adr: ["ADR-031", "ADR-033", "ADR-046", "ADR-060", "ADR-083", "ADR-088", "ADR-089", "ADR-091", "ADR-093", "ADR-096", "ADR-102", "ADR-112", "ADR-114", "ADR-115", "ADR-116", "ADR-117"]
 related_rules: ["G1", "G6", "Q1", "Q2", "AP-11"]
 related_incidents: []
 version: "1.0.0"
@@ -31,7 +31,8 @@ version: "1.0.0"
   - [[ADR-096-governed-automatic-source-discovery|ADR-096]] : §D5 et dernier point de §D6 ;
   - [[ADR-031-four-layer-content-architecture|ADR-031]] : deuxième phrase du principe directeur,
     schéma de l'architecture cible et point « Propose-before-write » de l'Héritage ADR-022 ;
-  - [[ADR-088-promotion-gate-substance-scoring|ADR-088]] : plafond de `no_disputed_claims: false`.
+  - [[ADR-088-promotion-gate-substance-scoring|ADR-088]] : plafond de `no_disputed_claims: false` ;
+  - [[ADR-060-repository-roles-doctrine|ADR-060]] : ligne Wiki du tableau canon.
 
   Chaque amendement est décrit en §Amendements. Le reste de ces ADR reste en vigueur.
 - **Ne modifie ni ADR-033, ni ADR-112, ni ADR-115, ni ADR-116, ni ADR-117.** Le flip
@@ -65,6 +66,7 @@ version: "1.0.0"
 | ADR-096 | §D5 : « human-required » ; « le flip `exportable.seo` reste humain ». §D6 : « Humain pour […] contradictions majeures ». |
 | ADR-031 | « validée humainement » ; la promotion « requiert validation humaine explicite ». |
 | ADR-088 | « `no_disputed_claims:false` plafonne au TIER B (revue humaine) ». |
+| ADR-060 | Tableau canon, ligne Wiki : « Connaissance sourcée, lintée, validée humainement ». |
 
 ### Le WIKI n'a plus de voie humaine depuis le 2026-09-12
 
@@ -119,8 +121,11 @@ Trois enseignements :
   la relecture a lu.
 - Le commentaire de #120 annonce sa correction « par une PR WIKI revue par un humain ». Cette voie
   n'existe pas.
-- Aucun consommateur ne la sert au 2026-10-30. Le sous-module WIKI du monorepo est épinglé à
-  `8801773`, qui ne contient pas la fiche.
+- Le monorepo ne l'embarque pas au 2026-10-30 : son sous-module WIKI est épinglé à `8801773`, qui ne
+  contient pas la fiche. Le commentaire de #120 constatait aussi, le 2026-10-21, que le feeder SEO et
+  la projection diagnostic étaient éteints. Ce second point n'a pas été revérifié le 2026-10-30.
+- C'est la seule fiche sécurité du canon. Le classifieur de sécurité du WIKI, appliqué le 2026-10-30
+  aux 11 fiches de `wiki/` sur `edae4a9`, ne retient qu'elle.
 
 ### Un constat : `no_disputed_claims` hors sécurité
 
@@ -402,6 +407,13 @@ qu'elle n'omet rien de ce qu'elles rattachent au même sujet.
   - Le décideur doit lire ce champ pour toute fiche (Contexte, constat).
 - Le reste d'ADR-088 est maintenu.
 
+### ADR-060 (rôles des dépôts)
+
+- **Tableau canon, ligne Wiki** : « validée humainement » se lit comme ADR-031 amendé, soit « validée
+  par le décideur unique sur preuve, auto-review de sens comprise ». Le rôle *Valide* du Wiki est
+  maintenu : c'est son décideur qui valide.
+- Le reste d'ADR-060 est maintenu.
+
 ## Ce que cet ADR ne fait pas
 
 - Il ne lève pas le verrou. Il ne promeut, ne corrige et ne retire aucune fiche, `plaquette-de-frein`
@@ -533,6 +545,7 @@ D1 à D8.
   [[ADR-096-governed-automatic-source-discovery|ADR-096]] ·
   [[ADR-031-four-layer-content-architecture|ADR-031]] ·
   [[ADR-088-promotion-gate-substance-scoring|ADR-088]] ·
+  [[ADR-060-repository-roles-doctrine|ADR-060]] ·
   [[ADR-117-wiki-promoter-canon-revision|ADR-117]] ·
   [[ADR-033-wiki-gamme-diagnostic-relations-contract|ADR-033]] ·
   [[ADR-112-diagnostic-knowledge-base-canon|ADR-112]] ·
