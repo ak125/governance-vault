@@ -7,9 +7,9 @@ decision_date: "2026-10-31"
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
-amends: []
+amends: ["rules-engineering-definition-of-done"]
 extends: []
-related_adr: ["ADR-053", "ADR-058", "ADR-101", "ADR-102", "ADR-104", "ADR-119"]
+related_adr: ["ADR-013", "ADR-053", "ADR-058", "ADR-101", "ADR-102", "ADR-104", "ADR-119"]
 related_rules: ["DoD2", "G5", "G6"]
 related_incidents: []
 version: "1.0.0"
@@ -56,10 +56,11 @@ commentaire du workflow motive ce choix « until agents get an identity distinct
 qualifie encore la gate de « Not yet a required check ». Ces deux mentions sont dépassées : les
 sessions CLI ont une identité distincte, et le job est requis.
 
-Conséquence observée : les PR portent une case « DoD2 — revue humaine attendue » qu'aucun acteur ne
-ferme. Cette attente n'apporte aucun contrôle : aucune revue n'est faite à sa place, et la fusion
-humaine reste la seule décision réelle. Une approbation donnée sur un SHA ancien ne dirait d'ailleurs
-rien du code fusionné : la règle ne lie l'approbation à aucune tête.
+Conséquence observée : les PR portent une case « DoD2 — revue humaine attendue » qui ne se ferme que
+par une approbation de l'owner, donc par la revue technique que son mandat a remplacée. La règle
+n'exige aucune revue à la place de cette approbation, et la fusion humaine reste la seule décision
+réelle. Une approbation donnée sur un SHA ancien ne dirait d'ailleurs rien du code fusionné : la règle
+ne lie l'approbation à aucune tête.
 
 ### Deux revues distinctes
 
@@ -67,6 +68,14 @@ rien du code fusionné : la règle ne lie l'approbation à aucune tête.
 **fiches WIKI** par une auto-review de sens. La revue du **code d'une PR** relève de DoD2. Ce sont deux
 périmètres : le premier admet un contenu dans le WIKI, le second admet un diff dans une branche. Cet
 ADR ne traite que le second.
+
+### Un précédent dans le vault
+
+Les PR du vault ouvertes par un agent portent déjà une auto-review tracée : la checklist de
+[[vault-self-review-workflow-20260504]] et la ligne « Self-review verdict » que vérifie le check
+« Self-Review Marker ». Ce document est une connaissance, sans autorité normative (ADR-101). Cet ADR
+reprend son principe pour DoD2 : la revue laisse une trace vérifiable et la fusion reste humaine. Il y
+ajoute le lien au SHA de tête et la gradation selon le risque.
 
 ### Une référence d'ownership absente
 
@@ -166,6 +175,10 @@ Dans [[rules-engineering-definition-of-done]], version 1.1.0 :
   entre décision et code est un constat, à résoudre par une PR du monorepo (ADR-101 D3), par exemple
   une gate qui vérifie que l'enregistrement nomme la tête.
 - Il ne crée aucune identité, aucun bot, aucun check requis, et n'en retire aucun.
+- Il ne retire aucune revue humaine qu'un autre ADR exige dans son propre périmètre, comme les niveaux
+  G1 et G2 d'[[ADR-013-agent-lifecycle-governance|ADR-013]] pour le catalogue des agents. DoD2
+  s'ajoute à ces exigences sans les remplacer.
+- Il garde l'exception AP-self-merge de DoD2 v1.0.0 (urgence documentée avec audit trail).
 - Il ne change ni la fusion humaine, ni la publication, ni le déploiement PROD, ni l'accord nominatif
   des zones STOP.
 - Il ne touche pas l'escape hatch ni DoD1 et DoD3 à DoD9.
@@ -187,7 +200,7 @@ Après la fusion, dans le monorepo, par PR de code ordinaire :
 ### Option A — Statu quo — rejetée
 
 DoD2 continue d'exiger, PR par PR, une revue technique humaine que l'owner a remplacée ; la case reste
-une attente que personne ne ferme et aucune revue n'est exigée à sa place.
+ouverte tant que l'owner ne fait pas cette revue, et aucune revue n'est exigée à sa place.
 
 ### Option B — Une nouvelle identité GitHub, ou l'application des agents comme approbatrice — rejetée
 
@@ -207,16 +220,16 @@ contrôle.
 
 ### Option E — Preuve de revue liée au SHA, graduée selon le risque — retenue
 
-Elle remplace une attente que personne ne ferme par une preuve vérifiable, garde l'owner, la fusion humaine et les
-zones STOP, et rend périmée toute preuve qui ne porte pas sur le code fusionné.
+Elle remplace l'attente d'une approbation par une preuve vérifiable, garde l'owner, la fusion humaine
+et les zones STOP, et rend périmée toute preuve qui ne porte pas sur le code fusionné.
 
 ## Conséquences
 
 ### Positives
 
 - DoD2 devient satisfiable et vérifiable sur pièce.
-- Une revue ne couvre plus un code qu'elle n'a pas lu (D4).
-- Les PR ne portent plus d'attente de revue humaine fictive.
+- Un enregistrement ne vaut que pour la tête qu'il nomme (D4).
+- Les PR n'attendent plus une approbation que le mandat a remplacée.
 
 ### Négatives
 
@@ -231,7 +244,8 @@ zones STOP, et rend périmée toute preuve qui ne porte pas sur le code fusionn�
 
 ## Retour arrière
 
-Revenir à DoD2 v1.0.0 par un ADR qui amende celui-ci. Aucune donnée ni aucun code n'est à défaire.
+Revenir à DoD2 v1.0.0 par un ADR qui amende celui-ci. Cet ADR ne change que des documents du vault ;
+une PR de mise en œuvre du monorepo se défait par son propre revert.
 
 ## Revue planifiée
 
@@ -251,7 +265,9 @@ Revenir à DoD2 v1.0.0 par un ADR qui amende celui-ci. Aucune donnée ni aucun c
   [[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4|ADR-102]] ·
   [[ADR-058-repository-control-plane|ADR-058]] ·
   [[ADR-053-planning-live-system|ADR-053]] ·
-  [[ADR-104-planning-live-writer-retired|ADR-104]]
+  [[ADR-104-planning-live-writer-retired|ADR-104]] ·
+  [[ADR-013-agent-lifecycle-governance|ADR-013]] ·
+  [[vault-self-review-workflow-20260504]]
 - Monorepo : `scripts/ci/pr-dod-gate.mjs`, `.github/workflows/pr-dod-gate.yml`,
   `.github/PULL_REQUEST_TEMPLATE.md`.
 

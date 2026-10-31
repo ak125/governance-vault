@@ -79,7 +79,7 @@ Dans la description PR :
    - **C** — zones STOP (paiement, prix et stock servis, panier et commande, RLS, opération destructive en base ou migration irréversible, SEO indexé, déploiement PROD) : B, plus l'accord nominatif de l'owner du domaine, consigné sur la PR et nommant le SHA revu, avant la fusion.
 4. **Preuve à jour** : un push qui change la tête rend l'enregistrement périmé. Il n'est reporté que par un nouvel enregistrement qui nomme la nouvelle tête et montre un diff attribuable identique (diff contre la merge-base, hors projections régénérées par leur script officiel) ; sinon la partie modifiée est revue au niveau qu'elle exige.
 5. **Domain ownership** : le ou les chemins modifiés correspondent à un domaine D1..D15 avec owner non `__unassigned__` dans Layer 2 overlay `ownership.yaml`.
-6. **Pas de self-merge** : un agent ne fusionne pas sa PR (G4.2 d'ADR-102 pour le vault).
+6. **Pas de self-merge** sauf documenté comme exception (cf. AP-self-merge en cas d'urgence avec audit trail) ; un agent ne fusionne pas sa PR (G4.2 d'ADR-102 pour le vault).
 
 ### Anti-patterns bloquants
 
