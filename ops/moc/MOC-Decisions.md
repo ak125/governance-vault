@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-10-30
+updated: 2026-10-31
 ---
 
 # MOC: Decisions
@@ -106,7 +106,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 > Projection mécanique du frontmatter ADR (PR-3 sync_moc_decisions).
 > Toute édition manuelle entre les markers est écrasée à chaque sync.
 > Pour corriger un statut ou un titre, éditer le frontmatter de l'ADR puis relancer `--write`.
-> Dernier sync : 2026-10-30.
+> Dernier sync : 2026-10-31.
 
 | ID | Titre | Statut canonique | Date | Fichier |
 |----|-------|------------------|------|---------|
@@ -219,6 +219,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-117 | Révision en place d'une fiche du canon WIKI écrite par le promoteur, jugée par le décideur unique : amende ADR-093 (L4, Humain = exception point 6) et ADR-116 (D4, Métriques, Retour arrière) | Accepted | 2026-10-22 | [[ADR-117-wiki-promoter-canon-revision]] |
 | ADR-118 | Retrait des méthodes BMAD, Superpowers et Spec Kit : agents BMAD désactivés, amende ADR-008, ADR-009 et ADR-011 | Accepted | 2026-10-27 | [[ADR-118-retrait-methodes-bmad-superpowers-spec-kit]] |
 | ADR-119 | Auto-review de sens à la place de toute relecture humaine des fiches WIKI, familles de sécurité comprises : amende ADR-031, ADR-060, ADR-083, ADR-088, ADR-091, ADR-093, ADR-096 et ADR-114 | Accepted | 2026-10-30 | [[ADR-119-wiki-semantic-auto-review-replaces-human-review]] |
+| ADR-120 | DoD2 : une preuve de revue liée au SHA de tête remplace l'approbation humaine GitHub — amende rules-engineering-definition-of-done (v1.1.0) | Accepted | 2026-10-31 | [[ADR-120-dod2-preuve-de-revue-liee-au-sha]] |
 
 <!-- AUTO-GENERATED:moc-decisions-canonical-index end -->
 
