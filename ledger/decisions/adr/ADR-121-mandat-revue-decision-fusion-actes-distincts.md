@@ -127,7 +127,8 @@ Le monorepo exécute deux workflows qui arment l'auto-fusion de PR Dependabot :
   majeures comprises ;
 - `dependabot-claude-review.yml` fait juger la PR par un modèle, qui arme l'auto-fusion sur un verdict
   favorable. Son job ne s'exécute que si la variable `CLAUDE_REVIEW_ENABLED` vaut `true` : présent,
-  il n'est pas actif, ses 100 derniers runs (depuis le 2026-09-30) ayant la conclusion `skipped`.
+  il n'est pas actif. Ses 510 runs déclenchés par Dependabot (du 2026-05-04 au 2026-10-30), dont 505
+  hors sous-module, ont tous la conclusion `skipped`.
 
 Aucun ADR accepté ne les décide. La note de connaissance `auto-merge-dependabot-claude-review-architecture-20260504`
 les décrit sans être normative et se réfère à ADR-028, qui traite d'un autre sujet.
@@ -159,7 +160,7 @@ modifie par aucun autre accès. Une action qui dépasse le mandat exige un accor
 | Acte | Qui | Preuve |
 |---|---|---|
 | Revue technique d'un diff | auteur, revue indépendante, owner selon le niveau | enregistrement DoD2 sur la tête, niveaux A, B, C (ADR-120) |
-| Décision de gouvernance : adopter un ADR, une règle, une policy | l'owner, `decision_makers` | ratification (D7) |
+| Décision de gouvernance : adopter un ADR, une règle, une policy | l'owner, `decision_makers` | changement porté par un ADR : ratification (D7) ; autre changement : fusion par l'owner de la tête épinglée, tracée selon D4 |
 | Validation spécifique | l'humain que désigne l'ADR concerné | celle que fixe cet ADR |
 | Fusion | l'owner | commande épinglée sur le SHA (D4) |
 | Mise en production | l'owner | tag `v*` ou déclenchement manuel du déploiement PROD ([[rules-deployment-workflow]]) |
@@ -216,12 +217,17 @@ statut existant ne change.
 ### D7 — Un amendement entre en vigueur à sa ratification
 
 Un ADR rédigé par un agent reste `proposed` jusqu'à la décision de l'owner. La ratification est
-cette décision, suivie d'un commit sur la branche de la PR qui passe le statut à `accepted`, renseigne
-`decision_date`, ajoute les liens `amended_by` réciproques, régénère l'index de [[MOC-Decisions]]
+cette décision, suivie d'un commit sur la branche de la PR qui passe le statut à `accepted` (frontmatter
+et ligne Statut), date la ligne « Accepté le » du pied de page, renseigne `decision_date`, ajoute les
+liens `amended_by` réciproques, régénère l'index de [[MOC-Decisions]]
 (`_scripts/sync_moc_decisions.py --write`) et retire des textes de la PR les mentions qui suspendent leur
 entrée en vigueur à la ratification ; l'owner fusionne la tête qui le contient.
 Une PR qui applique le texte d'un amendement à une règle reste en brouillon jusque-là : fusionner une
 règle amendée par un ADR `proposed` reproduit le constat C7.
+
+Un changement de règle ou de policy qu'aucun ADR ne porte, parce qu'il ne change pas de décision (G1),
+n'a pas de commit de ratification : la décision de l'owner se prouve par sa fusion de la tête
+épinglée, tracée selon D4.
 
 ### D8 — Une passation nomme chaque notion séparément
 
@@ -282,8 +288,11 @@ Après la ratification et la fusion :
    `workspaces/marketing/CLAUDE.md` suivent l'AEC 1.1.0. La copie
    `workspaces/wiki/.claude/canon-mirrors/agent-exit-contract.md` n'est déclarée ni dans le
    manifeste des consommateurs ni dans `agent-exit-contract-hash.yml` : son écart reste invisible
-   tant qu'elle n'y est pas déclarée.
+   tant qu'elle n'y est pas déclarée. La même PR du monorepo la déclare dans les deux, ou la retire.
 3. Les PR ouvertes qui citent l'auto-fusion `canon-sync` ou AP-self-merge s'alignent sur D5.
+4. T6 de [[rules-technical]] montre encore `gh pr merge` à lancer « après approbation explicite » ;
+   D3 et D4 réservent cette commande à l'owner. Une PR du vault aligne T6 sur D4 ; d'ici là, T6 se lit
+   selon D4.
 
 ## Options considérées
 

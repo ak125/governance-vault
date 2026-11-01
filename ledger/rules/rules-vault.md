@@ -101,8 +101,9 @@ ne produit aucun contenu du vault ([[ADR-102-airlock-rpc-gate-bundle-channel-ret
    (G3), sous les checks requis.
 2. **Un agent prepare, un humain fusionne.** Un agent peut preparer une PR dans toute zone du
    vault ; il ne fusionne jamais. La fusion d'une PR qui modifie un ADR, une regle ou une policy
-   porte une decision (G1) ; cette decision se prouve par sa ratification (ADR-121 D7), pas par la
-   fusion. Une auto-review, une revue independante, une CI verte, la ligne
+   porte une decision de l'owner (G1). Portee par un ADR, elle se prouve par le commit de ratification
+   (ADR-121 D7), pas par la fusion ; sans ADR, par la fusion de la tete epinglee que l'owner lance,
+   tracee selon ADR-121 D4. Une auto-review, une revue independante, une CI verte, la ligne
    `Self-review verdict: APPROVE`, un label ou un "go" general ne l'autorisent pas. L'agent ne lance
    aucune commande de fusion et n'active aucune auto-fusion, sous aucun compte, celui de l'owner
    compris : il remet a l'owner le numero, le SHA de tete (40 caracteres) et la commande epinglee

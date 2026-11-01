@@ -126,8 +126,10 @@ repository reserves the path to the owner; the human merge is the manual commit.
 (Clarified by ADR-102.)
 
 "Reviewed by a human" means the owner's decision to adopt the change (ADR-121
-D2). Its proof is the ratification commit on the pull request head that the
-owner then merges (ADR-121 D7); the merge is a separate act (ADR-121 D4). The
+D2). For a change carried by an ADR, its proof is the ratification commit on the
+pull request head that the owner then merges (ADR-121 D7); for any other change,
+it is the owner's merge of the pinned head, recorded per ADR-121 D4. The merge
+remains a separate act, even where it serves as that proof (ADR-121 D4). The
 review of the diff is the DoD2 review record bound to the head SHA (ADR-120): it
 is a condition of that decision, not a substitute for it. (Clarified by ADR-121,
 in force once it is ratified.)
