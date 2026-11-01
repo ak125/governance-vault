@@ -59,11 +59,12 @@ En cas de doute, lire le workflow, pas la documentation.
   PREPROD et capture le point de rollback ; le workflow d'un ancien tag a ses propres limites (D5).
 - **Ne lancer `Deploy PROD (via tag)` que sur un tag `v*`.** Le formulaire du `workflow_dispatch`
   propose `main` par défaut, et le run exécute le `deploy-prod.yml` de la ref choisie. Lancé sur
-  `main` dont PREPROD a validé la tête, le workflow déploierait ce commit sans tag `v*` et publierait
-  l'image sous `:main` : la décision de l'owner n'aurait pas de preuve (D6). Il ne le bloque pas
-  (constat d'ADR-075). Sur une branche dont la tête est un commit de `main` qui contient #1696 et que
-  PREPROD a validé, il ferait de même sous le nom de la branche si ce nom est un tag Docker valide
-  (sans `/`) ; sinon il refuse au contrôle de ce nom, mais après avoir remplacé
+  `main` dont PREPROD a validé la tête, le workflow déploierait ce commit sans tag `v*` et
+  publierait l'image sous `:main` : la décision de l'owner n'aurait pas de preuve (D6). Il ne le
+  bloque pas (constat d'ADR-075). Sur une branche dont la tête est un commit de `main` qui contient
+  #1696 et que PREPROD a validé, il ferait de même sous le nom de la branche si ce nom est un tag
+  Docker valide (au plus 128 caractères parmi lettres, chiffres, `_`, `.` et `-`, sans `.` ni `-` en
+  tête : donc ni `/` ni `+`) ; sinon il refuse au contrôle de ce nom, mais après avoir remplacé
   `:production-previous` (D5, #1288). Sur une autre ref, le résultat suit le workflow de cette ref,
   comme pour un tag (D5) : au 2026-11-01, 25 branches distantes en portent un sans garde de label ni
   preuve PREPROD. Sur 24 d'entre elles (nom avec `/`), le run s'arrête avant tout push, mais après
@@ -112,23 +113,25 @@ UTC) :
   workflow s'arrête si le label `revision` de l'alias `:preprod` diffère du commit du tag, avant de
   toucher `:production` et le conteneur PROD. L'alias suit `main` : le refus est la règle dès qu'un
   commit plus récent a été construit. Ligne « tag refusé » ;
-- tag qui ne contient pas `ed10ec6e5` (194 tags) : **aucune garde de provenance** ; seuls des
-  contrôles HTTP de santé, dont `/health`, suivent le déploiement. Son workflow promeut l'alias
-  `:preprod` courant vers `:production`, le pousse sous le nom du tag (ce qui écrase le tag Docker de
-  la version d'origine) et redémarre PROD, quel que soit le commit de l'alias. Le rollback
-  automatique de 39 d'entre eux revient à `:production-previous`, copié de `:production` après la
-  promotion : il redémarre l'image promue. Ne jamais le relancer : ligne « tag sans garde ».
+- tag qui ne contient pas `ed10ec6e5` (194 tags) : **aucune garde de provenance** ; après le
+  déploiement, seuls des contrôles d'exécution (conteneur démarré, réponses HTTP dont `/health`)
+  vérifient l'état de PROD, jamais la version servie. Son workflow promeut l'alias `:preprod`
+  courant vers `:production`, le pousse sous le nom du tag (ce qui écrase le tag Docker de la
+  version d'origine) et redémarre PROD, quel que soit le commit de l'alias. Le rollback automatique
+  de 39 d'entre eux revient à `:production-previous`, copié de `:production` après la promotion : il
+  redémarre l'image promue. Ne jamais le relancer : ligne « tag sans garde ».
 
 Un tag qui contient #1288 (2026-07-18 ; 40 tags : les 14 qui contiennent #1696 et 26 de la classe
 `ed10ec6e5`) réétiquette `:production-previous` sur l'image en service et le pousse avant de
 vérifier la provenance de l'image : un run refusé à ce stade remplace le point de retour précédent.
-Les 14, et 5 des 26 qui contiennent aussi #1598 (2026-09-29), vérifient d'abord la preuve PREPROD
-du commit (`scripts/ci/prod-preprod-evidence.mjs`) : si le run `ci.yml` manque ou n'est pas
-lisible, ils refusent avant toute mutation. Les 26 refusent ensuite sur le label de `:preprod`,
-selon leur classe. Les 14 supposent aussi que `:sha-<commit>` est encore dans le registre : sans
-l'image, ils refusent avant de toucher `:production` et le conteneur PROD, mais après la capture. Après un tel refus, l'intervention manuelle ne s'appuie pas sur
-`:production-previous` ; elle désigne l'image à restaurer par le tag Docker poussé à son déploiement
-(nom du tag `v*`), ou par `:sha-<commit>` si cette image est encore dans le registre.
+Les 14, et 5 des 26 qui contiennent aussi #1598 (2026-09-29), vérifient d'abord la preuve PREPROD du
+commit (`scripts/ci/prod-preprod-evidence.mjs`) : si le run `ci.yml` manque ou n'est pas lisible,
+ils refusent avant toute mutation. Les 26 refusent ensuite sur le label de `:preprod`, selon leur
+classe. Les 14 supposent aussi que `:sha-<commit>` est encore dans le registre : sans l'image, ils
+refusent avant de toucher `:production` et le conteneur PROD, mais après la capture. Après un tel
+refus, l'intervention manuelle ne s'appuie pas sur `:production-previous` ; elle désigne l'image à
+restaurer par le tag Docker poussé à son déploiement (nom du tag `v*`), ou par `:sha-<commit>` si
+cette image est encore dans le registre.
 
 Un revert sur `main` ne change pas PROD : il redéploie PREPROD. PROD ne change que par D4 ou par une
 ligne de ce tableau.

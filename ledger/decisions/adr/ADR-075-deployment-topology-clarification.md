@@ -184,12 +184,11 @@ plusieurs cycles, et un ADR distinct.
   sous le nom de la branche si ce nom est un tag Docker valide ; sinon il refuse au contrôle de ce
   nom, après avoir remplacé `:production-previous`. Sur une autre ref, le résultat suit le workflow
   de cette ref : au 2026-11-01, 25 branches distantes en portent un sans garde de label ni preuve
-  PREPROD. Relancé sur un tag qui
-  ne contient pas le commit `ed10ec6e5` (2026-04-21 ; 194 tags sur 302), il exécute le workflow de
-  ce tag, sans garde de provenance : il promeut l'alias `:preprod` courant vers PROD et le publie
-  sous le nom du tag, ce qui écrase le tag Docker de la version d'origine. [[rules-deployment-workflow]] interdit ces
-  lancements (D3, D5). Une garde mécanique relève d'une PR du monorepo ; le workflow d'un ancien tag
-  reste figé dans ce tag.
+  PREPROD. Relancé sur un tag qui ne contient pas le commit `ed10ec6e5` (2026-04-21 ; 194 tags sur
+  302), il exécute le workflow de ce tag, sans garde de provenance : il promeut l'alias `:preprod`
+  courant vers PROD et le publie sous le nom du tag, ce qui écrase le tag Docker de la version
+  d'origine. [[rules-deployment-workflow]] interdit ces lancements (D3, D5). Une garde mécanique
+  relève d'une PR du monorepo ; le workflow d'un ancien tag reste figé dans ce tag.
 - Il ne décide pas d'anonymiser les données PREPROD ni de changer le mode du RPC gate (D2).
 - Il ne réécrit pas les documents historiques qui emploient l'ancien vocabulaire.
 
