@@ -12,10 +12,11 @@ check-adr-supersedes.py, regle adr/unique-id).
 
 La liste des fichiers d'une PR que gh pr list tronque (une page) est relue
 par l'API REST paginee. Le controle est INCOMPLET (sortie 2) si main ou la
-liste des PR n'est pas lisible, si main ne porte aucun ADR lisible, si la
-reponse de GitHub pour main est vide, si la liste atteint la limite demandee, si
-les fichiers lus d'une PR sont moins nombreux que son changedFiles, ou si
-origin/main local differe de main sur GitHub. Un controle incomplet n'affiche jamais « aucune collision » ni de
+liste des PR n'est pas lisible ou n'a pas la forme attendue, si main ne porte
+aucun ADR lisible, si la reponse de GitHub pour main est vide, si la liste
+atteint la limite demandee, si les fichiers lus d'une PR sont moins nombreux que
+son changedFiles ou mal formes, ou si origin/main local differe de main sur
+GitHub. Un controle incomplet n'affiche jamais « aucune collision » ni de
 prochain identifiant libre.
 
 L'identifiant est lu dans le nom de fichier ; l'accord nom/id est verifie
@@ -91,13 +92,25 @@ def collect(vault: str, repo: str, limit: int, runner: Runner) -> dict:
     except (OSError, subprocess.CalledProcessError, json.JSONDecodeError) as exc:
         data["incomplete"].append(f"PR ouvertes illisibles ({exc})")
         return data
+    if not isinstance(data["prs"], list) or not all(
+        isinstance(pr, dict) and isinstance(pr.get("number"), int) for pr in data["prs"]
+    ):
+        data["prs"] = []
+        data["incomplete"].append("PR ouvertes illisibles (reponse de forme inattendue)")
+        return data
     if len(data["prs"]) >= limit:
         data["incomplete"].append(f"{len(data['prs'])} PR lues = limite {limit} (relancer avec --limit plus grand)")
     unread: list[int] = []
     for pr in data["prs"]:
         files, total = pr.get("files"), pr.get("changedFiles")
-        if not isinstance(files, list) or not isinstance(total, int):
+        if (
+            not isinstance(files, list)
+            or not isinstance(total, int)
+            or not all(isinstance(f, dict) and isinstance(f.get("path"), str) for f in files)
+        ):
             unread.append(pr["number"])
+            if isinstance(files, list):
+                pr["files"] = [f for f in files if isinstance(f, dict) and isinstance(f.get("path"), str)]
             continue
         if len(files) < total:
             try:

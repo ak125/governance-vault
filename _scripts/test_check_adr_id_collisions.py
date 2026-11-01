@@ -156,6 +156,26 @@ def test_missing_file_list_is_incomplete(capsys):
     assert "#9" in out
 
 
+def test_unexpected_pr_list_shape_is_incomplete(capsys):
+    base = runner()
+
+    def run(cmd):
+        return '{"message": "x"}' if cmd[:3] == ["gh", "pr", "list"] else base(cmd)
+
+    code = col.main(["check", "/vault"], run)
+    out = capsys.readouterr().out
+    assert code == 2
+    assert "forme inattendue" in out
+
+
+def test_malformed_file_entry_is_incomplete(capsys):
+    broken = pr(9, ADR + "ADR-003-x.md")
+    broken["files"] = ["ADR-003-x.md"]
+    code, out = check(capsys, prs=[broken])
+    assert code == 2
+    assert "#9" in out
+
+
 def test_main_listing_is_root_relative_and_nul_separated():
     calls = []
     run = runner()
