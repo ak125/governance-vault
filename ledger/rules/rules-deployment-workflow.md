@@ -63,13 +63,13 @@ En cas de doute, lire le workflow, pas la documentation.
   publierait l'image sous `:main` : la décision de l'owner n'aurait pas de preuve (D6). Il ne le
   bloque pas (constat d'ADR-075). Sur une branche dont la tête est un commit de `main` qui contient
   #1696 et que PREPROD a validé, il ferait de même sous le nom de la branche si ce nom est un tag
-  Docker valide (au plus 128 caractères parmi lettres, chiffres, `_`, `.` et `-`, sans `.` ni `-` en
-  tête : donc ni `/` ni `+`) ; sinon il refuse au contrôle de ce nom, mais après avoir remplacé
-  `:production-previous` (D5, #1288). Sur une autre ref, le résultat suit le workflow de cette ref,
-  comme pour un tag (D5) : au 2026-11-01, 25 branches distantes en portent un sans garde de label ni
-  preuve PREPROD. Sur 24 d'entre elles (nom avec `/`), le run s'arrête avant tout push, mais après
-  avoir fait pointer le tag local `:production` de l'hôte du runner sur l'image `:preprod` ; sur la
-  25e, il promeut l'alias `:preprod` courant vers PROD.
+  Docker valide (au plus 128 caractères parmi lettres ASCII, chiffres, `_`, `.` et `-`, sans `.` ni
+  `-` en tête : donc ni `/` ni `+`) ; sinon il refuse au contrôle de ce nom, mais après avoir
+  remplacé `:production-previous` (D5, #1288). Sur une autre ref, le résultat suit le workflow de
+  cette ref, comme pour un tag (D5) : au 2026-11-01, 25 branches distantes en portent un sans garde
+  de label ni preuve PREPROD. Sur 24 d'entre elles (nom avec `/`), le run s'arrête avant tout push,
+  mais après avoir fait pointer le tag local `:production` de l'hôte du runner sur l'image
+  `:preprod` ; sur la 25e, il promeut l'alias `:preprod` courant vers PROD.
 - **Ne pas utiliser le tag `latest`.** Un alias (`:preprod`, `:production`) ne sert pas de référence
   de version : citer le commit, le tag `v*` ou `:sha-<commit>`.
 
