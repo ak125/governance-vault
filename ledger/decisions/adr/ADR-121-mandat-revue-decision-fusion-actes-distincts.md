@@ -53,9 +53,10 @@ L'état des dépôts est autre :
 - `canon-sync.yml` du monorepo ouvre ou met à jour la PR `canon-sync/auto`, étiquetée `canon-sync` et
   `automated`, sans activer d'auto-fusion ; son corps demande de relire le diff et de fusionner.
 
-La phrase de l'AEC est le seul texte du vault qui accorde une fusion sans humain. Elle contredit
-RULE-H6 (« An agent never merges ») et G4.2. L'en-tête de l'AEC annonce la version 1.0.0, son tableau
-et son générateur la 1.0.1, et deux étapes y restent « à créer » alors qu'elles existent.
+Parmi les règles et les ADR actifs du vault, cette phrase est la seule à accorder une auto-fusion
+(ADR-099 l'exclut pour les PR de sous-module). Elle contredit RULE-H6 (« An agent never merges »)
+et G4.2. L'en-tête de l'AEC annonce la version 1.0.0, son tableau et son générateur la 1.0.1, et
+deux étapes y restent « à créer » alors qu'elles existent.
 
 ### C3 — DoD2 renvoie à une exception que rien ne définit
 
@@ -79,15 +80,16 @@ du diff ou la décision d'adopter le changement.
 Les sessions CLI agissent sous l'application `automecanik-agents[bot]` ; la session Desktop et
 d'autres agents agissent sous le compte GitHub de l'owner. Une fusion enregistrée sous ce compte
 (`merged_by`) prouve le compte, pas la décision d'un humain. L'étape 10 de l'`AGENTS.md` du vault
-demande à l'agent qui la lit de « fusionner en squash » ; sa ligne 116 et G4.2 le lui interdisent.
+demande à l'agent qui la lit de « fusionner en squash » ; sa section « Anti-patterns » et G4.2 le
+lui interdisent.
 
 ### C6 — Le statut `accepted-revised` est actif pour les scripts et absent de la doctrine
 
 ADR-101 D1, G1 de [[rules-vault]] et G5 de [[rules-governance-process]] ne déclarent normatif que
 le statut `accepted`. Le schéma `_scripts/schemas/adr.schema.json` admet sept statuts, dont
 `accepted-revised`, et `ADR_STATUSES_ACTIVE` de `_scripts/governance_constants.py` le compte comme
-actif ; `check-adr-supersedes.py` en dépend. Trois ADR portent ce statut : ADR-002, ADR-009 et
-ADR-020. Lue à la lettre, la doctrine les rend non normatifs, alors que les contrôles les traitent
+actif ; `check-adr-supersedes.py` en dépend. Deux ADR portent ce statut sur `main` : ADR-002 et
+ADR-009. Lue à la lettre, la doctrine les rend non normatifs, alors que les contrôles les traitent
 comme actifs. Le tableau « Status Semantics » de [[MOC-Decisions]] annonce six statuts et omet
 `rejected`.
 
@@ -99,9 +101,9 @@ un amendement que personne n'a ratifié. Ce constat est signalé ; cet ADR ne le
 
 ### C8 — Quatre notions confondues dans les passations
 
-Les passations entre outils (issue #1947 du monorepo, « Passation ChatGPT Space → Claude Code CLI ») attribuent
-des responsabilités à des outils et à des sessions. Le dépôt distingue pourtant quatre notions, chacune
-avec sa source :
+Les passations entre outils (issue #1947 du monorepo, « Passation ChatGPT Space → Claude Code CLI
+(code) + Codex (revue) ») attribuent des responsabilités à des outils et à des sessions. Le dépôt
+distingue pourtant quatre notions, chacune avec sa source :
 
 - un **département** est l'une des 24 responsabilités du Command Center
   (`audit/automecanik-departments-map.md` du monorepo) ; ce n'est ni un processus ni un agent ;
@@ -263,7 +265,8 @@ Documents opérationnels alignés dans la même PR : tableau « Status Semantics
 Après la ratification et la fusion :
 
 1. La resynchronisation de l'AEC ouvre la PR `canon-sync/auto` du monorepo ; l'owner la fusionne
-   (D5). Les miroirs ne s'éditent pas à la main.
+   (D5). Les copies des dépôts wiki et raw se mettent à jour par une PR ordinaire ; d'ici là, leur
+   workflow `agent-exit-contract-hash.yml` signale l'écart. Les miroirs ne s'éditent pas à la main.
 2. Monorepo, par PR ordinaire : le skill `governance-vault-ops` décrit les statuts normatifs selon D6.
 3. Les PR ouvertes qui citent l'auto-fusion `canon-sync` ou AP-self-merge s'alignent sur D5.
 
@@ -272,7 +275,7 @@ Après la ratification et la fusion :
 ### Option A — Statu quo — rejetée
 
 L'AEC continue d'interdire ce que les mandats autorisent, et d'accorder une auto-fusion qu'aucune
-règle de fusion n'admet ; trois ADR restent normatifs pour les scripts et non pour la doctrine.
+règle de fusion n'admet ; deux ADR restent normatifs pour les scripts et non pour la doctrine.
 
 ### Option B — Corriger chaque document sans ADR — rejetée
 
@@ -280,7 +283,7 @@ Les points C1, C3, C4 et C6 changent ce qui fait foi ; G1 exige un ADR pour une 
 
 ### Option C — Déclarer `accepted-revised` non normatif — rejetée
 
-Elle retirerait sans décision trois ADR (ADR-002, ADR-009, ADR-020) que les contrôles traitent comme
+Elle retirerait sans décision deux ADR (ADR-002 et ADR-009) que les contrôles traitent comme
 actifs, et obligerait à modifier ces contrôles.
 
 ### Option D — Un amendement unique qui sépare les actes — retenue
@@ -293,7 +296,7 @@ nouveau mécanisme, et garde chaque validation spécifique dans l'ADR qui la por
 ### Positives
 
 - Un agent sait ce que son mandat couvre et ce qu'il ne couvre pas.
-- Aucun texte du vault n'accorde plus de fusion sans humain.
+- Aucune règle ni aucun ADR actif du vault n'accorde plus de fusion sans humain.
 - La normativité d'un ADR se lit de la même façon dans la doctrine et dans les scripts.
 
 ### Négatives
