@@ -288,11 +288,12 @@ Après la ratification et la fusion :
    `workspaces/marketing/CLAUDE.md` suivent l'AEC 1.1.0. La copie
    `workspaces/wiki/.claude/canon-mirrors/agent-exit-contract.md` n'est déclarée ni dans le
    manifeste des consommateurs ni dans `agent-exit-contract-hash.yml` : son écart reste invisible
-   tant qu'elle n'y est pas déclarée. La même PR du monorepo la déclare dans les deux, ou la retire.
+   tant qu'elle n'y est pas déclarée. Pour la déclarer, une PR du vault l'ajoute aux consommateurs de
+   `_scripts/compute-canon-hashes.py`, qui génère le manifeste `99-meta/canon-hashes.json`, et une PR
+   du monorepo l'ajoute à `agent-exit-contract-hash.yml`. Sinon, une PR du monorepo la retire.
 3. Les PR ouvertes qui citent l'auto-fusion `canon-sync` ou AP-self-merge s'alignent sur D5.
 4. T6 de [[rules-technical]] montre encore `gh pr merge` à lancer « après approbation explicite » ;
-   D3 et D4 réservent cette commande à l'owner. Une PR du vault aligne T6 sur D4 ; d'ici là, T6 se lit
-   selon D4.
+   D3 et D4 réservent cette commande à l'owner. Une PR du vault aligne T6 sur D4.
 
 ## Options considérées
 
@@ -329,7 +330,9 @@ un commit de ratification distinct de la fusion (D7).
 
 - La ratification demande un commit de plus avant la fusion (D7).
 - La trace de fusion reste déclarative : le compte ne prouve pas l'humain (D4), et cet ADR ne crée pas
-  de mécanisme qui le prouverait.
+  de mécanisme qui le prouverait. Un changement sans ADR n'a pas d'autre preuve de décision que cette
+  trace (D7). Le commit de ratification a la même limite : son auteur est un compte et une clé de
+  signature.
 
 ## Métriques
 
