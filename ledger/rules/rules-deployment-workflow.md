@@ -55,13 +55,16 @@ En cas de doute, lire le workflow, pas la documentation.
   ([[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4|ADR-102]] D2). La fusion suit une validation
   manuelle explicite (T6). Cette règle ne prescrit plus `gh pr merge --admin`, qui passe outre les
   exigences de la protection, ni la désactivation d'un check.
-- **Ne pas déployer PROD hors de `deploy-prod.yml`** : son chemin vérifie la preuve PREPROD et
-  capture le point de rollback.
+- **Ne pas déployer PROD hors de `deploy-prod.yml`** : sur `main`, son chemin vérifie la preuve
+  PREPROD et capture le point de rollback ; le workflow d'un ancien tag a ses propres limites (D5).
 - **Ne lancer `Deploy PROD (via tag)` que sur un tag `v*`.** Le formulaire du `workflow_dispatch`
-  propose `main` par défaut. Lancé sur `main`, ou sur une branche dont la tête est un commit de
-  `main` validé par PREPROD, le workflow déploierait ce commit sans tag `v*` et publierait l'image
-  sous le nom de la ref (`:main`) : la décision de l'owner n'aurait pas de preuve (D6). Il ne le
-  bloque pas (constat d'ADR-075). Sur une autre branche, la preuve PREPROD manque et il refuse.
+  propose `main` par défaut, et le run exécute le `deploy-prod.yml` de la ref choisie. Lancé sur
+  `main`, ou sur une branche dont la tête est un commit de `main` qui contient #1696 et que PREPROD a
+  validé, le workflow déploierait ce commit sans tag `v*` et publierait l'image sous le nom de la ref
+  (`:main`) : la décision de l'owner n'aurait pas de preuve (D6). Il ne le bloque pas (constat
+  d'ADR-075). Sur une autre ref, le résultat suit le workflow de cette ref, comme pour un tag (D5) :
+  au 2026-11-01, 25 branches distantes en portent un sans garde de label ni preuve PREPROD, qui
+  promeut l'alias `:preprod` courant vers PROD.
 - **Ne pas utiliser le tag `latest`.** Un alias (`:preprod`, `:production`) ne sert pas de référence
   de version : citer le commit, le tag `v*` ou `:sha-<commit>`.
 
@@ -104,17 +107,21 @@ dépendent donc des commits que contient le tag (302 tags `v*` au 2026-11-01) :
   workflow s'arrête si le label `revision` de l'alias `:preprod` diffère du commit du tag, avant de
   toucher `:production` et le conteneur PROD. L'alias suit `main` : le refus est la règle dès qu'un
   commit plus récent a été construit. Ligne « tag refusé » ;
-- tag qui ne contient pas `ed10ec6e5` (194 tags) : **aucune garde**. Son workflow promeut l'alias
-  `:preprod` courant vers `:production` et redémarre PROD, quel que soit le commit de l'alias. Ne
-  jamais le relancer : ligne « tag sans garde ».
+- tag qui ne contient pas `ed10ec6e5` (194 tags) : **aucune garde de provenance** ; seul un
+  contrôle `/health` suit le déploiement. Son workflow promeut l'alias `:preprod` courant vers
+  `:production`, le pousse sous le nom du tag (ce qui écrase le tag Docker de la version d'origine)
+  et redémarre PROD, quel que soit le commit de l'alias. Ne jamais le relancer : ligne « tag sans
+  garde ».
 
-Pour un tag qui contient #1696, ce chemin suppose aussi que le run `ci.yml` du commit est lisible et
-que `:sha-<commit>` est encore dans le registre. Sans le run, le workflow refuse avant toute
-mutation. Sans l'image, il refuse avant de toucher `:production` et le conteneur PROD, mais après
-avoir réétiqueté `:production-previous` sur l'image en service et l'avoir poussé : un run refusé
-remplace le point de retour précédent. Après un tel refus, l'intervention manuelle ne s'appuie pas
-sur `:production-previous` ; elle désigne l'image à restaurer par `:sha-<commit>` ou par le tag
-Docker poussé à son déploiement (nom du tag `v*`).
+Un tag qui contient #1288 (2026-07-18 ; 40 tags : les 14 qui contiennent #1696 et 26 de la classe
+`ed10ec6e5`) réétiquette `:production-previous` sur l'image en service et le pousse avant ses
+contrôles de provenance : un run refusé remplace le point de retour précédent. Les 26 refusent
+ensuite sur le label de `:preprod`, selon leur classe. Les 14 supposent aussi que le run `ci.yml`
+du commit est lisible et que `:sha-<commit>` est encore dans le registre : sans le run, le workflow
+refuse avant toute mutation ; sans l'image, il refuse avant de toucher `:production` et le conteneur
+PROD, mais après la capture. Après un tel refus, l'intervention manuelle ne s'appuie pas sur
+`:production-previous` ; elle désigne l'image à restaurer par le tag Docker poussé à son déploiement
+(nom du tag `v*`), ou par `:sha-<commit>` si cette image est encore dans le registre.
 
 Un revert sur `main` ne change pas PROD : il redéploie PREPROD. PROD ne change que par D4 ou par une
 ligne de ce tableau.

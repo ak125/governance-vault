@@ -60,10 +60,13 @@ Sources : `.sops.yaml`, `docker-compose.preprod.yml` et, sous `.github/workflows
 | **PROD** | même hôte | conteneur promu par `deploy-prod.yml`, derrière Caddy (80/443) | trafic réel des utilisateurs |
 
 L'hôte PROD porte aussi le runner GitHub Actions auto-hébergé (`runs-on: [self-hosted, Linux, X64]`) :
-`deploy-prod.yml` y inspecte le conteneur PROD local. Sur `main`, neuf workflows y ont au moins un
-job, dont `deploy-prod.yml`, les jobs `🧪 Deploy PREPROD`, `🎭 E2E Smoke Tests` et
-`🔦 Lighthouse Performance Audit` de `ci.yml`, et `deploy-monitoring-scripts.yml`, qui installe des
-scripts de surveillance sur l'hôte lui-même. `build.yml` tourne sur un runner hébergé par GitHub.
+`deploy-prod.yml` y inspecte le conteneur PROD local. Sur `main`, cinq workflows (huit jobs) y
+tournent : `deploy-prod.yml`, les jobs `🧪 Deploy PREPROD`, `🎭 E2E Smoke Tests` et
+`🔦 Lighthouse Performance Audit` de `ci.yml`, `prod-smoke-tests.yml` (deux jobs), `visual-gate.yml`
+et `deploy-monitoring-scripts.yml`, qui installe des scripts de surveillance sur l'hôte lui-même.
+Les métadonnées des jobs exécutés nomment un seul runner pour ces cinq workflows ; l'inventaire des
+runners n'est pas lisible (403), donc un second runner inactif aux mêmes labels n'est pas exclu.
+`build.yml` tourne sur un runner hébergé par GitHub.
 
 ## Décision
 
@@ -175,11 +178,14 @@ plusieurs cycles, et un ADR distinct.
   `🧪 Deploy PREPROD` ne part que de `main`). Ce sont des constats au sens de D1, à corriger par une
   PR du monorepo.
 - Il n'ajoute aucune garde à `deploy-prod.yml`. Ce workflow accepte un `workflow_dispatch` sur toute
-  ref et n'en contrôle que la forme du nom. Lancé sur `main`, ou sur une branche dont la tête est un
-  commit de `main` validé par PREPROD, il déploierait ce commit sans tag `v*` et publierait l'image
-  sous le nom de la ref (`:main`) ; sur une autre branche, la preuve PREPROD manque et il refuse.
-  Relancé sur un tag qui ne contient pas le commit `ed10ec6e5` (2026-04-21 ; 194 tags sur 302), il
-  exécute le workflow de ce tag, sans aucune garde : il promeut l'alias `:preprod` courant vers PROD. [[rules-deployment-workflow]] interdit ces
+  ref et n'en contrôle que la forme du nom. Il exécute le `deploy-prod.yml` de la ref choisie. Lancé
+  sur `main`, ou sur une branche dont la tête est un commit de `main` qui contient #1696 et que
+  PREPROD a validé, il déploierait ce commit sans tag `v*` et publierait l'image sous le nom de la
+  ref (`:main`). Sur une autre ref, le résultat suit le workflow de cette ref : au 2026-11-01,
+  25 branches distantes en portent un sans garde de label ni preuve PREPROD. Relancé sur un tag qui
+  ne contient pas le commit `ed10ec6e5` (2026-04-21 ; 194 tags sur 302), il exécute le workflow de
+  ce tag, sans garde de provenance : il promeut l'alias `:preprod` courant vers PROD et le publie
+  sous le nom du tag, ce qui écrase le tag Docker de la version d'origine. [[rules-deployment-workflow]] interdit ces
   lancements (D3, D5). Une garde mécanique relève d'une PR du monorepo ; le workflow d'un ancien tag
   reste figé dans ce tag.
 - Il ne décide pas d'anonymiser les données PREPROD ni de changer le mode du RPC gate (D2).
