@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-04-26
+updated: 2026-11-01
 ---
 
 # MOC: Knowledge
@@ -75,6 +75,8 @@ Base de connaissances architecturale.
 - [[adr-031-gap-analysis-seo-runtime]] - Gap analysis ADR-031 (status proposed) vs besoin runtime DB projection SEO. Preuves empiriques 2026-05-13 : wiki/exports/seo/ vide (vs exports/rag/ populated), 0/7 tables projection cibles existent, pages R0-R8 lisent legacy sans active_version_id, pattern kg_v3 versioning réutilisable, SEO v9 fondation MERGED (#398/#399/#400). Prépare ADR-059 (supplements ADR-031, pas amends — les 2 ADRs évoluent en tracks parallèles). Wikilink vers ADR-059 sera ajouté par PR-1.
 
 ## Gouvernance (Historique v1)
+
+> Pratiques retirées par [[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4|ADR-102]] (G4 v3.1.0) : ni fusion `gh pr merge --admin`, ni auto-fusion. Un agent prépare la PR, l'owner la fusionne. Les notes ci-dessous décrivent la pratique de l'époque.
 
 - [[single-maintainer-merge-pattern]] - Pattern admin-merge per-PR avec CI gates comme enforcement (vault opéré single-maintainer en attendant un 2ᵉ reviewer)
 - [[sandbox-merge-auto-rule-20260428]] - Sandbox auto-merge rule : merges main routiniers en auto (5 conditions trigger), tag PROD + apply prod DB + force-push restent gardés

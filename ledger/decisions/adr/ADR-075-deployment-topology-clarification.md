@@ -1,177 +1,198 @@
 ---
 id: ADR-075
-title: Deployment Topology Clarification (DEV / PREPROD / PROD vocabulary canon)
+title: "Topologie et vocabulaire de déploiement (DEV / PREPROD / PROD) ; commit, tag, image, environnement, preuve CI et version servie — amende ADR-001"
 status: proposed
-date: 2026-05-18
-decision_makers: [Architecture Team, Fafa]
-version: 1.0.0
+date: "2026-05-18"
+decision_makers: ["Architecture Team", "@fafa"]
+version: "1.1.0"
 supersedes: []
-amends: [ADR-001]
-related_rules: []
-related_incidents: []
+superseded_by: []
+amends: ["ADR-001"]
+extends: []
+related_adr: ["ADR-028", "ADR-101", "ADR-102"]
+related_rules: ["rules-deployment-workflow", "T6", "G1", "G4"]
+related_incidents: ["INC-2026-007-false-prod-claim-on-main-merge"]
 reviewed_by: ""
 ---
 
-# ADR-075: Deployment Topology Clarification
+# ADR-075 : topologie et vocabulaire de déploiement
+
+- **Statut** : Proposed. Version 1.0.0 rédigée le 2026-05-18, révisée le 2026-11-01 (1.1.0). Rien
+  n'est normatif avant la décision de l'owner et la fusion ([[ADR-101-vault-decides-canon-authority|ADR-101]] D1).
+- **Amende** [[ADR-001-environment-separation|ADR-001]] : il précise la topologie que ce dernier ne
+  décrit pas et relève un écart entre son tableau et l'état réel (D2).
+- **Révision 1.1.0** : réconciliation avec ADR-101 (le vault décide, le monorepo exécute), retrait
+  des adresses IP et des noms d'hôte au profit des rôles, ajout de la promotion, du rollback et de la
+  distinction entre commit, tag, image, environnement, preuve CI et version servie.
+- **Méthode** : constats vérifiés le 2026-11-01 sur `main` du monorepo
+  (`6ab7854c2adf15e3e588f8a73e4f9085ecaeee5d`) et sur `main` du vault.
 
 ## Contexte
 
-L'audit empirique du 2026-05-18 a identifié **419 occurrences confuses** du terme "preprod" / "pré-prod" / "PREPROD" / "pre-prod" à travers le monorepo (118 occurrences), le vault (242 occurrences), et les mémoires Claude (59 occurrences). Le vocabulaire est utilisé pour désigner **trois choses différentes** sans canon unifié :
+L'audit du 2026-05-18 a compté 419 occurrences du mot « preprod » sous ses diverses graphies
+(monorepo 118, vault 242, mémoires d'agents 59). Le mot désignait trois choses sans définition
+commune :
 
-1. Le **tag Docker** `:preprod` (artefact CI)
-2. Le **container CI éphémère** qui consomme ce tag
-3. Un **environnement intermédiaire imaginaire** entre DEV et PROD (interprétation littérale du préfixe "pré-")
+1. le tag Docker `:preprod`, un artefact de CI ;
+2. le conteneur éphémère que la CI démarre à partir de ce tag ;
+3. un environnement intermédiaire imaginaire entre DEV et PROD, lu dans le préfixe « pré- ».
 
-[ADR-001](ADR-001-environment-separation.md) énonce une séparation logique en 3 environnements (DEV / PREPROD / PROD), mais **ne précise pas la topologie physique** (machines, ports, image tags, qui consomme quoi). Cette imprécision a généré des erreurs documentaires factuelles répétées :
+ADR-001 pose trois environnements logiques sans décrire la topologie : machines, ports, images,
+déclencheurs. Ce silence a produit des erreurs répétées : un nom d'hôte PREPROD public qui n'a
+jamais existé, une « PREPROD miroir de PROD », l'amalgame de la machine DEV et du conteneur PREPROD,
+une mémoire d'agent qui plaçait le tag `:preprod` sur la machine DEV. L'owner a corrigé la même
+confusion lors d'au moins trois sessions (2026-05-16, 17 et 18).
 
-- **Hostname inventé** : `preprod.automecanik.com` apparaît dans `closure-sequence-sitemap-auth-pr9a-20260517.md:69` — n'existe pas (jamais provisionné).
-- **Formule "preprod miroir"** dans `incident-traffic-drop-2026-04-22-sitemap-stale.md:32` — faux : PREPROD est READ_ONLY (ADR-028 Option D), pas une réplique.
-- **Conflation "DEV preprod"** dans 7+ documents `audit/dependencies/*.md` et `.spec/runbooks/*.md` — confond 2 machines distinctes.
-- **Mémoires Claude auto-contradictoires** : une mémoire (`feedback_preprod_tag_is_dev_environment.md`, factuellement incorrecte) affirmait que `:preprod` est déployé sur le VPS DEV — alors qu'en réalité le runtime preprod tourne sur le runner self-hosted co-localisé avec PROD.
+Deux confusions de même nature s'y ajoutent : une fusion sur `main` annoncée comme un déploiement
+PROD ([[2026-04-21-false-prod-claim-on-main-merge|INC-2026-007]]), et une CI verte présentée comme la
+preuve qu'une version est servie.
 
-Le user a corrigé la même confusion sur **au moins 3 sessions distinctes** (2026-05-16, 2026-05-17, 2026-05-18). Symptôme classique d'un canon manquant.
+### Topologie réelle (2026-11-01)
 
-### Topologie physique réelle (vérifiée par sources canoniques 2026-05-18)
+Sources : `.sops.yaml`, `docker-compose.preprod.yml`, `.github/workflows/ci.yml`,
+`.github/workflows/deploy-prod.yml` du monorepo.
 
-Sources : `.sops.yaml:24-40`, `docker-compose.preprod.yml`, `.github/workflows/ci.yml:588-712`, `.github/workflows/deploy-prod.yml`.
+| Rôle | Machine | Ce qui y tourne | Accès |
+|---|---|---|---|
+| **DEV** | machine opérateur | code, worktrees, runtime de développement (`npm run dev`, port 3000) resynchronisé depuis `main` par un cron | opérateur et agents ; aucun conteneur de déploiement |
+| **PREPROD** | hôte PROD, distinct de la machine DEV | conteneur démarré par le job `🧪 Deploy PREPROD` de `ci.yml` : image du commit (`:sha-<commit>`), réétiquetée `:preprod` en local ; `READ_ONLY=true` et clé anon seule (ADR-028 Option D) | port 3200 lié à la boucle locale ; aucune URL publique ; lu par la CI seule |
+| **PROD** | même hôte | conteneur promu par `deploy-prod.yml`, derrière Caddy (80/443) | trafic réel des utilisateurs |
 
-```
-Machine 1 — VPS DEV (hostname dev-automecanik)
-  Rôle : poste opérateur SSH (code, dev local)
-  Container preprod : NON DÉPLOYÉ ICI (.sops.yaml:27 explicit)
-  Container production : NON DÉPLOYÉ ICI
-  Backend NestJS local éventuel via `npm run dev` (port 3000)
-
-Machine 2 — Hetzner ubuntu-16gb-nbg1-1
-  Rôle 1 : GitHub Actions self-hosted runner hetzner-prod
-  Rôle 2 : Container PREPROD éphémère (port 3200, localhost only)
-           - image :preprod, READ_ONLY=true, APP_URL=http://localhost:3200
-           - cible : E2E Smoke + Lighthouse CI uniquement
-           - aucun humain n'y interagit, aucun domaine public
-  Rôle 3 : Container PRODUCTION live derrière Caddy (ports 80/443)
-           - image :production, trafic réel utilisateurs
-           - www.automecanik.com
-```
-
-**Conséquence critique** : "DEV pré-prod" est une **formule fausse**. DEV et PREPROD vivent sur **deux machines physiques distinctes**, avec des rôles complètement différents (poste opérateur vs container CI éphémère).
+L'hôte PROD porte aussi le runner GitHub Actions auto-hébergé qui exécute ces deux workflows.
 
 ## Décision
 
-Adopter le glossary canon `.claude/rules/deployment.md` du monorepo (livré par PR #590) comme **single source of truth terminologique** pour les environnements de déploiement AutoMecanik. **Amend ADR-001** pour préciser que :
+### D1 — Le vocabulaire se décide ici ; le monorepo l'exécute
 
-1. **DEV** désigne le **poste opérateur** (machine physique 1, `dev-automecanik`). C'est un environnement de travail SSH, sans container deploy déployé.
-2. **PREPROD** désigne le **container CI éphémère** sur la machine physique 2 (co-localisé avec le runner self-hosted), en `READ_ONLY=true`, dont la seule finalité est l'exécution automatique des E2E Smoke + Lighthouse CI après chaque push `main`. **Aucun humain n'interagit avec PREPROD**.
-3. **PROD** désigne le **container live** sur la même machine physique 2, derrière Caddy, exposant le trafic utilisateurs réel via `www.automecanik.com`.
+Ce vocabulaire est fixé par cet ADR et par [[rules-deployment-workflow]] (ADR-101 D1). Dans le
+monorepo, `.claude/rules/deployment.md` le transmet aux agents et
+`scripts/lint/check-preprod-vocabulary.sh` (pre-commit, workflow `preprod-vocabulary-guard.yml`) en
+est la garde mécanique. Ces fichiers exécutent la décision et ne la fondent pas. Un écart entre eux
+et cet ADR est un constat, résolu par une PR du monorepo ou par un ADR d'amendement (ADR-101 D3).
 
-### Règles induites
+La version 1.0.0 faisait de `.claude/rules/deployment.md` la « source de vérité terminologique ».
+Cette formule est retirée : elle inversait le sens fixé par ADR-101.
 
-- Le terme "DEV pré-prod" / "DEV preprod" est **interdit** — il conflate 2 machines distinctes.
-- Le hostname `preprod.automecanik.com` **n'existe pas** ; PREPROD n'a pas d'URL publique.
-- "preprod miroir" est **interdit** — PREPROD est READ_ONLY, pas une réplique.
-- Le terme générique "staging" (compounds deployment : `staging soak/env/server/VPS/deploy/deployment/gate`) est **banni** dans ce repo — utiliser PREPROD ou PROD.
-- Le tag Docker `:preprod` reste utilisé techniquement (alias flottant réécrit à chaque merge main), mais documenté explicitement comme **artefact**, pas comme environnement.
+### D2 — Trois environnements, définis par leur rôle
 
-### Lint guard (defense-in-depth)
+1. **DEV** : la machine opérateur. On y code et on y teste. Aucun conteneur de déploiement n'y
+   tourne. Une fusion sur `main` n'y déploie rien ; le runtime de développement suit `main` par
+   resynchronisation.
+2. **PREPROD** : le conteneur de CI de l'hôte PROD. Il démarre à chaque push sur `main`, en lecture
+   seule sur la base partagée avec PROD (ADR-028 Option D). Il sert à la validation automatique du
+   commit : santé du conteneur, E2E Smoke, Lighthouse. Il n'a pas d'URL publique, et le cycle ne
+   comporte aucune validation humaine.
+3. **PROD** : le conteneur live du même hôte, derrière Caddy, qui sert le trafic réel.
 
-Le canon est appliqué mécaniquement par :
-- `scripts/lint/check-preprod-vocabulary.sh` (script bash, 4 patterns interdits + allowlist canon/errata/CHANGELOG/log)
-- `.husky/pre-commit` (hook local block staged `.md`)
-- `.github/workflows/preprod-vocabulary-guard.yml` (job BLOCKING sur PR + push main)
+**Écart avec ADR-001.** Le tableau d'ADR-001 annonce en PREPROD des « données anonymisées ».
+PREPROD lit en réalité la base de PROD, en lecture seule (ADR-028). Le présent ADR consigne l'état
+réel ; il ne décide ni d'une anonymisation ni d'une base séparée.
 
-Sans guard, la documentation drifte ; avec guard, la régression est impossible mécaniquement. Pattern canon `feedback_no_bricolage_escalate_to_industry_standard` (remonter au niveau structural face à confusion récurrente).
+### D3 — Six objets, six preuves
 
-## Options Considérées
+Chacun de ces objets a sa propre preuve. Aucun ne prouve l'objet suivant.
 
-### Option A: Glossary canon + lint CI (RETENUE)
+| Objet | Ce que c'est | Ce qui le prouve | Ce que cela ne prouve pas |
+|---|---|---|---|
+| **Commit** | un SHA de 40 caractères sur `main` | `git rev-parse`, le commit de fusion de la PR | qu'une image en soit construite, ni qu'il soit déployé |
+| **Tag** | un tag git `v*` posé sur un commit | `git tag --points-at <sha>`, `git rev-parse <tag>^{commit}` | que le déploiement PROD ait réussi |
+| **Image** | `:sha-<commit>` (une par commit, label `org.opencontainers.image.revision`) ; `:preprod`, `:production` et `:production-previous` sont des alias mobiles | l'identifiant d'image et son label `revision` | qu'elle tourne quelque part ; un alias ne désigne pas une version stable |
+| **Environnement** | DEV, PREPROD ou PROD (D2) | le rôle de la machine ou du conteneur | la version qu'il sert |
+| **Preuve CI** | un run `ci.yml` (push `main`) dont `🧪 Deploy PREPROD`, `🎭 E2E Smoke Tests` et `🔦 Lighthouse Performance Audit` sont en `success` ; un run `deploy-prod.yml` en `success` | le statut des jobs pour ce commit | que cette version soit encore servie : un déploiement ou un rollback ultérieur a pu la remplacer |
+| **Version servie** | le commit que l'environnement exécute au moment de la lecture | `/health` de l'environnement, champ `revision`, égal au SHA attendu | rien sur un autre environnement |
 
-**Description** : ship un fichier rule canon + cleanup mémoires + lint automatisé. ADR amend ADR-001. Aucune migration physique (image tag, compose file, workflow job name) — ces renames sont deferred à un Lot 5 séparé, conditionnel à 7 jours de validation lint sans violation.
+« Déployé en PREPROD » ou « déployé en PROD » ne s'écrit qu'avec la version servie de cet
+environnement, lue et datée. Une fusion, un tag ou une CI verte se nomment comme tels.
 
-**Avantages** :
-- Force la cohérence terminologique mécaniquement
-- Zero breaking change runtime/CI
-- Rollback trivial (revert PR)
-- Documentaire + lint pour les humains et Claude AI
-- Coût ~3h30 d'implémentation
+### D4 — Règles de vocabulaire
 
-**Inconvénients** :
-- Le mot "preprod" reste utilisé physiquement (image tag, compose file, workflow job display name) — confusion résiduelle possible sur ces artefacts (mitigée par documentation explicite dans le glossary)
-- Lint allowlist nécessite maintenance
+- « DEV pré-prod » et « DEV preprod » sont interdits : ils amalgament deux machines.
+- PREPROD n'a pas de nom d'hôte public. Aucun document n'en invente un.
+- « PREPROD miroir » et « miroir de PROD » sont interdits : PREPROD est en lecture seule, ce n'est
+  pas une réplique.
+- Le terme « staging » n'est pas employé : on dit PREPROD ou PROD.
+- `:preprod` désigne l'alias Docker, réécrit à chaque push sur `main`. Il ne désigne ni un
+  environnement ni une version.
+- Les documents nomment les machines par leur rôle (« machine DEV », « hôte PROD »), sans adresse IP
+  ni nom d'hôte. Le rôle est stable quand l'adresse change, et le vault est public.
 
-### Option B: Patch surface — corriger les pires occurrences uniquement
+## Options considérées
 
-**Description** : Errata sur les ~10 fichiers les plus visibles, sans canon central ni lint.
+### Option A : vocabulaire décidé au vault, exécuté et vérifié au monorepo (retenue)
 
-**Avantages** :
-- Coût minimal (~30 min)
-- Pas de nouveau guard à maintenir
+Un ADR et une règle du vault, une règle d'agent et un lint dans le monorepo. Aucun renommage
+physique : tag, fichier compose et noms de jobs restent. Ce renommage est l'option C, différée.
 
-**Inconvénients** :
-- **Rejeté** : confusion récurrente sur 3+ sessions = problème structurel, pas patch surface (`feedback_no_bricolage_escalate_to_industry_standard`)
-- Drift inévitable sans guard automatisé
-- Pas de canon → futures contributions ne sauront pas où poser le vocabulaire
+- **Avantages** : cohérence vérifiée mécaniquement ; aucun changement runtime ni CI ; rollback par
+  revert d'une PR.
+- **Inconvénients** : le mot « preprod » reste dans des artefacts (tag, compose, nom de job) ; la
+  liste d'exceptions du lint s'entretient.
 
-### Option C: Renames physiques complets
+### Option B : corriger seulement les pires occurrences
 
-**Description** : Renommer `:preprod` → `:ci-smoke`, `docker-compose.preprod.yml` → `docker-compose.ci-smoke.yml`, job "Deploy PREPROD" → "CI Smoke". Migration en un cycle.
+Errata sur une dizaine de fichiers, sans définition centrale ni lint. **Rejetée** : la confusion est
+revenue sur trois sessions, et sans garde la documentation dérive de nouveau.
 
-**Avantages** :
-- Élimine la source physique du mot confus
-- Aligne nommage avec sémantique réelle
+### Option C : renommages physiques complets
 
-**Inconvénients** :
-- **Rejeté pour V1** : risque > bénéfice immédiat. Branch protection rules pinned par nom de job, badges README, alertes Grafana, scripts de runbook — chaque consumer doit être audité.
-- Deferred au Lot 5 conditionnel post-validation lint 7j (plan migration phasé : aliases → shift → deprecation → remove sur 2+ sprints).
+Renommer `:preprod`, `docker-compose.preprod.yml` et le job `🧪 Deploy PREPROD`. **Différée** :
+les protections de branche, la gate PROD (`prod-preprod-evidence.mjs` cherche ce job par son nom),
+les badges et les runbooks en dépendent. Un renommage demanderait une migration par alias, sur
+plusieurs cycles, et un ADR distinct.
 
 ## Conséquences
 
 ### Positives
 
-- Canon terminologique unifié, chargé à chaque session Claude (rule + CLAUDE.md anchor)
-- 0 violation mécaniquement (510 fichiers `.md` scannés post-cleanup)
-- Réduction du coût cognitif pour nouveaux contributeurs
-- Audit-trail explicite (errata in-place sur les 2 mémoires fictives)
-- Permet rollback trivial chaque lot
+- Un vocabulaire unique, décidé au vault et vérifié dans le monorepo.
+- Une fusion, un tag, une CI verte et une version servie ne se confondent plus dans un rapport.
 
 ### Négatives
 
-- Le mot "preprod" reste utilisé techniquement (image tag, compose file) — légère dissonance maintenue jusqu'au Lot 5 deferred
-- Allowlist du lint à maintenir si nouveaux paths errata ou docs canon doivent contourner
+- Le mot « preprod » demeure dans des noms techniques jusqu'à une éventuelle option C.
+- La liste d'exceptions du lint reste à entretenir.
 
 ### Neutres
 
-- ADR-001 reste actif (séparation logique 3-env intacte) ; ADR-075 ajoute la précision physique
-- Le Lot 5 (renames) reste optionnel, conditionné à evidence empirique post-déploiement
+- ADR-001 reste en vigueur pour la séparation logique des trois environnements.
+
+## Ce que cet ADR ne fait pas
+
+- Il ne modifie ni workflow, ni image, ni conteneur, ni configuration d'environnement.
+- Il ne modifie pas le monorepo. Sur `main` (`6ab7854c2`), `.claude/rules/deployment.md` contient
+  encore des adresses IP, un rollback PREPROD par push direct sur `main` (branche protégée), un
+  rollback PROD par SSH et l'affirmation que la branche `dev` déploie comme `main` (le job
+  `🧪 Deploy PREPROD` ne part que de `main`). Ce sont des constats au sens de D1, à corriger par une
+  PR du monorepo.
+- Il ne décide pas d'anonymiser les données PREPROD (D2).
+- Il ne réécrit pas les documents historiques qui emploient l'ancien vocabulaire.
+
+## Mise en œuvre
+
+| Élément | État au 2026-11-01 |
+|---|---|
+| PR monorepo #590 (règle d'agent, lint, hook, workflow) | fusionnée le 2026-05-18 (`345b96809d59fe675a6bb4fa8d97a7d27dd0b1c4`) |
+| `scripts/lint/check-preprod-vocabulary.sh`, `.husky/pre-commit`, `preprod-vocabulary-guard.yml` | présents sur `main` du monorepo |
+| [[rules-deployment-workflow]] 2.0.0 | réécrite dans cette PR : déclencheurs, promotion, rollback, six preuves |
+| `ops/moc/MOC-Knowledge.md` | la note historique sur `gh pr merge --admin` est signalée comme remplacée |
+| `ops/moc/MOC-Decisions.md` | index régénéré (`sync_moc_decisions.py --write`) |
 
 ## Critères de succès
 
-- [ ] PR monorepo #590 mergée
-- [ ] Lint workflow `Preprod vocabulary guard` vert sur main
-- [ ] Repo-wide scan `bash scripts/lint/check-preprod-vocabulary.sh` → `✅ 0 violations`
-- [ ] Test cognitif Claude : nouvelle session répond "PREPROD = container CI sur runner 49.12.233.2, pas un VPS séparé" au prompt "Sur quelle machine tourne PREPROD ?"
-- [ ] 7 jours sans violation détectée → Lot 5 (renames physiques) peut être considéré
-
-## Self-review verdict
-
-**Self-review verdict: APPROVE**
-
-**Checklist 8 items** :
-
-1. ✅ ADR référence ADR-001 explicitement (relation amend documentée)
-2. ✅ Status `proposed` initial — passe à `accepted` après merge PR monorepo #590 + 24-48h observation
-3. ✅ Topologie physique vérifiée par 4 sources canoniques distinctes (`.sops.yaml`, `docker-compose.preprod.yml`, `ci.yml`, `deploy-prod.yml`)
-4. ✅ Décision énonce le canon AVANT les règles induites (structure logique)
-5. ✅ Options considérées incluent une rejected alternative explicite (Option B patch surface) + une deferred (Option C renames)
-6. ✅ Conséquences distingue positives / négatives / neutres avec honnêteté (ne sur-promet pas l'élimination complète du mot "preprod")
-7. ✅ Critères de succès empiriquement mesurables (lint repo-wide + test cognitif)
-8. ✅ Lien explicite vers PR monorepo qui implémente le canon (#590) — l'ADR ne flotte pas isolée
+- [x] PR monorepo #590 fusionnée.
+- [ ] `bash scripts/lint/check-preprod-vocabulary.sh` sur `main` du monorepo : 0 violation.
+- [ ] `.claude/rules/deployment.md` aligné sur D2 à D4 par une PR du monorepo.
+- [ ] Une session neuve à qui l'on demande « sur quelle machine tourne PREPROD ? » répond « dans un
+  conteneur de CI sur l'hôte PROD, pas sur la machine DEV ».
 
 ## Liens
 
-- ADR-001 (amend) : [ADR-001-environment-separation.md](ADR-001-environment-separation.md)
-- ADR-028 (Option D read-only PREPROD) : [ADR-028-preprod-supabase-isolation.md](ADR-028-preprod-supabase-isolation.md)
-- Monorepo PR : https://github.com/ak125/nestjs-remix-monorepo/pull/590
-- Canon SoT (monorepo) : `.claude/rules/deployment.md` (vit dans le monorepo, chargé à chaque session Claude)
-- Lint guard : `scripts/lint/check-preprod-vocabulary.sh` + `.github/workflows/preprod-vocabulary-guard.yml`
+- [[ADR-001-environment-separation]] (amendé)
+- [[ADR-028-preprod-supabase-isolation]] (PREPROD en lecture seule, Option D)
+- [[ADR-101-vault-decides-canon-authority]] (le vault décide, le monorepo exécute)
+- [[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4]] (G4 : écriture par PR, fusion humaine)
+- [[rules-deployment-workflow]], [[rules-technical]] (T6)
+- Monorepo : PR #590 ; `.claude/rules/deployment.md` ; `scripts/lint/check-preprod-vocabulary.sh`
 
 ---
-_Dernière mise à jour : 2026-05-18_
+_Dernière mise à jour : 2026-11-01_

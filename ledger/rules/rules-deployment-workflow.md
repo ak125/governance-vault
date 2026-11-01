@@ -2,81 +2,115 @@
 type: rules-document
 status: canon
 scope: deployment
-updated: 2026-04-21
-related_adrs: []
+updated: 2026-11-01
+related_adrs: [ADR-028, ADR-075, ADR-101]
 related_incidents: [INC-2026-007-false-prod-claim-on-main-merge]
 ---
 
-# Rules — Deployment Workflow (DEV preprod vs PROD via tag)
+# Rules — Deployment Workflow (PREPROD par `main`, PROD par tag)
 
-> **Source de vérité** : triggers CI/CD au 2026-04-21
-> **Version** : 1.0.0 | **Status** : CANON
-> **Incident racine** : annonce erronée "déployé en prod" après merge PR #86 sur main (2026-04-21), corrigée explicitement par l'owner.
+> **Version** : 2.0.0 | **Status** : CANON (règle du vault, normative au sens de G1)
+> **État décrit** : `main` du monorepo au 2026-11-01 (`6ab7854c2adf15e3e588f8a73e4f9085ecaeee5d`)
+> **Incident racine** : [[2026-04-21-false-prod-claim-on-main-merge|INC-2026-007]], une fusion sur
+> `main` annoncée comme un déploiement PROD.
+> **2.0.0** : la 1.0.0 plaçait le déploiement de `main` sur la machine DEV et prescrivait
+> `gh pr merge --admin`, un rollback par push direct sur `main` et un rollback PROD par SSH. Elle
+> contredisait T6 ([[rules-technical]], corrigée par [[ADR-101-vault-decides-canon-authority|ADR-101]])
+> et G4 ([[rules-vault]]). Le vocabulaire suit [[ADR-075-deployment-topology-clarification|ADR-075]]
+> (proposé).
 
 ---
 
-## D1 — Deploy Triggers
+## D1 — Déclencheurs
 
-Deux environnements, deux triggers git **distincts et non substituables**.
+Deux déclencheurs, distincts et non substituables.
 
-| Trigger git | Workflow GitHub Actions | Image Docker | VPS cible | Environnement |
-|-------------|-------------------------|--------------|-----------|----------------|
-| `git push origin main` | [`.github/workflows/ci.yml`](https://github.com/ak125/nestjs-remix-monorepo/blob/main/.github/workflows/ci.yml) job `deploy` (condition `github.ref == 'refs/heads/main'`) | `massdoc/nestjs-remix-monorepo:preprod` | DEV 46.224.118.55 | **DEV pré-prod** |
-| `git push origin dev` | idem (condition inclut `dev`) | idem | idem | **DEV pré-prod** |
-| `git push origin v*` (tag semver) | [`.github/workflows/deploy-prod.yml`](https://github.com/ak125/nestjs-remix-monorepo/blob/main/.github/workflows/deploy-prod.yml) (`on.push.tags: 'v*'`) | promote `preprod` → `massdoc/nestjs-remix-monorepo:production` + tag version | PROD 49.12.233.2 | **PROD** |
-| `workflow_dispatch` sur `deploy-prod.yml` | idem | idem | idem | **PROD** |
+| Déclencheur | Workflow du monorepo | Image | Environnement | Validation |
+|---|---|---|---|---|
+| Fusion d'une PR sur `main` (push `main`) | `ci.yml` : `🐳 build` (via `build.yml`), puis `🧪 Deploy PREPROD`, `🎭 E2E Smoke Tests`, `🔦 Lighthouse Performance Audit` | `build.yml` publie `:sha-<commit>` et déplace l'alias `:preprod` | **PREPROD** : conteneur de CI sur l'hôte PROD, port 3200 sur la boucle locale, `READ_ONLY=true` | automatique, sans humain |
+| Push d'un tag `v*`, ou `workflow_dispatch` de `Deploy PROD (via tag)` sur ce tag | `deploy-prod.yml` | promotion de `:sha-<commit du tag>` vers `:production` | **PROD** : conteneur live derrière Caddy | décision de l'owner : le tag |
+
+- Rien ne déploie sur la machine DEV. Son runtime de développement suit `main` par
+  resynchronisation (`scripts/ops/sync-dev-runtime.sh`).
+- `ci.yml` se déclenche aussi sur un push `dev`, mais `build.yml` et `🧪 Deploy PREPROD` ne
+  publient et ne déploient que depuis `main`. Au 2026-11-01, la branche `dev` n'existe pas sur le
+  dépôt distant.
 
 ## D2 — Règle mnémonique
 
-> **`main` = DEV. `v*` = PROD.**
+> **`main` = PREPROD. `v*` = PROD.**
 
-Simple, sans exception. Si tu doutes, regarde le workflow file, pas la doc.
+En cas de doute, lire le workflow, pas la documentation.
 
 ## D3 — Interdictions
 
-- **NE PAS annoncer "déployé en prod"** après un simple merge sur main. C'est factuellement faux. Le merge main déclenche uniquement le deploy DEV.
-- **NE PAS pousser directement sur `production` VPS**. Le seul chemin vers prod = tag `v*` ou `workflow_dispatch` manuel.
-- **NE PAS utiliser `latest` tag** (commenté dans `build.yml:50`). Toujours `preprod` ou `production` ou semver explicite.
+- **Ne pas annoncer « déployé en PROD »** après une fusion sur `main` : la fusion déploie PREPROD.
+- **Ne pas écrire « déployé » sans la version servie** de l'environnement (D6).
+- **Ne pas pousser directement sur `main`** : la branche est protégée, tout passe par une PR (T6).
+- **Ne pas contourner la protection de `main`** : ni `gh pr merge --admin`, ni désactivation de
+  check, ni fusion par un agent (G4.2).
+- **Ne pas déployer PROD hors de `deploy-prod.yml`** : son chemin vérifie la preuve PREPROD et
+  capture le point de rollback.
+- **Ne pas utiliser le tag `latest`.** Un alias (`:preprod`, `:production`) ne sert pas de référence
+  de version : citer le commit, le tag `v*` ou `:sha-<commit>`.
 
-## D4 — Workflow nominal promote DEV → PROD
+## D4 — Promotion PREPROD → PROD
 
-```bash
-# 1. Merger PR sur main → déclenche deploy DEV automatique
-gh pr merge {PR} --repo ak125/nestjs-remix-monorepo --squash --admin --delete-branch
-
-# 2. Valider en DEV sur 46.224.118.55 (tests manuels + monitoring)
-
-# 3. Créer un tag semver + push → déclenche deploy PROD
-git checkout main && git pull
-git tag v2.1.0
-git push origin v2.1.0
-```
-
-Alternative UI : Actions → "Deploy PROD (via tag)" → Run workflow (utile si hotfix depuis un tag existant).
+1. La PR est fusionnée par l'owner, sous la protection de `main`. Un agent prépare et remet le
+   numéro, le SHA de tête et la commande ; il ne fusionne pas.
+2. `ci.yml` construit `:sha-<commit>`, déploie PREPROD et vérifie que le conteneur sert ce commit
+   (`/health`, champ `revision`), puis lance E2E Smoke et Lighthouse.
+3. L'owner choisit un commit dont les trois jobs `🧪 Deploy PREPROD`, `🎭 E2E Smoke Tests` et
+   `🔦 Lighthouse Performance Audit` sont en `success`. Un run annulé par une fusion suivante ne
+   valide pas son commit : prendre le dernier commit vert. Il note aussi le tag `v*` de la version
+   en service, qui sert de point de retour (D5).
+4. L'owner pose le tag `v*` sur ce commit et le pousse. Le tag est une décision de l'owner, jamais
+   celle d'un agent.
+5. `deploy-prod.yml`, avant toute mutation, refuse un commit sans ces trois jobs verts
+   (`scripts/ci/prod-preprod-evidence.mjs`), capture l'image en service comme point de rollback et
+   vérifie que `:sha-<commit>` porte le bon label `revision`. Il déplace ensuite `:production`,
+   redémarre PROD et contrôle `/health` (`revision` égal au commit du tag).
 
 ## D5 — Rollback
 
 | Environnement | Procédure |
-|---------------|-----------|
-| **DEV** | `git revert HEAD && git push origin main` → redéclenche deploy DEV avec ancien code |
-| **PROD** | `ssh 49.12.233.2` + `docker pull massdoc/nestjs-remix-monorepo:v2.0.9 && docker compose up -d` (substituer par le tag à restaurer) |
+|---|---|
+| **PREPROD** | PR de revert du commit fautif, fusionnée par l'owner. Le push `main` qui en résulte relance le cycle D1. Jamais de push direct ni de force-push sur `main`. |
+| **PROD, pendant un déploiement** | Automatique : après le point de non-retour, tout échec déclenche `⏪ Rollback PROD`, qui redémarre l'image capturée avant la mutation. |
+| **PROD, après un déploiement réussi** | Relancer `Deploy PROD (via tag)` (`workflow_dispatch`) sur le tag `v*` de la version à restaurer. Ce chemin repasse par les contrôles de D4.5. |
+| **PROD, workflow indisponible** | Intervention manuelle de l'owner sur l'hôte PROD, par la console de l'hébergeur. Aucun agent n'intervient sur PROD. |
 
-Ne jamais rollback PROD via `git revert + push main` — ça rollback DEV, pas prod.
+Un revert sur `main` ne restaure jamais PROD : il redéploie PREPROD.
 
-## D6 — Sources de vérité
+## D6 — Six objets, six preuves
 
-- Workflow files : `.github/workflows/ci.yml` (DEV) + `.github/workflows/deploy-prod.yml` (PROD)
-- Dashboard : https://github.com/ak125/nestjs-remix-monorepo/actions
-- Rules monorepo : `.claude/rules/deployment.md` (alignée sur cette règle canon)
+| Objet | Preuve | Ne prouve pas |
+|---|---|---|
+| Commit sur `main` | SHA de 40 caractères, commit de fusion de la PR | qu'une image existe ou qu'elle soit déployée |
+| Tag `v*` | `git tag --points-at <sha>` | que le déploiement PROD ait réussi |
+| Image | identifiant d'image et label `org.opencontainers.image.revision` de `:sha-<commit>` | qu'elle tourne ; un alias ne désigne pas une version |
+| Environnement | son rôle (ADR-075 D2) | la version qu'il sert |
+| Preuve CI | jobs en `success` sur le run `ci.yml` du commit, run `deploy-prod.yml` en `success` | que la version soit encore servie |
+| Version servie | `/health` de l'environnement, `revision` égal au SHA attendu, lu et daté | quoi que ce soit sur un autre environnement |
+
+Sources : `.github/workflows/ci.yml`, `.github/workflows/build.yml`,
+`.github/workflows/deploy-prod.yml`, `docker-compose.preprod.yml` et
+`scripts/ci/prod-preprod-evidence.mjs` du monorepo. `.claude/rules/deployment.md` transmet cette
+règle aux agents du monorepo ; un écart entre les deux est un constat (ADR-101 D3).
 
 ## Mapping historique
 
 | Date | Événement |
 |------|-----------|
-| 2026-04-21 | Incident annonce erronée "prod dans 10 min" après merge PR #86 → owner corrige → création de cette règle |
-| 2026-04-21 | PR #91 monorepo corrige `.claude/rules/deployment.md` pour refléter cette réalité |
+| 2026-04-21 | Fusion de la PR #86 annoncée comme un déploiement PROD ; l'owner corrige ; création de cette règle (1.0.0) |
+| 2026-04-21 | PR monorepo #91 : `.claude/rules/deployment.md` aligné sur la 1.0.0 |
+| 2026-05-18 | PR monorepo #590 : vocabulaire DEV / PREPROD / PROD et lint (ADR-075) |
+| 2026-11-01 | 2.0.0 : PREPROD sur l'hôte PROD, sans `--admin` ni push direct, rollback PROD par le workflow ou par l'owner, six preuves |
 
 ## Références
 
-- ADR-012 (vault) — 3-VPS architecture (DEV/PROD/AI-COS split)
-- Rules technical (`rules-technical.md`) — complément docker/caddy/redis
+- [[ADR-075-deployment-topology-clarification]] (proposé) — vocabulaire et topologie
+- [[ADR-028-preprod-supabase-isolation]] — PREPROD en lecture seule
+- [[ADR-101-vault-decides-canon-authority]] — le vault décide, le monorepo exécute
+- [[rules-technical]] (T6), [[rules-vault]] (G4)
+- [[rules-engineering-definition-of-done]] — DoD7 nomme le watcher du déploiement
