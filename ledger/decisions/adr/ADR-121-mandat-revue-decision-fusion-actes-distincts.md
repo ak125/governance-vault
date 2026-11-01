@@ -283,9 +283,9 @@ Après la ratification et la fusion :
 1. La resynchronisation de l'AEC ouvre la PR `canon-sync/auto` du monorepo ; l'owner la fusionne
    (D5). Les copies des dépôts wiki et raw se mettent à jour par une PR ordinaire ; d'ici là, leur
    workflow `agent-exit-contract-hash.yml` signale l'écart. Les miroirs ne s'éditent pas à la main.
-2. Monorepo, par PR ordinaire : le skill `governance-vault-ops` décrit les statuts normatifs selon D6 ;
-   le manifeste du skill `v5-guardian` (`workspaces/seo-batch`) et la mention « AEC v1.0.0 » de
-   `workspaces/marketing/CLAUDE.md` suivent l'AEC 1.1.0. La copie
+2. Monorepo et, pour la copie wiki, vault, par PR ordinaire : le skill `governance-vault-ops` décrit
+   les statuts normatifs selon D6 ; le manifeste du skill `v5-guardian` (`workspaces/seo-batch`) et
+   la mention « AEC v1.0.0 » de `workspaces/marketing/CLAUDE.md` suivent l'AEC 1.1.0. La copie
    `workspaces/wiki/.claude/canon-mirrors/agent-exit-contract.md` n'est déclarée ni dans le
    manifeste des consommateurs ni dans `agent-exit-contract-hash.yml` : son écart reste invisible
    tant qu'elle n'y est pas déclarée. Pour la déclarer, une PR du vault l'ajoute aux consommateurs de
