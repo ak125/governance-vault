@@ -4,7 +4,7 @@ status: canon
 scope: deployment
 updated: 2026-11-01
 related_adrs: [ADR-028, ADR-075, ADR-101, ADR-102]
-related_incidents: [INC-2026-007-false-prod-claim-on-main-merge]
+related_incidents: [INC-2026-007]
 ---
 
 # Rules — Deployment Workflow (PREPROD par `main`, PROD par tag)
@@ -35,6 +35,9 @@ Deux déclencheurs, distincts et non substituables.
 - `ci.yml` se déclenche aussi sur un push `dev`, mais `build.yml` et `🧪 Deploy PREPROD` ne
   publient et ne déploient que depuis `main`. Au 2026-11-01, la branche `dev` n'existe pas sur le
   dépôt distant.
+- Un push `main` qui modifie `scripts/monitoring/*.sh` lance aussi `deploy-monitoring-scripts.yml`,
+  qui installe ces scripts dans `/usr/local/bin` de l'hôte PROD, hors des conteneurs. Ce n'est pas un
+  déploiement d'environnement, mais la fusion d'une telle PR modifie l'hôte PROD.
 
 ## D2 — Règle mnémonique
 
@@ -54,9 +57,11 @@ En cas de doute, lire le workflow, pas la documentation.
   exigences de la protection, ni la désactivation d'un check.
 - **Ne pas déployer PROD hors de `deploy-prod.yml`** : son chemin vérifie la preuve PREPROD et
   capture le point de rollback.
-- **Ne pas lancer `Deploy PROD (via tag)` sur une branche.** Le `workflow_dispatch` l'accepte et
-  déploierait le commit de tête de la branche, sans tag `v*` : la décision de l'owner n'aurait pas de
-  preuve (D6). Le workflow ne le bloque pas (constat d'ADR-075).
+- **Ne lancer `Deploy PROD (via tag)` que sur un tag `v*`.** Le formulaire du `workflow_dispatch`
+  propose `main` par défaut. Lancé sur `main`, ou sur une branche dont la tête est un commit de
+  `main` validé par PREPROD, le workflow déploierait ce commit sans tag `v*` et publierait l'image
+  sous le nom de la ref (`:main`) : la décision de l'owner n'aurait pas de preuve (D6). Il ne le
+  bloque pas (constat d'ADR-075). Sur une autre branche, la preuve PREPROD manque et il refuse.
 - **Ne pas utiliser le tag `latest`.** Un alias (`:preprod`, `:production`) ne sert pas de référence
   de version : citer le commit, le tag `v*` ou `:sha-<commit>`.
 
@@ -72,10 +77,11 @@ En cas de doute, lire le workflow, pas la documentation.
    en service, qui sert de point de retour (D5).
 4. L'owner pose le tag `v*` sur ce commit et le pousse. Le tag est une décision de l'owner, jamais
    celle d'un agent.
-5. `deploy-prod.yml`, avant toute mutation, refuse un commit sans ces trois jobs verts
-   (`scripts/ci/prod-preprod-evidence.mjs`), capture l'image en service comme point de rollback et
-   vérifie que `:sha-<commit>` porte le bon label `revision`. Il déplace ensuite `:production`,
-   redémarre PROD et contrôle `/health` (`revision` égal au commit du tag).
+5. `deploy-prod.yml` refuse d'abord, sans rien modifier, un commit sans ces trois jobs verts
+   (`scripts/ci/prod-preprod-evidence.mjs`). Il capture ensuite l'image en service comme point de
+   rollback (alias `:production-previous`, poussé au registre), vérifie que `:sha-<commit>` porte le
+   bon label `revision` et la publie sous le nom du tag. Il déplace enfin `:production`, redémarre
+   PROD et contrôle `/health` (`revision` égal au commit du tag).
 
 ## D5 — Rollback
 
@@ -83,23 +89,32 @@ En cas de doute, lire le workflow, pas la documentation.
 |---|---|
 | **PREPROD** | PR de revert du commit fautif, fusionnée selon D4.1. Le push `main` qui en résulte relance le cycle D1. Jamais de push direct ni de force-push sur `main`. |
 | **PROD, pendant un déploiement** | Automatique : après le point de non-retour, tout échec déclenche `⏪ Rollback PROD`, qui redémarre l'image capturée avant la mutation. |
-| **PROD, après un déploiement réussi** | Relancer `Deploy PROD (via tag)` (`workflow_dispatch`) sur le tag `v*` de la version à restaurer, dans les limites ci-dessous. |
-| **PROD, workflow indisponible ou tag refusé** | Intervention manuelle de l'owner sur l'hôte PROD, par la console de l'hébergeur. Aucun agent ne modifie PROD ; lire son `/health` (D6) n'est pas une modification. |
+| **PROD, après un déploiement réussi** | L'owner relance `Deploy PROD (via tag)` (`workflow_dispatch`) sur le tag `v*` de la version à restaurer, dans les limites ci-dessous. |
+| **PROD, workflow indisponible, tag refusé ou tag sans garde** | Intervention manuelle de l'owner sur l'hôte PROD, par la console de l'hébergeur. Aucun agent ne modifie PROD ; lire son `/health` (D6) n'est pas une modification. |
 
 Le run relancé exécute le `deploy-prod.yml` **du tag choisi**, pas celui de `main`. Ses contrôles
-dépendent donc de l'âge du tag :
+dépendent donc des commits que contient le tag (302 tags `v*` au 2026-11-01) :
 
-- tag qui contient les PR monorepo #1881 et #1884 (2026-10-24) : contrôles complets de D4.5, dont
-  `/health` `revision` ;
-- tag antérieur qui contient #1696 (2026-10-02) : preuve PREPROD et provenance de `:sha-<commit>`
-  vérifiées ; ni contrôle de version servie, ni champ `revision` dans `/health`, donc pas de preuve
-  D6 de la version servie ;
-- tag antérieur à #1696 : son workflow promeut l'alias `:preprod` et s'arrête si son label
-  `revision` diffère du commit du tag, avant de toucher `:production` et le conteneur PROD. Ligne
-  « tag refusé ».
+- tag qui contient les PR monorepo #1881, #1884 et #1887 (2026-10-24 et 2026-10-25 ; au 2026-11-01,
+  seul le tag du 2026-10-30) : contrôles complets de D4.5, dont `/health` `revision` ;
+- tag qui contient #1696 (2026-10-02) mais pas #1881 (13 tags) : preuve PREPROD et provenance de
+  `:sha-<commit>` vérifiées ; ni contrôle de version servie, ni champ `revision` dans `/health`, donc
+  pas de preuve D6 de la version servie ;
+- tag qui contient le commit monorepo `ed10ec6e5` (2026-04-21) mais pas #1696 (94 tags) : son
+  workflow s'arrête si le label `revision` de l'alias `:preprod` diffère du commit du tag, avant de
+  toucher `:production` et le conteneur PROD. L'alias suit `main` : le refus est la règle dès qu'un
+  commit plus récent a été construit. Ligne « tag refusé » ;
+- tag qui ne contient pas `ed10ec6e5` (194 tags) : **aucune garde**. Son workflow promeut l'alias
+  `:preprod` courant vers `:production` et redémarre PROD, quel que soit le commit de l'alias. Ne
+  jamais le relancer : ligne « tag sans garde ».
 
-Ce chemin suppose aussi que `:sha-<commit>` est encore dans le registre et que le run `ci.yml` de ce
-commit est lisible ; sinon le workflow refuse avant toute mutation.
+Pour un tag qui contient #1696, ce chemin suppose aussi que le run `ci.yml` du commit est lisible et
+que `:sha-<commit>` est encore dans le registre. Sans le run, le workflow refuse avant toute
+mutation. Sans l'image, il refuse avant de toucher `:production` et le conteneur PROD, mais après
+avoir réétiqueté `:production-previous` sur l'image en service et l'avoir poussé : un run refusé
+remplace le point de retour précédent. Après un tel refus, l'intervention manuelle ne s'appuie pas
+sur `:production-previous` ; elle désigne l'image à restaurer par `:sha-<commit>` ou par le tag
+Docker poussé à son déploiement (nom du tag `v*`).
 
 Un revert sur `main` ne change pas PROD : il redéploie PREPROD. PROD ne change que par D4 ou par une
 ligne de ce tableau.
@@ -116,8 +131,9 @@ ligne de ce tableau.
 | Version servie | `/health` de l'environnement, `revision` égal au SHA attendu, lu et daté | quoi que ce soit sur un autre environnement |
 
 Sources : `.github/workflows/ci.yml`, `.github/workflows/build.yml`,
-`.github/workflows/deploy-prod.yml`, `docker-compose.preprod.yml` et
-`scripts/ci/prod-preprod-evidence.mjs` du monorepo. `.claude/rules/deployment.md` transmet cette
+`.github/workflows/deploy-prod.yml`, `.github/workflows/deploy-monitoring-scripts.yml`,
+`docker-compose.preprod.yml` et `scripts/ci/prod-preprod-evidence.mjs` du monorepo, ainsi que le
+`deploy-prod.yml` de chaque tag `v*`. `.claude/rules/deployment.md` transmet cette
 règle aux agents du monorepo ; un écart entre les deux est un constat (ADR-101 D3).
 
 ## Mapping historique

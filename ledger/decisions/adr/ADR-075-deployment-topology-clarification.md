@@ -11,7 +11,7 @@ amends: ["ADR-001"]
 extends: []
 related_adr: ["ADR-028", "ADR-101", "ADR-102", "ADR-120"]
 related_rules: ["rules-deployment-workflow", "T6", "G1", "G4"]
-related_incidents: ["INC-2026-007-false-prod-claim-on-main-merge"]
+related_incidents: ["INC-2026-007"]
 reviewed_by: ""
 ---
 
@@ -21,7 +21,7 @@ reviewed_by: ""
   n'est normatif avant la ratification (section « Ratification ») et la fusion
   ([[ADR-101-vault-decides-canon-authority|ADR-101]] D1).
 - **Amende** [[ADR-001-environment-separation|ADR-001]] : il précise la topologie que ce dernier ne
-  décrit pas et relève un écart entre son tableau et l'état réel (D2).
+  décrit pas et relève deux écarts entre ADR-001 et l'état réel (D2).
 - **Révision 1.1.0** : réconciliation avec ADR-101 (le vault décide, le monorepo exécute), retrait
   des adresses IP et des noms d'hôte au profit des rôles, ajout de la promotion, du rollback et de la
   distinction entre commit, tag, image, environnement, preuve CI et version servie.
@@ -50,8 +50,8 @@ preuve qu'une version est servie.
 
 ### Topologie réelle (2026-11-01)
 
-Sources : `.sops.yaml`, `docker-compose.preprod.yml`, `.github/workflows/ci.yml`,
-`.github/workflows/deploy-prod.yml` du monorepo.
+Sources : `.sops.yaml`, `docker-compose.preprod.yml` et, sous `.github/workflows/`, `ci.yml`,
+`build.yml`, `deploy-prod.yml` et `deploy-monitoring-scripts.yml` du monorepo.
 
 | Rôle | Machine | Ce qui y tourne | Accès |
 |---|---|---|---|
@@ -59,9 +59,11 @@ Sources : `.sops.yaml`, `docker-compose.preprod.yml`, `.github/workflows/ci.yml`
 | **PREPROD** | hôte PROD, distinct de la machine DEV | conteneur démarré par le job `🧪 Deploy PREPROD` de `ci.yml` : image du commit (`:sha-<commit>`), réétiquetée `:preprod` en local ; `READ_ONLY=true` et clé anon seule (ADR-028 Option D) | port 3200 lié à la boucle locale ; aucune URL publique ; lu par la CI, ou en local sur l'hôte |
 | **PROD** | même hôte | conteneur promu par `deploy-prod.yml`, derrière Caddy (80/443) | trafic réel des utilisateurs |
 
-L'hôte PROD porte aussi le runner GitHub Actions auto-hébergé. Il exécute `deploy-prod.yml` et, dans
-`ci.yml`, les jobs `🧪 Deploy PREPROD`, `🎭 E2E Smoke Tests` et `🔦 Lighthouse Performance Audit` ;
-`build.yml` et les autres jobs tournent sur des runners hébergés par GitHub.
+L'hôte PROD porte aussi le runner GitHub Actions auto-hébergé (`runs-on: [self-hosted, Linux, X64]`) :
+`deploy-prod.yml` y inspecte le conteneur PROD local. Sur `main`, neuf workflows y ont au moins un
+job, dont `deploy-prod.yml`, les jobs `🧪 Deploy PREPROD`, `🎭 E2E Smoke Tests` et
+`🔦 Lighthouse Performance Audit` de `ci.yml`, et `deploy-monitoring-scripts.yml`, qui installe des
+scripts de surveillance sur l'hôte lui-même. `build.yml` tourne sur un runner hébergé par GitHub.
 
 ## Décision
 
@@ -172,10 +174,14 @@ plusieurs cycles, et un ADR distinct.
   rollback PROD par SSH et l'affirmation que la branche `dev` déploie comme `main` (le job
   `🧪 Deploy PREPROD` ne part que de `main`). Ce sont des constats au sens de D1, à corriger par une
   PR du monorepo.
-- Il n'ajoute aucune garde à `deploy-prod.yml`. Ce workflow accepte un `workflow_dispatch` sur une
-  branche et ne contrôle que la forme du nom de la ref : il déploierait alors le commit de tête de la
-  branche sans tag `v*`. [[rules-deployment-workflow]] l'interdit (D3) ; une garde mécanique relève
-  d'une PR du monorepo.
+- Il n'ajoute aucune garde à `deploy-prod.yml`. Ce workflow accepte un `workflow_dispatch` sur toute
+  ref et n'en contrôle que la forme du nom. Lancé sur `main`, ou sur une branche dont la tête est un
+  commit de `main` validé par PREPROD, il déploierait ce commit sans tag `v*` et publierait l'image
+  sous le nom de la ref (`:main`) ; sur une autre branche, la preuve PREPROD manque et il refuse.
+  Relancé sur un tag qui ne contient pas le commit `ed10ec6e5` (2026-04-21 ; 194 tags sur 302), il
+  exécute le workflow de ce tag, sans aucune garde : il promeut l'alias `:preprod` courant vers PROD. [[rules-deployment-workflow]] interdit ces
+  lancements (D3, D5). Une garde mécanique relève d'une PR du monorepo ; le workflow d'un ancien tag
+  reste figé dans ce tag.
 - Il ne décide pas d'anonymiser les données PREPROD ni de changer le mode du RPC gate (D2).
 - Il ne réécrit pas les documents historiques qui emploient l'ancien vocabulaire.
 
@@ -186,6 +192,7 @@ plusieurs cycles, et un ADR distinct.
 | PR monorepo #590 (règle d'agent, lint, hook, workflow) | fusionnée le 2026-05-18 (`345b96809d59fe675a6bb4fa8d97a7d27dd0b1c4`) |
 | `scripts/lint/check-preprod-vocabulary.sh`, `.husky/pre-commit`, `preprod-vocabulary-guard.yml` | présents sur `main` du monorepo |
 | [[rules-deployment-workflow]] 2.0.0 | réécrite dans cette PR : déclencheurs, promotion, rollback, six preuves |
+| `.claude/rules/deployment.md` du monorepo | PR monorepo #1949 (brouillon) l'aligne sur cette révision ; elle suivra toute correction de celle-ci |
 | `ops/moc/MOC-Knowledge.md` | les mentions de `gh pr merge --admin` et d'auto-fusion des notes historiques sont signalées comme une pratique de l'époque |
 | `ops/moc/MOC-Decisions.md` | index régénéré (`sync_moc_decisions.py --write`) |
 
