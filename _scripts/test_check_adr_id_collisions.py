@@ -45,7 +45,7 @@ def runner(main=MAIN, prs=(), remote=SHA, fail=(), rest=None):
             raise subprocess.CalledProcessError(1, cmd)
         return {
             "rev-parse": SHA + "\n",
-            "ls-tree": "\n".join(main) + "\n",
+            "ls-tree": "\0".join(main) + "\0",
             "ref": remote + "\n",
             "list": json.dumps(list(prs)),
             "paginate": "\n".join((rest or {}).get(cmd[3], [])),
@@ -154,3 +154,46 @@ def test_missing_file_list_is_incomplete(capsys):
     code, out = check(capsys, prs=[broken])
     assert code == 2
     assert "#9" in out
+
+
+def test_main_listing_is_root_relative_and_nul_separated():
+    calls = []
+    run = runner()
+
+    def spy(cmd):
+        calls.append(cmd)
+        return run(cmd)
+
+    col.collect("/vault", col.DEFAULT_REPO, 500, spy)
+    ls_tree = next(c for c in calls if "ls-tree" in c)
+    assert "--full-tree" in ls_tree and "-z" in ls_tree
+
+
+def test_main_without_adr_is_incomplete(capsys):
+    code, out = check(capsys, main=[], prs=[pr(7, ADR + "ADR-002-x.md")])
+    assert code == 2
+    assert "aucun ADR" in out
+    assert "Prochain identifiant" not in out
+
+
+def test_unreadable_main_listing_is_incomplete(capsys):
+    code, out = check(capsys, fail={"ls-tree"})
+    assert code == 2
+    assert "main illisible" in out
+
+
+def test_empty_github_main_is_incomplete(capsys):
+    code, out = check(capsys, remote="")
+    assert code == 2
+    assert "reponse vide" in out
+
+
+def test_non_ascii_adr_path_on_main_is_read(capsys):
+    code, out = check(capsys, "--json", main=[ADR + "ADR-001-d\u00e9cision.md"], prs=[pr(7, ADR + "ADR-001-x.md")])
+    assert code == 1
+    assert kinds(out) == ["collision-main"]
+
+
+def test_invalid_arguments_exit_2(capsys):
+    for args in (["--limit"], ["--limit", "abc"], ["--repo"]):
+        assert col.main(["check", "/vault", *args], runner()) == 2

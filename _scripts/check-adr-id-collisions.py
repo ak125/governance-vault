@@ -12,7 +12,8 @@ check-adr-supersedes.py, regle adr/unique-id).
 
 La liste des fichiers d'une PR que gh pr list tronque (une page) est relue
 par l'API REST paginee. Le controle est INCOMPLET (sortie 2) si main ou la
-liste des PR n'est pas lisible, si la liste atteint la limite demandee, si
+liste des PR n'est pas lisible, si main ne porte aucun ADR lisible, si la
+reponse de GitHub pour main est vide, si la liste atteint la limite demandee, si
 les fichiers lus d'une PR sont moins nombreux que son changedFiles, ou si
 origin/main local differe de main sur GitHub. Un controle incomplet n'affiche jamais « aucune collision » ni de
 prochain identifiant libre.
@@ -28,7 +29,7 @@ Usage:
       [--repo ak125/governance-vault] [--limit 500] [--json]
 
 Sortie 0 = complet sans collision, 1 = complet avec collision(s),
-2 = incomplet.
+2 = incomplet ou arguments invalides.
 """
 
 from __future__ import annotations
@@ -61,12 +62,20 @@ def collect(vault: str, repo: str, limit: int, runner: Runner) -> dict:
     data: dict = {"main_sha": None, "remote_sha": None, "main_paths": [], "prs": [], "incomplete": []}
     try:
         data["main_sha"] = runner(["git", "-C", vault, "rev-parse", "--verify", "origin/main"]).strip()
-        listing = runner(["git", "-C", vault, "ls-tree", "--name-only", data["main_sha"], "ledger/decisions/adr/"])
-        data["main_paths"] = [line for line in listing.splitlines() if line]
+        # --full-tree : chemins depuis la racine, meme lance d'un sous-dossier ;
+        # -z : chemins non ASCII sans guillemets.
+        listing = runner([
+            "git", "-C", vault, "ls-tree", "--full-tree", "-z", "--name-only", data["main_sha"], "ledger/decisions/adr/",
+        ])
+        data["main_paths"] = [path for path in listing.split("\0") if path]
+        if not any(adr_id(path) for path in data["main_paths"]):
+            data["incomplete"].append("main illisible (aucun ADR dans ledger/decisions/adr/)")
     except (OSError, subprocess.CalledProcessError) as exc:
         data["incomplete"].append(f"main illisible ({exc})")
     try:
         data["remote_sha"] = runner(["gh", "api", f"repos/{repo}/git/ref/heads/main", "--jq", ".object.sha"]).strip()
+        if not data["remote_sha"]:
+            data["incomplete"].append("main GitHub illisible (reponse vide)")
     except (OSError, subprocess.CalledProcessError) as exc:
         data["incomplete"].append(f"main GitHub illisible ({exc})")
     if data["main_sha"] and data["remote_sha"] and data["main_sha"] != data["remote_sha"]:
@@ -176,8 +185,12 @@ def render(data: dict, result: dict) -> str:
 def main(argv: list[str], runner: Runner = run) -> int:
     args = argv[1:]
     vault = str(Path(args[0]).resolve()) if args and not args[0].startswith("--") else str(Path.cwd())
-    repo = args[args.index("--repo") + 1] if "--repo" in args else DEFAULT_REPO
-    limit = int(args[args.index("--limit") + 1]) if "--limit" in args else DEFAULT_LIMIT
+    try:
+        repo = args[args.index("--repo") + 1] if "--repo" in args else DEFAULT_REPO
+        limit = int(args[args.index("--limit") + 1]) if "--limit" in args else DEFAULT_LIMIT
+    except (IndexError, ValueError):
+        print("Usage: check-adr-id-collisions.py [VAULT_PATH] [--repo OWNER/NAME] [--limit N] [--json]", file=sys.stderr)
+        return 2
 
     data = collect(vault, repo, limit, runner)
     result = analyse(data["main_paths"], data["prs"])

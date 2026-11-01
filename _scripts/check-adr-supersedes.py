@@ -193,7 +193,7 @@ def main(argv: list[str]) -> int:
     else:
         for f in findings:
             print(f"[{f['severity'].upper()}] {f['file']}: {f['message']}")
-        print(f"\nTotal: {summary['error']} error(s), {summary['warning']} warning(s)  ({len(adrs)} ADR(s) scanned)")
+        print(f"\nTotal: {summary['error']} error(s), {summary['warning']} warning(s)  ({sum(map(len, files_by_id.values()))} ADR(s) scanned)")
 
     return 1 if summary["error"] > 0 else 0
 
