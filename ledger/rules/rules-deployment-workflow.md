@@ -3,7 +3,7 @@ type: rules-document
 status: canon
 scope: deployment
 updated: 2026-11-01
-related_adrs: [ADR-028, ADR-075, ADR-101]
+related_adrs: [ADR-028, ADR-075, ADR-101, ADR-102]
 related_incidents: [INC-2026-007-false-prod-claim-on-main-merge]
 ---
 
@@ -47,16 +47,23 @@ En cas de doute, lire le workflow, pas la documentation.
 - **Ne pas annoncer « déployé en PROD »** après une fusion sur `main` : la fusion déploie PREPROD.
 - **Ne pas écrire « déployé » sans la version servie** de l'environnement (D6).
 - **Ne pas pousser directement sur `main`** : la branche est protégée, tout passe par une PR (T6).
-- **Ne pas contourner la protection de `main`** : ni `gh pr merge --admin`, ni désactivation de
-  check, ni fusion sans validation manuelle explicite (T6).
+- **Ne pas contourner la protection de `main`** : une PR passe ses checks requis et ses règles de
+  fusion, et un agent ne la fusionne jamais
+  ([[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4|ADR-102]] D2). La fusion suit une validation
+  manuelle explicite (T6). Cette règle ne prescrit plus `gh pr merge --admin`, qui passe outre les
+  exigences de la protection, ni la désactivation d'un check.
 - **Ne pas déployer PROD hors de `deploy-prod.yml`** : son chemin vérifie la preuve PREPROD et
   capture le point de rollback.
+- **Ne pas lancer `Deploy PROD (via tag)` sur une branche.** Le `workflow_dispatch` l'accepte et
+  déploierait le commit de tête de la branche, sans tag `v*` : la décision de l'owner n'aurait pas de
+  preuve (D6). Le workflow ne le bloque pas (constat d'ADR-075).
 - **Ne pas utiliser le tag `latest`.** Un alias (`:preprod`, `:production`) ne sert pas de référence
   de version : citer le commit, le tag `v*` ou `:sha-<commit>`.
 
 ## D4 — Promotion PREPROD → PROD
 
-1. La PR est fusionnée sous la protection de `main`, après validation manuelle explicite (T6).
+1. Un humain fusionne la PR sous la protection de `main`, après validation manuelle explicite (T6) ;
+   un agent ne fusionne jamais (ADR-102 D2).
 2. `ci.yml` construit `:sha-<commit>`, déploie PREPROD et vérifie que le conteneur sert ce commit
    (`/health`, champ `revision`), puis lance E2E Smoke et Lighthouse.
 3. L'owner choisit un commit dont les trois jobs `🧪 Deploy PREPROD`, `🎭 E2E Smoke Tests` et
@@ -74,12 +81,28 @@ En cas de doute, lire le workflow, pas la documentation.
 
 | Environnement | Procédure |
 |---|---|
-| **PREPROD** | PR de revert du commit fautif, fusionnée par l'owner. Le push `main` qui en résulte relance le cycle D1. Jamais de push direct ni de force-push sur `main`. |
+| **PREPROD** | PR de revert du commit fautif, fusionnée selon D4.1. Le push `main` qui en résulte relance le cycle D1. Jamais de push direct ni de force-push sur `main`. |
 | **PROD, pendant un déploiement** | Automatique : après le point de non-retour, tout échec déclenche `⏪ Rollback PROD`, qui redémarre l'image capturée avant la mutation. |
-| **PROD, après un déploiement réussi** | Relancer `Deploy PROD (via tag)` (`workflow_dispatch`) sur le tag `v*` de la version à restaurer. Ce chemin repasse par les contrôles de D4.5. |
-| **PROD, workflow indisponible** | Intervention manuelle de l'owner sur l'hôte PROD, par la console de l'hébergeur. Aucun agent n'intervient sur PROD. |
+| **PROD, après un déploiement réussi** | Relancer `Deploy PROD (via tag)` (`workflow_dispatch`) sur le tag `v*` de la version à restaurer, dans les limites ci-dessous. |
+| **PROD, workflow indisponible ou tag refusé** | Intervention manuelle de l'owner sur l'hôte PROD, par la console de l'hébergeur. Aucun agent ne modifie PROD ; lire son `/health` (D6) n'est pas une modification. |
 
-Un revert sur `main` ne restaure jamais PROD : il redéploie PREPROD.
+Le run relancé exécute le `deploy-prod.yml` **du tag choisi**, pas celui de `main`. Ses contrôles
+dépendent donc de l'âge du tag :
+
+- tag qui contient les PR monorepo #1881 et #1884 (2026-10-24) : contrôles complets de D4.5, dont
+  `/health` `revision` ;
+- tag antérieur qui contient #1696 (2026-10-02) : preuve PREPROD et provenance de `:sha-<commit>`
+  vérifiées ; ni contrôle de version servie, ni champ `revision` dans `/health`, donc pas de preuve
+  D6 de la version servie ;
+- tag antérieur à #1696 : son workflow promeut l'alias `:preprod` et s'arrête si son label
+  `revision` diffère du commit du tag, avant de toucher `:production` et le conteneur PROD. Ligne
+  « tag refusé ».
+
+Ce chemin suppose aussi que `:sha-<commit>` est encore dans le registre et que le run `ci.yml` de ce
+commit est lisible ; sinon le workflow refuse avant toute mutation.
+
+Un revert sur `main` ne change pas PROD : il redéploie PREPROD. PROD ne change que par D4 ou par une
+ligne de ce tableau.
 
 ## D6 — Six objets, six preuves
 
@@ -111,5 +134,6 @@ règle aux agents du monorepo ; un écart entre les deux est un constat (ADR-101
 - [[ADR-075-deployment-topology-clarification]] (proposé) — vocabulaire et topologie
 - [[ADR-028-preprod-supabase-isolation]] — PREPROD en lecture seule
 - [[ADR-101-vault-decides-canon-authority]] — le vault décide, le monorepo exécute
+- [[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4]] — D2 : un agent ne fusionne jamais
 - [[rules-technical]] (T6)
 - [[rules-engineering-definition-of-done]] — DoD7 nomme le watcher du déploiement

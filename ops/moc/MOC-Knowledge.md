@@ -76,7 +76,7 @@ Base de connaissances architecturale.
 
 ## Gouvernance (Historique v1)
 
-> Pratiques retirées par [[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4|ADR-102]] (G4 v3.1.0) : ni fusion `gh pr merge --admin`, ni auto-fusion. Un agent prépare la PR, l'owner la fusionne. Les notes ci-dessous décrivent la pratique de l'époque.
+> Les mentions de fusion `gh pr merge --admin` et d'auto-fusion dans les notes ci-dessous décrivent la pratique de l'époque. Un agent ne fusionne jamais ([[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4|ADR-102]] D2, G4 v3.1.0) et la protection de `main` s'applique aussi aux administrateurs (`enforce_admins`, [[branch-protection]]). La checklist de [[vault-self-review-workflow-20260504]] reste la source du check `Self-Review Marker`.
 
 - [[single-maintainer-merge-pattern]] - Pattern admin-merge per-PR avec CI gates comme enforcement (vault opéré single-maintainer en attendant un 2ᵉ reviewer)
 - [[sandbox-merge-auto-rule-20260428]] - Sandbox auto-merge rule : merges main routiniers en auto (5 conditions trigger), tag PROD + apply prod DB + force-push restent gardés

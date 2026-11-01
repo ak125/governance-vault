@@ -9,7 +9,7 @@ supersedes: []
 superseded_by: []
 amends: ["ADR-001"]
 extends: []
-related_adr: ["ADR-028", "ADR-101", "ADR-102"]
+related_adr: ["ADR-028", "ADR-101", "ADR-102", "ADR-120"]
 related_rules: ["rules-deployment-workflow", "T6", "G1", "G4"]
 related_incidents: ["INC-2026-007-false-prod-claim-on-main-merge"]
 reviewed_by: ""
@@ -18,7 +18,8 @@ reviewed_by: ""
 # ADR-075 : topologie et vocabulaire de déploiement
 
 - **Statut** : Proposed. Version 1.0.0 rédigée le 2026-05-18, révisée le 2026-11-01 (1.1.0). Rien
-  n'est normatif avant la décision de l'owner et la fusion ([[ADR-101-vault-decides-canon-authority|ADR-101]] D1).
+  n'est normatif avant la ratification (section « Ratification ») et la fusion
+  ([[ADR-101-vault-decides-canon-authority|ADR-101]] D1).
 - **Amende** [[ADR-001-environment-separation|ADR-001]] : il précise la topologie que ce dernier ne
   décrit pas et relève un écart entre son tableau et l'état réel (D2).
 - **Révision 1.1.0** : réconciliation avec ADR-101 (le vault décide, le monorepo exécute), retrait
@@ -55,10 +56,12 @@ Sources : `.sops.yaml`, `docker-compose.preprod.yml`, `.github/workflows/ci.yml`
 | Rôle | Machine | Ce qui y tourne | Accès |
 |---|---|---|---|
 | **DEV** | machine opérateur | code, worktrees, runtime de développement (`npm run dev`, port 3000) resynchronisé depuis `main` par un cron | opérateur et agents ; aucun conteneur de déploiement |
-| **PREPROD** | hôte PROD, distinct de la machine DEV | conteneur démarré par le job `🧪 Deploy PREPROD` de `ci.yml` : image du commit (`:sha-<commit>`), réétiquetée `:preprod` en local ; `READ_ONLY=true` et clé anon seule (ADR-028 Option D) | port 3200 lié à la boucle locale ; aucune URL publique ; lu par la CI seule |
+| **PREPROD** | hôte PROD, distinct de la machine DEV | conteneur démarré par le job `🧪 Deploy PREPROD` de `ci.yml` : image du commit (`:sha-<commit>`), réétiquetée `:preprod` en local ; `READ_ONLY=true` et clé anon seule (ADR-028 Option D) | port 3200 lié à la boucle locale ; aucune URL publique ; lu par la CI, ou en local sur l'hôte |
 | **PROD** | même hôte | conteneur promu par `deploy-prod.yml`, derrière Caddy (80/443) | trafic réel des utilisateurs |
 
-L'hôte PROD porte aussi le runner GitHub Actions auto-hébergé qui exécute ces deux workflows.
+L'hôte PROD porte aussi le runner GitHub Actions auto-hébergé. Il exécute `deploy-prod.yml` et, dans
+`ci.yml`, les jobs `🧪 Deploy PREPROD`, `🎭 E2E Smoke Tests` et `🔦 Lighthouse Performance Audit` ;
+`build.yml` et les autres jobs tournent sur des runners hébergés par GitHub.
 
 ## Décision
 
@@ -78,15 +81,20 @@ Cette formule est retirée : elle inversait le sens fixé par ADR-101.
 1. **DEV** : la machine opérateur. On y code et on y teste. Aucun conteneur de déploiement n'y
    tourne. Une fusion sur `main` n'y déploie rien ; le runtime de développement suit `main` par
    resynchronisation.
-2. **PREPROD** : le conteneur de CI de l'hôte PROD. Il démarre à chaque push sur `main`, en lecture
-   seule sur la base partagée avec PROD (ADR-028 Option D). Il sert à la validation automatique du
+2. **PREPROD** : le conteneur de CI de l'hôte PROD. Le run `ci.yml` d'un push sur `main` le
+   redémarre sur l'image de ce commit, une fois les jobs requis en `success` ; un run en attente est
+   remplacé par celui du push suivant. Il tourne en lecture seule sur la base partagée avec PROD
+   (ADR-028 Option D). Il sert à la validation automatique du
    commit : santé du conteneur, E2E Smoke, Lighthouse. Il n'a pas d'URL publique, et le cycle ne
    comporte aucune validation humaine.
 3. **PROD** : le conteneur live du même hôte, derrière Caddy, qui sert le trafic réel.
 
-**Écart avec ADR-001.** Le tableau d'ADR-001 annonce en PREPROD des « données anonymisées ».
-PREPROD lit en réalité la base de PROD, en lecture seule (ADR-028). Le présent ADR consigne l'état
-réel ; il ne décide ni d'une anonymisation ni d'une base séparée.
+**Écarts avec ADR-001.** Le présent ADR consigne l'état réel ; il ne tranche aucun des deux.
+
+- Le tableau d'ADR-001 annonce en PREPROD des « données anonymisées ». PREPROD lit en réalité la base
+  de PROD, en lecture seule (ADR-028). Cet ADR ne décide ni d'une anonymisation ni d'une base séparée.
+- La règle 3 d'ADR-001 place PREPROD en mode `observe` avec métriques. `docker-compose.preprod.yml`
+  démarre PREPROD avec `RPC_GATE_MODE=enforce` et `RPC_GATE_ENFORCE_LEVEL=P1`.
 
 ### D3 — Six objets, six preuves
 
@@ -111,8 +119,8 @@ environnement, lue et datée. Une fusion, un tag ou une CI verte se nomment comm
 - « PREPROD miroir » et « miroir de PROD » sont interdits : PREPROD est en lecture seule, ce n'est
   pas une réplique.
 - Le terme « staging » n'est pas employé : on dit PREPROD ou PROD.
-- `:preprod` désigne l'alias Docker, réécrit à chaque push sur `main`. Il ne désigne ni un
-  environnement ni une version.
+- `:preprod` désigne l'alias Docker, déplacé par `build.yml` à chaque image construite depuis
+  `main`. Il ne désigne ni un environnement ni une version.
 - Les documents nomment les machines par leur rôle (« machine DEV », « hôte PROD »), sans adresse IP
   ni nom d'hôte. Le rôle est stable quand l'adresse change, et le vault est public.
 
@@ -164,7 +172,11 @@ plusieurs cycles, et un ADR distinct.
   rollback PROD par SSH et l'affirmation que la branche `dev` déploie comme `main` (le job
   `🧪 Deploy PREPROD` ne part que de `main`). Ce sont des constats au sens de D1, à corriger par une
   PR du monorepo.
-- Il ne décide pas d'anonymiser les données PREPROD (D2).
+- Il n'ajoute aucune garde à `deploy-prod.yml`. Ce workflow accepte un `workflow_dispatch` sur une
+  branche et ne contrôle que la forme du nom de la ref : il déploierait alors le commit de tête de la
+  branche sans tag `v*`. [[rules-deployment-workflow]] l'interdit (D3) ; une garde mécanique relève
+  d'une PR du monorepo.
+- Il ne décide pas d'anonymiser les données PREPROD ni de changer le mode du RPC gate (D2).
 - Il ne réécrit pas les documents historiques qui emploient l'ancien vocabulaire.
 
 ## Mise en œuvre
@@ -174,8 +186,22 @@ plusieurs cycles, et un ADR distinct.
 | PR monorepo #590 (règle d'agent, lint, hook, workflow) | fusionnée le 2026-05-18 (`345b96809d59fe675a6bb4fa8d97a7d27dd0b1c4`) |
 | `scripts/lint/check-preprod-vocabulary.sh`, `.husky/pre-commit`, `preprod-vocabulary-guard.yml` | présents sur `main` du monorepo |
 | [[rules-deployment-workflow]] 2.0.0 | réécrite dans cette PR : déclencheurs, promotion, rollback, six preuves |
-| `ops/moc/MOC-Knowledge.md` | la note historique sur `gh pr merge --admin` est signalée comme remplacée |
+| `ops/moc/MOC-Knowledge.md` | les mentions de `gh pr merge --admin` et d'auto-fusion des notes historiques sont signalées comme une pratique de l'époque |
 | `ops/moc/MOC-Decisions.md` | index régénéré (`sync_moc_decisions.py --write`) |
+
+## Ratification
+
+[[rules-deployment-workflow]] 2.0.0 s'appuie sur cet ADR ; elle ne se fusionne pas tant qu'il est
+`proposed`. À la décision de l'owner, avant la fusion, un commit de cette PR :
+
+- passe `status` à `accepted`, renseigne `decision_date` et `reviewed_by`, et réécrit la ligne
+  Statut, dont la phrase qui suspend l'entrée en vigueur ;
+- ajoute `amended_by: ["ADR-075"]` au frontmatter d'[[ADR-001-environment-separation|ADR-001]] ;
+- retire « (proposé) » des mentions de cet ADR dans [[rules-deployment-workflow]] ;
+- régénère l'index de [[MOC-Decisions]] (`_scripts/sync_moc_decisions.py --write`).
+
+Ce commit change la tête : son diff est revu à son niveau avant la fusion
+([[ADR-120-dod2-preuve-de-revue-liee-au-sha|ADR-120]] D4).
 
 ## Critères de succès
 
