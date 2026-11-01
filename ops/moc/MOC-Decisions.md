@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-10-31
+updated: 2026-11-01
 ---
 
 # MOC: Decisions
@@ -106,7 +106,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 > Projection mécanique du frontmatter ADR (PR-3 sync_moc_decisions).
 > Toute édition manuelle entre les markers est écrasée à chaque sync.
 > Pour corriger un statut ou un titre, éditer le frontmatter de l'ADR puis relancer `--write`.
-> Dernier sync : 2026-10-31.
+> Dernier sync : 2026-11-01.
 
 | ID | Titre | Statut canonique | Date | Fichier |
 |----|-------|------------------|------|---------|
@@ -220,6 +220,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-118 | Retrait des méthodes BMAD, Superpowers et Spec Kit : agents BMAD désactivés, amende ADR-008, ADR-009 et ADR-011 | Accepted | 2026-10-27 | [[ADR-118-retrait-methodes-bmad-superpowers-spec-kit]] |
 | ADR-119 | Auto-review de sens à la place de toute relecture humaine des fiches WIKI, familles de sécurité comprises : amende ADR-031, ADR-060, ADR-083, ADR-088, ADR-091, ADR-093, ADR-096 et ADR-114 | Accepted | 2026-10-30 | [[ADR-119-wiki-semantic-auto-review-replaces-human-review]] |
 | ADR-120 | DoD2 : une preuve de revue liée au SHA de tête remplace l'approbation humaine GitHub — amende rules-engineering-definition-of-done (v1.1.0) | Accepted | 2026-10-31 | [[ADR-120-dod2-preuve-de-revue-liee-au-sha]] |
+| ADR-121 | Mandat explicite, revue technique, décision de gouvernance et fusion : des actes distincts — amende l'AEC, RULE-H5/H6, DoD2, G1, G4, G5 et ADR-101 D1 | Proposed | 2026-11-01 | [[ADR-121-mandat-revue-decision-fusion-actes-distincts]] |
 
 <!-- AUTO-GENERATED:moc-decisions-canonical-index end -->
 
@@ -317,16 +318,19 @@ Certaines décisions sont documentées dans les **règles** plutôt qu'en ADR :
 
 ## Status Semantics (Status Machine)
 
-> Les ADR utilisent l'un des statuts suivants. Toute autre valeur est invalide et doit être normalisée à la première occasion. Auto-checkable via `_scripts/check-frontmatter-schema.py`.
+> Les ADR utilisent l'un des sept statuts de l'énumération de `_scripts/schemas/adr.schema.json`, qui fait foi. Toute autre valeur est invalide et doit être normalisée à la première occasion. Auto-checkable via `_scripts/check-frontmatter-schema.py`.
+>
+> Sont normatifs les ADR `accepted` et `accepted-revised` sans `superseded_by` actif ; les autres statuts sont du contexte ([[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D6, en vigueur à sa ratification).
 
 | Status | Sémantique | Critère d'entrée | Transitions sortantes autorisées |
 |---|---|---|---|
-| `proposed` | Décision rédigée, en attente de revue/approbation | ADR créée avec frontmatter complet, body suivant template `_templates/adr-template.md` | → `accepted` (approuvé) ; → `deferred` (info manquante) ; → `superseded` (rare, ex : remplacée avant approbation) |
+| `proposed` | Décision rédigée, en attente de revue/approbation | ADR créée avec frontmatter complet, body suivant template `_templates/adr-template.md` | → `accepted` (approuvé) ; → `rejected` (refusé) ; → `deferred` (info manquante) ; → `superseded` (rare, ex : remplacée avant approbation) |
 | `accepted` | Décision approuvée et active. Code peut être en n'importe quel état d'implémentation | Approuvée par `decision_makers`, commit signé (G3) | → `accepted-revised` (modification substantielle ; bump `version` semver) ; → `superseded` (remplacée par une autre ADR ou un ensemble) ; → `deprecated` (devenue obsolète sans remplacement formel) |
 | `accepted-revised` | Acceptée + révisée depuis ; numéro de version semver bumped (ex : v2.0) | Modification substantielle d'une ADR `accepted`, motivée explicitement | → `superseded` ; → `deprecated` |
 | `deferred` | Reportée en attente d'information ou de dépendances | Décision en `proposed` qui ne peut conclure faute d'inputs | → `proposed` (reprise) ; → `superseded` ; → `deprecated` (jamais reprise) |
 | `superseded` | Remplacée par une autre ADR (ou ensemble d'ADR), partiellement ou totalement | `superseded_by[]` non vide, contient ≥ 1 ADR cible existant | **terminal** (aucune transition sortante) |
 | `deprecated` | Plus applicable, sans remplacement formel | Décision morte, mais le contenu garde valeur historique | **terminal** (aucune transition sortante) |
+| `rejected` | Proposition refusée par les `decision_makers` | Décision de refus d'une ADR `proposed` | **terminal** (aucune transition sortante) |
 
 ### Règles d'invariance
 
@@ -338,7 +342,7 @@ Certaines décisions sont documentées dans les **règles** plutôt qu'en ADR :
 ### Champs frontmatter associés
 
 ```yaml
-status: <one of the 6 above>
+status: <one of the 7 above>
 supersedes: []          # ADR(s) que cette décision remplace
 superseded_by: []       # ADR(s) qui remplacent cette décision (obligatoire si status=superseded)
 status_review:          # optionnel, pour transitions

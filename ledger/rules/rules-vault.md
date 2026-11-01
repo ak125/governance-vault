@@ -1,7 +1,7 @@
 # Rules - Vault Governance (G1-G4)
 
-> Regles de gouvernance du vault lui-meme au 2026-10-01 (G1 reecrite par [[ADR-101-vault-decides-canon-authority|ADR-101]], G4 par [[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4|ADR-102]])
-> **Version**: 3.1.0 | **Status**: CANON
+> Regles de gouvernance du vault lui-meme au 2026-11-01 (G1 reecrite par [[ADR-101-vault-decides-canon-authority|ADR-101]], G4 par [[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4|ADR-102]], G1 et G4.2 amendees par [[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]])
+> **Version**: 3.2.0 | **Status**: CANON
 > **Taxonomie**: G = Governance (G1-G4 = vault ici, G5-G8 = processus dans rules-governance-process.md)
 
 ---
@@ -19,7 +19,7 @@ les execute ([[ADR-060-repository-roles-doctrine|ADR-060]], ADR-101).
 
 | Source | Role |
 |--------|------|
-| `ledger/decisions/adr/` : ADR `accepted` sans `superseded_by` actif | **DECIDE** - normatif |
+| `ledger/decisions/adr/` : ADR `accepted` ou `accepted-revised` sans `superseded_by` actif (ADR-121 D6) | **DECIDE** - normatif |
 | `ledger/rules/rules-*.md` | **DECIDE** - normatif ; modifie par PR signee, un changement de decision passe par un ADR |
 | `.spec/00-canon/**` (monorepo) consomme par du code, un generateur ou un check CI | **CONTRAT** - fait foi dans son domaine, ne contredit pas un ADR accepte |
 | `.spec/00-canon/**` (monorepo) sans consommateur | **PROSE DE REFERENCE** - aucune autorite, quel que soit son en-tete |
@@ -36,7 +36,7 @@ les execute ([[ADR-060-repository-roles-doctrine|ADR-060]], ADR-101).
   vault → monorepo (miroirs d'[[ADR-061-workspace-governance|ADR-061]] §3)
 
 **Verification:**
-- [ ] Chaque decision appliquee est portee par un ADR `accepted` ?
+- [ ] Chaque decision appliquee est portee par un ADR `accepted` ou `accepted-revised` ?
 - [ ] Les divergences constatees sont signalees et suivies (PR de code ou ADR) ?
 
 ---
@@ -101,7 +101,12 @@ ne produit aucun contenu du vault ([[ADR-102-airlock-rpc-gate-bundle-channel-ret
    (G3), sous les checks requis.
 2. **Un agent prepare, un humain fusionne.** Un agent peut preparer une PR dans toute zone du
    vault ; il ne fusionne jamais. La fusion d'une PR qui modifie un ADR, une regle ou une policy
-   est une decision (G1).
+   est une decision (G1). Une auto-review, une revue independante, une CI verte, la ligne
+   `Self-review verdict: APPROVE`, un label ou un "go" general ne l'autorisent pas. L'agent ne lance
+   aucune commande de fusion et n'active aucune auto-fusion, sous aucun compte, celui de l'owner
+   compris : il remet a l'owner le numero, le SHA de tete (40 caracteres) et la commande epinglee
+   sur ce SHA. La trace distingue l'humain qui decide, le SHA fusionne et le compte qui execute
+   (ADR-121 D3-D4).
 3. **La CI ne produit aucun contenu du vault.** Chaque workflow declare un bloc `permissions:` au
    niveau racine, n'obtient aucun scope `write` hors liste justifiee (`issues`), ne lance ni
    `git commit` ni `git push`, et n'utilise aucun jeton autre que son `GITHUB_TOKEN` hors exception
@@ -165,8 +170,9 @@ l'execute). Il n'y a pas de kill-switch : `AI_VAULT_WRITE` est retire (ADR-102 D
 - **_scripts/check-ci-read-only.py** - Enforcement G4 (point 3)
 - **ADR-101** - Autorite du vault et rang des fichiers `.spec/00-canon/` du monorepo
 - **ADR-102** - Airlock reduit au RPC gate, canal de bundles retire, G4 reecrite
+- **ADR-121** - Statuts normatifs (G1) ; fusion par l'owner et trace de fusion (G4.2)
 
 ---
 
-_Derniere mise a jour: 2026-10-01 (ADR-101, ADR-102)_
+_Derniere mise a jour: 2026-11-01 (ADR-121)_
 _Status: CANON - Gouvernance du vault lui-meme_

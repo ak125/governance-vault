@@ -86,7 +86,7 @@ CANONS: dict[str, dict] = {
     "aec": {
         "name": "Agent Exit Contract",
         "canon_path": "ledger/rules/rules-agent-exit-contract.md",
-        "version": "1.0.1",
+        "version": "1.1.0",
         "hash_mode": "text_sha256",
         "publishable_when": ["canon"],
         "consumers": [

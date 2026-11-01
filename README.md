@@ -17,7 +17,7 @@ Au 2026-09-30, `ledger/rules/` compte 13 fichiers de regles. L'index complet (pr
 
 ### G1: Le Vault Decide
 
-Les ADR `accepted` et les regles de `ledger/rules/` sont normatifs ; le monorepo les execute ([[ADR-101-vault-decides-canon-authority|ADR-101]]). Dans `.spec/00-canon/` du monorepo, les contrats consommes par du code, un generateur ou un check CI font foi dans leur domaine ; le reste est de la prose de reference sans autorite. Une divergence entre une decision et le code est un constat, resolu par une PR de code ou un ADR d'amendement.
+Les ADR `accepted` ou `accepted-revised` sans `superseded_by` actif et les regles de `ledger/rules/` sont normatifs ; le monorepo les execute ([[ADR-101-vault-decides-canon-authority|ADR-101]]). Dans `.spec/00-canon/` du monorepo, les contrats consommes par du code, un generateur ou un check CI font foi dans leur domaine ; le reste est de la prose de reference sans autorite. Une divergence entre une decision et le code est un constat, resolu par une PR de code ou un ADR d'amendement.
 
 ### G2: Zero Orphelin
 
