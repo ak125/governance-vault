@@ -29,6 +29,28 @@ détecter une régression d'expérience page côté utilisateurs réels :
 | `web-vitals.client.ts` (Sentry / GA4) | RUM côté client | Émis mais **pas agrégé / pas alerté** côté backend ; difficile à interroger ou à corréler avec déploiements |
 | GSC clicks / impressions (`__seo_gsc_daily`) | Signal business | Latence J-2 à J-7, secondaire pour la perf (canon `feedback_gsc_is_secondary_signal_only`) |
 
+> **Note d'implémentation 2026-06-26 — RUM agrégé backend (bloc 3/4), distinct du CrUX et du lab**
+>
+> La limite « RUM émis mais **pas agrégé / pas alerté** côté backend » (ligne du tableau
+> ci-dessus) a depuis été comblée par une chaîne d'agrégation **RUM dédiée**, **distincte
+> de la mesure CrUX décidée par cet ADR** :
+>
+> - **RUM (terrain, ce monorepo)** : beacons `web-vitals` → `__seo_cwv_raw` (bloc 3, TTL ~48 h,
+>   humains uniquement) → `__seo_cwv_hourly` → `__seo_cwv_daily_rum` (bloc 4), **orchestré par
+>   pg_cron** (jobs `cwv-hourly-aggregation` @ `:05` / `cwv-daily-rum-aggregation` @ `00:15` UTC,
+>   migration `20260626_seo_cwv_aggregation_cron`). Couverture surveillée par
+>   `detect_cwv_aggregation_coverage_gap()` (OPEN→RESOLVED).
+> - **CrUX (terrain, Google)** : `__seo_crux_field_history` via CrUX API — **l'objet de cet
+>   ADR**, inchangé (`implementation_status: not-started`).
+> - **Lab (synthetic)** : `__seo_cwv_daily` (PageSpeed top-1k) — **à ne pas confondre** avec
+>   le RUM `__seo_cwv_daily_rum`.
+>
+> Les trois sont complémentaires (RUM interne ≈ instantané, CrUX ≈ inertiel 28 j, lab ≈
+> reproductible) et **ne se remplacent pas**. Le RUM `daily_rum` n'est pas un substitut au
+> CrUX field décidé ici. Runbook de récupération RUM : `ops/runbooks/cwv-rum-pipeline-recovery.md`
+> (distinct du présent `ops/runbooks/cwv-alert-response.md` CrUX). Incident lié :
+> `web-vitals-attribution-unstable` ; implémentation monorepo #1165 / #1166.
+
 **Ce qui manque** : la mesure **field** alignée avec les rapports Core Web
 Vitals dans Google Search Console (section *Expérience*). C'est cette mesure
 que **Google Search utilise pour informer le facteur page experience** ;

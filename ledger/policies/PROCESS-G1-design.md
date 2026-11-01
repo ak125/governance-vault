@@ -112,7 +112,7 @@ Format PR :
 - Changer un verdict vers APPROVED ou APPROVED_WITH_CONDITIONS
 - Activer un agent (`status: planned` → `status: active`)
 - Modifier des règles, ADRs, ou politiques de gouvernance
-- Créer des bundles signés ou soumettre via agent-submissions
+- Créer des bundles signés ou soumettre via agent-submissions (canal retiré par ADR-102 : en G2, la proposition passe par une PR sur le dépôt cible)
 
 ## Audit
 

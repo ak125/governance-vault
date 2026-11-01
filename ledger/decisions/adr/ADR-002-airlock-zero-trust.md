@@ -16,6 +16,7 @@ references:
   - ADR-009
   - ADR-011
   - REG-001 v1.4.1
+amended_by: ["ADR-102"]
 ---
 
 # ADR-002: Airlock & Zero-Trust Agents

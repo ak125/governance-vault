@@ -163,8 +163,8 @@ enum Domain {
 
 ## Liens Externes
 
-- **Architecture Charter**: `.spec/00-canon/architecture.md`
-- **Rules Projet**: `.spec/00-canon/rules.md`
+- **Architecture Charter**: `.spec/00-canon/architecture.md` (monorepo, prose de reference sans autorite, ADR-101 D2)
+- **Rules Projet**: `.spec/00-canon/rules.md` (idem ; regles normatives : [[rules-technical]])
 - **RAG Knowledge**: `/opt/automecanik/rag/knowledge/`
 
 ---

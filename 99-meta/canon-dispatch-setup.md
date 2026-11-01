@@ -1,8 +1,8 @@
 # Canon Dispatch Setup — GitHub App credentials
 
-**Statut**: Required secrets (CANON_APP_ID + CANON_APP_PRIVATE_KEY)
+**Statut**: En place depuis le 2026-05-17 (secrets `CANON_APP_ID` + `CANON_APP_PRIVATE_KEY` presents au 2026-09-30 ; dernier run `push` de `canon-publish.yml` en succes le 2026-08-15)
 **Workflow**: `.github/workflows/canon-publish.yml` (job `dispatch`)
-**Dernière mise à jour**: 2026-05-17
+**Dernière mise à jour**: 2026-09-30
 
 ---
 
@@ -12,12 +12,12 @@ Le workflow `canon-publish.yml` publie un `repository_dispatch` (`event_type=can
 
 Le `GITHUB_TOKEN` par défaut ne peut pas appeler `repos/<owner>/<repo>/dispatches` sur un repo tiers — il faut une **authentification cross-repo**.
 
-L'approche initiale (PR #287) utilisait un PAT (`CANON_DISPATCH_TOKEN`). Le PR de migration la remplace par une **GitHub App** dédiée pour les raisons suivantes :
+L'approche initiale (PR #287) utilisait un PAT (`CANON_DISPATCH_TOKEN`). La PR #289 (2026-05-17) l'a remplacée par une **GitHub App** dédiée pour les raisons suivantes :
 
 | Critère | PAT classique | **GitHub App** |
 |---|---|---|
 | Token lifetime | Statique (mois → an) | **1h, auto-rotated** |
-| Scope | Souvent over-broad (`repo`) | Permission unique : `Repository dispatches: write` |
+| Scope | Souvent over-broad (`repo`) | `Contents: write` + `Metadata: read`, installation limitée aux 3 consumers, token restreint à 1 repo par job (voir note Étape 1) |
 | Identité audit | "user X did Y" | "App AutoMecanik Canon Dispatch did Y" |
 | Survie changement équipe | Cassé si user part | Indépendant de toute identité humaine |
 | Rotation | Manuelle, calendaire | Aucune (sauf rotation de la private key, rare) |
@@ -74,7 +74,7 @@ L'App apparaît ensuite dans les Settings → Integrations → GitHub Apps de ch
 gh secret set CANON_APP_ID -R ak125/governance-vault -b "123456"
 
 # Private key — coller le contenu du .pem téléchargé
-gh secret set CANON_APP_PRIVATE_KEY -R ak125/governance-vault < ~/Downloads/autobecanik-canon-dispatch.YYYY-MM-DD.private-key.pem
+gh secret set CANON_APP_PRIVATE_KEY -R ak125/governance-vault < ~/Downloads/automecanik-canon-dispatch.YYYY-MM-DD.private-key.pem
 ```
 
 Vérification :
@@ -87,6 +87,8 @@ gh secret list -R ak125/governance-vault | grep -E "CANON_APP"
 ```
 
 ### Étape 4 — Retirer l'ancien PAT (recommandé une fois App opérationnelle)
+
+Fait : `CANON_DISPATCH_TOKEN` n'apparaît plus dans `gh secret list` au 2026-09-30.
 
 ```bash
 gh secret delete CANON_DISPATCH_TOKEN -R ak125/governance-vault
@@ -131,4 +133,4 @@ Aucun temps mort : GitHub accepte les deux clés tant que l'ancienne n'est pas r
 - ADR-015 — vault single source of truth
 - ADR-036 — marketing operating layer (canon brand voice consumer)
 - ADR-038 — ratification marketing voice v1.0.1
-- Incident 2026-05-17 — drift marketing-voice + root cause `CANON_DISPATCH_TOKEN` jamais configuré (graceful-skip silencieux). Fix : PR monorepo #580, PR vault #286 (paths + matrix + consumers guard), PR vault #287 (fail-loud + doc PAT). Migration vers App : PR courante (sécurité + scope minimal).
+- Incident 2026-05-17 — drift marketing-voice + root cause `CANON_DISPATCH_TOKEN` jamais configuré (graceful-skip silencieux). Fix : PR monorepo #580, PR vault #286 (paths + matrix + consumers guard), PR vault #287 (fail-loud + doc PAT). Migration vers App : PR vault #289 (sécurité + scope minimal).

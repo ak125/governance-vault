@@ -39,16 +39,32 @@ fi
 
 cd "$VAULT_PATH"
 
-if [[ ! -d .git ]]; then
-  echo "Error: $VAULT_PATH n'est pas un repo git" >&2
+# Racine d'un depot, clone ou worktree : dans un worktree, `.git` est un fichier,
+# pas un dossier (meme correctif que check-signatures.sh). Un sous-dossier reste
+# refuse : git ls-files y serait relatif et les motifs ancres ne verraient rien.
+TOPLEVEL="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+if [[ -z "$TOPLEVEL" || "$TOPLEVEL" != "$(pwd -P)" ]]; then
+  echo "Error: $VAULT_PATH n'est pas la racine d'un repo git" >&2
   exit 2
 fi
 
 # Regex des patterns v1 interdits
 V1_PATTERN='^(0[0-9]-[a-z-]+/|scripts/)'
 
-# Tous les fichiers trackés
-V1_FILES="$(git ls-files | grep -E "$V1_PATTERN" || true)"
+# Un inventaire impossible n'est pas un inventaire vide. Ne toucher au rapport
+# qu'apres avoir obtenu et filtre les fichiers avec succes.
+if ! TRACKED_FILES="$(git ls-files)"; then
+  echo "Error: git ls-files a echoue, controle v1 impossible" >&2
+  exit 2
+fi
+
+# grep : 0 = correspondances, 1 = aucune ; tout autre code est une erreur.
+FILTER_STATUS=0
+V1_FILES="$(grep -E "$V1_PATTERN" <<< "$TRACKED_FILES")" || FILTER_STATUS=$?
+if (( FILTER_STATUS > 1 )); then
+  echo "Error: filtrage des paths v1 impossible (grep: $FILTER_STATUS)" >&2
+  exit 2
+fi
 
 REPORT="99-meta/v1-paths-report.md"
 

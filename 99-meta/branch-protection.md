@@ -1,64 +1,89 @@
 ---
 type: policy
 status: canon
-rule: G1,G2,G3,G4
-updated: 2026-04-18
+rule: G2,G3,G4
+updated: 2026-10-01
 ---
 
 # Politique de Protection de Branche (main)
 
-**Statut** : Actif depuis 2026-04-18
+**Statut** : Actif depuis 2026-04-18 ; `enforce_admins` effectif depuis une date situee entre le 2026-08-14 et le 2026-09-30 (voir « Pushes directs historiques »)
 **Enforcement** : Cote serveur via GitHub Branch Protection Rules
-**Regles canoniques** : [[rules-vault]] G1, G2, G3, G4
+**Regles canoniques** : [[rules-vault]] G2, G3, G4 (G1 n'a pas de check automatique) ; check `No V1 Paths` = ADR-015
 
 ---
 
 ## Regle
 
-> **La branche `main` est verrouillee cote serveur**. Aucun push direct n'est possible, meme pour les admins. Toute modification passe par une PR qui doit satisfaire les 4 required status checks.
+> **La branche `main` est verrouillee cote serveur**. Aucun push direct n'est possible, meme pour les admins (`enforce_admins: true`). Toute modification passe par une PR qui doit satisfaire les required status checks (liste ci-dessous).
 
-Cette protection est la **troisieme ligne de defense** apres :
+Cette protection est la **quatrieme ligne de defense** apres :
 
-1. **Pre-commit hook local** (`.githooks/pre-commit`) — attrape les erreurs avant commit
-2. **CI workflow** (`.github/workflows/vault-governance.yml`) — verifie chaque push/PR
-3. **Branch protection** (cette doc) — bloque le merge cote GitHub si un check manque
+1. **Pre-commit hook local** (`.githooks/pre-commit`) — G2 et wikilinks avant chaque commit
+2. **Pre-push hook local** (`.githooks/pre-push`) — G2, wikilinks et signatures (G3) avant chaque push
+3. **CI workflow** (`.github/workflows/vault-governance.yml`) — verifie chaque PR vers `main` et chaque push sur `main` ou `refactor/**`
+4. **Branch protection** (cette doc) — bloque le merge cote GitHub si un check manque
+
+Les deux hooks ne sont actifs que si `core.hooksPath` vaut `.githooks` dans le clone.
 
 ---
 
 ## Configuration Appliquee
 
+Valeurs declarees par `_scripts/setup-branch-protection.sh` ; les checks requis sont ceux de la section suivante. Les deux dernieres lignes sont des reglages du depot (`repos/ak125/governance-vault`), pas de la protection de branche. `setup-branch-protection.sh --check` dit si la configuration en vigueur leur est conforme (voir « Verification d'Integrite »).
+
 | Parametre | Valeur | Justification |
 |-----------|--------|---------------|
-| `required_status_checks.contexts` | 4 jobs CI (voir ci-dessous) | Les 4 regles G1-G4 doivent passer |
+| `required_status_checks.checks` | checks CI lies a GitHub Actions (voir ci-dessous) | Chaque check de la section suivante doit passer |
 | `required_status_checks.strict` | `true` | La branche PR doit etre a jour avec `main` |
 | `enforce_admins` | `true` | Personne ne contourne, y compris l'owner |
-| `required_linear_history` | `true` | Pas de merge commits (rebase obligatoire) |
+| `required_linear_history` | `true` | Pas de merge commits sur `main` ; le rebase etant interdit (ci-dessous), reste le squash |
 | `required_pull_request_reviews` | `count: 0`, `dismiss_stale: true` | Solo repo : reviews non requises, mais les reviews obsoletes sont auto-dismissed |
+| `required_signatures` | `true` | Chaque commit de la PR doit etre verifie par GitHub. Voir « Signatures Requises » |
 | `restrictions` | `null` | Personne n'est explicitement autorise a bypasser |
 | `allow_force_pushes` | `false` | Pas de reecriture d'historique sur main |
 | `allow_deletions` | `false` | Impossible de supprimer main |
 | `required_conversation_resolution` | `true` | Les threads PR doivent etre resolus avant merge |
+| `allow_squash_merge` | `true` | Seule methode de merge prescrite (voir « Methode de Merge ») |
+| `allow_rebase_merge` | `false` | Le rebase recree les commits de la PR sans signature : il ferait entrer sur `main` des commits non signes malgre G3 et `required_signatures` |
 
 ---
 
-## Required Status Checks (4 jobs)
+## Required Status Checks
 
-Le merge est bloque tant que l'un de ces 4 checks n'a pas le status **SUCCESS** :
+Le merge est bloque tant que l'un de ces checks n'a pas le status **SUCCESS**. Cette table reprend la liste de `_scripts/setup-branch-protection.sh` ; `_scripts/test_setup_branch_protection.py` verifie qu'elles sont identiques et que chaque check est rapporte par un job sur toute PR vers `main`.
 
 | Check name (cote GitHub) | Job key (cote workflow) | Role |
 |--------------------------|--------------------------|------|
 | `G2: Zero Orphelin` | `g2-orphans` | Execute `check-orphans.sh`, exit 1 si orphelins |
 | `Broken Wikilinks` | `broken-links` | Execute `check-broken-links.sh`, exit 1 si liens casses |
-| `G3: Commits signes` | `g3-signed-commits` | Verifie `%G?` sur chaque commit de la PR/push |
-| `G4: CI read-only sur canon` | `g4-canon-write-block` | Verifie que le workflow ne peut pas ecrire le canon |
+| `G3: Commits signes` | `g3-signed-commits` | Execute `check-signatures.sh` : en PR, chaque commit `base..head` ; sur un push, `HEAD~1..HEAD` seulement |
+| `G4: CI read-only sur canon` | `g4-canon-write-block` | `_scripts/check-ci-read-only.py` : aucun workflow ne peut ecrire dans le vault (ADR-102). Avant ADR-102, le job affichait 3 lignes et ne verifiait rien. Nom du check inchange : c'est un contexte requis |
+| `No V1 Paths (ADR-015)` | `v1-paths` | Execute `check-v1-paths.sh`, exit 1 si un fichier suivi est sous un dossier v1 a la racine (`0X-…/`) ou sous `scripts/` |
+| `Vault Scripts Tests` | `vault-scripts-tests` | `pytest _scripts` : les validateurs du vault et leurs tests |
+| `Vault Lint Gate (ADR-020)` | `vault-lint-gate` | Execute `ci-vault-gate.sh pr` : checks de `weekly-lint.sh` sur le vault seul et `sync_moc_decisions.py --check` (index [[MOC-Decisions]]) |
 
-> **Important** : les `contexts` de la protection matchent le **display name** du job (`name:` field dans le YAML), pas le job key. Si tu renommes un job dans le workflow, il faut mettre a jour la protection en consequence.
+Les deux derniers ont ete ajoutes par la PR #360 et sont requis depuis le 2026-10-01 (PATCH de la sous-ressource, puis `--check` conforme).
+
+Tournent sans etre requis (ils ne bloquent pas le merge) : `No Operational Sections (ADR-060 §1A inv. 5)` (job `vault-pollution`, meme workflow) et `Self-Review Marker` (`vault-self-review-marker.yml`).
+
+> **Important** : un check requis designe le **display name** du job (`name:` field dans le YAML), pas le job key, et il est lie a l'app GitHub Actions (`app_id` 15368). Renommer un job impose de mettre a jour, dans la meme PR, le script et cette table (le test ci-dessus echoue sinon), puis la protection.
 
 ---
 
 ## Setup / Re-application
 
-La configuration est versionnee dans `_scripts/setup-branch-protection.sh`. En cas de perte ou de recreation du repo :
+La configuration est versionnee dans `_scripts/setup-branch-protection.sh`.
+
+Verifier que la protection en vigueur est celle du script (lecture seule, sortie 1 et diff si elle differe) :
+
+```bash
+_scripts/setup-branch-protection.sh --check
+```
+
+Ajouter ou retirer un check requis sur la protection existante : PATCH de la sous-ressource `required_status_checks` avec la liste `checks` complete et l'`app_id`, puis `--check`. Activer ou retirer les signatures requises : POST ou DELETE de la sous-ressource `required_signatures`, puis `--check`. Ne jamais passer par `contexts` : ce champ deprecie ignore sans erreur un nom jamais observe (voir [[vault-branch-protection-contexts-vs-checks-gotcha-20260504]]).
+
+En cas de perte ou de recreation du repo (PUT complet, puis sous-ressource `required_signatures`, puis relecture comparee a la demande : le script sort 1 si GitHub a abandonne un champ) :
 
 ```bash
 _scripts/setup-branch-protection.sh
@@ -66,11 +91,7 @@ _scripts/setup-branch-protection.sh
 
 Le script utilise `gh api` avec un JSON body complet (via `--input -`) pour eviter le piege `-F restrictions=` qui passe une chaine vide au lieu de `null` (bug 422 historique).
 
-Verifier la configuration en vigueur :
-
-```bash
-gh api repos/ak125/governance-vault/branches/main/protection | jq .
-```
+Historique : le 2026-09-30, le diff entre le JSON du script et le GET de la protection etait nul. Jusqu'a cette date, le script declarait les **job keys** (`g2-orphans`…) et omettait `No V1 Paths` : le relancer aurait exige 4 checks qu'aucun job ne rapporte, bloquant toutes les PR, et retire le check v1-paths.
 
 ---
 
@@ -96,54 +117,88 @@ Chaque desactivation laisse une trace dans les **audit logs GitHub** (irreversib
 
 ## Signatures Requises
 
-`required_signatures` (cote GitHub) n'est **pas** inclus dans notre config actuelle — ce parametre necessite un plan **GitHub Pro/Team** pour les repos prives. Le job `g3-signed-commits` fait le meme travail en verifiant `%G?` sur chaque commit du push/PR. Resultat equivalent pour bloquer le merge, **mais avec un artefact a connaitre** (voir section suivante).
+Declarees par `setup-branch-protection.sh` (`"required_signatures": true`). Ce n'est pas un champ du PUT : le script l'applique par la sous-ressource `branches/main/protection/required_signatures` (POST active, DELETE retire), apres le PUT, puis relit l'ensemble. L'option est disponible : le depot est public, et la limite de plan GitHub ne vise que les depots prives.
 
-Si le plan evolue un jour, il suffit d'ajouter `"required_signatures": true` au JSON du script et de le relancer. Idempotent.
+### Ce que cela ajoute a G3
+
+| Controle | Ce qu'il exige | Ou |
+|----------|----------------|----|
+| G3 (`check-signatures.sh`) | Une signature cryptographiquement valide. Une cle absente du [[key-registry]] (`%G?` = `U`) passe | CI, check requis |
+| `required_signatures` | Chaque commit **verifie par GitHub** : cle enregistree comme *Signing Key* sur un compte GitHub, e-mail committer verifie sur ce compte | GitHub, au merge |
+
+G3 prouve qu'une cle a signe ; `required_signatures` prouve que cette cle est rattachee a un compte et a une identite verifies. La documentation GitHub precise que des commits non verifies sur la branche de la PR peuvent bloquer un merge squash, meme si GitHub signe le commit squash final : chaque commit pousse sur une branche de PR doit donc etre verifie.
+
+### Preconditions d'activation
+
+1. Chaque cle qui signe des commits de PR est enregistree comme *Signing Key* sur le compte GitHub (etat par cle : [[key-registry]]).
+2. L'e-mail committer de ces commits est un e-mail verifie de ce compte. Dans le clone du vault, `user.email` de la config locale le fixe ; un clone ou une session qui committe avec une autre identite produit des commits non verifies, que la protection refusera.
+3. Preuve : un commit signe par chaque cle d'agent, pousse apres l'enregistrement, affiche `verified: true` et `reason: valid` dans `gh api repos/ak125/governance-vault/commits/<sha> --jq .commit.verification`.
+
+Sans ces trois points, l'activation bloque toute PR signee par une cle non enregistree. Tant que l'activation n'est pas faite, `--check` sort 1 avec cette seule difference (`required_signatures` : attendu `true`, en vigueur `false`).
+
+### Retrait
+
+`gh api -X DELETE repos/ak125/governance-vault/branches/main/protection/required_signatures` retire l'exigence ; `--check` reste rouge tant que la declaration du script n'est pas modifiee par PR. Le retrait laisse une trace dans les audit logs GitHub : le documenter comme une desactivation d'urgence.
+
+### Et le merge rebase
+
+Le merge rebase ajoute les commits de la PR « sans verification de signature » (documentation GitHub) : `required_signatures` ne l'empeche pas. Il est interdit par un reglage du depot, distinct de la protection de branche (`allow_rebase_merge: false`, declare par le script, section suivante).
 
 ---
 
-## Artefact Connu : Signature Chain au Merge Rebase
+## Methode de Merge et Chaine de Signature
 
-### Observation
+### Methodes autorisees
 
-Sur plan GitHub Free, quand une PR est mergee via `gh pr merge --rebase` (strategie imposee par `required_linear_history: true`), **GitHub reecrit chaque commit avec un nouveau SHA et n'en re-signe pas l'objet**. Resultat :
+Seul le squash est possible sur `main` :
 
-- `git verify-commit <sha>` sur `main` retourne "No principal matched" pour les commits post-merge
-- `git cat-file commit <sha>` ne contient **aucun champ `gpgsig`**
-- Les commits sur la **branche PR originale** (avant merge) etaient bien signes — CI G3 les a verifies
+- `allow_rebase_merge: false` (reglage du depot, depuis le 2026-10-01) : le rebase est refuse par GitHub ;
+- `allow_merge_commit` reste `true` au niveau du depot, mais `required_linear_history: true` refuse les commits de merge sur `main`. Ce reglage n'est donc pas declare par le script.
 
-### Ce que ca veut dire
+Le script declare `allow_squash_merge: true` et `allow_rebase_merge: false` ; `--check` sort 1 si l'un des deux change. Changer une methode : `gh api -X PATCH repos/ak125/governance-vault -F <champ>=<valeur>`, puis `--check`, et modifier la declaration du script par PR.
 
-G3 est **enforced au niveau PR**, pas au niveau main. La chaine de custody existe mais est **distribuee** :
+Le 2026-09-30, les trois methodes etaient autorisees au niveau du depot. Les PR etaient deja fusionnees en **squash** : les 10 PR fusionnees depuis le 2026-07-01 ont toutes GitHub pour committer, un seul parent et une signature GitHub valide (ex. `2f150ef`, PR #353 : `verification.verified = true`, `reason = valid`). Methode prescrite :
+
+```bash
+gh pr merge <N> --squash --match-head-commit <sha-de-tete-revu>
+```
+
+`--match-head-commit` refuse la fusion si la tete de la PR a bouge depuis la revue.
+
+### Chaine de custody (squash)
 
 | Couche | Artefact | Ou verifier |
 |--------|----------|-------------|
-| Local pre-push | Commit signe K001/K002 | `git log --show-signature` sur la branche de travail |
-| CI sur PR | `%G?` = G valide | GitHub Actions logs, job `g3-signed-commits` |
-| GitHub merge | Qui a mergee, quand, quelle strategie | GitHub audit log |
-| Main apres merge | SHA + committer (sans gpgsig) | `git log` sur main |
+| Local pre-push | Commits de la branche signes K001/K002 | `git log --show-signature` sur la branche de travail ; hook `.githooks/pre-push` |
+| CI sur PR | G3 : chaque commit `base..head` signe | GitHub Actions, job `g3-signed-commits` |
+| GitHub merge | Commit squash signe par GitHub | `gh api repos/ak125/governance-vault/commits/<sha> --jq .commit.verification` |
+| Main apres merge | Commit squash (committer GitHub) | `git log` sur main |
 
-### Pourquoi ce n'est PAS une faille
+Un `git verify-commit` local sur un commit squash echoue : la cle de GitHub n'est pas dans `allowed_signers`. Ce n'est pas une violation ; la preuve est `verification.verified` dans l'API.
 
-- Le merge sur `main` est bloque si le CI G3 echoue sur la PR → aucun commit non signe ne peut atteindre main sans contournement explicite
-- `enforce_admins: true` + `required_linear_history: true` + `allow_force_pushes: false` rendent impossible tout contournement
-- L'audit log GitHub est tamper-evident (irreversible) et conserve l'identite du merger
+### Historique : merges rebase et commits de merge
 
-### Consequence pour l'audit retro
+- **Merges rebase** : 22 commits de PR fusionnees en rebase n'ont pas de signature (PR #3 a #25 du 2026-04-18 au 2026-04-21, puis `b51f69e`, PR #336, le 2026-07-05). Le rebase reecrit les commits ; la signature K001/K002 de la branche ne survit pas. Trace compensatoire : le run G3 de la PR. Le rebase est interdit depuis le 2026-10-01 (`allow_rebase_merge: false`).
+- **Commits de merge** : 7 commits de merge PR #316 a #324 (2026-06-14 au 2026-06-19, dernier `636642d`), malgre `required_linear_history`. Coherent avec un contournement admin a une date ou `enforce_admins` n'etait pas effectif.
 
-Un audit local style `_scripts/audit-signatures.sh` sur `main` trouvera **des commits non signes pour chaque PR mergee en rebase**. C'est un **artefact attendu**, pas une violation. Le rapport doit etre lu comme :
+### Pushes directs historiques (sans PR)
 
-- **Non signes pre-policy** (< 2026-02-02) : bootstrap historique, pas d'action
-- **Non signes post-rebase** : artefact GitHub Free, trace compensee par CI logs de la PR
-- **Non signes inattendus** (post-policy, pas de PR associee) : **vraie anomalie**, a investiguer
+Avant qu'`enforce_admins` soit effectif, des pushes admin ont atteint `main` sans PR :
 
-### Options de resolution (si gap inacceptable un jour)
+- **Cron planning** (`_scripts/planning/run-cron.sh`, ADR-053) : 63 commits `chore(planning)` pousses directement du 2026-05-08 au 2026-08-14 ; son journal compte 61 lignes `Bypassed rule violations for refs/heads/main` (derniere le 2026-08-14 : « Changes must be made through a pull request », « 5 of 5 required status checks are expected »). Aucun ruleset n'existe (`gh api …/rulesets` → `[]`) : le contournement vient donc de la protection classique avec `enforce_admins` inactif. Commits signes K001, cle non enregistree sur GitHub (`unknown_key`).
+- **Commits de contenu sans PR** apres le 2026-04-18 : `7237868`, `7bd9cb8` (2026-04-30, knowledge), `b786b93` (2026-06-26, amendement ADR-045 / ADR-063), `fc9f0b3` (2026-06-27, runbook), `871ecc2` (2026-06-28, statut d'ADR-095). Verifie par `gh api repos/ak125/governance-vault/commits/<sha>/pulls` → `[]`. Leur ratification (ou leur rejeu par PR) est une **decision owner**.
 
-1. **GitHub Pro** (~4€/mois) → activer `required_signatures: true` → GitHub auto-signe les rebased commits avec sa cle verifiee
-2. **Changer strategie `--merge`** → preserve les signatures mais casse `required_linear_history`
-3. **Rebase local + push** avant de merger via PR → permet de signer chaque commit rebase (lourd manuellement)
+### Lecture d'un audit de signatures sur `main`
 
-Choix actuel : **Option B** (documenter le gap, compter sur CI + audit log GitHub comme controle compensatoire). Decision tracee dans [[signing-policy]] et dans l'evidence-pack [[INDEX-EP-20260418-governance-hardening]].
+Un audit local (`_scripts/audit-signatures.sh`) sur `main` doit classer chaque commit :
+
+- **Squash signe par GitHub** : normal ; verifier par l'API, pas par `git verify-commit`
+- **Push direct avant la protection** (< 2026-04-18) : aucune PR n'etait requise ; 8 de ces commits ne sont pas signes (2026-02-02 au 2026-03-08, commit initial `d80c845` compris) : amorcage, pas d'action
+- **Non signe, merge rebase** (liste ci-dessus) : artefact, trace compensee par le run G3 de la PR
+- **Signe K001, push direct sans PR** (liste ci-dessus) : contournement admin historique, a ratifier
+- **Non signe inattendu** (sans PR associee) : **vraie anomalie**, a investiguer
+
+Evidence-pack d'origine : [[INDEX-EP-20260418-governance-hardening]].
 
 ---
 
@@ -151,56 +206,32 @@ Choix actuel : **Option B** (documenter le gap, compter sur CI + audit log GitHu
 
 | Niveau | Fichier | Executions |
 |--------|---------|------------|
-| Local (machine dev) | `.githooks/pre-commit` | A chaque `git commit` |
-| CI serveur | `.github/workflows/vault-governance.yml` | A chaque push et PR |
+| Local (machine dev) | `.githooks/pre-commit` | A chaque `git commit` (G2, wikilinks) |
+| Local (machine dev) | `.githooks/pre-push` | A chaque `git push` (G2, wikilinks, signatures G3) |
+| CI serveur | `.github/workflows/vault-governance.yml` | A chaque PR vers `main` ; a chaque push sur `main` ou `refactor/**` |
 | Branch protection | Cote GitHub (cette doc) | Au moment du merge |
 
-Les trois niveaux sont **redondants par conception**. Le local attrape 99% des erreurs sans cout CI. Le CI attrape ce qui passe a travers le local (machine sans hook, bypass `--no-verify`, etc.). La branch protection est la gardienne ultime — elle empeche le merge meme si les 2 autres ont echoue a detecter.
+Les niveaux sont **redondants par conception**. Le local attrape la plupart des erreurs sans cout CI. Le CI attrape ce qui passe a travers le local (machine sans hook, bypass `--no-verify`, etc.). La branch protection est la gardienne ultime — elle empeche le merge meme si les autres niveaux ont echoue a detecter.
 
 ---
 
 ## Verification d'Integrite
 
 ```bash
-# Verifier que la protection est bien active
-gh api repos/ak125/governance-vault/branches/main/protection \
-  | jq '{
-      enforce_admins: .enforce_admins.enabled,
-      linear_history: .required_linear_history.enabled,
-      checks: [.required_status_checks.contexts[]],
-      force_push: .allow_force_pushes.enabled,
-      deletions: .allow_deletions.enabled
-    }'
+_scripts/setup-branch-protection.sh --check
 ```
 
-Resultat attendu :
-
-```json
-{
-  "enforce_admins": true,
-  "linear_history": true,
-  "checks": [
-    "G2: Zero Orphelin",
-    "Broken Wikilinks",
-    "G3: Commits signes",
-    "G4: CI read-only sur canon"
-  ],
-  "force_push": false,
-  "deletions": false
-}
-```
-
-Si l'une de ces valeurs est `false` (sauf `force_push`/`deletions` qui sont dans le bon sens), la protection est **compromise** — relancer `setup-branch-protection.sh`.
+Le script compare a sa demande les checks requis (nom et `app_id`), `strict`, `enforce_admins`, `required_linear_history`, les reviews, `restrictions`, `allow_force_pushes`, `allow_deletions`, `block_creations`, `required_conversation_resolution` et `required_signatures`, puis, sur les reglages du depot, `allow_squash_merge` et `allow_rebase_merge`. Tout ecart (check absent ou lie a une autre app, `enforce_admins`, `linear_history` ou `required_signatures` a `false`, `force_push`, `deletions` ou `allow_rebase_merge` a `true`…) est affiche en diff et sort 1 : la configuration est **compromise** ou la mise a jour d'une sous-ressource ou d'un reglage n'a pas ete faite.
 
 ---
 
 ## Voir aussi
 
-- [[rules-vault]] — G1-G4 canoniques
+- [[rules-vault]] — G1-G4 canoniques (G2-G4 ont un check requis)
 - [[signing-policy]] — G3 SSH signing setup
 - [[ci-policy]] — G4 CI read-only
 - [[key-registry]] — Cles autorisees pour les signatures
 
 ---
 
-_Derniere mise a jour: 2026-04-18_
+_Derniere mise a jour: 2026-10-01_

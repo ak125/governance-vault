@@ -1,19 +1,55 @@
 ---
 id: ADR-033
 title: "Wiki Gamme Diagnostic Relations Contract — references-only from R3/R4 to __diag_symptom / __diag_system"
-status: proposed
+status: accepted
 date: 2026-04-29
-decision_date: null
+decision_date: 2026-07-07
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
 amends: []
+amended_by: ["ADR-083", "ADR-112", "ADR-113", "ADR-116"]
 related_rules: ["G1", "G2", "G3", "Q1", "AP-10"]
 related_incidents: []
 related_adr: ["ADR-015", "ADR-027", "ADR-031", "ADR-032"]
 ---
 
 # ADR-033: Wiki Gamme Diagnostic Relations Contract
+
+## Reconciliation 2026-07-07
+
+> Statut réel réconcilié. ADR-033 était formellement `proposed` alors que son contrat est vivant et
+> gouverné aval. Cette section fige ce qui est accepté, implémenté, incomplet, et **non autorisé**.
+
+**ACCEPTED (canon figé) :**
+- forme `diagnostic_relations[]` (top-level frontmatter gamme) ;
+- un symptôme appartient à un **système**, pas à une **pièce** ;
+- références typées `symptom_slug` / `system_slug` vers le canon `__diag_*` ;
+- défaut conservateur `diagnostic_safe = false` (flip = revue humaine) ;
+- pas de couche `wiki/systemes/`, pas de fichier-par-symptôme (D3) ;
+- **S2_DIAG consomme les relations typées** (source = `__diag_*` + `diagnostic_relations[]`, cf. ADR-027
+  §Correction 2026-07-07).
+
+**IMPLEMENTED (déjà livré / vivant) :**
+- contrat `diagnostic_relations[]` **top-level frontmatter** (défini dans `frontmatter.schema.json`,
+  `schema_version` v2.0.0, ADR-033 §D1 ; cf. `GammeContentContract.v2` §D6) ;
+- validateur CI + cron export slugs + `wiki-readiness-check.py` (verdict READY 2026-05-01) ;
+- ADR enfant **ADR-039** (accepted, « PR-C ADR-033 ») ; amendement **ADR-083** (accepted).
+
+**NOT COMPLETE (ouvert, gouverné, non débloqué ici) :**
+- migration du corpus legacy (Phase 4) — les `symptoms:` legacy (ordre de grandeur historique « 500+ fiches »
+  recyclées côté `rag/knowledge/gammes/`) vivent encore côté RAW ; `wiki/gamme/` non peuplé ;
+- re-source curé complet symptôme→relation ;
+- projection / cutover canonique de S2_DIAG.
+
+**EXPLICITLY NOT AUTHORIZED :**
+- RAG → `diagnostic_relations[]` ;
+- RAG → S2_DIAG ;
+- laundering automatique des `diagnostic.symptoms[]` legacy (migration = re-source gouverné, revue humaine,
+  jamais une écriture RAG).
+
+*(Aucune modification de forme du contrat — D1-D6 inchangés. Cette réconciliation formalise le statut et
+distingue accepté / implémenté / incomplet ; elle ne réécrit pas la décision.)*
 
 ## Contexte
 
@@ -73,10 +109,10 @@ diagnostic:
 - **ADR-027** (accepted, 2026-04-25) — fige la consolidation R5 → R3 S2_DIAG.
   ADR-033 n'invalide pas ADR-027 : les fiches R3 continuent d'agréger
   les symptômes diagnostics, mais désormais via références typées.
-- **ADR-031** (proposed, 2026-04-28) — fige le cadre 4-layer raw/wiki/exports.
+- **ADR-031** (proposé le 2026-04-28 ; accepted le 2026-05-13, PR vault #262) — fige le cadre 4-layer raw/wiki/exports.
   ADR-033 spécifie un bloc frontmatter pour la couche `wiki` côté gamme,
   conforme au principe directeur d'ADR-031.
-- **ADR-032** (accepted, 2026-04-29, PR vault #107) — fige le canon DB+backend
+- **ADR-032** (proposed depuis le 2026-04-29, PR vault #107, jamais ratifié) — propose de figer le canon DB+backend
   pour diagnostic/maintenance (`kg_*` canon, `__diag_*` interactif distinct).
   ADR-032 introduit `entity_data.maintenance.{educational_advice, related_pages}`
   côté frontmatter wiki gamme. **`diagnostic_relations[]` est orthogonal**
@@ -267,6 +303,9 @@ conséquence avec validation stricte des champs `diagnostic_relations[]`.
 
 ### Phase 2 — Validateur CI (1 PR monorepo)
 
+> **Livré** (PR monorepo #250, 2026-05-01) — en Python : `scripts/wiki/validate-gamme-diagnostic-relations.py`,
+> exécuté par le workflow monorepo `wiki-validate.yml` (pas d'étape dans `ci.yml`). Constat du 2026-09-30.
+
 - Script `scripts/wiki/validate-gamme-diagnostic-relations.ts` exécuté
   en pre-commit hook + CI. Lit `exports/diag-canon-slugs.json` (généré
   nightly via cron monorepo : SELECT slug FROM `__diag_symptom`
@@ -275,11 +314,16 @@ conséquence avec validation stricte des champs `diagnostic_relations[]`.
 
 ### Phase 3 — Export slugs canon (1 PR monorepo)
 
+> **Livré** (PR monorepo #251, 2026-05-01) — en Python : `scripts/wiki/export-diag-canon-slugs.py`,
+> workflow monorepo `diag-canon-slugs-export.yml` (quotidien, 02:00 UTC). Constat du 2026-09-30.
+
 - Cron nightly `scripts/wiki/export-diag-canon-slugs.ts` qui fige les
   slugs canon dans `exports/diag-canon-slugs.json`. PR auto-générée
   vers le wiki si delta.
 
 ### Phase 4 — Migration 500+ fiches (1 PR monorepo + 1 PR wiki)
+
+> **NOT COMPLETE (différée)** — les `symptoms:` legacy (≈ « 500+ fiches » recyclées, rag/knowledge) vivent encore côté RAW ; re-source curé requis, jamais RAG→relations (cf. § Reconciliation).
 
 - Script `scripts/wiki/migrate-symptoms-to-relations.ts` :
   1. Lit chaque `wiki/gamme/<slug>.md`.
@@ -300,7 +344,7 @@ conséquence avec validation stricte des champs `diagnostic_relations[]`.
 
 ## Revue planifiée
 
-**Date** : 2026-05-29 (J+30 après acceptation)
+**Date** : 2026-05-29 (J+30 après acceptation) *(historique — échéance dépassée ; readiness réel atteint 2026-05-01, cf. `ledger/knowledge/adr-033-wave-2-closed-20260501.md` ; statut formalisé 2026-07-07, voir § Reconciliation)*
 
 **Critères de revue** :
 - Au moins 1 batch system migré (idéalement freinage : ~20 fiches).

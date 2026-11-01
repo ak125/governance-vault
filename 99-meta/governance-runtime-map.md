@@ -1,90 +1,157 @@
 ---
 type: meta
 status: canon
-updated: 2026-05-10
+updated: 2026-10-01
 ---
 
 # Governance Runtime Map
 
-Snapshot du système governance vault au moment de l'ouverture de la série PR-1..6
-(« Vault Documentaire → Vault Exécutable »). Document vivant — mettre à jour à
+Carte du système governance vault, ouverte avec la série PR-1..6 (« Vault
+Documentaire → Vault Exécutable », 2026-05-10). Document vivant — mettre à jour à
 chaque ajout de script governance ou modification de write/read path.
 
-Sans ce snapshot, PR-3 (sync-moc-decisions) et PR-4 (ci-vault-gate strict)
-deviendront opaques dans 2 mois. Ce map est la précondition documentaire.
+> **État vérifié le 2026-09-30** sur `_scripts/`, `.github/workflows/`, l'API de
+> protection de branche, la crontab et `/etc/cron.d` de la machine DEV. De la
+> série PR-1..6 : le générateur `sync_moc_decisions.py` (PR-3) est livré, mais son
+> cron n'a jamais été installé ; `ci-vault-gate.sh` (PR-4) est livré en mode `pr`
+> par la PR #360 (mise à jour du 2026-10-01). `enforce_admins` est actif sur `main`.
 
 ## Composants par couche
 
 ### Couche A — Canonical sources
 
-- `_scripts/schemas/{adr,rule,moc,incident,...}.schema.json` : authority de
-  validation frontmatter (8 fichiers actuellement, 4 avec `status.enum`)
+- `_scripts/schemas/*.schema.json` : autorité de validation frontmatter
+  (8 fichiers, 4 avec `status.enum` : adr, incident, moc, rule)
 - `ledger/decisions/adr/ADR-*.md` : SoT décisions (frontmatter = state machine)
 - `ledger/rules/rules-*.md` : SoT règles canon
-- `.spec/00-canon/planning/*.yml` : SoT planning
+- `.spec/00-canon/planning/*.yml` (dans ce vault) : SoT planning (ADR-053)
 
 ### Couche B — Runtime mirrors / projections
 
 - `_scripts/governance_constants.py` : runtime mirror des schemas (PR-2,
   parity-tested)
-- `ops/moc/MOC-Decisions.md` : projection ADR frontmatter (PR-3, marker
-  `<!-- AUTO-GENERATED:* -->`)
-- `ops/moc/MOC-AuditTrail.md` : à projetter en follow-up (hors scope PR-1..6)
+- `ops/moc/MOC-Decisions.md` : projection des frontmatters ADR entre markers
+  `<!-- AUTO-GENERATED:* -->`. Régénérée **à la main** par
+  `sync_moc_decisions.py --write` dans la PR qui modifie un ADR (ex. #330, #353) :
+  le cron prévu n'est pas installé. `--check` ignore la ligne « Dernier sync »
+  (#356) et tourne sur chaque PR via `ci-vault-gate.sh pr` (#360) : une PR qui
+  modifie un ADR sans régénérer l'index a un job rouge.
+- `ops/moc/MOC-Planning-Live.md` + `ledger/snapshots/planning/` : projection
+  planning (ADR-053), figée au 2026-08-14 — writer retiré par ADR-104, voir Couche D.
+- `ops/moc/MOC-AuditTrail.md` : à projeter en follow-up (hors scope PR-1..6)
 
 ### Couche C — Validators & generators (scripts)
 
-| Script | Type | Lit | Écrit | Invoqué par |
-|--------|------|-----|-------|-------------|
-| `check-frontmatter-schema.py` | validator | `schemas/*` + frontmatters | findings | weekly-lint |
-| `check-moc-integrity.py` | validator | MOCs + ADR frontmatters | findings | weekly-lint |
-| `check-adr-supersedes.py` | validator | ADR frontmatters | findings | weekly-lint |
-| `check-obsolete-rules.py` | validator | rule frontmatters | findings | weekly-lint |
-| `check_no_direct_schema_enum_access.py` | validator (PR-2b) | `_scripts/*.py` AST | findings | weekly-lint |
-| `sync-moc-decisions.py` | generator (PR-3) | ADR frontmatters | `MOC-Decisions.md` (entre markers) | cron VPS DEV |
-| `weekly-lint.sh` | **🔧 Governance Runtime Entrypoint** | tous les checks | `findings.json` + `report.md` | GHA cron + ci-vault-gate |
-| `ci-vault-gate.sh` | gate (PR-4) | weekly-lint output | exit 0/1 + GH issue `infra-fail` | `vault-governance.yml` + `vault-weekly-lint.yml` |
+| Script | Rôle | Invoqué par |
+|--------|------|-------------|
+| `check-orphans.sh` | G2 (zéro orphelin) | hooks pre-commit + pre-push, check requis `G2: Zero Orphelin`, weekly-lint, `preflight-write.sh`, `new-incident.sh` |
+| `check-broken-links.sh` | wikilinks cassés | hooks pre-commit + pre-push, check requis `Broken Wikilinks`, weekly-lint, `preflight-write.sh`, `new-incident.sh` |
+| `check-v1-paths.sh` | chemins v1 (ADR-015) | check requis `No V1 Paths (ADR-015)`, weekly-lint, `preflight-write.sh` |
+| `check-signatures.sh` | G3 (signatures) | check requis `G3: Commits signes`, hook pre-push |
+| `check-vault-pollution.sh` | sections opérationnelles (ADR-060 §1A inv. 5) | check **non requis** `No Operational Sections`, weekly-lint |
+| `check-self-review-marker.sh` | marqueur `Self-review verdict` | check **non requis** `Self-Review Marker` |
+| `check-ci-read-only.py` | G4 : aucun workflow ne peut écrire dans le vault (ADR-102 D3) | checks requis `G4: CI read-only sur canon` et `Vault Scripts Tests` (`test_ci_read_only.py` sur les workflows réels) |
+| `check-frontmatter-schema.py`, `check-adr-supersedes.py`, `check-obsolete-rules.py`, `check-moc-integrity.py` | frontmatter, chaînes supersedes, rules obsolètes, invariants MOC | weekly-lint |
+| `check-no-direct-schema-enum-access.sh` (→ `check_no_direct_schema_enum_access.py`), `test_governance_constants.py` | frontière schemas ↔ constants (PR-2 / PR-2b) | weekly-lint |
+| `check-canon-backlinks.py`, `check-canon-freshness.py`, `check-canon-cross-repo.py` | cohérence vault ↔ monorepo | weekly-lint, seulement si le monorepo est présent : marqués `skipped` en GHA |
+| `audit-signatures.sh` | rapport de signatures | manuel (cité dans l'en-tête de `weekly-lint.sh`, pas exécuté par lui) |
+| `sync_moc_decisions.py` | générateur MOC-Decisions (PR-3) | manuel (`--write` dans les PR ADR) ; `--check` par `ci-vault-gate.sh pr` |
+| `cron-sync-moc-decisions.sh`, `cron-sync-canon-mirrors.sh` (→ `sync_canon_mirrors.py`) | wrappers cron auto-PR | **aucun cron installé** |
+| `compute-canon-hashes.py` | hashes des rules publiées | `canon-publish.yml`, `sync_canon_mirrors.py`, `test_canon_hashes.py` |
+| `build-opa-bundles.sh` | bundles OPA | `opa-policy-build.yml` |
+| `preflight-write.sh`, `new-incident.sh` | — | manuel |
+| `setup-branch-protection.sh` | protection de `main` versionnée ([[branch-protection]]) | manuel ; `--check` = comparaison en lecture seule avec la protection en vigueur |
+| `weekly-lint.sh` | **🔧 Governance Runtime Entrypoint** (agrégateur) | `vault-weekly-lint.yml` ; `ci-vault-gate.sh pr` (`--no-monorepo`) |
+| `ci-vault-gate.sh` | gate de PR (PR-4) : weekly-lint sans les checks cross-repo + `sync_moc_decisions.py --check` ; mode `pr` seul (mode `weekly` et issue `infra-fail` non implémentés) | check `Vault Lint Gate (ADR-020)` |
+| `test_*.py` (`_scripts/`) | tests des validateurs et générateurs | check `Vault Scripts Tests` (`pytest _scripts`) |
 
-> **⚠️ Reframing important** : `weekly-lint.sh` n'est plus « juste du lint ».
-> Il est devenu progressivement l'entrypoint runtime du governance kernel :
-> scheduler logique, agrégateur, reporting engine, gate engine, dispatcher.
-> Le nom historique reste pour la rétrocompat ; le mental model doit changer.
-> Renommage explicite (`governance-runtime.sh`) en follow-up quand un signal
-> le justifie (ex: nouveau contributeur confus).
+> **Reframing** : `weekly-lint.sh` n'est plus « juste du lint » : il agrège tous
+> les checks et produit `findings.json` + `report.md`. Il tourne en entier chaque
+> lundi (`vault-weekly-lint.yml`, non bloquant : issue quand de nouveaux findings
+> apparaissent) et, sans les 3 checks cross-repo, sur chaque PR via
+> `ci-vault-gate.sh pr` (rouge sur toute erreur). Les gates bloquants sont les
+> checks requis de `vault-governance.yml` ([[branch-protection]]), dont le job du
+> gate depuis le 2026-10-01.
 
 ### Couche D — Automation (CI + cron)
 
-GHA workflows actifs (5 fichiers `.github/workflows/`) :
+GHA workflows (6 fichiers `.github/workflows/`) :
 
 | Workflow | Déclenchement | Rôle |
 |----------|---------------|------|
-| `vault-governance.yml` | sur PR | gates G2/G3, broken-links, v1-paths, canon-write-block. PR-4 ajoute `ci-vault-gate.sh pr` |
-| `vault-weekly-lint.yml` | Monday 02:00 UTC | weekly-lint complet + artifact diffing. PR-4 ajoute `ci-vault-gate.sh weekly` |
-| `vault-self-review-marker.yml` | sur PR | enforce `Self-review verdict: APPROVE` body marker |
-| `vault-supabase-cost-check.yml` | scheduled | DB cost monitoring (ADR-035) |
-| `canon-publish.yml` | sur push tag/main | publish canon hashes vers consommateurs (monorepo, AEC) |
+| `vault-governance.yml` | PR vers `main` ; push sur `main` et `refactor/**` | checks requis G2, Broken Wikilinks, G3, G4, No V1 Paths ; `Vault Scripts Tests` et `Vault Lint Gate (ADR-020)` (ajoutés par #360, requis une fois la protection mise à jour) ; `No Operational Sections` (non requis) |
+| `vault-self-review-marker.yml` | PR vers `main` (opened, edited, synchronize, reopened) | `Self-Review Marker` (non requis) |
+| `vault-weekly-lint.yml` | lundi 02:00 UTC + manuel | weekly-lint complet, diff avec le run précédent, issue (`governance`, `weekly-lint`) si nouveaux findings ; non bloquant |
+| `vault-supabase-cost-check.yml` | lundi 08:00 UTC + manuel | dérive de la surface de coût DB (ADR-028, ADR-034) |
+| `canon-publish.yml` | push `main` et PR touchant les rules publiées, `99-meta/canon-hashes.json` ou `compute-canon-hashes.py` ; manuel | contrôle des hashes ; sur push `main`, `repository_dispatch canon-updated` vers automecanik-wiki, automecanik-raw et nestjs-remix-monorepo |
+| `opa-policy-build.yml` | PR et push `main` touchant `policies/**`, `dist/policies/**` ou `build-opa-bundles.sh` | tests + build des bundles OPA |
 
-Cron VPS DEV (Monday 01:30 UTC, ajouté par PR-3) : `sync-moc-decisions.py
---write` + auto-PR signée G3. Documenté dans `99-meta/cron-setup.md` (section
-« Cron actifs sur VPS DEV », ajoutée par PR-3).
+Cron machine DEV :
 
-Branch protection main : signed commits G3 obligatoires, required status checks.
-**Gap connu** : `enforce_admins=false` aujourd'hui sur le vault — admin peut
-bypass. À combler par PR séparée hors scope PR-1..6 (cf. modèle 3-couches §
-ci-dessous).
+| Cron | Installé | Effet |
+|------|----------|-------|
+| `vault-sync.sh` (crontab `deploy`, toutes les 5 min, hors dépôt) | oui | HEAD sur une autre branche : met à jour la seule ref `main` (fast-forward), sans toucher HEAD ni l'arbre ; HEAD sur `main` et arbre propre : fast-forward |
+| writer planning (`/etc/cron.d/planning-live`, ADR-053) | fichier oui (root, suppression owner à faire) — writer **neutralisé** par ADR-104 | s'arrête sur le venv absent, avant verrou et git ; voir ci-dessous |
+| `cron-sync-moc-decisions.sh` (prévu lundi 01:30 UTC) | non | — |
+| `cron-sync-canon-mirrors.sh` | non | — |
+| audit-signatures, check-orphans ([[cron-setup]]) | non | — |
+
+Les deux wrappers auto-PR non installés commencent par
+`git checkout main && git reset --hard origin/main` dans le checkout où ils
+tournent : le checkout runtime du vault pour l'un, le checkout principal du
+monorepo pour l'autre. Ne les installer que sur un clone dédié.
+
+#### Writer planning (ADR-053) — retiré
+
+- **Retiré le 2026-10-01** par [[ADR-104-planning-live-writer-retired|ADR-104]] : `_scripts/planning/`
+  supprimé, [[MOC-Planning-Live]] figé au 2026-08-14. Le writer est neutralisé :
+  venv `/opt/automecanik/.venvs/planning-live` et fichier d'environnement archivés
+  hors du vault, donc `run-cron.sh` sort en erreur avant le verrou et avant toute
+  commande git. Le fichier `/etc/cron.d/planning-live` (root) reste installé
+  jusqu'à sa suppression par l'owner ; il exécute le checkout partagé, pas `main`,
+  donc la suppression de `_scripts/planning/` sur `main` ne l'arrête pas à elle
+  seule. Les constats ci-dessous sont l'historique qui a motivé le retrait.
+- **Horaire** : `0 8 * * *` dans `/etc/cron.d/planning-live`, interprété dans le
+  fuseau de la machine (Europe/Paris) : 06:00 UTC en été, 07:00 UTC en hiver. Le
+  commentaire du fichier et ADR-053 disent « 08:00 UTC ».
+- **Mécanique** : dans le checkout runtime partagé, `git reset --hard origin/main`
+  sur la branche qui y est extraite, puis commit signé et `git push origin main`.
+- **Rien sur `main` depuis le 2026-08-14** (dernier commit planning : `4c94c7d`).
+  Du 2026-08-15 au 2026-09-14, les 31 exécutions ont commité sur la branche
+  extraite à ce moment, pas sur `main` ; `git push origin main` répondait
+  `Everything up-to-date` et le log écrivait `OK`. Chaque exécution a aussi
+  ramené cette branche à `origin/main` : ses commits locaux non poussés ne
+  restent accessibles que par le reflog.
+- **Aucune exécution journalisée depuis le 2026-09-14.** Depuis le redémarrage du
+  2026-09-17, le répertoire du verrou (`/var/lock/automecanik/`, sur tmpfs)
+  n'existe plus : l'ouverture du verrou échoue et le script sort en 1 avant
+  d'écrire son log ou son état. Le fichier cron n'a pas de `MAILTO` et aucun MTA
+  n'est actif ; le dernier état enregistré reste `ok` (2026-09-14), sans
+  `max_age_s`, donc le silence n'est pas détecté. Les 2026-09-15 et 09-16 ne
+  sont pas vérifiables (journal système non lisible par `deploy`). Cet arrêt
+  était accidentel ; ADR-104 le remplace par la neutralisation ci-dessus.
+- **Ne pas « réparer » en recréant le répertoire du verrou** : le script
+  reprendrait ses `reset --hard` sur le checkout partagé, et son push direct sur
+  `main` est de toute façon refusé (`enforce_admins`). ADR-104 a retenu le
+  retrait (options comparées dans l'ADR).
+
+Branch protection main : checks requis, `enforce_admins: true`, PR requise
+(0 review), historique linéaire — liste et détail dans [[branch-protection]] ;
+`_scripts/setup-branch-protection.sh --check` compare la protection en vigueur
+à la configuration versionnée.
 
 ## Modèle 3 couches de protection
 
-État actuel de la protection effective du vault :
+État de la protection effective du vault (vérifié le 2026-10-01 par `setup-branch-protection.sh --check`) :
 
-| Couche | Mécanisme | État vault 2026-05-10 | Couvert par |
+| Couche | Mécanisme | État vault | Couvert par |
 |--------|-----------|------------------------|-------------|
 | **L1 — Canonique (logique)** | ADRs / SoT / canonical routes / role canon / URL ownership / write-path | ✅ Actif | ADR-015, R-SEO-09, frontmatter schemas, série PR-1..3 |
-| **L2 — CI (structurel)** | weekly-lint + ci-vault-gate.sh PR mode + parity test enums + AST no-direct-schema | 🟡 Partiel (weekly-lint OK, strict gate pas encore actif) | PR-2 / PR-2b / PR-4 |
-| **L3 — GitHub branch (runtime)** | `enforce_admins=true` + signed commits G3 + required reviews | 🔴 Gap : `enforce_admins=false` sur main | PR séparée hors scope PR-1..6 |
+| **L2 — CI (structurel)** | checks requis sur chaque PR, dont le gate `ci-vault-gate.sh pr` (weekly-lint sans cross-repo + `sync_moc_decisions.py --check`) et `pytest _scripts` + weekly-lint hebdomadaire complet (non bloquant) + parity test enums + AST no-direct-schema | 🟡 Partiel : gate livré par #360, check requis depuis le 2026-10-01 ; mode `weekly` et issue `infra-fail` non implémentés ; checks cross-repo seulement sur la machine DEV | `vault-governance.yml`, PR-2 / PR-2b, #360 |
+| **L3 — GitHub branch (runtime)** | `enforce_admins=true` + check requis G3 + PR requise | ✅ Actif (constaté le 2026-10-01 : 7 checks requis, 0 review requise ; `required_signatures` en vigueur ; merge rebase interdit au niveau du dépôt (`allow_rebase_merge: false`), seul le squash fusionne sur `main` ; voir [[branch-protection]]) | [[branch-protection]] |
 
-Annoncer « système verrouillé » suppose les 3 couches ✅. Aujourd'hui un admin
-peut techniquement bypass L1+L2 par push direct. Ce gap est traité par une PR
-dédiée hors série, pour ne pas mélanger gouvernance logique + sécurité GitHub.
+Le push direct sur `main` est refusé à tous, admins compris. Ce qui reste ouvert
+est en L2 : les checks cross-repo ne tournent que sur la machine DEV.
 
 ## Write paths
 
@@ -92,12 +159,14 @@ dédiée hors série, pour ne pas mélanger gouvernance logique + sécurité Git
 |------|-----------------|--------|
 | `ledger/decisions/adr/ADR-*.md` | humains | PR signée G3 |
 | `ledger/rules/rules-*.md` | humains | PR signée G3 |
-| `ops/moc/MOC-Decisions.md` (contenu entre markers AUTO-GENERATED) | cron VPS DEV (PR-3) | auto-PR signée G3 |
-| `ops/moc/MOC-Decisions.md` (colonne Notes inside markers) | humains | PR signée G3, préservée par cron |
+| `ops/moc/MOC-Decisions.md` (contenu entre markers AUTO-GENERATED) | humains, via `sync_moc_decisions.py --write` | PR signée G3 (auto-PR cron prévue, non installée) |
+| `ops/moc/MOC-Decisions.md` (colonne Notes) | humains | prévue, pas encore introduite |
+| `ops/moc/MOC-Planning-Live.md`, `ledger/snapshots/planning/` | aucun — figés au 2026-08-14 (ADR-104) | PR signée G3 portée par un ADR |
 | `_scripts/*.py` | humains | PR signée G3 |
 | `_scripts/schemas/*.schema.json` | humains (rare, ADR requise) | PR signée G3 |
 | `99-meta/cron-setup.md` | humains | PR signée G3 |
-| GH Issues label `infra-fail` | `ci-vault-gate.sh` | GHA token, debounced 6h |
+| GH Issues labels `governance` + `weekly-lint` | `vault-weekly-lint.yml` | `GITHUB_TOKEN` (`issues: write`), seulement si nouveaux findings |
+| `repository_dispatch canon-updated` (3 dépôts consommateurs) | `canon-publish.yml` | token du workflow, sur push `main` |
 
 ## Read paths
 
@@ -106,7 +175,7 @@ dédiée hors série, pour ne pas mélanger gouvernance logique + sécurité Git
 | `schemas/*.schema.json` (full schema) | `check-frontmatter-schema.py` (validation conformité) |
 | `schemas/*.schema.json` (enum extraction) | `test_governance_constants.py` UNIQUEMENT (parity test) |
 | `governance_constants.py` | tous les autres scripts (impérativement, pas de parse direct enum) |
-| ADR frontmatters | `sync-moc-decisions.py`, `check-moc-integrity.py`, `check-adr-supersedes.py` |
+| ADR frontmatters | `sync_moc_decisions.py`, `check-moc-integrity.py`, `check-adr-supersedes.py` |
 
 ## Forbidden patterns (governance-runtime-boundaries)
 
@@ -115,9 +184,12 @@ dédiée hors série, pour ne pas mélanger gouvernance logique + sécurité Git
    complète du schema (`check-frontmatter-schema.py`) reste légitime.
 2. ❌ `governance_constants.py` ne contient AUCUNE fonction calculée, AUCUN
    import hors `__future__` — enforced par TestPurity (PR-2)
-3. ❌ Aucun cron / CI ne push direct main — toujours auto-PR signée G3
+3. ❌ Aucun cron / CI ne push direct main — toujours auto-PR signée G3.
+   Le writer planning d'ADR-053, qui poussait directement sur `main`, est
+   retiré par ADR-104 (voir Couche D).
 4. ❌ Aucune édition manuelle entre markers `<!-- AUTO-GENERATED:* -->` (sauf
-   colonne Notes) — détecté par `sync-moc-decisions.py --check`
+   colonne Notes) — détectable par `sync_moc_decisions.py --check` (check requis
+   `Vault Lint Gate (ADR-020)` depuis #360)
 5. ❌ Aucun script governance ne fait orchestration cross-repo, runtime state
    mutation, ou decision-making (= entreraient dans le Governance Engine —
    out-of-scope vault)
@@ -127,10 +199,12 @@ dédiée hors série, pour ne pas mélanger gouvernance logique + sécurité Git
 
 ## Trigger to revisit this map
 
-- Ajout d'un nouveau script `_scripts/*.py` non listé Couche C → mettre à jour
+- Ajout d'un nouveau script `_scripts/*` non listé Couche C → mettre à jour
   le tableau
 - Ajout d'un nouveau write path → mettre à jour write paths
-- Modification du flow cron VPS DEV → mettre à jour Automation
-- Activation de `enforce_admins=true` sur main → passer L3 à ✅ dans le tableau
-  3-couches
+- Installation, retrait ou panne d'un cron (sync-moc, canon-mirrors, tout
+  nouveau writer — ADR-104 D5)
+  → mettre à jour Couche D
+- Ajout ou retrait d'un check requis, mode `weekly` ou issue `infra-fail` de
+  `ci-vault-gate.sh` → revoir L2 dans le tableau 3-couches
 - ADR canon-doc `governance-runtime-boundaries.md` créée → linker depuis ce map

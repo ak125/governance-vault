@@ -3,12 +3,12 @@ type: index
 status: canon
 category: agents
 subcategory: bundles
-updated: 2026-04-17
+updated: 2026-10-01
 ---
 
 # INDEX: Agents / Agent Bundles (legacy wrapped bundles)
 
-> Bundles historiques d'agents (format wrapped, pre-v2 governance). Ces bundles sont conserves pour reference mais ne sont plus actifs. Voir [[ADR-013-agent-lifecycle-governance]].
+> Bundles historiques d'agents (format wrapped, pre-v2 governance). Le canal de bundles est retire par [[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4|ADR-102]] : un agent modifie un depot par branche + PR sur ce depot. Le registre est archive.
 
 **Parent MOC**: [[MOC-Agents]]
 
@@ -16,7 +16,7 @@ updated: 2026-04-17
 
 ## Agents (bundles)
 
-- [[BUNDLE-REGISTRY]]
+- [[archived-BUNDLE-REGISTRY]] (archive)
 
 ---
 
@@ -29,4 +29,4 @@ updated: 2026-04-17
 
 ---
 
-_Derniere mise a jour: 2026-04-17_
+_Derniere mise a jour: 2026-10-01 (ADR-102)_

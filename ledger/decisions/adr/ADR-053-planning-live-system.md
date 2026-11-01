@@ -3,11 +3,11 @@ id: ADR-053
 title: Planning Live System (cross-repo PR/ADR aggregation)
 status: accepted
 date: 2026-05-08
-deciders: [Fafa]
 decision_makers: [Fafa]
 related: [MOC-Roadmap-2026, MOC-Planning-Live, ADR-034]
+amended_by: ["ADR-104"]
 # --- état spécifique Planning Live (NOT a canon ADR field) ---
-planning_live_state: live
+planning_live_state: retired  # ADR-104 (2026-10-01) : writer, projections et alertes retirés ; MOC figé au 2026-08-14
 live_since: 2026-05-08
 observability_required_days: 7
 override_observability_gate: true
@@ -15,6 +15,11 @@ override_rationale: "User signoff explicite 2026-05-08 17:30 UTC — empirical p
 ---
 
 # ADR-053: Planning Live System
+
+> **Amendé par [[ADR-104-planning-live-writer-retired|ADR-104]] (2026-10-01)** : le writer automatique
+> (§Decision 4, I2, I3), la projection GitHub Project (§Decision 2, Annexes A et B) et les alertes P0
+> (§Decision 3, I5, §6) sont retirés ; le MOC et les snapshots sont un instantané figé au 2026-08-14
+> (I1). I4 et les taxonomies `.spec/00-canon/planning/` restent en vigueur.
 
 ## Context
 
@@ -168,11 +173,11 @@ utiliser GraphQL directement.
 ```bash
 gh api graphql -f query='
   query($login: String!, $number: Int!) {
-    organization(login: $login) {
+    user(login: $login) {
       projectV2(number: $number) { id }
     }
   }' -f login=ak125 -F number=$PROJECT_NUM \
-  --jq '.data.organization.projectV2.id'
+  --jq '.data.user.projectV2.id'
 ```
 
 **2. Créer un champ single-select** (ex: `Priority`) :

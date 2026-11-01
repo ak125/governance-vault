@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""check-adr-supersedes.py — Valide les chaines supersedes / superseded_by des ADRs.
+"""check-adr-supersedes.py — Valide les chaines supersedes / superseded_by
+et amends / amended_by des ADRs.
 
 Detecte :
   1. supersedes pointe vers un ADR qui n'existe pas
@@ -8,6 +9,12 @@ Detecte :
   4. Asymetrie : A.supersedes = [B] mais B.superseded_by ne contient pas A
   5. ADR avec status=superseded mais superseded_by vide
   6. ADR avec status!=superseded mais superseded_by non vide
+  7. amends pointe vers un ADR qui n'existe pas (une cible qui n'est pas un
+     ADR doit etre une rule existante : ledger/rules/<cible>.md)
+  8. Asymetrie : A.amends = [B], A accepte, mais B.amended_by ne contient pas A.
+     Un ADR non accepte n'amende rien (normativite) : aucun lien retour exige.
+  9. amended_by pointe vers un ADR qui n'existe pas
+ 10. Asymetrie : B.amended_by = [A] mais A.amends ne contient pas B
 
 Usage:
   python3 _scripts/check-adr-supersedes.py [VAULT_PATH] [--json]
@@ -21,6 +28,15 @@ import json
 import re
 import sys
 from pathlib import Path
+
+from governance_constants import ADR_STATUSES_ACTIVE
+
+
+def _as_list(value) -> list:
+    """Champ de relation (None | scalaire | liste) -> liste."""
+    if value in (None, "", []):
+        return []
+    return value if isinstance(value, list) else [value]
 
 
 def parse_frontmatter(text: str) -> dict:
@@ -62,6 +78,7 @@ def main(argv: list[str]) -> int:
     vault_path = Path(argv[1]).resolve() if len(argv) > 1 and not argv[1].startswith("--") else Path.cwd()
     emit_json = "--json" in argv
     adr_dir = vault_path / "ledger" / "decisions" / "adr"
+    rules_dir = vault_path / "ledger" / "rules"
 
     if not adr_dir.is_dir():
         print(f"Error: adr dir not found: {adr_dir}", file=sys.stderr)
@@ -110,6 +127,19 @@ def main(argv: list[str]) -> int:
         for target in superseded_by:
             if target not in adrs:
                 add("error", file, f"{adr_id}.superseded_by references missing {target}", "superseded_by/target-exists")
+
+        for target in _as_list(fm.get("amends")):
+            if target in adrs:
+                if status in ADR_STATUSES_ACTIVE and adr_id not in _as_list(adrs[target].get("amended_by")):
+                    add("warning", file, f"{adr_id}.amends={target} but {target}.amended_by does not list {adr_id}", "amends/bidirectional")
+            elif not (rules_dir / f"{target}.md").is_file():
+                add("error", file, f"{adr_id}.amends references missing {target}", "amends/target-exists")
+
+        for target in _as_list(fm.get("amended_by")):
+            if target not in adrs:
+                add("error", file, f"{adr_id}.amended_by references missing {target}", "amended_by/target-exists")
+            elif adr_id not in _as_list(adrs[target].get("amends")):
+                add("warning", file, f"{adr_id}.amended_by={target} but {target}.amends does not list {adr_id}", "amended_by/bidirectional")
 
         if status == "superseded" and not superseded_by:
             add("error", file, f"{adr_id}.status=superseded but superseded_by is empty", "superseded_by/required-when-superseded")

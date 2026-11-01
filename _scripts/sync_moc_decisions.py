@@ -18,6 +18,11 @@ generator's stability before PR-4 strict gate locks the system.
   table in favor of the auto-generated one + a Notes column for human-only
   metadata.
 
+**Phase B, partial (2026-09-30):** the manual table is frozen as history (its
+last hand-added row is ADR-096, and 17 ADRs were never added to it) and
+`check-moc-integrity.py` now checks this auto-generated index instead. The
+Notes column is still not introduced.
+
 **Why dual-section, not in-place rewrite of the existing table:**
 - Rich text in current rows ("Superseded by [[ADR-010]] + [[ADR-025]]
   (de facto joint coverage, 2026-04-27)") contains info NOT mechanically
@@ -27,9 +32,11 @@ generator's stability before PR-4 strict gate locks the system.
 
 ## Modes
 
-- `--check`     : dry-read both sections, exit 1 if generator output differs
-                  from current file content. Used by CI / pre-commit / cron.
-- `--write`     : actually rewrite the section between markers. Idempotent.
+- `--check`     : dry-read both sections, exit 1 if the generated index differs
+                  from the one in the file (the « Dernier sync » line is ignored).
+                  Used by CI / pre-commit / cron.
+- `--write`     : actually rewrite the section between markers. Idempotent: a
+                  date-only difference is not written.
 - `--dry-run`   : print diff to stdout, exit 0.
 
 If markers are absent, `--write` inserts the new section AFTER the existing
@@ -203,7 +210,7 @@ def render_section(adrs: list[dict]) -> str:
         f"\n"
         f"> Projection mécanique du frontmatter ADR (PR-3 sync_moc_decisions).\n"
         f"> Toute édition manuelle entre les markers est écrasée à chaque sync.\n"
-        f"> Pour annoter, éditer le frontmatter ADR ou la table « ADR Actifs » ci-dessus.\n"
+        f"> Pour corriger un statut ou un titre, éditer le frontmatter de l'ADR puis relancer `--write`.\n"
         f"> Dernier sync : {today}.\n"
         f"\n"
         f"{render_table(adrs)}"
@@ -298,8 +305,11 @@ def main() -> int:
     for w in legacy_warnings:
         print(f"::warning:: legacy frontmatter key — {w}", file=sys.stderr)
 
+    # Seule la ligne « Dernier sync » differe : ce n'est pas une derive. Comparer
+    # `current != new_text` faisait echouer --check chaque jour et faisait reecrire
+    # le fichier par --write (commit fantome), contre le contrat « Idempotent ».
     if args.check:
-        if current != new_text:
+        if section_changed:
             diff = "".join(
                 difflib.unified_diff(
                     current.splitlines(keepends=True),
@@ -331,7 +341,7 @@ def main() -> int:
         return 0
 
     # --write
-    if current == new_text:
+    if not section_changed:
         print(f"OK: MOC-Decisions.md already up to date ({len(adrs)} ADRs)")
         return 0
     MOC_FILE.write_text(new_text, encoding="utf-8")

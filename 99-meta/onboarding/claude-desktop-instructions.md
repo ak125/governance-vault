@@ -1,9 +1,9 @@
 ---
 type: knowledge
 status: canon
-updated: 2026-04-24
+updated: 2026-10-01
 audience: [claude-desktop-operator, onboarding]
-related_adr: [ADR-012, ADR-015]
+related_adr: [ADR-012, ADR-015, ADR-101]
 related_rules: [G1, G2, G3, G4]
 ---
 
@@ -15,42 +15,41 @@ Tu travailles sur le Governance Vault AutoMecanik (clone de `ak125/governance-va
 
 ## Règle Absolue
 
-Ce vault n'est PAS le canon architectural. Le canon vit dans `.spec/00-canon/` du monorepo `ak125/nestjs-remix-monorepo`. Ce vault est un miroir enrichi opérationnel (règle G1).
+Le vault décide, le monorepo `ak125/nestjs-remix-monorepo` exécute (règle G1, [[ADR-101-vault-decides-canon-authority|ADR-101]]). Les ADR `accepted` et les règles de `ledger/rules/` sont normatifs. Dans `.spec/00-canon/` du monorepo, seuls les contrats consommés par du code, un générateur ou un check CI font foi, dans leur domaine.
 
-Chemin canonique (exemple poste Windows) : `C:\Users\Marwane\nestjs-remix-monorepo\governance-vault\` (exposé via MCP `governance-vault`).
+Chemin canonique (exemple poste Windows) : `<home>\nestjs-remix-monorepo\governance-vault\` (exposé via MCP `governance-vault`).
 
 JAMAIS écrire dans :
 
 - `app/.local/governance-vault/` — DEPRECATED (voir [[ADR-015-vault-single-source-of-truth]])
-- `.spec/00-canon/` — canon, modifier via monorepo uniquement
+- `.spec/00-canon/` — fichiers du monorepo, modifiés par PR monorepo uniquement
 
 ## Règles G1-G4 à respecter
 
-- **G1 Canon-Fait-Foi** : ne jamais modifier un document `status: canon` sans ADR (Architectural Decision Record)
+- **G1 Le Vault Décide** : aucune décision prise ou modifiée sans ADR (Architectural Decision Record) ; une divergence entre une règle et le code se signale
 - **G2 Zéro-Orphelin** : tout nouveau document doit être lié depuis un MOC (`ops/moc/MOC-*.md`) ou un INDEX-*
 - **G3 Commits-Signés** : proposer uniquement des commits signés ed25519 ; ne jamais contourner la signature
-- **G4 CI-Read-Only** : ne jamais proposer d'écriture depuis un workflow GitHub Actions
+- **G4 Écriture par PR, CI en lecture seule** : toute modification passe par une PR signée ; un agent ne fusionne jamais ; ne jamais proposer d'écriture depuis un workflow GitHub Actions
 
-## Structure v2 du vault
+## Structure v2 du vault (dossiers principaux)
 
 ```
 ledger/            # Historique immuable
   incidents/YYYY/
   decisions/adr/
-  audits/
   audit-trail/
+  rules/           # Taxonomie T / G / AI / V (rules-<domaine>.md)
   policies/
   agents/
-  compliance/
+  compliance/      # evidence-pack/YYYY/YYYY-MM/EP-…/, checklists/, plans/
   knowledge/
-  deployments/
   _archive/
 ops/               # Opérationnel
   moc/             # Maps of Content (points d'entrée)
-  rules/           # Taxonomie T / G / AI / V
-  policies/
+  runbooks/
+policies/          # Policies de contenu (ex. seo-content/)
 _templates/        # Modèles réutilisables
-_scripts/          # check-orphans, check-broken-links, new-incident, evidence-pack
+_scripts/          # preflight-write, check-orphans, check-broken-links, check-v1-paths, new-incident
 99-meta/           # Gouvernance du vault
 AGENTS.md          # Guardrails agents (lire en priorité)
 CLAUDE.md          # Instructions agents (ce fichier est un extrait)
@@ -62,26 +61,28 @@ CLAUDE.md          # Instructions agents (ce fichier est un extrait)
 |------|-------------|----------|
 | Incident | `ledger/incidents/YYYY/YYYY-MM-DD-<slug>.md` | `_templates/incident-template.md` |
 | ADR | `ledger/decisions/adr/ADR-NNN-<slug>.md` | `_templates/adr-template.md` |
-| Règle T/G/AI/V | `ops/rules/rules-<taxonomie>.md` | `_templates/rule-template.md` |
+| Règle T/G/AI/V | `ledger/rules/rules-<domaine>.md` | `_templates/rule-template.md` |
 | Audit report | `ledger/audit-trail/YYYY-MM-DD-<slug>.md` | — |
-| Evidence-pack | `ledger/audits/evidence-packs/EP-YYYYMMDD-<slug>/` | `_scripts/evidence-pack.sh` |
+| Evidence-pack | `ledger/compliance/evidence-pack/YYYY/YYYY-MM/EP-YYYYMMDD-<slug>/` | manuel |
 | Knowledge | `ledger/knowledge/` | libre |
 | MOC | `ops/moc/MOC-<scope>.md` | — |
 
 ## Workflow nouveau-document
 
-1. `git pull --rebase origin main` (le cron DEV VPS absorbe les pushes, mais vérifier quand même)
-2. Vérifier que la branche de travail est bien basée sur `origin/main` à jour : `git merge-base --is-ancestor origin/main HEAD`
+1. `git pull --rebase origin main` (le cron `vault-sync.sh` ne met à jour que le checkout de la machine DEV, pas ce clone)
+2. Preflight obligatoire : `_scripts/preflight-write.sh` — exit 0 = GO ; tout autre code = corriger avant d'écrire (voir [[AGENTS]])
 3. Créer une branche : `git checkout -b <type>/<slug>` (ex : `docs/inc-2026-003-xxx`, `adr/ADR-NNN-yyy`)
-4. Utiliser un helper si disponible : `_scripts/new-incident.sh <severity> <slug>` ou `_scripts/evidence-pack.sh`
+4. Utiliser un helper si disponible : `_scripts/new-incident.sh <severity> <slug>`
 5. Rédiger avec frontmatter YAML conforme au template
 6. Lier depuis un MOC (`ops/moc/MOC-*.md`) — G2
 7. Valider : `_scripts/check-orphans.sh .` et `_scripts/check-broken-links.sh .`
 8. Proposer le commit signé : `git commit -S -m "docs(<type>): ..."`
 9. Push + PR via `gh pr create --base main`
-10. Attendre CI G1-G4 verte, review, merge rebase
+10. Attendre que tous les checks requis soient verts (liste dans [[branch-protection]]), puis merge squash : `gh pr merge <N> --squash --match-head-commit <sha>` ; la protection n'exige aucune review
 
-## Anti-patterns (BLOQUÉS)
+## Anti-patterns (interdits)
+
+Bloqués mécaniquement : orphelins, wikilinks cassés, commits non signés, chemins v1 (checks requis) et push direct ou forcé sur `main` (protection de branche). L'écriture CI est empêchée par le bloc `permissions:` de chaque workflow, et le check requis G4 (`_scripts/check-ci-read-only.py`) le vérifie à chaque PR. Le reste repose sur les hooks locaux ou la revue.
 
 - Écrire dans `.local/governance-vault/` (pre-commit hook bloque)
 - Créer un document sans frontmatter YAML
@@ -90,7 +91,8 @@ CLAUDE.md          # Instructions agents (ce fichier est un extrait)
 - Force-push sur `main`
 - Modifier `status: canon` sans ADR
 - Renuméroter un ADR `status: accepted` (immutable)
-- Écrire depuis CI (`AI_VAULT_WRITE=false` doit rester respecté)
+- Écrire depuis CI (G4 : la CI n'écrit rien, vérifié par `_scripts/check-ci-read-only.py`)
+- Fusionner une PR (G4 : la fusion revient à un humain)
 
 ## Conventions nommage
 
@@ -110,15 +112,15 @@ CLAUDE.md          # Instructions agents (ce fichier est un extrait)
 | Un audit | `ops/moc/MOC-AuditTrail.md` |
 | Un evidence-pack | `ops/moc/MOC-Compliance.md` |
 | Savoirs opérationnels | `ops/moc/MOC-Knowledge.md` |
-| Le canon (hors vault) | `.spec/00-canon/` du monorepo |
+| Les contrats du monorepo (hors vault) | `.spec/00-canon/` du monorepo (rang : ADR-101 D2) |
 
 ## 3-VPS Architecture (voir [[ADR-012-aicos-vps-architecture]])
 
 | VPS | Rôle | Write vault ? |
 |---|---|---|
-| DEV (46.224.118.55) | Dev, CI, vault runtime canonique | Oui (via PR signée) |
-| PROD (49.12.233.2) | Production | Non (read-only mirror) |
-| AI-COS (178.104.1.118) | Agents IA, Airlock | Non (git clone read-only) |
+| DEV | Dev, CI, vault runtime canonique | Oui (via PR signée) |
+| PROD | Production | Non (miroir en lecture seule) |
+| AI-COS | Agents IA | Non (git clone read-only) |
 
 ## Limites Claude Desktop dans ce contexte
 
@@ -131,7 +133,7 @@ CLAUDE.md          # Instructions agents (ce fichier est un extrait)
 
 - Owner : Fafa (automecanik.seo@gmail.com)
 - Repo : https://github.com/ak125/governance-vault
-- Canon : https://github.com/ak125/nestjs-remix-monorepo (`.spec/00-canon/`)
+- Monorepo (exécute) : https://github.com/ak125/nestjs-remix-monorepo
 
 ---
 

@@ -5,7 +5,7 @@
 **Status:** ACTIVE – SOURCE OF TRUTH  
 **Author:** Human (Owner / Operator)  
 **Scope:** Global – applies to ALL systems, agents, repositories, and environments  
-**Last update:** 2026-03-07  
+**Last update:** 2026-10-01 (RULE-H3 to H6 aligned with ADR-102)  
 
 ---
 
@@ -77,8 +77,8 @@ The system is strictly divided into zones:
 
 | Zone | Description | Agent Rights |
 |----|----|----|
-| **External** | Claude API, local machines, external VPS | Read-only + bundle generation |
-| **Principal VPS** | Governance & Airlock authority | Validation only |
+| **External** | Claude API, local machines, external VPS | Read-only + pull request preparation (RULE-H6) |
+| **Principal VPS** | Governance authority, RPC gate ("Airlock", ADR-003) | Validation only |
 | **Production** | Runtime execution | ❌ NO AGENTS ALLOWED |
 
 > **No AI agent is allowed to execute in Production. Ever.**
@@ -99,7 +99,7 @@ Agents:
 - ❌ must NOT commit directly
 - ❌ must NOT push to production repositories
 - ❌ must NOT modify governance rules
-- ✅ may ONLY submit **candidates**
+- ✅ may ONLY submit **candidates**: a pull request (RULE-H6)
 
 ---
 
@@ -120,11 +120,28 @@ Any change to canon or governance:
 - MUST be reviewed by a human
 - MUST be committed manually
 
+For an agent, *read-only* means it never writes to the default branch of these
+repositories. It may prepare a pull request (RULE-H6), unless the target
+repository reserves the path to the owner; the human merge is the manual commit.
+(Clarified by ADR-102.)
+
 ---
 
-## 6. Airlock Principle
+## 6. Agent Proposal Channel
 
-### RULE-H6 — Airlock Is Mandatory
+### RULE-H6 — Agent Proposals Go Through a Pull Request
 
 Any modification proposed by an agent MUST pass through:
 
+1. A branch and a pull request on the target repository, with signed commits
+   where that repository requires them
+2. The required checks of that repository
+3. Review and merge by a human
+
+An agent never merges, including its own pull request.
+
+"Airlock" now designates the RPC gate only (ADR-003). The bundle channel
+(bundle → agent-submissions → Airlock) is retired.
+
+> This rule was truncated mid-sentence from the creation of this file
+> (commit `607ac42`). It was completed by ADR-102.

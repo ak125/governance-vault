@@ -6,13 +6,13 @@ Ce fichier guide les agents Claude (Code, Desktop, Cowork, Agent SDK) quand ils 
 
 ## Regle Maitresse
 
-> **Ce vault n'est PAS le canon.** Le canon architectural reside dans `.spec/00-canon/` du monorepo. Ce vault est un **miroir enrichi operationnel** (G1).
+> **Le vault decide, le monorepo execute** (G1, [[ADR-101-vault-decides-canon-authority|ADR-101]]). Les ADR `accepted` et les regles de `ledger/rules/` sont normatifs. Dans `.spec/00-canon/` du monorepo, seuls les contrats consommes par du code, un generateur ou un check CI font foi, dans leur domaine ; le reste est de la prose de reference sans autorite. Une divergence entre une decision et le code est un constat a signaler, jamais a trancher en silence.
 >
 > Le mot `canon` est polysemique. Pour les acceptions distinctes (canon architectural / document canonique / canonical path / registry / source), voir le glossaire dans [[MOC-Governance]] section "Glossaire `canon`". L'autorite de chaque acception reste dans son document canonique (regle G1, ADR-015, etc.) — jamais dupliquee ici.
 
 Avant toute modification:
 
-1. Identifier si le changement est operationnel (autorise ici) ou canonique (interdit ici — modifier le monorepo)
+1. Identifier si le changement est operationnel (documentation, runbook, MOC) ou une decision (ADR obligatoire, G1)
 2. Lire les MOCs concernees (`ops/moc/MOC-*.md`) pour comprendre le contexte
 3. Respecter la taxonomie T/G/AI/V (voir README)
 
@@ -20,12 +20,12 @@ Avant toute modification:
 
 ## Regles Vault (a respecter imperativement)
 
-### G1: Canon Fait Foi
+### G1: Le Vault Decide
 
-NE JAMAIS modifier un document qui declare `status: canon` sans:
-
-- Ouvrir une ADR si c'est une vraie decision (voir `_templates/adr-template.md`)
-- Ou pointer vers le canon monorepo si c'est une regle technique
+NE JAMAIS prendre ou modifier une decision sans ADR (voir `_templates/adr-template.md`).
+Un document `status: canon` se modifie par PR signee ; si le changement modifie une
+decision, il passe par un ADR. Une divergence constatee entre une regle et le code se
+signale et se resout par une PR de code ou un ADR d'amendement.
 
 ### G2: Zero Orphelin
 
@@ -46,9 +46,12 @@ Si FAIL, lier ou archiver dans `ledger/_archive/` (G8).
 
 Ne jamais proposer un commit non signe a l'utilisateur. Si la config signing manque, guider l'utilisateur vers `99-meta/signing-policy.md`.
 
-### G4: CI Read-Only
+### G4: Ecriture par PR, CI en Lecture Seule
 
-NE JAMAIS modifier depuis un workflow GitHub Actions. Le kill-switch `AI_VAULT_WRITE=false` doit rester respecte. Toute tentative de write depuis CI est une violation critique.
+Jamais d'ecriture directe sur `main` : une branche, une PR aux commits signes, sous les checks requis.
+Un agent prepare la PR, il ne la fusionne JAMAIS : la fusion revient a un humain. Aucun workflow
+GitHub Actions n'ecrit dans le vault ; `_scripts/check-ci-read-only.py` le verifie a chaque PR
+(ADR-102). Toute ecriture depuis la CI est une violation critique.
 
 ---
 
@@ -67,18 +70,21 @@ Tout document canonique doit avoir:
 ```yaml
 ---
 type: adr | rule | plan | checklist | retrospective | audit-report | evidence-pack | moc | index | policy | spec | knowledge | template
-status: canon | draft | superseded | deprecated
+status: <valeur du schema de son type>
 updated: YYYY-MM-DD
 ---
 ```
 
-Pour les ADR specifiquement:
+Les valeurs autorisees de `status` sont celles des schemas `_scripts/schemas/<type>.schema.json`
+(adr, rule, moc, incident), en minuscules : ils font foi. Ne pas recopier leurs enums ici.
+
+Pour les ADR specifiquement (champs requis par `adr.schema.json` : id, title, status, date, decision_makers):
 
 ```yaml
 ---
 id: ADR-XXX
 title: "..."
-status: Proposed | Accepted | Superseded
+status: proposed   # enum : _scripts/schemas/adr.schema.json
 date: YYYY-MM-DD
 decision_makers: [...]
 supersedes: []
@@ -106,9 +112,10 @@ Utiliser `_templates/rule-template.md`. L'ajouter au fichier de regles approprie
 Quand l'utilisateur demande une modification:
 
 1. **Lire les MOCs pertinents** pour comprendre le contexte (pas juste le fichier cible)
-2. **Verifier** si le changement touche du canon (auquel cas refuser et rediriger vers le monorepo)
+2. **Verifier** si le changement modifie une decision (auquel cas : ADR, G1)
 3. **Appliquer** le changement + lier depuis un MOC/INDEX si creation
-4. **Executer** `_scripts/check-orphans.sh .` et `_scripts/check-broken-links.sh .`
+4. **Executer** `_scripts/preflight-write.sh` avant d'ecrire (obligatoire, voir `AGENTS.md`), puis
+   `_scripts/check-orphans.sh .` et `_scripts/check-broken-links.sh .` avant de committer
 5. **Proposer** un commit message clair + rappeler qu'il doit etre signe (G3)
 
 ---
@@ -130,18 +137,18 @@ Quand l'utilisateur demande une modification:
 |--------|------|
 | `_scripts/check-orphans.sh` | G2 enforcement (exit 1 si orphelins) |
 | `_scripts/check-broken-links.sh` | Detection wikilinks casses (exit 1 si casses) |
-| `_scripts/sync-canon.sh --dry-run` | Preview sync depuis `.spec/00-canon/` |
+| `_scripts/preflight-write.sh` | Preflight obligatoire avant ecriture (clone a jour, arbre propre, pas de chemin v1) |
 | `_scripts/audit-signatures.sh` | Audit retro des signatures git |
-| `_scripts/evidence-pack.sh` | Generer un nouveau evidence-pack |
+| `_scripts/check-ci-read-only.py` | G4 : aucun workflow ne peut ecrire dans le vault (exit 1 sinon) |
 
 ---
 
 ## Contact
 
 - Owner: Fafa (automecanik.seo@gmail.com)
-- Canon source: https://github.com/ak125/nestjs-remix-monorepo
+- Monorepo (execute): https://github.com/ak125/nestjs-remix-monorepo
 - Ce vault: https://github.com/ak125/governance-vault
 
 ---
 
-_Dernière mise a jour: 2026-05-07_
+_Dernière mise a jour: 2026-10-01_

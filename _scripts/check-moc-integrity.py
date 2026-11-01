@@ -5,8 +5,9 @@ Detecte les drifts d'integrite entre les MOCs satellites du vault apres l'elimin
 des duplications (PR-1) et la clarification semantique (PR-2). Le check ne compte plus
 de "stats" - il valide :
 
-  1. ADR statut coherence  : frontmatter ADR == row dans MOC-Decisions table
+  1. ADR statut coherence  : frontmatter ADR == row dans l'index ADR auto-genere de MOC-Decisions
   2. ADR table completude  : chaque fichier ADR a une row, chaque row a un fichier
+                             (la table manuelle « ADR Actifs », gelee, n'est plus lue)
   3. REG-001 / MOC-Agents  : pas de chiffre absolu en duplication dans MOC-Agents body
   4. Regression guard      : MOC-Governance ne contient plus de chiffre dupliquant les sources
   5. Frontmatter `updated:` : >= date max structurelle du body (par MOC)
@@ -47,6 +48,12 @@ CHECK_NAME = "moc-integrity"
 # Anciennement hardcodés à 5 valeurs ; le drift avec adr.schema.json (7 valeurs)
 # masquait silencieusement les ADRs `deprecated` et `rejected` du MOC.
 from governance_constants import ADR_STATUSES_VISIBLE_IN_MOC as CANONICAL_ADR_STATUSES  # noqa: E402
+
+# Markers de l'index ADR auto-genere : SoT = le generateur qui les ecrit.
+from sync_moc_decisions import (  # noqa: E402
+    MARKER_END as ADR_INDEX_MARKER_END,
+    MARKER_START as ADR_INDEX_MARKER_START,
+)
 
 # MOCs satellites pour invariant master-index (PR-3 check 6)
 SATELLITE_MOCS = ["MOC-Decisions", "MOC-AuditTrail", "MOC-Compliance", "MOC-Rules", "MOC-Agents"]
@@ -140,32 +147,32 @@ def normalize_status(raw: str) -> str:
 
 
 def parse_adr_table(text: str, file_rel: str, findings: list[dict]) -> dict[str, dict]:
-    """Parse la table ## ADR Actifs de MOC-Decisions, retourne {ADR-NNN: {status, date, line}}.
+    """Parse l'index ADR auto-genere de MOC-Decisions, retourne {ADR-NNN: {status, date, line}}.
 
-    Anti-silent-OK : si la section est absente ou renommee, emet un finding explicite.
+    Lit les rows entre les markers `AUTO-GENERATED:moc-decisions-canonical-index`
+    (projection de sync_moc_decisions.py). La table manuelle `## ADR Actifs` est gelee
+    depuis 2026-09-30 (historique, incomplete) : elle n'est plus la reference.
+
+    Anti-silent-OK : si un marker est absent ou mal ordonne, emet un finding explicite.
     """
     table = {}
-    section_idx = None
     lines = text.split("\n")
-    for i, line in enumerate(lines):
-        if re.match(r"^##\s+ADR\s+Actifs\s*$", line):
-            section_idx = i
-            break
-    if section_idx is None:
+    start_idx = next((i for i, l in enumerate(lines) if l.strip() == ADR_INDEX_MARKER_START), None)
+    end_idx = next((i for i, l in enumerate(lines) if l.strip() == ADR_INDEX_MARKER_END), None)
+    if start_idx is None or end_idx is None or end_idx < start_idx:
         findings.append({
             "severity": "error",
             "file": file_rel,
             "rule": f"{CHECK_NAME}.section-missing",
-            "message": "Section '## ADR Actifs' introuvable dans MOC-Decisions",
+            "message": (
+                "Index ADR auto-genere introuvable dans MOC-Decisions (markers "
+                f"'{ADR_INDEX_MARKER_START}' / '{ADR_INDEX_MARKER_END}' absents ou inverses) — "
+                "regenerer avec _scripts/sync_moc_decisions.py --write"
+            ),
         })
         return table
-    # Lire jusqu'au prochain --- ou ## (mais on saute la 1re ligne du body qui est header de table)
-    for j in range(section_idx + 1, len(lines)):
+    for j in range(start_idx + 1, end_idx):
         line = lines[j]
-        if re.match(r"^\s*---\s*$", line):
-            break
-        if re.match(r"^##\s+", line):
-            break
         # Row attendue : "| ADR-NNN | titre | status | date | [[link]] |"
         if not re.match(r"^\|\s*ADR-\d{3}\s*\|", line):
             continue
@@ -182,7 +189,7 @@ def parse_adr_table(text: str, file_rel: str, findings: list[dict]) -> dict[str,
                 "file": file_rel,
                 "line": j + 1,
                 "rule": f"{CHECK_NAME}.table-shape-broken",
-                "message": f"Row table ADR Actifs malformee : {len(parts)} colonnes attendues 5",
+                "message": f"Row de l'index ADR auto-genere malformee : {len(parts)} colonnes attendues 5",
                 "actual_row": line[:120],
             })
             continue

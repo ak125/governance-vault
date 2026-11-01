@@ -9,6 +9,7 @@ superseded_by: []
 related_rules: [RULE-H0, RULE-H4, RULE-H5, RULE-H6]
 related_incidents: []
 reviewed_by: ""
+amended_by: ["ADR-102"]
 ---
 
 # ADR-013: Cycle de vie des agents — gouvernance création, activation et restructuration

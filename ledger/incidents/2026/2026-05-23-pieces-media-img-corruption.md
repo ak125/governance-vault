@@ -2,9 +2,9 @@
 id: INC-2026-015
 title: "pieces_media_img mass corruption — ~50 % rows malformed, ~357K displayed pieces broken"
 date: 2026-05-23
-detected_by: Fafa (visual report : « images VALEO cassées »)
-severity: P2 (UX-only, no revenue blocker, no PII)
-status: contained
+detected_by: "Fafa (visual report : « images VALEO cassées »)"
+severity: sev2  # « P2 » à l'origine : UX-only, no revenue blocker, no PII
+status: mitigated  # « contained » à l'origine : Tier C soft-hide + 4 gardes ; Tier B différé (ADR-078)
 related_adr: [ADR-078]
 related_rules: []
 runtime_impact: degraded UX (broken-image icons on listings/details)

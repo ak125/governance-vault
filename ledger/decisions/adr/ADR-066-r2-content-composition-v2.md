@@ -7,6 +7,7 @@ decision_date: 2026-05-15
 decision_makers: [Fafa]
 supersedes: []
 superseded_by: []
+amended_by: ["ADR-067", "ADR-068", "ADR-070", "ADR-072", "ADR-095"]
 related_rules: [G1, T1, AI1]
 related_incidents: []
 reviewed_by: "@fafa"

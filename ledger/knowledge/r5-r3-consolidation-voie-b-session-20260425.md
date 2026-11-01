@@ -2,7 +2,7 @@
 type: knowledge
 status: canon
 created: 2026-04-25
-updated: 2026-04-25
+updated: 2026-07-07
 tags: [seo, r5-diagnostic, r3-conseils, s2-diag, voie-b, session-debrief, partial-coverage]
 related-adr: [ADR-027]
 related-prs: [vault#76, monorepo#186]
@@ -11,6 +11,32 @@ verdict: PARTIAL_COVERAGE
 ---
 
 # R5→R3 S2_DIAG consolidation — Session debrief 2026-04-25
+
+## Reconciliation 2026-07-07
+
+> Cette note conserve la **vérité historique** de la session du 25 avril 2026 (constats, PRs, incidents,
+> patterns). Mais ses **prescriptions de production S2_DIAG ont été superseded** par ADR-027 § Correction
+> 2026-07-07. La SoT de statut ADR = le frontmatter ADR-027 / ADR-033.
+
+**Ne sont plus des autorités d'exécution :**
+- **B3 — Batch RAG primaire** (§2.1) ;
+- la **priorité `RAG primary > __diag_* > observable`** (§2.2 pilier 4) ;
+- la règle **« choisir P1 ou P2 par gamme »** (§2.3) ;
+- **toute Phase C de production S2_DIAG depuis le RAG** (§4.1 : `audit-rag-coverage-s2diag`,
+  `batch-enrich-s2-diag.ts`, `ConseilEnricherService.enrichGamme`) ;
+- la clause **Phase D « résidu après RAG insuffisant »** et **tout fallback `observable|diag_engine` comme
+  hiérarchie de sources** (§4.2) ;
+- **toute métrique post-Phase-C** (51 %→≥85 %, ≥95 %, GSC +20 %) présentée comme **objectif actuel**.
+
+**Autorité actuelle (ADR-027 § Correction 2026-07-07) :**
+- **INPUT A** = `__diag_*` — vérité symptôme / système / cause ;
+- **INPUT B** = WIKI `diagnostic_relations[]` — relation typée pièce ↔ symptôme ;
+- **S2_DIAG** = **composition déterministe de A + B** sur la surface **R3** ;
+- **RAG** = **zéro autorité de contenu** ; **inventory pointer historique** seulement ;
+- **`__seo_observable`** = legacy / historique uniquement ;
+- **Entrée canonique absente ⇒ aucune nouvelle S2_DIAG canonique ⇒ jamais** de fallback RAG ni observable.
+
+Cf. `feedback_rag_zero_content_write_authority_remove_not_secure`, ADR-027 § Correction, ADR-033.
 
 ## Contexte
 
@@ -49,6 +75,10 @@ d'usage. Puis arbitrer la séquence d'exécution avec contrainte explicite
 | Mapping gamme ↔ diag_system | schéma DB | **Absent** — `__diag_symptom`/`__diag_cause` ont `system_id` mais pas `pg_id` ; moteur `__diag_*` isolé du graphe gammes |
 
 ## Section 2 — Décisions prises
+
+> **HISTORICAL DECISION — NOT CURRENT EXECUTION AUTHORITY (réconcilié 2026-07-07).** Les choix de source
+> ci-dessous (B3 Batch RAG, priorité RAG > `__diag_*` > observable, « choisir P1 ou P2 ») sont **superseded**
+> par le contrat d'autorité A + B (voir § Reconciliation). Conservés comme trace historique.
 
 ### 2.1. Voie stratégique retenue : **B (consolidation R3 + qualité S2_DIAG)**
 
@@ -106,6 +136,11 @@ Quatre piliers canoniques :
 - Dry-run view validé en live MCP : queriable, casts OK
 
 ## Section 4 — Reste à faire (phases C/D/E + leviers parallèles)
+
+> **HISTORICAL DECISION — NOT CURRENT EXECUTION AUTHORITY (réconcilié 2026-07-07).** La Phase C (Batch RAG
+> S2_DIAG) et la clause Phase D « résidu après RAG » / fallback `S2_DIAG_SOURCE=observable|diag_engine` sont
+> **superseded** ; **ne pas exécuter cette checklist**. Le mécanisme déterministe `__diag_*` (mapping +
+> `buildS2DiagFromDiagEngine`) reste valide comme **INPUT A** du contrat d'autorité (voir § Reconciliation).
 
 ### 4.1. Phase C — Batch RAG enrichissement S2_DIAG (3-5 jours)
 

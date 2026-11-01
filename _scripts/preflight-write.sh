@@ -26,6 +26,7 @@
 # Exit 13 : BLOCKED — v1 paths détectés (régression ADR-015)
 # Exit 20 : ERR — repo non-git ou vault-dir manquant
 # Exit 21 : ERR — git fetch échoué (réseau)
+# Exit 22 : ERR — contrôle v1 indisponible ou en erreur
 
 set -euo pipefail
 
@@ -43,9 +44,12 @@ if [[ "$VAULT_ROOT" == *"/app/.local/governance-vault"* ]] || [[ "$VAULT_ROOT" =
   exit 12
 fi
 
-# --- Guard 2 : repo git ---
-if [[ ! -d .git ]]; then
-  echo "❌ ERR : $VAULT_ROOT n'est pas un repo git" >&2
+# --- Guard 2 : racine d'un repo git ---
+# Clone ou worktree : dans un worktree, `.git` est un fichier, pas un dossier
+# (meme correctif que check-signatures.sh et check-v1-paths.sh).
+TOPLEVEL="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+if [[ -z "$TOPLEVEL" || "$TOPLEVEL" != "$(pwd -P)" ]]; then
+  echo "❌ ERR : $VAULT_ROOT n'est pas la racine d'un repo git" >&2
   exit 20
 fi
 
@@ -114,13 +118,26 @@ else
 fi
 
 # --- Guard 6 : v1 paths (réutilise le script existant) ---
-if [[ -x _scripts/check-v1-paths.sh ]]; then
-  if ! _scripts/check-v1-paths.sh . >/dev/null 2>&1; then
+if [[ ! -f _scripts/check-v1-paths.sh || ! -x _scripts/check-v1-paths.sh ]]; then
+  echo "❌ ERR : contrôle v1 indisponible : _scripts/check-v1-paths.sh absent ou inexécutable." >&2
+  exit 22
+fi
+
+V1_STATUS=0
+_scripts/check-v1-paths.sh . >/dev/null || V1_STATUS=$?
+case "$V1_STATUS" in
+  0) ;;
+  1)
     echo "❌ BLOCKED : v1 paths détectés dans le clone."
     echo "   Run : _scripts/check-v1-paths.sh . pour voir le rapport"
     exit 13
-  fi
-fi
+    ;;
+  *)
+    echo "❌ ERR : contrôle v1 impossible (check-v1-paths.sh: $V1_STATUS)." >&2
+    echo "   Run : _scripts/check-v1-paths.sh . pour diagnostiquer l'erreur" >&2
+    exit 22
+    ;;
+esac
 
 # --- GO ---
 echo "✅ GO — preflight OK"

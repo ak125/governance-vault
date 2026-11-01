@@ -33,7 +33,7 @@ Test sur 4 pages réellement indexées (top par impressions GSC) :
 
 ### Argument canon
 
-Per [ADR-041 §1](../../../../decisions/adr/ADR-041-r1-router-posture-empirical-reaffirm.md#1-posture-r1_router-strict-reaffirmée) : "R1_ROUTER reste **router pur** au sens de `r1-router-validator.md` ROLE PURITY". Le canon décrit **explicitement** un router court. La règle "Min 700" inscrite dans `r1-content-batch.md:130,344` est une fiction héritée que l'ADR-041 a rejetée par son rejet du pivot commerce-safe.
+Per [ADR-041 §1](../../../../../decisions/adr/ADR-041-r1-router-posture-empirical-reaffirm.md#1-posture-r1_router-strict-reaffirmée) : "R1_ROUTER reste **router pur** au sens de `r1-router-validator.md` ROLE PURITY". Le canon décrit **explicitement** un router court. La règle "Min 700" inscrite dans `r1-content-batch.md:130,344` est une fiction héritée que l'ADR-041 a rejetée par son rejet du pivot commerce-safe.
 
 ### Coûts et risques
 

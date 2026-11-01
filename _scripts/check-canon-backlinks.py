@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """check-canon-backlinks.py — Detecte la reapparition de canon en dehors du vault (G1 drift).
 
-Principe (ADR-015 + G1) :
-  - Le canon technique vit exclusivement dans le MONOREPO sous `.spec/00-canon/`
-  - Le vault enrichit via ledger/ mais ne duplique pas le canon
+Principe (G1, ADR-101) :
+  - Le vault decide ; les fichiers `.spec/00-canon/` du monorepo sont des contrats
+    (consommes, font foi dans leur domaine) ou de la prose de reference (aucune autorite)
   - Si le monorepo contient un `.spec/00-canon/*.md` qui n'est PAS reference depuis le vault,
-    c'est un risque de dérive silencieuse (G1 violation latente)
+    son rang n'est trace nulle part : risque de derive silencieuse (G1 violation latente)
 
 Detection :
   - Scan monorepo/.spec/00-canon/**/*.md

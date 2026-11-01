@@ -44,6 +44,13 @@ if [[ -z "$RANGE" ]]; then
 fi
 
 echo "Checking signatures in range: $RANGE"
+# Materialiser l'inventaire avant toute verification : une substitution de
+# processus masquerait l'echec de rev-list, meme avec set -e.
+if ! commits="$(git rev-list "$RANGE")"; then
+  echo "Error: git rev-list failed for range: $RANGE" >&2
+  exit 2
+fi
+
 unsigned=0
 while read -r sha; do
   [[ -z "$sha" ]] && continue
@@ -54,7 +61,7 @@ while read -r sha; do
       unsigned=$((unsigned + 1))
       ;;
   esac
-done < <(git rev-list "$RANGE")
+done <<< "$commits"
 
 if [[ "$unsigned" -gt 0 ]]; then
   echo "FAIL: $unsigned commit(s) non signe(s) dans $RANGE"

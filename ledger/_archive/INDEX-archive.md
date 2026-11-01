@@ -2,7 +2,7 @@
 type: index
 status: canon
 category: archive
-updated: 2026-04-17
+updated: 2026-10-01
 ---
 
 # INDEX: Archive
@@ -18,7 +18,7 @@ updated: 2026-04-17
 Voir [[rules-governance-process]] G8 (Obsolete Handling). Un document est archive quand :
 
 1. Il est **superseded** par un autre document (decision remplacee)
-2. Il decrit un **composant supprime** du monorepo (ex: OpenClaw, voir [[ADR-011-openclaw-claude-api-replacement]])
+2. Il decrit un **composant supprime** ou retire (ex: OpenClaw, voir [[ADR-011-openclaw-claude-api-replacement]] ; canal de bundles, voir [[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4]])
 3. Il represente une **phase terminee** non-pertinente au present
 
 L'archivage ne supprime pas le document : il le retire de la circulation active.
@@ -31,6 +31,11 @@ L'archivage ne supprime pas le document : il le retire de la circulation active.
 |----------|--------|--------------|
 | [[archived-2026-02-05-openclaw-security-fix]] | OpenClaw supprime du monorepo | [[ADR-011-openclaw-claude-api-replacement]] |
 | [[archived-DEC-OPENCLAW-CHROMIUM-NO-SANDBOX]] | OpenClaw supprime du monorepo | [[ADR-011-openclaw-claude-api-replacement]] |
+| [[archived-BUNDLE-SPEC]] | Canal de bundles retire | [[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4]] |
+| [[archived-PROMPT-bundle-producer.v1]] | Canal de bundles retire | [[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4]] |
+| [[archived-BUNDLE-REGISTRY]] | Canal de bundles retire | [[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4]] |
+| `archived-bundle.schema.v1.json` | Canal de bundles retire | [[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4]] |
+| `archived-bundle.example.v1/` (manifest, constraints, evidence, patch) et son [[report]] | Canal de bundles retire | [[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4]] |
 
 ---
 
@@ -38,8 +43,9 @@ L'archivage ne supprime pas le document : il le retire de la circulation active.
 
 - [[MOC-Governance]] - Index maitre
 - [[rules-governance-process]] - G8 Obsolete Handling
-- [[ADR-011-openclaw-claude-api-replacement]] - ADR superseding
+- [[ADR-011-openclaw-claude-api-replacement]] - ADR superseding (OpenClaw)
+- [[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4]] - Retrait du canal de bundles
 
 ---
 
-_Derniere mise a jour: 2026-04-17_
+_Derniere mise a jour: 2026-10-01 (ADR-102)_

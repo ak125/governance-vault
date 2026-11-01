@@ -11,9 +11,29 @@ audience: ["@fafa", "claude-code", "cowork", "future-sessions"]
 
 > Wave de propagation du contrat ADR-033 wiki gamme `diagnostic_relations[]` à travers le monorepo, après livraison Phase 1 wiki/raw scaffold. **Le critère go Partie 3 a été atteint pour la 1ère fois 2026-05-01 10:55 UTC** : `wiki-readiness-check.py` retourne `READY` avec 6/6 critères C1-C6 PASS simultanément. Branchement consommateurs (DB / RAG / SEO / blog / diagnostic / chatbot) débloqué pour Partie 3.
 
+## Reconciliation 2026-07-07
+
+> Cette note de connaissance reste **active** pour ses patterns d'ingénierie, mais **deux affirmations
+> d'autorité y sont réconciliées** ci-dessous. La SoT de statut = le frontmatter ADR-033 (accepted 2026-07-07).
+
+**Status note :**
+- ADR-033 est resté **formellement `proposed`** jusqu'à la décision owner du **2026-07-07**.
+- L'affirmation historique « *status accepted 2026-04-29* » (§ Contexte) était **incorrecte** — le contrat
+  était implémenté, pas formellement accepté. Voir ADR-033 § Reconciliation 2026-07-07.
+
+**Authority note :**
+- Le **sync-from-rag** planifié (`automecanik-rag/knowledge/gammes/*` → `automecanik-wiki/wiki/gamme/*`,
+  branche `feat/phase-f0c-sync-from-wiki`) et la **migration des symptômes RAG legacy** (« Partie 3 unlocked »,
+  PR-E `migrate-symptoms-to-relations.py`) sont **superseded et NE DOIVENT PAS être exécutés**.
+- Le contenu **RAG legacy** ne peut servir que de **pointeur d'inventaire** pour localiser la preuve
+  sous-jacente ; il ne peut **pas** être promu ni migré comme contenu canonique.
+- Le re-source canonique est : **sources prouvées → RAW → WIKI `diagnostic_relations[]`**
+  (curation + revue humaine, jamais une écriture RAG). Cf. ADR-027 § Correction 2026-07-07
+  (`feedback_rag_zero_content_write_authority_remove_not_secure`).
+
 ## Contexte
 
-ADR-033 (vault PR #108 commit `77085ef`, status `accepted` 2026-04-29) a défini le contrat `diagnostic_relations[]` top-level pour les fiches gamme wiki, retiré le bloc anti-pattern `entity_data.symptoms[]` (§D2), et figé 3 anti-patterns §D3 (pas `wiki/systemes/`, pas fichier-par-symptôme, pas réécriture moteur diagnostic).
+ADR-033 (vault PR #108 commit `77085ef`, status `accepted` 2026-04-29) *(⚠ corrigé 2026-07-07 : ADR-033 était formellement `proposed` jusqu'au 2026-07-07 ; voir § Reconciliation ci-dessus et ADR-033 § Reconciliation.)* a défini le contrat `diagnostic_relations[]` top-level pour les fiches gamme wiki, retiré le bloc anti-pattern `entity_data.symptoms[]` (§D2), et figé 3 anti-patterns §D3 (pas `wiki/systemes/`, pas fichier-par-symptôme, pas réécriture moteur diagnostic).
 
 Phase 1 ADR-033 (PR wiki #8 + #9 + raw #6 mergées 2026-04-30) a livré côté repos applicatifs : schema v2.0.0, 9 quality gates Python, 5 pilotes G6, dette P0 sources stub + symptom slugs DB convention. Ce dépôt **monorepo** était resté en gap : aucun outil propagé pour producteurs aval (skill, agents, validateur CI, cron export DB).
 
@@ -104,6 +124,9 @@ Fix double :
 
 > Tout script CI qui consomme un secret texte (URL, token, JWT) doit faire `os.environ.get(NAME, "").strip()` avant usage. Les secrets pastés via GitHub UI ont une probabilité non-nulle de carry trailing whitespace. Defense-in-depth client-side + canon-set provisioning.
 
+> **HISTORICAL — NOT EXECUTION AUTHORITY.** La ré-activation de PR-E « quand sync-from-rag peuplera
+> `wiki/gamme/` » est **superseded** (RAG ne peuple pas le WIKI ; re-source curé uniquement).
+
 ### 5. Pattern « PR-E déférée » — outil pour contenu inexistant = bricolage
 
 Plan rev 3 PR-E prévoyait `migrate-symptoms-to-relations.py` pour migrer fiches gamme legacy `entity_data.symptoms[]` → `diagnostic_relations[]`. Vérification : `wiki/gammes/` actuellement vide. 232 legacy `symptoms:` vivent dans `automecanik-rag/knowledge/gammes/` (autre repo, pas migrable directement par ce script).
@@ -137,6 +160,10 @@ Vérifié à chaque commit. Aucune collision avec les chantiers parallèles user
 | `vault-weekly-lint.yml` | lundi 02:00 UTC | vault | drift check rules canon |
 
 Plus 2 routines Paperclip cron-like : `trig_01Tq3Z8ohU29suDmnezZhWnG` (J+2 INC ADR-034 DB freeze) + `trig_01LKqhkSKddud3ywGM9Yjb6z` (J+30 audit ADR-033).
+
+> **HISTORICAL PLAN — NOT EXECUTION AUTHORITY (réconcilié 2026-07-07).** Le « sync-from-rag » et la
+> migration RAG→WIKI décrits ci-dessous sont **superseded** (voir § Reconciliation). Conservés comme trace
+> historique ; **ne pas exécuter**.
 
 ## Prochaines étapes (Partie 3 unlocked)
 

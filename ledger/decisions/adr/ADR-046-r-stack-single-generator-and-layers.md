@@ -110,7 +110,7 @@ Schema Zod ajouté, backward-compat avec v2.0.0 via auto-migration CI :
 
 ## Statut
 
-- **Statut** : `proposed` (cet ADR + [[ADR-047-seo-role-contracts-as-code]] vault PR Phase 0)
+- **Statut** : `accepted` le 2026-05-07 (PR vault #195) ; proposé avec [[ADR-047-seo-role-contracts-as-code]] dans la PR vault Phase 0 (#183)
 - **Implémentation** : roadmap 7 phases, 23 PRs, 6-8 semaines
   - Phase 0 (cet ADR) : baseline audit + 2 ADRs
   - Phase 1 (1 sem, 5 PRs) : garde-fous mécaniques + L3 RO

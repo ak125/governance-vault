@@ -18,7 +18,7 @@ implementation_status_updated: 2026-05-05
 
 > 📌 **Amendement v2.1.1 — Paths post-ADR-031** (2026-04-28)
 >
-> Les chemins `/opt/automecanik/rag/knowledge/gammes/` mentionnés dans ce document sont remplacés par `/opt/automecanik-wiki/wiki/gamme/` après acceptation d'[[ADR-031-four-layer-content-architecture]].
+> Les chemins `/opt/automecanik/rag/knowledge/gammes/` mentionnés dans ce document sont remplacés par `/opt/automecanik/automecanik-wiki/wiki/gamme/` après acceptation d'[[ADR-031-four-layer-content-architecture]].
 >
 > La **state machine 7 stages** (`v5_ssot` → `v5_audited` → `v5_enriched` → `v5_qa_passed` → `v5_indexed` / `v5_blocked` / `v5_pending_review`) reste **valide et inchangée** pour `entity_type: gamme`. Seuls les paths d'écriture/lecture des fichiers `.md` changent.
 >

@@ -49,8 +49,11 @@ esac
 VAULT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$VAULT_ROOT"
 
-if [ ! -d .git ]; then
-  echo "ERR: $VAULT_ROOT n'est pas un repo git" >&2
+# Clone ou worktree : dans un worktree, `.git` est un fichier, pas un dossier
+# (meme correctif que check-signatures.sh et check-v1-paths.sh).
+TOPLEVEL="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+if [ -z "$TOPLEVEL" ] || [ "$TOPLEVEL" != "$(pwd -P)" ]; then
+  echo "ERR: $VAULT_ROOT n'est pas la racine d'un repo git" >&2
   exit 1
 fi
 

@@ -7,6 +7,7 @@ decision_date: 2026-05-13
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
+amended_by: ["ADR-090", "ADR-099"]
 # NOTE: ADR-031 status=proposed. ADR-059 "supplements" plutôt que "amends" :
 # - amends impliquerait que ADR-031 est canon LIVE (status=accepted)
 # - supplements = complète sans dépendre du statut canon de la cible

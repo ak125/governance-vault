@@ -2,7 +2,7 @@
 type: rules-document
 status: canon
 scope: engineering
-updated: 2026-04-27
+updated: 2026-07-04
 related_adrs: []
 related_incidents: []
 related_rules:
@@ -14,7 +14,7 @@ related_rules:
 # Rules — Engineering Quality & Modernization Mandate (Q1-Q4)
 
 > **Source de vérité** — règles fondatrices d'ingénierie au 2026-04-27
-> **Version** : 1.0.0 | **Status** : CANON
+> **Version** : 1.1.0 | **Status** : CANON
 > **Taxonomie** : Q = Quality — règles méta qui s'appliquent AVANT toute autre règle (T*, G*, AP*).
 >
 > Ces règles codifient ce qui distingue une **solution structurelle** d'un **bricolage**. Elles sont **non-négociables** pour tout agent (humain, Claude Code, Cowork, Codex, Agent SDK) et tout reviewer.
@@ -52,6 +52,10 @@ Une réponse "ça marche pour l'instant" / "on verra plus tard" / "c'est un quic
 - **Hardcoder une liste top-N** quand la donnée existe en DB (ex : `idx_pieces_relation_type_popular` sur top-10 hardcodé — incident ADR-016).
 
 **Raison** : chaque bricolage non documenté devient un pattern reproduit ailleurs. La dette se compose. Voir incidents `INC-2026-005` (palliatif timeout vehicle page → 30 500 URLs en 5xx pendant 6 semaines).
+
+### Clôture post-solution
+
+Après qu'une solution non triviale a été corrigée et prouvée, identifier explicitement ce qu'elle rend obsolète ou redondant : workaround, couche compensatrice, dead path, flag temporaire, scanner, resolver, projection, dépendance ou représentation concurrente. Un élément devenu obsolète est supprimé dans le même PR **uniquement** s'il reste dans le périmètre gelé, relève du même ownership, ne sert aucune fenêtre de compatibilité nécessaire, est couvert par les vérifications pertinentes **et que cette suppression est autorisée par les règles d'autorité existantes**. Sinon, il est tracé dans un follow-up lié ou conservé avec une justification explicite et, lorsque pertinent, une condition de retrait. Toute solution qui ajoute une nouvelle couche doit démontrer pourquoi le mécanisme existant ne pouvait pas être corrigé, étendu ou consolidé.
 
 ---
 
@@ -197,6 +201,7 @@ Avant de soumettre PR ou de déclarer "fait" :
 [ ] Q1 cause racine identifiée et écrite
 [ ] Q1 invariant garanti par construction (pas par cache/timeout)
 [ ] Q1 dette nette : ___ ajoutée / ___ supprimée
+[ ] Q1 clôture post-solution : obsolètes identifiés ; supprimés, suivis, ou conservation explicitement justifiée
 [ ] Q2 grep evidence collée pour chaque nouvelle convention/fichier
 [ ] Q3 information_schema interrogé pour chaque DDL (si migration)
 [ ] Q4 triggers identifiés et listés (même si reportés)
@@ -210,6 +215,8 @@ Le reviewer doit refuser une PR qui :
 - Augmente un timeout / refresh une baseline / pré-warm un cache comme solution principale (Q1 violation).
 - Crée une table/colonne sans evidence d'absence préalable (Q3 violation).
 - Ne mentionne aucun trigger Q4 sur un module qu'il modifie (Q4 négligence).
+- Ajoute une couche sans démontrer pourquoi l'existant ne pouvait pas être corrigé, étendu ou consolidé (Q1 clôture).
+- Conserve un mécanisme devenu obsolète dans le scope du PR sans justification ni disposition tracée (Q1 clôture).
 
 ### Métrique de qualité
 

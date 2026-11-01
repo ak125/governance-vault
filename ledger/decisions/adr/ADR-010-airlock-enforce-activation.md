@@ -9,6 +9,7 @@ decision_makers:
 version: 1.0.0
 supersedes: [ADR-005]
 supersedes_notes: "Observe mode"
+amended_by: ["ADR-102"]
 ---
 
 # ADR-010: Airlock Enforce Mode Activation

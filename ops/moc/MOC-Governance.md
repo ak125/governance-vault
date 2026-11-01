@@ -2,7 +2,7 @@
 type: moc
 status: canon
 role: master-index
-updated: 2026-05-14
+updated: 2026-10-31
 ---
 
 # MOC: Governance
@@ -24,7 +24,10 @@ updated: 2026-05-14
 | [[MOC-Incidents]] | Post-mortems et incidents |
 | [[MOC-Knowledge]] | Base de connaissances (specs, guides) |
 | [[MOC-AuditTrail]] | Audit-trail, bundles rejetes, audits RPC |
-| [[MOC-Policies]] | Bundle specs, prompts systeme, processus |
+| [[MOC-Policies]] | Specifications, processus, templates |
+| [[MOC-Repository-Control-Plane]] | Repository Control Plane du monorepo (ADR-058) : registry en couches, gates CI progressifs |
+| [[MOC-Roadmap-2026]] | Chantiers transverses 2026 (identifiants et rangs de priorite ; n'ordonne pas l'execution hebdomadaire) |
+| [[MOC-Planning-Live]] | Planning vivant, section auto-generee par le moteur de sync (ADR-053) |
 
 ---
 
@@ -34,10 +37,10 @@ Les regles G1-G4 de gouvernance du vault lui-meme. Voir [[rules-vault]].
 
 | Regle | Description | Enforcement |
 |-------|-------------|-------------|
-| G1 | Canon fait foi | Sync one-way depuis `.spec/00-canon/` |
+| G1 | Le vault decide (ADR-101) | Decision = ADR `accepted` ; divergence decision/code signalee |
 | G2 | Zero orphelin | `_scripts/check-orphans.sh` |
-| G3 | Commits signes | SSH signing (ed25519) via git config |
-| G4 | CI read-only sur canon | `AI_VAULT_WRITE=false` en prod |
+| G3 | Commits signes | Check requis `G3: Commits signes` + hook `pre-push` |
+| G4 | Ecriture par PR, CI en lecture seule (ADR-102) | Protection de `main` + `_scripts/check-ci-read-only.py` (checks requis `G4: CI read-only sur canon` et `Vault Scripts Tests`) ; fusion par un humain (regle de conduite) |
 
 ---
 
@@ -49,7 +52,7 @@ Voir [[MOC-Rules]] pour la taxonomie complete (T / G / AI / V / R-SEO / R-SEO-KW
 
 ## Single Source of Truth
 
-> Le `governance-vault` est la **source de verite unique des documents de gouvernance operationnelle** (ADR, rules, MOCs, audit-trail, evidence-packs, runbooks, registry agents — formalise par [[ADR-015-vault-single-source-of-truth]]). Le **canon architectural** (contrats de schemas, code patterns figes) reste dans `.spec/00-canon/` du monorepo. Les deux sont distincts et ne se recouvrent pas.
+> Le `governance-vault` est la **source de verite unique des documents de gouvernance operationnelle** (ADR, rules, MOCs, audit-trail, evidence-packs, runbooks, registry agents — formalise par [[ADR-015-vault-single-source-of-truth]]). Le **canon architectural** (contrats de schemas, code patterns figes) reste dans `.spec/00-canon/` du monorepo ; son rang est fixe par [[rules-vault]] G1 (contrat consomme = fait foi dans son domaine, prose sans consommateur = aucune autorite).
 
 ### Glossaire `canon` (polysemie levee)
 
@@ -77,6 +80,9 @@ Lorsque le mot `canon` est utilise sans qualificatif, il faut preferer l'interpr
 - [[deploy-bot]] - Role du bot CI/CD (non-SPOF)
 - [[claude-desktop-instructions]] - Onboarding Claude Desktop (MCP filesystem, condense CLAUDE.md + AGENTS.md)
 - [[obsidian-setup]] - Topologie canonique coffre Obsidian (1 clone = 1 vault, plugins Dataview/Templater/Git, SSH signing G3)
+- [[branch-protection]] - Politique de protection de la branche main
+- [[canon-dispatch-setup]] - Identifiants GitHub App du workflow canon-publish (dispatch vers les depots consommateurs)
+- [[governance-runtime-map]] - Carte des scripts et chemins d'ecriture/lecture du vault (instantane du 2026-05-10)
 
 ## Archive
 

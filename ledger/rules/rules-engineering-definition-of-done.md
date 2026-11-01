@@ -2,8 +2,9 @@
 type: rules-document
 status: canon
 scope: engineering
-updated: 2026-05-19
+updated: 2026-10-31
 related_adrs:
+  - ADR-120
   - ADR-053
   - ADR-058
   - ADR-020
@@ -22,7 +23,7 @@ related_rules:
 # Rules — Engineering Definition of Done (DoD1-DoD9)
 
 > **Source de vérité** — règles canon de "fini" au 2026-05-19
-> **Version** : 1.0.0 | **Status** : CANON
+> **Version** : 1.1.0 (DoD2 amendée par [[ADR-120-dod2-preuve-de-revue-liee-au-sha|ADR-120]], 2026-10-31) | **Status** : CANON
 > **Taxonomie** : DoD = Definition of Done — invariants qui définissent ce que "MERGED" exige. S'applique APRÈS Q1-Q4 (qualité initiale) et AVANT acceptance opérationnelle (état `MERGED` puis `OBSERVED` puis `CLOSED` per state-machine ADR-053).
 >
 > Le bricolage Q1 est interdit *avant* le code. La dette DoD est interdite *au moment du merge*. Une PR qui passe Q sans respecter DoD pousse de la dette en prod.
@@ -62,33 +63,49 @@ Dans la description PR :
 
 ---
 
-## DoD2 — Ownership explicite (humain nommé, pas "everyone")
+## DoD2 — Ownership explicite et revue prouvée sur la tête
 
-**OBLIGATOIRE** : la PR a un `assignee` clair ET au moins un reviewer humain confirmé. Le domaine touché a un owner identifié dans `audit/registry/planning.json` (champ `owners`).
+> Amendée par [[ADR-120-dod2-preuve-de-revue-liee-au-sha|ADR-120]] (v1.1.0) : une preuve de revue liée au SHA de tête remplace l'approbation humaine GitHub.
+
+**OBLIGATOIRE** : la PR a un `assignee` humain, l'owner responsable, ET un enregistrement de revue sur son SHA de tête. Le domaine de chaque chemin modifié a un owner identifié dans l'overlay L2 `ownership.yaml`. La fusion reste humaine ; DoD2 satisfaite ne vaut ni fusion, ni publication, ni autorisation de mutation PROD.
 
 ### Test de discrimination
 
 1. **Assignee non vide** sur la PR GitHub.
-2. **≥1 review approval** humain (les bots ne comptent pas, sauf si `audit/registry/canonical.json` documente le bot comme reviewer canonique pour le domaine).
-3. **Domain ownership** : le ou les chemins modifiés correspondent à un domaine D1..D15 avec owner non `__unassigned__` dans Layer 2 overlay `ownership.yaml`.
-4. **Pas de self-merge** sauf documenté comme exception (cf. AP-self-merge en cas d'urgence avec audit trail).
+2. **Enregistrement de revue** dans le corps de la PR, ou dans un commentaire qu'il cite, qui nomme le SHA de tête (40 caractères) et la base, la procédure et qui l'a exécutée, le périmètre lu, chaque constat avec son sort (corrigé : commit et test de non-régression ; réfuté : preuve citée ; reporté : motif et suivi), les preuves exécutées ou reprises (avec la raison) et les limites. Une approbation GitHub n'est ni exigée ni suffisante.
+3. **Niveau selon le risque** (le fichier le plus risqué du diff décide) :
+   - **A** — documentation, prose, données d'audit, projections générées ; aucun code exécuté : auto-review par l'auteur ;
+   - **B** — code, tests, scripts, configuration, CI ou gardes, hors zones STOP : A, plus une revue indépendante automatisée sur un SHA figé (session ou agent distinct de l'auteur, sans son contexte, qui n'écrit pas sur la branche pendant la revue) ;
+   - **C** — zones STOP (paiement, prix et stock servis, panier et commande, RLS, opération destructive en base ou migration irréversible, SEO indexé, déploiement PROD) : B, plus l'accord nominatif de l'owner du domaine, consigné sur la PR et nommant le SHA revu, avant la fusion.
+4. **Preuve à jour** : un push qui change la tête rend l'enregistrement périmé. Il n'est reporté que par un nouvel enregistrement qui nomme la nouvelle tête et montre un diff attribuable identique (diff contre la merge-base, hors projections régénérées par leur script officiel) ; sinon la partie modifiée est revue au niveau qu'elle exige.
+5. **Domain ownership** : le ou les chemins modifiés correspondent à un domaine D1..D15 avec owner non `__unassigned__` dans Layer 2 overlay `ownership.yaml`.
+6. **Pas de self-merge** sauf documenté comme exception (cf. AP-self-merge en cas d'urgence avec audit trail) ; un agent ne fusionne pas sa PR (G4.2 d'ADR-102 pour le vault).
 
 ### Anti-patterns bloquants
 
-- PR sans assignee mergée.
-- Self-approve sans audit trail (incident ou justification écrite).
-- Reviewer = bot uniquement sur changement non-trivial.
+- PR sans assignee fusionnée.
+- DoD2 cochée sans enregistrement de revue, ou avec un enregistrement qui nomme un autre SHA que la tête fusionnée.
+- Constat confirmé du diff (correction, sécurité, contrat) ni corrigé ni réfuté.
+- PASS déclaré, score de confiance ou case cochée à la place des constats et des preuves.
+- Revue dite indépendante faite dans la session de l'auteur, ou par un relecteur qui écrit sur la branche pendant la revue.
+- Identité GitHub, bot, label ou approbation créés pour satisfaire DoD2.
+- Zone STOP fusionnée sans accord nominatif nommant le SHA revu.
 - Modification d'un fichier `D{N}` avec `owners: [__unassigned__]` sans en profiter pour assigner.
 
 ### Evidence requise
 
 ```text
 - [x] Assignee: @<github-user>
-- [x] Reviewers approved: @<github-user>, ...
 - [x] Domain ownership confirmed in ownership.yaml: <domain> → <owner>
+- [x] Revue niveau <A|B|C> — tête <sha40>, base <sha40>
+      procédure : <auto-review | revue indépendante | revue humaine>, par <session, agent ou compte>
+      constats : <n> corrigés (commit, test), <n> réfutés (preuve), <n> reportés (motif, suivi)
+      preuves : <commandes et résultats> ; reprises : <preuve, entrées inchangées>
+      limites : <non couvert>
+- [x] Accord nominatif (niveau C) : @<owner>, sur <sha40>, <lien>
 ```
 
-**Raison** : sans owner explicite, la dette devient orpheline. Sans reviewer humain, l'erreur logique passe (les bots détectent syntaxe, pas intent). 538 ownership gaps détectés Layer 2 (PR-7a observatory) sont la conséquence directe de DoD2 négligence.
+**Raison** : sans owner explicite, la dette devient orpheline. 538 ownership gaps détectés Layer 2 (PR-7a observatory) sont la conséquence directe de DoD2 négligence. L'approbation humaine GitHub exigée par la v1.0.0 ne pouvait venir ni d'un agent (bot, non compté) ni de l'auteur d'une PR ouverte sous le compte de l'owner ; l'obtenir de l'owner sur chaque PR d'agent recréait la revue technique humaine qu'il a remplacée (ADR-120). Une revue n'est une preuve que si elle nomme le code qu'elle a lu et ce qu'elle a trouvé.
 
 ---
 
@@ -307,7 +324,7 @@ Dans la description PR :
 Les agents (Claude Code, Cowork, Codex, Agent SDK, Cursor) DOIVENT :
 
 1. **Avant d'écrire `Merged` / `Done` / `Shipped` en MEMORY ou log.md** : vérifier mentalement les 9 DoD. Si une case n'est pas cochable → l'état canonique reste `REVIEW` ou `VERIFIED`, pas `MERGED`.
-2. **Avant de proposer `gh pr merge`** : confirmer DoD1 (CI verte) ET DoD2 (assignee + reviewer) ET DoD3 (rollback documenté). Les 6 autres sont gate de revue.
+2. **Avant de proposer `gh pr merge`** : confirmer DoD1 (CI verte) ET DoD2 (assignee, owner du domaine, enregistrement de revue sur la tête ; accord nominatif en zone STOP) ET DoD3 (rollback documenté). Les 6 autres sont gate de revue.
 3. **En cas de PR factice / test / spike** : marquer `draft: true` ET label `experiment` (work_type) qui relâche DoD1, DoD4, DoD6, DoD7 mais pas DoD2, DoD3, DoD5, DoD8, DoD9.
 4. **Auto-évaluation DoD obligatoire** dans le body PR (template ci-dessous).
 
@@ -341,7 +358,7 @@ Le skip n'est pas une exception silencieuse — c'est une dette documentée avec
 ## Definition of Done — auto-évaluation
 
 - [ ] DoD1 — Tests verts: CI green, no flaky, no .only/.skip added
-- [ ] DoD2 — Ownership: assignee + ≥1 human approval
+- [ ] DoD2 — Ownership: assignee + revue niveau <A|B|C> sur la tête <sha40> (enregistrement : <lien>)
 - [ ] DoD3 — Rollback: <plan link>, reversibility=<instant/staged/forward-only>
 - [ ] DoD4 — Observabilité: <log/metric/event log added or N/A>
 - [ ] DoD5 — Drift zéro: registry-fresh green, migrations atomic
@@ -358,6 +375,7 @@ Work type (per planning-worktype.yml): <runtime-critical | governance | seo-runt
 Le reviewer doit refuser une PR qui :
 - Manque la section DoD auto-évaluation.
 - Coche DoD1-DoD9 sans evidence concrète (case cochée sans link).
+- Coche DoD2 sans enregistrement de revue, ou avec un enregistrement qui nomme un autre SHA que la tête.
 - Tagge `runtime-critical` ou `seo-runtime` sans DoD7 explicite.
 - Tagge `migration` sans DoD3 reversibility + DoD5 evidence.
 - Utilise `dod-skip-justified` sans 2 approvers + audit trail.
@@ -365,7 +383,7 @@ Le reviewer doit refuser une PR qui :
 ### Enforcement automatique
 
 1. **`vault-governance.yml`** (existing) : vérifie que `rules-engineering-definition-of-done.md` est référencée par les rules dérivées + canon-backlinks.
-2. **`pr-dod-gate.yml`** (nouveau, monorepo `ak125/nestjs-remix-monorepo`) : lit cette rule + bloque merge si template DoD absent ou cases vides sans `dod-skip-justified` valide.
+2. **`pr-dod-gate.yml`** (nouveau, monorepo `ak125/nestjs-remix-monorepo`) : lit cette rule + bloque merge si template DoD absent ou cases vides sans `dod-skip-justified` valide. Constat au 2026-10-31 (ADR-120) : la gate, exécutée dans le job requis « DoD self-evaluation present », évalue encore DoD2 sur l'état GitHub (assignee et approbations), en consultatif ; son adaptation à l'enregistrement de revue relève d'une PR du monorepo.
 3. **`weekly-vault-lint.yml`** (extension) : audit hebdo des skips + remédiation < 7j.
 
 ---
@@ -387,4 +405,4 @@ Le reviewer doit refuser une PR qui :
 
 *Proposé le : 2026-05-19*
 *Status : CANON dès merge*
-*Dernière revue : 2026-05-19*
+*Dernière revue : 2026-10-31 (DoD2, ADR-120)*

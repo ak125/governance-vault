@@ -9,13 +9,11 @@ supersedes: []
 superseded_by: []
 related_rules:
   - rules-engineering-quality
-  - performance-budget-ttfb
-  - seo-http-status-contract
-  - rpc-governance
 related_incidents: []
-related_adrs:
-  - ADR-016-vehicle-page-matview-persistence
-  - ADR-017-rpc-pieces-cast-cleanup
+related_adr:
+  - ADR-003
+  - ADR-016
+  - ADR-017
 reviewed_by: "Claude Opus 4.7"
 tags:
   - adr/proposed

@@ -54,8 +54,12 @@ fi
 
 cd "$VAULT_PATH"
 
-if [[ ! -d .git ]]; then
-  echo "Error: $VAULT_PATH n'est pas un repo git" >&2
+# Racine d'un depot, clone ou worktree : dans un worktree, `.git` est un fichier,
+# pas un dossier (meme correctif que check-signatures.sh). Un sous-dossier reste
+# refuse : git ls-files y serait relatif et les motifs ancres ne verraient rien.
+TOPLEVEL="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+if [[ -z "$TOPLEVEL" || "$TOPLEVEL" != "$(pwd -P)" ]]; then
+  echo "Error: $VAULT_PATH n'est pas la racine d'un repo git" >&2
   exit 2
 fi
 

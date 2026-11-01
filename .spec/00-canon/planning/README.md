@@ -18,9 +18,15 @@ Tout changement passe par PR vault avec ADR-link. `version` (semver) reflète le
 
 ## Usage
 
-Consommé par `_scripts/planning/schemas.py` (loader + validator).
+Consommé par :
+
+- la règle [[rules-engineering-definition-of-done]] (work type, transitions) ;
+- le check 7 de `_scripts/check-moc-integrity.py` (présence des 4 schémas de base) ;
+- côté monorepo, `scripts/registry/build-planning-registry.js` (libellés de PR).
+
+Le loader `_scripts/planning/schemas.py` a été supprimé avec le writer ([[ADR-104-planning-live-writer-retired|ADR-104]]).
 
 ## References
 
 - ADR-053 Planning Live System (décision canon)
-- MOC-Planning-Live (mirror humain)
+- MOC-Planning-Live (instantané figé au 2026-08-14, ADR-104)

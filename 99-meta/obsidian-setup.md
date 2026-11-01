@@ -1,7 +1,7 @@
 ---
 type: knowledge
 status: canon
-updated: 2026-04-24
+updated: 2026-09-30
 audience: [onboarding, obsidian-user]
 related_adr: [ADR-012, ADR-015]
 related_rules: [G1, G2, G3]
@@ -27,6 +27,9 @@ Le vault n'est **jamais** un sous-dossier d'un autre repo cloné : il a toujours
 ├── .obsidian/                   <- config Obsidian locale (plugins, workspace, ...)
 ├── ledger/
 ├── ops/
+├── policies/
+├── runbooks/
+├── dist/
 ├── 99-meta/
 ├── _scripts/
 ├── _templates/
@@ -35,7 +38,7 @@ Le vault n'est **jamais** un sous-dossier d'un autre repo cloné : il a toujours
 └── README.md
 ```
 
-**Emplacement recommandé** : `<home>/vaults/governance-vault/` ou `<home>/Documents/governance-vault/`. L'emplacement historique `C:\Users\Marwane\nestjs-remix-monorepo\governance-vault\` (dans un parent monorepo) **fonctionne** mais est un artefact — à ne pas reproduire sur un nouveau device.
+**Emplacement recommandé** : `<home>/vaults/governance-vault/` ou `<home>/Documents/governance-vault/`. L'emplacement historique `<home>\nestjs-remix-monorepo\governance-vault\` (dans un parent monorepo) **fonctionne** mais est un artefact — à ne pas reproduire sur un nouveau device.
 
 **Anti-patterns interdits** :
 
@@ -74,7 +77,7 @@ Ne pas ajouter d'autres plugins au vault canonique sans en discuter (chaque plug
 
 ## SSH signing (G3 enforcement)
 
-Le vault applique [[rules-vault|G3]] (Commits signés ed25519). Tout push non signé est rejeté par la CI (`vault-governance.yml` job `G3: Commits signes`).
+Le vault applique [[rules-vault|G3]] (Commits signés ed25519). Un commit non signé dans une PR vers `main` fait échouer le check requis `G3: Commits signes` (`vault-governance.yml`) ; sur un push direct vers `main` ou `refactor/**`, seul le dernier commit est vérifié (détail dans [[signing-policy]]).
 
 ### Setup Windows
 
@@ -132,14 +135,14 @@ Rollback du test : `git reset --hard HEAD~1 && git checkout main && git branch -
 
 ## Ce qui est versionné dans `.obsidian/` (itération future)
 
-Actuellement `.obsidian/` n'est **pas versionné** dans le vault (aucun fichier sous ce chemin dans le repo au 2026-04-24). Chaque device a sa config locale.
+Actuellement `.obsidian/` n'est **pas versionné** dans le vault (aucun fichier sous ce chemin dans le repo au 2026-09-30). Chaque device a sa config locale.
 
-Une itération future (ADR dédiée, probablement numérotée ADR-028 ou suivante après les ADR-023/024/025/026/027 planifiés) pourra versionner un sous-ensemble canonique de `.obsidian/` (liste des plugins, hotkeys, snippets) pour cohérence cross-device. Voir backlog Phase W6+ du plan.
+Une itération future (ADR dédiée, numéro à attribuer au moment de l'écrire, depuis `main` et les PR ouvertes) pourra versionner un sous-ensemble canonique de `.obsidian/` (liste des plugins, hotkeys, snippets) pour cohérence cross-device. Voir backlog Phase W6+ du plan.
 
 ## Backup
 
 - **Automatique** : Obsidian Git auto-pull toutes les 10 min + commits manuels = historique git complet sur GitHub = backup distribué.
-- **Snapshots locaux** : le plugin Obsidian Git crée des snapshots sous `_backups/` à chaque conflit résolu. Ne **pas** committer ces snapshots (à terme, `.gitignore` du vault les exclura — voir futur Paquet 6 Cleanup).
+- **Snapshots locaux** : le plugin Obsidian Git crée des snapshots sous `_backups/` à chaque conflit résolu. Ne **pas** committer ces snapshots : au 2026-09-30, le `.gitignore` du vault ne les exclut pas.
 - **Backup one-shot avant migration majeure** : `Compress-Archive` du dossier vault entier horodaté sur le Bureau (protocole W0 appliqué le 2026-04-24 lors de la Phase W).
 
 ## Référence croisée

@@ -8,6 +8,7 @@ decision_makers: [Fafa]
 supersedes: []
 superseded_by: []
 amends: [ADR-066]
+amended_by: [ADR-068, ADR-070]
 related_rules: [G1, T1, AI1]
 related_incidents: []
 reviewed_by: "@fafa"

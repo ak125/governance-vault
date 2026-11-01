@@ -17,7 +17,7 @@ reviewed_by: ""
 
 # ADR-082 : Doctrine d'amélioration continue globale — lightweight advisory filter
 
-> **Amended Voie 3 (2026-05-27 post INC-2026-016)** — ce document est l'**amendement avant ratification** de la draft v15.4 du 2026-05-26. La draft originelle prévoyait Phase 3 ratchet bloquant (5 critères cumulatifs + owner GO). Suite à l'incident d'authority drift **[INC-2026-016](../incidents/2026/2026-05-27-monorepo-pr765-adr082-authority-drift.md)** (monorepo PR #765 a déclaré "canon ADR-082" avant ratification vault), la décision Voie 3 ratifie ADR-082 uniquement en **mode lightweight advisory perpétuel**. Toute promotion future vers blocking gate exigera un **amendement vault séparé** (pas owner GO seul). Cf §Amendement Voie 3 ci-dessous.
+> **Amended Voie 3 (2026-05-27 post INC-2026-016)** — ce document est l'**amendement avant ratification** de la draft v15.4 du 2026-05-26. La draft originelle prévoyait Phase 3 ratchet bloquant (5 critères cumulatifs + owner GO). Suite à l'incident d'authority drift **[INC-2026-016](../../incidents/2026/2026-05-27-monorepo-pr765-adr082-authority-drift.md)** (monorepo PR #765 a déclaré "canon ADR-082" avant ratification vault), la décision Voie 3 ratifie ADR-082 uniquement en **mode lightweight advisory perpétuel**. Toute promotion future vers blocking gate exigera un **amendement vault séparé** (pas owner GO seul). Cf §Amendement Voie 3 ci-dessous.
 
 ## Contexte
 
@@ -215,12 +215,12 @@ L'amélioration touche : code / architecture / DB / contenu / SEO / ranking / co
 - [ADR-013](./ADR-013-agent-lifecycle-governance.md) (vault SoT)
 - [ADR-015](./ADR-015-vault-single-source-of-truth.md) (signed commits G3)
 - [ADR-031](./ADR-031-four-layer-content-architecture.md) (four-layer content architecture)
-- [ADR-033](./ADR-033-wiki-gamme-schema-v200.md) (wiki gamme schema v2.0.0)
+- [ADR-033](./ADR-033-wiki-gamme-diagnostic-relations-contract.md) (wiki gamme schema v2.0.0)
 - [ADR-058](./ADR-058-repository-control-plane.md) (Repository Control Plane 3 couches)
 - [ADR-060](./ADR-060-repository-roles-doctrine.md) (Repository roles doctrine — leçon principale ADR-082 amendement Voie 3)
 - [ADR-062](./ADR-062-repository-contract-system-meta-model.md) (Repository Control Plane runtime)
 - [ADR-081](./ADR-081-doctrine-agility-amendments.md) (Sunset Clause + Exploration Budget — pattern complexity-gravity)
-- [INC-2026-016](../incidents/2026/2026-05-27-monorepo-pr765-adr082-authority-drift.md) (authority drift incident — source directe amendement Voie 3)
+- [INC-2026-016](../../incidents/2026/2026-05-27-monorepo-pr765-adr082-authority-drift.md) (authority drift incident — source directe amendement Voie 3)
 - CLAUDE.md §Anti-bricolage + §Discipline de périmètre + §Heuristiques de décision
 
 ## Commit signing (G3 ADR-015)

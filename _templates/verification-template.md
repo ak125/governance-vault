@@ -3,11 +3,11 @@ id: VERIF-{TYPE}-{YYYY-MM-DD}-{SEQUENCE}
 type: verification
 date: {YYYY-MM-DD}
 time: "{HH:mm:ssZ}"
-status: passed | failed | warning | partial
-author: "@github-actions" | "@cron" | "@manual"
-trigger: push | pr | cron | manual | deploy
-environment: dev | preprod | production
-commit: {sha}
+status: partial
+author: "{actual_collector_or_operator}"
+trigger: "{actual_trigger}"
+environment: "{observed_environment_or_not_verified}"
+commit: "{full_expected_sha_or_not_verified}"
 related:
   - {ADR-XXX}
   - {INC-YYYY-MM-DD}
@@ -15,31 +15,42 @@ related:
 
 # {Title}
 
+This is an unverified template. Select `passed`, `failed`, `warning`, `partial`
+or `insufficient_evidence` only from observed evidence; never default to success.
+An unavailable check is not a successful check. A caller-supplied status or a
+printed reproduction command does not prove that a check ran.
+
 ## Context
 
-{Why this verification was performed}
+{Why this verification was performed; exact target, expected result and scope}
 
 ## Checks Performed
 
-| Check | Status | Value | Expected | Details |
-|-------|--------|-------|----------|---------|
-| {check1} | PASS | {value} | {expected} | {details} |
-| {check2} | FAIL | {value} | {expected} | {details} |
-| {check3} | WARN | {value} | {expected} | {details} |
+| Check | Observed status | Value | Expected | Evidence and collection time |
+|-------|-----------------|-------|----------|------------------------------|
+| {check} | {actual_status_or_not_verified} | {observed_value} | {expected} | {source} |
 
 ## Summary
 
-- **Total checks**: X
-- **Passed**: X
-- **Failed**: X
-- **Warnings**: X
+- **Executed checks**: {count}
+- **Passed**: {count}
+- **Failed**: {count}
+- **Warnings**: {count}
+- **Unverified / incomplete**: {count_and_reasons}
+
+Use `not_verified` for unknown counts, not an invented zero. Keep verification
+status distinct from authorization to publish, merge or deploy.
 
 ## Verification Commands
 
 ```bash
-# Command to reproduce this verification
+# Record the actual command, its exit code, output and UTC observation time.
 {command}
 ```
+
+For CI, use [[ci-gate-template]] and the vault's read-only
+`_scripts/capture_verification.py` helper. A CI observation does not prove
+deployment or runtime health. Preserve missing evidence explicitly.
 
 ## Actions Required
 
@@ -53,5 +64,5 @@ related:
 
 ---
 
-*Verified: {timestamp}*
+*Observed: {timestamp_UTC}; coverage: {verified_scope_and_exclusions}*
 *Author: {author}*
