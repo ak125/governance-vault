@@ -178,11 +178,13 @@ plusieurs cycles, et un ADR distinct.
   `🧪 Deploy PREPROD` ne part que de `main`). Ce sont des constats au sens de D1, à corriger par une
   PR du monorepo.
 - Il n'ajoute aucune garde à `deploy-prod.yml`. Ce workflow accepte un `workflow_dispatch` sur toute
-  ref et n'en contrôle que la forme du nom. Il exécute le `deploy-prod.yml` de la ref choisie. Lancé
-  sur `main`, ou sur une branche dont la tête est un commit de `main` qui contient #1696 et que
-  PREPROD a validé, il déploierait ce commit sans tag `v*` et publierait l'image sous le nom de la
-  ref (`:main`). Sur une autre ref, le résultat suit le workflow de cette ref : au 2026-11-01,
-  25 branches distantes en portent un sans garde de label ni preuve PREPROD. Relancé sur un tag qui
+  ref et exécute le `deploy-prod.yml` de la ref choisie. Lancé sur `main` dont PREPROD a validé la
+  tête, il déploierait ce commit sans tag `v*` et publierait l'image sous `:main`. Sur une branche
+  dont la tête est un commit de `main` qui contient #1696 et que PREPROD a validé, il ferait de même
+  sous le nom de la branche si ce nom est un tag Docker valide ; sinon il refuse au contrôle de ce
+  nom, après avoir remplacé `:production-previous`. Sur une autre ref, le résultat suit le workflow
+  de cette ref : au 2026-11-01, 25 branches distantes en portent un sans garde de label ni preuve
+  PREPROD. Relancé sur un tag qui
   ne contient pas le commit `ed10ec6e5` (2026-04-21 ; 194 tags sur 302), il exécute le workflow de
   ce tag, sans garde de provenance : il promeut l'alias `:preprod` courant vers PROD et le publie
   sous le nom du tag, ce qui écrase le tag Docker de la version d'origine. [[rules-deployment-workflow]] interdit ces
