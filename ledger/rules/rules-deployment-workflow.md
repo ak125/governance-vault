@@ -15,8 +15,8 @@ related_incidents: [INC-2026-007-false-prod-claim-on-main-merge]
 > `main` annoncée comme un déploiement PROD.
 > **2.0.0** : la 1.0.0 plaçait le déploiement de `main` sur la machine DEV et prescrivait
 > `gh pr merge --admin`, un rollback par push direct sur `main` et un rollback PROD par SSH. Elle
-> contredisait T6 ([[rules-technical]], corrigée par [[ADR-101-vault-decides-canon-authority|ADR-101]])
-> et G4 ([[rules-vault]]). Le vocabulaire suit [[ADR-075-deployment-topology-clarification|ADR-075]]
+> contredisait T6 ([[rules-technical]], corrigée par [[ADR-101-vault-decides-canon-authority|ADR-101]]) :
+> `main` est protégée. Le vocabulaire suit [[ADR-075-deployment-topology-clarification|ADR-075]]
 > (proposé).
 
 ---
@@ -30,8 +30,8 @@ Deux déclencheurs, distincts et non substituables.
 | Fusion d'une PR sur `main` (push `main`) | `ci.yml` : `🐳 build` (via `build.yml`), puis `🧪 Deploy PREPROD`, `🎭 E2E Smoke Tests`, `🔦 Lighthouse Performance Audit` | `build.yml` publie `:sha-<commit>` et déplace l'alias `:preprod` | **PREPROD** : conteneur de CI sur l'hôte PROD, port 3200 sur la boucle locale, `READ_ONLY=true` | automatique, sans humain |
 | Push d'un tag `v*`, ou `workflow_dispatch` de `Deploy PROD (via tag)` sur ce tag | `deploy-prod.yml` | promotion de `:sha-<commit du tag>` vers `:production` | **PROD** : conteneur live derrière Caddy | décision de l'owner : le tag |
 
-- Rien ne déploie sur la machine DEV. Son runtime de développement suit `main` par
-  resynchronisation (`scripts/ops/sync-dev-runtime.sh`).
+- Aucun workflow ne déploie sur la machine DEV. Son runtime de développement suit `main` par
+  resynchronisation (`scripts/ops/sync-dev-runtime.sh`, lancé par un cron).
 - `ci.yml` se déclenche aussi sur un push `dev`, mais `build.yml` et `🧪 Deploy PREPROD` ne
   publient et ne déploient que depuis `main`. Au 2026-11-01, la branche `dev` n'existe pas sur le
   dépôt distant.
@@ -48,7 +48,7 @@ En cas de doute, lire le workflow, pas la documentation.
 - **Ne pas écrire « déployé » sans la version servie** de l'environnement (D6).
 - **Ne pas pousser directement sur `main`** : la branche est protégée, tout passe par une PR (T6).
 - **Ne pas contourner la protection de `main`** : ni `gh pr merge --admin`, ni désactivation de
-  check, ni fusion par un agent (G4.2).
+  check, ni fusion sans validation manuelle explicite (T6).
 - **Ne pas déployer PROD hors de `deploy-prod.yml`** : son chemin vérifie la preuve PREPROD et
   capture le point de rollback.
 - **Ne pas utiliser le tag `latest`.** Un alias (`:preprod`, `:production`) ne sert pas de référence
@@ -56,8 +56,7 @@ En cas de doute, lire le workflow, pas la documentation.
 
 ## D4 — Promotion PREPROD → PROD
 
-1. La PR est fusionnée par l'owner, sous la protection de `main`. Un agent prépare et remet le
-   numéro, le SHA de tête et la commande ; il ne fusionne pas.
+1. La PR est fusionnée sous la protection de `main`, après validation manuelle explicite (T6).
 2. `ci.yml` construit `:sha-<commit>`, déploie PREPROD et vérifie que le conteneur sert ce commit
    (`/health`, champ `revision`), puis lance E2E Smoke et Lighthouse.
 3. L'owner choisit un commit dont les trois jobs `🧪 Deploy PREPROD`, `🎭 E2E Smoke Tests` et
@@ -112,5 +111,5 @@ règle aux agents du monorepo ; un écart entre les deux est un constat (ADR-101
 - [[ADR-075-deployment-topology-clarification]] (proposé) — vocabulaire et topologie
 - [[ADR-028-preprod-supabase-isolation]] — PREPROD en lecture seule
 - [[ADR-101-vault-decides-canon-authority]] — le vault décide, le monorepo exécute
-- [[rules-technical]] (T6), [[rules-vault]] (G4)
+- [[rules-technical]] (T6)
 - [[rules-engineering-definition-of-done]] — DoD7 nomme le watcher du déploiement
