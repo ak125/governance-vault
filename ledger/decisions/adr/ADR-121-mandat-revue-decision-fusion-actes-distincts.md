@@ -79,7 +79,10 @@ du diff ou la décision d'adopter le changement.
 
 Les sessions CLI agissent sous l'application `automecanik-agents[bot]` ; la session Desktop et
 d'autres agents agissent sous le compte GitHub de l'owner. Une fusion enregistrée sous ce compte
-(`merged_by`) prouve le compte, pas la décision d'un humain. L'étape 10 de l'`AGENTS.md` du vault
+(`merged_by`) prouve le compte, pas la décision d'un humain. ADR-114 à ADR-120 posent que « la
+fusion par l'owner vaut ratification » ; les PR #386 à #389 (ADR-117 à ADR-120) portent toutes
+`merged_by` = `automecanik-agents[bot]`, et leur trace ne dit pas qui a décidé. L'étape 10 de
+l'`AGENTS.md` du vault
 demande à l'agent qui la lit de « fusionner en squash » ; sa section « Anti-patterns » et G4.2 le
 lui interdisent.
 
@@ -118,16 +121,19 @@ distingue pourtant quatre notions, chacune avec sa source :
 
 Le monorepo exécute deux workflows qui arment l'auto-fusion de PR Dependabot :
 
-- `dependabot-auto-merge.yml` l'arme selon une règle fixe (mises à jour patch, et mineures de
-  dépendances de développement) ;
+- `dependabot-auto-merge.yml` l'arme selon une règle fixe : mises à jour patch ; mineures des
+  dépendances directes de développement ; mineures des groupes `tiptap-ecosystem`,
+  `storybook-ecosystem` et `vite-ecosystem` ; toute mise à jour de l'écosystème `github_actions`,
+  majeures comprises ;
 - `dependabot-claude-review.yml` fait juger la PR par un modèle, qui arme l'auto-fusion sur un verdict
-  favorable.
+  favorable. Son job ne s'exécute que si la variable `CLAUDE_REVIEW_ENABLED` vaut `true` : présent,
+  il n'est pas actif, ses 100 derniers runs (depuis le 2026-09-30) ayant la conclusion `skipped`.
 
 Aucun ADR accepté ne les décide. La note de connaissance `auto-merge-dependabot-claude-review-architecture-20260504`
 les décrit sans être normative et se réfère à ADR-028, qui traite d'un autre sujet.
 [[ADR-099-seo-projection-writer-runtime-placement-and-exports-transport|ADR-099]] D2 en exclut les
-mises à jour de sous-module, revues par un humain. Le second workflow contredit RULE-H6 (« An agent
-never merges ») : c'est un modèle qui déclenche la fusion.
+mises à jour de sous-module, revues par un humain. Le second workflow, s'il était activé,
+contredirait RULE-H6 (« An agent never merges ») : c'est un modèle qui déclencherait la fusion.
 
 ## Principe directeur
 
@@ -211,7 +217,9 @@ statut existant ne change.
 
 Un ADR rédigé par un agent reste `proposed` jusqu'à la décision de l'owner. La ratification est
 cette décision, suivie d'un commit sur la branche de la PR qui passe le statut à `accepted`, renseigne
-`decision_date`, ajoute les liens `amended_by` réciproques ; l'owner fusionne la tête qui le contient.
+`decision_date`, ajoute les liens `amended_by` réciproques, régénère l'index de [[MOC-Decisions]]
+(`_scripts/sync_moc_decisions.py --write`) et retire des textes de la PR les mentions qui suspendent leur
+entrée en vigueur à la ratification ; l'owner fusionne la tête qui le contient.
 Une PR qui applique le texte d'un amendement à une règle reste en brouillon jusque-là : fusionner une
 règle amendée par un ADR `proposed` reproduit le constat C7.
 
@@ -251,6 +259,8 @@ Documents opérationnels alignés dans la même PR : tableau « Status Semantics
 ## Ce que cet ADR ne fait pas
 
 - Il ne change aucun statut d'ADR existant, ne renumérote rien et ne touche pas ADR-081 (C7).
+- Il ne revient sur aucune ratification passée, y compris celles dont la fusion porte le compte
+  `automecanik-agents[bot]` (C5).
 - Il ne modifie, n'active ni ne désactive aucun workflow de fusion du monorepo (C9).
 - Il ne modifie aucune note de connaissance ni aucun audit-trail : ceux qui décrivent des
   auto-fusions passées restent des documents historiques, sans autorité (ADR-101 D1).
@@ -267,7 +277,12 @@ Après la ratification et la fusion :
 1. La resynchronisation de l'AEC ouvre la PR `canon-sync/auto` du monorepo ; l'owner la fusionne
    (D5). Les copies des dépôts wiki et raw se mettent à jour par une PR ordinaire ; d'ici là, leur
    workflow `agent-exit-contract-hash.yml` signale l'écart. Les miroirs ne s'éditent pas à la main.
-2. Monorepo, par PR ordinaire : le skill `governance-vault-ops` décrit les statuts normatifs selon D6.
+2. Monorepo, par PR ordinaire : le skill `governance-vault-ops` décrit les statuts normatifs selon D6 ;
+   le manifeste du skill `v5-guardian` (`workspaces/seo-batch`) et la mention « AEC v1.0.0 » de
+   `workspaces/marketing/CLAUDE.md` suivent l'AEC 1.1.0. La copie
+   `workspaces/wiki/.claude/canon-mirrors/agent-exit-contract.md` n'est déclarée ni dans le
+   manifeste des consommateurs ni dans `agent-exit-contract-hash.yml` : son écart reste invisible
+   tant qu'elle n'y est pas déclarée.
 3. Les PR ouvertes qui citent l'auto-fusion `canon-sync` ou AP-self-merge s'alignent sur D5.
 
 ## Options considérées
@@ -289,7 +304,9 @@ actifs, et obligerait à modifier ces contrôles.
 ### Option D — Un amendement unique qui sépare les actes — retenue
 
 Il aligne l'AEC, RULE-H5/H6, DoD2, G1, G4 et G5 sur une même distinction, sans nouvelle identité ni
-nouveau mécanisme, et garde chaque validation spécifique dans l'ADR qui la porte.
+nouveau mécanisme, et garde chaque validation spécifique dans l'ADR qui la porte. Il remplace, pour
+les ADR à venir, la convention « la fusion par l'owner vaut ratification » d'ADR-114 à ADR-120 par
+un commit de ratification distinct de la fusion (D7).
 
 ## Conséquences
 

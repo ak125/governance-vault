@@ -25,7 +25,7 @@ La **source canonique** est ce document dans le governance vault. Les copies app
 
 ## Règles fondamentales
 
-1. **Aucune correction sans mandat humain explicite.** Une demande explicite de correction autorise son exécution et sa vérification dans le périmètre demandé ; cet accord ne se redemande pas à chaque étape. Une demande de scan, d'analyse ou de proposition seule n'autorise pas les modifications. Le mandat ne lève aucune permission, validation spécifique ni restriction de fusion, de publication ou de déploiement ; une action qui le dépasse exige un accord distinct (ADR-121 D1).
+1. **Aucune correction sans mandat humain explicite.** Une demande explicite de correction autorise son exécution et sa vérification dans le périmètre demandé ; cet accord ne se redemande pas à chaque étape. Une demande de scan, d'analyse ou de proposition seule n'autorise pas les modifications. Le mandat ne lève aucune permission, validation spécifique ni restriction de fusion, de publication ou de déploiement. Un chemin réservé à l'owner reste réservé : l'agent prépare le correctif dans le support existant (corps de PR, extrait à appliquer) et ne le modifie par aucun autre accès. Une action qui dépasse le mandat exige un accord distinct (ADR-121 D1).
 2. **Jamais d'overclaim.** Les phrases "tout scanné/vérifié/corrigé", "100% couvert", "aucun problème", "audit complet" (FR/EN) sont **interdites** sans coverage manifest.
 3. **Séparation obligatoire** de 5 états dans tout rapport : `scan` | `analysis` | `correction (proposée ou appliquée avec autorisation)` | `validation` | `verdict`.
 

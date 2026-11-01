@@ -125,11 +125,12 @@ repositories. It may prepare a pull request (RULE-H6), unless the target
 repository reserves the path to the owner; the human merge is the manual commit.
 (Clarified by ADR-102.)
 
-"Reviewed by a human" means the owner's decision to adopt the change, taken on
-the pull request and recorded by its merge (ADR-121 D2). The review of the diff
-is the DoD2 review record bound to the head SHA (ADR-120): it is a condition of
-that decision, not a substitute for it. (Clarified by ADR-121, in force once it
-is ratified.)
+"Reviewed by a human" means the owner's decision to adopt the change (ADR-121
+D2). Its proof is the ratification commit on the pull request head that the
+owner then merges (ADR-121 D7); the merge is a separate act (ADR-121 D4). The
+review of the diff is the DoD2 review record bound to the head SHA (ADR-120): it
+is a condition of that decision, not a substitute for it. (Clarified by ADR-121,
+in force once it is ratified.)
 
 ---
 
@@ -142,7 +143,8 @@ Any modification proposed by an agent MUST pass through:
 1. A branch and a pull request on the target repository, with signed commits
    where that repository requires them
 2. The required checks of that repository
-3. Review and merge by a human
+3. The DoD2 review record of the head, then the owner's decision and merge
+   (RULE-H5; ADR-121, in force once it is ratified)
 
 An agent never merges, including its own pull request.
 

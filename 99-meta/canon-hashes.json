@@ -6,8 +6,8 @@
     "aec": {
       "name": "Agent Exit Contract",
       "canon_path": "ledger/rules/rules-agent-exit-contract.md",
-      "canon_sha256": "55068e955c6874dfb3b51c710dd75954bb84602f239891b688d034d4de34ddff",
-      "distribution_sha256": "07c95dad5ac85adc91b029e323d2583fff2af46f4e0f2dcaca55420798a59e2f",
+      "canon_sha256": "93478d757bc0e537a8077f332caeea750c91762a2f71fc80ccd53f62f9d8b73a",
+      "distribution_sha256": "6906e2a922ab37169e7bf7e8cdd1e981a0740819035a397c0a3a4c7df97c296a",
       "hash_mode": "text_sha256",
       "version": "1.1.0",
       "consumers": [
