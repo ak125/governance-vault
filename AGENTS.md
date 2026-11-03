@@ -73,9 +73,11 @@ Note evidence-pack : un evidence-pack se crée à la main. L'ancien générateur
    git push -u origin <branch>
    gh pr create --base main
    ```
-10. Attendre que tous les checks requis soient verts (liste dans [[branch-protection]]), puis fusionner en squash :
-    `gh pr merge <N> --squash --match-head-commit <sha>`. La protection n'exige aucune review ;
-    le commit squash est signé par GitHub.
+10. Attendre que tous les checks requis soient verts (liste dans [[branch-protection]]), puis remettre à
+    l'owner le numéro de la PR, le SHA de tête (40 caractères) et la commande de fusion en squash :
+    `gh pr merge <N> --repo ak125/governance-vault --squash --match-head-commit <sha40>`. L'agent ne la
+    lance pas, sous aucun compte ([[rules-vault|G4]].2). La protection n'exige aucune review ; le commit
+    squash est signé par GitHub.
 
 ---
 

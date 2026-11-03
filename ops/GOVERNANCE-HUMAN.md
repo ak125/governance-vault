@@ -5,7 +5,7 @@
 **Status:** ACTIVE – SOURCE OF TRUTH  
 **Author:** Human (Owner / Operator)  
 **Scope:** Global – applies to ALL systems, agents, repositories, and environments  
-**Last update:** 2026-10-01 (RULE-H3 to H6 aligned with ADR-102)  
+**Last update:** 2026-11-03 (RULE-H5 and H6 clarified by ADR-121)  
 
 ---
 
@@ -125,6 +125,14 @@ repositories. It may prepare a pull request (RULE-H6), unless the target
 repository reserves the path to the owner; the human merge is the manual commit.
 (Clarified by ADR-102.)
 
+"Reviewed by a human" means the owner's decision to adopt the change (ADR-121
+D2). For a change carried by an ADR, its proof is the ratification commit on the
+pull request head that the owner then merges (ADR-121 D7); for any other change,
+it is the owner's merge of the pinned head, recorded per ADR-121 D4. The merge
+remains a separate act, even where it serves as that proof (ADR-121 D4). The
+review of the diff is the DoD2 review record bound to the head SHA (ADR-120): it
+is a condition of that decision, not a substitute for it. (Clarified by ADR-121.)
+
 ---
 
 ## 6. Agent Proposal Channel
@@ -136,9 +144,18 @@ Any modification proposed by an agent MUST pass through:
 1. A branch and a pull request on the target repository, with signed commits
    where that repository requires them
 2. The required checks of that repository
-3. Review and merge by a human
+3. The DoD2 review record of the head, then the owner's decision and merge
+   (RULE-H5; ADR-121)
 
 An agent never merges, including its own pull request.
+
+Self-review, independent review, a ticked box, green checks, a label or a
+general "go" are conditions of a merge; none of them authorizes it. An agent
+never runs a merge command and never enables auto-merge, under any account,
+the owner's included: it hands the owner the pull request number, the head SHA
+(40 characters) and the merge command pinned to that SHA. A merge record
+distinguishes the human who decides, the merged SHA and the technical account
+that executes; the account alone does not prove the human. (ADR-121 D3-D4.)
 
 "Airlock" now designates the RPC gate only (ADR-003). The bundle channel
 (bundle → agent-submissions → Airlock) is retired.
