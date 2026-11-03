@@ -95,7 +95,9 @@ related_rules: [...]
 
 ### Nouvelles ADR
 
-Utiliser `_templates/adr-template.md`. Numero = dernier ADR + 1 (voir `MOC-Decisions`).
+Utiliser `_templates/adr-template.md`. Numero = plus grand identifiant de `main` et des PR ouvertes + 1 :
+`python3 _scripts/check-adr-id-collisions.py` (lecture seule, apres `git fetch origin`) le donne quand
+le controle est complet ; un verdict INCOMPLET n'en donne aucun. Relancer apres l'ouverture de la PR.
 
 ### Nouveaux Incidents
 
