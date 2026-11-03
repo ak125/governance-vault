@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-11-01
+updated: 2026-11-03
 ---
 
 # MOC: Decisions
@@ -106,7 +106,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 > Projection mécanique du frontmatter ADR (PR-3 sync_moc_decisions).
 > Toute édition manuelle entre les markers est écrasée à chaque sync.
 > Pour corriger un statut ou un titre, éditer le frontmatter de l'ADR puis relancer `--write`.
-> Dernier sync : 2026-11-01.
+> Dernier sync : 2026-11-03.
 
 | ID | Titre | Statut canonique | Date | Fichier |
 |----|-------|------------------|------|---------|
@@ -220,7 +220,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-118 | Retrait des méthodes BMAD, Superpowers et Spec Kit : agents BMAD désactivés, amende ADR-008, ADR-009 et ADR-011 | Accepted | 2026-10-27 | [[ADR-118-retrait-methodes-bmad-superpowers-spec-kit]] |
 | ADR-119 | Auto-review de sens à la place de toute relecture humaine des fiches WIKI, familles de sécurité comprises : amende ADR-031, ADR-060, ADR-083, ADR-088, ADR-091, ADR-093, ADR-096 et ADR-114 | Accepted | 2026-10-30 | [[ADR-119-wiki-semantic-auto-review-replaces-human-review]] |
 | ADR-120 | DoD2 : une preuve de revue liée au SHA de tête remplace l'approbation humaine GitHub — amende rules-engineering-definition-of-done (v1.1.0) | Accepted | 2026-10-31 | [[ADR-120-dod2-preuve-de-revue-liee-au-sha]] |
-| ADR-121 | Mandat explicite, revue technique, décision de gouvernance et fusion : des actes distincts — amende l'AEC, RULE-H5/H6, DoD2, G1, G4, G5 et ADR-101 D1 | Proposed | 2026-11-01 | [[ADR-121-mandat-revue-decision-fusion-actes-distincts]] |
+| ADR-121 | Mandat explicite, revue technique, décision de gouvernance et fusion : des actes distincts — amende l'AEC, RULE-H5/H6, DoD2, G1, G4, G5 et ADR-101 D1 | Accepted | 2026-11-01 | [[ADR-121-mandat-revue-decision-fusion-actes-distincts]] |
 
 <!-- AUTO-GENERATED:moc-decisions-canonical-index end -->
 
@@ -320,7 +320,7 @@ Certaines décisions sont documentées dans les **règles** plutôt qu'en ADR :
 
 > Les ADR utilisent l'un des sept statuts de l'énumération de `_scripts/schemas/adr.schema.json`, qui fait foi. Toute autre valeur est invalide et doit être normalisée à la première occasion. Auto-checkable via `_scripts/check-frontmatter-schema.py`.
 >
-> Sont normatifs les ADR `accepted` et `accepted-revised` sans `superseded_by` actif ; les autres statuts sont du contexte ([[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D6, en vigueur à sa ratification).
+> Sont normatifs les ADR `accepted` et `accepted-revised` sans `superseded_by` actif ; les autres statuts sont du contexte ([[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D6).
 
 | Status | Sémantique | Critère d'entrée | Transitions sortantes autorisées |
 |---|---|---|---|

@@ -1,8 +1,9 @@
 ---
 id: ADR-121
 title: "Mandat explicite, revue technique, décision de gouvernance et fusion : des actes distincts — amende l'AEC, RULE-H5/H6, DoD2, G1, G4, G5 et ADR-101 D1"
-status: proposed
+status: accepted
 date: "2026-11-01"
+decision_date: "2026-11-03"
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
@@ -16,16 +17,19 @@ version: "1.0.0"
 
 # ADR-121 : mandat explicite, revue technique, décision de gouvernance et fusion — des actes distincts
 
-- **Statut** : Proposed (2026-11-01). Rédigé par un agent sur le mandat de l'owner du 2026-11-01
-  (mission SPACE-001). Rien n'est normatif avant la décision de l'owner et la fusion (§D7) ; cet ADR
-  ne se déclare pas accepté et ne s'attribue aucune ratification.
+- **Statut** : Accepted (2026-11-03). Décision de l'owner, décideur humain : Marwane, sur le candidat
+  de cette PR, avec les précisions de D2 (mise en production) et de D7 (entrée en vigueur). Le commit
+  de ratification est préparé par un agent : son auteur et sa clé de signature sont techniques. Canon
+  applicable à la fusion par l'owner de la tête qui porte cette décision, sous les contrôles requis
+  (§D7) ; avant cette fusion, ce statut décrit le candidat ratifié et ne modifie pas le canon de
+  `main`. Rédigé par un agent sur le mandat de l'owner du 2026-11-01 (mission SPACE-001).
 - **Modifie**, sur les seuls passages listés en §Amendement : le contrat [[rules-agent-exit-contract]]
   (1.0.1 → 1.1.0), RULE-H5 et RULE-H6 de [[GOVERNANCE-HUMAN]], DoD2 point 6 de
   [[rules-engineering-definition-of-done]] (1.1.0 → 1.2.0), G1 et G4 de [[rules-vault]]
   (3.1.0 → 3.2.0), G5 de [[rules-governance-process]] (3.1.0 → 3.2.0), D1 de
   [[ADR-101-vault-decides-canon-authority|ADR-101]] et le point AP-self-merge de
   [[ADR-120-dod2-preuve-de-revue-liee-au-sha|ADR-120]]. Les corps d'ADR-101 et d'ADR-120 restent
-  inchangés ; leurs liens `amended_by` s'ajoutent à la ratification.
+  inchangés ; seul leur frontmatter reçoit le lien `amended_by`.
 - **Reprend** le texte du candidat AEC 1.1.0 préparé le 2026-10-20 par une session Codex, resté non
   commité et numéroté ADR-117, identifiant pris depuis sur `main`.
 - **Méthode** : constats vérifiés le 2026-11-01, en lecture seule, sur `main` du vault au commit
@@ -163,7 +167,7 @@ modifie par aucun autre accès. Une action qui dépasse le mandat exige un accor
 | Décision de gouvernance : adopter un ADR, une règle, une policy | l'owner, `decision_makers` | changement porté par un ADR : ratification (D7) ; autre changement : fusion par l'owner de la tête épinglée, tracée selon D4 |
 | Validation spécifique | l'humain que désigne l'ADR concerné | celle que fixe cet ADR |
 | Fusion | l'owner | commande épinglée sur le SHA (D4) |
-| Mise en production | l'owner | tag `v*` ou déclenchement manuel du déploiement PROD ([[rules-deployment-workflow]]) |
+| Mise en production | l'owner, selon la procédure de déploiement applicable ([[rules-deployment-workflow]]) | preuves distinctes : décision visant une version déterminée ; trace de l'exécution autorisée ; contrôle daté de la version effectivement servie. Un tag ou le déclenchement d'un workflow ne prouve pas à lui seul la réussite du déploiement |
 
 Les validations spécifiques restent celles de leurs ADR, notamment : l'accord nominatif de l'owner
 sur le SHA pour les zones STOP (niveau C d'ADR-120) ; la revue humaine des niveaux G1 et G2
@@ -214,16 +218,22 @@ Les autres statuts du schéma (`proposed`, `deferred`, `rejected`, `deprecated`,
 contexte. Le schéma `_scripts/schemas/adr.schema.json` fait foi pour la liste des statuts. Aucun
 statut existant ne change.
 
-### D7 — Un amendement entre en vigueur à sa ratification
+### D7 — Un amendement est ratifié sur la branche et entre en vigueur à sa fusion
 
-Un ADR rédigé par un agent reste `proposed` jusqu'à la décision de l'owner. La ratification est
-cette décision, suivie d'un commit sur la branche de la PR qui passe le statut à `accepted` (frontmatter
-et ligne Statut), date la ligne « Accepté le » du pied de page, renseigne `decision_date`, ajoute les
-liens `amended_by` réciproques, régénère l'index de [[MOC-Decisions]]
-(`_scripts/sync_moc_decisions.py --write`) et retire des textes de la PR les mentions qui suspendent leur
-entrée en vigueur à la ratification ; l'owner fusionne la tête qui le contient.
-Une PR qui applique le texte d'un amendement à une règle reste en brouillon jusque-là : fusionner une
-règle amendée par un ADR `proposed` reproduit le constat C7.
+Un ADR rédigé par un agent reste `proposed` jusqu'à la décision de l'owner. La décision de l'owner est
+consignée par le commit de ratification sur la branche de la PR : il passe le statut à `accepted`
+(frontmatter et ligne Statut), date la ligne « Accepté le » du pied de page, renseigne
+`decision_date`, ajoute les liens `amended_by` réciproques, régénère l'index de [[MOC-Decisions]]
+(`_scripts/sync_moc_decisions.py --write`) et retire des textes de la PR les mentions qui suspendent
+leur entrée en vigueur à la ratification.
+
+L'amendement devient canon applicable lorsque l'owner fusionne la tête qui porte cette décision, sous
+les contrôles requis. Avant cette fusion, le statut `accepted` présent sur la branche décrit le
+candidat ratifié ; il ne modifie pas le canon de `main`. La mise à jour des miroirs et la
+vérification de leur version sont ensuite suivies dans les mécanismes existants.
+
+Une PR qui applique le texte d'un amendement à une règle reste en brouillon jusqu'à la ratification :
+fusionner une règle amendée par un ADR `proposed` reproduit le constat C7.
 
 Un changement de règle ou de policy qu'aucun ADR ne porte, parce qu'il ne change pas de décision (G1),
 n'a pas de commit de ratification : la décision de l'owner se prouve par sa fusion de la tête
@@ -240,7 +250,9 @@ référence ; cet ADR ne crée ni registre ni format nouveau.
 
 ## Amendement
 
-À la ratification (D7), les textes suivants entrent en vigueur. Ils figurent dans la même PR.
+Les textes suivants figurent dans la même PR. Ils deviennent canon applicable lorsque l'owner
+fusionne la tête qui porte la ratification (D7) ; avant cette fusion, ils ne modifient pas le canon
+de `main`.
 
 - **[[rules-agent-exit-contract]] 1.1.0** : règle 1 réécrite selon D1 ; règle 3, manifeste et
   reformulation distinguent les corrections proposées des corrections appliquées sous mandat ; un
@@ -372,5 +384,5 @@ sort des constats C7 et C9.
 ---
 
 *Proposé le : 2026-11-01*
-*Accepté le : à la décision de l'owner (D7)*
-*Dernière revue : 2026-11-01*
+*Accepté le : 2026-11-03 (décision de l'owner ; canon applicable à la fusion de la tête ratifiée, D7)*
+*Dernière revue : 2026-11-03*
