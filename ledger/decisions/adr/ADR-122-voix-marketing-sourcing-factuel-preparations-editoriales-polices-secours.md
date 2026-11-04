@@ -42,16 +42,16 @@ exports WIKI ; l'admission d'un fait relève de la WIKI selon
 
 `workspaces/marketing/.claude/rules/marketing-batch.md` (monorepo), §« Sortie en table DB, pas en
 `.md` flottants », interdisait tout fichier `.md` créé par un agent hors
-`workspaces/marketing/.claude/agents/`. [[ADR-036-marketing-operating-layer|ADR-036]] écarte les
-`.md` flottants **pour les briefs** (anti-pattern 2) ; les textes, recherches et preuves
-préparatoires d'un lot n'avaient aucune destination admise.
+`workspaces/marketing/.claude/agents/`. [[ADR-036-marketing-operating-layer|ADR-036]] écarte le
+stockage **des briefs** en `.md` flottants dans `automecanik-wiki/` (§Anti-patterns à éviter) ; les
+textes, recherches et preuves préparatoires d'un lot n'avaient aucune destination admise.
 
 ### C3 — La constitution UX interdit des polices que les tokens emploient en secours
 
 `design-system/UX-CONSTITUTION.md` (monorepo) interdit `system-ui` et `-apple-system` sans
-distinguer famille principale et police de secours. Les tokens
-(`packages/design-tokens/src/tokens.json`, `frontend/tailwind.config.cjs`) les placent en secours
-après les familles principales approuvées (Outfit, DM Sans). Divergence document ↔ code.
+distinguer famille principale et police de secours. `packages/design-tokens/src/tokens.json` les
+place toutes deux en secours après les familles principales approuvées (Outfit, DM Sans) ;
+`frontend/tailwind.config.cjs` y place `system-ui`. Divergence document ↔ code.
 
 ### C4 — Une décision, trois textes
 
@@ -112,8 +112,10 @@ de `canon-sync` (§Mise en œuvre).
   (WIKI, RAW, vault ou RAG), et n'en retire aucun.
 - Il ne change ni les familles principales, ni les valeurs des tokens, ni les autres interdictions
   de la constitution UX.
-- Il ne modifie aucun code : ni les DTO du module `marketing/`, ni `marketing-preparation.ts`, ni
-  `brand-compliance-gate.service.ts`.
+- Il ne modifie aucun code applicatif du monorepo : ni les DTO du module `marketing/`, ni
+  `marketing-preparation.ts`, ni `brand-compliance-gate.service.ts`. Dans le vault, seule la
+  constante de version de `marketing_voice` change dans `_scripts/compute-canon-hashes.py`
+  (§Amendement).
 - Il n'autorise aucune fusion, publication, synchronisation ni mise en production.
 
 ## Mise en œuvre
