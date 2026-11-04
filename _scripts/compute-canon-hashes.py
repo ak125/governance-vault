@@ -100,7 +100,7 @@ CANONS: dict[str, dict] = {
     "marketing_voice": {
         "name": "Marketing Brand Voice",
         "canon_path": "ledger/rules/rules-marketing-voice.md",
-        "version": "1.0.1",
+        "version": "1.1.0",
         "hash_mode": "text_sha256",
         "publishable_when": ["canon"],
         "consumers": [
