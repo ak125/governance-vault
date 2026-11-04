@@ -4,8 +4,9 @@ description: Canon brand voice AutoMecanik (ECOMMERCE) + magasin local 93 (LOCAL
 type: rules-document
 status: canon
 date: 2026-04-30
-version: 1.0.0
-related_adr: ["ADR-036"]
+updated: 2026-11-04
+version: 1.1.0
+related_adr: ["ADR-036", "ADR-122"]
 sync:
   target_repo: ak125/nestjs-remix-monorepo
   target_path: .claude/canon-mirrors/marketing-voice.md
@@ -19,7 +20,7 @@ sync:
 > **Source de vérité canonique** — règles obligatoires de voix de marque pour
 > tous les agents marketing (ADR-036) et toute campagne produite par le module
 > backend `marketing/`. Synchronisée vers monorepo via canon-publish.
-> **Version** : 1.0.0 | **Status** : `canon` (ratifié par ADR-038)
+> **Version** : 1.1.0 (amendée par ADR-122, 2026-11-04) | **Status** : `canon` (ratifié par ADR-038)
 
 Ce fichier est l'**unique source canonique** de la voix de marque marketing.
 Toute copie dans le monorepo (`.claude/canon-mirrors/marketing-voice.md`) est
@@ -54,8 +55,7 @@ Toute copie dans le monorepo (`.claude/canon-mirrors/marketing-voice.md`) est
   à distance (CTA « commander »).
 - ✅ **Conformité RGPD** : tout email/SMS uniquement aux clients ayant donné
   consentement explicite (`marketing_consent_at NOT NULL`). Aucune exception.
-- ✅ **Sourcing factuel** : tout chiffre, durée, kilométrage, garantie cité
-  doit être vérifiable en RAG `gammes/` ou `wiki/vehicle/` ou DB `__orders`.
+- ✅ **Sourcing factuel** : Toute affirmation factuelle conserve une référence vérifiable, datée ou versionnée, adaptée à sa nature. Les faits techniques renvoient aux sources applicables et à leur état d’admission WIKI selon les ADR en vigueur ; les compatibilités au catalogue ; prix, stock, délais et garanties à leur source métier applicable et datée. Un résultat RAG ne vaut pas, à lui seul, preuve d’admission ou de validité métier.
 
 ---
 
@@ -228,10 +228,12 @@ Synchronisation vers monorepo via :
 |---|---|---|
 | 1.0.0 | 2026-04-30 | Création initiale (proposed). 3 voix : ECOMMERCE, LOCAL, HYBRID. Section `local_canon` à compléter par le métier avant `validated: true`. |
 | 1.0.1 | 2026-05-04 | Patch path : copies monorepo relocalisées de `.claude/rules/` vers `.claude/canon-mirrors/` pour ne pas alourdir le contexte projet Claude Code (~6K tokens/tour). Backend runtime path à update conjointement (`marketing-matrix.service.ts:48`). Aucune règle modifiée. |
+| 1.1.0 | 2026-11-04 | ADR-122 : §Obligatoires absolus, **Sourcing factuel** : clause remplacée par le texte approuvé par Marwane le 2026-11-04 ; l'obligation couvre toute affirmation factuelle. Interdits absolus, ADR-119, validations distinctes et verrou LOCAL/HYBRID inchangés. |
 
 ## Référence
 
 - [[ADR-036-marketing-operating-layer]] — création canon
+- [[ADR-122-voix-marketing-sourcing-factuel-preparations-editoriales-polices-secours|ADR-122]] — sourcing factuel (1.1.0)
 - [[rules-agent-exit-contract]] — AEC v1.0.0 obligatoire pour tout agent
 - [[rules-ai-cos]] — AI4 QTO valide AVANT publication
 - ADR-012 — 3-VPS architecture (DEV vault SoT, PROD/AI-COS read-only)
