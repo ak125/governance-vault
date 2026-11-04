@@ -6,7 +6,7 @@ status: canon
 date: 2026-04-30
 updated: 2026-11-04
 version: 1.1.0
-related_adr: ["ADR-036"]
+related_adr: ["ADR-036", "ADR-122"]
 sync:
   target_repo: ak125/nestjs-remix-monorepo
   target_path: .claude/canon-mirrors/marketing-voice.md
@@ -20,7 +20,7 @@ sync:
 > **Source de vérité canonique** — règles obligatoires de voix de marque pour
 > tous les agents marketing (ADR-036) et toute campagne produite par le module
 > backend `marketing/`. Synchronisée vers monorepo via canon-publish.
-> **Version** : 1.1.0 | **Status** : `canon` (ratifié par ADR-038)
+> **Version** : 1.1.0 (amendée par ADR-122, 2026-11-04) | **Status** : `canon` (ratifié par ADR-038)
 
 Ce fichier est l'**unique source canonique** de la voix de marque marketing.
 Toute copie dans le monorepo (`.claude/canon-mirrors/marketing-voice.md`) est
@@ -228,11 +228,12 @@ Synchronisation vers monorepo via :
 |---|---|---|
 | 1.0.0 | 2026-04-30 | Création initiale (proposed). 3 voix : ECOMMERCE, LOCAL, HYBRID. Section `local_canon` à compléter par le métier avant `validated: true`. |
 | 1.0.1 | 2026-05-04 | Patch path : copies monorepo relocalisées de `.claude/rules/` vers `.claude/canon-mirrors/` pour ne pas alourdir le contexte projet Claude Code (~6K tokens/tour). Backend runtime path à update conjointement (`marketing-matrix.service.ts:48`). Aucune règle modifiée. |
-| 1.1.0 | 2026-11-04 | §Obligatoires absolus, **Sourcing factuel** : clause remplacée par le texte approuvé par Marwane le 2026-11-04 ; l'obligation couvre toute affirmation factuelle. Interdits absolus, ADR-119, validations distinctes et verrou LOCAL/HYBRID inchangés. |
+| 1.1.0 | 2026-11-04 | ADR-122 : §Obligatoires absolus, **Sourcing factuel** : clause remplacée par le texte approuvé par Marwane le 2026-11-04 ; l'obligation couvre toute affirmation factuelle. Interdits absolus, ADR-119, validations distinctes et verrou LOCAL/HYBRID inchangés. |
 
 ## Référence
 
 - [[ADR-036-marketing-operating-layer]] — création canon
+- [[ADR-122-voix-marketing-sourcing-factuel-preparations-editoriales-polices-secours|ADR-122]] — sourcing factuel (1.1.0)
 - [[rules-agent-exit-contract]] — AEC v1.0.0 obligatoire pour tout agent
 - [[rules-ai-cos]] — AI4 QTO valide AVANT publication
 - ADR-012 — 3-VPS architecture (DEV vault SoT, PROD/AI-COS read-only)

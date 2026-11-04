@@ -93,14 +93,18 @@ fusionne la tête qui porte la ratification (ADR-121 D7) ; avant cette fusion, i
 canon de `main`.
 
 - **[[rules-marketing-voice]] 1.1.0** : §Obligatoires absolus, la puce « Sourcing factuel » porte le
-  texte de D1 ; `version` et `updated` du frontmatter, en-tête et table « Versionnage » alignés.
+  texte de D1 ; `version` et `updated` du frontmatter, en-tête et table « Versionnage » alignés ;
+  ADR-122 cité dans `related_adr`, l'en-tête, la ligne 1.1.0 de la table « Versionnage » et les
+  Références (forme des précédents, §Mise en œuvre 2).
   Inchangés : §Interdits absolus (stock confirmé par requête live au moteur de stock, prix issu
   d'une requête SQL en temps réel), les autres obligations, le verrou `local_canon` des voix LOCAL et
   HYBRID, les validations distinctes (ADR-121 D2) et l'admission WIKI d'ADR-119.
 - **`_scripts/compute-canon-hashes.py`** : version de `marketing_voice` 1.0.1 → 1.1.0.
   **`99-meta/canon-hashes.json`** régénéré par `--write` : seule l'entrée `marketing_voice` change
   (version, `canon_sha256`, `distribution_sha256`), avec la date `updated` du manifeste.
-- **Index de [[MOC-Decisions]]** régénéré par `_scripts/sync_moc_decisions.py --write`.
+- **Index de [[MOC-Decisions]]** régénéré par `_scripts/sync_moc_decisions.py --write` ; `updated` de
+  [[MOC-Governance]] aligné sur celui de [[MOC-Decisions]] (invariant de l'index maître,
+  `_scripts/check-moc-integrity.py`).
 
 Les textes de D2 et D3 se publient dans une PR du monorepo ; les deux miroirs de la voix, par la PR
 de `canon-sync` (§Mise en œuvre).
@@ -122,15 +126,21 @@ de `canon-sync` (§Mise en œuvre).
 
 1. La PR du vault porte cet ADR, la règle, le script, le manifeste et l'index. Elle reste en
    brouillon jusqu'à la ratification (ADR-121 D7).
-2. La décision de l'owner sur la tête de cette PR est consignée par le commit de ratification :
-   statut `accepted` (frontmatter et ligne Statut), `decision_date`, ligne « Accepté le », index de
-   [[MOC-Decisions]] régénéré, mentions suspensives retirées, liens `amended_by` réciproques
-   applicables ajoutés (ADR-121 D7). La portée de ces liens pour la règle amendée,
-   [[rules-marketing-voice]], est à qualifier par le département 02 sur le candidat, lors de la
-   ratification. Si la règle reçoit des métadonnées, son `canon_sha256` change (le frontmatter y est
-   inclus) : le manifeste se régénère par `--write` puis se vérifie par `--check`, et l'effet sur la
-   distribution et les miroirs se constate alors. Les empreintes du manifeste à la proposition
-   décrivent le candidat proposé, pas l'état après ratification.
+2. La décision de l'owner sur la tête de cette PR est consignée par le commit de ratification
+   (ADR-121 D7) : statut `accepted` (frontmatter et ligne Statut), `decision_date`, ligne « Accepté
+   le », index de [[MOC-Decisions]] régénéré par `--write`, `updated` de [[MOC-Governance]] aligné,
+   mentions suspensives retirées. Liens réciproques : cet ADR n'amende aucun ADR, aucun champ
+   `amended_by` n'est donc à ajouter ; aucune règle de `main` ne porte ce champ, que le schéma
+   `_scripts/schemas/rule.schema.json` ne prévoit pas. La forme qu'une règle amendée reçoit sur `main`,
+   celle de l'AEC 1.1.0 et de la DoD 1.2.0 amendées par ADR-121, figurait déjà dans leur candidat avant
+   la ratification : citation de l'ADR dans les métadonnées, l'en-tête, la table « Versionnage » et les
+   Références. [[rules-marketing-voice]] la porte dans ce candidat ; le commit de ratification ne
+   modifie pas la règle. Empreintes : `canon_sha256` porte sur le fichier entier, frontmatter compris ;
+   `distribution_sha256` porte sur le texte sans frontmatter, celui que reçoivent les miroirs. Un
+   changement limité au frontmatter de la règle change la première, pas la seconde ni les miroirs ;
+   un changement de l'en-tête ou du corps change les deux. La règle n'étant pas modifiée à la
+   ratification, ses empreintes restent celles de la tête ratifiée, que
+   `_scripts/compute-canon-hashes.py --check` vérifie ; le manifeste ne se régénère pas.
 3. L'owner fusionne la tête épinglée (ADR-121 D4).
 4. Les miroirs du monorepo suivent les mécanismes existants
    ([[ADR-061-workspace-governance|ADR-061]] §3) : `canon-publish` envoie `canon-updated` au
