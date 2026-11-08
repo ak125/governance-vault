@@ -5,7 +5,7 @@
 **Status:** ACTIVE – SOURCE OF TRUTH  
 **Author:** Human (Owner / Operator)  
 **Scope:** Global – applies to ALL systems, agents, repositories, and environments  
-**Last update:** 2026-11-03 (RULE-H5 and H6 clarified by ADR-121)  
+**Last update:** 2026-11-07 (RULE-H5 and H6 completed by ADR-123: conditional automatic merge execution)  
 
 ---
 
@@ -133,6 +133,18 @@ remains a separate act, even where it serves as that proof (ADR-121 D4). The
 review of the diff is the DoD2 review record bound to the head SHA (ADR-120): it
 is a condition of that decision, not a substitute for it. (Clarified by ADR-121.)
 
+Within a perimeter explicitly adopted and then activated under ADR-123, the merge
+may be executed automatically, on the conditions of ADR-123 D2 to D6. The
+decision stays human and no longer rests on the merge: a prior category
+authorization in an approved policy for an ordinary change, or the human adoption
+of the content, traced before the merge, for a governance decision (for an ADR,
+its ratification commit, ADR-121 D7; for any other change, in the form the
+activated perimeter sets). The record keeps the authorization, the merged head,
+the executing account and the result. Until a perimeter is adopted and then
+activated, the two paragraphs above apply without exception; within it, the
+manual commit required above is that prior human decision (the category
+authorization, or the traced adoption of the content), not the merge.
+
 ---
 
 ## 6. Agent Proposal Channel
@@ -145,9 +157,12 @@ Any modification proposed by an agent MUST pass through:
    where that repository requires them
 2. The required checks of that repository
 3. The DoD2 review record of the head, then the owner's decision and merge
-   (RULE-H5; ADR-121)
+   (RULE-H5; ADR-121), or, within a perimeter explicitly adopted and then
+   activated under ADR-123, the automatic execution of the authorized decision
 
-An agent never merges, including its own pull request.
+An agent never merges, including its own pull request. Within a perimeter
+explicitly adopted and then activated under ADR-123, the merge is executed by the
+activated mechanism on an authorized decision, never on an agent's own decision.
 
 Self-review, independent review, a ticked box, green checks, a label or a
 general "go" are conditions of a merge; none of them authorizes it. An agent
@@ -156,6 +171,10 @@ the owner's included: it hands the owner the pull request number, the head SHA
 (40 characters) and the merge command pinned to that SHA. A merge record
 distinguishes the human who decides, the merged SHA and the technical account
 that executes; the account alone does not prove the human. (ADR-121 D3-D4.)
+Within a perimeter adopted and then activated under ADR-123, the mechanism, the
+executing account and the act that arms it are those fixed by the activated
+perimeter (ADR-123 D2 to D6). Until a perimeter is adopted and then activated,
+this paragraph applies without exception.
 
 "Airlock" now designates the RPC gate only (ADR-003). The bundle channel
 (bundle → agent-submissions → Airlock) is retired.

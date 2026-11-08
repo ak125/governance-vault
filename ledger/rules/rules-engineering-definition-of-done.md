@@ -2,8 +2,9 @@
 type: rules-document
 status: canon
 scope: engineering
-updated: 2026-11-01
+updated: 2026-11-07
 related_adrs:
+  - ADR-123
   - ADR-121
   - ADR-120
   - ADR-053
@@ -24,7 +25,7 @@ related_rules:
 # Rules — Engineering Definition of Done (DoD1-DoD9)
 
 > **Source de vérité** — règles canon de "fini" au 2026-05-19
-> **Version** : 1.2.0 (DoD2 amendée par [[ADR-120-dod2-preuve-de-revue-liee-au-sha|ADR-120]], 2026-10-31, puis par [[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]], 2026-11-01) | **Status** : CANON
+> **Version** : 1.3.0 (DoD2 amendée par [[ADR-120-dod2-preuve-de-revue-liee-au-sha|ADR-120]], 2026-10-31, par [[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]], 2026-11-01, puis complétée par [[ADR-123-fusion-automatique-conditionnelle-perimetre-adopte|ADR-123]], 2026-11-07) | **Status** : CANON
 > **Taxonomie** : DoD = Definition of Done — invariants qui définissent ce que "MERGED" exige. S'applique APRÈS Q1-Q4 (qualité initiale) et AVANT acceptance opérationnelle (état `MERGED` puis `OBSERVED` puis `CLOSED` per state-machine ADR-053).
 >
 > Le bricolage Q1 est interdit *avant* le code. La dette DoD est interdite *au moment du merge*. Une PR qui passe Q sans respecter DoD pousse de la dette en prod.
@@ -68,8 +69,9 @@ Dans la description PR :
 
 > Amendée par [[ADR-120-dod2-preuve-de-revue-liee-au-sha|ADR-120]] (v1.1.0) : une preuve de revue liée au SHA de tête remplace l'approbation humaine GitHub.
 > Amendée par [[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] (v1.2.0) : point 6, la fusion appartient à l'owner et l'exception AP-self-merge est retirée.
+> Complétée par [[ADR-123-fusion-automatique-conditionnelle-perimetre-adopte|ADR-123]] (v1.3.0) : énoncé, point 6 et anti-pattern associé, exécution automatique de la fusion dans un périmètre explicitement adopté puis activé ; hors de ce périmètre, rien ne change.
 
-**OBLIGATOIRE** : la PR a un `assignee` humain, l'owner responsable, ET un enregistrement de revue sur son SHA de tête. Le domaine de chaque chemin modifié a un owner identifié dans l'overlay L2 `ownership.yaml`. La fusion reste humaine ; DoD2 satisfaite ne vaut ni fusion, ni publication, ni autorisation de mutation PROD.
+**OBLIGATOIRE** : la PR a un `assignee` humain, l'owner responsable, ET un enregistrement de revue sur son SHA de tête. Le domaine de chaque chemin modifié a un owner identifié dans l'overlay L2 `ownership.yaml`. La décision de fusion reste humaine ; son exécution est humaine, sauf exécution automatique dans un périmètre explicitement adopté puis activé selon ADR-123. DoD2 satisfaite ne vaut ni fusion, ni publication, ni autorisation de mutation PROD.
 
 ### Test de discrimination
 
@@ -81,7 +83,7 @@ Dans la description PR :
    - **C** — zones STOP (paiement, prix et stock servis, panier et commande, RLS, opération destructive en base ou migration irréversible, SEO indexé, déploiement PROD) : B, plus l'accord nominatif de l'owner du domaine, consigné sur la PR et nommant le SHA revu, avant la fusion.
 4. **Preuve à jour** : un push qui change la tête rend l'enregistrement périmé. Il n'est reporté que par un nouvel enregistrement qui nomme la nouvelle tête et montre un diff attribuable identique (diff contre la merge-base, hors projections régénérées par leur script officiel) ; sinon la partie modifiée est revue au niveau qu'elle exige.
 5. **Domain ownership** : le ou les chemins modifiés correspondent à un domaine D1..D15 avec owner non `__unassigned__` dans Layer 2 overlay `ownership.yaml`.
-6. **Fusion par l'owner** (ADR-121 D4-D5). Un agent ne lance aucune commande de fusion et n'active aucune auto-fusion, quel que soit le compte sous lequel il agit ; il remet à l'owner le numéro de PR, le SHA de tête et la commande épinglée sur ce SHA. La trace de fusion distingue le décideur humain, le SHA fusionné et le compte technique qui exécute. Aucune exception de self-merge n'existe : une fusion d'urgence sans la revue exigée demanderait un ADR qui en définit le déclencheur, l'acteur, la trace et la revue a posteriori. DoD2 satisfaite est une condition de la fusion, pas son autorisation (ADR-121 D3).
+6. **Fusion par l'owner** (ADR-121 D4-D5). Un agent ne lance aucune commande de fusion et n'active aucune auto-fusion, quel que soit le compte sous lequel il agit ; il remet à l'owner le numéro de PR, le SHA de tête et la commande épinglée sur ce SHA. La trace de fusion distingue le décideur humain, le SHA fusionné et le compte technique qui exécute. Aucune exception de self-merge n'existe : une fusion d'urgence sans la revue exigée demanderait un ADR qui en définit le déclencheur, l'acteur, la trace et la revue a posteriori. DoD2 satisfaite est une condition de la fusion, pas son autorisation (ADR-121 D3). Dans un périmètre explicitement adopté puis activé selon ADR-123, l'exécution de la fusion peut être automatique, aux conditions d'ADR-123 D2 à D6 : DoD2 reste une condition de cette fusion, son enregistrement nomme la tête fusionnée, et le niveau C garde l'accord nominatif de l'owner avant la fusion. L'absence d'exception de self-merge vaut aussi dans ce périmètre. Le mécanisme, le compte qui exécute et l'acte qui l'arme sont ceux que fixe le périmètre activé. Tant qu'aucun périmètre n'est adopté puis activé, le présent point s'applique sans exception.
 
 ### Anti-patterns bloquants
 
@@ -92,7 +94,7 @@ Dans la description PR :
 - Revue dite indépendante faite dans la session de l'auteur, ou par un relecteur qui écrit sur la branche pendant la revue.
 - Identité GitHub, bot, label ou approbation créés pour satisfaire DoD2.
 - Zone STOP fusionnée sans accord nominatif nommant le SHA revu.
-- Fusion lancée, ou auto-fusion activée, par un agent, sous quelque compte que ce soit (ADR-121 D4).
+- Fusion lancée, ou auto-fusion activée, par un agent, sous quelque compte que ce soit (ADR-121 D4), en dehors du mécanisme, du compte et de l'acte que fixe un périmètre adopté puis activé selon ADR-123 ; fusion automatique exécutée hors d'un tel périmètre.
 - Modification d'un fichier `D{N}` avec `owners: [__unassigned__]` sans en profiter pour assigner.
 
 ### Evidence requise
@@ -408,4 +410,4 @@ Le reviewer doit refuser une PR qui :
 
 *Proposé le : 2026-05-19*
 *Status : CANON dès merge*
-*Dernière revue : 2026-11-01 (DoD2 point 6, ADR-121)*
+*Dernière revue : 2026-11-07 (DoD2 énoncé, point 6 et anti-pattern, ADR-123)*
