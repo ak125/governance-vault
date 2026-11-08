@@ -135,12 +135,13 @@ is a condition of that decision, not a substitute for it. (Clarified by ADR-121.
 
 Within a perimeter explicitly adopted and then activated under ADR-123, the merge
 may be executed automatically, on the conditions of ADR-123 D2 to D6. The
-decision stays human: a prior category authorization in an approved policy for an
-ordinary change, or the human adoption of the content, traced before the merge,
-for a governance decision (for an ADR, its ratification commit, ADR-121 D7). The record keeps
-the authorization, the merged head, the executing account and the result. Until a
-perimeter is adopted and then activated, the paragraph above applies without
-exception.
+decision stays human and no longer rests on the merge: a prior category
+authorization in an approved policy for an ordinary change, or the human adoption
+of the content, traced before the merge, for a governance decision (for an ADR,
+its ratification commit, ADR-121 D7; for any other change, in the form the
+activated perimeter sets). The record keeps the authorization, the merged head,
+the executing account and the result. Until a perimeter is adopted and then
+activated, the provisions above apply without exception.
 
 ---
 
