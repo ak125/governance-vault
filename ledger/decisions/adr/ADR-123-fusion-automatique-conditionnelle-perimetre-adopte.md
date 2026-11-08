@@ -93,7 +93,8 @@ sessions sont nommés séparément selon ADR-121 D8.
 Toute catégorie de PR, règles et décisions de gouvernance comprises, peut être éligible. Contenu
 minimal proposé, à confirmer à l'adoption du premier périmètre (§Points à décider) : un périmètre
 adopté nomme les dépôts et branches cibles, les catégories couvertes,
-l'autorisation applicable à chacune (D3), le mécanisme existant, le compte qui exécute et l'acte
+l'autorisation applicable à chacune (D3), la forme de la trace d'adoption des décisions de
+gouvernance qu'aucun ADR ne porte (D3), le mécanisme existant, le compte qui exécute et l'acte
 qui l'arme, et les traces (D5). Hors d'un périmètre adopté puis activé (D7), rien n'est éligible.
 L'éligibilité d'une catégorie (par exemple `canon-sync` ou Dependabot) n'en autorise pas le
 déclenchement.
@@ -103,7 +104,8 @@ déclenchement.
 - **Changement ordinaire** : autorisation préalable par catégorie, dans une politique approuvée par
   l'owner.
 - **Décision de gouvernance** (ADR, règle, policy) : adoption humaine du contenu, tracée avant la
-  fusion ; pour un ADR, le commit de ratification (ADR-121 D7).
+  fusion ; pour un ADR, le commit de ratification (ADR-121 D7) ; pour un autre changement, dans la
+  forme que fixe le périmètre activé (D2).
 - **Validations spécifiques maintenues** : elles restent requises et ne sont pas remplacées,
   notamment le niveau C de DoD2 (accord nominatif avant la fusion, ADR-120), les niveaux G1 et G2
   d'[[ADR-013-agent-lifecycle-governance|ADR-013]], les actes humains qu'ADR-119 D7 maintient
@@ -191,14 +193,15 @@ ratifiée (D8) ; avant, ils ne modifient pas le canon de `main`.
 - **ADR-121** : D2, ligne « Fusion » : l'owner, ou le mécanisme activé dans un périmètre adopté
   (D2) ; D2, ligne « Décision de gouvernance », et dernier paragraphe de D7 : hors périmètre, la
   fusion par l'owner de la tête épinglée reste la preuve d'adoption d'un changement qu'aucun ADR ne
-  porte ; dans un périmètre activé qui couvre les décisions de gouvernance, cette adoption est tracée
-  avant la fusion, dans la forme que fixe le périmètre (D3) ; D3 inchangé ; D4 s'applique hors
-  périmètre, et dans un périmètre la trace suit D5 ; D5 : `canon-sync` inchangé hors périmètre ;
-  AP-self-merge inchangé dans tous les cas : aucune exception de ce nom n'existe, périmètre compris,
-  et une exécution dans un périmètre activé exige les revues applicables (D4) ; l'auto-fusion
-  Dependabot (C9) reste une divergence tant qu'un périmètre ne l'adopte pas ; D7 : la ratification reste la preuve
-  d'adoption d'un ADR, et la fusion de la tête ratifiée peut être exécutée dans un périmètre activé
-  qui couvre les décisions de gouvernance. La ratification d'ADR-121 n'est pas rouverte.
+  porte ; dans un périmètre activé qui couvre les décisions de gouvernance, cette adoption est
+  tracée avant la fusion, dans la forme que fixe le périmètre (D2, D3) ; D3 inchangé ; D4
+  s'applique hors périmètre, et dans un périmètre la trace suit D5 ; D5 : `canon-sync` inchangé
+  hors périmètre ; AP-self-merge inchangé dans tous les cas : aucune exception de ce nom n'existe,
+  périmètre compris, et une exécution dans un périmètre activé exige les revues applicables (D4) ;
+  l'auto-fusion Dependabot (C9) reste une divergence tant qu'un périmètre ne l'adopte pas ; D7 : la
+  ratification reste la preuve d'adoption d'un ADR, et la fusion de la tête ratifiée peut être
+  exécutée dans un périmètre activé qui couvre les décisions de gouvernance. La ratification
+  d'ADR-121 n'est pas rouverte.
 - **ADR-102** D2 (« Un agent ne fusionne jamais ») et D3.2 : hors périmètre adopté puis activé,
   inchangés ; dans un tel périmètre, le mécanisme exécute la décision autorisée, jamais une décision
   de l'agent. Le caractère de règle de conduite et la décision owner de la rendre mécanique sont
@@ -279,10 +282,10 @@ circuit existant produit les effets suivants (constatés sur les workflows le 20
 
 État préexistant, non causé par ce candidat, constaté le 2026-11-07 : la copie monorepo de l'AEC est
 encore en 1.0.0 alors que `main` du vault porte 1.1.0 ; les exécutions planifiées de
-`agent-exit-contract-hash.yml` échouent depuis le 2026-11-04 (dernier succès le 2026-11-03) ; la PR `canon-sync/auto`
-#1954 est ouverte et ses contrôles attendent une approbation d'exécution (`action_required`). La
-fusion de cet ADR déplace le hash attendu vers 1.2.0 : la PR `canon-sync/auto` est alors mise à jour,
-et l'écart persiste jusqu'à sa fusion par l'owner.
+`agent-exit-contract-hash.yml` échouent depuis le 2026-11-04 (dernier succès le 2026-11-03) ; la
+PR `canon-sync/auto` #1954 est ouverte et ses contrôles attendent une approbation d'exécution
+(`action_required`). La fusion de cet ADR déplace le hash attendu vers 1.2.0 : la PR
+`canon-sync/auto` est alors mise à jour, et l'écart persiste jusqu'à sa fusion par l'owner.
 
 Un worktree tiers non commité (`codex/aec-clarification-20261020`) modifie les mêmes fichiers (AEC,
 générateur, manifeste, index MOC) sur une base plus ancienne : un conflit est attendu si ce travail
