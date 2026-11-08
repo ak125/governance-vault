@@ -142,7 +142,8 @@ its ratification commit, ADR-121 D7; for any other change, in the form the
 activated perimeter sets). The record keeps the authorization, the merged head,
 the executing account and the result. Until a perimeter is adopted and then
 activated, the two paragraphs above apply without exception; within it, the
-manual commit required above is that traced human adoption, not the merge.
+manual commit required above is that prior human decision (the category
+authorization, or the traced adoption of the content), not the merge.
 
 ---
 
