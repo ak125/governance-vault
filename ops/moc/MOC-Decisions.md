@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-11-07
+updated: 2026-11-08
 ---
 
 # MOC: Decisions
@@ -106,7 +106,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 > Projection mécanique du frontmatter ADR (PR-3 sync_moc_decisions).
 > Toute édition manuelle entre les markers est écrasée à chaque sync.
 > Pour corriger un statut ou un titre, éditer le frontmatter de l'ADR puis relancer `--write`.
-> Dernier sync : 2026-11-07.
+> Dernier sync : 2026-11-08.
 
 | ID | Titre | Statut canonique | Date | Fichier |
 |----|-------|------------------|------|---------|
@@ -221,7 +221,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-119 | Auto-review de sens à la place de toute relecture humaine des fiches WIKI, familles de sécurité comprises : amende ADR-031, ADR-060, ADR-083, ADR-088, ADR-091, ADR-093, ADR-096 et ADR-114 | Accepted | 2026-10-30 | [[ADR-119-wiki-semantic-auto-review-replaces-human-review]] |
 | ADR-120 | DoD2 : une preuve de revue liée au SHA de tête remplace l'approbation humaine GitHub — amende rules-engineering-definition-of-done (v1.1.0) | Accepted | 2026-10-31 | [[ADR-120-dod2-preuve-de-revue-liee-au-sha]] |
 | ADR-121 | Mandat explicite, revue technique, décision de gouvernance et fusion : des actes distincts — amende l'AEC, RULE-H5/H6, DoD2, G1, G4, G5 et ADR-101 D1 | Accepted | 2026-11-01 | [[ADR-121-mandat-revue-decision-fusion-actes-distincts]] |
-| ADR-123 | Exécution automatique conditionnelle de la fusion dans un périmètre adopté — amende ADR-102, ADR-120, ADR-121, G4, RULE-H5/H6, DoD2, AEC et T6 ; delta distinct sur Q2 et Q4 | Proposed | 2026-11-07 | [[ADR-123-fusion-automatique-conditionnelle-perimetre-adopte]] |
+| ADR-123 | Exécution automatique conditionnelle de la fusion dans un périmètre adopté — amende ADR-102, ADR-120, ADR-121, G4, RULE-H5/H6, DoD2, AEC et T6 ; delta distinct sur Q2 et Q4 | Accepted | 2026-11-07 | [[ADR-123-fusion-automatique-conditionnelle-perimetre-adopte]] |
 
 <!-- AUTO-GENERATED:moc-decisions-canonical-index end -->
 

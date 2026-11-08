@@ -1,8 +1,9 @@
 ---
 id: ADR-123
 title: "Exécution automatique conditionnelle de la fusion dans un périmètre adopté — amende ADR-102, ADR-120, ADR-121, G4, RULE-H5/H6, DoD2, AEC et T6 ; delta distinct sur Q2 et Q4"
-status: proposed
+status: accepted
 date: "2026-11-07"
+decision_date: "2026-11-08"
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
@@ -16,12 +17,16 @@ version: "1.0.0"
 
 # ADR-123 : exécution automatique conditionnelle de la fusion dans un périmètre adopté
 
-- **Statut** : Proposed. Les textes repris au §Texte approuvé, le paragraphe T6 et les textes Q2 et Q4
-  sont des décisions de l'owner du 2026-11-03 ; ils ne sont pas soumis à une nouvelle approbation de
-  fond. Cet ADR les transcrit le 2026-11-07, à la reprise du lot par un agent (Claude CLI), sur
-  mandat de l'owner porté par le département 02 et coordonné par le département 23. L'entrée en
-  vigueur suit D8 : commit de ratification de l'owner sur la tête de la PR, puis fusion par l'owner
-  de cette tête ([[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D4 et D7).
+- **Statut** : Accepted (2026-11-08). Décision de l'owner, décideur humain : Marwane, sur le
+  candidat de cette PR (`a3334fb6972ba26f7ecfb5d4e83385f01e57b724`). Les textes repris au §Texte
+  approuvé, le paragraphe T6 et les textes Q2 et Q4 sont des décisions de l'owner du 2026-11-03 ;
+  ils ne sont pas soumis à une nouvelle approbation de fond. Cet ADR les transcrit le 2026-11-07,
+  à la reprise du lot par un agent (Claude CLI), sur mandat de l'owner porté par le département 02
+  et coordonné par le département 23. Le commit de ratification est préparé par un agent : son
+  auteur et sa clé de signature sont techniques. Canon applicable à la fusion par l'owner de la
+  tête qui porte cette décision, sous les contrôles requis (D8 ;
+  [[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D4 et D7) ; avant cette fusion,
+  ce statut décrit le candidat ratifié et ne modifie pas le canon de `main`.
 - **Modifie**, sur les seuls passages listés en §Amendement : G4 de [[rules-vault]] (3.2.0 →
   3.3.0), RULE-H5 et RULE-H6 de [[GOVERNANCE-HUMAN]], DoD2 de
   [[rules-engineering-definition-of-done]] (1.2.0 → 1.3.0), [[rules-agent-exit-contract]]
@@ -29,7 +34,7 @@ version: "1.0.0"
   [[rules-engineering-quality]] (1.1.0 → 1.2.0). Lecture amendée de D2 à D5 et D7 d'ADR-121, de D2
   et D3.2 d'[[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4|ADR-102]] et de D1
   d'[[ADR-120-dod2-preuve-de-revue-liee-au-sha|ADR-120]] ; leurs corps restent inchangés, seul leur
-  frontmatter reçoit `amended_by` à la ratification.
+  frontmatter reçoit `amended_by`.
 - **N'active rien** : aucun périmètre n'est adopté ni activé par cet ADR. Tant qu'il n'y en a pas,
   toute fusion suit le circuit en vigueur (ADR-121 D4).
 - **Méthode** : constats en lecture seule le 2026-11-07 sur `main` du vault au commit
@@ -356,4 +361,4 @@ non évalué ; une recherche Q2 sans couverture déclarée.
 
 *Décisions de l'owner : 2026-11-03*
 *Proposé le : 2026-11-07*
-*Accepté le : à la ratification par l'owner (ADR-121 D7)*
+*Accepté le : 2026-11-08 (décision de l'owner ; canon à la fusion de la tête ratifiée, D8)*
