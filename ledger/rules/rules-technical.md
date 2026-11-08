@@ -1,7 +1,7 @@
 # Rules - AutoMecanik
 
-> Regles non-negociables au 2026-10-01. T2, T5, T6 et T7 corrigees par [[ADR-101-vault-decides-canon-authority|ADR-101]] d'apres l'etat de `main` du monorepo.
-> **Version**: 3.0.0 | **Status**: CANON (regle du vault, normative au sens de G1)
+> Regles non-negociables au 2026-11-07. T2, T5, T6 et T7 corrigees par [[ADR-101-vault-decides-canon-authority|ADR-101]] d'apres l'etat de `main` du monorepo ; T6 alignee sur [[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D4 par la decision de l'owner du 2026-11-03, et completee par [[ADR-123-fusion-automatique-conditionnelle-perimetre-adopte|ADR-123]] (delta conditionnel).
+> **Version**: 3.1.0 | **Status**: CANON (regle du vault, normative au sens de G1)
 > Ancienne copie de `.spec/00-canon/rules.md` (monorepo, prose de reference sans autorite) ; diverge volontairement depuis ADR-101.
 
 ---
@@ -126,21 +126,38 @@ Les cles et certificats ne sont jamais ecrits dans le code ni dans la documentat
 
 ### T6: Git Workflow - Validation Manuelle
 
-**OBLIGATOIRE** : Push sur `main` uniquement apres validation manuelle explicite.
+**OBLIGATOIRE** : aucun push direct sur `main` ; toute modification passe par une branche et une PR, puis par la fusion decrite ci-dessous.
 
 ```bash
 # ❌ INTERDIT
 git push origin main
-gh pr merge  # Sans approbation
+gh pr merge  # lance par l'agent hors d'un perimetre active selon ADR-123 (ADR-121 D4)
 
 # ✅ OBLIGATOIRE
 git checkout -b feature/xxx
 git push origin feature/xxx
 gh pr create --title "feat: xxx"
-# ATTENDRE validation manuelle
-# APRES approbation explicite uniquement:
-gh pr merge
 ```
+
+Decision T6 de l'owner du 2026-11-03 (alignement sur le canon actuel, ADR-121 D4), reproduite sans modification :
+
+> Le mandat explicite couvre la préparation et la vérification de la PR dans ses limites, sans renouveler le même accord. Les contrôles et validations spécifiques applicables restent requis. L’agent remet à l’owner le numéro de PR, le SHA de tête à 40 caractères et la commande épinglée sur ce SHA ; l’owner seul exécute la fusion. Aucune approbation technique, CI verte ou autorisation générale ne permet à l’agent de fusionner ni d’activer l’auto-fusion.
+
+**Delta du nouveau cadre ([[ADR-123-fusion-automatique-conditionnelle-perimetre-adopte|ADR-123]])** : les clauses
+absolues « l’owner seul exécute la fusion » et « ni d’activer l’auto-fusion » s'appliquent hors d'un
+perimetre explicitement adopte puis active selon ADR-123. Dans un tel perimetre, l'execution de la
+fusion peut etre automatique, aux conditions d'ADR-123 D2 a D6 : decision autorisee (politique
+approuvee par categorie, ou adoption humaine du contenu tracee avant la fusion pour une decision de
+gouvernance), tete identifiee, controles, revues et validations specifiques applicables, protections
+du depot ; une condition manquante ou un controle non concluant empeche la fusion. Le mecanisme, le
+compte qui execute et l'acte qui l'arme sont ceux que fixe le perimetre active ; ni l'agent ni son
+compte n'en decident. Tant qu'aucun perimetre n'est adopte puis active, la decision ci-dessus
+s'applique sans exception.
+
+_Tracabilite : en 3.0.0 (ADR-101), T6 se lisait « Push sur `main` uniquement apres validation manuelle
+explicite », puis `gh pr merge` « APRES approbation explicite uniquement ». La decision du 2026-11-03
+reproduite ci-dessus en est l'alignement sur ADR-121 D4 ; le delta est la redaction du nouveau cadre
+preparee pour ADR-123 (correspondance : ADR-123 §T6)._
 
 **Raison** : `main` est protegee ; un merge sur `main` redeploie le container PREPROD de CI (`ci.yml`). La PROD part d'un tag `v*` (`deploy-prod.yml`), decision owner.
 
@@ -252,10 +269,10 @@ Avant tout merge sur main, verifier :
 - [ ] Sessions Redis configurees (T3)
 - [ ] Schemas Zod pour validation (T4)
 - [ ] Signatures de paiement verifiees, comparaison a temps constant (T5)
-- [ ] Validation manuelle obtenue (T6)
+- [ ] PR preparee ; fusion executee par l'owner sur la tete epinglee, ou automatiquement dans un perimetre adopte puis active selon ADR-123 (T6)
 - [ ] Tests dans la suite du workspace (Jest / Vitest / Playwright) (T7)
 
 ---
 
-_Derniere mise a jour: 2026-10-01 (ADR-101)_
+_Derniere mise a jour: 2026-11-07 (T6 : decision du 2026-11-03 sur ADR-121 D4, delta ADR-123)_
 _Status: CANON - Regle du vault_

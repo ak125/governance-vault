@@ -2,10 +2,11 @@
 type: rules-document
 status: canon
 scope: agents
-updated: 2026-11-01
+updated: 2026-11-07
 related_adrs:
   - ADR-031
   - ADR-121
+  - ADR-123
 related_incidents: []
 related_rules:
   - rules-engineering-quality
@@ -16,7 +17,7 @@ related_rules:
 # Rules — Agent Exit Contract (AEC)
 
 > **Source de vérité canonique** — règles obligatoires de sortie pour tout agent, run, audit ou analyse.
-> **Version** : 1.1.0 (amendée par ADR-121, 2026-11-01) | **Status** : CANON
+> **Version** : 1.2.0 (amendée par ADR-121, 2026-11-01, puis par ADR-123, 2026-11-07) | **Status** : CANON
 > **Taxonomie** : règle transverse — s'applique avant les règles spécifiques de domaine (T*, G*, Q*, AP*).
 
 La **source canonique** est ce document dans le governance vault. Les copies applicatives sont les dérivées déclarées dans le manifeste de distribution ; leur contrôle repose sur son hash SHA-256 (voir §« Distribution canonique »).
@@ -73,9 +74,9 @@ Inclure Section 13 (Coverage Manifest) + Section 14 (Exit Conditions). Le résul
 La source de référence est `ledger/rules/rules-agent-exit-contract.md` dans le vault. Les fichiers applicatifs sont des dérivés ; ils ne s'éditent pas directement.
 
 1. **Manifeste généré** : `99-meta/canon-hashes.json`, clé `aec`, produit par `_scripts/compute-canon-hashes.py --write` et contrôlé par `--check`. Les copies se comparent à `distribution_sha256` (texte privé de son frontmatter). La version et la liste des consommateurs se déclarent dans le générateur.
-2. **Révision** : PR signée selon `ledger/rules/rules-vault.md` (G3, G4), ADR pour tout changement de décision, fusion par l'owner, manifeste régénéré dans la même PR.
+2. **Révision** : PR signée selon `ledger/rules/rules-vault.md` (G3, G4), ADR pour tout changement de décision, fusion par l'owner ou, dans un périmètre explicitement adopté puis activé selon ADR-123, exécution automatique de la décision autorisée aux conditions d'ADR-123 D2 à D6, manifeste régénéré dans la même PR.
 3. **Notification** : après la fusion, `canon-publish.yml` vérifie les hashes et émet l'événement `canon-updated` vers les dépôts consommateurs. Il ne copie aucun fichier et n'ouvre aucune PR.
-4. **Projection monorepo** : `_scripts/sync_canon_mirrors.py` (`--dry-run`, `--check`, `--write`) écrit les copies du monorepo ; `_scripts/cron-sync-canon-mirrors.sh` peut préparer une PR signée, voir `ops/runbooks/sync-canon-mirrors.md`. Côté monorepo, `canon-sync.yml` ouvre ou met à jour la PR `canon-sync/auto`, étiquetée `canon-sync`, sans auto-fusion. Les copies des dépôts wiki et raw se mettent à jour par une PR ordinaire. Toute PR de resynchronisation se fusionne par l'owner, comme toute PR ; aucun label n'autorise une fusion (ADR-121 D5).
+4. **Projection monorepo** : `_scripts/sync_canon_mirrors.py` (`--dry-run`, `--check`, `--write`) écrit les copies du monorepo ; `_scripts/cron-sync-canon-mirrors.sh` peut préparer une PR signée, voir `ops/runbooks/sync-canon-mirrors.md`. Côté monorepo, `canon-sync.yml` ouvre ou met à jour la PR `canon-sync/auto`, étiquetée `canon-sync`, sans auto-fusion. Les copies des dépôts wiki et raw se mettent à jour par une PR ordinaire. Toute PR de resynchronisation se fusionne par l'owner, comme toute PR, tant qu'aucun périmètre explicitement adopté puis activé selon ADR-123 ne la couvre ; dans un tel périmètre, le mécanisme, le compte qui exécute et l'acte qui l'arme sont ceux que fixe le périmètre activé. L'éligibilité d'une PR de resynchronisation n'en autorise pas le déclenchement, et aucun label n'autorise une fusion (ADR-121 D5, ADR-123 D2).
 5. **Vérification consommateur** : chaque dépôt consommateur exécute `agent-exit-contract-hash.yml`, qui compare ses copies au manifeste du vault. Une notification ne prouve ni la mise à jour d'une copie, ni l'exécution d'un cron, ni un déploiement.
 
 ## Versionnage
@@ -87,11 +88,13 @@ Bump majeur (X.0) = nouvelle règle ou statut interdit ajouté. Bump mineur (X.Y
 | 1.0.0 | 2026-04-28 | Canonisation depuis copies orphelines monorepo + seo-batch (drift constaté empiriquement). Ajout §"Distribution canonique". |
 | 1.0.1 | 2026-05-04 | Patch path : copies monorepo relocalisées de `.claude/rules/` vers `.claude/canon-mirrors/` pour ne pas alourdir le contexte projet Claude Code (~2.5K tokens/tour). Aucune règle modifiée, hash recalculé. |
 | 1.1.0 | 2026-11-01 | ADR-121 : règle 1, le mandat explicite couvre son exécution dans ses limites ; corrections proposées et appliquées distinguées (règle 3, manifeste, reformulation) ; `PASS` de dossier distinct du `final_status` ; §« Distribution canonique » réécrite selon les mécanismes réels, auto-fusion `canon-sync` retirée ; en-tête aligné sur la version. |
+| 1.2.0 | 2026-11-07 | ADR-123 : §« Distribution canonique » points 2 et 4, la fusion par l'owner s'applique tant qu'aucun périmètre adopté puis activé selon ADR-123 ne couvre la PR ; aucune autre règle modifiée, hash recalculé. |
 
 ## Référence
 
 - ADR-031 — architecture de contenu à quatre couches (`ledger/decisions/adr/ADR-031-four-layer-content-architecture.md`)
 - ADR-121 — mandat, revue, décision et fusion : actes distincts
+- ADR-123 — exécution automatique conditionnelle de la fusion dans un périmètre adopté
 - `rules-engineering-quality.md` (Q1-Q4 — solution structurelle vs bricolage)
 - `rules-ai-antipatterns.md` (AP-* — anti-patterns IA)
 - `rules-governance-process.md` (G5-G8 — processus)

@@ -2,8 +2,9 @@
 type: rules-document
 status: canon
 scope: engineering
-updated: 2026-07-04
-related_adrs: []
+updated: 2026-11-07
+related_adrs:
+  - ADR-123
 related_incidents: []
 related_rules:
   - rules-technical
@@ -14,7 +15,7 @@ related_rules:
 # Rules — Engineering Quality & Modernization Mandate (Q1-Q4)
 
 > **Source de vérité** — règles fondatrices d'ingénierie au 2026-04-27
-> **Version** : 1.1.0 | **Status** : CANON
+> **Version** : 1.2.0 (Q2 et Q4 amendées par [[ADR-123-fusion-automatique-conditionnelle-perimetre-adopte|ADR-123]], décisions de l’owner du 2026-11-03) | **Status** : CANON
 > **Taxonomie** : Q = Quality — règles méta qui s'appliquent AVANT toute autre règle (T*, G*, AP*).
 >
 > Ces règles codifient ce qui distingue une **solution structurelle** d'un **bricolage**. Elles sont **non-négociables** pour tout agent (humain, Claude Code, Cowork, Codex, Agent SDK) et tout reviewer.
@@ -61,7 +62,7 @@ Après qu'une solution non triviale a été corrigée et prouvée, identifier ex
 
 ## Q2 — Vérifier l'existant avant de créer (Grep-First Mandate)
 
-**OBLIGATOIRE** : avant de créer tout nouvel artefact (fichier, ENV var, convention, domaine, nom de service, route, type), **grep** d'abord. Tout est probablement déjà là.
+**OBLIGATOIRE** : Rechercher les équivalents et leurs consommateurs dans les sources pertinentes avant toute création. Adapter les recherches au doute restant, sans quota fixe. Un résultat nul ne prouve pas à lui seul l’absence : préciser la couverture, les limites d’accès et pourquoi l’existant ne convient pas.
 
 ### Commandes obligatoires par type d'artefact
 
@@ -80,18 +81,19 @@ Après qu'une solution non triviale a été corrigée et prouvée, identifier ex
 
 - Pas de nouvelle ENV var sans avoir grep `process.env` ET `.env.example`.
 - Pas de nouveau domaine sans avoir lu `site.constants.ts`.
-- Pas de nouveau service sans avoir cherché les services équivalents (≥ 3 patterns).
-- Si grep retourne du code qui résout déjà 70% du problème → **étendre l'existant**, pas créer de nouveau.
-- Si gap réel → confirmer par 2-3 patterns différents avant de proposer.
+- Pas de nouveau service sans avoir cherché les services équivalents et leurs consommateurs.
+- Si l'existant résout le problème ou peut être étendu pour le résoudre → **étendre l'existant** (Q1), pas créer de nouveau.
 
 ### Evidence requise
 
-Toute proposition de nouveau fichier/convention DOIT inclure dans la PR/discussion :
+Toute proposition de nouveau fichier/convention DOIT inclure dans la PR/discussion la recherche effectuée :
 
-```bash
-# Preuve d'absence
-grep -rE "<convention>" <scopes> | wc -l    # Doit être 0
-ls <directory> | grep -i "<keyword>"        # Vide ou non-conflictuel
+```text
+# Recherche de l'existant
+sources et commandes utilisées (tableau ci-dessus, adaptées au doute restant)
+résultats, y compris nuls, et couverture réelle (dépôts, chemins, motifs)
+limites d'accès (dépôt, base ou environnement non consultés)
+raison pour laquelle l'existant trouvé ne convient pas
 ```
 
 Sans cette evidence, la PR est rejetée par revue (T6 anti-pattern).
@@ -145,21 +147,21 @@ WHERE table_schema='public' AND table_name LIKE '%<keyword>%';
 
 ## Q4 — Esprit de modernisation continue
 
-**OBLIGATOIRE** : à chaque itération sur un module / DB / process, évaluer s'il est aligné avec l'état moderne de l'art. Pas de "ça marche, on touche pas" si une approche plus moderne existe et est applicable.
+**OBLIGATOIRE** : Évaluer les options maintenues et compatibles lorsqu’un problème ou un gain documenté le justifie. La nouveauté seule ne déclenche ni migration, ni PR, ni issue. Réaliser seulement les changements couverts par le mandat ; consigner la suite réellement nécessaire dans le dossier existant.
 
 ### Triggers de modernisation
 
-Une modernisation est **attendue** quand au moins une des conditions suivantes apparaît :
+Les conditions suivantes justifient une évaluation. L'action indiquée n'est réalisée que si le mandat la couvre ; sinon, la suite réellement nécessaire est consignée dans le dossier existant :
 
-| Trigger | Action attendue |
+| Trigger | Action à évaluer |
 |---------|-----------------|
-| Code utilise une lib/pattern déprécié (ex : Node 20 actions GitHub, callback APIs là où Promise existe) | Plan de migration daté, ADR si breaking |
-| Bibliothèque/framework majeur a une version stable plus récente avec gains documentés | Évaluation + PR de bump si compatibility OK |
+| Code utilise une lib/pattern déprécié (ex : Node 20 actions GitHub, callback APIs là où Promise existe) | Évaluation de la migration ; plan daté si elle est retenue (ADR si une décision change, G1) |
+| Bibliothèque/framework majeur a une version stable plus récente avec gains documentés | Évaluation ; bump dans le mandat si la compatibilité est vérifiée |
 | Pattern interne dupliqué ≥ 3 endroits | Extraction en utilitaire / module partagé |
-| Workaround commenté avec TODO datant de plus de 6 mois | Issue/ADR pour traitement définitif |
+| Workaround commenté avec TODO datant de plus de 6 mois | Évaluation du traitement définitif ; suite consignée dans le dossier existant |
 | Performance budget dépassé > 2× sur un endpoint | Refactor (jamais juste augmenter le budget) |
 | Coverage RPC / monitoring / observabilité < 80% sur module critique | Plan de remédiation |
-| Schema DB avec dette structurelle (colonnes dual, FK manquantes, types incorrects) | ADR de consolidation |
+| Schema DB avec dette structurelle (colonnes dual, FK manquantes, types incorrects) | Évaluation de la consolidation (ADR si une décision change, G1) |
 
 ### Anti-patterns "anti-modernisation" interdits
 
@@ -183,9 +185,9 @@ Une modernisation est **attendue** quand au moins une des conditions suivantes a
 Les agents (Claude Code, Cowork, Codex, Agent SDK) DOIVENT :
 
 1. **Q1** : avant tout code, écrire en clair la cause racine et la solution structurelle envisagée. Si l'utilisateur valide une option qui ne tient pas le test Q1.1-Q1.4, **le signaler explicitement** ("approche X demandée, mais Q1 suggère Y plus robuste car…") avant d'exécuter.
-2. **Q2** : grep AVANT d'écrire un nouveau fichier. Coller le résultat de grep dans la conversation comme evidence.
+2. **Q2** : rechercher l'existant AVANT d'écrire un nouveau fichier, selon Q2. Coller les recherches dans la conversation comme evidence, avec leur couverture et leurs limites.
 3. **Q3** : avant toute migration DB, exécuter `mcp__supabase__list_tables` ou `mcp__supabase__execute_sql` sur `information_schema`. Coller le résultat.
-4. **Q4** : à chaque PR / commit / décision, mentionner explicitement les triggers Q4 rencontrés (même si non traités dans la PR — créer issue/ADR).
+4. **Q4** : à chaque PR / commit / décision, mentionner explicitement les triggers Q4 rencontrés. Ce qui n'est pas traité dans le mandat est consigné dans le dossier existant ; aucune issue, PR ou ADR n'est créée pour le seul trigger (un ADR reste requis si une décision change, G1).
 
 Les feedbacks utilisateur récurrents ("c'est du bricolage", "meilleure solution", "vérifier l'existant", "vérifier la DB") sont la conséquence directe d'une violation Q1/Q2/Q3 non détectée à temps. Q1-Q4 sont la version **proactive** de ces feedbacks.
 
@@ -202,7 +204,7 @@ Avant de soumettre PR ou de déclarer "fait" :
 [ ] Q1 invariant garanti par construction (pas par cache/timeout)
 [ ] Q1 dette nette : ___ ajoutée / ___ supprimée
 [ ] Q1 clôture post-solution : obsolètes identifiés ; supprimés, suivis, ou conservation explicitement justifiée
-[ ] Q2 grep evidence collée pour chaque nouvelle convention/fichier
+[ ] Q2 recherche de l'existant collée (couverture, limites) pour chaque nouvelle convention/fichier
 [ ] Q3 information_schema interrogé pour chaque DDL (si migration)
 [ ] Q4 triggers identifiés et listés (même si reportés)
 ```
@@ -234,9 +236,10 @@ Le reviewer doit refuser une PR qui :
 - Related : [[rules-ai-antipatterns]] (AP-* — instances spécifiques de Q1 violations)
 - Related : [[ADR-016-vehicle-page-matview-persistence]] (exemple Q1 appliqué : matérialisation vs timeout adaptatif)
 - Related : [[ADR-021-database-rls-hardening-zero-trust]] (exemple Q3 appliqué : RLS comme contrat plutôt que ACL ad hoc)
+- Related : [[ADR-123-fusion-automatique-conditionnelle-perimetre-adopte]] (Q2 et Q4 amendées : recherche sans quota fixe, évaluation sur problème ou gain documenté)
 
 ---
 
 *Proposé le : 2026-04-27*
 *Status : CANON dès merge*
-*Dernière revue : 2026-04-27*
+*Dernière revue : 2026-11-07 (Q2 et Q4, ADR-123)*
