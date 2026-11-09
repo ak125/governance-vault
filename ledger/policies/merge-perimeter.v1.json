@@ -6,37 +6,35 @@
   "repo": "ak125/nestjs-remix-monorepo",
   "base": "main",
   "authorized_review_levels": [
-    "A",
-    "B"
+    "A"
   ],
   "evaluation": {
-    "paths": "tout fichier du diff doit être couvert par allow_paths et par aucun refus ; un refus prime toujours",
-    "globs": "sémantique git pathspec :(glob), sensible à la casse",
-    "regex": "deny_path_regex_ignorecase : recherche sur le chemin complet, insensible à la casse ; deny_diff_patterns : recherche sur les lignes ajoutées et retirées",
-    "generated_projections": "dispensées de deny_path_regex_ignorecase et de deny_diff_patterns, car elles citent les noms du code ; même liste que GEN_RE de resync-pr.sh ; leur fraîcheur reste contrôlée par la CI"
+    "order": "pour chaque chemin, ancien et nouveau en cas de renommage : projection générée (admise sans autre filtre), puis deny_paths, puis classification_exempt_paths ou classification ; ensuite deny_diff_patterns sur les lignes ajoutées et retirées",
+    "globs": "micromatch avec dot, sensible à la casse",
+    "classification": "ownership.yaml lu à la base de la PR ; résolution par le glob le plus long, findOwnershipMatch de scripts/registry/check-new-files.js ; sans entrée, sans propriétaire ou domaine UNKNOWN : refus",
+    "risk": "risk vaut low par défaut dans le schéma : un low ne prouve rien ; d'où la liste fermée de domaines et le seuil de confiance",
+    "generated_projections": "même liste que GEN_RE de resync-pr.sh ; leur fraîcheur reste contrôlée par la CI"
   },
-  "allow_paths": [
-    "backend/src/**",
-    "backend/tests/**",
-    "frontend/app/**",
-    "frontend/tests/**",
-    "packages/**",
-    "design-system/**",
+  "classification": {
+    "source_path": ".spec/00-canon/repository-registry/ownership.yaml",
+    "allowed_domains": [
+      "D2",
+      "D6",
+      "D7",
+      "D10",
+      "D12",
+      "D16"
+    ],
+    "max_risk": "medium",
+    "min_source_confidence": "medium"
+  },
+  "classification_exempt_paths": [
     "docs/**",
-    "tests/**",
-    "workspaces/marketing/**",
     "audit/*.md",
-    "audit/registry/*.json",
-    "audit/cycle-map.json",
-    "audit/db-usage-map.json",
-    "audit/dead-code-candidates.json",
-    "audit/duplicate-map.json",
-    "audit/dynamic-import-edges.json",
-    "audit/module-boundaries.json",
-    "audit/runtime-entrypoints.json",
-    "audit/cleanup/pr-8-controlled-cleanup-candidates.json",
-    "audit/cleanup/pr-8-deletion-proof.md",
-    ".claude/knowledge/REPO_MAP.md"
+    "backend/tests/**",
+    "frontend/tests/**",
+    "tests/**",
+    "workspaces/marketing/**"
   ],
   "generated_projections": [
     "audit/registry/*.json",
@@ -52,50 +50,23 @@
     ".claude/knowledge/REPO_MAP.md"
   ],
   "deny_paths": [
-    "backend/src/auth/**",
-    "backend/src/security/**",
-    "backend/src/config/**",
-    "backend/src/database/**",
-    "backend/src/remix/**",
-    "backend/src/workers/**",
-    "backend/src/main*.ts",
-    "backend/src/app.module.ts",
-    "backend/src/modules/auth/**",
-    "backend/src/modules/session/**",
-    "backend/src/modules/bot-guard/**",
-    "backend/src/modules/invoices/**",
-    "backend/src/modules/promo/**",
-    "backend/src/modules/shipping/**",
-    "backend/src/modules/suppliers/**",
-    "backend/src/modules/supplier-truth/**",
-    "backend/src/modules/merchant-center/**",
-    "backend/src/modules/metadata/**",
-    "frontend/app/root.tsx",
-    "frontend/app/routes.ts",
-    "frontend/app/entry.server.tsx",
-    "frontend/app/entry.client.tsx",
-    "packages/registry/**",
-    "**/package.json",
-    "**/package-lock.json",
+    ".github/**",
+    ".husky/**",
+    ".ast-grep/**",
+    ".spec/**",
+    ".claude/**",
+    "scripts/**",
+    "backend/supabase/migrations/**",
+    "**/.claude/**",
     "**/.env*",
     "**/CLAUDE.md",
     "**/AGENTS.md",
-    "workspaces/**/.claude/**"
+    "**/package.json",
+    "**/package-lock.json",
+    "**/Dockerfile*",
+    "**/docker-compose*",
+    "**/Caddyfile*"
   ],
-  "deny_path_regex_ignorecase": [
-    "cart|panier|checkout|order|commande",
-    "payment|paiement|paybox|systempay|cyberplus",
-    "price|pricing|prix|stock",
-    "seo|sitemap|robots|canonical|json-?ld|schema-org",
-    "(^|[/.-])meta([/.-])"
-  ],
-  "deny_file_status": {
-    "frontend/app/routes/**": [
-      "A",
-      "D",
-      "R"
-    ]
-  },
   "deny_diff_patterns": [
     "export\\s+(const|function|async\\s+function)\\s+meta\\b",
     "<h1\\b",
@@ -118,7 +89,7 @@
     "\\bWIP\\b"
   ],
   "executor": {
-    "mechanism": "merge-pr.sh appelé par la porte de périmètre versionnée du monorepo",
+    "mechanism": "scripts/ci/merge-perimeter-gate.mjs : gh pr merge --squash --match-head-commit sur la tête de l'enregistrement de revue",
     "account": "automecanik-agents[bot]",
     "armed_by": "la session Claude CLI titulaire du mandat de la tâche, après l'enregistrement de revue de la tête"
   }
