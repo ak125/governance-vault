@@ -9,11 +9,11 @@
     "A"
   ],
   "evaluation": {
-    "order": "pour chaque chemin, ancien et nouveau en cas de renommage : projection générée (admise sans autre filtre), puis deny_paths, puis classification_exempt_paths ou classification ; ensuite deny_diff_patterns sur les lignes ajoutées et retirées",
+    "order": "pour chaque chemin, ancien et nouveau en cas de renommage : deny_paths, puis classification_exempt_paths ou classification ; ensuite deny_diff_patterns sur les lignes ajoutées et retirées",
     "globs": "micromatch avec dot, sensible à la casse",
     "classification": "ownership.yaml lu à la base de la PR ; résolution par le glob le plus long, findOwnershipMatch de scripts/registry/check-new-files.js ; sans entrée, sans propriétaire ou domaine UNKNOWN : refus",
     "risk": "risk vaut low par défaut dans le schéma : un low ne prouve rien ; d'où la liste fermée de domaines et le seuil de confiance",
-    "generated_projections": "même liste que GEN_RE de resync-pr.sh ; leur fraîcheur reste contrôlée par la CI"
+    "generated_projections": "liste vide (ADR-124 D1) : aucune projection n'est admise, car aucun contrôle requis ne vérifie leur contenu"
   },
   "classification": {
     "source_path": ".spec/00-canon/repository-registry/ownership.yaml",
@@ -36,19 +36,7 @@
     "tests/**",
     "workspaces/marketing/**"
   ],
-  "generated_projections": [
-    "audit/registry/*.json",
-    "audit/cycle-map.json",
-    "audit/db-usage-map.json",
-    "audit/dead-code-candidates.json",
-    "audit/duplicate-map.json",
-    "audit/dynamic-import-edges.json",
-    "audit/module-boundaries.json",
-    "audit/runtime-entrypoints.json",
-    "audit/cleanup/pr-8-controlled-cleanup-candidates.json",
-    "audit/cleanup/pr-8-deletion-proof.md",
-    ".claude/knowledge/REPO_MAP.md"
-  ],
+  "generated_projections": [],
   "deny_paths": [
     ".github/**",
     ".husky/**",

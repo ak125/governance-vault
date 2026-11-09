@@ -1,6 +1,6 @@
 ---
 id: ADR-124
-title: "Premier périmètre de fusion automatique (ADR-123) : documentation et projections du monorepo vers main"
+title: "Premier périmètre de fusion automatique (ADR-123) : documentation Markdown du monorepo vers main"
 status: accepted
 date: "2026-11-09"
 decision_date: "2026-11-09"
@@ -17,8 +17,10 @@ version: "1.0.0"
 
 # ADR-124 : premier périmètre de fusion automatique
 
-- **Statut** : Accepted (2026-11-09). Décision de l'owner, décideur humain : Marwane, sur le candidat
-  `d9dca14487603174453b7fb69c94dd6c782c2909`. Rédigé par un agent (Claude CLI) le 2026-11-09, sur demande
+- **Statut** : Accepted (2026-11-09). Décision de l'owner, décideur humain : Marwane : ratification
+  du candidat `d9dca14487603174453b7fb69c94dd6c782c2909`, puis accord du même jour pour réduire le
+  périmètre à la seule documentation Markdown, sur le constat porté par la PR #394 à la tête
+  `e44db563aff0d625d27840ffc30c10e188a7cc79`. Rédigé par un agent (Claude CLI) le 2026-11-09, sur demande
   de l'owner. Le commit de ratification est préparé par un agent : son auteur et sa clé de signature sont
   techniques. Canon applicable à la fusion par l'owner de la tête qui porte cette décision, sous les
   contrôles requis (D9 ; [[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D4 et D7) ;
@@ -63,8 +65,8 @@ Constats en lecture seule du 2026-11-09 :
 
 ### D1 — Périmètre
 
-Dépôt `ak125/nestjs-remix-monorepo`, branche `main`, PR de niveau DoD2 A : documentation Markdown et
-projections générées. Le détail machine est dans [merge-perimeter.v1.json](../../policies/merge-perimeter.v1.json),
+Dépôt `ak125/nestjs-remix-monorepo`, branche `main`, PR de niveau DoD2 A : documentation Markdown
+seule. Les projections générées ne sont pas admises (voir Limites). Le détail machine est dans [merge-perimeter.v1.json](../../policies/merge-perimeter.v1.json),
 seule source. Le vault, ses PR et toute décision de gouvernance sont hors périmètre.
 
 Le niveau B n'est pas ouvert : la porte ne saurait pas prouver la revue indépendante qu'il exige, et il
@@ -80,7 +82,7 @@ conditions de D5. Aucune autre autorisation n'est demandée à l'owner pour ces 
 
 Une PR est hors périmètre, donc fusionnée par l'owner, si un seul fichier ou une seule ligne relève de :
 
-- un fichier autre que Markdown ou projection générée, ou une revue déclarée de niveau B ou C ;
+- un fichier autre que Markdown, une projection générée, ou une revue déclarée de niveau B ou C ;
 - un domaine absent de la liste fermée, d'après `ownership.yaml` lu à la base de la PR, résolu par le glob
   le plus long : sont ainsi refusés catalogue et prix (D1), SEO (D3), véhicule (D4), blog (D5), routes et
   panier frontend (D8), import fournisseurs (D9), commande et paiement (D11), configuration (D13), gammes
@@ -162,8 +164,11 @@ adoption et activation, et aucune fusion automatique n'est possible avant elle.
 - Le champ `risk` vaut `low` par défaut : il ne prouve rien seul. Le frontend reste hors périmètre tant
   que `ownership.yaml` ne le découpe pas ; cette évolution appartient à l'owner.
 - Un motif de diff est un filet partiel, pas une détection complète du SEO.
-- Les projections générées sont dispensées de classification et de motifs de diff. Leur liste copie
-  `GEN_RE` de `resync-pr.sh` sans contrôle automatique ; leur fraîcheur reste vérifiée par la CI.
+- Les projections générées ne sont pas admises (`generated_projections` vide) : aucun contrôle requis ne
+  vérifie leur contenu. `Registry freshness` n'est pas requis et ne se déclenche pas sur `REPO_MAP.md`, lu
+  par les agents ; une projection modifiée à la main serait passée sans refus. Une PR de documentation dont
+  les projections changent reste fusionnée par l'owner. Les rouvrir suppose un contrôle requis de leur
+  contenu et une décision de l'owner.
 - La protection complète de `main` n'est pas lisible par le compte des agents, l'option `strict` comprise.
   La porte mesure donc le retard de la tête à l'évaluation. Entre l'évaluation et la fusion, seule la
   protection de GitHub s'applique.
