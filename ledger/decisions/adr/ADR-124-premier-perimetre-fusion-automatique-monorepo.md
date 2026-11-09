@@ -35,8 +35,8 @@ Constats en lecture seule du 2026-11-09 :
 
 - ADR-123 est `accepted`, aucun périmètre n'est adopté. Toute fusion passe donc par l'owner.
 - Sur le monorepo, `main` exige 14 contrôles, appliqués à tous (`enforcement: everyone`). Le reste de la
-  protection est illisible par le compte des agents (403). Trois PR ouvertes sont `CLEAN` sans
-  approbation : aucune revue GitHub ne semble requise.
+  protection est illisible par le compte des agents (403). Deux PR ouvertes (#1954, #1967) sont
+  `CLEAN` sans approbation : aucune revue GitHub ne semble requise.
 - `merge-pr.sh` contrôle déjà brouillon, contrôles requis et non requis, état `CLEAN`, empreinte du
   contenu et fusion épinglée au SHA. Il ne contrôle ni la catégorie ni l'enregistrement de revue.
 - Une fusion sur `main` n'est pas limitée à DEV : elle lance la chaîne PREPROD (`ci.yml`) et son contenu
@@ -115,7 +115,7 @@ la fusion, elle y consigne le résultat. Aucune trace, identité ni label n'est 
 - Chaque fusion lance la chaîne PREPROD, comme aujourd'hui.
 - Le contenu fusionné part en PROD avec le prochain tag `v*`, qui reste le geste de l'owner (RULE-H0
   inchangée). L'audit du lot avant tag couvre aussi ces fusions.
-- Aucun effet sur les consommateurs : le vault, l'AEC et `canon-sync` sont exclus.
+- Les fusions automatiques ne portent ni sur le vault, ni sur l'AEC, ni sur `canon-sync`.
 
 ### D8 — Activation, pause et arrêt
 
@@ -128,7 +128,9 @@ la fusion, elle y consigne le résultat. Aucune trace, identité ni label n'est 
 
 ### D9 — Entrée en vigueur sans auto-autorisation
 
-Cette PR et la PR de la porte sont hors périmètre : l'owner les fusionne (ADR-123 D8).
+Cet ADR suit le circuit en vigueur, comme ADR-123 D8 : commit de ratification, puis fusion par l'owner de
+la tête épinglée (ADR-121 D4 et D7). La PR qui crée la porte touche `scripts/`, donc reste hors périmètre :
+l'owner la fusionne. Une fois fusionné, cet ADR n'autorise rien tant que D8 n'a pas activé la politique.
 
 ## Limites
 
