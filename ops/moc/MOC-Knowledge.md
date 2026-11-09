@@ -41,6 +41,7 @@ Base de connaissances architecturale.
 - [[3-layer-error-pipeline-pattern]] - Pipeline 3-couches gestion erreur HTTP 404/410/301 (frontend catchall + API bridge + RedirectService/ErrorLogService) — anti-pattern shortcut hardcodé dans RemixController (cf. INC-2026-012)
 - [[seo-operating-matrix-and-nonblocking-bootstrap-20260430]] - SEO Operating Matrix (matrice agents × registry × catalog read-only, PR #222) + non-blocking `onModuleInit` pattern verrouillé par ast-grep (PR #224, exit-124 cascade debrief)
 - [[tti-home-multilayer-ssr-fix-20260430]] - Plan TTI home multi-couches (FCP 10.7s → 2.7s = −75 % ; PRs #227/#229/#230/#235) — patterns warmCache audit, RemixApiService DI direct (no HTTP loopback), diagnostic FCP≈LCP≈TTI = SSR-bound, audit `v3_singleFetch` pre-flip
+- [[pr-foundation-5-verrous-anti-breaking-cascade]] - 5 verrous PR foundation refactor moteur (signature batch + reason codes + discriminated union + cache canon + 3 vérifs pré-merge madge/build/snapshot) — pattern généralisable, validé empiriquement SEO v9 PR-2c rev 2 (#401), évite breaking changes PR-3+ en cascade
 
 ## SEO
 
