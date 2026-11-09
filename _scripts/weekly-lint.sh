@@ -10,7 +10,7 @@
 #   sur chaque PR (workflow vault-governance) et au pre-push.
 #   5. check-frontmatter-schema.py   (nouveau — conformité YAML)
 #   6. check-adr-supersedes.py       (nouveau — chaînes supersedes)
-#   7. check-obsolete-rules.py       (nouveau — status deprecated sans replacement)
+#   7. check-obsolete-rules.py       (status deprecated sans replacement ; ADR proposed > 30 jours, Q4)
 #   8. check-canon-backlinks.py      (nouveau — G1 drift cross-canon)
 #   9. check-moc-integrity.py        (nouveau — invariants structurels MOC, anti-drift PR-3)
 #  10. check-canon-freshness.py      (nouveau — fichiers .spec/00-canon/ stales vs REG-002 thresholds, ADR-048 sprint 1)
@@ -18,8 +18,9 @@
 #  12. test_governance_constants.py  (parité enums constants ↔ schemas, PR-2)
 #  13. check-no-direct-schema-enum-access.sh (PR-2)
 #  8, 10 et 11 sont « skipped » (visible dans le rapport) quand --monorepo n'existe pas, ce qui est le cas en CI,
-#  et avec --no-monorepo : ce mode ne lance que les checks du vault, sans dépendre de la machine ni de la date
-#  (il est utilisé par _scripts/ci-vault-gate.sh).
+#  et avec --no-monorepo : ce mode ne lance que les checks du vault, sans dépendre de la machine
+#  (il est utilisé par _scripts/ci-vault-gate.sh). Ses erreurs ne dépendent pas non plus de la date ;
+#  seul l'avertissement non bloquant `obsolete/proposed-stale` du check 7 en dépend.
 #
 # Un check moderne qui plante (pas de JSON exploitable sur stdout) produit un finding
 # `weekly-lint/check-crashed` de severite error ; un check legacy est jugé sur son vrai code de sortie.
