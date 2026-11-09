@@ -6,12 +6,13 @@ title: Sandbox auto-merge rule — relaxation per-PR GO sur main (DEV pré-prod)
 slug: sandbox-merge-auto-rule-20260428
 schema_version: "1.0.0"
 lang: fr
-updated_at: "2026-04-28"
+updated_at: "2026-05-04"
 updated_by: "@fafa"
 related_adr: []
 related_prs: []
 related_knowledge:
   - "single-maintainer-merge-pattern"
+  - "vault-self-review-workflow-20260504"
 status: current
 ---
 
@@ -112,4 +113,8 @@ Pas de GO cumulatif sur le périmètre gardé : un GO sur tag v2.1.0 ne couvre p
 
 - Memory locale révisée : `/home/deploy/.claude/projects/-opt-automecanik-app/memory/feedback_sandbox_destructive_actions.md`
 - Pattern lié : [single-maintainer-merge-pattern](single-maintainer-merge-pattern.md)
+- Self-review pré-`--admin` (vault scope) : [[vault-self-review-workflow-20260504]]
+  ajoute pour les PRs vault Claude-ouvertes une 6ᵉ exigence checklist sémantique
+  (8 items) en plus des 5 conditions trigger ci-dessus. Hors scope vault, les 5
+  conditions restent suffisantes pour auto-merge (monorepo).
 - Règle déploiement monorepo : `nestjs-remix-monorepo/.claude/rules/deployment.md` (push main = DEV, tag = PROD)
