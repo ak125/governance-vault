@@ -18,8 +18,9 @@
 #  12. test_governance_constants.py  (parité enums constants ↔ schemas, PR-2)
 #  13. check-no-direct-schema-enum-access.sh (PR-2)
 #  8, 10 et 11 sont « skipped » (visible dans le rapport) quand --monorepo n'existe pas, ce qui est le cas en CI,
-#  et avec --no-monorepo : ce mode ne lance que les checks du vault, sans dépendre de la machine ni de la date
-#  (il est utilisé par _scripts/ci-vault-gate.sh).
+#  et avec --no-monorepo : ce mode ne lance que les checks du vault, sans dépendre de la machine
+#  (il est utilisé par _scripts/ci-vault-gate.sh). Ses erreurs ne dépendent pas non plus de la date ;
+#  seul l'avertissement non bloquant `obsolete/proposed-stale` du check 7 en dépend.
 #
 # Un check moderne qui plante (pas de JSON exploitable sur stdout) produit un finding
 # `weekly-lint/check-crashed` de severite error ; un check legacy est jugé sur son vrai code de sortie.

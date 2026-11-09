@@ -10,16 +10,24 @@ Detecte :
   1. status=deprecated sans champ superseded_by ni mention de replacement dans le body
   2. status=superseded sans superseded_by explicite
   3. Fichier dans ledger/_archive/* sans frontmatter status=archived (info)
-  4. ADR status=proposed dont la `date` a plus de 30 jours (warning) : regle Q4 de
-     rules-engineering-quality (« Les ADR `proposed` > 30 jours doivent etre
-     traitees »). Un ADR `proposed` n'a aucune autorite (G5) ; le laisser en
-     attente entretient l'ambiguite. Avertissement, jamais bloquant : trancher
-     le statut est une decision de l'owner.
+  4. ledger/decisions/adr/ADR-*.md en status=proposed dont la `date` a plus de
+     30 jours (warning) : regle Q4 de rules-engineering-quality (« Les ADR
+     `proposed` > 30 jours doivent etre traitees »). Un ADR `proposed` n'a aucune
+     autorite (G5) ; le laisser en attente entretient l'ambiguite. Avertissement,
+     jamais bloquant : trancher le statut est une decision de l'owner.
+     Le message ne contient pas l'age : le lint hebdomadaire deduplique ses
+     issues sur le texte du message, qui doit donc rester le meme d'une semaine
+     a l'autre. Une `date` absente ou illisible n'est pas signalee ici : c'est
+     une erreur de check-frontmatter-schema.py (champ requis, AAAA-MM-JJ).
 
 Usage:
   python3 _scripts/check-obsolete-rules.py [VAULT_PATH] [--json] [--today=YYYY-MM-DD]
 
-Exit 0 si aucune violation, 1 sinon.
+  --today=YYYY-MM-DD  date de reference de la regle 4 (defaut : aujourd'hui en UTC,
+                      comme les runners CI). Sert aux tests.
+
+Exit 0 si aucune erreur (les avertissements ne bloquent pas), 1 si au moins une
+erreur, 2 si --today est mal forme.
 """
 
 from __future__ import annotations
@@ -27,7 +35,7 @@ from __future__ import annotations
 import json
 import re
 import sys
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 from governance_constants import ADR_STATUSES_ARCHIVED
@@ -39,6 +47,8 @@ _REQUIRES_REPLACEMENT = ADR_STATUSES_ARCHIVED & frozenset({"deprecated", "supers
 
 # Seuil de la regle Q4 (rules-engineering-quality, « Process »). Le changer = amender Q4.
 PROPOSED_MAX_AGE_DAYS = 30
+_ADR_FILE = re.compile(r"ledger/decisions/adr/ADR-[^/]+\.md")
+_TODAY_ARG = re.compile(r"--today=(\d{4}-\d{2}-\d{2})")
 
 
 def to_date(value: object) -> date | None:
@@ -49,7 +59,7 @@ def to_date(value: object) -> date | None:
         return value
     if isinstance(value, str):
         try:
-            return date.fromisoformat(value.strip()[:10])
+            return date.fromisoformat(value.strip())
         except ValueError:
             return None
     return None
@@ -88,12 +98,13 @@ def has_replacement_mention(body: str) -> bool:
 def main(argv: list[str]) -> int:
     vault_path = Path(argv[1]).resolve() if len(argv) > 1 and not argv[1].startswith("--") else Path.cwd()
     emit_json = "--json" in argv
-    today = date.today()
+    today = datetime.now(timezone.utc).date()
     for arg in argv[1:]:
-        if arg.startswith("--today="):
-            parsed = to_date(arg.split("=", 1)[1])
+        if arg.startswith("--today"):
+            match = _TODAY_ARG.fullmatch(arg)
+            parsed = to_date(match.group(1)) if match else None
             if parsed is None:
-                print(f"Error: invalid --today value: {arg}", file=sys.stderr)
+                print(f"Error: expected --today=YYYY-MM-DD, got: {arg}", file=sys.stderr)
                 return 2
             today = parsed
 
@@ -140,21 +151,18 @@ def main(argv: list[str]) -> int:
                     "rule": "obsolete/frontmatter-replacement",
                 })
 
-        if status == "proposed" and p.parent.name == "adr":
+        if status == "proposed" and _ADR_FILE.fullmatch(file):
             proposed_on = to_date(fm.get("date"))
-            if proposed_on is not None:
-                age = (today - proposed_on).days
-                if age > PROPOSED_MAX_AGE_DAYS:
-                    findings.append({
-                        "severity": "warning",
-                        "file": file,
-                        "message": (
-                            f"status=proposed since {proposed_on.isoformat()} ({age} days, "
-                            f"limit {PROPOSED_MAX_AGE_DAYS}, Q4): owner decision pending — "
-                            "accepted, deferred or rejected"
-                        ),
-                        "rule": "obsolete/proposed-stale",
-                    })
+            if proposed_on is not None and (today - proposed_on).days > PROPOSED_MAX_AGE_DAYS:
+                findings.append({
+                    "severity": "warning",
+                    "file": file,
+                    "message": (
+                        f"status=proposed since {proposed_on.isoformat()}, past the "
+                        f"{PROPOSED_MAX_AGE_DAYS}-day limit of rule Q4: owner decision pending"
+                    ),
+                    "rule": "obsolete/proposed-stale",
+                })
 
     summary = {"error": 0, "warning": 0, "info": 0}
     for f in findings:
