@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "id": "merge-perimeter-monorepo-ordinary",
+  "source_adr": "ADR-124",
+  "status": "inactive",
+  "repo": "ak125/nestjs-remix-monorepo",
+  "base": "main",
+  "authorized_review_levels": [
+    "A",
+    "B"
+  ],
+  "evaluation": {
+    "paths": "tout fichier du diff doit être couvert par allow_paths et par aucun refus ; un refus prime toujours",
+    "globs": "sémantique git pathspec :(glob), sensible à la casse",
+    "regex": "deny_path_regex_ignorecase : recherche sur le chemin complet, insensible à la casse ; deny_diff_patterns : recherche sur les lignes ajoutées et retirées",
+    "generated_projections": "dispensées de deny_path_regex_ignorecase et de deny_diff_patterns, car elles citent les noms du code ; même liste que GEN_RE de resync-pr.sh ; leur fraîcheur reste contrôlée par la CI"
+  },
+  "allow_paths": [
+    "backend/src/**",
+    "backend/tests/**",
+    "frontend/app/**",
+    "frontend/tests/**",
+    "packages/**",
+    "design-system/**",
+    "docs/**",
+    "tests/**",
+    "workspaces/marketing/**",
+    "audit/*.md",
+    "audit/registry/*.json",
+    "audit/cycle-map.json",
+    "audit/db-usage-map.json",
+    "audit/dead-code-candidates.json",
+    "audit/duplicate-map.json",
+    "audit/dynamic-import-edges.json",
+    "audit/module-boundaries.json",
+    "audit/runtime-entrypoints.json",
+    "audit/cleanup/pr-8-controlled-cleanup-candidates.json",
+    "audit/cleanup/pr-8-deletion-proof.md",
+    ".claude/knowledge/REPO_MAP.md"
+  ],
+  "generated_projections": [
+    "audit/registry/*.json",
+    "audit/cycle-map.json",
+    "audit/db-usage-map.json",
+    "audit/dead-code-candidates.json",
+    "audit/duplicate-map.json",
+    "audit/dynamic-import-edges.json",
+    "audit/module-boundaries.json",
+    "audit/runtime-entrypoints.json",
+    "audit/cleanup/pr-8-controlled-cleanup-candidates.json",
+    "audit/cleanup/pr-8-deletion-proof.md",
+    ".claude/knowledge/REPO_MAP.md"
+  ],
+  "deny_paths": [
+    "backend/src/auth/**",
+    "backend/src/security/**",
+    "backend/src/config/**",
+    "backend/src/database/**",
+    "backend/src/remix/**",
+    "backend/src/workers/**",
+    "backend/src/main*.ts",
+    "backend/src/app.module.ts",
+    "backend/src/modules/auth/**",
+    "backend/src/modules/session/**",
+    "backend/src/modules/bot-guard/**",
+    "backend/src/modules/invoices/**",
+    "backend/src/modules/promo/**",
+    "backend/src/modules/shipping/**",
+    "backend/src/modules/suppliers/**",
+    "backend/src/modules/supplier-truth/**",
+    "backend/src/modules/merchant-center/**",
+    "backend/src/modules/metadata/**",
+    "frontend/app/root.tsx",
+    "frontend/app/routes.ts",
+    "frontend/app/entry.server.tsx",
+    "frontend/app/entry.client.tsx",
+    "packages/registry/**",
+    "**/package.json",
+    "**/package-lock.json",
+    "**/.env*",
+    "**/CLAUDE.md",
+    "**/AGENTS.md",
+    "workspaces/**/.claude/**"
+  ],
+  "deny_path_regex_ignorecase": [
+    "cart|panier|checkout|order|commande",
+    "payment|paiement|paybox|systempay|cyberplus",
+    "price|pricing|prix|stock",
+    "seo|sitemap|robots|canonical|json-?ld|schema-org",
+    "(^|[/.-])meta([/.-])"
+  ],
+  "deny_file_status": {
+    "frontend/app/routes/**": [
+      "A",
+      "D",
+      "R"
+    ]
+  },
+  "deny_diff_patterns": [
+    "export\\s+(const|function|async\\s+function)\\s+meta\\b",
+    "<h1\\b",
+    "rel=[\"']canonical[\"']",
+    "noindex",
+    "pieces_price",
+    "PiecePriceDataService",
+    "PAYBOX_|SYSTEMPAY_",
+    "timingSafeEqual",
+    "@(UseGuards|Public|Roles|SkipThrottle)\\b",
+    "service_role|SERVICE_ROLE"
+  ],
+  "deny_head_branch_prefixes": [
+    "dependabot/",
+    "canon-sync/"
+  ],
+  "deny_title_patterns": [
+    "NE PAS FUSIONNER",
+    "UNSIGNED",
+    "\\bWIP\\b"
+  ],
+  "executor": {
+    "mechanism": "merge-pr.sh appelé par la porte de périmètre versionnée du monorepo",
+    "account": "automecanik-agents[bot]",
+    "armed_by": "la session Claude CLI titulaire du mandat de la tâche, après l'enregistrement de revue de la tête"
+  }
+}
