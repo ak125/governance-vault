@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "id": "merge-perimeter-monorepo-ordinary",
+  "source_adr": "ADR-124",
+  "status": "active",
+  "repo": "ak125/nestjs-remix-monorepo",
+  "base": "main",
+  "authorized_review_levels": [
+    "A"
+  ],
+  "evaluation": {
+    "order": "pour chaque chemin, ancien et nouveau en cas de renommage : deny_paths, puis classification_exempt_paths ou classification ; ensuite deny_diff_patterns sur les lignes ajoutées et retirées",
+    "globs": "micromatch avec dot, sensible à la casse",
+    "classification": "ownership.yaml lu à la base de la PR ; résolution par le glob le plus long, findOwnershipMatch de scripts/registry/check-new-files.js ; sans entrée, sans propriétaire ou domaine UNKNOWN : refus",
+    "risk": "risk vaut low par défaut dans le schéma : un low ne prouve rien ; d'où la liste fermée de domaines et le seuil de confiance",
+    "generated_projections": "liste vide (ADR-124 D1) : aucune projection n'est admise, car aucun contrôle requis ne vérifie leur contenu"
+  },
+  "classification": {
+    "source_path": ".spec/00-canon/repository-registry/ownership.yaml",
+    "allowed_domains": [
+      "D2",
+      "D6",
+      "D7",
+      "D10",
+      "D12",
+      "D16"
+    ],
+    "max_risk": "medium",
+    "min_source_confidence": "medium"
+  },
+  "classification_exempt_paths": [
+    "docs/**",
+    "audit/*.md",
+    "backend/tests/**",
+    "frontend/tests/**",
+    "tests/**",
+    "workspaces/marketing/**"
+  ],
+  "generated_projections": [],
+  "deny_paths": [
+    ".github/**",
+    ".husky/**",
+    ".ast-grep/**",
+    ".spec/**",
+    ".claude/**",
+    "scripts/**",
+    "backend/supabase/migrations/**",
+    "**/.claude/**",
+    "**/.env*",
+    "**/CLAUDE.md",
+    "**/AGENTS.md",
+    "**/package.json",
+    "**/package-lock.json",
+    "**/Dockerfile*",
+    "**/docker-compose*",
+    "**/Caddyfile*"
+  ],
+  "deny_diff_patterns": [
+    "export\\s+(const|function|async\\s+function)\\s+meta\\b",
+    "<h1\\b",
+    "rel=[\"']canonical[\"']",
+    "noindex",
+    "pieces_price",
+    "PiecePriceDataService",
+    "PAYBOX_|SYSTEMPAY_",
+    "timingSafeEqual",
+    "@(UseGuards|Public|Roles|SkipThrottle)\\b",
+    "service_role|SERVICE_ROLE"
+  ],
+  "deny_head_branch_prefixes": [
+    "dependabot/",
+    "canon-sync/"
+  ],
+  "deny_title_patterns": [
+    "NE PAS FUSIONNER",
+    "UNSIGNED",
+    "\\bWIP\\b"
+  ],
+  "executor": {
+    "mechanism": "scripts/ci/merge-perimeter-gate.mjs : gh pr merge --squash --match-head-commit sur la tête de l'enregistrement de revue",
+    "account": "automecanik-agents[bot]",
+    "armed_by": "la session Claude CLI titulaire du mandat de la tâche, après l'enregistrement de revue de la tête"
+  }
+}
