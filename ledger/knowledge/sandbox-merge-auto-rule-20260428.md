@@ -12,10 +12,26 @@ related_adr: []
 related_prs: []
 related_knowledge:
   - "single-maintainer-merge-pattern"
-status: current
+status: superseded
 ---
 
 # Sandbox auto-merge rule — relaxation per-PR GO sur main (DEV pré-prod)
+
+## Réconciliation 2026-11-10 — note historique, ne pas exécuter
+
+> Cette note conserve la trace d'une décision opérationnelle d'avril 2026. Elle n'est plus une
+> autorité d'exécution : aucun agent ne fusionne une PR sur la foi de ses « 5 conditions ». Ce qui
+> fait foi :
+>
+> - **Fusion** : un agent ne lance aucune commande de fusion et n'active aucune auto-fusion, sous
+>   aucun compte ([[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D4, [[rules-vault]]
+>   G4.2). Il remet à l'owner le numéro de la PR, le SHA de tête (40 caractères) et la commande
+>   épinglée sur ce SHA.
+> - **Seule exception** : un périmètre explicitement adopté puis activé selon
+>   [[ADR-123-fusion-automatique-conditionnelle-perimetre-adopte|ADR-123]]. Le premier périmètre
+>   adopté est celui d'[[ADR-124-premier-perimetre-fusion-automatique-monorepo|ADR-124]] ; il ne vaut
+>   qu'une fois activé.
+> - **Commandes du §3 « Auto »** : `gh pr merge`, avec ou sans `--admin`, n'est plus ouvert à un agent.
 
 > Décision opérationnelle 2026-04-28, scope = comportement agent Claude Code sur DEV VPS 46.224.118.55.
 > Modifie la politique de demande d'autorisation textuelle pour les merges routiniers vers `main`.

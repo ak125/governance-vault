@@ -3,9 +3,23 @@
 **Domaine :** Governance, vault operations
 **Date :** 2026-04-27
 **Décision :** session 2026-04-27, audit-trail [PR #91](https://github.com/ak125/governance-vault/pull/91)
-**Status :** canon (mode opérationnel actuel)
+**Status :** historique (mode opératoire d'avril 2026, remplacé — voir la réconciliation ci-dessous)
 
 ---
+
+## Réconciliation 2026-11-10 — note historique, ne pas exécuter
+
+> Cette note conserve la trace du mode opératoire d'avril 2026. Elle n'est plus une autorité
+> d'exécution. Ce qui fait foi :
+>
+> - **Fusion** : un agent prépare, un humain fusionne ([[rules-vault]] G4.2,
+>   [[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4|ADR-102]],
+>   [[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D4). L'agent remet à l'owner le
+>   numéro de la PR, le SHA de tête (40 caractères) et la commande épinglée sur ce SHA. Il ne lance
+>   aucune commande de fusion, sous aucun compte.
+> - **`gh pr merge --admin`** : ne contourne plus rien. `enforce_admins` vaut `true` et la protection
+>   n'exige plus aucune review ([[branch-protection]]).
+> - **Checks requis** : la liste à jour est dans [[branch-protection]], pas dans cette note.
 
 ## Contexte
 

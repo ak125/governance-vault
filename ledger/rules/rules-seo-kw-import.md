@@ -1,7 +1,7 @@
 # Rules - SEO Keyword Import & Alias Enrichment
 
 > **Source de verite** - Regles de gouvernance import Google Ads KP au 2026-04-22
-> **Version**: 1.0.0 | **Status**: CANON
+> **Version**: 1.0.1 | **Status**: CANON
 > **Taxonomie**: R-SEO-KW = pipeline import keywords Google Ads KP vers `__seo_keywords`
 > **Pipeline cible**: `scripts/seo/import-gads-kp.py` (skills-first, zero-LLM)
 
@@ -217,7 +217,8 @@ AND content_r6.pg_id IS NOT NULL     -- R6 PG present
 **Pourquoi ce stage existe ?** Trois cas legitimes :
 
 1. **Gamme niche** : composant a faible volume search (ABS, accessoires rares).
-   Google Ads KP renvoie 0 resultats. RAG suffit pour generer le contenu.
+   Google Ads KP renvoie 0 resultats. Le contenu en place ne depend pas d'un
+   import Google Ads.
 2. **Pre-canon legacy** : gamme enrichie via le pipeline R3 batch Phase 5
    avant l'introduction du flow `import-gads-kp.py`. Contenu deja en place.
 3. **CSV pas encore exporte** : gamme dans le batch d'attente, mais pas
@@ -225,6 +226,14 @@ AND content_r6.pg_id IS NOT NULL     -- R6 PG present
 
 Dans les 3 cas, la gamme est **fonctionnellement complete** au sens du pipeline
 de contenu et doit pouvoir passer la QA + etre publiee.
+
+**Portee du nom** : `RAG_ONLY_ENRICHED` est le nom historique du stage dans la
+view. Il qualifie l'etat du pipeline de mots-cles, pas la source du contenu. Il
+ne donne au RAG aucune autorite pour produire du contenu : le RAG sert le
+chatbot, et tout contenu nouveau ou regenere vient des exports du WIKI
+([[ADR-031-four-layer-content-architecture|ADR-031]],
+[[ADR-046-r-stack-single-generator-and-layers|ADR-046]],
+[[ADR-086-encyclopedia-editorial-content-contract|ADR-086]]).
 
 **Decouverte 2026-04-25** : 147 / 232 gammes G1/G2 (63%) etaient artificiellement
 en NO_CSV alors qu'elles satisfaisaient les criteres ci-dessus. Le BLOCK QA
@@ -262,7 +271,7 @@ RAG_ONLY_ENRICHED est la verite : pas de KW Google Ads, contenu complet.
 
 ---
 
-_Derniere mise a jour : 2026-04-25_
+_Derniere mise a jour : 2026-11-10 (portee du nom `RAG_ONLY_ENRICHED` ; aucune decision changee). Precedente : 2026-04-25_
 _Creee suite au batch R1_ROUTER 2026-04-22 (voir ledger/audit-trail)._
 _R-SEO-KW-06 ajoutee 2026-04-23 suite au batch R1_ROUTER pompe-a-vide-de-freinage_
 _(89% rejets, cas d'ecole cross-gamme scope ; cf. evidence pompe-vide-freinage)._
