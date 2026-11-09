@@ -10,7 +10,7 @@
 #   sur chaque PR (workflow vault-governance) et au pre-push.
 #   5. check-frontmatter-schema.py   (nouveau — conformité YAML)
 #   6. check-adr-supersedes.py       (nouveau — chaînes supersedes)
-#   7. check-obsolete-rules.py       (nouveau — status deprecated sans replacement)
+#   7. check-obsolete-rules.py       (status deprecated sans replacement ; ADR proposed > 30 jours, Q4)
 #   8. check-canon-backlinks.py      (nouveau — G1 drift cross-canon)
 #   9. check-moc-integrity.py        (nouveau — invariants structurels MOC, anti-drift PR-3)
 #  10. check-canon-freshness.py      (nouveau — fichiers .spec/00-canon/ stales vs REG-002 thresholds, ADR-048 sprint 1)
