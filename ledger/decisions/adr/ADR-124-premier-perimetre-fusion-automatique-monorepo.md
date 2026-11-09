@@ -1,8 +1,9 @@
 ---
 id: ADR-124
 title: "Premier périmètre de fusion automatique (ADR-123) : documentation et projections du monorepo vers main"
-status: proposed
+status: accepted
 date: "2026-11-09"
+decision_date: "2026-11-09"
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
@@ -16,13 +17,17 @@ version: "1.0.0"
 
 # ADR-124 : premier périmètre de fusion automatique
 
-- **Statut** : Proposed. Rédigé par un agent (Claude CLI) le 2026-11-09, sur demande de l'owner.
-  La décision de l'owner sera consignée par le commit de ratification
-  ([[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D7).
+- **Statut** : Accepted (2026-11-09). Décision de l'owner, décideur humain : Marwane, sur le candidat
+  `d9dca14487603174453b7fb69c94dd6c782c2909`. Rédigé par un agent (Claude CLI) le 2026-11-09, sur demande
+  de l'owner. Le commit de ratification est préparé par un agent : son auteur et sa clé de signature sont
+  techniques. Canon applicable à la fusion par l'owner de la tête qui porte cette décision, sous les
+  contrôles requis (D9 ; [[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D4 et D7) ;
+  avant cette fusion, ce statut décrit le candidat ratifié et ne modifie pas le canon de `main`.
 - **Étend** [[ADR-123-fusion-automatique-conditionnelle-perimetre-adopte|ADR-123]], dont il tranche
   les « Points à décider » pour un premier périmètre. N'amende aucune règle.
-- **N'active rien à lui seul** : la politique [merge-perimeter.v1.json](../../policies/merge-perimeter.v1.json)
-  porte `status: inactive`. Le passage à `active` suit D8.
+- **Active la politique** [merge-perimeter.v1.json](../../policies/merge-perimeter.v1.json) : le commit
+  de ratification la passe à `status: active` (D8). La porte lit la politique sur `main` du vault, donc
+  rien n'est actif avant la fusion de cette tête par l'owner.
 
 ## Contexte
 
@@ -136,7 +141,9 @@ la fusion, elle y consigne le résultat. Aucune trace, identité ni label n'est 
 
 - **Activation** (ADR-123 D7) : `status: active`, par un commit signé sur une PR du vault fusionnée par
   l'owner, qui cite la recette des cas de D5, chacun démontré par un refus réel de la porte. Le commit
-  peut figurer sur la PR de cet ADR si la recette précède la ratification.
+  peut figurer sur la PR de cet ADR si la recette précède la ratification. C'est le cas : recette du
+  2026-11-09, refus observés sur la porte en `--dry-run` avec une copie locale `active` de la politique,
+  détail dans la PR #394 ; le commit de ratification la cite.
 - **Pause immédiate** : le fichier `merge-perimeter.pause`, placé à côté de `merge-pr.sh`, arrête toute
   fusion automatique, sans PR.
 - **Arrêt** : `status: inactive` ou revert. Une fusion déjà faite se corrige par une PR de revert.
@@ -145,7 +152,8 @@ la fusion, elle y consigne le résultat. Aucune trace, identité ni label n'est 
 
 Cet ADR suit le circuit en vigueur, comme ADR-123 D8 : commit de ratification, puis fusion par l'owner de
 la tête épinglée (ADR-121 D4 et D7). La PR qui crée la porte touche `scripts/`, donc reste hors périmètre :
-l'owner la fusionne. Une fois fusionné, cet ADR n'autorise rien tant que D8 n'a pas activé la politique.
+l'owner la fusionne. L'activation de D8 est portée par la même tête : la fusion par l'owner vaut donc
+adoption et activation, et aucune fusion automatique n'est possible avant elle.
 
 ## Limites
 
@@ -207,3 +215,4 @@ STOP atteinte.
 ---
 
 *Proposé le : 2026-11-09*
+*Accepté le : 2026-11-09 (décision de l'owner ; canon à la fusion de la tête ratifiée, D9)*
