@@ -92,7 +92,7 @@ Cron machine DEV :
 | Cron | Installé | Effet |
 |------|----------|-------|
 | `vault-sync.sh` (crontab `deploy`, toutes les 5 min, hors dépôt) | oui | HEAD sur une autre branche : met à jour la seule ref `main` (fast-forward), sans toucher HEAD ni l'arbre ; HEAD sur `main` et arbre propre : fast-forward |
-| writer planning (`/etc/cron.d/planning-live`, ADR-053) | fichier oui (root, suppression owner à faire) — writer **neutralisé** par ADR-104 | s'arrête sur le venv absent, avant verrou et git ; voir ci-dessous |
+| writer planning (`/etc/cron.d/planning-live`, ADR-053) | non — fichier supprimé par l'owner le 2026-11-10 ; writer retiré par ADR-104 | aucun ; historique ci-dessous |
 | `cron-sync-moc-decisions.sh` (prévu lundi 01:30 UTC) | non | — |
 | `cron-sync-canon-mirrors.sh` | non | — |
 | audit-signatures, check-orphans ([[cron-setup]]) | non | — |
@@ -105,14 +105,16 @@ monorepo pour l'autre. Ne les installer que sur un clone dédié.
 #### Writer planning (ADR-053) — retiré
 
 - **Retiré le 2026-10-01** par [[ADR-104-planning-live-writer-retired|ADR-104]] : `_scripts/planning/`
-  supprimé, [[MOC-Planning-Live]] figé au 2026-08-14. Le writer est neutralisé :
-  venv `/opt/automecanik/.venvs/planning-live` et fichier d'environnement archivés
-  hors du vault, donc `run-cron.sh` sort en erreur avant le verrou et avant toute
-  commande git. Le fichier `/etc/cron.d/planning-live` (root) reste installé
-  jusqu'à sa suppression par l'owner ; il exécute le checkout partagé, pas `main`,
-  donc la suppression de `_scripts/planning/` sur `main` ne l'arrête pas à elle
-  seule. Les constats ci-dessous sont l'historique qui a motivé le retrait.
-- **Horaire** : `0 8 * * *` dans `/etc/cron.d/planning-live`, interprété dans le
+  supprimé, [[MOC-Planning-Live]] figé au 2026-08-14. Le writer a d'abord été
+  neutralisé : venv `/opt/automecanik/.venvs/planning-live` et fichier
+  d'environnement archivés hors du vault, donc `run-cron.sh` sortait en erreur
+  avant le verrou et avant toute commande git. Le fichier
+  `/etc/cron.d/planning-live` (root) est resté installé jusqu'au 2026-11-10, date
+  de sa suppression par l'owner (copie conservée sur la machine DEV, hors du
+  vault) ; il exécutait le checkout partagé, pas `main`, donc la suppression de
+  `_scripts/planning/` sur `main` ne l'arrêtait pas à elle seule. Les constats
+  ci-dessous sont l'historique qui a motivé le retrait.
+- **Horaire** (jusqu'au 2026-11-10) : `0 8 * * *` dans `/etc/cron.d/planning-live`, interprété dans le
   fuseau de la machine (Europe/Paris) : 06:00 UTC en été, 07:00 UTC en hiver. Le
   commentaire du fichier et ADR-053 disent « 08:00 UTC ».
 - **Mécanique** : dans le checkout runtime partagé, `git reset --hard origin/main`
