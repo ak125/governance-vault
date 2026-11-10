@@ -110,8 +110,8 @@ En cas de doute, lire le workflow, pas la documentation.
    variable de dépôt `PROD_BREAK_GLASS_NO_ROLLBACK_POINT`) lève ce refus : le run déploie alors
    **sans point de rollback** (D5). C'est une décision de l'owner, prévue pour un premier
    déploiement ou un hôte reconstruit. La variable de dépôt vaut pour tout run, `workflow_dispatch`
-   compris, tant qu'elle reste à `true` : la retirer après usage. Si le conteneur PROD existe, le
-   mode ne change rien : l'image est capturée.
+   compris : tant qu'elle reste à `true`, aucun run ne refuse de déployer quand le conteneur PROD
+   est absent. Si le conteneur PROD existe, le mode ne change rien : l'image est capturée.
 
 ## D5 — Rollback
 
@@ -120,7 +120,7 @@ En cas de doute, lire le workflow, pas la documentation.
 | **PREPROD** | PR de revert du commit fautif, fusionnée selon D4.1. Le push `main` qui en résulte relance le cycle D1. Jamais de push direct ni de force-push sur `main`. |
 | **PROD, pendant un déploiement** | Automatique : après le point de non-retour, tout échec déclenche `⏪ Rollback PROD` (`scripts/ci/prod-rollback.sh`), qui remet `:production` sur l'image capturée avant la mutation et la redémarre. Il ne restaure que l'image : le Caddyfile, les fichiers compose et le `.env` posés par ce déploiement restent en place, et ses vérifications (`/health`, SSR) se font dans le conteneur, sans passer par Caddy. Un run annulé ou interrompu après le point de non-retour (annulation manuelle, perte du runner) ne déclenche pas ce rollback : dernière ligne. Ne jamais annuler un run en cours de déploiement. En mode break-glass (D4.6), si le conteneur PROD était absent, aucune image n'a été capturée : l'étape échoue et renvoie à l'intervention manuelle (dernière ligne). |
 | **PROD, après un déploiement réussi** | L'owner relance `Deploy PROD (via tag)` (`workflow_dispatch`) sur le tag `v*` de la version à restaurer, dans les limites ci-dessous. |
-| **PROD, workflow indisponible, tag refusé ou tag sans garde** | Intervention manuelle de l'owner sur l'hôte PROD, par la console de l'hébergeur. Aucun agent ne modifie PROD ; lire son `/health` (D6) n'est pas une modification. |
+| **PROD, workflow indisponible, run annulé ou interrompu, tag refusé ou tag sans garde** | Intervention manuelle de l'owner sur l'hôte PROD, par la console de l'hébergeur. Aucun agent ne modifie PROD ; lire son `/health` (D6) n'est pas une modification. |
 
 Le run relancé exécute le `deploy-prod.yml` **du tag choisi**, pas celui de `main`. Ses contrôles
 dépendent donc des commits que contient le tag (303 tags `v*` au 2026-11-10 ; dates de fusion en
@@ -177,8 +177,8 @@ ligne de ce tableau.
 Sources : `.github/workflows/ci.yml`, `.github/workflows/build.yml`,
 `.github/workflows/deploy-prod.yml`, `.github/workflows/deploy-monitoring-scripts.yml`,
 `docker-compose.preprod.yml`, `scripts/ci/prod-preprod-evidence.mjs`,
-`scripts/ci/prod-caddy-config.sh` et `scripts/ci/prod-rollback.sh` du monorepo, ainsi que le
-`deploy-prod.yml` de chaque tag `v*`. `.claude/rules/deployment.md` transmet cette
+`scripts/ci/prod-caddy-config.sh`, `scripts/ci/prod-rollback.sh` et `scripts/ci/prod-ssr-probe.sh`
+du monorepo, ainsi que le `deploy-prod.yml` de chaque tag `v*`. `.claude/rules/deployment.md` transmet cette
 règle aux agents du monorepo ; un écart entre les deux est un constat (ADR-101 D3).
 
 ## Mapping historique
