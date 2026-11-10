@@ -46,13 +46,22 @@ Note evidence-pack : un evidence-pack se crée à la main. L'ancien générateur
 
 ## Workflow nouveau-document
 
-1. **Toujours** : `cd /opt/automecanik/governance-vault/` (ou ton clone Windows/PC)
+1. **Toujours travailler dans un worktree dédié**, créé depuis `origin/main` avec sa branche :
+   ```bash
+   V=/opt/automecanik/governance-vault
+   git -C "$V" fetch -q origin
+   git -C "$V" worktree add <dossier-de-travail> -b <type>/<slug> origin/main
+   cd <dossier-de-travail>
+   ```
+   Ne jamais écrire, changer de branche ni committer dans `/opt/automecanik/governance-vault/` : ce checkout
+   est partagé, doit rester sur `main`, et le cron le réaligne sur `origin/main` (voir
+   [[governance-runtime-map]]). Sur un clone personnel (Windows/PC), partir d'un `origin/main` à jour.
 2. **Preflight OBLIGATOIRE** — refuse si clone périmé ou v1 paths détectés :
    ```bash
    _scripts/preflight-write.sh
    ```
    Exit 0 = GO. Exit 10-13 = fix requis ; exit 20-22 = contrôle impossible (voir message). Ne jamais écrire sans GO.
-3. Créer une branche : `git checkout -b <type>/<slug>`
+3. La branche est celle créée à l'étape 1 (sur un clone personnel : `git checkout -b <type>/<slug>`).
    - Exemples : `docs/inc-2026-003-xyz`, `adr/ADR-NNN-yyy`, `chore/archive-zzz`
 4. **Utiliser les helpers** si dispo :
    - `_scripts/new-incident.sh <severity> <slug>` → scaffold incident
@@ -156,4 +165,4 @@ Aucune VPS ne doit écrire de gouvernance hors du workflow GitHub PR.
 
 ---
 
-_Dernière mise à jour : 2026-10-02 — Codes d'erreur du preflight alignés ; règles G1-G4 inchangées_
+_Dernière mise à jour : 2026-11-10 — Workflow : worktree dédié, jamais le checkout runtime ; règles G1-G4 inchangées_
