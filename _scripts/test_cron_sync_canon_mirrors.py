@@ -249,13 +249,16 @@ def test_concurrent_runs_use_distinct_branches_and_worktrees(sync):
     assert worktrees(root, env) == []
 
 
-def test_concurrent_runs_never_overlap_worktree_administration(sync, tmp_path):
-    """Two runs must not administer worktrees of one repository at the same time.
+def test_worktree_administration_holds_the_shared_repository_lock(sync, tmp_path):
+    """Each command that administers worktrees runs under the repository lock.
 
-    Git writes .git/worktrees/<id>/ non-atomically: a fetch into a local branch, a
-    `worktree add` or a `worktree remove` that runs during another `worktree add`
-    can read a half-written entry and exit 128. A git shim holds each of these
-    commands open long enough for an unserialised run to overlap.
+    Git writes and removes .git/worktrees/<id>/ non-atomically: a fetch into a local
+    branch, a `worktree add` or a `worktree remove` that runs during another run's
+    `worktree add` or `worktree remove` can read a half-written entry and fail
+    (exit 128 or 1). A git shim records, for each of the three commands, whether
+    the lock on the common Git directory is held while the command runs, and whether
+    the command inherited the lock's file descriptor: a process it leaves behind
+    (git maintenance) would then keep the lock after the command has returned.
     """
     root, origin, vault, env = sync
     real_git = shutil.which("git", path=env["PATH"])
@@ -264,27 +267,39 @@ def test_concurrent_runs_never_overlap_worktree_administration(sync, tmp_path):
     shim.write_text(
         "#!/bin/sh\n"
         "case \" $* \" in\n"
-        "  *' fetch '*|*' worktree add '*|*' worktree remove '*)\n"
-        f"    printf 'start %s\\n' \"$$\" >> '{trace}'\n"
-        "    sleep 0.3\n"
-        f"    '{real_git}' \"$@\"\n"
-        "    rc=$?\n"
-        f"    printf 'end %s\\n' \"$$\" >> '{trace}'\n"
-        "    exit $rc ;;\n"
+        "  *' fetch '*) cmd=fetch ;;\n"
+        "  *' worktree add '*) cmd=add ;;\n"
+        "  *' worktree remove '*) cmd=remove ;;\n"
+        f"  *) exec '{real_git}' \"$@\" ;;\n"
         "esac\n"
+        f"if flock --shared --nonblock '{root}/.git' true; then state=UNLOCKED; else state=locked; fi\n"
+        "for fd in /proc/$$/fd/*; do\n"
+        f"  [ \"$(readlink \"$fd\")\" = '{root}/.git' ] && state=INHERITED\n"
+        "done\n"
+        f"printf '%s %s\\n' \"$cmd\" \"$state\" >> '{trace}'\n"
         f"exec '{real_git}' \"$@\"\n")
     shim.chmod(0o755)
-    args = ["bash", str(vault / "_scripts/cron-sync-canon-mirrors.sh")]
-    procs = [subprocess.Popen(args, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-             for _ in range(2)]
-    for p in procs:
-        out, err = p.communicate(timeout=60)
-        assert p.returncode == 0, out + err
-    events = [line.split() for line in trace.read_text().splitlines()]
-    assert len(events) == 12, events  # 2 runs x (fetch, worktree add, worktree remove) x (start, end)
-    for (kind_a, pid_a), (kind_b, pid_b) in zip(events[::2], events[1::2]):
-        assert (kind_a, kind_b) == ("start", "end") and pid_a == pid_b, events
+    r = run(sync)
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert trace.read_text().splitlines() == ["fetch locked", "add locked", "remove locked"]
     assert worktrees(root, env) == []
+
+
+def test_unavailable_lock_fails_the_run_with_a_diagnostic(sync, tmp_path):
+    root, origin, vault, env = sync
+    dirty(root, env)
+    flock = tmp_path / "bin" / "flock"
+    # flock, lock never obtained: exits with the requested conflict code, 1 by default.
+    flock.write_text("#!/bin/sh\ncase \" $* \" in *' --timeout 120 --conflict-exit-code 75 '*) exit 75 ;; esac\nexit 1\n")
+    flock.chmod(0o755)
+    before = snapshot(root, env)
+    r = run(sync)
+    assert r.returncode == 75, r.stdout + r.stderr
+    assert "worktree lock not obtained within 120 s" in r.stderr
+    assert "git fetch not run" in r.stderr
+    assert snapshot(root, env) == before
+    assert worktrees(root, env) == []
+    assert not Path(env["GH_CALLS"]).exists()
 
 
 def test_cleanup_refuses_to_delete_unexpected_work_left_by_a_hook(sync):

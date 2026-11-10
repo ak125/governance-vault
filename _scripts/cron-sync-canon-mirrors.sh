@@ -38,15 +38,26 @@ WORKTREE="$RUN_DIR/worktree"
 BRANCH="govvault/cron-sync-canon-mirrors-${TIMESTAMP}-${RUN_DIR##*.}"
 NO_CHANGES=false
 
-# Git n'ecrit pas .git/worktrees/<id>/ de facon atomique. Pendant un `worktree add`,
-# toute commande qui enumere les worktrees (fetch vers une branche locale,
-# worktree add, worktree remove) peut lire une entree incomplete et sortir en 128 :
-# « failed to read .git/worktrees/<id>/commondir: Success ».
-# Ces trois commandes passent donc par un verrou partage entre les runs, pose sur
-# le depot Git commun (aucun fichier cree). Verrou indisponible apres 120 s = echec.
+# Git n'ecrit ni ne retire .git/worktrees/<id>/ de facon atomique. Pendant un
+# `worktree add` ou un `worktree remove`, une commande qui enumere les worktrees
+# (fetch vers une branche locale, worktree add, worktree remove) peut lire une entree
+# incomplete et echouer :
+#   « failed to read .git/worktrees/<id>/commondir: Success »            (code 128)
+#   « failed to read .git/worktrees/<id>/commondir: No such file or … »  (code 128)
+#   « bad object worktrees/<id>/HEAD »                                   (code 1)
+# Ces trois commandes passent donc par un verrou partage entre les runs de ce script,
+# pose sur le depot Git commun (aucun fichier cree). Verrou non obtenu en 120 s =
+# echec du run (code 75). Le verrou ne couvre pas les commandes Git lancees hors de
+# ce script : voir le runbook, « Verrou des worktrees ».
 GIT_COMMON_DIR="$(git -C "$MONOREPO_ROOT" rev-parse --path-format=absolute --git-common-dir)"
 worktree_admin() {
-  flock --close --timeout 120 "$GIT_COMMON_DIR" git -C "$MONOREPO_ROOT" "$@"
+  local result=0
+  flock --close --timeout 120 --conflict-exit-code 75 "$GIT_COMMON_DIR" \
+    git -C "$MONOREPO_ROOT" "$@" || result=$?
+  if (( result == 75 )); then
+    echo "Error: worktree lock not obtained within 120 s on $GIT_COMMON_DIR (git $1 not run)." >&2
+  fi
+  return "$result"
 }
 
 finish() {

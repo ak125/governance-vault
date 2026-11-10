@@ -1,7 +1,7 @@
 ---
 type: runbook
 status: canon
-updated: 2026-10-21
+updated: 2026-11-10
 related: [ADR-061, ADR-015]
 ---
 
@@ -59,6 +59,30 @@ non poussés, des modifications indexées/non indexées ou des fichiers non suiv
 Les refs et objets Git de la synchronisation sont partagés avec le dépôt. Aucune configuration
 Git globale, identité de signature, clé ou entrée cron n’est modifiée par le wrapper.
 
+### Verrou des worktrees
+
+Git n’écrit ni ne retire `.git/worktrees/<id>/` de façon atomique. Pendant un `git worktree add`
+ou un `git worktree remove`, une commande Git qui énumère les worktrees peut lire une entrée
+incomplète et échouer : `failed to read .git/worktrees/<id>/commondir` (code 128) ou
+`bad object worktrees/<id>/HEAD` (code 1).
+
+Le wrapper passe donc ses trois commandes concernées (fetch vers la branche du run,
+`worktree add`, `worktree remove`) sous un verrou `flock` posé sur le répertoire Git commun du
+dépôt. Aucun fichier n’est créé.
+
+- Deux runs du wrapper ne se gênent plus : le second attend le verrou.
+- L’attente est bornée à 120 s. Au-delà, le run échoue (code 75) avec le message
+  `worktree lock not obtained within 120 s`. Le fetch réseau se fait sous le verrou : un fetch
+  lent d’un run peut faire expirer l’attente d’un autre.
+- Le verrou ne protège que les runs du wrapper. Un `git worktree add` ou `remove` lancé par une
+  autre session dans le même dépôt peut encore faire échouer un run. Dans l’autre sens, le
+  `worktree add` et le `worktree remove` du wrapper peuvent faire échouer, pendant un court
+  instant, un `fetch` ou une commande `git worktree` d’une session voisine. Ces échecs sont
+  transitoires : relancer la commande.
+- Un run qui échoue à `worktree add` laisse la branche locale `govvault/cron-sync-canon-mirrors-…`
+  et un dossier `canon-sync.*` dans `$TMPDIR`. Le run suivant ne les reprend pas : il repart d’une
+  branche neuve. Les supprimer à la main après inspection.
+
 ## Activation initiale (à exécuter UNE fois par VPS DEV)
 
 ### 1. Vérifier les prérequis
@@ -72,6 +96,9 @@ gpg --list-secret-keys --keyid-format=long
 
 # Python 3.11+
 python3 --version
+
+# flock (util-linux), pour le verrou des worktrees
+flock --version
 
 # Monorepo + vault clones synchronisés
 ls /opt/automecanik/governance-vault /opt/automecanik/app
@@ -133,6 +160,15 @@ crontab -l | grep sync-canon-mirrors
 - Le run échoue et conserve le worktree ainsi que la branche affichés dans stderr. Inspecter leur diff et les PR distantes avant toute reprise ; une réponse API en erreur ne prouve pas que la PR est absente. Ne pas supprimer automatiquement la branche distante.
 - Vérifier `GH_TOKEN` (expiration, scope `write:repo` sur monorepo).
 - Vérifier label `auto` existe sur le monorepo : `gh label list --repo ak125/nestjs-remix-monorepo | grep auto`.
+
+### Le run a échoué sur le verrou ou sur une entrée de worktree
+
+- Message `worktree lock not obtained within 120 s` (code 75) : un autre run du wrapper tenait le
+  verrou. Vérifier qu’aucun run n’est bloqué (`pgrep -af cron-sync-canon-mirrors`), puis laisser
+  le cycle suivant s’exécuter.
+- Message `failed to read .git/worktrees/<id>/commondir` ou `bad object worktrees/<id>/HEAD` :
+  une autre session administrait un worktree au même instant. Le cycle suivant repart d’une
+  branche neuve ; voir « Verrou des worktrees » pour ce que le run en échec a laissé.
 
 ### Drift permanent (PR auto mergée puis re-créée demain)
 
