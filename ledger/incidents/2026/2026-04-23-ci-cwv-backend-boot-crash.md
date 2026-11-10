@@ -52,7 +52,7 @@ tags:
 ### Fonctionne
 - Prod `https://www.automecanik.com/health` : HTTP/2 200 ✅
 - Prod `https://www.automecanik.com/` : HTTP/2 200 ✅
-- DEV VPS `http://46.224.118.55:3000/health` : HTTP/1.1 200 ✅
+- DEV VPS `http://<hote-dev>:3000/health` : HTTP/1.1 200 ✅
 - 15/16 checks CI de PR #116 passent (typecheck, eslint, tests backend+frontend, codeql, security, migration safety, etc.)
 
 ### Échoue

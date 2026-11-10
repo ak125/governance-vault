@@ -64,10 +64,10 @@ self-hosted, no SaaS au deploy, no PAT cross-repo rotation.
 
 Plutôt que single-recipient, deux clés age :
 
-- **`dev_vps`** (`age17p8cdc...`) — sur 46.224.118.55. **Triage**
+- **`dev_vps`** (`age17p8cdc...`) — sur l'hôte DEV. **Triage**
   uniquement (cette VPS ne fait pas tourner le runtime). Permet à
   l'opérateur de `sops decrypt` localement sans SSH'er au runner.
-- **`runner_vps`** (`age14v0s0qhn...`) — sur 49.12.233.2 (`hetzner-prod`,
+- **`runner_vps`** (`age14v0s0qhn...`) — sur l'hôte PROD (`hetzner-prod`,
   GitHub Actions self-hosted runner + container preprod port 3200 +
   container PROD port 80/443). **Décryption au déploy** via
   `sops exec-env` dans CI workflows.
@@ -128,7 +128,7 @@ completed/success.
 
 | Surface | État | Evidence |
 |---------|------|----------|
-| DEV preprod (`http://49.12.233.2:3200`) | 🟢 Sentry actif | 3 events captés, issue [`2a32cd25`](https://auto-pieces-equipement.sentry.io/issues/?project=automecanik-backend-dev) "Invalid API key" surfaced — exactly the 401 cascade caused by hotfix #329 root cause, validates capture chain |
+| DEV preprod (`http://<hote-prod>:3200`) | 🟢 Sentry actif | 3 events captés, issue [`2a32cd25`](https://auto-pieces-equipement.sentry.io/issues/?project=automecanik-backend-dev) "Invalid API key" surfaced — exactly the 401 cascade caused by hotfix #329 root cause, validates capture chain |
 | PROD (`https://www.automecanik.com/`) | 🟢 Sentry actif | `curl` retourne `window.ENV = {"VITE_SENTRY_DSN":"https://1c22cd2869cce7328a65c998e88e2188@o4511342880555008.ingest.de.sentry.io/4511343650013264","SENTRY_ENVIRONMENT":"production"}` |
 | Health endpoints | 🟢 OK | `/health` returns 200 sur preprod ET prod |
 | Email alerts | 🟢 4 rules sur 4 projets | 2× default "high priority issues" + 2× custom "Email on first error PROD canonical" (level≥error, 30min throttle) |
@@ -147,7 +147,7 @@ Conséquences pour Plan F :
   dans ADR-043 (`event.type:error url:"/api/payments/*" url:"/panier/*"`)
   est désormais exécutable.
 - Le script `scripts/observability/sentry-signal-a.sh` (livré PR-A #324,
-  encore non-cron'd) peut être planifié sur 49.12.233.2 pour émission
+  encore non-cron'd) peut être planifié sur l'hôte PROD pour émission
   d'un JSON status horaire, qui devient la source de vérité du signal A
   pour les arbitrages sprint suivants.
 - **NOT RED réaffirmé empiriquement** : 0 events PROD à go-live (uptime
@@ -164,7 +164,7 @@ Conséquences pour Plan F :
    les events frontend afficheront les noms minifiés). Pattern documenté
    dans [`docs/runbooks/sentry-vps-setup.md`](https://github.com/ak125/nestjs-remix-monorepo/blob/main/docs/runbooks/sentry-vps-setup.md).
 3. **Signal A cron** — `scripts/observability/sentry-signal-a.sh` à brancher
-   en cron horaire sur 49.12.233.2 pour metering daily checkout error rate.
+   en cron horaire sur l'hôte PROD pour metering daily checkout error rate.
 4. **Sentry mobile app** — install + push notifs PROD pour alertes
    temps-réel (alternative/complément aux emails).
 

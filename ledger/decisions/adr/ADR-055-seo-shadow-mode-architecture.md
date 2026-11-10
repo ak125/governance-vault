@@ -113,7 +113,7 @@ Skip explicite dans `SeoShadowDiffEngine` quand `surface === 'R8_VEHICLE'` :
 
 Les 5 conditions doivent toutes être satisfaites pour ouvrir une PR de flip :
 
-1. **Shadow observation 7j minimum** sur preprod DEV (`46.224.118.55`) avec sample_rate ≥ 0.01.
+1. **Shadow observation 7j minimum** sur preprod DEV avec sample_rate ≥ 0.01.
 2. **Bilan SQL `policy_divergence` count** :
    ```sql
    SELECT payload->>'surface' AS surface,

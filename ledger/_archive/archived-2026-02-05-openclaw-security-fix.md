@@ -4,7 +4,7 @@
 
 **Date:** 2026-02-05
 **Auditor:** Claude (automated security agent)
-**Target:** VPS OpenClaw (46.225.55.16)
+**Target:** VPS OpenClaw
 **Status:** ✅ FIXES APPLIED
 
 ---

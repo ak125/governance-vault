@@ -25,7 +25,7 @@ zone: principal_vps
 
 | Field | Value |
 |-------|-------|
-| Zone | principal_vps (49.12.233.2) |
+| Zone | principal_vps |
 | Runtime | Bash + Playwright |
 | Output | report_only |
 | Schedule | Coordonne 12 cycles/jour |

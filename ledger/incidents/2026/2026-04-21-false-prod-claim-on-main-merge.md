@@ -43,8 +43,8 @@ Cette phrase ambiguë omettait la distinction **DEV préprod** vs **PROD** :
 
 | Trigger | Réalité (vérifiable dans workflow files) |
 |---------|-------------------------------------------|
-| `push main` | `ci.yml` job `deploy` → image `preprod` → VPS DEV 46.224.118.55 |
-| `push tag v*` | `deploy-prod.yml` → promote preprod → production → VPS PROD 49.12.233.2 |
+| `push main` | `ci.yml` job `deploy` → image `preprod` → VPS DEV |
+| `push tag v*` | `deploy-prod.yml` → promote preprod → production → VPS PROD |
 
 L'agent a lu "Deploy" et supposé "prod" (biais induit par le titre de fichier `# Production Deployment`).
 

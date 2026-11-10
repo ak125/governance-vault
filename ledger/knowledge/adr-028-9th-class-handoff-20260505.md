@@ -201,9 +201,9 @@ Avant tout fix : vérifier en preprod live que le container écoute bien sur
 3200 (pas 3000) :
 
 ```bash
-ssh 46.224.118.55 docker exec nestjs-remix-monorepo-preprod ss -tlnp | grep -E "3000|3200"
-ssh 46.224.118.55 docker exec nestjs-remix-monorepo-preprod wget -qO- http://localhost:3200/health
-ssh 46.224.118.55 docker exec nestjs-remix-monorepo-preprod wget -qO- http://localhost:3000/health
+ssh <hote-dev> docker exec nestjs-remix-monorepo-preprod ss -tlnp | grep -E "3000|3200"
+ssh <hote-dev> docker exec nestjs-remix-monorepo-preprod wget -qO- http://localhost:3200/health
+ssh <hote-dev> docker exec nestjs-remix-monorepo-preprod wget -qO- http://localhost:3000/health
 ```
 
 Si curl 3200 OK et 3000 fail → confirme l'hypothèse.

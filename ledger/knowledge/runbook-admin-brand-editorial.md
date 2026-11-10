@@ -162,7 +162,7 @@ Remède : ajouter plus d'entrées spécifiques, ré-enregistrer.
 Rare. Indique une régression structurelle (payload trop pauvre, RAG `.md` absent, etc.). Vérifier les logs backend :
 
 ```bash
-ssh 46.224.118.55 "docker compose logs -f --tail=200 | grep -i 'R7 enriched\\|R7 surface-purity\\|marque_id={id}'"
+ssh <hote-dev> "docker compose logs -f --tail=200 | grep -i 'R7 enriched\\|R7 surface-purity\\|marque_id={id}'"
 ```
 
 ## Cas d'erreur courants

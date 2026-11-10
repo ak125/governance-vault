@@ -22,7 +22,7 @@ Le compte `rag-sync` n'existe pas par défaut sur les VPS DEV/PROD. Ce runbook d
 
 ## Pré-requis
 
-- Accès `sudo` sur le VPS cible (DEV `46.224.118.55` ou PROD `49.12.233.2`).
+- Accès `sudo` sur le VPS cible (DEV ou PROD).
 - Connaissance du compte runtime backend (par défaut `deploy` sur le monorepo actuel — à confirmer côté production).
 
 ## Procédure

@@ -17,7 +17,7 @@ Ce document est le pré-requis P0.0 du plan d'action `verifer-votre-syst-me-keen
 
 ## 1. Diff `~/production/.env` (runner DEV) ↔ `backend/.env.example`
 
-Source : `46.224.118.55:/home/deploy/production/.env` (30 vars actives) vs `backend/.env.example` (63 vars documentées).
+Source : `<hote-dev>:/home/deploy/production/.env` (30 vars actives) vs `backend/.env.example` (63 vars documentées).
 
 ### Vars utilisées en prod et présentes dans example (28)
 

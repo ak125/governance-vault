@@ -123,7 +123,7 @@ grep -nE "getEffectiveSupabaseKey|SUPABASE_SERVICE_ROLE_KEY" \
   backend/src/admin/services/admin-job-health.service.ts
 
 # Tester la key directement en preprod
-ssh 46.224.118.55 'docker compose exec backend env | grep SUPABASE_'
+ssh <hote-dev> 'docker compose exec backend env | grep SUPABASE_'
 curl -sI -H "apikey: $KEY" -H "Authorization: Bearer $KEY" \
   "$SUPABASE_URL/rest/v1/" | head -3
 ```

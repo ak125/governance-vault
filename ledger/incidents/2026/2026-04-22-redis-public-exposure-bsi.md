@@ -4,7 +4,7 @@ date: 2026-04-22
 severity: medium
 status: resolved
 impact_duration: "indéterminée (Redis exposé ≥1 snapshot BSI du 2026-04-21 13:12 UTC, fenêtre réelle probablement plus longue — config en place depuis ≥ 5 semaines d'après age container)"
-affected_systems: [vps-dev-46.224.118.55, redis-dev, docker-compose-dev, docker-compose-redis, docker-compose-meilisearch]
+affected_systems: [vps-dev, redis-dev, docker-compose-dev, docker-compose-redis, docker-compose-meilisearch]
 root_cause: "3 fichiers docker-compose (dev.yml, redis.yml, meilisearch.yml) exposaient `ports: '6379:6379'` sur 0.0.0.0 sans --requirepass. L'alignement de prod.yml (ports commentés, 2025-12-17 commit 2c4c24aa) n'avait jamais été propagé aux 3 autres fichiers. La tentative de mars 2026 (commit 71ac9791) a retiré --requirepass à cause d'un crash-loop, sans restaurer la fermeture de port."
 related_rules: []
 related_adr: []
@@ -16,13 +16,13 @@ reviewed_by: ""
 
 ## Synthèse
 
-Serveur Redis 7.4.7 sur DEV VPS `46.224.118.55:6379` accessible depuis Internet sans authentification. Signalé par le CERT-Bund allemand (BSI) via Hetzner Abuse. **Zero compromission détectée** lors de l'audit post-remédiation. Remédiation 2 couches appliquée le jour même : firewall Hetzner + alignement compose files (PR #102).
+Serveur Redis 7.4.7 sur DEV VPS (port `6379`) accessible depuis Internet sans authentification. Signalé par le CERT-Bund allemand (BSI) via Hetzner Abuse. **Zero compromission détectée** lors de l'audit post-remédiation. Remédiation 2 couches appliquée le jour même : firewall Hetzner + alignement compose files (PR #102).
 
 ## Timeline
 
 | Heure (UTC) | Événement |
 |-------------|-----------|
-| 2026-04-21 13:12:07 | BSI scanne `46.224.118.55:6379` → Redis 7.4.7 répond sans auth |
+| 2026-04-21 13:12:07 | BSI scanne le port `6379` du VPS DEV → Redis 7.4.7 répond sans auth |
 | 2026-04-22 ~09:39 | Email Hetzner Abuse reçu (ticket `AbuseID:118DAFD:19`, CERT `CB-Report#20260422-10008190`) |
 | 2026-04-22 ~12:30 | Investigation démarrée : 4 fichiers compose identifiés exposant 6379 sur 0.0.0.0 |
 | 2026-04-22 ~12:40 | Historique git analysé : 3 tentatives précédentes (2c4c24aa, 16410088, 71ac9791) ont oscillé entre auth ON/OFF avec crash-loop |
@@ -65,7 +65,7 @@ Le secret `REDIS_PASSWORD` n'est pas propagé de façon fiable dans l'env GitHub
 
 ### Couche 1 — Firewall Hetzner (niveau réseau, instantané)
 
-Firewall `dev-vps-redis-block` créé dans la Hetzner Cloud Console et attaché au serveur DEV `46.224.118.55`.
+Firewall `dev-vps-redis-block` créé dans la Hetzner Cloud Console et attaché au serveur DEV.
 
 **Inbound rules (allowlist) :**
 
@@ -151,7 +151,7 @@ done
   - `2c4c24aa` fix(security): secure Redis — add password auth & remove public exposure (OK prod, pas propagé)
   - `16410088` fix(infra): remove Redis auth for preprod
   - `71ac9791` fix(infra): redis crash-loop + health-check perf monitoring (retrait `--requirepass`)
-- **Firewall Hetzner** : `dev-vps-redis-block` sur projet `K1266100725`, attaché IP `46.224.118.55`
+- **Firewall Hetzner** : `dev-vps-redis-block` sur projet `K1266100725`, attaché au serveur DEV
 - **Audit Redis** : CONFIG + scans patterns malware, 0 match
 
 ## Communication
@@ -167,7 +167,7 @@ done
 Subject: Re: [AbuseID:118DAFD:19] Open Redis-Server in AS24940
 
 Ticket: CB-Report#20260422-10008190
-IP: 46.224.118.55
+IP: <adresse du serveur DEV>
 Service: Redis 7.4.7
 
 Status: RESOLVED at 2026-04-22 ~13:00 UTC
