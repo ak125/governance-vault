@@ -1,8 +1,9 @@
 ---
 id: ADR-125
 title: "Amendements ciblés de cohérence : validation sur preuve, seuil 0.85, chemins WIKI au singulier, pilote R2 et compatibilité absente, statut de GOVERNANCE-HUMAN : amende ADR-031, ADR-066, ADR-068, ADR-083, ADR-086, ADR-091, ADR-092, ADR-094, ADR-107 et G1"
-status: proposed
+status: accepted
 date: "2026-11-10"
+decision_date: "2026-11-10"
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
@@ -16,10 +17,13 @@ version: "1.0.0"
 
 # ADR-125 : amendements ciblés de cohérence (WIKI, SEO R2, autorité de GOVERNANCE-HUMAN)
 
-- **Statut** : Proposed (2026-11-10). Rédigé par un agent (Claude CLI) sur délégation de l'owner. Il
-  reste `proposed` jusqu'au commit de ratification
-  ([[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D7). D'ici là, aucun de ses
-  textes n'est en vigueur.
+- **Statut** : Accepted (2026-11-10). Décision de l'owner, décideur humain : Marwane, sur le candidat
+  de la PR #401 (`19cc56759c02a5fc8ee69d04b42c75c8bf1e6561`). Rédigé par un agent (Claude CLI) le
+  2026-11-10, sur délégation de l'owner. Le commit de ratification est préparé par un agent : son
+  auteur et sa clé de signature sont techniques. Canon applicable à la fusion par l'owner de la tête
+  qui porte cette décision, sous les contrôles requis
+  ([[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D4 et D7) ; avant cette fusion,
+  ce statut décrit le candidat ratifié et ne modifie pas le canon de `main`.
 - **Amende** :
   - [[ADR-086-encyclopedia-editorial-content-contract|ADR-086]] : §3, §5 et §7 (D1) ;
   - [[ADR-092-rank1-content-gate|ADR-092]] : « Ce qui reste HUMAIN », Garde-fous, Angles morts (D1) ;
@@ -203,10 +207,10 @@ au singulier.
 
 | Où | Changement | Quand |
 |---|---|---|
-| Vault | Cet ADR ; G1 de `rules-vault` (3.4.0) ; §0 de `GOVERNANCE-HUMAN` ; errata d'en-tête d'ADR-083, ADR-090 et ADR-095 ; index de MOC-Decisions | PR qui porte cet ADR, en brouillon jusqu'à la ratification |
+| Vault | Cet ADR ; G1 de `rules-vault` (3.4.0) ; §0 de `GOVERNANCE-HUMAN` ; errata d'en-tête d'ADR-083, ADR-090 et ADR-095 ; index de MOC-Decisions | PR qui porte cet ADR (#401) |
 | Vault | `status: accepted`, `decision_date`, `amended_by: ["ADR-125"]` sur les neuf ADR amendés | Commit de ratification (ADR-121 D7) |
-| Dépôt WIKI | `CLAUDE.md` l.54 et `_meta/ingestion-contract.md` l.86 : chemins au singulier | PR WIKI, après ratification |
-| Monorepo | `scripts/wiki/wiki-readiness-check.py` : le contrôle C4 lit `wiki/gammes/`, absent, et passe à vide ; C5 cite le même chemin | PR monorepo, après ratification |
+| Dépôt WIKI | `CLAUDE.md` l.54 et `_meta/ingestion-contract.md` l.86 : chemins au singulier | PR WIKI, après la fusion de cet ADR |
+| Monorepo | `scripts/wiki/wiki-readiness-check.py` : le contrôle C4 lit `wiki/gammes/`, absent, et passe à vide ; C5 cite le même chemin | PR monorepo, après la fusion de cet ADR |
 
 Aucune étape ne touche PREPROD ni PROD.
 
@@ -253,14 +257,14 @@ Ce serait changer un seuil servi. Cet ADR aligne les textes ; il ne règle pas l
 
 ## Métriques
 
-- `python3 _scripts/check-adr-supersedes.py` : 0 erreur après le commit de ratification.
+- `python3 _scripts/check-adr-supersedes.py` : 0 erreur, liens `amended_by` réciproques posés.
 - Dépôt WIKI et monorepo : 0 occurrence de `wiki/gammes/`, `wiki/vehicles/`, `wiki/constructeurs/`
   dans un fichier lu par un contrôle, une fois les deux PR de suite fusionnées.
 
 ## Retour arrière
 
 Revert de la PR. Aucun code ni aucune donnée ne dépend de cet ADR. Chaque décision peut aussi être
-retirée seule avant la ratification : D1 à D5 sont indépendantes.
+retirée seule, par un ADR qui amende celui-ci : D1 à D5 sont indépendantes.
 
 ## Revue planifiée
 
@@ -285,4 +289,4 @@ cite un seuil, un chemin ou une validation humaine contraires à D1, D2 et D3.
 ---
 
 *Proposé le : 2026-11-10*
-*Accepté le : au commit de ratification de l'owner (ADR-121 D7)*
+*Accepté le : 2026-11-10 (décision de l'owner ; canon à la fusion de la tête ratifiée, ADR-121 D7)*
