@@ -35,9 +35,10 @@ Deux déclencheurs, distincts et non substituables.
 - `ci.yml` se déclenche aussi sur un push `dev`, mais `build.yml` et `🧪 Deploy PREPROD` ne
   publient et ne déploient que depuis `main`. Au 2026-11-10, la branche `dev` n'existe pas sur le
   dépôt distant.
-- `ci.yml` ne filtre pas les chemins : toute fusion sur `main` lance le cycle PREPROD complet, y
-  compris celle d'une PR de documentation et celle qu'exécute une porte de fusion automatique
-  ([[ADR-124-premier-perimetre-fusion-automatique-monorepo|ADR-124]] D7).
+- `ci.yml` ne filtre pas les chemins : toute fusion sur `main` lance le cycle PREPROD, y compris
+  celle d'une PR de documentation et celle qu'exécute une porte de fusion automatique
+  ([[ADR-124-premier-perimetre-fusion-automatique-monorepo|ADR-124]] D7). Un run encore en attente
+  est remplacé par celui de la fusion suivante (D4.3).
 - Un push `main` qui modifie `scripts/monitoring/*.sh` lance aussi `deploy-monitoring-scripts.yml`,
   qui installe ces scripts dans `/usr/local/bin` de l'hôte PROD, hors des conteneurs. Ce workflow se
   lance aussi à la main (`workflow_dispatch`). Ce n'est pas un déploiement d'environnement, mais la
@@ -98,22 +99,26 @@ En cas de doute, lire le workflow, pas la documentation.
    (`scripts/ci/prod-preprod-evidence.mjs`). Il capture ensuite l'image en service comme point de
    rollback : son identifiant, épinglé pour le run, et l'alias `:production-previous`, poussé au
    registre (un échec de ce push n'arrête pas le run). Il vérifie que `:sha-<commit>` porte le bon
-   label `revision` et la publie sous le nom du tag. Passé le point de non-retour, il déplace
-   `:production`, charge le Caddyfile du commit (`scripts/ci/prod-caddy-config.sh` : fichier validé
-   dans le Caddy en service avant d'être écrit, Caddy recréé seulement si le fichier a changé),
-   remplace le conteneur PROD et contrôle `/health` (`revision` égal au commit du tag).
+   label `revision` et la publie sous le nom du tag. Avant le point de non-retour, il a aussi copié
+   les fichiers compose et mis à jour le `.env` de l'hôte. Passé ce point, il déplace `:production`,
+   charge le Caddyfile du commit (`scripts/ci/prod-caddy-config.sh` : fichier validé dans le Caddy
+   en service, s'il tourne, avant d'être écrit ; Caddy recréé si le fichier a changé, n'a pas encore
+   été chargé, ou si sa définition compose a changé), remplace le conteneur PROD et contrôle
+   `/health` (`revision` égal au commit du tag).
 6. Si le conteneur PROD est absent de l'hôte, il n'y a pas d'image à capturer : le workflow refuse
    avant toute mutation. Le mode `break_glass_no_rollback_point` (entrée du `workflow_dispatch`, ou
-   variable de dépôt `PROD_BREAK_GLASS_NO_ROLLBACK_POINT` pour un push de tag) lève ce refus : le
-   run déploie alors **sans point de rollback** (D5). C'est une décision de l'owner, prévue pour un
-   premier déploiement ou un hôte reconstruit.
+   variable de dépôt `PROD_BREAK_GLASS_NO_ROLLBACK_POINT`) lève ce refus : le run déploie alors
+   **sans point de rollback** (D5). C'est une décision de l'owner, prévue pour un premier
+   déploiement ou un hôte reconstruit. La variable de dépôt vaut pour tout run, `workflow_dispatch`
+   compris, tant qu'elle reste à `true` : la retirer après usage. Si le conteneur PROD existe, le
+   mode ne change rien : l'image est capturée.
 
 ## D5 — Rollback
 
 | Environnement | Procédure |
 |---|---|
 | **PREPROD** | PR de revert du commit fautif, fusionnée selon D4.1. Le push `main` qui en résulte relance le cycle D1. Jamais de push direct ni de force-push sur `main`. |
-| **PROD, pendant un déploiement** | Automatique : après le point de non-retour, tout échec déclenche `⏪ Rollback PROD` (`scripts/ci/prod-rollback.sh`), qui remet `:production` sur l'image capturée avant la mutation et la redémarre. Il ne restaure que l'image : un Caddyfile chargé par ce déploiement reste en place. En mode break-glass (D4.6), aucune image n'a été capturée : l'étape échoue et renvoie à l'intervention manuelle (dernière ligne). |
+| **PROD, pendant un déploiement** | Automatique : après le point de non-retour, tout échec déclenche `⏪ Rollback PROD` (`scripts/ci/prod-rollback.sh`), qui remet `:production` sur l'image capturée avant la mutation et la redémarre. Il ne restaure que l'image : le Caddyfile, les fichiers compose et le `.env` posés par ce déploiement restent en place, et ses vérifications (`/health`, SSR) se font dans le conteneur, sans passer par Caddy. Un run annulé ou interrompu après le point de non-retour (annulation manuelle, perte du runner) ne déclenche pas ce rollback : dernière ligne. Ne jamais annuler un run en cours de déploiement. En mode break-glass (D4.6), si le conteneur PROD était absent, aucune image n'a été capturée : l'étape échoue et renvoie à l'intervention manuelle (dernière ligne). |
 | **PROD, après un déploiement réussi** | L'owner relance `Deploy PROD (via tag)` (`workflow_dispatch`) sur le tag `v*` de la version à restaurer, dans les limites ci-dessous. |
 | **PROD, workflow indisponible, tag refusé ou tag sans garde** | Intervention manuelle de l'owner sur l'hôte PROD, par la console de l'hébergeur. Aucun agent ne modifie PROD ; lire son `/health` (D6) n'est pas une modification. |
 
@@ -123,9 +128,11 @@ UTC) :
 
 - tag qui contient les PR monorepo #1881, #1884 et #1887 (2026-10-24 et 2026-10-25 ; au 2026-11-10,
   deux tags : ceux du 2026-10-30 et du 2026-11-05) : contrôles de D4.5, dont `/health` `revision`,
-  sauf le chargement du Caddyfile par `prod-caddy-config.sh` (#1961, 2026-11-05), qu'aucun tag ne
-  contient encore. Le workflow de ces deux tags arrête et supprime Caddy avec le conteneur PROD,
-  puis les recrée ensemble : le site ne répond pas pendant le remplacement ;
+  sauf le traitement du Caddyfile : `prod-caddy-config.sh` (#1961, 2026-11-05) n'est dans aucun
+  tag. Le workflow de ces deux tags copie le Caddyfile du tag sur l'hôte sans le valider, avant le
+  point de non-retour, puis arrête et supprime Caddy avec le conteneur PROD et les recrée
+  ensemble : le site ne répond pas pendant le remplacement, et Caddy redémarre sur le Caddyfile du
+  tag, qui remplace celui de l'hôte ;
 - tag qui contient #1696 (2026-10-02) mais pas #1881 (13 tags) : preuve PREPROD et provenance de
   `:sha-<commit>` vérifiées ; ni contrôle de version servie, ni champ `revision` dans `/health`, donc
   pas de preuve D6 de la version servie ;

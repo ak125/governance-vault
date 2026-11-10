@@ -240,8 +240,8 @@ Ce commit change la tête : son diff est revu à son niveau avant la fusion
 - [x] PR monorepo #590 fusionnée.
 - [ ] `bash scripts/lint/check-preprod-vocabulary.sh` sur `main` du monorepo : 0 violation.
 - [ ] `.claude/rules/deployment.md` aligné sur D2 à D4 par une PR du monorepo.
-- [ ] Une session neuve à qui l'on demande « sur quelle machine tourne PREPROD ? » répond « dans un
-  conteneur de CI sur l'hôte PROD, pas sur la machine DEV ».
+- [ ] Une session neuve à qui l'on demande « sur quelle machine tourne PREPROD ? » répond « dans une
+  pile de conteneurs de CI sur l'hôte PROD, pas sur la machine DEV ».
 
 ## Liens
 
