@@ -38,6 +38,50 @@ WORKTREE="$RUN_DIR/worktree"
 BRANCH="govvault/cron-sync-canon-mirrors-${TIMESTAMP}-${RUN_DIR##*.}"
 NO_CHANGES=false
 
+# Git n'ecrit ni ne retire .git/worktrees/<id>/ de facon atomique. Pendant un
+# `worktree add` ou un `worktree remove`, une commande qui enumere les worktrees
+# (fetch vers une branche locale, worktree add, worktree remove) peut lire une entree
+# incomplete ou un dossier disparu et echouer :
+#   « failed to read .git/worktrees/<id>/commondir: Success »                      (code 128)
+#   « failed to read .git/worktrees/<id>/commondir: No such file or … »            (code 128)
+#   « could not create directory of '.git/worktrees/<id>': No such file or … »     (code 128)
+#   « bad object worktrees/<id>/HEAD »                                             (code 1)
+# Ces trois commandes passent donc par un verrou partage entre les runs de ce script,
+# pose sur le depot Git commun (aucun fichier cree). Le verrou est tenu par le
+# descripteur 9 de ce script, que Git n'herite pas (9<&-) : un code de sortie de Git ne
+# se confond pas avec un verrou non obtenu, et un processus que Git laisse derriere lui
+# (maintenance) ne garde pas le verrou. Verrou non obtenu en LOCK_TIMEOUT secondes : la
+# commande Git n'est pas lancee et worktree_admin rend 75. Le run sort alors en 75 au
+# fetch et au `worktree add` (aucun commit ni PR ; au `worktree add`, la branche locale
+# du run reste), en 1 au `worktree remove` (le resultat du run est deja produit, le
+# worktree reste : voir finish). Le verrou ne couvre pas les commandes Git lancees hors
+# de ce script : voir le runbook, « Verrou des worktrees ».
+LOCK_TIMEOUT=120
+GIT_COMMON_DIR="$(git -C "$MONOREPO_ROOT" rev-parse --path-format=absolute --git-common-dir)"
+worktree_admin() {
+  local label="$1" result=0
+  if [[ "$1" == worktree ]]; then
+    label="worktree $2"
+  fi
+  if ! exec 9<"$GIT_COMMON_DIR"; then
+    echo "Error: cannot open $GIT_COMMON_DIR for locking (git $label not run)." >&2
+    return 1
+  fi
+  flock --timeout "$LOCK_TIMEOUT" --conflict-exit-code 75 9 || result=$?
+  if (( result != 0 )); then
+    exec 9<&-
+    if (( result == 75 )); then
+      echo "Error: worktree lock not obtained within $LOCK_TIMEOUT s on $GIT_COMMON_DIR (git $label not run)." >&2
+    else
+      echo "Error: flock failed (code $result) on $GIT_COMMON_DIR (git $label not run)." >&2
+    fi
+    return "$result"
+  fi
+  git -C "$MONOREPO_ROOT" "$@" 9<&- || result=$?
+  exec 9<&-
+  return "$result"
+}
+
 finish() {
   local result=$?
   if (( result != 0 )); then
@@ -47,16 +91,24 @@ finish() {
     return "$result"
   fi
   cd "$MONOREPO_ROOT"
+  # Signal recu pendant le nettoyage, attente du verrou comprise : dire ou sont les restes.
+  trap 'echo "Error: interrupted during cleanup; inspect $RUN_DIR" >&2; exit 1' INT TERM
   # Sans --force : si un hook ou une intervention a laisse du travail, le garder.
-  if ! git worktree remove "$WORKTREE"; then
+  # Code 1 quelle que soit la cause (Git ou verrou) : a ce stade le run a deja produit
+  # son resultat, et c'est le worktree conserve qui demande une intervention.
+  if ! worktree_admin worktree remove "$WORKTREE"; then
     echo "Error: worktree retained for inspection: $WORKTREE" >&2
     exit 1
   fi
-  rmdir "$RUN_DIR"
   if [[ "$NO_CHANGES" == true ]]; then
     # Supprime uniquement notre ref sans commit nouveau, si elle n'a pas bouge.
     git update-ref -d "refs/heads/$BRANCH" "$BASE"
   fi
+  # Derniere commande : un signal recu maintenant n'a plus rien a signaler ; l'ignorer
+  # plutot que sortir en 1 sur un run nettoye. Apres les commandes Git, pas avant : lance
+  # avec ces signaux ignores, Git retire ses verrous au signal puis continue sans eux.
+  trap '' INT TERM
+  rmdir "$RUN_DIR"
 }
 trap finish EXIT
 trap 'exit 130' INT
@@ -68,9 +120,9 @@ if git -C "$MONOREPO_ROOT" show-ref --verify --quiet "refs/heads/$BRANCH"; then
   echo "Error: sync branch already exists: $BRANCH" >&2
   exit 1
 fi
-git -C "$MONOREPO_ROOT" fetch --quiet --no-write-fetch-head origin "refs/heads/main:refs/heads/$BRANCH"
+worktree_admin fetch --quiet --no-write-fetch-head origin "refs/heads/main:refs/heads/$BRANCH"
 BASE="$(git -C "$MONOREPO_ROOT" rev-parse "refs/heads/$BRANCH^{commit}")"
-git -C "$MONOREPO_ROOT" worktree add --quiet "$WORKTREE" "$BRANCH"
+worktree_admin worktree add --quiet "$WORKTREE" "$BRANCH"
 cd "$WORKTREE"
 
 python3 "$VAULT_ROOT/_scripts/sync_canon_mirrors.py" --write --monorepo "$WORKTREE"
