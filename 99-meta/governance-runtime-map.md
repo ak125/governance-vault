@@ -92,7 +92,7 @@ Cron machine DEV :
 | Cron | Installé | Effet |
 |------|----------|-------|
 | `vault-sync.sh` (crontab `deploy`, toutes les 5 min, hors dépôt) | oui | HEAD sur une autre branche : met à jour la seule ref `main` (fast-forward), sans toucher HEAD ni l'arbre ; HEAD sur `main` et arbre propre : fast-forward |
-| writer planning (`/etc/cron.d/planning-live`, ADR-053) | non — fichier supprimé par l'owner le 2026-11-10 ; writer retiré par ADR-104 | aucun ; historique ci-dessous |
+| writer planning (`/etc/cron.d/planning-live`, ADR-053) | non — fichier supprimé par l'owner le 2026-11-10 ; writer retiré par ADR-104 | — (historique ci-dessous) |
 | `cron-sync-moc-decisions.sh` (prévu lundi 01:30 UTC) | non | — |
 | `cron-sync-canon-mirrors.sh` | non | — |
 | audit-signatures, check-orphans ([[cron-setup]]) | non | — |
