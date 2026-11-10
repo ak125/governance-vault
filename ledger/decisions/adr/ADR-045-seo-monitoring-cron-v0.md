@@ -1,9 +1,9 @@
 ---
 id: ADR-045
 title: "SEO Monitoring Cron V0 — daily-fetch GSC/GA4/Links + cron/health endpoint"
-status: proposed
+status: accepted
 date: 2026-05-07
-decision_date: null
+decision_date: "2026-11-10"
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
@@ -12,10 +12,34 @@ amended_by: ["ADR-063"]
 related_rules: ["G1", "G3", "Q1", "AP-04", "AP-08"]
 related_incidents: []
 related_adr: ["ADR-025", "ADR-028", "ADR-044"]
-implementation_status: v0a-pr-340-open
+implementation_status: v0a-delivered (monorepo PR 340, merged 2026-05-07)
 ---
 
 # ADR-045 — SEO Monitoring Cron V0
+
+## Statut et réconciliation (2026-11-10)
+
+- **Statut** : Accepted (2026-11-10). `proposed` depuis le 2026-05-07, hors du délai de 30 jours de
+  Q4 ([[rules-engineering-quality]]). Statut arrêté sur délégation de l'owner (message du 2026-11-10
+  : appliquer la meilleure approche aux points ouverts de l'analyse du vault), dans une PR préparée
+  par un agent (Claude CLI). La décision est consignée par la fusion, par l'owner, de la tête qui
+  porte ce commit ([[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D4 et D7). Avant
+  cette fusion, ce statut décrit un candidat et ne modifie pas le canon de `main`.
+- **Décision acceptée** : le cron quotidien de collecte SEO (GSC, GA4, liens) et le point de
+  contrôle `cron/health`, sans changement de schéma.
+- **Livré** : PR monorepo #340, fusionnée le 2026-05-07 ; `SeoDailyFetchProcessor` et sa garde
+  READ_ONLY ; le cron `0 4 * * *` dans `seo-monitor-scheduler.service.ts` ; `GET cron/health` dans
+  `seo-monitoring.controller.ts`.
+- **Écarts avec le texte** : le texte s'appuie sur un « index GIN existant » de `__seo_event_log` ;
+  cet index a été retiré ([[ADR-105-seo-event-log-gin-index-retired|ADR-105]], migration
+  `20261003_drop_seo_event_log_unread_indexes.sql`). Le point de contrôle filtre par `event_type`,
+  que sert l'index `(event_type, created_at)`, conservé. Le texte présente ADR-044 comme proposé en
+  même temps : ADR-044 est rejeté dans la même PR et n'est plus qu'un contexte. L'amendement par
+  [[ADR-063-cwv-monitoring-prod-crux-api|ADR-063]] reste en vigueur.
+- **Non vérifié** : l'exécution réelle du cron et la réponse de `cron/health` en PREPROD et en PROD.
+- **Preuves** : monorepo `ak125/nestjs-remix-monorepo` à `fd80dd33e7b37a41d4400ce22ec218c14e4d69e3`
+  (`origin/main` au 2026-11-10). Elles établissent la présence du code, pas ce qui est servi : ni la
+  base, ni PREPROD, ni PROD n'ont été interrogées.
 
 ## Contexte
 
@@ -129,7 +153,7 @@ Nouvelle route **`GET /api/admin/seo-monitoring/cron/health`** dans le controlle
 
 ## Statut
 
-- **Statut** : proposed (PR vault en cours, cet ADR)
+- **Statut** : accepted (2026-11-10) — voir « Statut et réconciliation (2026-11-10) » en tête de document
 - **Implémentation** : monorepo PR #340 ([feat/seo-v0a-cron-foundation](https://github.com/ak125/nestjs-remix-monorepo/pull/340))
   - 5 fichiers, 441 insertions, 0 suppression
   - Commit `1f317f74` `feat(seo-monitoring): add daily-fetch cron and cron/health endpoint`

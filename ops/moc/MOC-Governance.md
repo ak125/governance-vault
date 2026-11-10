@@ -2,7 +2,7 @@
 type: moc
 status: canon
 role: master-index
-updated: 2026-11-09
+updated: 2026-11-10
 ---
 
 # MOC: Governance

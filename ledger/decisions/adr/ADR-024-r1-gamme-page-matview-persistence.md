@@ -1,8 +1,9 @@
 ---
 id: ADR-024
 title: "R1 Gamme Page Data — Persistance par matérialisation, parité ADR-016"
-status: proposed
+status: accepted
 date: 2026-04-27
+decision_date: "2026-11-10"
 decision_makers:
   - "@automecanik.seo"
 supersedes: []
@@ -16,7 +17,7 @@ related_adr:
   - ADR-017
 reviewed_by: "Claude Opus 4.7"
 tags:
-  - adr/proposed
+  - adr/accepted
   - domain/catalog
   - domain/seo
   - tech/postgres
@@ -24,6 +25,44 @@ tags:
 ---
 
 # ADR-024 : R1 Gamme Page Data — Persistance par matérialisation, parité ADR-016
+
+## Statut et réconciliation (2026-11-10)
+
+- **Statut** : Accepted (2026-11-10), dans la portée ci-dessous. `proposed` depuis le 2026-04-27,
+  hors du délai de 30 jours de Q4 ([[rules-engineering-quality]]). Statut arrêté sur délégation de
+  l'owner (message du 2026-11-10 : appliquer la meilleure approche aux points ouverts de l'analyse
+  du vault), dans une PR préparée par un agent (Claude CLI). La décision est consignée par la
+  fusion, par l'owner, de la tête qui porte ce commit
+  ([[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D4 et D7). Avant cette fusion,
+  ce statut décrit un candidat et ne modifie pas le canon de `main`.
+- **Décision acceptée** : matérialiser le payload des pages gamme R1 dans `__gamme_page_cache` et le
+  servir en cache-first (parité [[ADR-016-vehicle-page-matview-persistence|ADR-016]]) ; servir les
+  blocs de maillage R1 depuis `__seo_r1_related_blocks_cache`, sans lire le filesystem RAG pendant
+  le rendu.
+- **Partie non acceptée** : l'alimentation de `__seo_r1_related_blocks_cache` depuis le RAG (Phase
+  2, points 2 et 3) et le trigger sur fichier RAG (Phase 4, point 3). Le RAG n'est pas une source de
+  contenu servi ([[ADR-031-four-layer-content-architecture|ADR-031]],
+  [[ADR-046-r-stack-single-generator-and-layers|ADR-046]],
+  [[ADR-086-encyclopedia-editorial-content-contract|ADR-086]]). Le producteur de ce cache relève de
+  la projection WIKI → DB d'[[ADR-059-seo-runtime-projection|ADR-059]].
+- **Livré** (présent dans le monorepo) : migrations `20260427_gamme_page_cache_schema.sql`,
+  `20260427_gamme_page_cache_build_fn.sql` et `20260427_r1_related_blocks_cache_schema.sql` ;
+  contrôleurs `admin-gamme-cache.controller.ts` et `admin-r1-related-blocks-cache.controller.ts` ;
+  `gamme-rpc.service.ts` appelle `get_gamme_page_data_cached` ; `r1-related-resources.service.ts`
+  lit la table (son en-tête date la bascule du 2026-06-11) ; `RESPONSE_CACHE_PREFIX` n'apparaît plus
+  dans `backend/src`.
+- **Écarts avec le texte** : la fonction servie est `get_gamme_page_data_cached`, passée en
+  `VOLATILE` par la PR monorepo #1960 (migration `20261105_gamme_page_cached_volatile.sql`), alors
+  que la Phase 3 décrit une réécriture de `get_gamme_page_data_optimized` en `LANGUAGE sql STABLE`.
+  Le script `scripts/seo/seed-r1-related-blocks.ts` est absent ; l'en-tête du service dit le cache
+  matérialisé une fois, le 2026-06-11, et renvoie son producteur à ADR-059.
+- **Non vérifié** : le contenu des deux tables ; les triggers et le cron d'invalidation de la Phase
+  4 (aucun `CREATE TRIGGER` ni `cron.schedule` dans les migrations `*gamme_page_cache*` et
+  `*r1_related*`) ; les mesures de la Phase 6. La Phase 6 liait la promotion à ces mesures : elles
+  n'ont pas été retrouvées et le statut n'en dépend plus.
+- **Preuves** : monorepo `ak125/nestjs-remix-monorepo` à `fd80dd33e7b37a41d4400ce22ec218c14e4d69e3`
+  (`origin/main` au 2026-11-10). Elles établissent la présence du code, pas ce qui est servi : ni la
+  base, ni PREPROD, ni PROD n'ont été interrogées.
 
 ## Contexte
 
@@ -313,5 +352,5 @@ Option B rejetée : asymétrie architecture (Q1.4 violation), n'élimine pas le 
 ---
 
 *Proposé le : 2026-04-27*
-*Accepté le : (en attente de validation @automecanik.seo, suivi pattern PR vault #82)*
-*Dernière revue : 2026-04-27*
+*Accepté le : 2026-11-10 (sur délégation de l'owner ; canon à la fusion de la tête ratifiée)*
+*Dernière revue : 2026-11-10*

@@ -1,9 +1,9 @@
 ---
 id: ADR-064
 title: "SEO Production Control Plane (4-layer Collectors/Evaluators/Actions/Governance)"
-status: proposed
+status: accepted
 date: 2026-05-14
-decision_date: TBD
+decision_date: "2026-11-10"
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
@@ -11,10 +11,37 @@ amends: []
 related_rules: ["G1", "G3", "Q1", "Q2"]
 related_incidents: ["INC-2026-005"]
 related_adr: ["ADR-028", "ADR-045", "ADR-050", "ADR-058", "ADR-061", "ADR-062", "ADR-063"]
-implementation_status: foundation-only
+implementation_status: l4-l1-delivered, l2-l3-not-started
 ---
 
 # ADR-064 — SEO Production Control Plane (4-layer architecture)
+
+## Statut et réconciliation (2026-11-10)
+
+- **Statut** : Accepted (2026-11-10), borné à ce qui est livré. `proposed` depuis le 2026-05-14,
+  hors du délai de 30 jours de Q4 ([[rules-engineering-quality]]). Statut arrêté sur délégation de
+  l'owner (message du 2026-11-10 : appliquer la meilleure approche aux points ouverts de l'analyse
+  du vault), dans une PR préparée par un agent (Claude CLI). La décision est consignée par la
+  fusion, par l'owner, de la tête qui porte ce commit
+  ([[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D4 et D7). Avant cette fusion,
+  ce statut décrit un candidat et ne modifie pas le canon de `main`.
+- **Décision acceptée** : la séparation en quatre couches (L1 collecteurs, L2 évaluateurs, L3
+  actions, L4 gouvernance), les invariants, et les deux couches livrées, L4 et L1.
+- **Livré** (présent dans le monorepo) : le module `backend/src/modules/seo-control-plane/`, câblé
+  dans `app.module.ts` ; les collecteurs `cf-analytics`, `cf-rum`, `runtime-logs` et
+  `synthetic-crawler` ; `criticality-loader.service.ts` ;
+  `.spec/00-canon/repository-registry/seo-criticality.yaml` et son test dans `packages/registry`.
+- **Non livré** : L2 et L3 (aucun répertoire `evaluators/` ni `actions/`) ; pas de collecteur GSC
+  dans ce module.
+- **Borne** : l'acceptation n'autorise pas à lancer L2 ni L3. Leur démarrage reste soumis à la pause
+  `new-seo-platform` de la doctrine (`.claude/top-priorities.md` du monorepo) et à une décision de
+  l'owner.
+- **Critères de la Phase 5** (quatre PR fusionnées, sept jours stables, au moins un dépassement
+  détecté, tableau Grafana) : non vérifiés. Ils deviennent un suivi de livraison et ne conditionnent
+  plus le statut.
+- **Preuves** : monorepo `ak125/nestjs-remix-monorepo` à `fd80dd33e7b37a41d4400ce22ec218c14e4d69e3`
+  (`origin/main` au 2026-11-10). Elles établissent la présence du code, pas ce qui est servi : ni la
+  base, ni PREPROD, ni PROD n'ont été interrogées.
 
 ## TL;DR grepable
 

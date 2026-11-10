@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-05-13
+updated: 2026-11-10
 adr_link: ADR-058
 ---
 
@@ -21,10 +21,10 @@ progressifs V1 (warning → block-new).
 
 | Champ | Valeur |
 |-------|--------|
-| ADR | [[ADR-058-repository-control-plane]] (status `proposed` au 2026-05-13) |
-| Phase courante | V1 PR-A en cours (cette PR) |
+| ADR | [[ADR-058-repository-control-plane]] (status `accepted` le 2026-11-10, par dérogation aux seuils chiffrés : voir la réconciliation en tête de l'ADR) |
+| Phase courante | V1 livré : les livrables des PR A à G sont présents (relevé du 2026-11-10 ci-dessous) |
 | Tier scoping | V1 livré ici ; V1.5 et V2 = plans séparés signal-proven |
-| Acceptance | `proposed` → `accepted` après PR-G mergée + 7-14 j signal vert |
+| Acceptance | Accepté le 2026-11-10. Les seuils de couverture restent des cibles de qualité du registre ; ils ne conditionnent plus le statut |
 
 ---
 
@@ -35,14 +35,17 @@ PR-G et PR-H est intentionnelle (signal empirique avant promotion canon).
 
 | PR | Cible | Scope clé | Statut |
 |----|-------|-----------|--------|
-| **A** | vault | ADR-058 `proposed` + cette MOC + ligne MOC-Decisions | 🟡 en cours |
-| **B** | monorepo | Package `@repo/registry` (Zod schemas minimal V1) | ⚪ pending |
-| **C** | monorepo | 5 producteurs Layer 1 (`scripts/registry/build-*-registry.js`) | ⚪ pending |
-| **D** | monorepo | Overlay Layer 2 (`.spec/00-canon/repository-registry/*.yaml`) | ⚪ pending |
-| **E** | monorepo | Merge canonical (Layer 3) + freshness CI Phase 1 warn | ⚪ pending |
-| **F** | monorepo | LLM entrypoint (`.claude/knowledge/REPO_MAP.md`) | ⚪ pending |
-| **G** | monorepo | CI gates Phase 2 (block-new owner+domain) | ⚪ pending |
-| **H** | vault | ADR-058 `proposed` → `accepted` | ⚪ pending |
+| **A** | vault | ADR-058 `proposed` + cette MOC + ligne MOC-Decisions | ✅ fusionnée |
+| **B** | monorepo | Package `@repo/registry` (Zod schemas minimal V1) | ✅ présent (`packages/registry`) |
+| **C** | monorepo | 5 producteurs Layer 1 (`scripts/registry/build-*-registry.js`) | ✅ présent (7 scripts) |
+| **D** | monorepo | Overlay Layer 2 (`.spec/00-canon/repository-registry/*.yaml`) | ✅ présent (12 fichiers) |
+| **E** | monorepo | Merge canonical (Layer 3) + freshness CI Phase 1 warn | ✅ présent (`audit/registry/canonical.json`, `registry-fresh.yml` en avertissement) |
+| **F** | monorepo | LLM entrypoint (`.claude/knowledge/REPO_MAP.md`) | ✅ présent |
+| **G** | monorepo | CI gates Phase 2 (block-new owner+domain) | ✅ présent (`registry-new-file-gate.yml`, bloquant) |
+| **H** | vault | ADR-058 `proposed` → `accepted` | ✅ 2026-11-10, par dérogation aux seuils chiffrés |
+
+Relevé du 2026-11-10 : présence des livrables dans le monorepo à
+`fd80dd33e7b37a41d4400ce22ec218c14e4d69e3`. Il ne dit rien des PR qui les ont portés.
 
 ---
 

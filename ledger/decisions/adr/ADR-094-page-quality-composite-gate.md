@@ -1,10 +1,10 @@
 ---
 id: ADR-094
 title: "Gate cross-domaine page-quality (composite) : orchestre substance WIKI ⊗ surface rendue ⊗ runtime ⊗ diversité ⊗ lineage"
-status: proposed
+status: accepted
 version: "1.0.0"
 date: "2026-06-24"
-decision_date: ""
+decision_date: "2026-11-10"
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
@@ -14,16 +14,49 @@ related_adr: ["ADR-092", "ADR-066", "ADR-067", "ADR-059", "ADR-086", "ADR-088", 
 related_rules: []
 related_incidents: []
 created: 2026-06-24
-updated: 2026-06-24
+updated: 2026-11-10
 ---
 
 # ADR-094 — Gate cross-domaine page-quality (composite)
 
-> Brouillon préparé en lecture seule, hors vault. La ratification = PR signée par l'owner dans `ak125/governance-vault` (commit signé SSH, single write point DEV). L'agent n'écrit JAMAIS au vault et ne s'auto-approuve pas (mainteneur solo).
+## Statut et réconciliation (2026-11-10)
+
+- **Statut** : Accepted (2026-11-10), borné : le verdict est décidé, il n'est pas appliqué.
+  `proposed` depuis le 2026-06-24, hors du délai de 30 jours de Q4 ([[rules-engineering-quality]]).
+  Statut arrêté sur délégation de l'owner (message du 2026-11-10 : appliquer la meilleure approche
+  aux points ouverts de l'analyse du vault), dans une PR préparée par un agent (Claude CLI). La
+  décision est consignée par la fusion, par l'owner, de la tête qui porte ce commit
+  ([[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D4 et D7). Avant cette fusion,
+  ce statut décrit un candidat et ne modifie pas le canon de `main`. Cette acceptation ne change que
+  le texte : aucun comportement de publication ni d'indexation n'est modifié (le SEO indexé demande
+  un accord nominatif).
+- **Décision acceptée** : le verdict de page composite `PAGE_QUALITY_COMPOSITE_PASS`, sa composition
+  à partir de mesures existantes, la règle « composant absent = `HOLD` » et sa gouvernance. Le
+  préalable que posait le texte est rempli : [[ADR-091-wiki-score-recalibration|ADR-091]] et
+  [[ADR-092-rank1-content-gate|ADR-092]] sont `accepted`.
+- **Livré** : le point 1 du plan. Dans le dépôt WIKI, `compute_page_quality_ready` de
+  `_scripts/raw_to_wiki_content_loop_pilot.py` rend ce verdict, avec ses tests (commit
+  `214c02015b473a542d738c34363eda4ec0d0a89c`, 2026-06-24). Quatre des six composants y valent
+  `UNKNOWN` : le verdict rend donc `HOLD`. Le skill `seo-content-loop` du monorepo (workspace
+  `seo-batch`) nomme ce verdict comme verdict terminal de page, « shadow/gated jusqu'à
+  calibration ».
+- **Non livré ou non branché** : les points 2 à 4 du plan (scoreur de surface, extension du schéma
+  de projection pour le lineage, diversité intra et cross-gamme). L'orchestrateur du WIKI tient ces
+  composants à `UNKNOWN` ; l'existence d'un scoreur de surface côté monorepo n'a pas été vérifiée.
+  Le point 5 n'est pas fait : ADR-092, ADR-066 et ADR-059 ne citent pas cet ADR.
+- **Ce que l'acceptation n'active pas** : rien. Le verdict reste `HOLD` tant qu'un composant manque.
+  Le passage de report-only à bloquant demande un GO explicite de l'owner, qui n'a pas été donné.
+- **Corrections de ce texte** : le bandeau « Brouillon préparé en lecture seule, hors vault » est
+  retiré et la section « Statut » est mise à jour. Le point 6 du plan (procédure de dépôt) est gardé
+  comme historique.
+- **Preuves** : monorepo `ak125/nestjs-remix-monorepo` à `fd80dd33e7b37a41d4400ce22ec218c14e4d69e3`
+  (`origin/main` au 2026-11-10). Elles établissent la présence du code, pas ce qui est servi : ni la
+  base, ni PREPROD, ni PROD n'ont été interrogées. Dépôt `ak125/automecanik-wiki` à
+  `d5c9453ce39abce536458d911c64fd91fc8780a0` (`origin/main` au 2026-11-10).
 
 ## Statut
 
-Proposed.
+Accepted (2026-11-10). Voir « Statut et réconciliation (2026-11-10) » ci-dessus.
 
 ## Contexte
 

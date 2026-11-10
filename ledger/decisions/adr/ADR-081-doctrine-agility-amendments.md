@@ -1,9 +1,9 @@
 ---
 id: ADR-081
 title: "Doctrine Agility Amendments — Sunset Clause + Exploration Budget"
-status: proposed
+status: accepted
 date: 2026-05-24
-decision_date: 2026-05-24
+decision_date: "2026-11-10"
 decision_makers: [Fafa]
 supersedes: []
 superseded_by: []
@@ -16,6 +16,37 @@ reviewed_by: "@fafa"
 ---
 
 # ADR-081 : Doctrine Agility Amendments — Sunset Clause + Exploration Budget
+
+## Statut et réconciliation (2026-11-10)
+
+- **Statut** : Accepted (2026-11-10). Le frontmatter portait `decision_date: 2026-05-24` alors que
+  le statut restait `proposed` : aucun commit de ratification n'avait consigné cette décision. La
+  date retenue est celle de la présente ratification. Statut arrêté sur délégation de l'owner
+  (message du 2026-11-10 : appliquer la meilleure approche aux points ouverts de l'analyse du
+  vault), dans une PR préparée par un agent (Claude CLI). La décision est consignée par la fusion,
+  par l'owner, de la tête qui porte ce commit
+  ([[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D4 et D7). Avant cette fusion,
+  ce statut décrit un candidat et ne modifie pas le canon de `main`.
+- **Décision acceptée** : AM-1 (clause d'extinction des verdicts empiriques, 12 semaines) et AM-2
+  (budget d'exploration). AM-3 avait été retiré avant ratification.
+- **Déjà dans les règles** : G9 et G10 de [[rules-governance-process]] et
+  `ledger/policies/exploration-budget.md` reprennent AM-1 et AM-2. Ces textes ont été fusionnés
+  alors que cet ADR restait `proposed` (constat C7 d'ADR-121) ; l'acceptation leur donne leur base.
+- **Écart : l'escalade n'est pas automatique.** Ce texte et G9 annoncent un passage automatique en
+  `OPEN_FOR_REVIEW`, par un cron hebdomadaire et une alerte dans `__seo_event_log`. Le script
+  `scripts/governance/check-verdict-expirations.sh` du monorepo ne produit qu'un rapport (sortie 0)
+  ; aucun workflow ne le planifie (`governance-checks.yml` le dit « pas wired ») ; rien n'écrit dans
+  `__seo_event_log`. L'expiration se constate donc à la main. Le libellé de G9 est corrigé par une
+  PR séparée.
+- **Verdict expiré** : `ledger/verdicts/2026-05-20-conversion-funnel-organic.md` a expiré le
+  2026-08-12 ; aucun verdict de renouvellement n'existe dans `ledger/verdicts/`. Par G9, les trois
+  entrées qu'il bloquait (`r5-diagnostic-engine`, `new-seo-platform`, `new-meta-architecture-adr`)
+  sont en `OPEN_FOR_REVIEW` : un nouveau débat est requis avant toute action, elles ne passent pas
+  en priorité. Les deux dernières figurent toujours dans la liste `DO_NOT_START` de
+  `.claude/top-priorities.md` du monorepo. Refaire la mesure ou rouvrir ce débat revient à l'owner.
+- **Preuves** : monorepo `ak125/nestjs-remix-monorepo` à `fd80dd33e7b37a41d4400ce22ec218c14e4d69e3`
+  (`origin/main` au 2026-11-10). Elles établissent la présence du code, pas ce qui est servi : ni la
+  base, ni PREPROD, ni PROD n'ont été interrogées.
 
 ## Contexte
 
