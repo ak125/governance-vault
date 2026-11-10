@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-11-01
+updated: 2026-11-10
 ---
 
 # MOC: Decisions
@@ -106,7 +106,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 > Projection mécanique du frontmatter ADR (PR-3 sync_moc_decisions).
 > Toute édition manuelle entre les markers est écrasée à chaque sync.
 > Pour corriger un statut ou un titre, éditer le frontmatter de l'ADR puis relancer `--write`.
-> Dernier sync : 2026-11-01.
+> Dernier sync : 2026-11-10.
 
 | ID | Titre | Statut canonique | Date | Fichier |
 |----|-------|------------------|------|---------|
@@ -133,17 +133,17 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-021 | Database RLS Hardening — Zero-Trust per-Table Policies | Accepted | 2026-04-23 | [[ADR-021-database-rls-hardening-zero-trust]] |
 | ADR-022 | R8 RAG Control Plane — Propose-Before-Write + 5-Layer Gates | Superseded by [[ADR-031-four-layer-content-architecture]] | 2026-04-23 | [[ADR-022-r8-rag-control-plane]] |
 | ADR-023 | Hook-Layer Defense for .local/governance-vault/ | Accepted | 2026-04-24 | [[ADR-023-hook-layer-defense]] |
-| ADR-024 | R1 Gamme Page Data — Persistance par matérialisation, parité ADR-016 | Proposed | 2026-04-27 | [[ADR-024-r1-gamme-page-matview-persistence]] |
+| ADR-024 | R1 Gamme Page Data — Persistance par matérialisation, parité ADR-016 | Accepted | 2026-04-27 | [[ADR-024-r1-gamme-page-matview-persistence]] |
 | ADR-025 | SEO Department Architecture (Observability, On-page, Content ops, Intelligence, GEO/AEO) | Accepted | 2026-04-25 | [[ADR-025-seo-department-architecture]] |
 | ADR-026 | Content Repository Separation — automecanik-content as SEO Refined Layer | Superseded by [[ADR-031-four-layer-content-architecture]] | 2026-04-26 | [[ADR-026-content-separation]] |
 | ADR-027 | R5 Diagnostic Consolidation into R3 S2_DIAG — Canonical SEO Architecture | Accepted | 2026-04-25 | [[ADR-027-r5-consolidation-into-r3-s2-diag]] |
 | ADR-028 | Préprod read-only hardening (sans Supabase branch — ADR-028 Option D) | Accepted | 2026-04-30 | [[ADR-028-preprod-supabase-isolation]] |
-| ADR-029 | RAG v2.1 Control Plane Closure — State Machine 7-Stage + Emitter/Detector | Proposed | 2026-04-25 | [[ADR-029-rag-v2.1-control-plane-closure]] |
+| ADR-029 | RAG v2.1 Control Plane Closure — State Machine 7-Stage + Emitter/Detector | Rejected | 2026-04-25 | [[ADR-029-rag-v2.1-control-plane-closure]] |
 | ADR-030 | npm ci --ignore-scripts permanent dans Dockerfile (Alpine musl + @ast-grep/cli) | Accepted | 2026-04-30 | [[ADR-030-npm-ignore-scripts-alpine-musl]] |
 | ADR-031 | Four-Layer Content Architecture — Raw / Wiki / Exports / Consumers (Unified Flow All R0-R8) | Accepted | 2026-04-28 | [[ADR-031-four-layer-content-architecture]] |
 | ADR-032 | Diagnostic & Maintenance Unification — kg_* canon for maintenance/safety/DTC, content via wiki/exports per ADR-031 | Superseded by [[ADR-112-diagnostic-knowledge-base-canon]] | 2026-04-29 | [[ADR-032-diagnostic-maintenance-unification]] |
 | ADR-033 | Wiki Gamme Diagnostic Relations Contract — references-only from R3/R4 to __diag_symptom / __diag_system | Accepted | 2026-04-29 | [[ADR-033-wiki-gamme-diagnostic-relations-contract]] |
-| ADR-034 | AI-COS Operating Contract — Observatory + Single-Trigger Routines | Proposed | 2026-04-30 | [[ADR-034-aicos-operating-contract]] |
+| ADR-034 | AI-COS Operating Contract — Observatory + Single-Trigger Routines | Accepted | 2026-04-30 | [[ADR-034-aicos-operating-contract]] |
 | ADR-035 | Diagnostic Tool Source Trust — provenance WIKI des liens __diag_symptom_cause_link | Accepted | 2026-05-02 | [[ADR-035-diagnostic-tool-source-trust-flag]] |
 | ADR-036 | Marketing Operating Layer — 3 agents G1 (LEAD/LOCAL/RETENTION) + extension OperatingMatrixService + business_unit séparé ECOMMERCE/LOCAL/HYBRID | Accepted | 2026-04-30 | [[ADR-036-marketing-operating-layer]] |
 | ADR-037 | Agent Naming Canon — frontmatter `role:` Zod-validated, fail-fast, source de vérité unique | Accepted | 2026-04-30 | [[ADR-037-agent-naming-canon]] |
@@ -152,9 +152,9 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-040 | SEO Roles Canon R0..R8 — single source of truth côté TypeScript via @repo/seo-roles, pas de DB CHECK | Accepted | 2026-05-05 | [[ADR-040-seo-roles-canon-ts-side-only]] |
 | ADR-041 | R1 Router Posture Reaffirmed — empirical validation supersedes hypothesis-driven commerce-safe pivot | Accepted | 2026-05-06 | [[ADR-041-r1-router-posture-empirical-reaffirm]] |
 | ADR-042 | Wiki gamme skeleton-generator (Pattern A) — débloquer Étape 6 gammes du pivot ADR-031 sans contournement legacy | Superseded by [[ADR-031-four-layer-content-architecture]] | 2026-05-06 | [[ADR-042-wiki-gamme-skeleton-generator]] |
-| ADR-043 | Plan F (DevSecOps) — cadre Phase 1 threat-model-first sur 3 sprints | Proposed | 2026-05-06 | [[ADR-043-plan-F-devsecops-phase-1-cadre]] |
-| ADR-044 | SEO Strategy 2026 — priorité contenu R6/R8/R7, R3 remediation only, 7 vagues | Proposed | 2026-05-07 | [[ADR-044-seo-strategy-2026-roles-priority]] |
-| ADR-045 | SEO Monitoring Cron V0 — daily-fetch GSC/GA4/Links + cron/health endpoint | Proposed | 2026-05-07 | [[ADR-045-seo-monitoring-cron-v0]] |
+| ADR-043 | Plan F (DevSecOps) — cadre Phase 1 threat-model-first sur 3 sprints | Accepted | 2026-05-06 | [[ADR-043-plan-F-devsecops-phase-1-cadre]] |
+| ADR-044 | SEO Strategy 2026 — priorité contenu R6/R8/R7, R3 remediation only, 7 vagues | Rejected | 2026-05-07 | [[ADR-044-seo-strategy-2026-roles-priority]] |
+| ADR-045 | SEO Monitoring Cron V0 — daily-fetch GSC/GA4/Links + cron/health endpoint | Accepted | 2026-05-07 | [[ADR-045-seo-monitoring-cron-v0]] |
 | ADR-046 | R-stack canonique — 1 générateur par rôle + chaîne L0-L5 mécaniquement gouvernée | Accepted | 2026-05-07 | [[ADR-046-r-stack-single-generator-and-layers]] |
 | ADR-047 | Contract-as-code — `@repo/seo-role-contracts` SoT comportemental, séparé de l'identité | Accepted | 2026-05-07 | [[ADR-047-seo-role-contracts-as-code]] |
 | ADR-048 | Canon Enforcement Coverage Audit | Accepted | 2026-05-07 | [[ADR-048-canon-enforcement-coverage]] |
@@ -163,41 +163,41 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-053 | Planning Live System (cross-repo PR/ADR aggregation) | Accepted | 2026-05-08 | [[ADR-053-planning-live-system]] |
 | ADR-055 | SEO Shadow Mode Architecture (observability avant flip mode=on) | Accepted | 2026-05-09 | [[ADR-055-seo-shadow-mode-architecture]] |
 | ADR-056 | R7 Brand Runtime Completion (ExecutionRouter dispatch canonique) | Accepted | 2026-05-09 | [[ADR-056-r7-brand-runtime-completion]] |
-| ADR-057 | marketingskills (coreyhaines31) — pattern d'adoption wrapper canon-bound | Proposed | 2026-05-09 | [[ADR-057-marketingskills-adoption-pattern]] |
-| ADR-058 | Repository Control Plane — registry canonique 3 couches (data auto + overlay manuel + projection) | Proposed | 2026-05-13 | [[ADR-058-repository-control-plane]] |
+| ADR-057 | marketingskills (coreyhaines31) — pattern d'adoption wrapper canon-bound | Deferred | 2026-05-09 | [[ADR-057-marketingskills-adoption-pattern]] |
+| ADR-058 | Repository Control Plane — registry canonique 3 couches (data auto + overlay manuel + projection) | Accepted | 2026-05-13 | [[ADR-058-repository-control-plane]] |
 | ADR-059 | SEO Runtime Projection Architecture — wiki/exports/seo → DB versionnée → Pages R0-R8 | Accepted | 2026-05-13 | [[ADR-059-seo-runtime-projection]] |
 | ADR-060 | Doctrine des rôles repositories — 5 acteurs canon (vault / wiki / raw / monorepo / rag) | Accepted | 2026-05-13 | [[ADR-060-repository-roles-doctrine]] |
 | ADR-061 | Workspace Governance — frontière, lifecycle, ownership, anti-mini-monorepo | Accepted | 2026-05-13 | [[ADR-061-workspace-governance]] |
 | ADR-062 | Repository Contract System — meta-model (9 concepts canon) | Accepted | 2026-05-14 | [[ADR-062-repository-contract-system-meta-model]] |
 | ADR-063 | CWV Monitoring PROD via CrUX API (field data 28j) | Accepted | 2026-05-14 | [[ADR-063-cwv-monitoring-prod-crux-api]] |
-| ADR-064 | SEO Production Control Plane (4-layer Collectors/Evaluators/Actions/Governance) | Proposed | 2026-05-14 | [[ADR-064-seo-production-control-plane]] |
+| ADR-064 | SEO Production Control Plane (4-layer Collectors/Evaluators/Actions/Governance) | Accepted | 2026-05-14 | [[ADR-064-seo-production-control-plane]] |
 | ADR-065 | Migration Safety Gate — grep → squawk (SQL AST linter) | Accepted | 2026-05-14 | [[ADR-065-migration-safety-via-squawk]] |
 | ADR-066 | R2 Content Composition v2 — Per-Motorisation Variation with Eligibility Gate, Catalog-First Diversity, SUPPRESSED Canonical | Accepted | 2026-05-15 | [[ADR-066-r2-content-composition-v2]] |
 | ADR-067 | R2 Content Composition — Doctrine pivot : SUPPRESSED automatique INTERDIT, compatibilité pièce prime sur similarité texte | Accepted | 2026-05-15 | [[ADR-067-r2-no-auto-suppression]] |
 | ADR-068 | R2 — Doctrine STRICT : 4 actions auto INTERDITES (suppress + désindex + canonical sibling + sitemap exclusion). Une page valide DOIT rester candidate INDEX. | Accepted | 2026-05-16 | [[ADR-068-r2-doctrine-strict-no-auto-deindex]] |
 | ADR-070 | R2 — R8+R1 first, R2 second : formule canon `R2Content = render(R8 + R1 + KG + WIKI)`, INTERNAL DIFFERENCE EXHAUSTION, technical criteria = evidence | Accepted | 2026-05-16 | [[ADR-070-r8-r1-first-r2-second-active-disambiguation]] |
 | ADR-072 | R2 — Paradigme architectural industry-standard : CQRS + DDD bounded contexts + Published Snapshot Artifact + Outbox pattern + Schema Registry + OpenTelemetry canon + GitOps publication | Accepted | 2026-05-16 | [[ADR-072-r2-cqrs-ddd-snapshot-artifact]] |
-| ADR-073 | Canonical Fact Graph (L3) + Editorial Evidence Cache (L4) — Extension to ADR-070 | Proposed | 2026-05-17 | [[ADR-073-fact-graph-l3-l4-extension-to-adr-070]] |
-| ADR-074 | Unified Indexability Decision Plane (UIDP) V1 | Proposed | 2026-05-18 | [[ADR-074-unified-indexability-decision-plane]] |
+| ADR-073 | Canonical Fact Graph (L3) + Editorial Evidence Cache (L4) — Extension to ADR-070 | Deferred | 2026-05-17 | [[ADR-073-fact-graph-l3-l4-extension-to-adr-070]] |
+| ADR-074 | Unified Indexability Decision Plane (UIDP) V1 | Accepted | 2026-05-18 | [[ADR-074-unified-indexability-decision-plane]] |
 | ADR-075 | Topologie et vocabulaire de déploiement (DEV / PREPROD / PROD) ; commit, tag, image, environnement, preuve CI et version servie — amende ADR-001 | Proposed | 2026-05-18 | [[ADR-075-deployment-topology-clarification]] |
 | ADR-076 | Soft-404 R2-PRODUIT — Multi-tier alternatives + JSON-LD ItemList + append-only telemetry | Accepted | 2026-05-18 | [[ADR-076-soft-404-r2-strategy]] |
 | ADR-077 | Diagnostic Control Plane V1 — Evidence-Gated V1.5 Registry (10 deferral gates G1..G10) | Accepted | 2026-05-19 | [[ADR-077-diagnostic-cp-v1-evidence-gates]] |
 | ADR-078 | pieces_media_img mass corruption recovery — Tier C soft-hide + structural guards, brand-media ingestion deferred | Accepted | 2026-05-23 | [[ADR-078-pieces-media-img-recovery-tier-c]] |
 | ADR-079 | Product Media Control Plane — Operational Asset Truth Layer (extension ADR-058) | Accepted | 2026-05-23 | [[ADR-079-product-media-control-plane]] |
 | ADR-080 | Intent Resolution V1 Doctrine — R5 traffic SEO as runtime operational intelligence layer (V1A.0 ship-first ultra-minimal) | Accepted | 2026-05-23 | [[ADR-080-intent-resolution-v1-doctrine]] |
-| ADR-081 | Doctrine Agility Amendments — Sunset Clause + Exploration Budget | Proposed | 2026-05-24 | [[ADR-081-doctrine-agility-amendments]] |
-| ADR-082 | Doctrine d'amélioration continue globale — lightweight advisory filter (amended Voie 3 post INC-2026-016) | Proposed | 2026-05-27 | [[ADR-082-global-continuous-improvement-doctrine]] |
+| ADR-081 | Doctrine Agility Amendments — Sunset Clause + Exploration Budget | Accepted | 2026-05-24 | [[ADR-081-doctrine-agility-amendments]] |
+| ADR-082 | Doctrine d'amélioration continue globale — lightweight advisory filter (amended Voie 3 post INC-2026-016) | Accepted | 2026-05-27 | [[ADR-082-global-continuous-improvement-doctrine]] |
 | ADR-083 | Promotion WIKI auto-tiered — porte déterministe TIER A (auto) / TIER B (humain) composant les gates existants, amende ADR-033, 0 LLM/0 DB/0 enrichissement | Accepted | 2026-06-10 | [[ADR-083-tiered-wiki-promotion]] |
-| ADR-085 | Numérotation interne véhicule : séquence globale Massdoc + allocateur gouverné (auto_type.type_id) | Proposed | 2026-06-15 | [[ADR-085-massdoc-sequential-type-id-invariant]] |
+| ADR-085 | Numérotation interne véhicule : séquence globale Massdoc + allocateur gouverné (auto_type.type_id) | Accepted | 2026-06-15 | [[ADR-085-massdoc-sequential-type-id-invariant]] |
 | ADR-086 | Content Excellence Contract — loi de composition R2 = R1 ⊕ R8 : enrichir R1 (gamme) + R8 (par motorisation) depuis le WIKI ; R2 est leur combinaison, non écrit séparément | Accepted | 2026-06-13 | [[ADR-086-encyclopedia-editorial-content-contract]] |
-| ADR-087 | Command Center — observatoire advisory vers orchestration gouvernée (lift ciblé de la pause new-control-plane) | Proposed | 2026-06-16 | [[ADR-087-command-center-orchestration]] |
+| ADR-087 | Command Center — observatoire advisory vers orchestration gouvernée (lift ciblé de la pause new-control-plane) | Accepted | 2026-06-16 | [[ADR-087-command-center-orchestration]] |
 | ADR-088 | Gate de promotion de substance — score à planchers (6-dim/100) + engineBlock factuel : amende ADR-083 (formule de score) et ADR-086 (contrat de contenu structuré) | Accepted | 2026-06-17 | [[ADR-088-promotion-gate-substance-scoring]] |
 | ADR-089 | Content Coverage-Map Canon — claim↔source artefact gouverné (_meta/schema/coverage-map.schema.json), backing de la dimension A du score de substance ADR-088 | Accepted | 2026-06-19 | [[ADR-089-content-coverage-map-canon]] |
 | ADR-090 | SEO Projection Forward Writer Canon — ratifie les contrats §C1-C4 (outbox refresh-trigger, payload R1 block-taxonomy, 2-gate writer wouldRegress) dont dépend le writer exports/seo→DB : amende ADR-059 | Accepted | 2026-06-19 | [[ADR-090-seo-projection-forward-writer-canon]] |
 | ADR-091 | Recalibrage du confidence_score wiki (vérité > conformité) + activation tiered du gate de régression | Accepted | 2026-06-20 | [[ADR-091-wiki-score-recalibration]] |
 | ADR-092 | Gate terminal « rank-#1 capable » pour la boucle contenu (le score manquant) | Accepted | 2026-06-22 | [[ADR-092-rank1-content-gate]] |
 | ADR-093 | auto-review à barre de preuve vérifiable remplace la revue humaine obligatoire (WIKI auto-promotion) | Accepted | 2026-06-22 | [[ADR-093-auto-review-earn-gate]] |
-| ADR-094 | Gate cross-domaine page-quality (composite) : orchestre substance WIKI ⊗ surface rendue ⊗ runtime ⊗ diversité ⊗ lineage | Proposed | 2026-06-24 | [[ADR-094-page-quality-composite-gate]] |
+| ADR-094 | Gate cross-domaine page-quality (composite) : orchestre substance WIKI ⊗ surface rendue ⊗ runtime ⊗ diversité ⊗ lineage | Accepted | 2026-06-24 | [[ADR-094-page-quality-composite-gate]] |
 | ADR-095 | Gate dure anti-duplicate balises R0→R8 | Accepted | 2026-06-27 | [[ADR-095-balise-anti-duplicate-hard-gate]] |
 | ADR-096 | Governed Automatic Source Discovery, Scoring & Capture (RAW intelligent scraper — 4 entity types) | Accepted | 2026-07-15 | [[ADR-096-governed-automatic-source-discovery]] |
 | ADR-099 | SEO Projection — lieu d'exécution du forward writer (conteneur PROD), transport des exports par le pin du sous-module, object-store sur l'hôte PROD, immuabilité write-once, rollout par drapeaux d'environnement : amende ADR-059 et ADR-090 | Accepted | 2026-09-24 | [[ADR-099-seo-projection-writer-runtime-placement-and-exports-transport]] |
@@ -221,6 +221,9 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-118 | Retrait des méthodes BMAD, Superpowers et Spec Kit : agents BMAD désactivés, amende ADR-008, ADR-009 et ADR-011 | Accepted | 2026-10-27 | [[ADR-118-retrait-methodes-bmad-superpowers-spec-kit]] |
 | ADR-119 | Auto-review de sens à la place de toute relecture humaine des fiches WIKI, familles de sécurité comprises : amende ADR-031, ADR-060, ADR-083, ADR-088, ADR-091, ADR-093, ADR-096 et ADR-114 | Accepted | 2026-10-30 | [[ADR-119-wiki-semantic-auto-review-replaces-human-review]] |
 | ADR-120 | DoD2 : une preuve de revue liée au SHA de tête remplace l'approbation humaine GitHub — amende rules-engineering-definition-of-done (v1.1.0) | Accepted | 2026-10-31 | [[ADR-120-dod2-preuve-de-revue-liee-au-sha]] |
+| ADR-121 | Mandat explicite, revue technique, décision de gouvernance et fusion : des actes distincts — amende l'AEC, RULE-H5/H6, DoD2, G1, G4, G5 et ADR-101 D1 | Accepted | 2026-11-01 | [[ADR-121-mandat-revue-decision-fusion-actes-distincts]] |
+| ADR-123 | Exécution automatique conditionnelle de la fusion dans un périmètre adopté — amende ADR-102, ADR-120, ADR-121, G4, RULE-H5/H6, DoD2, AEC et T6 ; delta distinct sur Q2 et Q4 | Accepted | 2026-11-07 | [[ADR-123-fusion-automatique-conditionnelle-perimetre-adopte]] |
+| ADR-124 | Premier périmètre de fusion automatique (ADR-123) : documentation Markdown du monorepo vers main | Accepted | 2026-11-09 | [[ADR-124-premier-perimetre-fusion-automatique-monorepo]] |
 
 <!-- AUTO-GENERATED:moc-decisions-canonical-index end -->
 
@@ -318,16 +321,19 @@ Certaines décisions sont documentées dans les **règles** plutôt qu'en ADR :
 
 ## Status Semantics (Status Machine)
 
-> Les ADR utilisent l'un des statuts suivants. Toute autre valeur est invalide et doit être normalisée à la première occasion. Auto-checkable via `_scripts/check-frontmatter-schema.py`.
+> Les ADR utilisent l'un des sept statuts de l'énumération de `_scripts/schemas/adr.schema.json`, qui fait foi. Toute autre valeur est invalide et doit être normalisée à la première occasion. Auto-checkable via `_scripts/check-frontmatter-schema.py`.
+>
+> Sont normatifs les ADR `accepted` et `accepted-revised` sans `superseded_by` actif ; les autres statuts sont du contexte ([[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D6).
 
 | Status | Sémantique | Critère d'entrée | Transitions sortantes autorisées |
 |---|---|---|---|
-| `proposed` | Décision rédigée, en attente de revue/approbation | ADR créée avec frontmatter complet, body suivant template `_templates/adr-template.md` | → `accepted` (approuvé) ; → `deferred` (info manquante) ; → `superseded` (rare, ex : remplacée avant approbation) |
+| `proposed` | Décision rédigée, en attente de revue/approbation | ADR créée avec frontmatter complet, body suivant template `_templates/adr-template.md` | → `accepted` (approuvé) ; → `rejected` (refusé) ; → `deferred` (info manquante) ; → `superseded` (rare, ex : remplacée avant approbation) |
 | `accepted` | Décision approuvée et active. Code peut être en n'importe quel état d'implémentation | Approuvée par `decision_makers`, commit signé (G3) | → `accepted-revised` (modification substantielle ; bump `version` semver) ; → `superseded` (remplacée par une autre ADR ou un ensemble) ; → `deprecated` (devenue obsolète sans remplacement formel) |
 | `accepted-revised` | Acceptée + révisée depuis ; numéro de version semver bumped (ex : v2.0) | Modification substantielle d'une ADR `accepted`, motivée explicitement | → `superseded` ; → `deprecated` |
 | `deferred` | Reportée en attente d'information ou de dépendances | Décision en `proposed` qui ne peut conclure faute d'inputs | → `proposed` (reprise) ; → `superseded` ; → `deprecated` (jamais reprise) |
 | `superseded` | Remplacée par une autre ADR (ou ensemble d'ADR), partiellement ou totalement | `superseded_by[]` non vide, contient ≥ 1 ADR cible existant | **terminal** (aucune transition sortante) |
 | `deprecated` | Plus applicable, sans remplacement formel | Décision morte, mais le contenu garde valeur historique | **terminal** (aucune transition sortante) |
+| `rejected` | Proposition refusée par les `decision_makers` | Décision de refus d'une ADR `proposed` | **terminal** (aucune transition sortante) |
 
 ### Règles d'invariance
 
@@ -339,7 +345,7 @@ Certaines décisions sont documentées dans les **règles** plutôt qu'en ADR :
 ### Champs frontmatter associés
 
 ```yaml
-status: <one of the 6 above>
+status: <one of the 7 above>
 supersedes: []          # ADR(s) que cette décision remplace
 superseded_by: []       # ADR(s) qui remplacent cette décision (obligatoire si status=superseded)
 status_review:          # optionnel, pour transitions

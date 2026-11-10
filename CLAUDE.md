@@ -6,7 +6,7 @@ Ce fichier guide les agents Claude (Code, Desktop, Cowork, Agent SDK) quand ils 
 
 ## Regle Maitresse
 
-> **Le vault decide, le monorepo execute** (G1, [[ADR-101-vault-decides-canon-authority|ADR-101]]). Les ADR `accepted` et les regles de `ledger/rules/` sont normatifs. Dans `.spec/00-canon/` du monorepo, seuls les contrats consommes par du code, un generateur ou un check CI font foi, dans leur domaine ; le reste est de la prose de reference sans autorite. Une divergence entre une decision et le code est un constat a signaler, jamais a trancher en silence.
+> **Le vault decide, le monorepo execute** (G1, [[ADR-101-vault-decides-canon-authority|ADR-101]]). Les ADR `accepted` ou `accepted-revised` sans `superseded_by` actif et les regles de `ledger/rules/` sont normatifs. Dans `.spec/00-canon/` du monorepo, seuls les contrats consommes par du code, un generateur ou un check CI font foi, dans leur domaine ; le reste est de la prose de reference sans autorite. Une divergence entre une decision et le code est un constat a signaler, jamais a trancher en silence.
 >
 > Le mot `canon` est polysemique. Pour les acceptions distinctes (canon architectural / document canonique / canonical path / registry / source), voir le glossaire dans [[MOC-Governance]] section "Glossaire `canon`". L'autorite de chaque acception reste dans son document canonique (regle G1, ADR-015, etc.) — jamais dupliquee ici.
 

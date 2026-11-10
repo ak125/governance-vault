@@ -91,7 +91,7 @@ Tracées dans la description PR #418 + corps ADR-056 § "Dette résiduelle hors 
 4. Audit-trail co-créé (ADR-054 default) — ce fichier.
 5. Pas de modification de canon `status: canon` sans ADR — uniquement ajouts (ADR + MOC + audit-trail).
 6. Pas d'écriture depuis CI (G4) — toutes les écritures vault depuis VPS DEV
-   (`46.224.118.55`).
+   (hôte DEV).
 7. Cohabitation ADR-055 R7_BRAND_HUB shadow ↔ ADR-056 R7 batch documentée explicitement
    (D7).
 8. Code monorepo référencé empiriquement (PR #418, lignes citées, tests 14/14 PASS).

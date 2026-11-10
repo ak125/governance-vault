@@ -6,7 +6,9 @@
 # DOIT porter ce header YAML.
 #
 # Verdict expire non-renouvele → DO_NOT_START qu'il bloque deviennent
-# OPEN_FOR_REVIEW automatiquement (cron weekly check-verdict-expirations.sh).
+# OPEN_FOR_REVIEW (regle G9). Le constat est manuel : le script
+# check-verdict-expirations.sh du monorepo produit un rapport, n'est pas
+# planifie et ne modifie aucune liste.
 #
 # Renouvellement = re-instrumentation explicite + nouveau commit verdict
 # (ne pas etendre expires_at sans re-mesure).

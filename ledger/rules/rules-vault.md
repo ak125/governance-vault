@@ -1,8 +1,8 @@
 # Rules - Vault Governance (G1-G4)
 
-> Regles de gouvernance du vault lui-meme au 2026-10-01 (G1 reecrite par [[ADR-101-vault-decides-canon-authority|ADR-101]], G4 par [[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4|ADR-102]])
-> **Version**: 3.1.0 | **Status**: CANON
-> **Taxonomie**: G = Governance (G1-G4 = vault ici, G5-G8 = processus dans rules-governance-process.md)
+> Regles de gouvernance du vault lui-meme au 2026-11-07 (G1 reecrite par [[ADR-101-vault-decides-canon-authority|ADR-101]], G4 par [[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4|ADR-102]], G1 et G4.2 amendees par [[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]], G4 completee par [[ADR-123-fusion-automatique-conditionnelle-perimetre-adopte|ADR-123]])
+> **Version**: 3.3.0 | **Status**: CANON
+> **Taxonomie**: G = Governance (G1-G4 = vault ici, G5-G10 = processus dans rules-governance-process.md)
 
 ---
 
@@ -19,7 +19,7 @@ les execute ([[ADR-060-repository-roles-doctrine|ADR-060]], ADR-101).
 
 | Source | Role |
 |--------|------|
-| `ledger/decisions/adr/` : ADR `accepted` sans `superseded_by` actif | **DECIDE** - normatif |
+| `ledger/decisions/adr/` : ADR `accepted` ou `accepted-revised` sans `superseded_by` actif (ADR-121 D6) | **DECIDE** - normatif |
 | `ledger/rules/rules-*.md` | **DECIDE** - normatif ; modifie par PR signee, un changement de decision passe par un ADR |
 | `.spec/00-canon/**` (monorepo) consomme par du code, un generateur ou un check CI | **CONTRAT** - fait foi dans son domaine, ne contredit pas un ADR accepte |
 | `.spec/00-canon/**` (monorepo) sans consommateur | **PROSE DE REFERENCE** - aucune autorite, quel que soit son en-tete |
@@ -36,7 +36,7 @@ les execute ([[ADR-060-repository-roles-doctrine|ADR-060]], ADR-101).
   vault → monorepo (miroirs d'[[ADR-061-workspace-governance|ADR-061]] §3)
 
 **Verification:**
-- [ ] Chaque decision appliquee est portee par un ADR `accepted` ?
+- [ ] Chaque decision appliquee est portee par un ADR `accepted` ou `accepted-revised` ?
 - [ ] Les divergences constatees sont signalees et suivies (PR de code ou ADR) ?
 
 ---
@@ -94,14 +94,31 @@ git log --show-signature -5
 
 ## G4: Ecriture par PR, CI en Lecture Seule
 
-**OBLIGATOIRE:** Le vault ne se modifie que par PR. Un agent prepare, un humain fusionne. La CI
-ne produit aucun contenu du vault ([[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4|ADR-102]] D3).
+**OBLIGATOIRE:** Le vault ne se modifie que par PR. Un agent prepare, un humain fusionne, hors
+perimetre explicitement adopte puis active selon [[ADR-123-fusion-automatique-conditionnelle-perimetre-adopte|ADR-123]]
+(point 2). La CI ne produit aucun contenu du vault ([[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4|ADR-102]] D3).
 
 1. **Aucune ecriture directe sur `main`.** Toute modification passe par une PR aux commits signes
    (G3), sous les checks requis.
 2. **Un agent prepare, un humain fusionne.** Un agent peut preparer une PR dans toute zone du
    vault ; il ne fusionne jamais. La fusion d'une PR qui modifie un ADR, une regle ou une policy
-   est une decision (G1).
+   porte une decision de l'owner (G1). Portee par un ADR, elle se prouve par le commit de ratification
+   (ADR-121 D7), pas par la fusion ; sans ADR, par la fusion de la tete epinglee que l'owner lance,
+   tracee selon ADR-121 D4. Une auto-review, une revue independante, une CI verte, la ligne
+   `Self-review verdict: APPROVE`, un label ou un "go" general ne l'autorisent pas. L'agent ne lance
+   aucune commande de fusion et n'active aucune auto-fusion, sous aucun compte, celui de l'owner
+   compris : il remet a l'owner le numero, le SHA de tete (40 caracteres) et la commande epinglee
+   sur ce SHA. La trace distingue l'humain qui decide, le SHA fusionne et le compte qui execute
+   (ADR-121 D3-D4).
+   Exception conditionnelle (ADR-123) : dans un perimetre explicitement adopte puis active selon
+   ADR-123, l'execution de la fusion peut etre automatique, aux conditions d'ADR-123 D2 a D6. Le
+   mecanisme active execute une decision autorisee (politique approuvee par categorie, ou adoption
+   humaine du contenu tracee avant la fusion pour une decision de gouvernance), sur la tete
+   identifiee, sous les controles, revues, validations specifiques et protections applicables ; une
+   condition manquante ou un controle non concluant empeche la fusion. Le mecanisme, le compte qui
+   execute et l'acte qui l'arme sont ceux que fixe le perimetre active ; le compte ou le geste de
+   fusion ne prouve pas la decision humaine. Tant qu'aucun perimetre n'est adopte puis active, le
+   present point s'applique sans exception.
 3. **La CI ne produit aucun contenu du vault.** Chaque workflow declare un bloc `permissions:` au
    niveau racine, n'obtient aucun scope `write` hors liste justifiee (`issues`), ne lance ni
    `git commit` ni `git push`, et n'utilise aucun jeton autre que son `GITHUB_TOKEN` hors exception
@@ -122,7 +139,7 @@ l'execute). Il n'y a pas de kill-switch : `AI_VAULT_WRITE` est retire (ADR-102 D
 
 **Verification:**
 - [ ] La modification passe par une PR, et non par un push direct ?
-- [ ] Un agent n'a fusionne aucune PR ?
+- [ ] Aucune PR n'a ete fusionnee par un agent, ni automatiquement hors d'un perimetre adopte puis active selon ADR-123 ?
 - [ ] `python3 _scripts/check-ci-read-only.py .` renvoie 0 violation ?
 
 ---
@@ -134,13 +151,13 @@ l'execute). Il n'y a pas de kill-switch : `AI_VAULT_WRITE` est retire (ADR-102 D
 - [ ] G1: Une decision nouvelle ou modifiee passe-t-elle par un ADR ?
 - [ ] G2: Le nouveau document sera-t-il lie depuis un MOC ?
 - [ ] G3: Mon commit sera-t-il signe ?
-- [ ] G4: Ma modification passe-t-elle par une PR, sans fusion par un agent ?
+- [ ] G4: Ma modification passe-t-elle par une PR, sans fusion par un agent ni fusion automatique hors perimetre adopte puis active (ADR-123) ?
 
 ### Avant tout merge vers `main`:
 
 - [ ] `_scripts/check-orphans.sh .` passe (G2)
 - [ ] Tous les commits de la PR sont signes (G3)
-- [ ] La PR n'est pas fusionnee par un agent, et `_scripts/check-ci-read-only.py .` passe (G4)
+- [ ] La PR n'est pas fusionnee par un agent, ni automatiquement hors perimetre adopte puis active (ADR-123), et `_scripts/check-ci-read-only.py .` passe (G4)
 - [ ] Frontmatter YAML valide sur les nouveaux `.md`
 
 ---
@@ -152,21 +169,23 @@ l'execute). Il n'y a pas de kill-switch : `AI_VAULT_WRITE` est retire (ADR-102 D
 | G1 (decision sans ADR, ou divergence non signalee) | Critique | Revert + Escalade CEO |
 | G2 (orphelin non resolu) | Haute | Blocage pre-commit / CI |
 | G3 (commit non signe) | Critique | Rejet PR automatique |
-| G4 (push direct, fusion par un agent, CI qui ecrit) | Critique | Revert + fermeture des PR de l'agent + revocation de son acces |
+| G4 (push direct, fusion par un agent, fusion automatique hors perimetre adopte puis active, CI qui ecrit) | Critique | Revert + fermeture des PR de l'agent + revocation de son acces |
 
 ---
 
 ## References
 
 - **rules-technical.md** - T1-T7: Regles techniques code
-- **rules-governance-process.md** - G5-G8: Regles de gouvernance processus
+- **rules-governance-process.md** - G5-G10: Regles de gouvernance processus
 - **rules-ai-cos.md** - AI1-AI10: Regles d'or agents IA
 - **_scripts/check-orphans.sh** - Enforcement G2
 - **_scripts/check-ci-read-only.py** - Enforcement G4 (point 3)
 - **ADR-101** - Autorite du vault et rang des fichiers `.spec/00-canon/` du monorepo
 - **ADR-102** - Airlock reduit au RPC gate, canal de bundles retire, G4 reecrite
+- **ADR-121** - Statuts normatifs (G1) ; fusion par l'owner et trace de fusion (G4.2)
+- **ADR-123** - Execution automatique conditionnelle de la fusion dans un perimetre adopte (G4.2)
 
 ---
 
-_Derniere mise a jour: 2026-10-01 (ADR-101, ADR-102)_
+_Derniere mise a jour: 2026-11-10 (renvoi G5-G10 ; aucune regle changee). Precedente : 2026-11-07 (ADR-123)_
 _Status: CANON - Gouvernance du vault lui-meme_

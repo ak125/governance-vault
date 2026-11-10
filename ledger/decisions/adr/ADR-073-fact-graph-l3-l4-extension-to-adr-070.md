@@ -1,8 +1,9 @@
 ---
 id: ADR-073
 title: "Canonical Fact Graph (L3) + Editorial Evidence Cache (L4) — Extension to ADR-070"
-status: proposed
+status: deferred
 date: 2026-05-17
+decision_date: "2026-11-10"
 decision_makers: ["@fafa"]
 supersedes: []
 extends: [ADR-066, ADR-070, ADR-072]
@@ -13,6 +14,24 @@ self_review_date: 2026-05-17
 ---
 
 # ADR-073 — Canonical Fact Graph (L3) + Editorial Evidence Cache (L4) — Extension to ADR-070
+
+## Statut et réconciliation (2026-11-10)
+
+- **Statut** : Deferred (2026-11-10). `proposed` depuis le 2026-05-17, hors du délai de 30 jours de
+  Q4 ([[rules-engineering-quality]]). Statut arrêté sur délégation de l'owner (message du 2026-11-10
+  : appliquer la meilleure approche aux points ouverts de l'analyse du vault), dans une PR préparée
+  par un agent (Claude CLI). La décision est consignée par la fusion, par l'owner, de la tête qui
+  porte ce commit ([[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D4 et D7). Avant
+  cette fusion, ce statut décrit un candidat et ne modifie pas le canon de `main`.
+- **Motif** : rien n'a été appliqué. Les tables `__seo_canonical_entities` et
+  `__seo_canonical_facts` n'apparaissent nulle part dans le monorepo, pas plus que le service et le
+  worker qui devaient les alimenter. Aucun ADR accepté ni aucune règle ne s'appuie sur ce texte.
+- **Effet** : contexte historique au sens de G5 ([[rules-governance-process]]) ; aucune
+  implémentation ne peut s'en réclamer. Reprendre ce chantier demande de rouvrir la décision : une
+  PR qui met ce texte à jour, ou un nouvel ADR.
+- **Preuves** : monorepo `ak125/nestjs-remix-monorepo` à `fd80dd33e7b37a41d4400ce22ec218c14e4d69e3`
+  (`origin/main` au 2026-11-10). Elles établissent la présence du code, pas ce qui est servi : ni la
+  base, ni PREPROD, ni PROD n'ont été interrogées.
 
 ## Context
 

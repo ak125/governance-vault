@@ -15,7 +15,7 @@ related_knowledge:
   - "single-maintainer-merge-pattern"
   - "sandbox-merge-auto-rule-20260428"
   - "claude-code-plugin-enablement-policy-20260504"
-status: current
+status: superseded
 tags:
   - governance
   - vault
@@ -26,6 +26,20 @@ tags:
 ---
 
 # Vault PR — self-review workflow obligatoire avant admin merge
+
+## Réconciliation 2026-11-10 — note historique, ne pas exécuter
+
+> Cette note conserve la trace du workflow de mai 2026. Elle n'est plus une autorité d'exécution.
+> Ce qui fait foi :
+>
+> - **Revue** : DoD2 de [[rules-engineering-definition-of-done]], qui exige un enregistrement de revue
+>   lié au SHA de tête de la PR.
+> - **Fusion** : l'étape « admin merge » n'existe plus. Un agent ne lance aucune commande de fusion,
+>   sous aucun compte ([[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D4,
+>   [[rules-vault]] G4.2). Il remet à l'owner le numéro de la PR, le SHA de tête (40 caractères) et la
+>   commande épinglée sur ce SHA.
+> - **`gh pr merge --admin`** : ne contourne plus rien, `enforce_admins` vaut `true`
+>   ([[branch-protection]]).
 
 > Session 2026-05-04. Formalisation d'un filtre **sémantique** pré-merge sur
 > les PRs `governance-vault` ouvertes par Claude, en complément des 5 gates CI

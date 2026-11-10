@@ -1,8 +1,9 @@
 ---
 id: ADR-074
 title: "Unified Indexability Decision Plane (UIDP) V1"
-status: proposed
+status: accepted
 date: 2026-05-18
+decision_date: "2026-11-10"
 decision_makers: ["@ak125", "automecanik.seo@gmail.com"]
 supersedes: []
 superseded_by: []
@@ -20,6 +21,32 @@ reviewed_by: "@ak125"
 ---
 
 # ADR-074: Unified Indexability Decision Plane (UIDP) V1
+
+## Statut et réconciliation (2026-11-10)
+
+- **Statut** : Accepted (2026-11-10), borné à ce qui est livré. `proposed` depuis le 2026-05-18,
+  hors du délai de 30 jours de Q4 ([[rules-engineering-quality]]). Statut arrêté sur délégation de
+  l'owner (message du 2026-11-10 : appliquer la meilleure approche aux points ouverts de l'analyse
+  du vault), dans une PR préparée par un agent (Claude CLI). La décision est consignée par la
+  fusion, par l'owner, de la tête qui porte ce commit
+  ([[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D4 et D7). Avant cette fusion,
+  ce statut décrit un candidat et ne modifie pas le canon de `main`. Cette PR ne change que du texte
+  : aucun comportement d'indexation n'est modifié (le SEO indexé demande un accord nominatif).
+- **Décision acceptée** : une fonction unique rend le verdict d'indexabilité, et les émetteurs de
+  `robots` passent par elle.
+- **Livré** (présent dans le monorepo) : `computeIndexabilityVerdict` dans
+  `packages/seo-role-contracts/src/compose-indexability.ts`, avec ses tests, exportée par `index.ts`
+  et consommée par `seo-indexability-policy.service.ts` et `seo-balise-collision-gate.ts` du
+  backend.
+- **Non livré** : la règle `.ast-grep/rules/seo-no-direct-robots-emission.yml`, que `emit-robots.ts`
+  cite et qui n'existe pas ; la migration des émetteurs du frontend (aucun appel de
+  `computeIndexabilityVerdict` dans `frontend/app`).
+- **Conséquence** : tant que la règle AST manque, aucun contrôle n'empêche une émission directe de
+  `robots` hors de cette fonction. [[ADR-090-seo-projection-forward-writer-canon|ADR-090]], accepté,
+  s'appuie sur ce plan de décision.
+- **Preuves** : monorepo `ak125/nestjs-remix-monorepo` à `fd80dd33e7b37a41d4400ce22ec218c14e4d69e3`
+  (`origin/main` au 2026-11-10). Elles établissent la présence du code, pas ce qui est servi : ni la
+  base, ni PREPROD, ni PROD n'ont été interrogées.
 
 ## Contexte
 
