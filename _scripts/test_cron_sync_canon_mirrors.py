@@ -132,13 +132,22 @@ def test_sync_preserves_shared_checkout_and_publishes_only_mirrors(sync, branch)
     assert worktrees(root, env) == []
 
 
-def test_noop_removes_only_its_own_worktree_and_branch(sync):
-    root, origin, vault, env = sync
+def publish_current_mirrors(root, env):
+    """Put up-to-date mirrors on origin/main: the next run finds no drift."""
     for rel in MIRRORS:
         (root / rel).write_text(BODY)
     git(root, env, "add", "-A")
     git(root, env, "commit", "-qm", "current mirrors")
     git(root, env, "push", "-q", "origin", "HEAD:main")
+
+
+def run_dirs(tmp_path):
+    return sorted(tmp_path.glob("canon-sync.*"))
+
+
+def test_noop_removes_only_its_own_worktree_and_branch(sync):
+    root, origin, vault, env = sync
+    publish_current_mirrors(root, env)
     before = snapshot(root, env)
     branches = git(root, env, "for-each-ref", "--format=%(refname)", "refs/heads")
     r = run(sync)
@@ -251,7 +260,9 @@ def test_concurrent_runs_use_distinct_branches_and_worktrees(sync):
 
 
 def lock_probe(tmp_path, env, common_dir):
-    """Git shim: for each command that administers worktrees, record the lock state.
+    """Git shim: record the lock state for the commands that administer worktrees
+    (fetch, worktree add, worktree remove) and for the commit and the push that run
+    between them, which must find the lock released.
 
     locked    : the lock on the common Git directory is held while the command runs;
     UNLOCKED  : it is not;
@@ -268,6 +279,8 @@ def lock_probe(tmp_path, env, common_dir):
         "  *' fetch '*) cmd=fetch ;;\n"
         "  *' worktree add '*) cmd=add ;;\n"
         "  *' worktree remove '*) cmd=remove ;;\n"
+        "  *' commit '*) cmd=commit ;;\n"
+        "  *' push '*) cmd=push ;;\n"
         f"  *) exec '{real_git}' \"$@\" ;;\n"
         "esac\n"
         f"if flock --shared --nonblock '{common_dir}' true; then state=UNLOCKED; else state=locked; fi\n"
@@ -281,8 +294,12 @@ def lock_probe(tmp_path, env, common_dir):
     return trace
 
 
+PROBED = ["fetch locked", "add locked", "commit UNLOCKED", "push UNLOCKED", "remove locked"]
+
+
 def test_worktree_administration_holds_the_shared_repository_lock(sync, tmp_path):
-    """Each command that administers worktrees runs under the repository lock.
+    """Each command that administers worktrees runs under the repository lock,
+    and the lock is released between them.
 
     Git writes and removes .git/worktrees/<id>/ non-atomically: a fetch into a local
     branch, a `worktree add` or a `worktree remove` that runs during another run's
@@ -293,7 +310,7 @@ def test_worktree_administration_holds_the_shared_repository_lock(sync, tmp_path
     trace = lock_probe(tmp_path, env, root / ".git")
     r = run(sync)
     assert r.returncode == 0, r.stdout + r.stderr
-    assert trace.read_text().splitlines() == ["fetch locked", "add locked", "remove locked"]
+    assert trace.read_text().splitlines() == PROBED
     assert worktrees(root, env) == []
 
 
@@ -306,7 +323,7 @@ def test_lock_is_the_common_git_directory_when_the_checkout_is_a_linked_worktree
     trace = lock_probe(tmp_path, env, root / ".git")
     r = run(sync)
     assert r.returncode == 0, r.stdout + r.stderr
-    assert trace.read_text().splitlines() == ["fetch locked", "add locked", "remove locked"]
+    assert trace.read_text().splitlines() == PROBED
     assert worktrees(root, env) == [linked]
 
 
@@ -344,6 +361,7 @@ def test_lock_not_obtained_at_fetch_fails_the_run_before_any_change(sync, tmp_pa
     assert snapshot(root, env) == before
     assert local_sync_branches(root, env) == []
     assert worktrees(root, env) == []
+    assert [list(d.iterdir()) for d in run_dirs(tmp_path)] == [[]]
     assert not Path(env["GH_CALLS"]).exists()
 
 
@@ -358,6 +376,7 @@ def test_lock_not_obtained_at_worktree_add_leaves_only_the_local_branch(sync, tm
     assert snapshot(root, env) == before
     assert len(local_sync_branches(root, env)) == 1
     assert worktrees(root, env) == []
+    assert [list(d.iterdir()) for d in run_dirs(tmp_path)] == [[]]
     assert remote_branches(origin, env) == []
     assert not Path(env["GH_CALLS"]).exists()
 
@@ -370,11 +389,42 @@ def test_lock_not_obtained_at_worktree_remove_keeps_the_worktree_after_the_pr(sy
     before = snapshot(root, env)
     r = run(sync)
     assert r.returncode == 1, r.stdout + r.stderr
+    assert "worktree lock not obtained within 120 s" in r.stderr
     assert "git worktree remove not run" in r.stderr
     assert "worktree retained for inspection" in r.stderr
     assert snapshot(root, env) == before
     assert len(worktrees(root, env)) == 1
     assert len(remote_branches(origin, env)) == 1
+    assert len(Path(env["GH_CALLS"]).read_text().splitlines()) == 1
+
+
+def test_lock_not_obtained_at_worktree_remove_without_drift_keeps_worktree_and_branch(sync, tmp_path):
+    """No drift, cleanup not run: exit 1, the worktree and the local branch stay, no PR."""
+    root, origin, vault, env = sync
+    publish_current_mirrors(root, env)
+    failing_flock(tmp_path, env, call=3, code=75)
+    before = snapshot(root, env)
+    r = run(sync)
+    assert r.returncode == 1, r.stdout + r.stderr
+    assert "OK: no canon mirror drift" in r.stdout
+    assert "git worktree remove not run" in r.stderr
+    assert "worktree retained for inspection" in r.stderr
+    assert snapshot(root, env) == before
+    assert len(worktrees(root, env)) == 1
+    assert len(local_sync_branches(root, env)) == 1
+    assert remote_branches(origin, env) == []
+    assert not Path(env["GH_CALLS"]).exists()
+
+
+def test_flock_error_at_worktree_remove_keeps_the_worktree(sync, tmp_path):
+    root, origin, vault, env = sync
+    failing_flock(tmp_path, env, call=3, code=66)
+    r = run(sync)
+    assert r.returncode == 1, r.stdout + r.stderr
+    assert "flock failed (code 66)" in r.stderr
+    assert "git worktree remove not run" in r.stderr
+    assert "worktree lock not obtained" not in r.stderr
+    assert len(worktrees(root, env)) == 1
     assert len(Path(env["GH_CALLS"]).read_text().splitlines()) == 1
 
 
@@ -390,7 +440,10 @@ def test_flock_error_is_not_reported_as_a_lock_timeout(sync, tmp_path):
 
 
 def test_git_exit_code_75_is_not_reported_as_a_lock_timeout(sync):
-    """A hook that makes `git worktree add` exit 75 is a Git failure, not a lock timeout."""
+    """A hook that makes `git worktree add` exit 75 is a Git failure, not a lock timeout.
+
+    The hook runs after the checkout: the worktree exists and is registered.
+    """
     root, origin, vault, env = sync
     hook = root / ".git/hooks/post-checkout"
     hook.write_text("#!/bin/sh\nexit 75\n")
@@ -398,6 +451,9 @@ def test_git_exit_code_75_is_not_reported_as_a_lock_timeout(sync):
     r = run(sync)
     assert r.returncode == 75, r.stdout + r.stderr
     assert "worktree lock" not in r.stderr and "flock failed" not in r.stderr
+    retained = worktrees(root, env)
+    assert len(retained) == 1
+    assert str(retained[0]) in r.stderr
     assert not Path(env["GH_CALLS"]).exists()
 
 

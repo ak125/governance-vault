@@ -50,11 +50,13 @@ NO_CHANGES=false
 # pose sur le depot Git commun (aucun fichier cree). Le verrou est tenu par le
 # descripteur 9 de ce script, que Git n'herite pas (9<&-) : un code de sortie de Git ne
 # se confond pas avec un verrou non obtenu, et un processus que Git laisse derriere lui
-# (maintenance) ne garde pas le verrou. Verrou non obtenu en 120 s : la commande Git
-# n'est pas lancee et worktree_admin rend 75. Le run sort alors en 75 au fetch et au
-# `worktree add` (rien n'est produit), en 1 au `worktree remove` (le resultat du run est
-# deja produit, le worktree reste : voir finish). Le verrou ne couvre pas les commandes
-# Git lancees hors de ce script : voir le runbook, « Verrou des worktrees ».
+# (maintenance) ne garde pas le verrou. Verrou non obtenu en LOCK_TIMEOUT secondes : la
+# commande Git n'est pas lancee et worktree_admin rend 75. Le run sort alors en 75 au
+# fetch et au `worktree add` (aucun commit ni PR ; au `worktree add`, la branche locale
+# du run reste), en 1 au `worktree remove` (le resultat du run est deja produit, le
+# worktree reste : voir finish). Le verrou ne couvre pas les commandes Git lancees hors
+# de ce script : voir le runbook, « Verrou des worktrees ».
+LOCK_TIMEOUT=120
 GIT_COMMON_DIR="$(git -C "$MONOREPO_ROOT" rev-parse --path-format=absolute --git-common-dir)"
 worktree_admin() {
   local label="$1" result=0
@@ -62,11 +64,11 @@ worktree_admin() {
     label="worktree $2"
   fi
   exec 9<"$GIT_COMMON_DIR"
-  flock --timeout 120 --conflict-exit-code 75 9 || result=$?
+  flock --timeout "$LOCK_TIMEOUT" --conflict-exit-code 75 9 || result=$?
   if (( result != 0 )); then
     exec 9<&-
     if (( result == 75 )); then
-      echo "Error: worktree lock not obtained within 120 s on $GIT_COMMON_DIR (git $label not run)." >&2
+      echo "Error: worktree lock not obtained within $LOCK_TIMEOUT s on $GIT_COMMON_DIR (git $label not run)." >&2
     else
       echo "Error: flock failed (code $result) on $GIT_COMMON_DIR (git $label not run)." >&2
     fi
