@@ -3,7 +3,7 @@ type: policy
 status: canon
 rule: G10
 source_adr: ADR-081
-updated: 2026-05-24
+updated: 2026-11-10
 related_rules:
   - rules-governance-process
 related_templates:
@@ -171,9 +171,9 @@ A la closure d'une probe, verifier :
 - [[empirical-verdict-header]] (template G9)
 - [[exploration-probe-report-template]] (template G10)
 - `scripts/governance/validate-exploration-probe.sh` (lint enforcement)
-- `scripts/governance/check-verdict-expirations.sh` (cron G9)
+- `scripts/governance/check-verdict-expirations.sh` (rapport G9 du monorepo ; lance a la main, non planifie)
 
 ---
 
-_Derniere mise a jour : 2026-05-24_
+_Derniere mise a jour : 2026-11-10 (reference du script G9 ; aucune regle changee). Precedente : 2026-05-24_
 _Status : CANON des merge ADR-081_

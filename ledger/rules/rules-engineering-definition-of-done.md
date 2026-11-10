@@ -396,7 +396,7 @@ Le reviewer doit refuser une PR qui :
 ## Liens
 
 - Précondition : [[rules-engineering-quality]] (Q1-Q4 s'appliquent AVANT DoD)
-- Process : [[rules-governance-process]] (G5-G8 qui décide, DoD décrit fini)
+- Process : [[rules-governance-process]] (G5-G10 qui décide, DoD décrit fini)
 - Process : [[rules-deployment-workflow]] (D1-D6 décrit comment shipper, DoD7 nomme le watcher)
 - Anti-patterns : [[rules-ai-antipatterns]] (chaque AP est une violation DoD potentielle)
 - Vault discipline : [[rules-vault]] (G1-G4 signed commits, DoD3 rollback documenté)
