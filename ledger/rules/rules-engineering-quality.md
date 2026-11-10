@@ -2,7 +2,7 @@
 type: rules-document
 status: canon
 scope: engineering
-updated: 2026-11-07
+updated: 2026-11-10
 related_adrs:
   - ADR-123
 related_incidents: []
@@ -15,7 +15,7 @@ related_rules:
 # Rules — Engineering Quality & Modernization Mandate (Q1-Q4)
 
 > **Source de vérité** — règles fondatrices d'ingénierie au 2026-04-27
-> **Version** : 1.2.0 (Q2 et Q4 amendées par [[ADR-123-fusion-automatique-conditionnelle-perimetre-adopte|ADR-123]], décisions de l’owner du 2026-11-03) | **Status** : CANON
+> **Version** : 1.2.1 (Q2 et Q4 amendées par [[ADR-123-fusion-automatique-conditionnelle-perimetre-adopte|ADR-123]], décisions de l’owner du 2026-11-03 ; 1.2.1 : Q3 alignée sur T2, statuts de Q4 alignés sur le schéma) | **Status** : CANON
 > **Taxonomie** : Q = Quality — règles méta qui s'appliquent AVANT toute autre règle (T*, G*, AP*).
 >
 > Ces règles codifient ce qui distingue une **solution structurelle** d'un **bricolage**. Elles sont **non-négociables** pour tout agent (humain, Claude Code, Cowork, Codex, Agent SDK) et tout reviewer.
@@ -122,7 +122,7 @@ Sans cette evidence, la PR est rejetée par revue (T6 anti-pattern).
 - Pas de nouvelle colonne sur une table existante sans avoir audité les colonnes existantes (les schémas `pieces_*` ont fréquemment des doublons TEXT/INTEGER — voir ADR-018).
 - Pas de nouvelle RPC sans avoir cherché les RPC voisines (préférer étendre une RPC documentée que créer une variante).
 - Tables `__archive` schema = lecture seule, jamais y créer de nouvelles tables.
-- Préfixe `__` obligatoire pour toutes les tables applicatives (T2).
+- Nom de table : suivre T2 de [[rules-technical]]. Il n'y a pas de préfixe uniforme (`pieces`, `___xtr_order`, `__seo_*` coexistent) ; le nom se lit dans le schéma généré, il ne s'invente pas.
 
 ### Evidence requise
 
@@ -173,7 +173,7 @@ Les conditions suivantes justifient une évaluation. L'action indiquée n'est r�
 ### Process
 
 - Chaque ADR doit avoir une section "Revue Planifiée" avec date concrète.
-- Les ADR `proposed` > 30 jours doivent être traitées (passer à `accepted`/`paused`/`obsolete`) — l'ambiguïté est de la dette.
+- Les ADR `proposed` > 30 jours doivent être traitées : passer à `accepted`, `rejected`, `deferred` ou `superseded` (statuts du schéma, `ADR_STATUSES` de `_scripts/governance_constants.py`) — l'ambiguïté est de la dette.
 - Toute revue de code peut/doit signaler un trigger Q4 — c'est un objet de revue légitime, pas du scope creep.
 
 **Raison** : sans Q4, le système accumule mécaniquement de la dette. Les bricolages Q1 et les inventions Q2 deviennent du legacy "intouchable", la DB Q3 devient un musée. La modernisation continue est l'antidote structurel.
@@ -222,8 +222,10 @@ Le reviewer doit refuser une PR qui :
 
 ### Métrique de qualité
 
-`weekly-vault-lint` (ADR-020) sera étendu pour vérifier :
-- ADR `proposed` > 30 jours → alert (Q4).
+`weekly-vault-lint` (ADR-020) vérifie déjà :
+- ADR `proposed` > 30 jours → avertissement non bloquant (Q4), par `_scripts/check-obsolete-rules.py`.
+
+Il n'est pas encore étendu à :
 - Tables DB sans contrat éditorial documenté → alert (Q3).
 - ENV var documentée mais non lue par le code, ou inverse → alert (Q2 négligence).
 
@@ -242,4 +244,4 @@ Le reviewer doit refuser une PR qui :
 
 *Proposé le : 2026-04-27*
 *Status : CANON dès merge*
-*Dernière revue : 2026-11-07 (Q2 et Q4, ADR-123)*
+*Dernière revue : 2026-11-10 (Q3 alignée sur T2, statuts de Q4 alignés sur le schéma ; aucune décision changée). Précédente : 2026-11-07 (Q2 et Q4, ADR-123)*
