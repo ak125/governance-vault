@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-04-26
+updated: 2026-11-10
 ---
 
 # MOC: Knowledge
@@ -75,6 +75,8 @@ Base de connaissances architecturale.
 - [[adr-031-gap-analysis-seo-runtime]] - Gap analysis ADR-031 (status proposed) vs besoin runtime DB projection SEO. Preuves empiriques 2026-05-13 : wiki/exports/seo/ vide (vs exports/rag/ populated), 0/7 tables projection cibles existent, pages R0-R8 lisent legacy sans active_version_id, pattern kg_v3 versioning réutilisable, SEO v9 fondation MERGED (#398/#399/#400). Prépare ADR-059 (supplements ADR-031, pas amends — les 2 ADRs évoluent en tracks parallèles). Wikilink vers ADR-059 sera ajouté par PR-1.
 
 ## Gouvernance (Historique v1)
+
+> Les mentions de fusion `gh pr merge --admin` et d'auto-fusion dans les notes ci-dessous décrivent la pratique de l'époque. Dans ce vault, un agent prépare et l'owner fusionne ([[rules-vault]] G4.2, [[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D4) et la protection de `main` s'applique aussi aux administrateurs (`enforce_admins`, [[branch-protection]]). La checklist de [[vault-self-review-workflow-20260504]] reste la source du check `Self-Review Marker`.
 
 - [[single-maintainer-merge-pattern]] - Pattern admin-merge per-PR avec CI gates comme enforcement (vault opéré single-maintainer en attendant un 2ᵉ reviewer)
 - [[sandbox-merge-auto-rule-20260428]] - Sandbox auto-merge rule : merges main routiniers en auto (5 conditions trigger), tag PROD + apply prod DB + force-push restent gardés

@@ -179,6 +179,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-072 | R2 — Paradigme architectural industry-standard : CQRS + DDD bounded contexts + Published Snapshot Artifact + Outbox pattern + Schema Registry + OpenTelemetry canon + GitOps publication | Accepted | 2026-05-16 | [[ADR-072-r2-cqrs-ddd-snapshot-artifact]] |
 | ADR-073 | Canonical Fact Graph (L3) + Editorial Evidence Cache (L4) — Extension to ADR-070 | Deferred | 2026-05-17 | [[ADR-073-fact-graph-l3-l4-extension-to-adr-070]] |
 | ADR-074 | Unified Indexability Decision Plane (UIDP) V1 | Accepted | 2026-05-18 | [[ADR-074-unified-indexability-decision-plane]] |
+| ADR-075 | Topologie et vocabulaire de déploiement (DEV / PREPROD / PROD) ; commit, tag, image, environnement, preuve CI et version servie — amende ADR-001 | Accepted | 2026-05-18 | [[ADR-075-deployment-topology-clarification]] |
 | ADR-076 | Soft-404 R2-PRODUIT — Multi-tier alternatives + JSON-LD ItemList + append-only telemetry | Accepted | 2026-05-18 | [[ADR-076-soft-404-r2-strategy]] |
 | ADR-077 | Diagnostic Control Plane V1 — Evidence-Gated V1.5 Registry (10 deferral gates G1..G10) | Accepted | 2026-05-19 | [[ADR-077-diagnostic-cp-v1-evidence-gates]] |
 | ADR-078 | pieces_media_img mass corruption recovery — Tier C soft-hide + structural guards, brand-media ingestion deferred | Accepted | 2026-05-23 | [[ADR-078-pieces-media-img-recovery-tier-c]] |

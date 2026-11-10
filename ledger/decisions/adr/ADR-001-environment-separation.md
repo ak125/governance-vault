@@ -6,6 +6,7 @@ date: 2026-02-03
 decision_makers: [Architecture Team]
 version: 1.0.0
 supersedes: null
+amended_by: ["ADR-075"]
 ---
 
 # ADR-001: Environment Separation
