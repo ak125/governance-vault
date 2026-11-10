@@ -234,7 +234,7 @@ Il n'est pas encore étendu à :
 ## Liens
 
 - Related : [[rules-technical]] (T1-T7 techniques — Q domine en cas de conflit)
-- Related : [[rules-governance-process]] (G5-G8 process — Q codifie le "comment", G le "qui/quoi")
+- Related : [[rules-governance-process]] (G5-G10 process — Q codifie le "comment", G le "qui/quoi")
 - Related : [[rules-ai-antipatterns]] (AP-* — instances spécifiques de Q1 violations)
 - Related : [[ADR-016-vehicle-page-matview-persistence]] (exemple Q1 appliqué : matérialisation vs timeout adaptatif)
 - Related : [[ADR-021-database-rls-hardening-zero-trust]] (exemple Q3 appliqué : RLS comme contrat plutôt que ACL ad hoc)
