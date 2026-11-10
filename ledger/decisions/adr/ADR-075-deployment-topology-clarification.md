@@ -236,14 +236,18 @@ Le commit de ratification, préparé par un agent sur cette décision :
 
 - passe `status` à `accepted`, renseigne `decision_date` et `reviewed_by`, et réécrit la ligne
   Statut, dont la phrase qui suspendait l'entrée en vigueur ;
+- date la ligne « Accepté le » du pied de page et passe la présente section de la prescription au
+  constat ;
 - ajoute `amended_by: ["ADR-075"]` au frontmatter d'[[ADR-001-environment-separation|ADR-001]] ;
 - retire « (proposé) » des mentions de cet ADR dans [[rules-deployment-workflow]] ;
 - régénère l'index de [[MOC-Decisions]] (`_scripts/sync_moc_decisions.py --write`).
 
 Il ne modifie aucune décision : D1 à D4 et la règle sont celles du candidat. `reviewed_by` renvoie à
-la revue indépendante consignée sur la PR ; il ne vaut pas approbation de l'owner, dont la décision
-est tracée par la fusion de la tête ratifiée (ADR-121 D4). Ce commit change la tête : son diff est
-revu à son niveau avant la fusion ([[ADR-120-dod2-preuve-de-revue-liee-au-sha|ADR-120]] D4).
+la revue indépendante consignée sur la PR ; il ne vaut pas approbation de l'owner. La décision de
+l'owner est consignée par le commit de ratification (ADR-121 D7) ; son accord nominatif de niveau C
+l'est sur la PR ([[ADR-120-dod2-preuve-de-revue-liee-au-sha|ADR-120]] D3) ; la fusion de la tête
+ratifiée est tracée selon ADR-121 D4. Tout commit ajouté après le candidat change la tête : son diff
+est revu à son niveau avant la fusion (ADR-120 D4).
 
 ## Critères de succès
 
