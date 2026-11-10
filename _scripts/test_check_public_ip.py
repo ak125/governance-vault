@@ -88,6 +88,10 @@ def test_message_is_stable_across_files_and_lines(tmp_path):
     pytest.param(f"static.{PUBLIC}.clients.example.net", id="nom-rdns"),
     pytest.param(f"voir...{PUBLIC}", id="apres-points-de-suspension"),
     pytest.param(f"de 10.0.0.5 vers {PUBLIC}", id="apres-une-adresse-privee"),
+    pytest.param(f'{{"log": "connexion\\n{PUBLIC} refusee"}}', id="apres-echappement-n"),
+    pytest.param(f'printf "hote\\t{PUBLIC}"', id="apres-echappement-t"),
+    pytest.param(f"https://example.net/?u=http%3A%2F%2F{PUBLIC}%2Fhealth", id="url-encodee"),
+    pytest.param(f"mailto:root%40{PUBLIC}", id="arobase-encodee"),
 ])
 def test_public_address_is_found_in_context(tmp_path, line):
     write(tmp_path, "note.md", line + "\n")
@@ -114,6 +118,7 @@ def test_public_address_is_found_in_context(tmp_path, line):
     pytest.param(f"{PUBLIC}a", id="suivie-d-une-lettre"),
     pytest.param("8.8.8.1234", id="dernier-segment-trop-long"),
     pytest.param(f"x{PUBLIC}", id="precedee-d-une-lettre"),
+    pytest.param(f"n{PUBLIC}", id="lettre-n-sans-barre-oblique"),
 ])
 def test_non_public_or_non_address_is_ignored(tmp_path, line):
     write(tmp_path, "note.md", line + "\n")
@@ -124,6 +129,7 @@ def test_non_public_or_non_address_is_ignored(tmp_path, line):
     "rules.yaml", "ci.yml", "policy.json", "notes.txt", "DOC.MD",
     "_scripts/deploy.sh", "_scripts/tool.py", "policies/vault.rego", "ops/fix.patch",
     "ops/query.sql", ".githooks/pre-push", "Makefile", "notes.md.bak",
+    ".obsidian/workspace.json",           # non ignoré par git : peut être publié
 ])
 def test_every_text_file_is_scanned_whatever_its_extension(tmp_path, rel):
     write(tmp_path, rel, f"host: {PUBLIC}\n")
@@ -156,9 +162,34 @@ def test_exclusions_are_exact(tmp_path, rel):
     assert [f["file"] for f in found] == [rel]
 
 
-def test_binary_file_is_skipped(tmp_path):
-    (tmp_path / "bundle.wasm").write_bytes(b"\x00asm\x01\x00" + PUBLIC.encode() + b"\n")
-    assert findings(tmp_path) == (0, [])
+def test_note_with_null_bytes_is_still_read(tmp_path):
+    # Une note abîmée (octets nuls en fin de fichier) ne sort pas du contrôle.
+    (tmp_path / "note.md").write_bytes(b"x" * 20000 + b"\n" + PUBLIC.encode() + b"\n" + b"\0" * 504)
+    _, found = findings(tmp_path)
+    assert [(f["file"], f["lines"]) for f in found] == [("note.md", [2])]
+
+
+def test_utf16_file_is_read(tmp_path):
+    (tmp_path / "export.txt").write_bytes(f"hote\n{PUBLIC}\n".encode("utf-16"))
+    _, found = findings(tmp_path)
+    assert [(f["file"], f["lines"]) for f in found] == [("export.txt", [2])]
+
+
+def test_symlinked_directory_is_not_followed(tmp_path):
+    vault, outside = tmp_path / "vault", tmp_path / "ailleurs"
+    write(outside, "note.md", f"{PUBLIC}\n")
+    vault.mkdir()
+    (vault / "lien").symlink_to(outside, target_is_directory=True)
+    assert findings(vault) == (0, [])
+
+
+def test_non_utf8_file_name_does_not_crash_text_output(tmp_path):
+    name = b"note-\xff.md"
+    with open(bytes(tmp_path) + b"/" + name, "wb") as handle:
+        handle.write(PUBLIC.encode() + b"\n")
+    proc = run(str(tmp_path))
+    assert proc.returncode == 0
+    assert "1 warning(s)" in proc.stdout
 
 
 def test_directory_named_like_a_file_is_not_read(tmp_path):
@@ -186,6 +217,7 @@ def test_text_output_gives_lines_but_not_the_address(tmp_path):
     assert proc.returncode == 0
     assert "[WARNING] note.md (line 2)" in proc.stdout
     assert "1 warning(s)" in proc.stdout
+    assert "(1 file(s) scanned)" in proc.stdout
     assert PUBLIC not in proc.stdout
 
 
