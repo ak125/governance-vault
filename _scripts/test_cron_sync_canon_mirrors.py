@@ -455,20 +455,34 @@ def test_flock_error_at_worktree_add_does_not_run_git(sync, tmp_path):
     assert not Path(env["GH_CALLS"]).exists()
 
 
-def test_common_git_directory_that_cannot_be_opened_fails_before_git_runs(sync, tmp_path):
-    """The lock descriptor cannot be opened: the wrapper says so and runs no Git command."""
+# Step -> (last Git command the wrapper runs before that step's lock, as the shim's `case`
+# pattern; local branches, worktrees and `gh pr create` calls the run leaves).
+UNOPENABLE = {
+    "fetch": ("*' show-ref '*", 0, 0, 0),
+    "worktree add": ("*'^{commit} '*", 1, 0, 0),
+    "worktree remove": ("*' push '*", 1, 1, 1),
+}
+
+
+@pytest.mark.parametrize("step", UNOPENABLE)
+def test_common_git_directory_that_cannot_be_opened_fails_before_git_runs(sync, tmp_path, step):
+    """The lock descriptor cannot be opened: the wrapper says so, exits 1 and runs no
+    further Git command, at each of the three steps."""
     if os.geteuid() == 0:
         pytest.skip("root opens a directory whatever its mode")
     root, origin, vault, env = sync
+    pattern, branches, kept, prs = UNOPENABLE[step]
     common_dir = root / ".git"
     mode = common_dir.stat().st_mode
     real_git = shutil.which("git", path=env["PATH"])
+    trace = tmp_path / "git-calls"
     shim = tmp_path / "bin" / "git"
-    # show-ref is the last Git command before the first lock: close the directory after it.
+    # Every call is traced; the directory is closed once the trigger command has run.
     shim.write_text(
         "#!/bin/sh\n"
+        f"printf '%s\\n' \"$*\" >> '{trace}'\n"
         "case \" $* \" in\n"
-        f"  *' show-ref '*) '{real_git}' \"$@\"; rc=$?; chmod 000 '{common_dir}'; exit $rc ;;\n"
+        f"  {pattern}) '{real_git}' \"$@\"; rc=$?; chmod 000 '{common_dir}'; exit $rc ;;\n"
         "esac\n"
         f"exec '{real_git}' \"$@\"\n")
     shim.chmod(0o755)
@@ -476,16 +490,23 @@ def test_common_git_directory_that_cannot_be_opened_fails_before_git_runs(sync, 
         r = run(sync)
     finally:
         common_dir.chmod(mode)
+    shim.unlink()
     assert r.returncode == 1, r.stdout + r.stderr
-    assert "cannot open" in r.stderr and "git fetch not run" in r.stderr
+    assert "cannot open" in r.stderr and f"git {step} not run" in r.stderr
     assert "flock failed" not in r.stderr and "worktree lock" not in r.stderr
-    assert local_sync_branches(root, env) == []
-    assert worktrees(root, env) == []
-    assert not Path(env["GH_CALLS"]).exists()
+    assert ("worktree retained for inspection" in r.stderr) == (step == "worktree remove")
+    # The trigger command is the last Git call: nothing ran once the directory was closed.
+    last = " " + trace.read_text().splitlines()[-1] + " "
+    assert pattern.strip("*'") in last, last
+    assert len(local_sync_branches(root, env)) == branches
+    assert len(worktrees(root, env)) == kept
+    assert (len(Path(env["GH_CALLS"]).read_text().splitlines())
+            if Path(env["GH_CALLS"]).exists() else 0) == prs
 
 
-def test_signal_during_cleanup_names_the_run_directory(sync, tmp_path):
-    """SIGTERM received while cleanup waits for the lock: exit 1, the worktree stays and
+@pytest.mark.parametrize("signal", ["TERM", "INT"])
+def test_signal_during_cleanup_names_the_run_directory(sync, tmp_path, signal):
+    """Signal received while cleanup waits for the lock: exit 1, the worktree stays and
     the message gives the directory to inspect."""
     root, origin, vault, env = sync
     real_flock = shutil.which("flock", path=env["PATH"])
@@ -496,14 +517,32 @@ def test_signal_during_cleanup_names_the_run_directory(sync, tmp_path):
         "#!/bin/sh\n"
         f"n=$(( $(cat '{count}' 2>/dev/null || echo 0) + 1 ))\n"
         f"echo \"$n\" > '{count}'\n"
-        "[ \"$n\" -eq 3 ] && kill -TERM \"$PPID\"\n"
+        f"[ \"$n\" -eq 3 ] && kill -{signal} \"$PPID\"\n"
         f"exec '{real_flock}' \"$@\"\n")
     flock.chmod(0o755)
     r = run(sync)
     assert r.returncode == 1, r.stdout + r.stderr
     retained = worktrees(root, env)
     assert len(retained) == 1
-    assert f"interrupted during cleanup; inspect {retained[0].parent}" in r.stderr
+    assert (f"Error: interrupted during cleanup; inspect {retained[0].parent}"
+            in r.stderr.splitlines()), r.stderr
+    assert len(Path(env["GH_CALLS"]).read_text().splitlines()) == 1
+
+
+@pytest.mark.parametrize("signal", ["TERM", "INT"])
+def test_signal_after_worktree_removal_does_not_fail_a_cleaned_run(sync, tmp_path, signal):
+    """Signal received once the worktree is gone: nothing is left to report, the run
+    finishes its cleanup and exits 0."""
+    root, origin, vault, env = sync
+    real_rmdir = shutil.which("rmdir", path=env["PATH"])
+    rmdir = tmp_path / "bin" / "rmdir"
+    rmdir.write_text(f"#!/bin/sh\nkill -{signal} \"$PPID\"\nexec '{real_rmdir}' \"$@\"\n")
+    rmdir.chmod(0o755)
+    r = run(sync)
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert "interrupted during cleanup" not in r.stderr
+    assert worktrees(root, env) == []
+    assert run_dirs(tmp_path) == []
     assert len(Path(env["GH_CALLS"]).read_text().splitlines()) == 1
 
 

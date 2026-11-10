@@ -84,7 +84,9 @@ que Git laisse derrière lui (maintenance) ne le garde pas.
   la commande en cours : l’attente du verrou (120 s au plus) ou la commande Git lancée sous le
   verrou (un fetch lent, par exemple). Envoyé au groupe de processus, il arrête aussi `flock` ou
   Git, et le wrapper sort aussitôt. Reçu pendant le nettoyage final, il fait sortir le wrapper
-  en code 1 avec le message `interrupted during cleanup; inspect <dossier canon-sync.*>`.
+  en code 1 avec le message `interrupted during cleanup; inspect <dossier canon-sync.*>`. Une
+  fois le worktree retiré, le wrapper ignore SIGTERM et SIGINT : il termine son nettoyage et
+  sort en 0.
 - Un SIGKILL envoyé au seul processus du wrapper pendant une commande Git libère le verrou alors
   que cette commande tourne encore : un autre run peut alors la croiser.
 - Le verrou ne protège que les runs du wrapper. Un `git worktree add` ou `remove` lancé par une
@@ -133,6 +135,20 @@ git -C <monorepo> branch -D <branche>                               # branche lo
 Si le worktree contient du travail non commité, `git worktree remove` refuse : relire ce
 travail, puis ajouter `--force`. La branche locale d’une PR ouverte peut rester : un run réussi
 la laisse aussi.
+
+Un signal envoyé au groupe de processus pendant le `worktree remove` final peut laisser un
+worktree à moitié supprimé, encore inscrit. Si son fichier `.git` a disparu, `git worktree
+remove` répond `validation failed, cannot remove working tree`, même avec `--force`, et les deux
+autres commandes échouent aussi. Remplacer alors la première commande par ces deux-ci, puis
+reprendre la suite :
+
+```bash
+rm -rf <dossier canon-sync.*>/worktree
+git -C <monorepo> worktree prune
+```
+
+Le wrapper lance `worktree remove` sans `--force` : Git ne commence à supprimer qu’un worktree
+sans modification ni fichier non suivi.
 
 ## Activation initiale (à exécuter UNE fois par VPS DEV)
 
@@ -224,14 +240,15 @@ crontab -l | grep sync-canon-mirrors
 - Message `flock failed (code N)` : l’appel à `flock` a échoué (commande absente, par exemple).
   Corriger la cause ; le run n’a pas lancé la commande Git de cette étape.
 - Message `cannot open … for locking` : le répertoire Git commun n’a pas pu être ouvert (droits,
-  dépôt déplacé). Le run n’a pas lancé la commande Git de cette étape.
+  dépôt déplacé pendant le run). Le run n’a pas lancé la commande Git de cette étape.
 - Message `interrupted during cleanup` : le run a reçu un signal pendant son nettoyage. Son
-  résultat (PR ouverte, ou « aucun écart ») est acquis ; le dossier indiqué reste à retirer.
+  résultat (PR ouverte, ou « aucun écart ») est acquis ; le dossier indiqué reste à retirer. Il
+  peut être vide ou contenir le worktree, entier ou à moitié supprimé.
 - Message `failed to read .git/worktrees/<id>/commondir`, `could not create directory of
   '.git/worktrees/<id>'` ou `bad object worktrees/<id>/HEAD` : une autre session administrait un
   worktree au même instant. Le cycle suivant repart d’une branche neuve.
 - « Verrou des worktrees » liste ce qu’un run laisse après un verrou non obtenu ou une erreur
-  de `flock`, et donne les commandes de retrait valables dans tous les cas.
+  de `flock`, et donne les commandes de retrait, y compris pour un worktree à moitié supprimé.
 
 ### Drift permanent (PR auto mergée puis re-créée demain)
 

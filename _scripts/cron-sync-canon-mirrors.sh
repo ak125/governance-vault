@@ -100,6 +100,9 @@ finish() {
     echo "Error: worktree retained for inspection: $WORKTREE" >&2
     exit 1
   fi
+  # Worktree retire : il ne reste que deux commandes courtes. Un signal recu maintenant
+  # n'a plus rien a signaler ; l'ignorer plutot que sortir en 1 sur un run nettoye.
+  trap '' INT TERM
   rmdir "$RUN_DIR"
   if [[ "$NO_CHANGES" == true ]]; then
     # Supprime uniquement notre ref sans commit nouveau, si elle n'a pas bouge.
