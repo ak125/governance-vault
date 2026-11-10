@@ -2,7 +2,7 @@
 
 > Regles de gouvernance du vault lui-meme au 2026-11-07 (G1 reecrite par [[ADR-101-vault-decides-canon-authority|ADR-101]], G4 par [[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4|ADR-102]], G1 et G4.2 amendees par [[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]], G4 completee par [[ADR-123-fusion-automatique-conditionnelle-perimetre-adopte|ADR-123]])
 > **Version**: 3.3.0 | **Status**: CANON
-> **Taxonomie**: G = Governance (G1-G4 = vault ici, G5-G8 = processus dans rules-governance-process.md)
+> **Taxonomie**: G = Governance (G1-G4 = vault ici, G5-G10 = processus dans rules-governance-process.md)
 
 ---
 
@@ -176,7 +176,7 @@ l'execute). Il n'y a pas de kill-switch : `AI_VAULT_WRITE` est retire (ADR-102 D
 ## References
 
 - **rules-technical.md** - T1-T7: Regles techniques code
-- **rules-governance-process.md** - G5-G8: Regles de gouvernance processus
+- **rules-governance-process.md** - G5-G10: Regles de gouvernance processus
 - **rules-ai-cos.md** - AI1-AI10: Regles d'or agents IA
 - **_scripts/check-orphans.sh** - Enforcement G2
 - **_scripts/check-ci-read-only.py** - Enforcement G4 (point 3)
@@ -187,5 +187,5 @@ l'execute). Il n'y a pas de kill-switch : `AI_VAULT_WRITE` est retire (ADR-102 D
 
 ---
 
-_Derniere mise a jour: 2026-11-07 (ADR-123)_
+_Derniere mise a jour: 2026-11-10 (renvoi G5-G10 ; aucune regle changee). Precedente : 2026-11-07 (ADR-123)_
 _Status: CANON - Gouvernance du vault lui-meme_

@@ -33,7 +33,7 @@ status: superseded
 >   qu'une fois activé.
 > - **Commandes du §3 « Auto »** : `gh pr merge`, avec ou sans `--admin`, n'est plus ouvert à un agent.
 
-> Décision opérationnelle 2026-04-28, scope = comportement agent Claude Code sur DEV VPS 46.224.118.55.
+> Décision opérationnelle 2026-04-28, scope = comportement agent Claude Code sur DEV VPS.
 > Modifie la politique de demande d'autorisation textuelle pour les merges routiniers vers `main`.
 > N'affecte ni le vault ni les déploiements PROD.
 

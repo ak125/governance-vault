@@ -1,8 +1,8 @@
-# Rules - Governance Process (G5-G8)
+# Rules - Governance Process (G5-G10)
 
 > Regles de gouvernance processus au 2026-11-01 (G5 reecrite par [[ADR-101-vault-decides-canon-authority|ADR-101]], amendee par [[ADR-118-retrait-methodes-bmad-superpowers-spec-kit|ADR-118]] et par [[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]])
-> **Version**: 3.2.1 | **Status**: CANON (regle du vault, normative au sens de G1)
-> **Taxonomie**: G = Governance (G1-G4 = vault dans rules-vault.md, G5-G8 = processus ici)
+> **Version**: 3.2.2 | **Status**: CANON (regle du vault, normative au sens de G1)
+> **Taxonomie**: G = Governance (G1-G4 = vault dans rules-vault.md, G5-G10 = processus ici)
 > **Complement de:** rules-technical.md (T1-T7 = technique, G5+ = processus)
 
 ---
@@ -122,11 +122,13 @@ blocks_until_expiry: [<slug_1>, <slug_2>]
 ---
 ```
 
-**Escalation automatique** : verdict expire non-renouvele → les `DO_NOT_START` qu'il bloque passent de `blocked` a `OPEN_FOR_REVIEW` automatiquement. Mecanisme : cron weekly `scripts/governance/check-verdict-expirations.sh` + alerte vers `__seo_event_log` (reutilise observabilite existante, pas de nouveau canary externe).
+**Effet de l'expiration** : un verdict expire et non renouvele ne justifie plus un blocage. Les `DO_NOT_START` qu'il bloque passent de `blocked` a `OPEN_FOR_REVIEW` a la date `expires_at`. `OPEN_FOR_REVIEW` signifie qu'un nouveau debat est requis avant toute action ; l'entree ne devient pas une priorite.
 
-### Precedent immediat
+**Constat de l'expiration : manuel.** Aucun automatisme n'execute ce passage. `scripts/governance/check-verdict-expirations.sh` (monorepo) lit `ledger/verdicts/*.md` et classe chaque verdict `OK`, `SOON` (moins de 14 jours) ou `EXPIRED` : il produit un rapport, sort toujours en 0, n'ecrit pas dans `__seo_event_log` et ne modifie aucune liste `DO_NOT_START`. Aucun cron ni workflow ne le planifie. La planification hebdomadaire et l'alerte prevues par [[ADR-081-doctrine-agility-amendments|ADR-081]] n'ont pas ete livrees (ecart consigne dans sa reconciliation du 2026-11-10) ; tant qu'elles ne le sont pas, l'expiration se constate en lancant ce script a la main.
 
-Le verdict `conversion_funnel` (05-20 PR #652, value=0.0017) doit recevoir son header YAML retroactif avec `expires_at: 2026-08-12`. A cette date sans re-mesure, les 3 `DO_NOT_START` qu'il bloque (`r5-diagnostic-engine`, `new-seo-platform`, `new-meta-architecture-adr`) deviennent `OPEN_FOR_REVIEW`.
+### Precedent
+
+Le verdict [[2026-05-20-conversion-funnel-organic]] (VERDICT-2026-001, PR #652, value=0.0017, mesure du 2026-05-20) porte son header YAML avec `expires_at: 2026-08-12`. Il a expire a cette date : aucun verdict de renouvellement n'existe dans `ledger/verdicts/`. Les 3 `DO_NOT_START` qu'il bloquait (`r5-diagnostic-engine`, `new-seo-platform`, `new-meta-architecture-adr`) sont donc en `OPEN_FOR_REVIEW`. Refaire la mesure ou rouvrir le debat revient a l'owner (reconciliation d'[[ADR-081-doctrine-agility-amendments|ADR-081]]).
 
 ### Raison
 
@@ -209,5 +211,5 @@ Apres chaque deliverable:
 
 ---
 
-_Derniere mise a jour: 2026-11-10 (G8 : mecanismes d'archivage existants ; aucune decision changee). Precedente : 2026-11-01 (ADR-121)_
+_Derniere mise a jour: 2026-11-10 (3.2.2 : G9 decrit le constat manuel de l'expiration, titre G5-G10 ; 3.2.1 : G8, mecanismes d'archivage existants ; aucune decision changee). Precedente : 2026-11-01 (ADR-121)_
 _Status: CANON - Complement de rules-technical.md_
