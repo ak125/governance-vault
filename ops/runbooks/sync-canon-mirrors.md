@@ -63,25 +63,48 @@ Git globale, identité de signature, clé ou entrée cron n’est modifiée par 
 
 Git n’écrit ni ne retire `.git/worktrees/<id>/` de façon atomique. Pendant un `git worktree add`
 ou un `git worktree remove`, une commande Git qui énumère les worktrees peut lire une entrée
-incomplète et échouer : `failed to read .git/worktrees/<id>/commondir` (code 128) ou
-`bad object worktrees/<id>/HEAD` (code 1).
+incomplète, ou un dossier disparu, et échouer :
+
+| Message de Git | Code |
+|---|---|
+| `failed to read .git/worktrees/<id>/commondir` | 128 |
+| `could not create directory of '.git/worktrees/<id>'` | 128 |
+| `bad object worktrees/<id>/HEAD` | 1 |
 
 Le wrapper passe donc ses trois commandes concernées (fetch vers la branche du run,
 `worktree add`, `worktree remove`) sous un verrou `flock` posé sur le répertoire Git commun du
-dépôt. Aucun fichier n’est créé.
+dépôt. Aucun fichier n’est créé. Le verrou est tenu par le wrapper, pas par Git : un processus
+que Git laisse derrière lui (maintenance) ne le garde pas.
 
 - Deux runs du wrapper ne se gênent plus : le second attend le verrou.
-- L’attente est bornée à 120 s. Au-delà, le run échoue (code 75) avec le message
-  `worktree lock not obtained within 120 s`. Le fetch réseau se fait sous le verrou : un fetch
-  lent d’un run peut faire expirer l’attente d’un autre.
+- L’attente est bornée à 120 s. Au-delà, la commande Git n’est pas lancée et le wrapper écrit
+  `worktree lock not obtained within 120 s … (git <commande> not run)`. Le fetch réseau se fait
+  sous le verrou : un fetch lent d’un run peut faire expirer l’attente d’un autre.
+- Un signal d’arrêt (SIGTERM) envoyé au wrapper pendant l’attente n’est traité qu’à la fin de celle-ci,
+  120 s au plus.
 - Le verrou ne protège que les runs du wrapper. Un `git worktree add` ou `remove` lancé par une
   autre session dans le même dépôt peut encore faire échouer un run. Dans l’autre sens, le
   `worktree add` et le `worktree remove` du wrapper peuvent faire échouer, pendant un court
   instant, un `fetch` ou une commande `git worktree` d’une session voisine. Ces échecs sont
   transitoires : relancer la commande.
-- Un run qui échoue à `worktree add` laisse la branche locale `govvault/cron-sync-canon-mirrors-…`
-  et un dossier `canon-sync.*` dans `$TMPDIR`. Le run suivant ne les reprend pas : il repart d’une
-  branche neuve. Les supprimer à la main après inspection.
+
+Ce qu’un run laisse quand le verrou n’est pas obtenu, ou quand la commande Git échoue, dépend de
+l’étape. Le dossier `canon-sync.*` est dans `$TMPDIR`, ou dans `/tmp` si la variable n’est pas
+définie (cas du cron).
+
+| Étape | Code de sortie (verrou non obtenu) | Ce qui reste |
+|---|---|---|
+| fetch | 75 | un dossier `canon-sync.*` vide ; aucune branche |
+| `worktree add` | 75 | la branche locale `govvault/cron-sync-canon-mirrors-…` et un dossier `canon-sync.*` vide |
+| `worktree remove` | 1 | le worktree dans `canon-sync.*/worktree` et la branche locale ; si le run a trouvé un écart, la branche distante et la PR, déjà ouverte |
+
+Au `worktree remove`, le code est 1 et non 75 : le run a déjà produit son résultat (PR ouverte,
+ou « aucun écart »), seul le nettoyage a échoué. Le message `worktree retained for inspection`
+donne le chemin. Un code 75 sans le message `worktree lock not obtained` vient de Git ou d’un
+hook, pas du verrou.
+
+Le run suivant ne reprend aucun de ces restes : il repart d’une branche neuve. Les supprimer à la
+main après inspection.
 
 ## Activation initiale (à exécuter UNE fois par VPS DEV)
 
@@ -163,12 +186,20 @@ crontab -l | grep sync-canon-mirrors
 
 ### Le run a échoué sur le verrou ou sur une entrée de worktree
 
-- Message `worktree lock not obtained within 120 s` (code 75) : un autre run du wrapper tenait le
-  verrou. Vérifier qu’aucun run n’est bloqué (`pgrep -af cron-sync-canon-mirrors`), puis laisser
-  le cycle suivant s’exécuter.
-- Message `failed to read .git/worktrees/<id>/commondir` ou `bad object worktrees/<id>/HEAD` :
-  une autre session administrait un worktree au même instant. Le cycle suivant repart d’une
-  branche neuve ; voir « Verrou des worktrees » pour ce que le run en échec a laissé.
+- Message `worktree lock not obtained within 120 s` : un autre run du wrapper tenait le verrou.
+  Le message nomme la commande qui n’a pas été lancée. Vérifier qu’aucun run n’est bloqué
+  (`pgrep -af cron-sync-canon-mirrors`).
+  - `git fetch not run` ou `git worktree add not run` (code 75) : rien n’a été produit ; laisser
+    le cycle suivant s’exécuter.
+  - `git worktree remove not run` (code 1) : le run a abouti, son worktree est resté. Si une PR
+    a été ouverte, elle est valide. Inspecter le worktree indiqué, puis le retirer :
+    `git -C <monorepo> worktree remove <chemin>`.
+- Message `flock failed (code N)` : `flock` lui-même a échoué (absent, répertoire Git commun
+  illisible). Corriger la cause ; le run n’a lancé aucune commande Git à cette étape.
+- Message `failed to read .git/worktrees/<id>/commondir`, `could not create directory of
+  '.git/worktrees/<id>'` ou `bad object worktrees/<id>/HEAD` : une autre session administrait un
+  worktree au même instant. Le cycle suivant repart d’une branche neuve.
+- Dans tous les cas, « Verrou des worktrees » liste ce que le run en échec a laissé.
 
 ### Drift permanent (PR auto mergée puis re-créée demain)
 

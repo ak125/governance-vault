@@ -229,6 +229,7 @@ def test_fetch_failure_does_not_change_shared_checkout(sync):
     before = snapshot(root, env)
     r = run(sync)
     assert r.returncode != 0
+    assert "worktree lock" not in r.stderr and "flock failed" not in r.stderr
     assert snapshot(root, env) == before
     assert worktrees(root, env) == []
     assert not Path(env["GH_CALLS"]).exists()
@@ -249,18 +250,15 @@ def test_concurrent_runs_use_distinct_branches_and_worktrees(sync):
     assert worktrees(root, env) == []
 
 
-def test_worktree_administration_holds_the_shared_repository_lock(sync, tmp_path):
-    """Each command that administers worktrees runs under the repository lock.
+def lock_probe(tmp_path, env, common_dir):
+    """Git shim: for each command that administers worktrees, record the lock state.
 
-    Git writes and removes .git/worktrees/<id>/ non-atomically: a fetch into a local
-    branch, a `worktree add` or a `worktree remove` that runs during another run's
-    `worktree add` or `worktree remove` can read a half-written entry and fail
-    (exit 128 or 1). A git shim records, for each of the three commands, whether
-    the lock on the common Git directory is held while the command runs, and whether
-    the command inherited the lock's file descriptor: a process it leaves behind
-    (git maintenance) would then keep the lock after the command has returned.
+    locked    : the lock on the common Git directory is held while the command runs;
+    UNLOCKED  : it is not;
+    INHERITED : the command holds the lock's file descriptor, so a process it leaves
+                behind (git maintenance) would keep the lock after the command returns;
+    NOPROC    : /proc is missing, the inheritance check cannot run.
     """
-    root, origin, vault, env = sync
     real_git = shutil.which("git", path=env["PATH"])
     trace = tmp_path / "git-trace"
     shim = tmp_path / "bin" / "git"
@@ -272,33 +270,134 @@ def test_worktree_administration_holds_the_shared_repository_lock(sync, tmp_path
         "  *' worktree remove '*) cmd=remove ;;\n"
         f"  *) exec '{real_git}' \"$@\" ;;\n"
         "esac\n"
-        f"if flock --shared --nonblock '{root}/.git' true; then state=UNLOCKED; else state=locked; fi\n"
+        f"if flock --shared --nonblock '{common_dir}' true; then state=UNLOCKED; else state=locked; fi\n"
+        "[ -d /proc/$$/fd ] || state=NOPROC\n"
         "for fd in /proc/$$/fd/*; do\n"
-        f"  [ \"$(readlink \"$fd\")\" = '{root}/.git' ] && state=INHERITED\n"
+        f"  [ \"$(readlink \"$fd\")\" = '{common_dir}' ] && state=INHERITED\n"
         "done\n"
         f"printf '%s %s\\n' \"$cmd\" \"$state\" >> '{trace}'\n"
         f"exec '{real_git}' \"$@\"\n")
     shim.chmod(0o755)
+    return trace
+
+
+def test_worktree_administration_holds_the_shared_repository_lock(sync, tmp_path):
+    """Each command that administers worktrees runs under the repository lock.
+
+    Git writes and removes .git/worktrees/<id>/ non-atomically: a fetch into a local
+    branch, a `worktree add` or a `worktree remove` that runs during another run's
+    `worktree add` or `worktree remove` can read a half-written entry and fail
+    (exit 128 or 1).
+    """
+    root, origin, vault, env = sync
+    trace = lock_probe(tmp_path, env, root / ".git")
     r = run(sync)
     assert r.returncode == 0, r.stdout + r.stderr
     assert trace.read_text().splitlines() == ["fetch locked", "add locked", "remove locked"]
     assert worktrees(root, env) == []
 
 
-def test_unavailable_lock_fails_the_run_with_a_diagnostic(sync, tmp_path):
+def test_lock_is_the_common_git_directory_when_the_checkout_is_a_linked_worktree(sync, tmp_path):
+    """Runs started from two worktrees of one repository must share one lock."""
+    root, origin, vault, env = sync
+    linked = tmp_path / "linked"
+    git(root, env, "worktree", "add", "-q", "-b", "linked", str(linked))
+    env["MONOREPO_ROOT"] = str(linked)
+    trace = lock_probe(tmp_path, env, root / ".git")
+    r = run(sync)
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert trace.read_text().splitlines() == ["fetch locked", "add locked", "remove locked"]
+    assert worktrees(root, env) == [linked]
+
+
+def failing_flock(tmp_path, env, call, code):
+    """flock stand-in: the call numbered `call` fails with `code`, the others are real."""
+    real_flock = shutil.which("flock", path=env["PATH"])
+    count = tmp_path / "flock-calls"
+    flock = tmp_path / "bin" / "flock"
+    flock.write_text(
+        "#!/bin/sh\n"
+        f"n=$(( $(cat '{count}' 2>/dev/null || echo 0) + 1 ))\n"
+        f"echo \"$n\" > '{count}'\n"
+        f"if [ \"$n\" -eq {call} ]; then\n"
+        # flock, lock never obtained: exits with the requested conflict code, 1 by default.
+        f"  case \" $* \" in *' --timeout 120 --conflict-exit-code 75 '*) exit {code} ;; esac\n"
+        "  exit 1\n"
+        "fi\n"
+        f"exec '{real_flock}' \"$@\"\n")
+    flock.chmod(0o755)
+
+
+def local_sync_branches(root, env):
+    return git(root, env, "for-each-ref", "--format=%(refname:short)", "refs/heads/govvault/").splitlines()
+
+
+def test_lock_not_obtained_at_fetch_fails_the_run_before_any_change(sync, tmp_path):
     root, origin, vault, env = sync
     dirty(root, env)
-    flock = tmp_path / "bin" / "flock"
-    # flock, lock never obtained: exits with the requested conflict code, 1 by default.
-    flock.write_text("#!/bin/sh\ncase \" $* \" in *' --timeout 120 --conflict-exit-code 75 '*) exit 75 ;; esac\nexit 1\n")
-    flock.chmod(0o755)
+    failing_flock(tmp_path, env, call=1, code=75)
     before = snapshot(root, env)
     r = run(sync)
     assert r.returncode == 75, r.stdout + r.stderr
     assert "worktree lock not obtained within 120 s" in r.stderr
     assert "git fetch not run" in r.stderr
     assert snapshot(root, env) == before
+    assert local_sync_branches(root, env) == []
     assert worktrees(root, env) == []
+    assert not Path(env["GH_CALLS"]).exists()
+
+
+def test_lock_not_obtained_at_worktree_add_leaves_only_the_local_branch(sync, tmp_path):
+    root, origin, vault, env = sync
+    dirty(root, env)
+    failing_flock(tmp_path, env, call=2, code=75)
+    before = snapshot(root, env)
+    r = run(sync)
+    assert r.returncode == 75, r.stdout + r.stderr
+    assert "git worktree add not run" in r.stderr
+    assert snapshot(root, env) == before
+    assert len(local_sync_branches(root, env)) == 1
+    assert worktrees(root, env) == []
+    assert remote_branches(origin, env) == []
+    assert not Path(env["GH_CALLS"]).exists()
+
+
+def test_lock_not_obtained_at_worktree_remove_keeps_the_worktree_after_the_pr(sync, tmp_path):
+    """The PR is already open when cleanup starts: exit 1, not 75, and nothing is undone."""
+    root, origin, vault, env = sync
+    dirty(root, env)
+    failing_flock(tmp_path, env, call=3, code=75)
+    before = snapshot(root, env)
+    r = run(sync)
+    assert r.returncode == 1, r.stdout + r.stderr
+    assert "git worktree remove not run" in r.stderr
+    assert "worktree retained for inspection" in r.stderr
+    assert snapshot(root, env) == before
+    assert len(worktrees(root, env)) == 1
+    assert len(remote_branches(origin, env)) == 1
+    assert len(Path(env["GH_CALLS"]).read_text().splitlines()) == 1
+
+
+def test_flock_error_is_not_reported_as_a_lock_timeout(sync, tmp_path):
+    root, origin, vault, env = sync
+    failing_flock(tmp_path, env, call=1, code=66)
+    r = run(sync)
+    assert r.returncode == 66, r.stdout + r.stderr
+    assert "flock failed (code 66)" in r.stderr
+    assert "worktree lock not obtained" not in r.stderr
+    assert worktrees(root, env) == []
+    assert not Path(env["GH_CALLS"]).exists()
+
+
+def test_git_exit_code_75_is_not_reported_as_a_lock_timeout(sync):
+    """A hook that makes `git worktree add` exit 75 is a Git failure, not a lock timeout."""
+    root, origin, vault, env = sync
+    hook = root / ".git/hooks/post-checkout"
+    hook.write_text("#!/bin/sh\nexit 75\n")
+    hook.chmod(0o755)
+    r = run(sync)
+    assert r.returncode == 75, r.stdout + r.stderr
+    assert "worktree lock" not in r.stderr and "flock failed" not in r.stderr
     assert not Path(env["GH_CALLS"]).exists()
 
 

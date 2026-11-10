@@ -41,22 +41,39 @@ NO_CHANGES=false
 # Git n'ecrit ni ne retire .git/worktrees/<id>/ de facon atomique. Pendant un
 # `worktree add` ou un `worktree remove`, une commande qui enumere les worktrees
 # (fetch vers une branche locale, worktree add, worktree remove) peut lire une entree
-# incomplete et echouer :
-#   « failed to read .git/worktrees/<id>/commondir: Success »            (code 128)
-#   « failed to read .git/worktrees/<id>/commondir: No such file or … »  (code 128)
-#   « bad object worktrees/<id>/HEAD »                                   (code 1)
+# incomplete ou un dossier disparu et echouer :
+#   « failed to read .git/worktrees/<id>/commondir: Success »                      (code 128)
+#   « failed to read .git/worktrees/<id>/commondir: No such file or … »            (code 128)
+#   « could not create directory of '.git/worktrees/<id>': No such file or … »     (code 128)
+#   « bad object worktrees/<id>/HEAD »                                             (code 1)
 # Ces trois commandes passent donc par un verrou partage entre les runs de ce script,
-# pose sur le depot Git commun (aucun fichier cree). Verrou non obtenu en 120 s =
-# echec du run (code 75). Le verrou ne couvre pas les commandes Git lancees hors de
-# ce script : voir le runbook, « Verrou des worktrees ».
+# pose sur le depot Git commun (aucun fichier cree). Le verrou est tenu par le
+# descripteur 9 de ce script, que Git n'herite pas (9<&-) : un code de sortie de Git ne
+# se confond pas avec un verrou non obtenu, et un processus que Git laisse derriere lui
+# (maintenance) ne garde pas le verrou. Verrou non obtenu en 120 s : la commande Git
+# n'est pas lancee et worktree_admin rend 75. Le run sort alors en 75 au fetch et au
+# `worktree add` (rien n'est produit), en 1 au `worktree remove` (le resultat du run est
+# deja produit, le worktree reste : voir finish). Le verrou ne couvre pas les commandes
+# Git lancees hors de ce script : voir le runbook, « Verrou des worktrees ».
 GIT_COMMON_DIR="$(git -C "$MONOREPO_ROOT" rev-parse --path-format=absolute --git-common-dir)"
 worktree_admin() {
-  local result=0
-  flock --close --timeout 120 --conflict-exit-code 75 "$GIT_COMMON_DIR" \
-    git -C "$MONOREPO_ROOT" "$@" || result=$?
-  if (( result == 75 )); then
-    echo "Error: worktree lock not obtained within 120 s on $GIT_COMMON_DIR (git $1 not run)." >&2
+  local label="$1" result=0
+  if [[ "$1" == worktree ]]; then
+    label="worktree $2"
   fi
+  exec 9<"$GIT_COMMON_DIR"
+  flock --timeout 120 --conflict-exit-code 75 9 || result=$?
+  if (( result != 0 )); then
+    exec 9<&-
+    if (( result == 75 )); then
+      echo "Error: worktree lock not obtained within 120 s on $GIT_COMMON_DIR (git $label not run)." >&2
+    else
+      echo "Error: flock failed (code $result) on $GIT_COMMON_DIR (git $label not run)." >&2
+    fi
+    return "$result"
+  fi
+  git -C "$MONOREPO_ROOT" "$@" 9<&- || result=$?
+  exec 9<&-
   return "$result"
 }
 
@@ -70,6 +87,8 @@ finish() {
   fi
   cd "$MONOREPO_ROOT"
   # Sans --force : si un hook ou une intervention a laisse du travail, le garder.
+  # Code 1 quelle que soit la cause (Git ou verrou) : a ce stade le run a deja produit
+  # son resultat, et c'est le worktree conserve qui demande une intervention.
   if ! worktree_admin worktree remove "$WORKTREE"; then
     echo "Error: worktree retained for inspection: $WORKTREE" >&2
     exit 1
