@@ -1,9 +1,9 @@
 ---
 id: ADR-082
 title: "Doctrine d'amélioration continue globale — lightweight advisory filter (amended Voie 3 post INC-2026-016)"
-status: proposed
+status: accepted
 date: "2026-05-27"
-decision_date: "2026-05-27"
+decision_date: "2026-11-10"
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
@@ -16,6 +16,29 @@ reviewed_by: ""
 ---
 
 # ADR-082 : Doctrine d'amélioration continue globale — lightweight advisory filter
+
+## Statut et réconciliation (2026-11-10)
+
+- **Statut** : Accepted (2026-11-10), comme doctrine consultative (A1). Le frontmatter portait
+  `decision_date: 2026-05-27` alors que le statut restait `proposed` : aucun commit de ratification
+  n'avait consigné cette décision. La date retenue est celle de la présente ratification. Statut
+  arrêté sur délégation de l'owner (message du 2026-11-10 : appliquer la meilleure approche aux
+  points ouverts de l'analyse du vault), dans une PR préparée par un agent (Claude CLI). La décision
+  est consignée par la fusion, par l'owner, de la tête qui porte ce commit
+  ([[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D4 et D7). Avant cette fusion,
+  ce statut décrit un candidat et ne modifie pas le canon de `main`.
+- **Décision acceptée** : le texte amendé « Voie 3 » : un filtre d'aide à la décision, appliqué au
+  cas par cas, jamais bloquant par défaut (A1) ; tout passage en bloquant suit la procédure d'A2.
+- **Ce que l'acceptation ne déclenche pas** : aucun gate ne devient bloquant. Le workflow
+  `vault-canon-exists.yml` du monorepo porte le commentaire « Flip to false after vault ratifies
+  ADR-082 » : ce commentaire contredit A1 et A2, il ne vaut pas instruction et doit être corrigé
+  côté monorepo.
+- **Écarts** : le skill `continuous-improvement-global` du monorepo emploie une liste de verdicts
+  simplifiée (elle contient `OWNER_DECISION`, absent des neuf verdicts du point 7).
+  [[2026-05-27-monorepo-pr765-adr082-authority-drift|INC-2026-016]] reste `status: open`.
+- **Preuves** : monorepo `ak125/nestjs-remix-monorepo` à `fd80dd33e7b37a41d4400ce22ec218c14e4d69e3`
+  (`origin/main` au 2026-11-10). Elles établissent la présence du code, pas ce qui est servi : ni la
+  base, ni PREPROD, ni PROD n'ont été interrogées.
 
 > **Amended Voie 3 (2026-05-27 post INC-2026-016)** — ce document est l'**amendement avant ratification** de la draft v15.4 du 2026-05-26. La draft originelle prévoyait Phase 3 ratchet bloquant (5 critères cumulatifs + owner GO). Suite à l'incident d'authority drift **[INC-2026-016](../../incidents/2026/2026-05-27-monorepo-pr765-adr082-authority-drift.md)** (monorepo PR #765 a déclaré "canon ADR-082" avant ratification vault), la décision Voie 3 ratifie ADR-082 uniquement en **mode lightweight advisory perpétuel**. Toute promotion future vers blocking gate exigera un **amendement vault séparé** (pas owner GO seul). Cf §Amendement Voie 3 ci-dessous.
 

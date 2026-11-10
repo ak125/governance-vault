@@ -1,9 +1,9 @@
 ---
 id: ADR-043
 title: "Plan F (DevSecOps) — cadre Phase 1 threat-model-first sur 3 sprints"
-status: proposed
+status: accepted
 date: 2026-05-06
-decision_date: null
+decision_date: "2026-11-10"
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
@@ -11,10 +11,38 @@ amends: []
 related_rules: ["G3", "Q1", "AP-12"]
 related_incidents: []
 related_adr: ["ADR-021", "ADR-028", "ADR-030", "ADR-040"]
-implementation_status: phase-0-closed-2026-05-06, phase-1-not-started
+implementation_status: sprint-1-closed-2026-05-08, sprints-2-3-not-delivered
 ---
 
 # ADR-043 — Plan F (DevSecOps) Phase 1 cadre
+
+## Statut et réconciliation (2026-11-10)
+
+- **Statut** : Accepted (2026-11-10), sur la règle de promotion que cet ADR se donne (« Promotion à
+  `accepted` post-Sprint 1 si ≥ 80% items livrés »), avec la réserve notée plus bas sur le critère
+  `npm audit`. `proposed` depuis le 2026-05-06, hors du délai de 30 jours de Q4
+  ([[rules-engineering-quality]]). Statut arrêté sur délégation de l'owner (message du 2026-11-10 :
+  appliquer la meilleure approche aux points ouverts de l'analyse du vault), dans une PR préparée
+  par un agent (Claude CLI). La décision est consignée par la fusion, par l'owner, de la tête qui
+  porte ce commit ([[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D4 et D7). Avant
+  cette fusion, ce statut décrit un candidat et ne modifie pas le canon de `main`.
+- **Décision acceptée** : le cadre de la Phase 1 du Plan F, threat-model-first, en trois sprints.
+- **Livré** : le Sprint 1, clos le 2026-05-08. [[2026-05-08-plan-F-sprint-1-close]] compte 9 items
+  planifiés et aucun non livré : 7 livrés dans le sprint (78 % si l'on ne compte que ceux-là) et 2
+  acquis avant le cadre. La note tient les critères 1 à 3 pour atteints et recommande la promotion
+  une fois `npm audit` remesuré. `gitleaks` figure dans `.github/workflows/ci.yml` et
+  `secrets-history-audit.yml` du monorepo.
+- **Non livré** : les sprints 2 et 3. Aucun fichier du monorepo ne mentionne `__app_audit_log`,
+  `cosign`, `syft`, `cyclonedx` ni `attest-build-provenance`.
+- **Réserve** : la remesure de `npm audit` (critère 4 de la note de clôture) n'a pas été retrouvée,
+  et cette PR ne la refait pas. L'acceptation ne l'attend plus : elle consigne que le cadre est la
+  décision en vigueur, pas que ce critère est tenu. Les revues à J+30, J+90 et J+180 sont échues
+  sans trace.
+- **Suite** : cet ADR prévoit qu'un écart significatif des sprints 2 ou 3 passe par un amendement.
+  Les replanifier demande donc un ADR qui amende celui-ci ; l'acceptation ne les relance pas.
+- **Preuves** : monorepo `ak125/nestjs-remix-monorepo` à `fd80dd33e7b37a41d4400ce22ec218c14e4d69e3`
+  (`origin/main` au 2026-11-10). Elles établissent la présence du code, pas ce qui est servi : ni la
+  base, ni PREPROD, ni PROD n'ont été interrogées.
 
 ## Contexte
 

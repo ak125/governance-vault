@@ -1,9 +1,9 @@
 ---
 id: ADR-044
 title: "SEO Strategy 2026 — priorité contenu R6/R8/R7, R3 remediation only, 7 vagues"
-status: proposed
+status: rejected
 date: 2026-05-07
-decision_date: null
+decision_date: "2026-11-10"
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
@@ -11,10 +11,28 @@ amends: []
 related_rules: ["G1", "G2", "G3", "Q1", "AP-04", "AP-08"]
 related_incidents: []
 related_adr: ["ADR-025", "ADR-026", "ADR-027", "ADR-031", "ADR-033", "ADR-036", "ADR-040"]
-implementation_status: v0a-in-progress-pr340
+implementation_status: v0a-delivered-under-adr-045, rest-not-started, rejected-2026-11-10
 ---
 
 # ADR-044 — SEO Strategy 2026 (priorité contenu R6/R8/R7, R3 remediation only)
+
+## Statut et réconciliation (2026-11-10)
+
+- **Statut** : Rejected (2026-11-10). `proposed` depuis le 2026-05-07, hors du délai de 30 jours de
+  Q4 ([[rules-engineering-quality]]). Statut arrêté sur délégation de l'owner (message du 2026-11-10
+  : appliquer la meilleure approche aux points ouverts de l'analyse du vault), dans une PR préparée
+  par un agent (Claude CLI). La décision est consignée par la fusion, par l'owner, de la tête qui
+  porte ce commit ([[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D4 et D7). Avant
+  cette fusion, ce statut décrit un candidat et ne modifie pas le canon de `main`.
+- **Motif** : la stratégie n'a jamais été adoptée. De ses vagues, seule V0.A a été livrée, et elle
+  est portée par [[ADR-045-seo-monitoring-cron-v0|ADR-045]]. Son point central, la priorité de
+  contenu donnée à R6, est rendu caduc par [[ADR-103-r6-guide-achat-consolidation-into-r3|ADR-103]],
+  accepté, qui consolide le guide d'achat R6 dans R3.
+- **Ce qui reste valable ailleurs** : le cron de monitoring, décidé par ADR-045 (accepté dans la
+  même PR). Les ADR acceptés qui citent celui-ci (ADR-046, ADR-063, ADR-103) le citent comme
+  contexte.
+- **Effet** : contexte historique au sens de G5 ([[rules-governance-process]]) ; aucune
+  implémentation ne peut s'en réclamer. Une nouvelle priorisation des rôles passe par un nouvel ADR.
 
 ## Contexte
 
@@ -107,7 +125,7 @@ Distribution attendue J+90 : R6 40% / R8 30% / R3 ≤ 20% (plafond dur, incl. S2
 
 ## Statut
 
-- **Statut** : proposed (PR vault en cours)
+- **Statut** : rejected (2026-11-10) — voir « Statut et réconciliation (2026-11-10) » en tête de document
 - **Implémentation** :
   - Plan détaillé écrit (monorepo `.claude/plans/`)
   - V0.A en cours — monorepo PR #340 (cron daily-fetch + cron/health endpoint)
