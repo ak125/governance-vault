@@ -60,7 +60,7 @@ Index des incidents et post-mortems. Cette MOC est la porte d'entree pour tout e
 
 - [[2026-04-23-paybox-client-regression-post-inc002]] — **FALSE POSITIVE** — alerte régression Paybox post-INC-2026-002. Hypothèse SEV1 invalidée 3h après ouverture par 6 preuves empiriques (tunnel 100 % fonctionnel). Vraie cause = conversion commerciale ~10 % vs 30-40 % norme e-commerce. Confirmé 2026-05-08 : 4 paiements clients réels depuis cliff (GMV 634.66 €, dernier 2026-05-07). Renumeroté INC-010 → INC-014 (collision avec 503 vehicle).
 - [[2026-04-23-ci-cwv-backend-boot-crash]] — **RÉSOLU** — root cause trouvée : `APP_URL` manquant dans `.github/workflows/perf-gates.yml`. Fix 1 ligne via monorepo PR #123. Backend crash silencieux dû à `bufferLogs:true` masquant la `ConfigurationException`.
-- [[2026-04-22-redis-public-exposure-bsi]] — Redis DEV sur `46.224.118.55:6379` exposé publiquement sans auth, signalé par BSI (CERT-Bund). Remédiation 2 couches (Hetzner Cloud Firewall + alignement compose files). Zero compromission détectée.
+- [[2026-04-22-redis-public-exposure-bsi]] — Redis DEV (port `6379`) exposé publiquement sans auth, signalé par BSI (CERT-Bund). Remédiation 2 couches (Hetzner Cloud Firewall + alignement compose files). Zero compromission détectée.
 
 ### Low
 

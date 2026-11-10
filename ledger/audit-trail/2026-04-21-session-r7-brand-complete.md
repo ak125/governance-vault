@@ -47,7 +47,7 @@ Ship complet de l'architecture R7 constructeur canonical : 36/36 pages PUBLISH a
 ### Déploiement PROD
 
 - Tag : `v2026.04.21-r7-popular-parts-fix` (déployé 2026-04-21 ~13:30 UTC)
-- VPS : 49.12.233.2 (via `deploy-prod.yml`)
+- VPS : hôte PROD (via `deploy-prod.yml`)
 - Image : `massdoc/nestjs-remix-monorepo:production`
 - Status : Success (32m 56s)
 

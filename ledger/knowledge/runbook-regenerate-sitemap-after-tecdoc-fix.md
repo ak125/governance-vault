@@ -27,7 +27,7 @@ Après que les **3 PRs code-only de l'incident INC-2026-012** soient mergées ET
 
 ### Déploiement DEV validé
 
-- [ ] Les 3 PRs sont déployées sur DEV preprod (46.224.118.55) — image `massdoc/nestjs-remix-monorepo:preprod`
+- [ ] Les 3 PRs sont déployées sur DEV preprod — image `massdoc/nestjs-remix-monorepo:preprod`
 - [ ] `curl -sI https://dev.automecanik.com/pieces-purflux.html` → **HTTP 410** + `Content-Type: text/html` + `X-Robots-Tag: noindex`
 - [ ] `curl -sI https://dev.automecanik.com/pieces/filtre-a-huile-7/audi-22/a3-i-22030/type-19354.html` → **HTTP 410** (type_prefix_fallback)
 - [ ] `curl -sI https://dev.automecanik.com/pieces/filtre-a-huile-7/audi-22/a3-i-22030/-12345.html` → **HTTP 410** (missing_alias)
@@ -115,7 +115,7 @@ L'archive reste disponible pendant ≥ 30 jours avant drop (cf. section CLEANUP 
 **Pré-check :** PR #135 bien mergée sur main ET déployée en PROD (tag push requis, pas seulement DEV).
 
 ```bash
-# PROD (49.12.233.2) uniquement — DEV est déjà couvert par le smoke test
+# PROD uniquement — DEV est déjà couvert par le smoke test
 curl -X POST https://www.automecanik.com/api/sitemap/v10/generate-all \
   -H "Authorization: Bearer ${ADMIN_TOKEN}" \
   -H "Content-Type: application/json"
@@ -131,7 +131,7 @@ curl "https://www.automecanik.com/api/sitemap/v10/status/${JOB_ID}" \
   -H "Authorization: Bearer ${ADMIN_TOKEN}"
 
 # Logs backend PROD
-ssh 49.12.233.2 "docker compose logs -f backend | grep -E '(Filtered out|URLs pieces INDEX|Written sitemap)'"
+ssh <hote-prod> "docker compose logs -f backend | grep -E '(Filtered out|URLs pieces INDEX|Written sitemap)'"
 ```
 
 **Critères de succès :**
@@ -201,7 +201,7 @@ L'incident passe de `resolved-with-followup` à `closed` quand :
 
 ### Run #1 — 2026-04-23 (première exécution, INC-2026-012 N3)
 
-**Trigger** : `POST https://www.automecanik.com/api/sitemap/v10/generate-all` lancé par owner SEO depuis VPS PROD `49.12.233.2` à 19:42 UTC.
+**Trigger** : `POST https://www.automecanik.com/api/sitemap/v10/generate-all` lancé par owner SEO depuis VPS PROD à 19:42 UTC.
 
 **Réponse API** (HTTP 201, durée 18 748 ms) :
 

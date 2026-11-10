@@ -30,7 +30,7 @@ Contraintes :
 ```
 ┌─────────────────────┐     ┌──────────────────────┐     ┌─────────────────────┐
 │       DEV VPS       │     │      PROD VPS        │     │    AI-COS VPS       │
-│   46.224.118.55     │     │    49.12.233.2       │     │    (nouveau)        │
+│                     │     │                      │     │    (nouveau)        │
 │                     │     │                      │     │                     │
 │ Claude Code IDE     │     │ NestJS + Remix       │     │ Dashboard Remix     │
 │ MCP Supabase (R/W)  │     │ Redis (sessions)     │     │ (READ-ONLY)        │

@@ -360,7 +360,7 @@ Incident P1 pendant rollout :
 - scope_requested : enrichir R8 + éliminer duplicate content + contrôle
 - scope_actually_scanned : pipeline R8 complet, RAG véhicule (8 files), R7 precedent, R6 pattern, governance-vault schemas, CLAUDE.md rules
 - files_read_count : ~20 fichiers
-- excluded_paths : backend tests, PROD VPS (49.12.233.2), frontend routes hors R8
+- excluded_paths : backend tests, PROD VPS, frontend routes hors R8
 - remaining_unknowns : 
   - Top 100 source (GSC vs GA4 vs heuristique SQL) → décidé au Stage 5
   - Qui porte le CODEOWNER vehicle-schema pour high-risk proposals → à définir

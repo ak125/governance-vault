@@ -62,7 +62,7 @@ Concrètement :
 
 ### Option B: Cron système sur DEV VPS
 
-**Description**: `crontab` système sur 46.224.118.55 qui exécute `_scripts/weekly-lint.sh` et push les résultats manuellement.
+**Description**: `crontab` système sur l'hôte DEV qui exécute `_scripts/weekly-lint.sh` et push les résultats manuellement.
 
 **Avantages**:
 - Contrôle total, zéro dépendance GitHub

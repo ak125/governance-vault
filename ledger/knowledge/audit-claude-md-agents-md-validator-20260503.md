@@ -67,7 +67,7 @@ verdict: SCOPE_SCANNED (Phase A + B livrées, suite future P3)
 - **B1** `scripts/agents/validate-agents-md.sh` (nouveau, ~350 lignes bash, `set -uo pipefail`)
   - 5 modes : `--all` / `--staged` / `--diff <ref>` / `--file <path> [--type agents-md]` / `--self-test`
   - **9 self-tests embarqués** (tmpfile heredoc, pas de `/tmp` externe) :
-    1. BLOCK IP brute (3 VPS hardcoded `46.224.118.55`, `49.12.233.2`, `178.104.1.118`)
+    1. BLOCK IP brute (adresses des 3 VPS en dur)
     2. BLOCK UUID complet (regex format complet `[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}`)
     3. BLOCK token/clé inline (case-insensitive : `(token|api[_-]?key|secret)[[:space:]]*[:=][[:space:]]*[A-Za-z0-9_.-]+`)
     4. BLOCK ADR « à créer »
@@ -204,7 +204,7 @@ Le `--all` retourne 3 WARN advisory (non bloquants) :
 
 ### P3 — Cleanup rétroactif des IP hardcodées existantes
 
-CMO / CTO / SEO-content / SEO-qa AGENTS.md contiennent toujours `46.224.118.55:3000` et `178.104.1.118:3100` en dur. Volontairement non touchés dans cette PR (scope discipline). **Le validateur ne les flag pas** car les anti-patterns ne s'appliquent qu'aux lignes ajoutées, pas à l'existant.
+CMO / CTO / SEO-content / SEO-qa AGENTS.md contiennent toujours l'adresse de l'hôte DEV (port `3000`) et celle de l'hôte AI-COS (port `3100`) en dur. Volontairement non touchés dans cette PR (scope discipline). **Le validateur ne les flag pas** car les anti-patterns ne s'appliquent qu'aux lignes ajoutées, pas à l'existant.
 
 **Action** : remplacer par références env vars (`NESTJS_DEV_URL`, `PAPERCLIP_API_URL`, `RAG_API_BASE`) + contrats conditionnels. PR séparée, 1 fichier à la fois pour faciliter review.
 

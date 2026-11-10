@@ -25,7 +25,7 @@ zone: principal_vps
 
 | Field | Value |
 |-------|-------|
-| Zone | principal_vps (49.12.233.2) |
+| Zone | principal_vps |
 | Runtime | Playwright (Chromium) |
 | Output | report_only |
 | Schedule | Toutes les 4 heures (6x/jour) |
