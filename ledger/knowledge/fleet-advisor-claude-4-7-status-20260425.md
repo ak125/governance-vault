@@ -67,7 +67,7 @@ Remarque : Code-Review agent `9947ef2b-2d05-45a8-9513-2bee9902994f` (status=erro
 ### 3.1 ⏸ Bloqué sur board approval (non technique)
 
 - [ ] **Approuver l'hire approval** `37e918e7-199f-41fc-bada-e410a12d08f2` (type `hire_agent`, status `pending`) :
-  - UI : http://<hote-aicos>:3100/approvals → cliquer Approve sur "Advisor"
+  - UI : `http://<hote-aicos>:3100/approvals` → cliquer Approve sur "Advisor"
   - **Recommandation pré-approve** : décider du **budget** (cf. § 4 ci-dessous)
 
 ### 3.2 Tasks restants du plan (post-approve)

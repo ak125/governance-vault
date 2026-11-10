@@ -22,21 +22,21 @@ def write(vault: Path, rel: str, text: str) -> None:
     path.write_text(text, encoding="utf-8")
 
 
-def run(vault: Path, *args: str) -> subprocess.CompletedProcess:
+def run(*args: str, cwd: Path | None = None) -> subprocess.CompletedProcess:
     return subprocess.run(
-        [sys.executable, str(SCRIPT), str(vault), *args],
-        capture_output=True, text=True, check=False,
+        [sys.executable, str(SCRIPT), *args],
+        capture_output=True, text=True, check=False, cwd=cwd,
     )
 
 
 def findings(vault: Path) -> tuple[int, list[dict]]:
-    proc = run(vault, "--json")
+    proc = run(str(vault), "--json")
     return proc.returncode, json.loads(proc.stdout)["findings"]
 
 
 def test_public_address_warns_without_blocking_and_without_republishing_it(tmp_path):
     write(tmp_path, "ledger/knowledge/note.md", f"# Note\n\nServeur sur {PUBLIC}.\n")
-    proc = run(tmp_path, "--json")
+    proc = run(str(tmp_path), "--json")
     assert proc.returncode == 0
     data = json.loads(proc.stdout)
     assert data["check"] == "public-ip"
@@ -50,9 +50,19 @@ def test_public_address_warns_without_blocking_and_without_republishing_it(tmp_p
 def test_one_finding_per_file_with_every_line(tmp_path):
     write(tmp_path, "a.md", f"{PUBLIC}\nrien\n{OTHER_PUBLIC} et {PUBLIC}\n")
     write(tmp_path, "b.md", "rien\n")
-    code, found = findings(tmp_path)
-    assert code == 0
-    assert [(f["file"], f["lines"]) for f in found] == [("a.md", [1, 3])]
+    proc = run(str(tmp_path), "--json")
+    data = json.loads(proc.stdout)
+    assert proc.returncode == 0
+    assert [(f["file"], f["lines"]) for f in data["findings"]] == [("a.md", [1, 3])]
+    # Le résumé compte les fichiers (un finding par fichier), pas les lignes.
+    assert data["summary"]["warning"] == 1
+
+
+def test_findings_are_sorted_by_path(tmp_path):
+    for rel in ("z.md", "a/b.md", "m.md", "a.md"):
+        write(tmp_path, rel, f"{PUBLIC}\n")
+    _, found = findings(tmp_path)
+    assert [f["file"] for f in found] == ["a.md", "a/b.md", "m.md", "z.md"]
 
 
 def test_message_is_stable_across_files_and_lines(tmp_path):
@@ -72,6 +82,12 @@ def test_message_is_stable_across_files_and_lines(tmp_path):
     pytest.param(f"VPS ({PUBLIC})", id="parentheses"),
     pytest.param(f"`{PUBLIC}`", id="code"),
     pytest.param(f"| DEV {PUBLIC} |", id="cellule-de-table"),
+    pytest.param(f"_{PUBLIC}_", id="italique-markdown"),
+    pytest.param(f"redis_host_{PUBLIC}", id="apres-soulignement"),
+    pytest.param(f"{PUBLIC}_redis", id="avant-soulignement"),
+    pytest.param(f"static.{PUBLIC}.clients.example.net", id="nom-rdns"),
+    pytest.param(f"voir...{PUBLIC}", id="apres-points-de-suspension"),
+    pytest.param(f"de 10.0.0.5 vers {PUBLIC}", id="apres-une-adresse-privee"),
 ])
 def test_public_address_is_found_in_context(tmp_path, line):
     write(tmp_path, "note.md", line + "\n")
@@ -95,42 +111,78 @@ def test_public_address_is_found_in_context(tmp_path, line):
     pytest.param("build 1.2.3.4.5", id="cinq-segments"),
     pytest.param("08.8.8.8", id="zero-initial"),
     pytest.param("section 8.8.8", id="trois-segments"),
+    pytest.param(f"{PUBLIC}a", id="suivie-d-une-lettre"),
+    pytest.param("8.8.8.1234", id="dernier-segment-trop-long"),
+    pytest.param(f"x{PUBLIC}", id="precedee-d-une-lettre"),
 ])
 def test_non_public_or_non_address_is_ignored(tmp_path, line):
     write(tmp_path, "note.md", line + "\n")
     assert findings(tmp_path) == (0, [])
 
 
-@pytest.mark.parametrize("rel", ["rules.yaml", "ci.yml", "policy.json", "notes.txt", "DOC.MD"])
-def test_text_formats_are_scanned(tmp_path, rel):
+@pytest.mark.parametrize("rel", [
+    "rules.yaml", "ci.yml", "policy.json", "notes.txt", "DOC.MD",
+    "_scripts/deploy.sh", "_scripts/tool.py", "policies/vault.rego", "ops/fix.patch",
+    "ops/query.sql", ".githooks/pre-push", "Makefile", "notes.md.bak",
+])
+def test_every_text_file_is_scanned_whatever_its_extension(tmp_path, rel):
     write(tmp_path, rel, f"host: {PUBLIC}\n")
     _, found = findings(tmp_path)
     assert [f["file"] for f in found] == [rel]
 
 
 @pytest.mark.parametrize("rel", [
-    "_scripts/fixture.md",
-    ".git/COMMIT_EDITMSG.txt",
-    ".obsidian/workspace.json",
+    ".git/COMMIT_EDITMSG",
     "node_modules/pkg/README.md",
-    "ledger/diagram.png",
-    "ledger/script.sh",
+    "ledger/node_modules/pkg/README.md",
+    "_scripts/__pycache__/x.txt",
+    "_scripts/check-public-ip.py",
+    "_scripts/test_check_public_ip.py",
 ])
-def test_out_of_scope_paths_are_not_scanned(tmp_path, rel):
+def test_excluded_paths_are_not_scanned(tmp_path, rel):
     write(tmp_path, rel, f"{PUBLIC}\n")
     assert findings(tmp_path) == (0, [])
 
 
-def test_excluded_name_only_excludes_directories(tmp_path):
-    # Un fichier nommé comme un dossier exclu reste dans le périmètre.
-    write(tmp_path, "ledger/node_modules.md", f"{PUBLIC}\n")
+@pytest.mark.parametrize("rel", [
+    "ledger/node_modules",                # fichier qui porte le nom d'un dossier exclu
+    "ledger/node_modules.md",
+    "ledger/check-public-ip.py",          # même nom que le script, ailleurs que dans _scripts/
+    "ledger/_scripts/test_check_public_ip.py",
+])
+def test_exclusions_are_exact(tmp_path, rel):
+    write(tmp_path, rel, f"{PUBLIC}\n")
     _, found = findings(tmp_path)
-    assert [f["file"] for f in found] == ["ledger/node_modules.md"]
+    assert [f["file"] for f in found] == [rel]
+
+
+def test_binary_file_is_skipped(tmp_path):
+    (tmp_path / "bundle.wasm").write_bytes(b"\x00asm\x01\x00" + PUBLIC.encode() + b"\n")
+    assert findings(tmp_path) == (0, [])
+
+
+def test_directory_named_like_a_file_is_not_read(tmp_path):
+    (tmp_path / "dossier.md").mkdir()
+    write(tmp_path, "dossier.md/note.md", f"{PUBLIC}\n")
+    _, found = findings(tmp_path)
+    assert [f["file"] for f in found] == ["dossier.md/note.md"]
+
+
+def test_dangling_symlink_is_ignored(tmp_path):
+    (tmp_path / "casse.md").symlink_to(tmp_path / "absent.md")
+    assert findings(tmp_path) == (0, [])
+
+
+def test_line_numbers_follow_newlines_only(tmp_path):
+    # Saut de page et séparateur de ligne Unicode : un éditeur n'y voit pas une fin de ligne.
+    write(tmp_path, "note.md", f"a\x0cb c\n{PUBLIC}\n")
+    _, found = findings(tmp_path)
+    assert [f["lines"] for f in found] == [[2]]
 
 
 def test_text_output_gives_lines_but_not_the_address(tmp_path):
     write(tmp_path, "note.md", f"x\n{PUBLIC}\n")
-    proc = run(tmp_path)
+    proc = run(str(tmp_path))
     assert proc.returncode == 0
     assert "[WARNING] note.md (line 2)" in proc.stdout
     assert "1 warning(s)" in proc.stdout
@@ -143,3 +195,32 @@ def test_undecodable_bytes_do_not_crash(tmp_path):
     code, found = findings(tmp_path)
     assert code == 0
     assert [f["lines"] for f in found] == [[2]]
+
+
+def test_json_flag_may_come_before_the_path(tmp_path):
+    write(tmp_path, "note.md", f"{PUBLIC}\n")
+    proc = run("--json", str(tmp_path))
+    assert proc.returncode == 0
+    assert [f["file"] for f in json.loads(proc.stdout)["findings"]] == ["note.md"]
+
+
+def test_default_path_is_the_current_directory(tmp_path):
+    write(tmp_path, "note.md", f"{PUBLIC}\n")
+    proc = run("--json", cwd=tmp_path)
+    assert proc.returncode == 0
+    assert [f["file"] for f in json.loads(proc.stdout)["findings"]] == ["note.md"]
+
+
+@pytest.mark.parametrize("target", ["absent", "note.md"])
+def test_path_that_is_not_a_directory_is_an_error_not_a_clean_result(tmp_path, target):
+    write(tmp_path, "note.md", f"{PUBLIC}\n")
+    proc = run(str(tmp_path / target), "--json")
+    assert proc.returncode == 2
+    assert proc.stdout == ""
+    assert "not a directory" in proc.stderr
+
+
+def test_unknown_option_is_an_error(tmp_path):
+    proc = run(str(tmp_path), "--jsno")
+    assert proc.returncode == 2
+    assert proc.stdout == ""
