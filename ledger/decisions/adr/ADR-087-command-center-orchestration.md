@@ -1,13 +1,13 @@
 ---
 id: ADR-087
 title: "Command Center — observatoire advisory vers orchestration gouvernée (lift ciblé de la pause new-control-plane)"
-status: proposed
+status: accepted
 date: "2026-06-16"
-decision_date: "2026-06-16"
+decision_date: "2026-11-10"
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
-amends: ["ADR-058"]
+amends: []
 extends: []
 related_adr: ["ADR-058", "ADR-085"]
 related_rules: []
@@ -17,8 +17,38 @@ version: "1.0.0"
 
 # ADR-087 — Command Center : observatoire advisory → orchestration gouvernée
 
-> **DRAFT — proposition.** Rédigé hors-vault (`/tmp`) pour revue owner. Aucune écriture
-> vault. Si approuvé : PR signée dans `ak125/governance-vault` (G3), puis sync canon.
+## Statut et réconciliation (2026-11-10)
+
+- **Statut** : Accepted (2026-11-10), borné aux phases 0 à 2. Le frontmatter portait
+  `decision_date: 2026-06-16` alors que le statut restait `proposed` : aucun commit de ratification
+  n'avait consigné cette décision. La date retenue est celle de la présente ratification. Statut
+  arrêté sur délégation de l'owner (message du 2026-11-10 : appliquer la meilleure approche aux
+  points ouverts de l'analyse du vault), dans une PR préparée par un agent (Claude CLI). La décision
+  est consignée par la fusion, par l'owner, de la tête qui porte ce commit
+  ([[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D4 et D7). Avant cette fusion,
+  ce statut décrit un candidat et ne modifie pas le canon de `main`.
+- **Décision acceptée** : le Command Center passe d'observatoire consultatif à une orchestration
+  gouvernée, par phases : 0 (consultatif), 1 (shadow, aucune écriture), 2 (exécution approuvée
+  action par action par l'owner). La pause `new-control-plane` de la doctrine est levée pour ce seul
+  périmètre ; tout autre control plane reste en pause.
+- **Ce que l'acceptation n'active pas** : rien. Le mode se lit dans `COMMAND_CENTER_ORCHESTRATION`,
+  vaut `off` par défaut et toujours `off` en production ; `auto` n'est pas implémenté. Chaque
+  activation de phase reste un GO distinct de l'owner. La Phase 3 (exécution sans humain) demande un
+  ADR séparé.
+- **Livré** (présent dans le monorepo) :
+  `backend/src/modules/admin/services/command-center-orchestrator/` (contrat, service, journal
+  d'exécution, planificateurs, exécuteur), le test
+  `backend/tests/unit/command-center-orchestrator.service.test.ts`, et
+  `frontend/app/components/command-center/OrchestrationPanel.tsx`.
+- **Corrections de ce texte** : le bandeau « DRAFT » est retiré et « Décision (proposée) » devient
+  « Décision ». `amends` est vidé : cet ADR ne modifie aucun passage
+  d'[[ADR-058-repository-control-plane|ADR-058]], il ajuste une entrée de doctrine ; ADR-058 reste
+  dans `related_adr`. Les « Questions ouvertes » et la « Procédure si approuvé » sont gardées comme
+  historique et annotées en place.
+- **Non vérifié** : la valeur du flag en PREPROD et en PROD ; tout usage réel des phases 1 et 2.
+- **Preuves** : monorepo `ak125/nestjs-remix-monorepo` à `fd80dd33e7b37a41d4400ce22ec218c14e4d69e3`
+  (`origin/main` au 2026-11-10). Elles établissent la présence du code, pas ce qui est servi : ni la
+  base, ni PREPROD, ni PROD n'ont été interrogées.
 
 ## Contexte
 
@@ -64,7 +94,7 @@ réversibles** (ex. *régénérer un snapshot*, *déclencher un cron gouverné*,
 gouverné*, *ouvrir une PR de proposition*), distinctes des actions de jugement actuelles.
 Cet ADR pose le cadre ; l'énumération de ces actions exécutables est un livrable de Phase 1.
 
-## Décision (proposée)
+## Décision
 
 **Lever la pause `new-control-plane` UNIQUEMENT pour le Command Center**, conditionnée à un
 design **phasé, gated, shadow-first, réversible**, où **le canon décide toujours**
@@ -113,6 +143,11 @@ advisory (Phase 0) **reste intact** dessous. Aucun état non réversible introdu
 
 ## Questions ouvertes (à trancher par l'owner avant Phase 1)
 
+> Note du 2026-11-10 : section gardée comme historique. La question 1 a sa réponse en
+> Annexe A. Le numéro demandé par la question 2 est attribué (ADR-087) ; sa seconde moitié,
+> la mise à jour du plan du monorepo, n'a pas été traitée. La phase shadow de la question 3
+> est codée (flag `shadow`).
+
 1. **Quels types d'actions** sont in-scope pour l'exécution en premier ? (cf. tableau :
    la plupart sont HITL par nature → la liste des actions *mécaniquement* exécutables est à
    définir, probablement courte : régen snapshot, déclenchement cron gouverné, pose de flag
@@ -158,6 +193,11 @@ nominative, doctrine controlled-acceleration).
 ---
 
 ### Procédure si approuvé (rappel governance-vault-ops — l'owner exécute, pas l'assistant)
+
+> Note du 2026-11-10 : procédure gardée comme historique, parce que
+> [[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4|ADR-102]] y renvoie. Elle n'est plus à
+> suivre : `gov` est retiré, rien ne s'écrit dans le clone runtime, et un changement du vault
+> passe par une PR signée préparée dans un worktree (ADR-102, G4 de [[rules-vault]]).
 
 1. Assigner le numéro ADR, déplacer ce draft vers le vault (`/opt/automecanik/governance-vault`).
 2. PR signée G3 dans `ak125/governance-vault` (commit `Good "git" signature`, single write point = Deploy VPS).

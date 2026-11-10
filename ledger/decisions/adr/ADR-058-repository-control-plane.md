@@ -1,14 +1,49 @@
 ---
 id: ADR-058
 title: Repository Control Plane — registry canonique 3 couches (data auto + overlay manuel + projection)
-status: proposed
+status: accepted
 date: 2026-05-13
+decision_date: "2026-11-10"
 deciders: [Fafa]
 decision_makers: [Fafa]
 related: [ADR-015, ADR-048, ADR-049, ADR-053, MOC-Decisions, MOC-Repository-Control-Plane]
 ---
 
 # ADR-058 : Repository Control Plane — registry canonique 3 couches
+
+## Statut et réconciliation (2026-11-10)
+
+- **Statut** : Accepted (2026-11-10), par dérogation aux seuils chiffrés de la section « Acceptance
+  criteria ». `proposed` depuis le 2026-05-13, hors du délai de 30 jours de Q4
+  ([[rules-engineering-quality]]). Statut arrêté sur délégation de l'owner (message du 2026-11-10 :
+  appliquer la meilleure approche aux points ouverts de l'analyse du vault), dans une PR préparée
+  par un agent (Claude CLI). La décision est consignée par la fusion, par l'owner, de la tête qui
+  porte ce commit ([[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D4 et D7). Avant
+  cette fusion, ce statut décrit un candidat et ne modifie pas le canon de `main`.
+- **Décision acceptée** : le registre à trois couches (L1 données générées, L2 surcouche manuelle,
+  L3 projection), la règle de source de vérité et les deux gates CI.
+- **Livré** (présent dans le monorepo) : `packages/registry` ; les scripts
+  `scripts/registry/build-*-registry.js` (7 fichiers) ; `.spec/00-canon/repository-registry/*.yaml`
+  (12 fichiers) ; `audit/registry/canonical.json` ; `.claude/knowledge/REPO_MAP.md` ; le workflow
+  `registry-new-file-gate.yml`, bloquant, et `registry-fresh.yml`, en avertissement.
+- **Dérogation** : la section « Acceptance criteria » subordonne l'acceptation à des seuils. Mesurés
+  sur `canonical.json` (3 123 entrées) : ownership 91,7 % (seuil 90 %, atteint) ; confiance haute
+  27,3 % (seuil 70 %, non atteint ; part des entrées dont `sourceConfidence` vaut `high`, champ
+  auquel un commentaire de `packages/registry/src/shared/source-confidence.ts` rattache ce seuil) ;
+  statut connu 51,1 % (seuil 85 %, non atteint). Aucun script du monorepo ne calcule ces métriques :
+  ces taux sont un relevé fait pour cette PR. L'ADR est accepté quand même : la décision est
+  appliquée, et des textes acceptés s'y appuient
+  ([[ADR-062-repository-contract-system-meta-model|ADR-062]],
+  [[ADR-079-product-media-control-plane|ADR-079]],
+  [[ADR-120-dod2-preuve-de-revue-liee-au-sha|ADR-120]], ADR-121,
+  [[rules-engineering-definition-of-done]]) alors qu'un ADR `proposed` ne décide de rien (G5). Les
+  seuils restent des cibles de qualité du registre ; ils ne conditionnent plus le statut.
+- **Non vérifié** : la fenêtre de 7 à 14 jours sans faux positif de `block-new`.
+- **Lien avec ADR-087** : ADR-087 n'amende aucun passage de cet ADR ; son `amends` a été corrigé
+  dans la même PR.
+- **Preuves** : monorepo `ak125/nestjs-remix-monorepo` à `fd80dd33e7b37a41d4400ce22ec218c14e4d69e3`
+  (`origin/main` au 2026-11-10). Elles établissent la présence du code, pas ce qui est servi : ni la
+  base, ni PREPROD, ni PROD n'ont été interrogées.
 
 ## Context
 

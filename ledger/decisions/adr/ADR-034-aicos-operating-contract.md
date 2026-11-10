@@ -1,8 +1,9 @@
 ---
 id: ADR-034
 title: "AI-COS Operating Contract — Observatory + Single-Trigger Routines"
-status: proposed
+status: accepted
 date: 2026-04-30
+decision_date: "2026-11-10"
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
@@ -10,11 +11,30 @@ related_rules: ["AP-12", "Q1", "Q4", "AEC"]
 related_incidents: []
 related_adr: ["ADR-006", "ADR-011", "ADR-012", "ADR-015", "ADR-020", "ADR-025", "ADR-028", "ADR-036"]
 reviewed_by: ""
-implementation_status: contract-active-since-2026-04-30, accepting-promotion-after-30d-evidence (audit J+30 ~2026-05-30 via routine trig_01Tq3Z8ohU29suDmnezZhWnG)
-implementation_status_updated: 2026-05-05
+implementation_status: "contract-in-force (AP-12 dans rules-ai-antipatterns), MOC-Routines non livrée, audit J+30 et revue du 2026-07-30 non retrouvés"
+implementation_status_updated: 2026-11-10
 ---
 
 # ADR-034: AI-COS Operating Contract — Observatory + Single-Trigger Routines
+
+## Statut et réconciliation (2026-11-10)
+
+- **Statut** : Accepted (2026-11-10). `proposed` depuis le 2026-04-30, hors du délai de 30 jours de
+  Q4 ([[rules-engineering-quality]]). Statut arrêté sur délégation de l'owner (message du 2026-11-10
+  : appliquer la meilleure approche aux points ouverts de l'analyse du vault), dans une PR préparée
+  par un agent (Claude CLI). La décision est consignée par la fusion, par l'owner, de la tête qui
+  porte ce commit ([[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D4 et D7). Avant
+  cette fusion, ce statut décrit un candidat et ne modifie pas le canon de `main`.
+- **Décision acceptée** : le contrat tel qu'il est écrit. AI-COS est un observatoire ; une routine a
+  un seul déclencheur, et chacun de ses trois axes (Trigger, Execution, Evidence) a un seul
+  propriétaire ; six composants « maison » sont interdits par défaut, ce que codifie AP-12.
+- **En vigueur** : AP-12 figure dans [[rules-ai-antipatterns]] ;
+  [[ADR-028-preprod-supabase-isolation|ADR-028]], accepté, se déclare aligné sur ce contrat ; le
+  workflow `.github/workflows/vault-supabase-cost-check.yml` du vault existe.
+- **Non livré** : `ops/moc/MOC-Routines.md` et `_scripts/generate-moc-routines.py` (annoncés en P2,
+  « pas bloquante ») ; l'extension de `weekly-vault-lint` aux routines.
+- **Non retrouvé** : l'audit à J+30 que citait `implementation_status` ; la revue prévue le
+  2026-07-30 ; une mesure de stabilité de la routine pilote. Le statut n'en dépend plus.
 
 ## Contexte
 
@@ -200,5 +220,5 @@ Cette PR (PR 1) ne contient **aucun code** — uniquement gouvernance (ADR + rul
 ---
 
 *Proposé le: 2026-04-30*
-*Accepté le: TBD (en attente revue Human CEO)*
-*Dernière revue: 2026-04-30*
+*Accepté le: 2026-11-10 (sur délégation de l'owner ; canon à la fusion de la tête ratifiée)*
+*Dernière revue: 2026-11-10*
