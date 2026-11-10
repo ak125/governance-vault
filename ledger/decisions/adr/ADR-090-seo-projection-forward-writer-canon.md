@@ -16,17 +16,13 @@ related_incidents: []
 version: "1.0.0"
 ---
 
-# ADR-090 (PROPOSÉ — numéro à confirmer au vault) : SEO Projection Forward Writer Canon (ratifie §C1-C4)
+# ADR-090 : SEO Projection Forward Writer Canon (ratifie §C1-C4)
 
-> **DRAFT vault — préparé en /tmp, NON appliqué.** À porter dans `ak125/governance-vault`
-> via PR signée G3 (single-write-point Deploy VPS). **Amende ADR-059** (SEO Runtime Projection
-> Architecture, accepted) — ajoute le contrat du **forward writer** (exports/seo → DB versionnée),
-> côté écriture, sans modifier le read-path projeté ni les §Interdictions déjà gravées. **N'abroge
-> rien.** Référence **ADR-088/089** (gates substance / coverage-map, déjà au vault), **ADR-046**
-> (single-generator), **ADR-028** (READ_ONLY Option D anon). Owner décide. Rien n'est écrit dans le
-> vault par l'assistant.
+> **Erratum (2026-11-10)** : la bannière « PROPOSÉ — numéro à confirmer au vault » et l'encadré
+> « DRAFT vault » d'origine sont retirés. Ils décrivaient la préparation du texte, pas son statut : cet
+> ADR est `accepted` depuis le 2026-06-19 (frontmatter ; ADR-099, Erratum).
 
-- **Statut** : Proposed
+- **Statut** : Accepted (2026-06-19)
 - **Date** : 2026-06-19
 - **Amende** : **ADR-059** (§Décision — ajoute le contrat du `SeoProjectionWriteWorker` côté payload + refresh-trigger + write-semantics + read-RPC grant) — **n'abroge pas**, **complète côté write**
 - **Référence inchangée** : ADR-059 (7 tables + 2 MVs + 2 queues BullMQ + `replay_projection.py` ; flag `seo_projection_read_v1` défaut FALSE ; snapshots tar.zst immutables ; §Interdictions formelles ; §Projections never generate canon ; one-way SoT) · ADR-046 (R-stack single-generator) · ADR-028 Option D (backend READ_ONLY/PREPROD = anon)

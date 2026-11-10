@@ -1,7 +1,7 @@
 # Rules - Vault Governance (G1-G4)
 
-> Regles de gouvernance du vault lui-meme au 2026-11-07 (G1 reecrite par [[ADR-101-vault-decides-canon-authority|ADR-101]], G4 par [[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4|ADR-102]], G1 et G4.2 amendees par [[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]], G4 completee par [[ADR-123-fusion-automatique-conditionnelle-perimetre-adopte|ADR-123]])
-> **Version**: 3.3.0 | **Status**: CANON
+> Regles de gouvernance du vault lui-meme au 2026-11-10 (G1 reecrite par [[ADR-101-vault-decides-canon-authority|ADR-101]], G4 par [[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4|ADR-102]], G1 et G4.2 amendees par [[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]], G4 completee par [[ADR-123-fusion-automatique-conditionnelle-perimetre-adopte|ADR-123]], G1 completee par [[ADR-125-amendements-cibles-coherence-wiki-seo-autorite|ADR-125]])
+> **Version**: 3.4.0 | **Status**: CANON
 > **Taxonomie**: G = Governance (G1-G4 = vault ici, G5-G10 = processus dans rules-governance-process.md)
 
 ---
@@ -24,7 +24,8 @@ les execute ([[ADR-060-repository-roles-doctrine|ADR-060]], ADR-101).
 | `.spec/00-canon/**` (monorepo) consomme par du code, un generateur ou un check CI | **CONTRAT** - fait foi dans son domaine, ne contredit pas un ADR accepte |
 | `.spec/00-canon/**` (monorepo) sans consommateur | **PROSE DE REFERENCE** - aucune autorite, quel que soit son en-tete |
 | Etat de `main` du monorepo | **FAIT** - dit ce qui est, pas ce qui doit etre |
-| `governance-vault/ops/*` | **OPS** - MOC, templates, scripts |
+| `ops/GOVERNANCE-HUMAN.md` : RULE-H0 a RULE-H6 (ADR-125 D5) | **DECIDE** - normatif, aux memes conditions que les regles ; face a un ADR accepte ou a une regle, une contradiction est un constat que l'owner tranche par un ADR |
+| `governance-vault/ops/*`, hors `GOVERNANCE-HUMAN.md` | **OPS** - MOC, templates, scripts |
 
 **Consequence:**
 - Une decision nait dans un ADR du vault, fusionne **avant** l'execution
@@ -187,5 +188,5 @@ l'execute). Il n'y a pas de kill-switch : `AI_VAULT_WRITE` est retire (ADR-102 D
 
 ---
 
-_Derniere mise a jour: 2026-11-10 (renvoi G5-G10 ; aucune regle changee). Precedente : 2026-11-07 (ADR-123)_
+_Derniere mise a jour: 2026-11-10 (ADR-125 : G1, rang de GOVERNANCE-HUMAN). Precedente : 2026-11-10 (renvoi G5-G10 ; aucune regle changee)_
 _Status: CANON - Gouvernance du vault lui-meme_

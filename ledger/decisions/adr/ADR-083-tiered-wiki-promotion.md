@@ -16,12 +16,11 @@ related_incidents: []
 version: "1.0.0"
 ---
 
-# ADR-083 (PROPOSÉ — numéro à confirmer au vault) : Promotion WIKI auto-tiered
+# ADR-083 : Promotion WIKI auto-tiered
 
-> **DRAFT vault — préparé en /tmp, NON appliqué.** À porter dans `ak125/governance-vault`
-> via PR signée G3 (single-write-point Deploy VPS). Amende **ADR-033** (sas wiki / autorité de
-> promotion) et référence **ADR-059** (SEO Runtime Projection) sans le modifier.
-> Owner décide. Rien n'est écrit dans le vault par l'assistant.
+> **Erratum (2026-11-10)** : la bannière « PROPOSÉ — numéro à confirmer au vault » et l'encadré
+> « DRAFT vault » d'origine sont retirés. Ils décrivaient la préparation du texte, pas son statut : cet
+> ADR est `accepted` depuis le 2026-06-10 (frontmatter).
 
 - **Statut** : Accepted
 - **Date** : 2026-06-10

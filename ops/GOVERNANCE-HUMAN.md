@@ -5,7 +5,7 @@
 **Status:** ACTIVE – SOURCE OF TRUTH  
 **Author:** Human (Owner / Operator)  
 **Scope:** Global – applies to ALL systems, agents, repositories, and environments  
-**Last update:** 2026-11-07 (RULE-H5 and H6 completed by ADR-123: conditional automatic merge execution)  
+**Last update:** 2026-11-10 (section 0: primacy clause bounded and rank under G1 stated by ADR-125; RULE-H0 to H6 unchanged)  
 
 ---
 
@@ -16,10 +16,14 @@ This document defines the **ultimate authority model** of the AutoMecanik system
 Its purpose is to:
 - Prevent any ambiguity about **who decides**
 - Enforce **Zero-Trust for all automated agents**
-- Provide a **human-written constitutional layer** above ADRs, agents, tools, and CI
+- Provide a **human-written constitutional layer** above agents, tools, prompts, and CI
 - Act as the **final arbitration reference** in case of conflict
 
-> **This file overrides any other document, prompt, agent behavior, or automation.**
+> **This file overrides any prompt, agent behavior, automation, and non-normative document.**
+> Its rules (RULE-H0 to RULE-H6) are normative (G1). They are changed only by a signed pull
+> request, and a change of decision goes through an ADR.
+> A contradiction between this file and an accepted ADR or a rule is a finding: the owner
+> settles it in an ADR. Neither text prevails by default. (ADR-125 D5.)
 
 ---
 

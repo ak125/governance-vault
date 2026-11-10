@@ -12,7 +12,7 @@ tags: [seo, balise, anti-duplicate, R8, R2, hard-gate]
 # ADR-095 — Gate dure anti-duplicate des balises émises (R0→R8)
 
 ## Statut
-Proposed — débloque **D-3** (hard-gate `indexable_effective`) du plan balises. D-0/D-1/D-2
+Accepted (frontmatter, depuis la PR vault #357) — débloque **D-3** (hard-gate `indexable_effective`) du plan balises. D-0/D-1/D-2
 (crawl baseline, `SeoFingerprintCore` pur, mesure `r8-diversity-check`) sont déjà livrés en
 **shadow/report-only** et n'exigent pas cet ADR ; **seul le verdict bloquant le requiert**.
 
