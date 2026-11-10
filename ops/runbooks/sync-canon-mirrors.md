@@ -245,6 +245,10 @@ crontab -l | grep sync-canon-mirrors
   résultat (PR ouverte, ou « aucun écart ») est acquis ; le dossier indiqué reste à retirer. Il
   peut être vide ou contenir le worktree, entier ou à moitié supprimé. Sans écart, la branche
   locale du run peut rester aussi.
+- Code non nul après `OK: no canon mirror drift, no PR opened`, sans message `Error:` du
+  wrapper : une des deux dernières commandes du nettoyage a échoué, la suppression de la branche
+  locale du run (`git update-ref -d`) ou le retrait du dossier `canon-sync.*`. Dans le premier
+  cas, il reste cette branche et un dossier `canon-sync.*` vide.
 - Message `failed to read .git/worktrees/<id>/commondir`, `could not create directory of
   '.git/worktrees/<id>'` ou `bad object worktrees/<id>/HEAD` : une autre session administrait un
   worktree au même instant. Le cycle suivant repart d’une branche neuve.
