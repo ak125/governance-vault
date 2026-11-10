@@ -245,9 +245,9 @@ Le commit de ratification, préparé par un agent sur cette décision :
 Il ne modifie aucune décision : D1 à D4 et la règle sont celles du candidat. `reviewed_by` renvoie à
 la revue indépendante consignée sur la PR ; il ne vaut pas approbation de l'owner. La décision de
 l'owner est consignée par le commit de ratification (ADR-121 D7) ; son accord nominatif de niveau C
-l'est sur la PR ([[ADR-120-dod2-preuve-de-revue-liee-au-sha|ADR-120]] D3) ; la fusion de la tête
-ratifiée est tracée selon ADR-121 D4. Tout commit ajouté après le candidat change la tête : son diff
-est revu à son niveau avant la fusion (ADR-120 D4).
+se consigne sur la PR, avant la fusion ([[ADR-120-dod2-preuve-de-revue-liee-au-sha|ADR-120]] D3) ;
+la fusion de la tête ratifiée est tracée selon ADR-121 D4. Tout commit ajouté après le candidat
+change la tête : ce qu'il modifie est revu à son niveau avant la fusion (ADR-120 D4).
 
 ## Critères de succès
 
