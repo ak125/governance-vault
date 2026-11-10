@@ -63,7 +63,10 @@ worktree_admin() {
   if [[ "$1" == worktree ]]; then
     label="worktree $2"
   fi
-  exec 9<"$GIT_COMMON_DIR"
+  if ! exec 9<"$GIT_COMMON_DIR"; then
+    echo "Error: cannot open $GIT_COMMON_DIR for locking (git $label not run)." >&2
+    return 1
+  fi
   flock --timeout "$LOCK_TIMEOUT" --conflict-exit-code 75 9 || result=$?
   if (( result != 0 )); then
     exec 9<&-
@@ -88,6 +91,8 @@ finish() {
     return "$result"
   fi
   cd "$MONOREPO_ROOT"
+  # Signal recu pendant le nettoyage, attente du verrou comprise : dire ou sont les restes.
+  trap 'echo "Error: interrupted during cleanup; inspect $RUN_DIR" >&2; exit 1' INT TERM
   # Sans --force : si un hook ou une intervention a laisse du travail, le garder.
   # Code 1 quelle que soit la cause (Git ou verrou) : a ce stade le run a deja produit
   # son resultat, et c'est le worktree conserve qui demande une intervention.

@@ -434,9 +434,77 @@ def test_flock_error_is_not_reported_as_a_lock_timeout(sync, tmp_path):
     r = run(sync)
     assert r.returncode == 66, r.stdout + r.stderr
     assert "flock failed (code 66)" in r.stderr
+    assert "git fetch not run" in r.stderr
     assert "worktree lock not obtained" not in r.stderr
+    assert local_sync_branches(root, env) == []
+    assert worktrees(root, env) == []
+    assert [list(d.iterdir()) for d in run_dirs(tmp_path)] == [[]]
+    assert not Path(env["GH_CALLS"]).exists()
+
+
+def test_flock_error_at_worktree_add_does_not_run_git(sync, tmp_path):
+    root, origin, vault, env = sync
+    failing_flock(tmp_path, env, call=2, code=66)
+    r = run(sync)
+    assert r.returncode == 66, r.stdout + r.stderr
+    assert "flock failed (code 66)" in r.stderr
+    assert "git worktree add not run" in r.stderr
+    assert len(local_sync_branches(root, env)) == 1
+    assert worktrees(root, env) == []
+    assert [list(d.iterdir()) for d in run_dirs(tmp_path)] == [[]]
+    assert not Path(env["GH_CALLS"]).exists()
+
+
+def test_common_git_directory_that_cannot_be_opened_fails_before_git_runs(sync, tmp_path):
+    """The lock descriptor cannot be opened: the wrapper says so and runs no Git command."""
+    if os.geteuid() == 0:
+        pytest.skip("root opens a directory whatever its mode")
+    root, origin, vault, env = sync
+    common_dir = root / ".git"
+    mode = common_dir.stat().st_mode
+    real_git = shutil.which("git", path=env["PATH"])
+    shim = tmp_path / "bin" / "git"
+    # show-ref is the last Git command before the first lock: close the directory after it.
+    shim.write_text(
+        "#!/bin/sh\n"
+        "case \" $* \" in\n"
+        f"  *' show-ref '*) '{real_git}' \"$@\"; rc=$?; chmod 000 '{common_dir}'; exit $rc ;;\n"
+        "esac\n"
+        f"exec '{real_git}' \"$@\"\n")
+    shim.chmod(0o755)
+    try:
+        r = run(sync)
+    finally:
+        common_dir.chmod(mode)
+    assert r.returncode == 1, r.stdout + r.stderr
+    assert "cannot open" in r.stderr and "git fetch not run" in r.stderr
+    assert "flock failed" not in r.stderr and "worktree lock" not in r.stderr
+    assert local_sync_branches(root, env) == []
     assert worktrees(root, env) == []
     assert not Path(env["GH_CALLS"]).exists()
+
+
+def test_signal_during_cleanup_names_the_run_directory(sync, tmp_path):
+    """SIGTERM received while cleanup waits for the lock: exit 1, the worktree stays and
+    the message gives the directory to inspect."""
+    root, origin, vault, env = sync
+    real_flock = shutil.which("flock", path=env["PATH"])
+    count = tmp_path / "flock-calls"
+    flock = tmp_path / "bin" / "flock"
+    # Third call = worktree remove: signal the wrapper, then take the lock for real.
+    flock.write_text(
+        "#!/bin/sh\n"
+        f"n=$(( $(cat '{count}' 2>/dev/null || echo 0) + 1 ))\n"
+        f"echo \"$n\" > '{count}'\n"
+        "[ \"$n\" -eq 3 ] && kill -TERM \"$PPID\"\n"
+        f"exec '{real_flock}' \"$@\"\n")
+    flock.chmod(0o755)
+    r = run(sync)
+    assert r.returncode == 1, r.stdout + r.stderr
+    retained = worktrees(root, env)
+    assert len(retained) == 1
+    assert f"interrupted during cleanup; inspect {retained[0].parent}" in r.stderr
+    assert len(Path(env["GH_CALLS"]).read_text().splitlines()) == 1
 
 
 def test_git_exit_code_75_is_not_reported_as_a_lock_timeout(sync):
