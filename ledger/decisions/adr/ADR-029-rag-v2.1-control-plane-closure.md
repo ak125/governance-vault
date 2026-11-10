@@ -1,10 +1,10 @@
 ---
 id: ADR-029
 title: "RAG v2.1 Control Plane Closure — State Machine 7-Stage + Emitter/Detector"
-status: proposed
+status: rejected
 version: 2.1.1
 date: 2026-04-25
-decision_date: null
+decision_date: "2026-11-10"
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
@@ -12,8 +12,8 @@ amended_by: ["ADR-031"]
 related_rules: ["G1", "G2", "G3"]
 related_incidents: []
 related_adr: ["ADR-015", "ADR-022", "ADR-031"]
-implementation_status: no-implementation-wave (proposed since 2026-04-25, paths superseded by ADR-031 amendment)
-implementation_status_updated: 2026-05-05
+implementation_status: not-implemented (rejected 2026-11-10)
+implementation_status_updated: 2026-11-10
 ---
 
 > 📌 **Amendement v2.1.1 — Paths post-ADR-031** (2026-04-28)
@@ -27,6 +27,33 @@ implementation_status_updated: 2026-05-05
 > Voir [[ADR-031-four-layer-content-architecture]] §"Plan d'exécution" Phase F pour le séquencement de la migration physique gammes vers wiki.
 
 # ADR-029: RAG v2.1 Control Plane Closure — State Machine 7-Stage + Emitter/Detector
+
+## Statut et réconciliation (2026-11-10)
+
+- **Statut** : Rejected (2026-11-10). `proposed` depuis le 2026-04-25, hors du délai de 30 jours de
+  Q4 ([[rules-engineering-quality]]). Statut arrêté sur délégation de l'owner (message du 2026-11-10
+  : appliquer la meilleure approche aux points ouverts de l'analyse du vault), dans une PR préparée
+  par un agent (Claude CLI). La décision est consignée par la fusion, par l'owner, de la tête qui
+  porte ce commit ([[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D4 et D7). Avant
+  cette fusion, ce statut décrit un candidat et ne modifie pas le canon de `main`.
+- **Motif** : la décision n'a jamais été adoptée ni appliquée. Son frontmatter notait dès le
+  2026-05-05 qu'aucune vague d'implémentation n'avait eu lieu ; `__rag_enrichment_runs`,
+  `shared/types/rag-lifecycle.ts`, `RagEnrichmentReportEmitterService`, `RagConflictDetectorService`
+  et `RagDecisionService` sont absents du monorepo. Elle organise l'enrichissement des fiches gamme
+  par un pipeline RAG qui écrit dans leur frontmatter (`enrich_write`, `qa_write`). Le chemin
+  accepté depuis est RAW → WIKI → exports ([[ADR-031-four-layer-content-architecture|ADR-031]],
+  amendé par [[ADR-119-wiki-semantic-auto-review-replaces-human-review|ADR-119]]) : une fiche change
+  par une proposition sourcée, sous les contrôles du dépôt WIKI, et le RAG n'est qu'un consommateur.
+  L'amendement v2.1.1 n'avait corrigé que les chemins.
+- **Pourquoi `rejected` et non `superseded`** : ADR-031 amende cet ADR (`amends`), il ne le remplace
+  pas. Le lien `amended_by: ["ADR-031"]` reste, comme trace de cet amendement.
+- **Effet** : contexte historique au sens de G5 ([[rules-governance-process]]) ; aucune
+  implémentation ne peut s'en réclamer. Les schémas `enrichment-report.schema.json`,
+  `conflict.schema.yaml` et `gamme-md-schema.md` existent toujours sous `.spec/00-canon/` du
+  monorepo ; leur sort n'est pas traité ici.
+- **Preuves** : monorepo `ak125/nestjs-remix-monorepo` à `fd80dd33e7b37a41d4400ce22ec218c14e4d69e3`
+  (`origin/main` au 2026-11-10). Elles établissent la présence du code, pas ce qui est servi : ni la
+  base, ni PREPROD, ni PROD n'ont été interrogées.
 
 ## Contexte
 

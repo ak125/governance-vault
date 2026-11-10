@@ -1,9 +1,9 @@
 ---
 id: ADR-085
 title: "Numérotation interne véhicule : séquence globale Massdoc + allocateur gouverné (auto_type.type_id)"
-status: proposed
+status: accepted
 date: "2026-06-15"
-decision_date: "2026-06-15"
+decision_date: "2026-11-10"
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
@@ -15,6 +15,33 @@ related_incidents: []
 ---
 
 # ADR-085 : Numérotation interne véhicule — séquence globale Massdoc + allocateur gouverné
+
+## Statut et réconciliation (2026-11-10)
+
+- **Statut** : Accepted (2026-11-10). Le frontmatter portait `decision_date: 2026-06-15` alors que
+  le statut restait `proposed` : aucun commit de ratification n'avait consigné cette décision. La
+  date retenue est celle de la présente ratification. Statut arrêté sur délégation de l'owner
+  (message du 2026-11-10 : appliquer la meilleure approche aux points ouverts de l'analyse du
+  vault), dans une PR préparée par un agent (Claude CLI). La décision est consignée par la fusion,
+  par l'owner, de la tête qui porte ce commit
+  ([[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D4 et D7). Avant cette fusion,
+  ce statut décrit un candidat et ne modifie pas le canon de `main`. Cette PR ne change que du texte
+  : elle ne touche ni URL ni `type_id` (zone à accord nominatif).
+- **Décision acceptée** : les invariants de numérotation (`auto_type.type_id` suit la séquence
+  globale Massdoc) et l'allocateur gouverné.
+- **Livré** (présent dans le monorepo) : la migration
+  `backend/supabase/migrations/20260615_massdoc_type_id_allocator.sql`.
+- **Séquence (post-signature)** : le point 1 est fait (l'invariant 9 de
+  `.spec/00-canon/tecdoc-integration-roadmap-v3.md` renvoie à cet ADR et à l'allocateur). Le point
+  2, le flux unifié qui appelle l'allocateur, ne l'est pas : aucun appel de
+  `allocate_massdoc_type_id` dans `backend/src`, `scripts`, `packages` ni `frontend`. Il reste
+  soumis à l'owner.
+- **Non vérifié** : l'application de la migration en base.
+- **Collision de numéro** : la PR vault #315, ouverte, propose un autre ADR sous le numéro 085. Ce
+  numéro est pris ; cette PR devra en changer.
+- **Preuves** : monorepo `ak125/nestjs-remix-monorepo` à `fd80dd33e7b37a41d4400ce22ec218c14e4d69e3`
+  (`origin/main` au 2026-11-10). Elles établissent la présence du code, pas ce qui est servi : ni la
+  base, ni PREPROD, ni PROD n'ont été interrogées.
 
 ## § Contexte (faits vérifiés 2026-06-15)
 
