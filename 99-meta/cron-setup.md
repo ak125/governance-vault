@@ -132,9 +132,14 @@ qui modifie un ADR sans régénérer l'index a ce check rouge.
 
 ### sync-canon-mirrors
 
-`_scripts/cron-sync-canon-mirrors.sh` (vault → monorepo, ADR-061 §3) suit le même
-pattern côté monorepo et commence par `git reset --hard origin/main` dans le
-checkout principal du monorepo. Même règle : clone dédié uniquement.
+`_scripts/cron-sync-canon-mirrors.sh` (vault → monorepo, ADR-061 §3) ouvre lui aussi
+une auto-PR, côté monorepo, mais ne touche pas au checkout principal : il travaille
+dans un worktree Git dédié, sous un dossier temporaire `canon-sync.*`, et le
+checkout partagé garde sa branche, son index et ses fichiers. Il ne fait aucun
+`reset --hard`. Le fetch, `git worktree add` et `git worktree remove` passent sous
+un verrou `flock` qui ne sérialise que les runs de ce script. Non installé : aucune
+entrée dans la crontab `deploy` du VPS DEV au 2026-11-10. Installation, restes
+après un échec et triage : [[sync-canon-mirrors]].
 
 ---
 

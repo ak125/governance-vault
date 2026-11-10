@@ -97,10 +97,12 @@ Cron machine DEV :
 | `cron-sync-canon-mirrors.sh` | non | — |
 | audit-signatures, check-orphans ([[cron-setup]]) | non | — |
 
-Les deux wrappers auto-PR non installés commencent par
-`git checkout main && git reset --hard origin/main` dans le checkout où ils
-tournent : le checkout runtime du vault pour l'un, le checkout principal du
-monorepo pour l'autre. Ne les installer que sur un clone dédié.
+Aucun des deux wrappers auto-PR n'est installé. `cron-sync-moc-decisions.sh`
+commence par `git checkout main && git reset --hard origin/main` dans le checkout
+où il tourne, le checkout runtime du vault : ne l'installer que sur un clone dédié.
+`cron-sync-canon-mirrors.sh` ne fait aucun `reset --hard` : il travaille dans un
+worktree Git dédié du monorepo et laisse le checkout principal tel quel
+([[sync-canon-mirrors]]).
 
 #### Writer planning (ADR-053) — retiré
 
