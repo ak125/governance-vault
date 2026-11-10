@@ -18,6 +18,8 @@ extends:
   - ADR-088
   - ADR-091
   - ADR-040
+amended_by:
+  - ADR-125
 ---
 
 # ADR-092 — Gate terminal « rank-#1 capable » pour la boucle contenu (le score manquant)
