@@ -1,8 +1,9 @@
 ---
 id: ADR-075
 title: "Topologie et vocabulaire de déploiement (DEV / PREPROD / PROD) ; commit, tag, image, environnement, preuve CI et version servie — amende ADR-001"
-status: proposed
+status: accepted
 date: "2026-05-18"
+decision_date: "2026-11-10"
 decision_makers: ["Architecture Team", "@fafa"]
 version: "1.1.0"
 supersedes: []
@@ -12,14 +13,18 @@ extends: []
 related_adr: ["ADR-028", "ADR-101", "ADR-102", "ADR-120", "ADR-121", "ADR-123", "ADR-124"]
 related_rules: ["rules-deployment-workflow", "T6", "G1", "G4"]
 related_incidents: ["INC-2026-007"]
-reviewed_by: ""
+reviewed_by: "Relecteur indépendant (agent distinct de l'auteur) — enregistrement de revue de la PR #294"
 ---
 
 # ADR-075 : topologie et vocabulaire de déploiement
 
-- **Statut** : Proposed. Version 1.0.0 rédigée le 2026-05-18, révisée le 2026-11-01 (1.1.0),
-  constats revérifiés le 2026-11-10. Rien n'est normatif avant la ratification (section
-  « Ratification ») et la fusion ([[ADR-101-vault-decides-canon-authority|ADR-101]] D1).
+- **Statut** : Accepted (2026-11-10). Décision de l'owner, décideur humain : Marwane, sur le candidat
+  de la PR #294 (`d58f01cf49a94112c1022f0d748fc10c5f1559bb`). Version 1.0.0 rédigée le 2026-05-18,
+  révisée le 2026-11-01 (1.1.0), constats revérifiés le 2026-11-10. Le commit de ratification est
+  préparé par un agent : son auteur et sa clé de signature sont techniques. Canon applicable à la
+  fusion par l'owner de la tête qui porte cette décision, sous les contrôles requis
+  ([[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D4 et D7) ; avant cette fusion,
+  ce statut décrit le candidat ratifié et ne modifie pas le canon de `main`.
 - **Amende** [[ADR-001-environment-separation|ADR-001]] : il précise la topologie que ce dernier ne
   décrit pas et relève deux écarts entre ADR-001 et l'état réel, ainsi qu'un écart avec
   [[ADR-028-preprod-supabase-isolation|ADR-028]] (D2).
@@ -223,17 +228,22 @@ plusieurs cycles, et un ADR distinct.
 
 ## Ratification
 
-[[rules-deployment-workflow]] 2.0.0 s'appuie sur cet ADR ; elle ne se fusionne pas tant qu'il est
-`proposed`. À la décision de l'owner, avant la fusion, un commit de cette PR :
+[[rules-deployment-workflow]] 2.0.0 s'appuie sur cet ADR : les deux entrent en vigueur ensemble, à
+la fusion de la PR #294.
+
+L'owner a ratifié cet ADR le 2026-11-10, sur le candidat `d58f01cf49a94112c1022f0d748fc10c5f1559bb`.
+Le commit de ratification, préparé par un agent sur cette décision :
 
 - passe `status` à `accepted`, renseigne `decision_date` et `reviewed_by`, et réécrit la ligne
-  Statut, dont la phrase qui suspend l'entrée en vigueur ;
+  Statut, dont la phrase qui suspendait l'entrée en vigueur ;
 - ajoute `amended_by: ["ADR-075"]` au frontmatter d'[[ADR-001-environment-separation|ADR-001]] ;
 - retire « (proposé) » des mentions de cet ADR dans [[rules-deployment-workflow]] ;
 - régénère l'index de [[MOC-Decisions]] (`_scripts/sync_moc_decisions.py --write`).
 
-Ce commit change la tête : son diff est revu à son niveau avant la fusion
-([[ADR-120-dod2-preuve-de-revue-liee-au-sha|ADR-120]] D4).
+Il ne modifie aucune décision : D1 à D4 et la règle sont celles du candidat. `reviewed_by` renvoie à
+la revue indépendante consignée sur la PR ; il ne vaut pas approbation de l'owner, dont la décision
+est tracée par la fusion de la tête ratifiée (ADR-121 D4). Ce commit change la tête : son diff est
+revu à son niveau avant la fusion ([[ADR-120-dod2-preuve-de-revue-liee-au-sha|ADR-120]] D4).
 
 ## Critères de succès
 
@@ -258,3 +268,5 @@ Ce commit change la tête : son diff est revu à son niveau avant la fusion
 
 ---
 _Dernière mise à jour : 2026-11-10_
+
+*Accepté le : 2026-11-10 (décision de l'owner ; canon à la fusion de la tête ratifiée, ADR-121 D7)*

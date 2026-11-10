@@ -16,8 +16,7 @@ related_incidents: [INC-2026-007]
 > **2.0.0** : la 1.0.0 plaçait le déploiement de `main` sur la machine DEV et prescrivait
 > `gh pr merge --admin`, un rollback par push direct sur `main` et un rollback PROD par SSH. Elle
 > contredisait T6 ([[rules-technical]], corrigée par [[ADR-101-vault-decides-canon-authority|ADR-101]]) :
-> `main` est protégée. Le vocabulaire suit [[ADR-075-deployment-topology-clarification|ADR-075]]
-> (proposé).
+> `main` est protégée. Le vocabulaire suit [[ADR-075-deployment-topology-clarification|ADR-075]].
 
 ---
 
@@ -193,7 +192,7 @@ règle aux agents du monorepo ; un écart entre les deux est un constat (ADR-101
 
 ## Références
 
-- [[ADR-075-deployment-topology-clarification]] (proposé) — vocabulaire et topologie
+- [[ADR-075-deployment-topology-clarification]] — vocabulaire et topologie
 - [[ADR-028-preprod-supabase-isolation]] — PREPROD en lecture seule
 - [[ADR-101-vault-decides-canon-authority]] — le vault décide, le monorepo exécute
 - [[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4]] — G4 : écriture par PR
