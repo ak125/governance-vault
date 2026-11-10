@@ -38,6 +38,17 @@ WORKTREE="$RUN_DIR/worktree"
 BRANCH="govvault/cron-sync-canon-mirrors-${TIMESTAMP}-${RUN_DIR##*.}"
 NO_CHANGES=false
 
+# Git n'ecrit pas .git/worktrees/<id>/ de facon atomique. Pendant un `worktree add`,
+# toute commande qui enumere les worktrees (fetch vers une branche locale,
+# worktree add, worktree remove) peut lire une entree incomplete et sortir en 128 :
+# « failed to read .git/worktrees/<id>/commondir: Success ».
+# Ces trois commandes passent donc par un verrou partage entre les runs, pose sur
+# le depot Git commun (aucun fichier cree). Verrou indisponible apres 120 s = echec.
+GIT_COMMON_DIR="$(git -C "$MONOREPO_ROOT" rev-parse --path-format=absolute --git-common-dir)"
+worktree_admin() {
+  flock --close --timeout 120 "$GIT_COMMON_DIR" git -C "$MONOREPO_ROOT" "$@"
+}
+
 finish() {
   local result=$?
   if (( result != 0 )); then
@@ -48,7 +59,7 @@ finish() {
   fi
   cd "$MONOREPO_ROOT"
   # Sans --force : si un hook ou une intervention a laisse du travail, le garder.
-  if ! git worktree remove "$WORKTREE"; then
+  if ! worktree_admin worktree remove "$WORKTREE"; then
     echo "Error: worktree retained for inspection: $WORKTREE" >&2
     exit 1
   fi
@@ -68,9 +79,9 @@ if git -C "$MONOREPO_ROOT" show-ref --verify --quiet "refs/heads/$BRANCH"; then
   echo "Error: sync branch already exists: $BRANCH" >&2
   exit 1
 fi
-git -C "$MONOREPO_ROOT" fetch --quiet --no-write-fetch-head origin "refs/heads/main:refs/heads/$BRANCH"
+worktree_admin fetch --quiet --no-write-fetch-head origin "refs/heads/main:refs/heads/$BRANCH"
 BASE="$(git -C "$MONOREPO_ROOT" rev-parse "refs/heads/$BRANCH^{commit}")"
-git -C "$MONOREPO_ROOT" worktree add --quiet "$WORKTREE" "$BRANCH"
+worktree_admin worktree add --quiet "$WORKTREE" "$BRANCH"
 cd "$WORKTREE"
 
 python3 "$VAULT_ROOT/_scripts/sync_canon_mirrors.py" --write --monorepo "$WORKTREE"

@@ -249,6 +249,44 @@ def test_concurrent_runs_use_distinct_branches_and_worktrees(sync):
     assert worktrees(root, env) == []
 
 
+def test_concurrent_runs_never_overlap_worktree_administration(sync, tmp_path):
+    """Two runs must not administer worktrees of one repository at the same time.
+
+    Git writes .git/worktrees/<id>/ non-atomically: a fetch into a local branch, a
+    `worktree add` or a `worktree remove` that runs during another `worktree add`
+    can read a half-written entry and exit 128. A git shim holds each of these
+    commands open long enough for an unserialised run to overlap.
+    """
+    root, origin, vault, env = sync
+    real_git = shutil.which("git", path=env["PATH"])
+    trace = tmp_path / "git-trace"
+    shim = tmp_path / "bin" / "git"
+    shim.write_text(
+        "#!/bin/sh\n"
+        "case \" $* \" in\n"
+        "  *' fetch '*|*' worktree add '*|*' worktree remove '*)\n"
+        f"    printf 'start %s\\n' \"$$\" >> '{trace}'\n"
+        "    sleep 0.3\n"
+        f"    '{real_git}' \"$@\"\n"
+        "    rc=$?\n"
+        f"    printf 'end %s\\n' \"$$\" >> '{trace}'\n"
+        "    exit $rc ;;\n"
+        "esac\n"
+        f"exec '{real_git}' \"$@\"\n")
+    shim.chmod(0o755)
+    args = ["bash", str(vault / "_scripts/cron-sync-canon-mirrors.sh")]
+    procs = [subprocess.Popen(args, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+             for _ in range(2)]
+    for p in procs:
+        out, err = p.communicate(timeout=60)
+        assert p.returncode == 0, out + err
+    events = [line.split() for line in trace.read_text().splitlines()]
+    assert len(events) == 12, events  # 2 runs x (fetch, worktree add, worktree remove) x (start, end)
+    for (kind_a, pid_a), (kind_b, pid_b) in zip(events[::2], events[1::2]):
+        assert (kind_a, kind_b) == ("start", "end") and pid_a == pid_b, events
+    assert worktrees(root, env) == []
+
+
 def test_cleanup_refuses_to_delete_unexpected_work_left_by_a_hook(sync):
     root, origin, vault, env = sync
     dirty(root, env)
