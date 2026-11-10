@@ -175,28 +175,40 @@ async function executeSkill(state: GraphState) {
 
 ---
 
-## AP-08: Generating Without RAG Context
+## AP-08: Generating Without Validated Sources
 
-**Pattern interdit**: Générer du contenu sans contexte RAG (risque d'hallucination).
+**Pattern interdit**: Générer une sortie sans source validée (risque d'hallucination).
+
+La source dépend du consommateur ([[ADR-031-four-layer-content-architecture|ADR-031]],
+[[ADR-046-r-stack-single-generator-and-layers|ADR-046]]) :
+
+| Sortie | Source admise |
+|---|---|
+| Contenu publié (pages R0 à R8, blog, fiches) | Exports contrôlés du WIKI, ou base métier conservée comme source de vérité technique |
+| Réponse du chatbot | Corpus RAG, lui-même alimenté par `wiki/exports/rag/` |
+
+Le RAG sert le chatbot. Il n'est pas une source de production de contenu : il est « interdit comme
+voie de génération » ([[ADR-086-encyclopedia-editorial-content-contract|ADR-086]]). Un générateur de
+pages qui lit le corpus RAG enfreint cette règle au même titre qu'un générateur sans source.
 
 ```typescript
-// ❌ WRONG: Generate without RAG
+// ❌ WRONG: Generate without sources
 async function generateContent(topic: string) {
   return await llm.invoke(`Write about ${topic}`);
 }
 
-// ✅ CORRECT: Always use RAG context
-async function generateContent(topic: string, ragContext: RagContext) {
-  if (ragContext.documents.length === 0) {
+// ✅ CORRECT: Refuse to generate when the validated sources are empty
+async function generateContent(topic: string, sources: ValidatedSource[]) {
+  if (sources.length === 0) {
     throw new Error('Cannot generate without sources - refusing to hallucinate');
   }
 
-  const sources = ragContext.documents.map(d => d.content).join('\n');
-  return await llm.invoke(`Based on these sources:\n${sources}\n\nWrite about ${topic}`);
+  const context = sources.map(s => s.content).join('\n');
+  return await llm.invoke(`Based on these sources:\n${context}\n\nWrite about ${topic}`);
 }
 ```
 
-**Pourquoi**: Sans RAG, le LLM peut halluciner des informations incorrectes.
+**Pourquoi**: Sans source validée, le LLM peut halluciner des informations incorrectes.
 
 ---
 
@@ -317,7 +329,7 @@ Avant de merger un PR touchant au système AI:
 - [ ] Pas de type `any` (AP-05)
 - [ ] DataService pour l'accès DB (AP-06)
 - [ ] Budget vérifié avant exécution (AP-07)
-- [ ] Contexte RAG pour la génération (AP-08)
+- [ ] Source validée pour toute génération : exports WIKI pour le contenu, corpus RAG pour le chatbot (AP-08)
 - [ ] Pas de dépendances circulaires (AP-09)
 - [ ] Services < 500 lignes (AP-10)
 - [ ] Aucune convention inventée sans grep préalable (AP-11)

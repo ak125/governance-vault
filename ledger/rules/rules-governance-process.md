@@ -1,7 +1,7 @@
 # Rules - Governance Process (G5-G8)
 
 > Regles de gouvernance processus au 2026-11-01 (G5 reecrite par [[ADR-101-vault-decides-canon-authority|ADR-101]], amendee par [[ADR-118-retrait-methodes-bmad-superpowers-spec-kit|ADR-118]] et par [[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]])
-> **Version**: 3.2.0 | **Status**: CANON (regle du vault, normative au sens de G1)
+> **Version**: 3.2.1 | **Status**: CANON (regle du vault, normative au sens de G1)
 > **Taxonomie**: G = Governance (G1-G4 = vault dans rules-vault.md, G5-G8 = processus ici)
 > **Complement de:** rules-technical.md (T1-T7 = technique, G5+ = processus)
 
@@ -73,25 +73,27 @@ git status --porcelain      # Etat git
 
 ## G8: Obsolete Handling
 
-**OBLIGATOIRE:** Documents obsoletes doivent etre explicitement archives.
+**OBLIGATOIRE:** Un document obsolete est marque ou archive explicitement. Il
+ne reste jamais en place sans signal.
 
-```
-Document identifie comme obsolete
-      ↓
-Deplacement vers .spec/.archive/
-      ↓
-Entry dans deprecation_ledger.md
-      ↓
-Retrait de tout INDEX
-      ↓
-Exclusion du corpus RAG
-```
+| Document | Traitement |
+|----------|------------|
+| ADR, regle `rules-*.md` ou policy du vault | Reste a son emplacement. Son `status` passe a `superseded` ou `deprecated`, et `superseded_by` nomme le remplacant. |
+| Autre document du vault | Deplace dans `ledger/_archive/` avec `status: archived`, et inscrit dans `ledger/_archive/INDEX-archive.md` avec la raison. Une note gardee comme trace historique peut rester en place si elle s'ouvre sur un bandeau qui la dit remplacee, nomme le texte qui fait foi et interdit de l'executer. |
+| Document du monorepo | Traite selon la cloture Q1 de [[rules-engineering-quality]] : supprime, suivi, ou conserve avec une justification ecrite. |
 
-| Action | Commandes |
-|--------|-----------|
-| Archiver | `mv .spec/features/xxx.md .spec/.archive/` |
-| Logger | Ajouter entry dans `deprecation_ledger.md` |
-| Verifier | `grep -r "xxx.md" .spec/` doit retourner 0 resultats |
+Dans tous les cas :
+
+- aucune MOC ni aucun INDEX ne le presente plus comme courant ;
+- il sort du corpus RAG.
+
+**Controle:** `python3 _scripts/check-obsolete-rules.py` signale un ADR, une
+regle ou une policy `deprecated` ou `superseded` sans remplacant nomme, et un
+fichier de `ledger/_archive/` sans `status: archived`.
+
+**Historique:** jusqu'a la version 3.2.0, G8 renvoyait a `.spec/.archive/` et a
+`deprecation_ledger.md`. Le dossier a ete supprime du monorepo le 2026-02-28 ;
+le fichier n'existe ni dans le vault ni dans le monorepo.
 
 **Raison:** Prevenir l'empoisonnement du contexte par documents perimes.
 
@@ -207,5 +209,5 @@ Apres chaque deliverable:
 
 ---
 
-_Derniere mise a jour: 2026-11-01 (ADR-121)_
+_Derniere mise a jour: 2026-11-10 (G8 : mecanismes d'archivage existants ; aucune decision changee). Precedente : 2026-11-01 (ADR-121)_
 _Status: CANON - Complement de rules-technical.md_
