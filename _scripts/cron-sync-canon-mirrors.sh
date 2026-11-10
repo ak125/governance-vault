@@ -100,14 +100,15 @@ finish() {
     echo "Error: worktree retained for inspection: $WORKTREE" >&2
     exit 1
   fi
-  # Worktree retire : il ne reste que deux commandes courtes. Un signal recu maintenant
-  # n'a plus rien a signaler ; l'ignorer plutot que sortir en 1 sur un run nettoye.
-  trap '' INT TERM
-  rmdir "$RUN_DIR"
   if [[ "$NO_CHANGES" == true ]]; then
     # Supprime uniquement notre ref sans commit nouveau, si elle n'a pas bouge.
     git update-ref -d "refs/heads/$BRANCH" "$BASE"
   fi
+  # Derniere commande : un signal recu maintenant n'a plus rien a signaler ; l'ignorer
+  # plutot que sortir en 1 sur un run nettoye. Apres les commandes Git, pas avant : lance
+  # avec ces signaux ignores, Git retire ses verrous au signal puis continue sans eux.
+  trap '' INT TERM
+  rmdir "$RUN_DIR"
 }
 trap finish EXIT
 trap 'exit 130' INT

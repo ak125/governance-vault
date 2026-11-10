@@ -530,9 +530,9 @@ def test_signal_during_cleanup_names_the_run_directory(sync, tmp_path, signal):
 
 
 @pytest.mark.parametrize("signal", ["TERM", "INT"])
-def test_signal_after_worktree_removal_does_not_fail_a_cleaned_run(sync, tmp_path, signal):
-    """Signal received once the worktree is gone: nothing is left to report, the run
-    finishes its cleanup and exits 0."""
+def test_signal_during_the_last_cleanup_command_does_not_fail_a_cleaned_run(sync, tmp_path, signal):
+    """Signal received while the empty run directory is removed: nothing is left to
+    report, the run finishes its cleanup and exits 0."""
     root, origin, vault, env = sync
     real_rmdir = shutil.which("rmdir", path=env["PATH"])
     rmdir = tmp_path / "bin" / "rmdir"
@@ -544,6 +544,31 @@ def test_signal_after_worktree_removal_does_not_fail_a_cleaned_run(sync, tmp_pat
     assert worktrees(root, env) == []
     assert run_dirs(tmp_path) == []
     assert len(Path(env["GH_CALLS"]).read_text().splitlines()) == 1
+
+
+@pytest.mark.parametrize("signal,code", [("TERM", 143), ("INT", 130)])
+def test_git_keeps_the_default_signal_disposition_during_cleanup(sync, tmp_path, signal, code):
+    """Git started with SIGINT or SIGTERM ignored drops its lock files on the signal and
+    carries on without them: the branch cleanup must run Git with the default disposition.
+    A shell that inherits an ignored signal survives its own `kill`; this one must die."""
+    root, origin, vault, env = sync
+    publish_current_mirrors(root, env)
+    real_git = shutil.which("git", path=env["PATH"])
+    shim = tmp_path / "bin" / "git"
+    shim.write_text(
+        "#!/bin/sh\n"
+        "case \" $* \" in\n"
+        f"  *' update-ref '*) kill -{signal} $$ ;;\n"
+        "esac\n"
+        f"exec '{real_git}' \"$@\"\n")
+    shim.chmod(0o755)
+    r = run(sync)
+    shim.unlink()
+    assert r.returncode == code, r.stdout + r.stderr
+    assert "OK: no canon mirror drift" in r.stdout
+    assert len(local_sync_branches(root, env)) == 1
+    assert worktrees(root, env) == []
+    assert [list(d.iterdir()) for d in run_dirs(tmp_path)] == [[]]
 
 
 def test_git_exit_code_75_is_not_reported_as_a_lock_timeout(sync):

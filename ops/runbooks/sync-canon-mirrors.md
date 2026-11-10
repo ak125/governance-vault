@@ -84,9 +84,9 @@ que Git laisse derrière lui (maintenance) ne le garde pas.
   la commande en cours : l’attente du verrou (120 s au plus) ou la commande Git lancée sous le
   verrou (un fetch lent, par exemple). Envoyé au groupe de processus, il arrête aussi `flock` ou
   Git, et le wrapper sort aussitôt. Reçu pendant le nettoyage final, il fait sortir le wrapper
-  en code 1 avec le message `interrupted during cleanup; inspect <dossier canon-sync.*>`. Une
-  fois le worktree retiré, le wrapper ignore SIGTERM et SIGINT : il termine son nettoyage et
-  sort en 0.
+  en code 1 avec le message `interrupted during cleanup; inspect <dossier canon-sync.*>`. Seule
+  la toute dernière commande, qui retire ce dossier une fois vide, se fait signaux ignorés : le
+  wrapper sort alors en 0.
 - Un SIGKILL envoyé au seul processus du wrapper pendant une commande Git libère le verrou alors
   que cette commande tourne encore : un autre run peut alors la croiser.
 - Le verrou ne protège que les runs du wrapper. Un `git worktree add` ou `remove` lancé par une
@@ -148,7 +148,7 @@ git -C <monorepo> worktree prune
 ```
 
 Le wrapper lance `worktree remove` sans `--force` : Git ne commence à supprimer qu’un worktree
-sans modification ni fichier non suivi.
+sans modification ni fichier non suivi (les fichiers ignorés par `.gitignore` ne comptent pas).
 
 ## Activation initiale (à exécuter UNE fois par VPS DEV)
 
@@ -243,7 +243,8 @@ crontab -l | grep sync-canon-mirrors
   dépôt déplacé pendant le run). Le run n’a pas lancé la commande Git de cette étape.
 - Message `interrupted during cleanup` : le run a reçu un signal pendant son nettoyage. Son
   résultat (PR ouverte, ou « aucun écart ») est acquis ; le dossier indiqué reste à retirer. Il
-  peut être vide ou contenir le worktree, entier ou à moitié supprimé.
+  peut être vide ou contenir le worktree, entier ou à moitié supprimé. Sans écart, la branche
+  locale du run peut rester aussi.
 - Message `failed to read .git/worktrees/<id>/commondir`, `could not create directory of
   '.git/worktrees/<id>'` ou `bad object worktrees/<id>/HEAD` : une autre session administrait un
   worktree au même instant. Le cycle suivant repart d’une branche neuve.
