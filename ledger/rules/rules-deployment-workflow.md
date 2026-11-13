@@ -20,7 +20,7 @@ related_incidents: [INC-2026-007]
 > `main` est protégée. Le vocabulaire suit [[ADR-075-deployment-topology-clarification|ADR-075]].
 > **2.1.0** : le workflow PROD refuse toute ref autre qu'un tag `v*` (PR monorepo #2010) et devient
 > `release-prod.yml` ; l'ancien chemin `deploy-prod.yml` est désactivé (#2046). La classification
-> des anciens tags (D5) est retirée : aucun ne se relance.
+> des anciens tags (D5) est retirée : aucun ne doit être relancé (D3).
 
 ---
 
@@ -77,9 +77,10 @@ En cas de doute, lire le workflow, pas la documentation.
 - **Ne lancer aucun run de l'ancien workflow `deploy-prod.yml`, ne pas le réactiver, ne pas
   réintroduire ce chemin, ne pas pousser de tag `v*` sur un commit qui ne contient pas
   `release-prod.yml`.** GitHub identifie un workflow par son chemin et un run exécute la copie de
-  sa ref : tous les tags et branches antérieurs au renommage (PR monorepo #2046) portent un
-  `deploy-prod.yml` sans garde de ref, dont 194 tags sans aucune garde de provenance (leur run
-  promeut l'alias `:preprod` courant vers PROD). L'owner désactive ce workflow après la fusion du
+  sa ref : les tags et branches antérieurs au renommage (PR monorepo #2046) portent un
+  `deploy-prod.yml`. Au 2026-11-13, les 305 tags `v*` le portent ; un seul contient la garde de
+  ref, et 194 n'ont aucune garde de provenance (leur run promeut l'alias `:preprod` courant vers
+  PROD). L'owner désactive ce workflow après la fusion du
   renommage ; son état, lu par l'API des workflows (`.state`), doit être `disabled_manually`. La
   documentation de GitHub ne précise pas l'effet d'une désactivation sur le run d'une ref
   antérieure : l'interdiction vaut désactivé ou non.
