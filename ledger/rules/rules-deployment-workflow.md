@@ -2,21 +2,25 @@
 type: rules-document
 status: canon
 scope: deployment
-updated: 2026-11-10
+updated: 2026-11-13
 related_adrs: [ADR-028, ADR-075, ADR-101, ADR-102, ADR-121, ADR-123, ADR-124]
 related_incidents: [INC-2026-007]
 ---
 
 # Rules — Deployment Workflow (PREPROD par `main`, PROD par tag)
 
-> **Version** : 2.0.0 | **Status** : CANON (règle du vault, normative au sens de G1)
-> **État décrit** : `main` du monorepo au 2026-11-10 (`6eda5d6dd6c023ba4401186e99a27a098ae169b5`)
+> **Version** : 2.1.0 | **Status** : CANON (règle du vault, normative au sens de G1)
+> **État décrit** : `main` du monorepo après la fusion de la PR #2046 (2.0.0 : `main` au 2026-11-10,
+> `6eda5d6dd6c023ba4401186e99a27a098ae169b5`)
 > **Incident racine** : [[2026-04-21-false-prod-claim-on-main-merge|INC-2026-007]], une fusion sur
 > `main` annoncée comme un déploiement PROD.
 > **2.0.0** : la 1.0.0 plaçait le déploiement de `main` sur la machine DEV et prescrivait
 > `gh pr merge --admin`, un rollback par push direct sur `main` et un rollback PROD par SSH. Elle
 > contredisait T6 ([[rules-technical]], corrigée par [[ADR-101-vault-decides-canon-authority|ADR-101]]) :
 > `main` est protégée. Le vocabulaire suit [[ADR-075-deployment-topology-clarification|ADR-075]].
+> **2.1.0** : le workflow PROD refuse toute ref autre qu'un tag `v*` (PR monorepo #2010) et devient
+> `release-prod.yml` ; l'ancien chemin `deploy-prod.yml` est désactivé (#2046). La classification
+> des anciens tags (D5) est retirée : aucun ne se relance.
 
 ---
 
@@ -27,7 +31,7 @@ Deux déclencheurs, distincts et non substituables.
 | Déclencheur | Workflow du monorepo | Image | Environnement | Validation |
 |---|---|---|---|---|
 | Fusion d'une PR sur `main` (push `main`) | `ci.yml` : `🐳 build` (via `build.yml`), puis `🧪 Deploy PREPROD`, `🎭 E2E Smoke Tests`, `🔦 Lighthouse Performance Audit` | `build.yml` publie `:sha-<commit>` et déplace l'alias `:preprod` | **PREPROD** : pile de CI sur l'hôte PROD (cinq conteneurs, ADR-075) ; application en `READ_ONLY=true`, sans accès direct à la base ; port 3200 de la boucle locale, publié par le proxy de la pile | automatique, sans humain |
-| Push d'un tag `v*`, ou `workflow_dispatch` de `Deploy PROD (via tag)` sur ce tag | `deploy-prod.yml` | promotion de `:sha-<commit du tag>` vers `:production` | **PROD** : conteneur live derrière Caddy | décision de l'owner : le tag |
+| Push d'un tag `v*`, ou `workflow_dispatch` de `Release PROD (tag v*)` sur ce tag | `release-prod.yml` | promotion de `:sha-<commit du tag>` vers `:production` | **PROD** : conteneur live derrière Caddy | décision de l'owner : le tag |
 
 - Aucun workflow ne déploie sur la machine DEV. Son runtime de développement suit `main` par
   resynchronisation (`scripts/ops/sync-dev-runtime.sh`, lancé par un cron).
@@ -62,21 +66,23 @@ En cas de doute, lire le workflow, pas la documentation.
   ([[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D4). Cette règle ne prescrit
   plus `gh pr merge --admin`, qui passe outre les exigences de la protection, ni la désactivation
   d'un check.
-- **Ne pas déployer PROD hors de `deploy-prod.yml`** : sur `main`, son chemin vérifie la preuve
-  PREPROD et capture le point de rollback ; le workflow d'un ancien tag a ses propres limites (D5).
-- **Ne lancer `Deploy PROD (via tag)` que sur un tag `v*`.** Le formulaire du `workflow_dispatch`
-  propose `main` par défaut, et le run exécute le `deploy-prod.yml` de la ref choisie. Lancé sur
-  `main` dont PREPROD a validé la tête, le workflow déploierait ce commit sans tag `v*` et
-  publierait l'image sous `:main` : la décision de l'owner n'aurait pas de preuve (D6). Il ne le
-  bloque pas (constat d'ADR-075). Sur une branche dont la tête est un commit de `main` qui contient
-  #1696 et que PREPROD a validé, il ferait de même sous le nom de la branche si ce nom est un tag
-  Docker valide (au plus 128 caractères parmi lettres ASCII, chiffres, `_`, `.` et `-`, sans `.` ni
-  `-` en tête : donc ni `/` ni `+`) ; sinon il refuse au contrôle de ce nom, mais après avoir
-  remplacé `:production-previous` (D5, #1288). Sur une autre ref, le résultat suit le workflow de
-  cette ref, comme pour un tag (D5) : au 2026-11-10, 25 branches distantes en portent un sans garde
-  de label ni preuve PREPROD. Sur 24 d'entre elles (nom avec `/`), le run s'arrête avant tout push,
-  mais après avoir fait pointer le tag local `:production` de l'hôte du runner sur l'image
-  `:preprod` ; sur la 25e, il promeut l'alias `:preprod` courant vers PROD.
+- **Ne pas déployer PROD hors de `release-prod.yml`** : son chemin vérifie la ref, la preuve
+  PREPROD et capture le point de rollback (D4.5).
+- **Ne lancer `Release PROD (tag v*)` que sur un tag `v*` qui contient `release-prod.yml`.** Le
+  formulaire du `workflow_dispatch` propose `main` par défaut, et le run exécute le workflow de la
+  ref choisie. Sa première étape, `🔖 Release ref gate` (PR monorepo #2010), refuse avant le
+  checkout et avant toute action sur l'hôte toute ref autre qu'un tag `v*` (`refs/tags/v…`, sans `/`
+  après le `v`, comme le déclencheur `push`). Une ref dont le commit ne contient pas
+  `release-prod.yml` ne peut pas lancer ce workflow.
+- **Ne lancer aucun run de l'ancien workflow `deploy-prod.yml`, ne pas le réactiver, ne pas
+  réintroduire ce chemin, ne pas pousser de tag `v*` sur un commit qui ne contient pas
+  `release-prod.yml`.** GitHub identifie un workflow par son chemin et un run exécute la copie de
+  sa ref : tous les tags et branches antérieurs au renommage (PR monorepo #2046) portent un
+  `deploy-prod.yml` sans garde de ref, dont 194 tags sans aucune garde de provenance (leur run
+  promeut l'alias `:preprod` courant vers PROD). L'owner désactive ce workflow après la fusion du
+  renommage ; son état, lu par l'API des workflows (`.state`), doit être `disabled_manually`. La
+  documentation de GitHub ne précise pas l'effet d'une désactivation sur le run d'une ref
+  antérieure : l'interdiction vaut désactivé ou non.
 - **Ne pas utiliser le tag `latest`.** Un alias (`:preprod`, `:production`) ne sert pas de référence
   de version : citer le commit, le tag `v*` ou `:sha-<commit>`.
 
@@ -94,7 +100,8 @@ En cas de doute, lire le workflow, pas la documentation.
    en service, qui sert de point de retour (D5).
 4. L'owner pose le tag `v*` sur ce commit et le pousse. Le tag est une décision de l'owner, jamais
    celle d'un agent.
-5. `deploy-prod.yml` refuse d'abord, sans rien modifier, un commit sans ces trois jobs verts
+5. `release-prod.yml` vérifie d'abord la ref (D3), puis refuse, sans rien modifier, un commit sans
+   ces trois jobs verts
    (`scripts/ci/prod-preprod-evidence.mjs`). Il capture ensuite l'image en service comme point de
    rollback : son identifiant, épinglé pour le run, et l'alias `:production-previous`, poussé au
    registre (un échec de ce push n'arrête pas le run). Il vérifie que `:sha-<commit>` porte le bon
@@ -118,46 +125,19 @@ En cas de doute, lire le workflow, pas la documentation.
 |---|---|
 | **PREPROD** | PR de revert du commit fautif, fusionnée selon D4.1. Le push `main` qui en résulte relance le cycle D1. Jamais de push direct ni de force-push sur `main`. |
 | **PROD, pendant un déploiement** | Automatique : après le point de non-retour, tout échec déclenche `⏪ Rollback PROD` (`scripts/ci/prod-rollback.sh`), qui remet `:production` sur l'image capturée avant la mutation et la redémarre. Il ne restaure que l'image : le Caddyfile, les fichiers compose et le `.env` posés par ce déploiement restent en place, et ses vérifications (`/health`, SSR) se font dans le conteneur, sans passer par Caddy. Un run annulé ou interrompu après le point de non-retour (annulation manuelle, perte du runner) ne déclenche pas ce rollback : dernière ligne. Ne jamais annuler un run en cours de déploiement. En mode break-glass (D4.6), si le conteneur PROD était absent, aucune image n'a été capturée : l'étape échoue et renvoie à l'intervention manuelle (dernière ligne). |
-| **PROD, après un déploiement réussi** | L'owner relance `Deploy PROD (via tag)` (`workflow_dispatch`) sur le tag `v*` de la version à restaurer, dans les limites ci-dessous. |
-| **PROD, workflow indisponible, run annulé ou interrompu après le point de non-retour, tag refusé ou tag sans garde** | Intervention manuelle de l'owner sur l'hôte PROD, par la console de l'hébergeur. Aucun agent ne modifie PROD ; lire son `/health` (D6) n'est pas une modification. |
+| **PROD, après un déploiement réussi** | L'owner relance `Release PROD (tag v*)` (`workflow_dispatch`) sur le tag `v*` de la version à restaurer, si ce tag contient `release-prod.yml`. |
+| **PROD, workflow indisponible, run annulé ou interrompu après le point de non-retour, ou version à restaurer antérieure au renommage** | Intervention manuelle de l'owner sur l'hôte PROD, par la console de l'hébergeur. Aucun agent ne modifie PROD ; lire son `/health` (D6) n'est pas une modification. |
 
-Le run relancé exécute le `deploy-prod.yml` **du tag choisi**, pas celui de `main`. Ses contrôles
-dépendent donc des commits que contient le tag (303 tags `v*` au 2026-11-10 ; dates de fusion en
-UTC) :
+Le run relancé exécute le `release-prod.yml` **du tag choisi**, pas celui de `main`. Un tag qui le
+contient contient aussi la garde de ref (#2010), le contrôle de la version servie (#1881, #1884,
+#1887) et le traitement du Caddyfile (#1961) : ce sont les contrôles de D4.5. Un contrôle ajouté
+plus tard ne vaut que pour les tags qui le contiennent.
 
-- tag qui contient les PR monorepo #1881, #1884 et #1887 (2026-10-24 et 2026-10-25 ; au 2026-11-10,
-  deux tags : ceux du 2026-10-30 et du 2026-11-05) : contrôles de D4.5, dont `/health` `revision`,
-  sauf le traitement du Caddyfile : `prod-caddy-config.sh` (#1961, 2026-11-05) n'est dans aucun
-  tag. Le workflow de ces deux tags copie le Caddyfile du tag sur l'hôte sans le valider, avant le
-  point de non-retour, puis arrête et supprime Caddy avec le conteneur PROD et les recrée
-  ensemble : le site ne répond pas pendant le remplacement, et Caddy redémarre sur le Caddyfile du
-  tag, qui remplace celui de l'hôte ;
-- tag qui contient #1696 (2026-10-02) mais pas #1881 (13 tags) : preuve PREPROD et provenance de
-  `:sha-<commit>` vérifiées ; ni contrôle de version servie, ni champ `revision` dans `/health`, donc
-  pas de preuve D6 de la version servie ;
-- tag qui contient le commit monorepo `ed10ec6e5` (2026-04-21) mais pas #1696 (94 tags) : son
-  workflow s'arrête si le label `revision` de l'alias `:preprod` diffère du commit du tag, avant de
-  toucher `:production` et le conteneur PROD. L'alias suit `main` : le refus est la règle dès qu'un
-  commit plus récent a été construit. Ligne « tag refusé » ;
-- tag qui ne contient pas `ed10ec6e5` (194 tags) : **aucune garde de provenance** ; après le
-  déploiement, seuls des contrôles d'exécution (conteneur démarré, réponses HTTP dont `/health`)
-  vérifient l'état de PROD, jamais la version servie. Son workflow promeut l'alias `:preprod`
-  courant vers `:production`, le pousse sous le nom du tag (ce qui écrase le tag Docker de la
-  version d'origine) et redémarre PROD, quel que soit le commit de l'alias. Le rollback automatique
-  de 39 d'entre eux revient à `:production-previous`, copié de `:production` après la promotion : il
-  redémarre l'image promue. Ne jamais le relancer : ligne « tag sans garde ».
-
-Un tag qui contient #1288 (2026-07-18 ; 41 tags : les 15 qui contiennent #1696 et 26 de la classe
-`ed10ec6e5`) réétiquette `:production-previous` sur l'image en service et le pousse avant de
-vérifier la provenance de l'image : un run refusé à ce stade remplace le point de retour précédent.
-Les 15, et 5 des 26 qui contiennent aussi #1598 (2026-09-29), vérifient d'abord la preuve PREPROD du
-commit (`scripts/ci/prod-preprod-evidence.mjs`) : si le run `ci.yml` manque ou n'est pas lisible,
-ils refusent avant toute mutation. Les 26 refusent ensuite sur le label de `:preprod`, selon leur
-classe. Les 15 supposent aussi que `:sha-<commit>` est encore dans le registre : sans l'image, ils
-refusent avant de toucher `:production` et le conteneur PROD, mais après la capture. Après un tel
-refus, l'intervention manuelle ne s'appuie pas sur `:production-previous` ; elle désigne l'image à
-restaurer par le tag Docker poussé à son déploiement (nom du tag `v*`), ou par `:sha-<commit>` si
-cette image est encore dans le registre.
+Pour une version antérieure au renommage, l'intervention manuelle ne s'appuie pas sur
+`:production-previous`, qu'un ancien run a pu remplacer (#1288) ; elle désigne l'image à restaurer
+par `:sha-<commit>` si cette image est encore dans le registre, sinon par le tag Docker poussé à son
+déploiement (nom du tag `v*`). Un ancien workflow a pu réécrire ce tag Docker avec une autre image :
+vérifier son label `org.opencontainers.image.revision` avant de l'utiliser.
 
 Un revert sur `main` ne change pas PROD : il redéploie PREPROD. PROD ne change que par D4 ou par une
 ligne de ce tableau.
@@ -170,14 +150,14 @@ ligne de ce tableau.
 | Tag `v*` | `git tag --points-at <sha>` | que le déploiement PROD ait réussi |
 | Image | identifiant d'image et label `org.opencontainers.image.revision` de `:sha-<commit>` | qu'elle tourne ; un alias ne désigne pas une version |
 | Environnement | son rôle (ADR-075 D2) | la version qu'il sert |
-| Preuve CI | jobs en `success` sur le run `ci.yml` du commit, run `deploy-prod.yml` en `success` | que la version soit encore servie |
+| Preuve CI | jobs en `success` sur le run `ci.yml` du commit, run `release-prod.yml` en `success` (`deploy-prod.yml` avant le renommage) | que la version soit encore servie |
 | Version servie | `/health` de l'environnement, `revision` égal au SHA attendu, lu et daté | quoi que ce soit sur un autre environnement |
 
 Sources : `.github/workflows/ci.yml`, `.github/workflows/build.yml`,
-`.github/workflows/deploy-prod.yml`, `.github/workflows/deploy-monitoring-scripts.yml`,
+`.github/workflows/release-prod.yml`, `.github/workflows/deploy-monitoring-scripts.yml`,
 `docker-compose.preprod.yml`, `scripts/ci/prod-preprod-evidence.mjs`,
 `scripts/ci/prod-caddy-config.sh`, `scripts/ci/prod-rollback.sh` et `scripts/ci/prod-ssr-probe.sh`
-du monorepo, ainsi que le `deploy-prod.yml` de chaque tag `v*`. `.claude/rules/deployment.md` transmet cette
+du monorepo, ainsi que les PR monorepo #2010 et #2046. `.claude/rules/deployment.md` transmet cette
 règle aux agents du monorepo ; un écart entre les deux est un constat (ADR-101 D3).
 
 ## Mapping historique
@@ -189,6 +169,7 @@ règle aux agents du monorepo ; un écart entre les deux est un constat (ADR-101
 | 2026-05-18 | PR monorepo #590 : vocabulaire DEV / PREPROD / PROD et lint (ADR-075) |
 | 2026-11-01 | 2.0.0 : PREPROD sur l'hôte PROD, sans `--admin` ni push direct, rollback PROD par le workflow ou par l'owner, six preuves |
 | 2026-11-10 | 2.0.0 révisée avant sa fusion : fusion selon T6 amendée (ADR-121, ADR-123, ADR-124), pile PREPROD de cinq conteneurs, Caddyfile et mode break-glass du déploiement PROD, tags et branches recomptés |
+| 2026-11-13 | 2.1.0 : garde de ref du workflow PROD (PR monorepo #2010), workflow renommé `release-prod.yml` et ancien chemin désactivé (#2046) ; D5 sans classification des anciens tags |
 
 ## Références
 
