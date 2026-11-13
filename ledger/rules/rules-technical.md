@@ -1,7 +1,7 @@
 # Rules - AutoMecanik
 
 > Regles non-negociables au 2026-11-07. T2, T5, T6 et T7 corrigees par [[ADR-101-vault-decides-canon-authority|ADR-101]] d'apres l'etat de `main` du monorepo ; T6 alignee sur [[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D4 par la decision de l'owner du 2026-11-03, et completee par [[ADR-123-fusion-automatique-conditionnelle-perimetre-adopte|ADR-123]] (delta conditionnel).
-> **Version**: 3.1.0 | **Status**: CANON (regle du vault, normative au sens de G1)
+> **Version**: 3.1.1 | **Status**: CANON (regle du vault, normative au sens de G1)
 > Ancienne copie de `.spec/00-canon/rules.md` (monorepo, prose de reference sans autorite) ; diverge volontairement depuis ADR-101.
 
 ---
@@ -159,7 +159,7 @@ explicite », puis `gh pr merge` « APRES approbation explicite uniquement ». L
 reproduite ci-dessus en est l'alignement sur ADR-121 D4 ; le delta est la redaction du nouveau cadre
 preparee pour ADR-123 (correspondance : ADR-123 §T6)._
 
-**Raison** : `main` est protegee ; un merge sur `main` redeploie le container PREPROD de CI (`ci.yml`). La PROD part d'un tag `v*` (`deploy-prod.yml`), decision owner.
+**Raison** : `main` est protegee ; un merge sur `main` redeploie le container PREPROD de CI (`ci.yml`). La PROD part d'un tag `v*` (`release-prod.yml`), decision owner.
 
 ---
 
