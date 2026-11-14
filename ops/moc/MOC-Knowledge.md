@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-11-10
+updated: 2026-11-14
 ---
 
 # MOC: Knowledge
@@ -15,6 +15,8 @@ Base de connaissances architecturale.
 - [[vlevel-current-architecture]] - Architecture V-Level
 
 ## AI-COS
+
+- [[ledger/knowledge/README|AI-COS Documentation]] - Point d'entree de la documentation AI-COS
 
 ### Modèles Conceptuels
 - [[00-agent-model]] - Modèle d'agents
