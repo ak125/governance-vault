@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-10-27
+updated: 2026-11-14
 ---
 
 # MOC: Agents
@@ -16,7 +16,7 @@ Index canonique de tous les agents du monorepo AutoMecanik. Les agents sont stoc
 
 Liste des index par categorie. Pour les compteurs et metadata par agent : [[REG-001-agents]].
 
-- [[INDEX-agents-ai-cos]] — C-Suite IA (CEO/CFO/CMO/CPO/CTO), leads SEO/RAG/Data, QA, prompts R1/R3/R4/R6
+- [[INDEX-agents-ai-cos]] — système AI-COS retiré avec sa machine, ses agents `disabled` ([[ADR-129-retrait-ai-cos-machine-systeme-agents|ADR-129]]) ; agents QA et prompts R1/R3/R4/R6 conservés
 - [[INDEX-agents-backend]] — Services NestJS (SEO, monitoring, cache, sitemap delta)
 - [[INDEX-agents-python]] — Analyzers A1-A12, Fixproof F0/F1/F15 (read-only audits)
 - [[INDEX-agents-skills]] — Modules Claude Agent SDK reutilisables (UI-OS, governance-vault-ops, etc.)
@@ -37,9 +37,9 @@ Chaque agent est affecte a une zone. Voir [[ADR-008-agent-placement-rules]] et [
 | Zone | Role | Exemples |
 |------|------|----------|
 | `local` | Dev/CI sandbox | Skills, MCP servers, scripts |
-| `principal_vps` | Prod controllee | Backend services, AI-COS executors |
+| `principal_vps` | Prod controllee | Backend services |
 | `external` | Analyzers read-only | Python analyzers (A1-A12), GitHub Actions |
-| `aicos_vps` | Observatoire | AI-COS leads (SEO, Data, RAG), C-Suite |
+| `aicos_vps` | Sans objet : machine retiree ([[ADR-129-retrait-ai-cos-machine-systeme-agents|ADR-129]]) | Aucun agent ; valeur gardee pour l'historique |
 | `production` | **INTERDIT** | Aucun agent (voir [[ADR-008-agent-placement-rules]]) |
 
 ---
@@ -56,7 +56,8 @@ Voir [[ADR-009-agents-phase1-activation]] pour le framework. Compteurs exacts pa
 - [[ADR-008-agent-placement-rules]] - 3 zones (etendu a 4)
 - [[ADR-009-agents-phase1-activation]] - Framework d'activation
 - [[ADR-011-openclaw-claude-api-replacement]] - Remplacement OpenClaw
-- [[ADR-012-aicos-vps-architecture]] - AI-COS VPS (4e zone)
+- [[ADR-012-aicos-vps-architecture]] - AI-COS VPS (4e zone), amende par ADR-129
+- [[ADR-129-retrait-ai-cos-machine-systeme-agents|ADR-129]] - Retrait d'AI-COS, machine et systeme d'agents (accepted)
 - [[ADR-013-agent-lifecycle-governance]] - Cycle de vie
 
 ## Regles

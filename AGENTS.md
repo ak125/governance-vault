@@ -1,6 +1,6 @@
 # AGENTS.md — Governance Vault Single Source of Truth
 
-> Instructions obligatoires pour tout agent (Claude Code, Cowork, AI-COS, Codex, scripts, humains utilisant un agent) qui produit un document de gouvernance.
+> Instructions obligatoires pour tout agent (Claude Code, Cowork, Codex, scripts, humains utilisant un agent) qui produit un document de gouvernance.
 >
 > "Single Source of Truth" ici designe la **gouvernance operationnelle** (autorite formelle : [[ADR-015-vault-single-source-of-truth|ADR-015]]). Pour les acceptions distinctes du mot `canon` dans ce projet, voir le glossaire dans [[MOC-Governance]] section "Glossaire `canon`".
 
@@ -18,7 +18,7 @@ Canonical path (runtime sur DEV VPS) : `/opt/automecanik/governance-vault/` (clo
 - `/opt/automecanik/app/.local/*` — gitignoré, ton travail sera perdu
 - `/opt/automecanik/app/.spec/` — fichiers du monorepo, jamais un emplacement du vault (règle [[rules-vault|G1]])
 
-Voir aussi [[ADR-015-vault-single-source-of-truth|ADR-015]] pour la décision formelle et [[ADR-012-aicos-vps-architecture|ADR-012]] pour l'architecture 3-VPS.
+Voir aussi [[ADR-015-vault-single-source-of-truth|ADR-015]] pour la décision formelle et [[ADR-012-aicos-vps-architecture|ADR-012]] pour l'architecture des machines (deux machines, DEV et PROD, depuis le retrait d'AI-COS décidé par [[ADR-129-retrait-ai-cos-machine-systeme-agents|ADR-129]]).
 
 ---
 
@@ -144,13 +144,14 @@ Les autres interdits reposent sur les hooks locaux ou sur la revue.
 
 ---
 
-## 3-VPS Architecture (rappel [[ADR-012-aicos-vps-architecture|ADR-012]])
+## Machines (rappel [[ADR-012-aicos-vps-architecture|ADR-012]], amendé par [[ADR-129-retrait-ai-cos-machine-systeme-agents|ADR-129]])
 
 | VPS | Rôle | Write access vault ? |
 |-----|------|---------------------|
 | **DEV** | Dev, CI artefacts, vault runtime canonique | Oui (via PR signée) |
 | **PROD** | Production | Non (miroir en lecture seule, ADR-012) |
-| **AI-COS** | Agents IA, Airlock | Non (git clone read-only via HTTPS) |
+
+> La machine AI-COS (agents IA, clone du vault en lecture seule) est arrêtée depuis octobre 2026, jour exact inconnu ; son système d'agents est retiré avec elle ([[ADR-129-retrait-ai-cos-machine-systeme-agents|ADR-129]]). Aucun agent n'y est plus placé.
 
 Aucune VPS ne doit écrire de gouvernance hors du workflow GitHub PR.
 
