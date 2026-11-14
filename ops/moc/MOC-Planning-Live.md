@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-10-01
+updated: 2026-11-14
 schema_version: planning.v1
 semantic_hash: 205ade8c0c693182
 adr_link: ADR-053
@@ -90,4 +90,6 @@ ack:
 ## See also
 
 - [[ADR-053-planning-live-system]]
+- [[.spec/00-canon/planning/README|Schemas Planning]] - schemas YAML du systeme Planning Live (ADR-053)
+- [[ledger/snapshots/planning/README|Snapshots Planning]] - format des snapshots, figes depuis le 2026-08-14 (ADR-104)
 - [[MOC-Roadmap-2026]]

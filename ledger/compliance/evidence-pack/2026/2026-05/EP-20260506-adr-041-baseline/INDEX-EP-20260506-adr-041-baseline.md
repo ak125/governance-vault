@@ -19,7 +19,7 @@ Pose la baseline empirique T0 (snapshot GSC 28j ending 2026-05-04) et planifie l
 
 | Fichier | Contenu |
 |---------|---------|
-| [[01-context]] | Périmètre, hypothèses H-2A.1/2/3, garanties méthodo |
+| [[ledger/compliance/evidence-pack/2026/2026-05/EP-20260506-adr-041-baseline/01-context|01-context]] | Périmètre, hypothèses H-2A.1/2/3, garanties méthodo |
 | [[02-data-source]] | Pipeline GSC existant + tables/services réutilisés |
 | `03-baseline-snapshot.sql` | SQL : Q1 (169 rows JSON) + Q2 (3 rows bucket aggregate) — **CORRIGÉ 2026-05-07 : filtre URL R1 PURE** |
 | [[04-trajectory-plan]] | Calendrier T0→T+30, critères décision 2.A, anti-overclaim |

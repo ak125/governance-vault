@@ -2,7 +2,7 @@
 type: moc
 status: canon
 role: master-index
-updated: 2026-11-10
+updated: 2026-11-14
 ---
 
 # MOC: Governance
@@ -71,7 +71,7 @@ Lorsque le mot `canon` est utilise sans qualificatif, il faut preferer l'interpr
 
 ## Meta
 
-- [[README]] - Documentation generale du vault
+- [[/README|README]] - Documentation generale du vault
 - [[signing-policy]] - Politique de signature (SSH ed25519)
 - [[key-registry]] - Registre des cles SSH
 - [[sync-log]] - Log de synchronisation canon

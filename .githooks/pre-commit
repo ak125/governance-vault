@@ -37,9 +37,10 @@ if [[ $rc -eq 2 ]]; then
 fi
 if [[ $rc -ne 0 ]]; then
   echo ""
-  echo "[pre-commit] BLOCKED: broken wikilinks detected. See 99-meta/broken-links-report.md"
+  echo "[pre-commit] BLOCKED: broken or ambiguous wikilinks detected. See 99-meta/broken-links-report.md"
+  echo "             Fix: un nom porte par plusieurs documents se lie par son chemin (ADR-127)."
   exit 1
 fi
 
-echo "[pre-commit] OK: 0 orphan, 0 broken wikilink."
+echo "[pre-commit] OK: 0 orphan, 0 broken or ambiguous wikilink."
 exit 0
