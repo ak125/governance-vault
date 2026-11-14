@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
-# check-broken-links.sh - Detecte les [[wikilinks]] qui ne resolvent aucun .md du vault
+# check-broken-links.sh - Detecte les [[wikilinks]] casses ou ambigus du vault
+#
+# Resolution par chemin (ADR-127, resolveur partage _scripts/wikilinks.py) :
+#   - [[dossier/nom]] : chemin depuis la racine du vault ('/' initial accepte) ; casse s'il n'existe pas ;
+#   - [[nom]]         : casse si aucun document ne porte ce nom, ambigu si plusieurs le portent.
 #
 # Ignore les [[...]] dans les blocs de code (fenced ``` et inline `).
-# Exit 1 si des liens casses sont trouves.
+# Exit 1 si des liens casses ou ambigus sont trouves ; rapport : 99-meta/broken-links-report.md.
 
 set -euo pipefail
 
@@ -38,50 +42,22 @@ if [[ -z "$PY_BIN" ]]; then
   exit 2
 fi
 
-$PY_BIN - "$VAULT_PATH" <<'PY'
-import os, re, sys
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+$PY_BIN - "$VAULT_PATH" "$SCRIPT_DIR" <<'PY'
+import sys
 from pathlib import Path
 
 root = Path(sys.argv[1]).resolve()
-EXCLUDE_DIRS = {".git", ".obsidian"}
+sys.path.insert(0, sys.argv[2])
+from wikilinks import link_problems  # resolveur partage (ADR-127)
 
-all_stems = set()
-all_paths = set()
-for p in root.rglob("*.md"):
-    if any(part in EXCLUDE_DIRS for part in p.parts):
-        continue
-    all_stems.add(p.stem)
-    all_paths.add(str(p.relative_to(root))[:-3])
-
-def strip_code(txt):
-    txt = re.sub(r"```[\s\S]*?```", "", txt)
-    txt = re.sub(r"`[^`\n]*`", "", txt)
-    return txt
-
-link_re = re.compile(r"\[\[([^\]]+?)\]\]")
-broken = []
-for p in root.rglob("*.md"):
-    if any(part in EXCLUDE_DIRS for part in p.parts):
-        continue
-    try:
-        txt = strip_code(p.read_text(encoding="utf-8", errors="ignore"))
-    except Exception:
-        continue
-    for m in link_re.findall(txt):
-        name = m.strip()
-        if "|" in name:
-            name = name.split("|", 1)[0]
-        if "#" in name:
-            name = name.split("#", 1)[0]
-        name = name.strip().rstrip("\\")
-        stem = name.rsplit("/", 1)[-1]
-        if stem not in all_stems and name not in all_paths:
-            broken.append((str(p.relative_to(root)), name))
+broken, ambiguous = link_problems(root)
 
 out_path = root / "99-meta" / "broken-links-report.md"
 out_path.parent.mkdir(parents=True, exist_ok=True)
 
-if broken:
+if broken or ambiguous:
     from datetime import datetime
     with out_path.open("w", encoding="utf-8") as f:
         f.write("---\n")
@@ -89,19 +65,30 @@ if broken:
         f.write("status: generated\n")
         f.write(f"generated: {datetime.now().isoformat(timespec='seconds')}\n")
         f.write(f"broken_count: {len(broken)}\n")
+        f.write(f"ambiguous_count: {len(ambiguous)}\n")
         f.write("---\n\n")
         f.write("# Broken Wikilinks Report\n\n")
         f.write(f"**Liens casses detectes**: {len(broken)}\n\n")
-        f.write("| Fichier source | Cible (cassee) |\n")
-        f.write("|----------------|----------------|\n")
-        for src, tgt in broken:
-            f.write(f"| `{src}` | `[[{tgt}]]` |\n")
-    print(f"FAIL: {len(broken)} broken wikilink(s) detected")
+        if broken:
+            f.write("| Fichier source | Cible (cassee) |\n")
+            f.write("|----------------|----------------|\n")
+            for link in broken:
+                f.write(f"| `{link.source}` | `[[{link.target}]]` |\n")
+        f.write(f"\n**Liens ambigus detectes**: {len(ambiguous)}\n\n")
+        if ambiguous:
+            f.write("Nom porte par plusieurs documents : lier par le chemin, ")
+            f.write("`[[dossier/nom|alias]]` (ADR-127).\n\n")
+            f.write("| Fichier source | Cible (ambigue) | Candidats |\n")
+            f.write("|----------------|-----------------|-----------|\n")
+            for link in ambiguous:
+                cands = ", ".join(f"`{c[:-3]}`" for c in link.resolved)
+                f.write(f"| `{link.source}` | `[[{link.target}]]` | {cands} |\n")
+    print(f"FAIL: {len(broken)} broken wikilink(s), {len(ambiguous)} ambiguous wikilink(s) detected")
     print(f"Report: {out_path.relative_to(root)}")
     sys.exit(1)
 else:
     if out_path.exists():
         out_path.unlink()
-    print("PASS: 0 broken wikilink")
+    print("PASS: 0 broken wikilink, 0 ambiguous wikilink")
     sys.exit(0)
 PY

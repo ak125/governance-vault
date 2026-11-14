@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-11-09
+updated: 2026-11-14
 ---
 
 # MOC: Policies
@@ -21,6 +21,7 @@ Les policies decrivent **comment** appliquer les regles (format, template, schem
 |----------|------|
 | [[SOURCE-SCORE-WEIGHTS-SPEC]] | Contrat de poids source_score (ADR-096 D3) — dimensions, hard gates, profils, calibration |
 | `source-score-weights.v1.json` | Contrat Layer 2 machine-readable, projete vers RAW via canon-hashes |
+| [[policies/seo-content/README|policies/seo-content]] | Policies OPA Rego des ecritures de contenu SEO du monorepo (H1) et leurs tests |
 | `merge-perimeter.v1.json` | Perimetre de fusion automatique du monorepo, lu par la porte ([[ADR-124-premier-perimetre-fusion-automatique-monorepo|ADR-124]]) ; son champ `status` fait foi (D8) |
 
 Les specifications, le prompt et l'exemple du canal de bundles sont archives ([[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4|ADR-102]]), voir [[INDEX-archive]].
