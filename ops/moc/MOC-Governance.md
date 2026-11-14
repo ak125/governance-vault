@@ -2,7 +2,7 @@
 type: moc
 status: canon
 role: master-index
-updated: 2026-11-10
+updated: 2026-11-14
 ---
 
 # MOC: Governance
@@ -79,7 +79,7 @@ Lorsque le mot `canon` est utilise sans qualificatif, il faut preferer l'interpr
 - [[cron-setup]] - Configuration des tasks cron
 - [[deploy-bot]] - Role du bot CI/CD (non-SPOF)
 - [[claude-desktop-instructions]] - Onboarding Claude Desktop (MCP filesystem, condense CLAUDE.md + AGENTS.md)
-- [[obsidian-setup]] - Topologie canonique coffre Obsidian (1 clone = 1 vault, plugins Dataview/Templater/Git, SSH signing G3)
+- [[obsidian-setup]] - Lecture du vault avec Obsidian, usage facultatif (clone autonome, aucun plugin requis, aucune ecriture depuis Obsidian ; ADR-126)
 - [[branch-protection]] - Politique de protection de la branche main
 - [[canon-dispatch-setup]] - Identifiants GitHub App du workflow canon-publish (dispatch vers les depots consommateurs)
 - [[governance-runtime-map]] - Carte des scripts et chemins d'ecriture/lecture du vault (instantane du 2026-05-10)

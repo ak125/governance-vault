@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-10-01
+updated: 2026-11-14
 ---
 
 # MOC: Rules
@@ -15,7 +15,7 @@ Index des regles canoniques du projet AutoMecanik, organisees par prefixe (voir 
 | Prefixe | Domaine | Fichier | Scope |
 |---------|---------|---------|-------|
 | **T** | Technical | [[rules-technical]] | Code (stack NestJS/Remix/Supabase) |
-| **G** | Governance (vault) | [[rules-vault]] | Vault Obsidian lui-meme |
+| **G** | Governance (vault) | [[rules-vault]] | Vault lui-meme (depot Markdown a wikilinks) |
 | **G** | Governance (process) | [[rules-governance-process]] | Processus, RAG, canon |
 | **AI** | AI-COS | [[rules-ai-cos]] | Agents IA (golden rules) |
 | **V** | V-Level SEO | [[rules-seo-vlevel]] | Classification keywords SEO |

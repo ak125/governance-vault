@@ -1,15 +1,15 @@
 ---
 type: knowledge
 status: canon
-updated: 2026-10-01
+updated: 2026-11-14
 audience: [claude-desktop-operator, onboarding]
-related_adr: [ADR-012, ADR-015, ADR-101]
+related_adr: [ADR-012, ADR-015, ADR-101, ADR-121, ADR-126]
 related_rules: [G1, G2, G3, G4]
 ---
 
 # Governance Vault — Instructions Claude Desktop
 
-> **Contexte** : ce document est un condensé pour Claude Desktop (MCP filesystem) — à distinguer de [[CLAUDE]] et [[AGENTS]] racine du vault, qui s'adressent aux agents Claude Code / Cowork / Codex. Le chemin canonique illustré (`C:\Users\...`) est un exemple poste Windows ; adapter à ton système. Les règles G1-G4, placements et workflow sont identiques partout.
+> **Contexte** : ce document est un condensé pour Claude Desktop (MCP filesystem) — à distinguer de [[CLAUDE]] et [[AGENTS]] racine du vault, qui s'adressent aux agents Claude Code / Cowork / Codex. Claude Desktop lit le vault et propose du texte ; il n'écrit pas dans le dépôt. Les règles G1-G4, les placements et le circuit d'écriture unique d'[[AGENTS]] sont identiques partout ([[ADR-126-obsidian-lecteur-facultatif-circuit-ecriture-unique|ADR-126]]).
 
 Tu travailles sur le Governance Vault AutoMecanik (clone de `ak125/governance-vault`).
 
@@ -17,7 +17,7 @@ Tu travailles sur le Governance Vault AutoMecanik (clone de `ak125/governance-va
 
 Le vault décide, le monorepo `ak125/nestjs-remix-monorepo` exécute (règle G1, [[ADR-101-vault-decides-canon-authority|ADR-101]]). Les ADR `accepted` et les règles de `ledger/rules/` sont normatifs. Dans `.spec/00-canon/` du monorepo, seuls les contrats consommés par du code, un générateur ou un check CI font foi, dans leur domaine.
 
-Chemin canonique (exemple poste Windows) : `<home>\nestjs-remix-monorepo\governance-vault\` (exposé via MCP `governance-vault`).
+Clone lu : un clone Git autonome de `ak125/governance-vault`, hors de tout autre dépôt (jamais un sous-dossier du monorepo), exposé via MCP `governance-vault`.
 
 JAMAIS écrire dans :
 
@@ -67,18 +67,22 @@ CLAUDE.md          # Instructions agents (ce fichier est un extrait)
 | Knowledge | `ledger/knowledge/` | libre |
 | MOC | `ops/moc/MOC-<scope>.md` | — |
 
-## Workflow nouveau-document
+## Circuit d'écriture (unique)
 
-1. `git pull --rebase origin main` (le cron `vault-sync.sh` ne met à jour que le checkout de la machine DEV, pas ce clone)
-2. Preflight obligatoire : `_scripts/preflight-write.sh` — exit 0 = GO ; tout autre code = corriger avant d'écrire (voir [[AGENTS]])
-3. Créer une branche : `git checkout -b <type>/<slug>` (ex : `docs/inc-2026-003-xxx`, `adr/ADR-NNN-yyy`)
-4. Utiliser un helper si disponible : `_scripts/new-incident.sh <severity> <slug>`
-5. Rédiger avec frontmatter YAML conforme au template
-6. Lier depuis un MOC (`ops/moc/MOC-*.md`) — G2
-7. Valider : `_scripts/check-orphans.sh .` et `_scripts/check-broken-links.sh .`
-8. Proposer le commit signé : `git commit -S -m "docs(<type>): ..."`
-9. Push + PR via `gh pr create --base main`
-10. Attendre que tous les checks requis soient verts (liste dans [[branch-protection]]), puis merge squash : `gh pr merge <N> --squash --match-head-commit <sha>` ; la protection n'exige aucune review
+Le seul circuit d'écriture du vault est celui d'[[AGENTS]] (section « Workflow nouveau-document »). Claude
+Desktop n'en exécute aucune étape : il rédige un texte ou un patch, puis une personne ou un agent qui
+dispose d'un terminal l'applique selon ce circuit :
+
+1. Worktree dédié créé depuis `origin/main` à jour, avec sa branche `<type>/<slug>`
+2. Preflight obligatoire : `_scripts/preflight-write.sh` (exit 0 = GO)
+3. Document au frontmatter conforme à son template, lié depuis un MOC ou un INDEX (G2)
+4. Validation : `_scripts/check-orphans.sh .` et `_scripts/check-broken-links.sh .`
+5. Commit signé (`git commit -S`, G3), push de la branche, `gh pr create --base main`
+6. Checks requis verts (liste dans [[branch-protection]]), puis remise à l'owner du numéro de PR, du SHA
+   de tête (40 caractères) et de la commande de fusion épinglée sur ce SHA. L'owner fusionne ; un agent
+   ne lance aucune commande de fusion (G4)
+
+En cas d'écart entre cette liste et [[AGENTS]], [[AGENTS]] fait foi.
 
 ## Anti-patterns (interdits)
 
@@ -125,9 +129,9 @@ Bloqués mécaniquement : orphelins, wikilinks cassés, commits non signés, che
 ## Limites Claude Desktop dans ce contexte
 
 - Tu peux lire/chercher/suivre wikilinks dans tout le vault via MCP filesystem
-- Tu peux **proposer** des modifications, mais pas **signer** les commits (G3)
-- Le workflow reste : Claude Desktop rédige → l'utilisateur review dans Obsidian → l'utilisateur commit signé en terminal
-- Pour toute tâche nécessitant `gh` / `git push` : donner à l'utilisateur la commande exacte à copier
+- Tu peux **proposer** des modifications (texte ou patch), mais ni les écrire dans le dépôt, ni les committer, ni les signer (G3)
+- Ton texte est appliqué par le circuit d'écriture unique ci-dessus ; aucune relecture ni aucun commit ne passe par Obsidian ou par Claude Desktop
+- Pour toute tâche nécessitant `git` ou `gh` : donner la commande exacte à copier, à exécuter dans le worktree du circuit
 
 ## Contact
 

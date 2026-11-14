@@ -6,6 +6,12 @@ Thumbs.db
 *.bak
 *~
 
+# Configuration locale d'un lecteur Markdown (Obsidian) et snapshots de son
+# plugin Git : propres a chaque poste, jamais publies (depot public). Le vault
+# ne versionne aucune configuration d'outil (ADR-126).
+.obsidian/
+_backups/
+
 # Vault-specific transient outputs
 #
 # `weekly-vault-lint` (ADR-020) writes a snapshot of detected orphans into

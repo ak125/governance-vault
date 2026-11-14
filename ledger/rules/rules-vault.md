@@ -1,14 +1,14 @@
 # Rules - Vault Governance (G1-G4)
 
 > Regles de gouvernance du vault lui-meme au 2026-11-10 (G1 reecrite par [[ADR-101-vault-decides-canon-authority|ADR-101]], G4 par [[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4|ADR-102]], G1 et G4.2 amendees par [[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]], G4 completee par [[ADR-123-fusion-automatique-conditionnelle-perimetre-adopte|ADR-123]], G1 completee par [[ADR-125-amendements-cibles-coherence-wiki-seo-autorite|ADR-125]])
-> **Version**: 3.4.0 | **Status**: CANON
+> **Version**: 3.4.1 | **Status**: CANON
 > **Taxonomie**: G = Governance (G1-G4 = vault ici, G5-G10 = processus dans rules-governance-process.md)
 
 ---
 
 ## Objectif
 
-Les regles **G1-G4** definissent comment le vault Obsidian lui-meme doit etre gouverne. Elles sont **non-negociables** et s'appliquent a toute modification du vault.
+Les regles **G1-G4** definissent comment le vault lui-meme (depot Git de documents Markdown relies par des wikilinks) doit etre gouverne. Elles sont **non-negociables** et s'appliquent a toute modification du vault.
 
 ---
 
@@ -48,7 +48,7 @@ les execute ([[ADR-060-repository-roles-doctrine|ADR-060]], ADR-101).
 
 > Tout document du vault DOIT etre:
 > - lie depuis **au moins 1 MOC** dans `ops/moc/`, OU
-> - reference via un wikilink Obsidian depuis un autre document du vault
+> - reference via un wikilink (`[[...]]`) depuis un autre document du vault
 
 **Exceptions (whitelist):**
 - Fichiers dans `ops/moc/` (les MOC sont des points d'entree)
@@ -188,5 +188,5 @@ l'execute). Il n'y a pas de kill-switch : `AI_VAULT_WRITE` est retire (ADR-102 D
 
 ---
 
-_Derniere mise a jour: 2026-11-10 (ADR-125 : G1, rang de GOVERNANCE-HUMAN). Precedente : 2026-11-10 (renvoi G5-G10 ; aucune regle changee)_
+_Derniere mise a jour: 2026-11-14 (Objectif et G2 formules sans nom d'outil, ADR-126 ; aucune regle changee). Precedente : 2026-11-10 (ADR-125 : G1, rang de GOVERNANCE-HUMAN)_
 _Status: CANON - Gouvernance du vault lui-meme_

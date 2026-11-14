@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-11-10
+updated: 2026-11-14
 ---
 
 # MOC: Decisions
@@ -106,7 +106,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 > Projection mécanique du frontmatter ADR (PR-3 sync_moc_decisions).
 > Toute édition manuelle entre les markers est écrasée à chaque sync.
 > Pour corriger un statut ou un titre, éditer le frontmatter de l'ADR puis relancer `--write`.
-> Dernier sync : 2026-11-10.
+> Dernier sync : 2026-11-14.
 
 | ID | Titre | Statut canonique | Date | Fichier |
 |----|-------|------------------|------|---------|
@@ -225,6 +225,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-123 | Exécution automatique conditionnelle de la fusion dans un périmètre adopté — amende ADR-102, ADR-120, ADR-121, G4, RULE-H5/H6, DoD2, AEC et T6 ; delta distinct sur Q2 et Q4 | Accepted | 2026-11-07 | [[ADR-123-fusion-automatique-conditionnelle-perimetre-adopte]] |
 | ADR-124 | Premier périmètre de fusion automatique (ADR-123) : documentation Markdown du monorepo vers main | Accepted | 2026-11-09 | [[ADR-124-premier-perimetre-fusion-automatique-monorepo]] |
 | ADR-125 | Amendements ciblés de cohérence : validation sur preuve, seuil 0.85, chemins WIKI au singulier, pilote R2 et compatibilité absente, statut de GOVERNANCE-HUMAN : amende ADR-031, ADR-066, ADR-068, ADR-083, ADR-086, ADR-091, ADR-092, ADR-094, ADR-107 et G1 | Accepted | 2026-11-10 | [[ADR-125-amendements-cibles-coherence-wiki-seo-autorite]] |
+| ADR-126 | Obsidian, lecteur facultatif du vault : un seul circuit d'écriture, obsidian-setup sans statut canon, .obsidian/ et _backups/ ignorés | Proposed | 2026-11-14 | [[ADR-126-obsidian-lecteur-facultatif-circuit-ecriture-unique]] |
 
 <!-- AUTO-GENERATED:moc-decisions-canonical-index end -->
 

@@ -1,8 +1,8 @@
 # Governance Vault
 
-**AutoMecanik Governance Ledger** — vault Obsidian dedie a l'audit, incidents, ADR, regles, et connaissance operationnelle du monorepo AutoMecanik.
+**AutoMecanik Governance Ledger** — depot Git de documents Markdown relies par des wikilinks `[[...]]`, dedie a l'audit, incidents, ADR, regles, et connaissance operationnelle du monorepo AutoMecanik.
 
-> **Point d'entree**: ouvre `ops/moc/MOC-Governance.md` dans Obsidian.
+> **Point d'entree**: `ops/moc/MOC-Governance.md`, lisible dans tout lecteur Markdown. Obsidian est un lecteur facultatif ([[obsidian-setup]]) ; l'ecriture suit le circuit unique de `AGENTS.md`.
 
 ---
 
@@ -24,7 +24,7 @@ Les ADR `accepted` ou `accepted-revised` sans `superseded_by` actif et les regle
 Aucun document ne peut etre orphelin. Tout document doit etre:
 
 - lie depuis au moins 1 MOC dans `ops/moc/`, OU
-- reference via un wikilink Obsidian depuis un autre document
+- reference via un wikilink (`[[...]]`) depuis un autre document
 
 Enforcement: `_scripts/check-orphans.sh` + CI job `g2-orphans`.
 
@@ -166,4 +166,4 @@ Chiffres releves a la main a cette date, non mis a jour automatiquement. Pour le
 
 ---
 
-_Derniere mise a jour: 2026-10-01_
+_Derniere mise a jour: 2026-11-14 (vault decrit sans dependance a un outil, ADR-126)_
