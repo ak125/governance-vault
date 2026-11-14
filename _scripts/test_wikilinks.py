@@ -8,9 +8,12 @@ from __future__ import annotations
 
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
+
+import wikilinks
 
 HERE = Path(__file__).resolve().parent
 ORPHANS = HERE / "check-orphans.sh"
@@ -165,3 +168,36 @@ def test_clean_run_removes_a_stale_report(tmp_path):
     assert broken(tmp_path)[0] == 0
     assert not (tmp_path / "99-meta" / "orphans-report.md").exists()
     assert not (tmp_path / "99-meta" / "broken-links-report.md").exists()
+
+
+# --- Résolveur (unitaire) ----------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "target, expected",
+    [
+        ("note", (wikilinks.OK, ("x/note.md",))),
+        ("README", (wikilinks.AMBIGUOUS, ("README.md", "a/README.md"))),
+        ("/README", (wikilinks.OK, ("README.md",))),
+        ("a/README", (wikilinks.OK, ("a/README.md",))),
+        ("b/README", (wikilinks.BROKEN, ())),
+        ("absent", (wikilinks.BROKEN, ())),
+        ("", (wikilinks.BROKEN, ())),
+    ],
+)
+def test_index_resolution(target, expected):
+    index = wikilinks.Index(["README.md", "a/README.md", "x/note.md"])
+    assert index.resolve(target) == expected
+
+
+def test_link_targets_drop_alias_anchor_and_code():
+    text = "[[a/b|alias]] [[c#sec]] [[d\\|e]] `[[inline]]`\n```\n[[fenced]]\n```\n"
+    assert wikilinks.link_targets(text) == ["a/b", "c", "d"]
+
+
+def test_cli_usage_error_exits_2(tmp_path):
+    script = HERE / "wikilinks.py"
+    for args in ([], ["unknown"], ["links", str(tmp_path / "missing")]):
+        proc = subprocess.run([sys.executable, str(script), *args],
+                              capture_output=True, text=True, check=False)
+        assert proc.returncode == 2, args

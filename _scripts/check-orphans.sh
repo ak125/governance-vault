@@ -64,47 +64,6 @@ if [[ -z "$PY_BIN" ]]; then
   exit 2
 fi
 
+# Logique et rapport : _scripts/wikilinks.py (resolveur partage, ADR-127).
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-
-$PY_BIN - "$VAULT_PATH" "$SCRIPT_DIR" <<'PY'
-import sys
-from pathlib import Path
-
-root = Path(sys.argv[1]).resolve()
-sys.path.insert(0, sys.argv[2])
-from wikilinks import orphans as find_orphans  # resolveur partage (ADR-127)
-
-orphans = find_orphans(root)
-
-out_path = root / "99-meta" / "orphans-report.md"
-out_path.parent.mkdir(parents=True, exist_ok=True)
-
-if orphans:
-    from datetime import datetime
-    with out_path.open("w", encoding="utf-8") as f:
-        f.write("---\n")
-        f.write("type: report\n")
-        f.write("status: generated\n")
-        f.write(f"generated: {datetime.now().isoformat(timespec='seconds')}\n")
-        f.write(f"orphan_count: {len(orphans)}\n")
-        f.write("---\n\n")
-        f.write("# Orphans Report (G2 violation)\n\n")
-        f.write(f"**Orphelins detectes**: {len(orphans)}\n\n")
-        f.write("## Documents orphelins\n\n")
-        for rel in orphans:
-            f.write(f"- `{rel}`\n")
-        f.write("\n## Action requise\n\n")
-        f.write("1. Lier ce document depuis un MOC (`ops/moc/MOC-*.md`), OU\n")
-        f.write("2. Lier depuis un INDEX-* local, OU\n")
-        f.write("3. Archiver dans `ledger/_archive/` (voir G8 Obsolete Handling)\n")
-        f.write("\nUn nom porte par plusieurs documents se lie par son chemin : ")
-        f.write("`[[dossier/nom|alias]]` (ADR-127).\n")
-    print(f"FAIL: {len(orphans)} orphan(s) detected")
-    print(f"Report: {out_path.relative_to(root)}")
-    sys.exit(1)
-else:
-    if out_path.exists():
-        out_path.unlink()
-    print("PASS: 0 orphan (G2 respected)")
-    sys.exit(0)
-PY
+exec $PY_BIN "$SCRIPT_DIR/wikilinks.py" orphans "$VAULT_PATH"
