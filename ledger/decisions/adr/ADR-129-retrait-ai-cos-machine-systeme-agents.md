@@ -306,6 +306,9 @@ Recherche : motif `(?i)ai[-_ ]?cos` sur `main` (`9f7a6ee`), hors `ledger/_archiv
 `ledger/incidents/`, `ledger/compliance/`, `ledger/knowledge/`, snapshots, `99-meta/reports/` et
 `99-meta/sync-log.md`. Résultat : **64 fichiers**. S'y ajoutent 12 fiches du système qui ne citent
 pas le nom (exécutants Claude API de D2).
+Depuis le relevé, [[ADR-128-departements-autonomes-coordonnes-file-github|ADR-128]] (fusionné le
+2026-11-14, `proposed`) cite AI-COS comme contrat d'exploitation et précise qu'aucune routine ne
+s'exécute sur la machine AI-COS : classe P, aucun traitement.
 
 Classes : **M** machine ; **S** système d'agents ; **R** règle AI ; **P** nom en passant.
 
