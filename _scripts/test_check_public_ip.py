@@ -129,7 +129,7 @@ def test_non_public_or_non_address_is_ignored(tmp_path, line):
     "rules.yaml", "ci.yml", "policy.json", "notes.txt", "DOC.MD",
     "_scripts/deploy.sh", "_scripts/tool.py", "policies/vault.rego", "ops/fix.patch",
     "ops/query.sql", ".githooks/pre-push", "Makefile", "notes.md.bak",
-    ".obsidian/workspace.json",           # non ignoré par git : peut être publié
+    ".obsidian/workspace.json",           # ignoré par git (ADR-126) mais présent sur disque : scanné
 ])
 def test_every_text_file_is_scanned_whatever_its_extension(tmp_path, rel):
     write(tmp_path, rel, f"host: {PUBLIC}\n")
