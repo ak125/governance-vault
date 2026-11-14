@@ -15,6 +15,12 @@ Detecte :
      Un ADR non accepte n'amende rien (normativite) : aucun lien retour exige.
   9. amended_by pointe vers un ADR qui n'existe pas
  10. Asymetrie : B.amended_by = [A] mais A.amends ne contient pas B
+ 11. Identifiant porte par plusieurs fichiers de l'arbre (doublon : sur une
+     PR, l'arbre fusionne revele la collision avec main)
+ 12. id du frontmatter different du numero du nom de fichier
+
+Les collisions entre PR ouvertes ne sont pas dans l'arbre :
+_scripts/check-adr-id-collisions.py.
 
 Usage:
   python3 _scripts/check-adr-supersedes.py [VAULT_PATH] [--json]
@@ -84,24 +90,31 @@ def main(argv: list[str]) -> int:
         print(f"Error: adr dir not found: {adr_dir}", file=sys.stderr)
         return 2
 
-    adrs: dict[str, dict] = {}
-    for p in sorted(adr_dir.glob("ADR-*.md")):
-        text = p.read_text(encoding="utf-8", errors="ignore")
-        fm = parse_frontmatter(text)
-        adr_id = fm.get("id")
-        if not adr_id:
-            m = re.match(r"^(ADR-\d{3})", p.name)
-            if m:
-                adr_id = m.group(1)
-        if not adr_id:
-            continue
-        fm["_file"] = p.relative_to(vault_path).as_posix()
-        adrs[adr_id] = fm
-
     findings: list[dict] = []
 
     def add(severity: str, file: str, msg: str, rule: str) -> None:
         findings.append({"severity": severity, "file": file, "message": msg, "rule": rule})
+
+    adrs: dict[str, dict] = {}
+    files_by_id: dict[str, list[str]] = {}
+    for p in sorted(adr_dir.glob("ADR-*.md")):
+        text = p.read_text(encoding="utf-8", errors="ignore")
+        fm = parse_frontmatter(text)
+        file = p.relative_to(vault_path).as_posix()
+        m = re.match(r"^(ADR-\d{3})", p.name)
+        name_id = m.group(1) if m else None
+        adr_id = fm.get("id") or name_id
+        if not adr_id:
+            continue
+        if name_id and adr_id != name_id:
+            add("error", file, f"frontmatter id {adr_id} differs from file name number {name_id}", "adr/id-matches-filename")
+        fm["_file"] = file
+        files_by_id.setdefault(adr_id, []).append(file)
+        adrs[adr_id] = fm
+
+    for adr_id, files in files_by_id.items():
+        if len(files) > 1:
+            add("error", files[0], f"{adr_id} is carried by {len(files)} files: {', '.join(files)}", "adr/unique-id")
 
     for adr_id, fm in adrs.items():
         file = fm["_file"]
@@ -180,7 +193,7 @@ def main(argv: list[str]) -> int:
     else:
         for f in findings:
             print(f"[{f['severity'].upper()}] {f['file']}: {f['message']}")
-        print(f"\nTotal: {summary['error']} error(s), {summary['warning']} warning(s)  ({len(adrs)} ADR(s) scanned)")
+        print(f"\nTotal: {summary['error']} error(s), {summary['warning']} warning(s)  ({sum(map(len, files_by_id.values()))} ADR(s) scanned)")
 
     return 1 if summary["error"] > 0 else 0
 
