@@ -55,7 +55,7 @@ zone: principal_vps
 
 ## Placement Decision
 
-Exécution sur PROD VPS pour accès direct Playwright/Chromium. Résultats lus par le dashboard AI-COS via Supabase (READ-ONLY).
+Exécution sur PROD VPS pour accès direct Playwright/Chromium. Le dashboard AI-COS qui devait lire ces résultats via Supabase est retiré avec la machine AI-COS ([[ADR-129-retrait-ai-cos-machine-systeme-agents|ADR-129]]).
 
 ---
 

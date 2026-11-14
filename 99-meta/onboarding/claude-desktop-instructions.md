@@ -3,7 +3,7 @@ type: knowledge
 status: canon
 updated: 2026-11-14
 audience: [claude-desktop-operator, onboarding]
-related_adr: [ADR-012, ADR-015, ADR-101, ADR-121, ADR-126]
+related_adr: [ADR-012, ADR-015, ADR-101, ADR-121, ADR-126, ADR-129]
 related_rules: [G1, G2, G3, G4]
 ---
 
@@ -118,13 +118,14 @@ Bloqués mécaniquement : orphelins, wikilinks cassés, commits non signés, che
 | Savoirs opérationnels | `ops/moc/MOC-Knowledge.md` |
 | Les contrats du monorepo (hors vault) | `.spec/00-canon/` du monorepo (rang : ADR-101 D2) |
 
-## 3-VPS Architecture (voir [[ADR-012-aicos-vps-architecture]])
+## Machines (voir [[ADR-012-aicos-vps-architecture]], amendement proposé par [[ADR-129-retrait-ai-cos-machine-systeme-agents|ADR-129]])
 
 | VPS | Rôle | Write vault ? |
 |---|---|---|
 | DEV | Dev, CI, vault runtime canonique | Oui (via PR signée) |
 | PROD | Production | Non (miroir en lecture seule) |
-| AI-COS | Agents IA | Non (git clone read-only) |
+
+La machine AI-COS est arrêtée depuis octobre 2026 (jour exact inconnu) et son système d'agents est retiré ([[ADR-129-retrait-ai-cos-machine-systeme-agents|ADR-129]]).
 
 ## Limites Claude Desktop dans ce contexte
 

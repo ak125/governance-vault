@@ -1,7 +1,7 @@
 ---
 agent_id: agent.data.cleanup
 agent_name: Data Cleanup Agent
-status: planned
+status: disabled
 owner: Data Team
 governance_verdict: APPROVED_WITH_CONDITIONS
 last_updated: 2026-03-07
@@ -17,7 +17,7 @@ zone: principal_vps
 |-------|-------|
 | ID | `agent.data.cleanup` |
 | Name | Data Cleanup Agent |
-| Status | **planned** (Phase 0) |
+| Status | **disabled** |
 | Owner | Data Team |
 | Description | Cleans up stale and orphan data |
 
@@ -46,6 +46,7 @@ zone: principal_vps
 ## Governance
 
 - **Verdict**: **APPROVED_WITH_CONDITIONS**
+- **Retired**: AI-COS agent system retired with the AI-COS machine (stopped in October 2026, exact day unknown) by [[ADR-129-retrait-ai-cos-machine-systeme-agents|ADR-129]]; card and verdict kept as history
 - **Conditions**: Cleanup via RPC only, human approval for deletions
 - **Related ADR**: ADR-003, ADR-009, ADR-011
 - **Airlock Required**: yes (for deletions)

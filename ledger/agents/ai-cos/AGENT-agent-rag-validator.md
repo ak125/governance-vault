@@ -1,7 +1,7 @@
 ---
 agent_id: agent.rag.validator
 agent_name: RAG Validator Agent
-status: planned
+status: disabled
 owner: AI Team
 governance_verdict: APPROVED_WITH_CONDITIONS
 last_updated: 2026-03-07
@@ -17,7 +17,7 @@ zone: principal_vps
 |-------|-------|
 | ID | `agent.rag.validator` |
 | Name | RAG Validator Agent |
-| Status | **planned** (Phase 0) |
+| Status | **disabled** |
 | Owner | AI Team |
 | Description | Validates RAG responses for accuracy |
 
@@ -46,6 +46,7 @@ zone: principal_vps
 ## Governance
 
 - **Verdict**: **APPROVED_WITH_CONDITIONS**
+- **Retired**: AI-COS agent system retired with the AI-COS machine (stopped in October 2026, exact day unknown) by [[ADR-129-retrait-ai-cos-machine-systeme-agents|ADR-129]]; card and verdict kept as history
 - **Conditions**: Validation via RPC only
 - **Related ADR**: ADR-003, ADR-009, ADR-011
 - **Airlock Required**: no (read-only validation)

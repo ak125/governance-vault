@@ -2,7 +2,7 @@
 id: REG-001
 title: Agent Registry
 status: active
-version: 2.4.0
+version: 2.5.0
 last_audit: 2026-04-04
 total_agents: 144
 ---
@@ -27,21 +27,22 @@ Official source of truth for all agents in the AutoMecanik system.
 
 | Domain | Active | Planned | Total | Key agents |
 |--------|--------|---------|-------|------------|
-| SEO | 24 | 10 | 34 | keyword-planner, content-batch, seo-monitor-*, seo-vlevel, sitemap-delta, 4 sub-leads |
-| Infrastructure | 15 | 20 | 35 | backend-test, db-migration, gh-ci-deploy, metrics-processor, a1-a12 |
+| SEO | 24 | 1 | 34 | keyword-planner, content-batch, seo-monitor-*, sitemap-delta ; ADR-129 : 9 `disabled` (seo-vlevel, 4 sub-leads…) |
+| Infrastructure | 15 | 13 | 35 | backend-test, db-migration, gh-ci-deploy, metrics-processor, a1-a12 ; ADR-129 : 7 `disabled` |
 | BMAD | 0 | 0 | 10 | retires par ADR-118 : 10 `disabled` |
-| Gouvernance | 3 | 6 | 9 | governance-vault-ops, code-review, content-audit |
-| UI/Frontend | 7 | 2 | 9 | frontend-design, ui-os, ui-ux-pro-max, responsive-audit |
-| RAG | 1 | 4 | 5 | rag-ops, rag-indexer, rag-validator, rag-retriever |
-| Marketing | 1 | 1 | 2 | marketing-hub, agent.cmo.ia |
+| Gouvernance | 3 | 0 | 9 | governance-vault-ops, code-review, content-audit ; ADR-129 : 6 `disabled` |
+| UI/Frontend | 7 | 1 | 9 | frontend-design, ui-os, ui-ux-pro-max, responsive-audit ; ADR-129 : 1 `disabled` |
+| RAG | 1 | 0 | 5 | rag-ops ; ADR-129 : 4 `disabled` (rag-lead, rag-indexer, rag-validator, rag-retriever) |
+| Marketing | 1 | 0 | 2 | marketing-hub ; ADR-129 : agent.cmo.ia `disabled` |
 | Vehicules | 1 | 0 | 1 | vehicle-ops |
 | Paiements | 1 | 0 | 1 | payment-review |
 | Quality/QA | 4 | 0 | 4 | agent.qa.orchestrator, agent.qa.functional, agent.qa.visual, agent.qa.seo-tech |
-| **Sous-total** | **57** | **43** | **110** | Individual agents |
+| **Sous-total** | **57** | **15** | **110** | Individual agents |
 | Lettered Series | 0 | 34 | 34 | G/F/M/A/B-Series (conceptual) |
-| **TOTAL** | **57** | **77** | **144** | |
+| **TOTAL** | **57** | **49** | **144** | |
 
 > Depuis [[ADR-118-retrait-methodes-bmad-superpowers-spec-kit|ADR-118]], la colonne Total inclut les agents `disabled` : Total = Active + Planned + disabled.
+> Depuis [[ADR-129-retrait-ai-cos-machine-systeme-agents|ADR-129]], les 28 agents du système AI-COS sont `disabled` (SEO 9, Infrastructure 7, Gouvernance 6, RAG 4, UI 1, Marketing 1).
 
 ## Related ADRs
 
@@ -52,6 +53,7 @@ Official source of truth for all agents in the AutoMecanik system.
 - ADR-011: OpenClaw to Claude API Replacement
 - ADR-012: AI-COS VPS Architecture & Agent Placement
 - ADR-118: Retrait des methodes BMAD, Superpowers et Spec Kit
+- ADR-129: Retrait d'AI-COS (machine et systeme d'agents)
 
 ---
 
@@ -72,38 +74,40 @@ Official source of truth for all agents in the AutoMecanik system.
 | tech-writer | bmad | disabled | local | trusted | report | APPROVED |
 | ux-designer | bmad | disabled | local | trusted | report | APPROVED |
 
-## Registry Table — AI-COS Planned Agents
+## Registry Table — AI-COS Agents
+
+> Systeme AI-COS retire avec sa machine (arretee en octobre 2026, jour exact inconnu) par [[ADR-129-retrait-ai-cos-machine-systeme-agents|ADR-129]] : les 28 agents prevus sont `disabled`, fiches et verdicts conserves comme historique. Les 4 agents QA, places en zone `principal_vps` (machine PROD, execution non verifiee), gardent leur statut.
 
 | agent_id | domain | status | zone | trust | output | verdict |
 |----------|--------|--------|------|-------|--------|---------|
-| agent.ceo.ia | governance | planned | principal_vps | restricted | report | NOT_APPROVED |
-| agent.cto.ia | infra | planned | principal_vps | restricted | report | NOT_APPROVED |
-| agent.cpo.ia | governance | planned | principal_vps | restricted | report | NOT_APPROVED |
-| agent.cmo.ia | marketing | planned | principal_vps | restricted | report | NOT_APPROVED |
-| agent.cfo.ia | governance | planned | principal_vps | restricted | report | NOT_APPROVED |
-| agent.qto | governance | planned | principal_vps | restricted | report | NOT_APPROVED |
-| agent.seo.lead | seo | planned | principal_vps | restricted | bundle | NOT_APPROVED |
-| agent.data.lead | infra | planned | principal_vps | restricted | report | NOT_APPROVED |
-| agent.rag.lead | rag | planned | principal_vps | restricted | report | NOT_APPROVED |
-| agent.aicos.architect | governance | planned | principal_vps | restricted | report | NOT_APPROVED |
-| agent.aicos.governance | governance | planned | principal_vps | restricted | report | NOT_APPROVED |
-| front-agent | ui | planned | principal_vps | restricted | report | NOT_APPROVED |
-| agent.seo.vlevel | seo | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
-| agent.seo.sitemap | seo | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
-| agent.seo.canonical | seo | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
-| agent.seo.content | seo | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
-| agent.seo.kp.lead | seo | planned | principal_vps | restricted | bundle | NOT_APPROVED |
-| agent.seo.content.lead | seo | planned | principal_vps | restricted | bundle | NOT_APPROVED |
-| agent.seo.qa.lead | seo | planned | principal_vps | restricted | bundle | NOT_APPROVED |
-| agent.seo.exec.lead | seo | planned | principal_vps | restricted | bundle | NOT_APPROVED |
-| agent.data.cleanup | infra | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
-| agent.data.validator | infra | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
-| agent.data.backup | infra | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
-| agent.rag.indexer | rag | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
-| agent.rag.validator | rag | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
-| agent.rag.retriever | rag | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
-| agent.infra.monitor | infra | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
-| agent.infra.logs | infra | planned | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
+| agent.ceo.ia | governance | disabled | principal_vps | restricted | report | NOT_APPROVED |
+| agent.cto.ia | infra | disabled | principal_vps | restricted | report | NOT_APPROVED |
+| agent.cpo.ia | governance | disabled | principal_vps | restricted | report | NOT_APPROVED |
+| agent.cmo.ia | marketing | disabled | principal_vps | restricted | report | NOT_APPROVED |
+| agent.cfo.ia | governance | disabled | principal_vps | restricted | report | NOT_APPROVED |
+| agent.qto | governance | disabled | principal_vps | restricted | report | NOT_APPROVED |
+| agent.seo.lead | seo | disabled | principal_vps | restricted | bundle | NOT_APPROVED |
+| agent.data.lead | infra | disabled | principal_vps | restricted | report | NOT_APPROVED |
+| agent.rag.lead | rag | disabled | principal_vps | restricted | report | NOT_APPROVED |
+| agent.aicos.architect | governance | disabled | principal_vps | restricted | report | NOT_APPROVED |
+| agent.aicos.governance | governance | disabled | principal_vps | restricted | report | NOT_APPROVED |
+| front-agent | ui | disabled | principal_vps | restricted | report | NOT_APPROVED |
+| agent.seo.vlevel | seo | disabled | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
+| agent.seo.sitemap | seo | disabled | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
+| agent.seo.canonical | seo | disabled | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
+| agent.seo.content | seo | disabled | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
+| agent.seo.kp.lead | seo | disabled | principal_vps | restricted | bundle | NOT_APPROVED |
+| agent.seo.content.lead | seo | disabled | principal_vps | restricted | bundle | NOT_APPROVED |
+| agent.seo.qa.lead | seo | disabled | principal_vps | restricted | bundle | NOT_APPROVED |
+| agent.seo.exec.lead | seo | disabled | principal_vps | restricted | bundle | NOT_APPROVED |
+| agent.data.cleanup | infra | disabled | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
+| agent.data.validator | infra | disabled | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
+| agent.data.backup | infra | disabled | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
+| agent.rag.indexer | rag | disabled | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
+| agent.rag.validator | rag | disabled | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
+| agent.rag.retriever | rag | disabled | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
+| agent.infra.monitor | infra | disabled | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
+| agent.infra.logs | infra | disabled | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
 | agent.qa.orchestrator | quality | active | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
 | agent.qa.functional | quality | active | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
 | agent.qa.visual | quality | active | principal_vps | restricted | report | APPROVED_WITH_CONDITIONS |
@@ -229,7 +233,7 @@ Official source of truth for all agents in the AutoMecanik system.
 
 For CI integration:
 - `status`: active | planned | disabled | conceptual
-- `zone`: local | principal_vps | aicos_vps | external (per ADR-008, ADR-012)
+- `zone`: local | principal_vps | aicos_vps | external (per ADR-008, ADR-012) ; `aicos_vps` ne recoit plus d'agent depuis ADR-129 (valeur gardee pour l'historique)
 - `trust`: trusted | restricted | untrusted
 - `output`: report | bundle | rpc
 - `domain`: seo | rag | vehicle | payment | ui | infra | marketing | governance | bmad | quality
@@ -237,6 +241,6 @@ For CI integration:
 
 ---
 
-_Registry Version: 2.4.0_
-_Last Updated: 2026-10-27_
+_Registry Version: 2.5.0_
+_Last Updated: 2026-11-14_
 _Maintainer: Governance Team_

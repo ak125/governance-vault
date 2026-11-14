@@ -1,7 +1,7 @@
 ---
 agent_id: agent.data.lead
 agent_name: Data Lead
-status: planned
+status: disabled
 owner: Data Team
 governance_verdict: NOT_APPROVED
 last_audit: 2026-02-04
@@ -16,7 +16,7 @@ zone: principal_vps
 |-------|-------|
 | ID | `agent.data.lead` |
 | Name | Data Lead |
-| Status | **planned** (Phase 0) |
+| Status | **disabled** |
 | Owner | Data Team |
 | Description | Orchestrates data management agents |
 
@@ -45,6 +45,7 @@ zone: principal_vps
 ## Governance
 
 - **Verdict**: **NOT_APPROVED**
+- **Retired**: AI-COS agent system retired with the AI-COS machine (stopped in October 2026, exact day unknown) by [[ADR-129-retrait-ai-cos-machine-systeme-agents|ADR-129]]; card and verdict kept as history
 - **Related ADR**: ADR-002, ADR-009, ADR-011
 - **Airlock Required**: yes
 - **Audit Trail**: yes
