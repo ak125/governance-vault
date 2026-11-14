@@ -8,7 +8,7 @@ supersedes: []
 superseded_by: []
 amends: ["ADR-008", "ADR-009", "ADR-011", "ADR-012", "ADR-015", "ADR-034"]
 extends: []
-related_adr: ["ADR-006", "ADR-013", "ADR-028", "ADR-036", "ADR-101", "ADR-102", "ADR-118", "ADR-121"]
+related_adr: ["ADR-006", "ADR-013", "ADR-028", "ADR-036", "ADR-101", "ADR-102", "ADR-118", "ADR-121", "ADR-128"]
 related_rules: ["AI1", "AI2", "AI3", "AI4", "AI5", "AI6", "AI7", "AI8", "AI9", "AI10", "AP-12", "G1", "G8"]
 related_incidents: []
 reviewed_by: ""
@@ -32,9 +32,8 @@ version: "1.0.0"
   n'est pas réécrit ; seul leur frontmatter `amended_by` reçoit `ADR-129`, au commit de ratification.
 - **Méthode** : constats relevés le 2026-11-14 sur `main` du vault (`9f7a6eefef9edeffc14df22336558569925e3163`).
   L'inventaire des documents vivants qui citent AI-COS est en annexe A.
-- **Numéro** : 129 = plus haut numéro de `main` (ADR-127) et des PR ouvertes, plus un. La PR #409,
-  ouverte le 2026-11-14 à 22:45 UTC, porte ADR-128 (départements autonomes et coordonnés) ; relevé
-  fait sur les PR ouvertes du vault le 2026-11-14 vers 22:50 UTC.
+- **Numéro** : 129 = plus haut numéro de `main` et des PR ouvertes, plus un. [[ADR-128-departements-autonomes-coordonnes-file-github|ADR-128]] (départements
+  autonomes et coordonnés, PR #409) a pris le numéro 128 le 2026-11-14 ; relevé fait vers 22:50 UTC.
 
 ## Contexte
 
@@ -127,14 +126,14 @@ vault.
 
 **Proposition : amender ADR-034, ni le remplacer ni le retirer.** Le contrat des trois axes (Trigger,
 Execution, Evidence), la discipline d'un déclencheur unique par routine et les anti-patterns d'AP-12
-sont le contrat retenu pour l'organisation autonome des départements (mandat M ; voir aussi la PR #409,
-ouverte, non fusionnée). Aucun de ces
+sont le contrat retenu pour l'organisation autonome des départements (mandat M, [[ADR-128-departements-autonomes-coordonnes-file-github|ADR-128]], lui aussi
+`proposed`). Aucun de ces
 éléments ne dépend de la machine AI-COS.
 
 | Passage d'ADR-034 | Lecture après ADR-129 |
 |---|---|
 | Décision : « AI-COS est un observatoire isolé, pas un orchestrateur runtime » | Sans objet pour la machine : il n'existe plus d'observatoire AI-COS. Les trois axes et la discipline d'un déclencheur unique s'appliquent à toute routine du projet. |
-| Axe **Execution** : runner self-hosted DEV | Inchangé. C'est le texte actuel ; aucune exécution n'a lieu sur une machine AI-COS. |
+| Axe **Execution** : runner self-hosted DEV | Non amendé ici : [[ADR-128-departements-autonomes-coordonnes-file-github|ADR-128]] D7 en propose la nouvelle rédaction (runner auto-hébergé DEV, « AI-COS » désigne le contrat, pas une machine) et renvoie le retrait de la machine au présent ADR. Les deux amendements portent sur des passages distincts et ne se dupliquent pas. |
 | « L'ajout sur AI-COS des composants suivants est interdit par défaut » | Se lit « l'ajout, sur toute machine ou tout dépôt du projet ». La liste des six composants est inchangée. |
 | Conséquences neutres : « Paperclip continue d'évoluer hors monorepo (sur AI-COS) » | La mention du lieu ne s'applique plus. Le lieu d'exécution actuel de Paperclip n'est pas vérifié par cet ADR. |
 | Critère de succès et revue : aucune nouvelle infra maison « sur AI-COS » | Se lit « sur aucune machine ni aucun dépôt du projet ». |
@@ -174,8 +173,9 @@ ADR-015 et ADR-034. Leur corps reste tel qu'il a été accepté.
 
 ### D5 — Règles AI1 à AI10 et règles voisines : propositions (aucun texte de règle modifié)
 
-Aucune des dix règles ne vise la seule machine. Deux visent un élément du système d'agents retiré ;
-les autres valent pour tout agent IA. **Proposition** : conserver [[rules-ai-cos]] comme règles de tout
+Aucune des dix règles ne vise la seule machine. AI5 a pour objet l'organigramme du système retiré ;
+AI2, AI4, AI8 et AI9 nomment un agent ou un mécanisme retiré, mais leur principe vaut pour tout agent IA ;
+les autres valent telles quelles pour tout agent IA. **Proposition** : conserver [[rules-ai-cos]] comme règles de tout
 agent IA du projet, sous le titre « Règles d'or des agents IA », en gardant le nom du fichier (aucun
 lien ne change). Le texte des règles n'est modifié qu'après ratification, dans une PR qui reste en
 brouillon jusque-là (ADR-121 D7).
@@ -191,7 +191,7 @@ brouillon jusque-là (ADR-121 D7).
 | AI6 (1 création = 1 fusion ou suppression) | Tout agent du catalogue | Conserver |
 | AI7 (diagnostic = multi-validation) | Tout agent IA | Conserver |
 | AI8 (contenu critique = QTO) | Tout agent IA ; nomme le QTO | Comme AI4 : conserver, réattribuer le rôle du QTO |
-| AI9 (kill-switch N1 à N3, Human CEO) | Mécanisme du système retiré ; ADR-102 D4 a déjà retiré le kill-switch d'écriture du vault | Retirer AI9, ou la remplacer par un renvoi à la réponse à incident de G4 ([[rules-vault]]), au choix de l'owner |
+| AI9 (kill-switch N1 à N3, Human CEO) | Tout agent IA pour le principe (seul l'humain arrête) ; les niveaux N1 à N3 décrivaient le système retiré, et ADR-102 D4 a retiré le kill-switch d'écriture du vault | Conserver le principe, « Human CEO » lu « owner ». Pour les niveaux : soit les gestes natifs N1 à N3 que propose [[ADR-128-departements-autonomes-coordonnes-file-github|ADR-128]] D6 (arrêt du runner DEV, désactivation d'un workflow, gel d'un mandat), si l'owner ratifie ADR-128 ; soit un renvoi à la réponse à incident de G4 ([[rules-vault]]). Au choix de l'owner |
 | AI10 (traçabilité obligatoire) | Tout agent IA | Conserver |
 
 Règles et policy voisines (propositions, non appliquées) :
