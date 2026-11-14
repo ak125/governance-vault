@@ -1,8 +1,9 @@
 ---
 id: ADR-127
 title: "Identité d'un document par son chemin pour G2 et les liens cassés : homonymes tous contrôlés, lien court résolu si le nom est unique, ambiguïté signalée, lien vers soi non compté"
-status: proposed
+status: accepted
 date: "2026-11-14"
+decision_date: "2026-11-14"
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
@@ -17,11 +18,13 @@ version: "1.0.0"
 
 # ADR-127 : identité d'un document par son chemin pour G2 et les liens cassés
 
-- **Statut** : Proposed (2026-11-14). Rédigé par un agent (Claude Code CLI, machine DEV) sur mandat de
-  l'owner (« Mandat J », lot 2). Aucune acceptation n'est déclarée : la décision appartient à l'owner et
-  se consigne par un commit de ratification sur la branche
-  ([[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D7). La PR qui porte cet ADR reste
-  en brouillon jusque-là.
+- **Statut** : Accepted (2026-11-14). Décision de l'owner, décideur humain : Marwane, sur le candidat
+  de la PR #407 (`3576f1f53f7ad0f84eea0195b425961de7508f89`). Rédigé par un agent (Claude Code CLI, machine DEV) le
+  2026-11-14, sur mandat de l'owner (« Mandat J », lot 2). Le commit de ratification est préparé par un
+  agent : son auteur et sa clé de signature sont techniques. Canon applicable à la fusion par
+  l'owner de la tête qui porte cette décision, sous les contrôles requis
+  ([[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D4 et D7) ; avant cette fusion,
+  ce statut décrit le candidat ratifié et ne modifie pas le canon de `main`.
 - **N'amende pas l'énoncé de G2** ([[rules-vault]]) : un document reste non orphelin s'il est référencé
   par un wikilink depuis un autre document. Cet ADR fixe comment ce « référencé » se calcule, ce qui
   change l'ensemble des documents que G2 contrôle effectivement (G1).
@@ -127,11 +130,11 @@ Même PR que cet ADR : `_scripts/wikilinks.py`, `_scripts/check-orphans.sh`,
 
 ## Revue Planifiée
 
-**Date** : à la ratification par l'owner.
+**Date** : 2027-05-14 (6 mois post-acceptation).
 **Critères de revue** : nombre de liens ambigus introduits par de nouveaux homonymes.
 
 ---
 
 *Proposé le : 2026-11-14*
-*Accepté le : —*
+*Accepté le : 2026-11-14 (décision de l'owner ; canon à la fusion de la tête ratifiée, ADR-121 D7)*
 *Dernière revue : 2026-11-14*
