@@ -7,11 +7,13 @@ Principe (G1, ADR-101) :
   - Si le monorepo contient un `.spec/00-canon/*.md` qui n'est PAS reference depuis le vault,
     son rang n'est trace nulle part : risque de derive silencieuse (G1 violation latente)
 
-Detection :
+Detection (identite par chemin, comme ADR-127) :
   - Scan monorepo/.spec/00-canon/**/*.md
-  - Pour chaque fichier, verifier qu'il existe au moins 1 wikilink depuis le vault qui le cite
-    (par stem OR path-last-segment)
-  - Si aucun backlink -> warning (info si fichier < 7 jours = nouveau, grace period)
+  - Un fichier est reference si un document du vault (hors `_archive`) cite son chemin exact
+    `.spec/00-canon/<chemin>` (extension `.md` facultative), en texte ou entre backticks.
+    Un wikilink se resout dans le vault : `[[architecture]]` designe un document du vault et
+    ne reference pas `.spec/00-canon/architecture.md`. Citer un dossier ne reference pas ses fichiers.
+  - Si aucune reference -> warning (info si fichier < 7 jours = nouveau, grace period)
 
 Usage:
   python3 _scripts/check-canon-backlinks.py [VAULT_PATH] --monorepo PATH [--json]
@@ -29,10 +31,24 @@ import time
 from pathlib import Path
 
 
-def strip_code(txt: str) -> str:
-    txt = re.sub(r"```[\s\S]*?```", "", txt)
-    txt = re.sub(r"`[^`\n]*`", "", txt)
-    return txt
+EXCLUDE_DIRS = frozenset({".git", ".obsidian", "_archive"})
+CANON_PATH_RE = re.compile(r"\.spec/00-canon/([A-Za-z0-9_.\-/]+)")
+
+
+def canon_paths_cited(vault_path: Path) -> set[str]:
+    """Chemins sous `.spec/00-canon/`, sans `.md`, cites par les documents du vault."""
+    cited: set[str] = set()
+    for md in vault_path.rglob("*.md"):
+        if any(part in EXCLUDE_DIRS for part in md.relative_to(vault_path).parts):
+            continue
+        try:
+            text = md.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        for path in CANON_PATH_RE.findall(text):
+            path = path.rstrip("./")
+            cited.add(path[:-3] if path.endswith(".md") else path)
+    return cited
 
 
 def main(argv: list[str]) -> int:
@@ -69,21 +85,7 @@ def main(argv: list[str]) -> int:
             print(f"INFO: {canon_dir} not found; skipping.")
         return 0
 
-    vault_links: set[str] = set()
-    EXCLUDE_DIRS = {".git", ".obsidian", "_archive"}
-    link_re = re.compile(r"\[\[([^\]]+?)\]\]")
-
-    for md in vault_path.rglob("*.md"):
-        if any(part in EXCLUDE_DIRS for part in md.parts):
-            continue
-        try:
-            text = strip_code(md.read_text(encoding="utf-8", errors="ignore"))
-        except OSError:
-            continue
-        for match in link_re.findall(text):
-            name = match.strip().split("|", 1)[0].split("#", 1)[0].strip().rstrip("\\")
-            vault_links.add(name.rsplit("/", 1)[-1])
-            vault_links.add(name)
+    cited = canon_paths_cited(vault_path)
 
     findings: list[dict] = []
     now = time.time()
@@ -92,15 +94,7 @@ def main(argv: list[str]) -> int:
 
     for canon_file in canon_dir.rglob("*.md"):
         scanned += 1
-        stem = canon_file.stem
-        rel_inside_canon = canon_file.relative_to(canon_dir).with_suffix("").as_posix()
-
-        referenced = (
-            stem in vault_links
-            or rel_inside_canon in vault_links
-            or f".spec/00-canon/{rel_inside_canon}" in vault_links
-        )
-        if referenced:
+        if canon_file.relative_to(canon_dir).with_suffix("").as_posix() in cited:
             continue
 
         try:
