@@ -1,7 +1,7 @@
 ---
 type: moc
 status: canon
-updated: 2026-11-14
+updated: 2026-11-15
 ---
 
 # MOC: Decisions
@@ -106,7 +106,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 > Projection mécanique du frontmatter ADR (PR-3 sync_moc_decisions).
 > Toute édition manuelle entre les markers est écrasée à chaque sync.
 > Pour corriger un statut ou un titre, éditer le frontmatter de l'ADR puis relancer `--write`.
-> Dernier sync : 2026-11-14.
+> Dernier sync : 2026-11-15.
 
 | ID | Titre | Statut canonique | Date | Fichier |
 |----|-------|------------------|------|---------|
@@ -227,7 +227,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-125 | Amendements ciblés de cohérence : validation sur preuve, seuil 0.85, chemins WIKI au singulier, pilote R2 et compatibilité absente, statut de GOVERNANCE-HUMAN : amende ADR-031, ADR-066, ADR-068, ADR-083, ADR-086, ADR-091, ADR-092, ADR-094, ADR-107 et G1 | Accepted | 2026-11-10 | [[ADR-125-amendements-cibles-coherence-wiki-seo-autorite]] |
 | ADR-126 | Obsidian, lecteur facultatif du vault : un seul circuit d'écriture, obsidian-setup sans statut canon, .obsidian/ et _backups/ ignorés | Accepted | 2026-11-14 | [[ADR-126-obsidian-lecteur-facultatif-circuit-ecriture-unique]] |
 | ADR-127 | Identité d'un document par son chemin pour G2 et les liens cassés : homonymes tous contrôlés, lien court résolu si le nom est unique, ambiguïté signalée, lien vers soi non compté | Accepted | 2026-11-14 | [[ADR-127-identite-wikilink-par-chemin-g2-liens]] |
-| ADR-128 | Départements autonomes et coordonnés : file de travail GitHub unique, remise de mandat par issue, bascule par étapes | Proposed | 2026-11-14 | [[ADR-128-departements-autonomes-coordonnes-file-github]] |
+| ADR-128 | Départements autonomes et coordonnés : file de travail GitHub unique, remise de mandat par issue, bascule par étapes | Accepted | 2026-11-14 | [[ADR-128-departements-autonomes-coordonnes-file-github]] |
 
 <!-- AUTO-GENERATED:moc-decisions-canonical-index end -->
 
