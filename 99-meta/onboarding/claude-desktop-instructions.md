@@ -118,7 +118,7 @@ Bloqués mécaniquement : orphelins, wikilinks cassés, commits non signés, che
 | Savoirs opérationnels | `ops/moc/MOC-Knowledge.md` |
 | Les contrats du monorepo (hors vault) | `.spec/00-canon/` du monorepo (rang : ADR-101 D2) |
 
-## Machines (voir [[ADR-012-aicos-vps-architecture]], amendement proposé par [[ADR-129-retrait-ai-cos-machine-systeme-agents|ADR-129]])
+## Machines (voir [[ADR-012-aicos-vps-architecture]], amendé par [[ADR-129-retrait-ai-cos-machine-systeme-agents|ADR-129]])
 
 | VPS | Rôle | Write vault ? |
 |---|---|---|

@@ -18,7 +18,7 @@ Canonical path (runtime sur DEV VPS) : `/opt/automecanik/governance-vault/` (clo
 - `/opt/automecanik/app/.local/*` — gitignoré, ton travail sera perdu
 - `/opt/automecanik/app/.spec/` — fichiers du monorepo, jamais un emplacement du vault (règle [[rules-vault|G1]])
 
-Voir aussi [[ADR-015-vault-single-source-of-truth|ADR-015]] pour la décision formelle et [[ADR-012-aicos-vps-architecture|ADR-012]] pour l'architecture des machines (deux machines, DEV et PROD, depuis le retrait d'AI-COS proposé par [[ADR-129-retrait-ai-cos-machine-systeme-agents|ADR-129]]).
+Voir aussi [[ADR-015-vault-single-source-of-truth|ADR-015]] pour la décision formelle et [[ADR-012-aicos-vps-architecture|ADR-012]] pour l'architecture des machines (deux machines, DEV et PROD, depuis le retrait d'AI-COS décidé par [[ADR-129-retrait-ai-cos-machine-systeme-agents|ADR-129]]).
 
 ---
 
@@ -144,7 +144,7 @@ Les autres interdits reposent sur les hooks locaux ou sur la revue.
 
 ---
 
-## Machines (rappel [[ADR-012-aicos-vps-architecture|ADR-012]], amendement proposé par [[ADR-129-retrait-ai-cos-machine-systeme-agents|ADR-129]])
+## Machines (rappel [[ADR-012-aicos-vps-architecture|ADR-012]], amendé par [[ADR-129-retrait-ai-cos-machine-systeme-agents|ADR-129]])
 
 | VPS | Rôle | Write access vault ? |
 |-----|------|---------------------|

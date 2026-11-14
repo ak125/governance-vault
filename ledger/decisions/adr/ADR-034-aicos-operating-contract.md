@@ -7,7 +7,7 @@ decision_date: "2026-11-10"
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
-amended_by: ["ADR-128"]
+amended_by: ["ADR-128", "ADR-129"]
 related_rules: ["AP-12", "Q1", "Q4", "AEC"]
 related_incidents: []
 related_adr: ["ADR-006", "ADR-011", "ADR-012", "ADR-015", "ADR-020", "ADR-025", "ADR-028", "ADR-036"]

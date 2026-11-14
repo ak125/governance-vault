@@ -228,7 +228,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-126 | Obsidian, lecteur facultatif du vault : un seul circuit d'écriture, obsidian-setup sans statut canon, .obsidian/ et _backups/ ignorés | Accepted | 2026-11-14 | [[ADR-126-obsidian-lecteur-facultatif-circuit-ecriture-unique]] |
 | ADR-127 | Identité d'un document par son chemin pour G2 et les liens cassés : homonymes tous contrôlés, lien court résolu si le nom est unique, ambiguïté signalée, lien vers soi non compté | Accepted | 2026-11-14 | [[ADR-127-identite-wikilink-par-chemin-g2-liens]] |
 | ADR-128 | Départements autonomes et coordonnés : file de travail GitHub unique, remise de mandat par issue, bascule par étapes | Accepted | 2026-11-14 | [[ADR-128-departements-autonomes-coordonnes-file-github]] |
-| ADR-129 | Retrait d'AI-COS : machine arrêtée en octobre 2026 et système d'agents retiré ; amende ADR-012 et ADR-034, propose le sort des règles AI1 à AI10 | Proposed | 2026-11-14 | [[ADR-129-retrait-ai-cos-machine-systeme-agents]] |
+| ADR-129 | Retrait d'AI-COS : machine arrêtée en octobre 2026 et système d'agents retiré ; amende ADR-012 et ADR-034, fixe le sort des règles AI1 à AI10 | Accepted | 2026-11-14 | [[ADR-129-retrait-ai-cos-machine-systeme-agents]] |
 
 <!-- AUTO-GENERATED:moc-decisions-canonical-index end -->
 

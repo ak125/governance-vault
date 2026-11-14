@@ -56,8 +56,8 @@ Voir [[ADR-009-agents-phase1-activation]] pour le framework. Compteurs exacts pa
 - [[ADR-008-agent-placement-rules]] - 3 zones (etendu a 4)
 - [[ADR-009-agents-phase1-activation]] - Framework d'activation
 - [[ADR-011-openclaw-claude-api-replacement]] - Remplacement OpenClaw
-- [[ADR-012-aicos-vps-architecture]] - AI-COS VPS (4e zone), amendement propose par ADR-129
-- [[ADR-129-retrait-ai-cos-machine-systeme-agents|ADR-129]] - Retrait d'AI-COS, machine et systeme d'agents (proposed)
+- [[ADR-012-aicos-vps-architecture]] - AI-COS VPS (4e zone), amende par ADR-129
+- [[ADR-129-retrait-ai-cos-machine-systeme-agents|ADR-129]] - Retrait d'AI-COS, machine et systeme d'agents (accepted)
 - [[ADR-013-agent-lifecycle-governance]] - Cycle de vie
 
 ## Regles
