@@ -186,12 +186,12 @@ brouillon jusque-là (ADR-121 D7).
 | AI1 (pas de KPI = suppression) | Tout agent du catalogue | Conserver. Constat : le champ `metric_id` qu'elle vérifie n'existe dans aucune fiche ; le moyen de mesure reste à définir |
 | AI2 (l'IA propose, l'humain décide) | Tout agent IA ; son libellé nomme l'« IA-CEO », agent retiré | Conserver ; libellé « un agent IA propose, l'humain décide » |
 | AI3 (doute = blocage) | Tout agent IA | Conserver |
-| AI4 (pas de production sans validation) | Tout agent IA ; nomme le QTO, agent retiré | Conserver le principe ; réattribuer la validation du QTO à une validation humaine ou à un contrôle désigné, au choix de l'owner |
-| AI5 (aucun agent hors hiérarchie) | Organigramme du système retiré (`reports_to`, `sponsor`, `squad`, C-Level) | Reformuler : tout agent a un propriétaire humain désigné (champ `owner` des fiches) ; ou retirer, au choix de l'owner |
+| AI4 (pas de production sans validation) | Tout agent IA ; nomme le QTO, agent retiré | **Recommandé** : conserver le principe ; la validation du QTO devient celle que fixe le contrat du domaine, toujours indépendante du producteur : auto-review de sens pour une fiche WIKI ([[ADR-119-wiki-semantic-auto-review-replaces-human-review|ADR-119]]), ratification de l'owner pour un ADR ou une règle ([[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D7), revue liée au SHA de tête et checks requis pour du code (DoD2). Motif : une validation humaine générale contredirait [[ADR-119-wiki-semantic-auto-review-replaces-human-review|ADR-119]] D1, accepté |
+| AI5 (aucun agent hors hiérarchie) | Organigramme du système retiré (`reports_to`, `sponsor`, `squad`, C-Level) | **Recommandé** : reformuler « tout agent a une fiche au catalogue dont le champ `owner` est renseigné ; l'owner du projet en répond en dernier ressort », et abandonner `reports_to`, `sponsor` et `squad`. Motif : l'invariant se vérifie par commande (112 fiches sur 112 ont `owner`, qui nomme une équipe et non une personne) ; retirer AI5 perdrait ce contrôle |
 | AI6 (1 création = 1 fusion ou suppression) | Tout agent du catalogue | Conserver |
 | AI7 (diagnostic = multi-validation) | Tout agent IA | Conserver |
-| AI8 (contenu critique = QTO) | Tout agent IA ; nomme le QTO | Comme AI4 : conserver, réattribuer le rôle du QTO |
-| AI9 (kill-switch N1 à N3, Human CEO) | Tout agent IA pour le principe (seul l'humain arrête) ; les niveaux N1 à N3 décrivaient le système retiré, et ADR-102 D4 a retiré le kill-switch d'écriture du vault | Conserver le principe, « Human CEO » lu « owner ». Pour les niveaux : soit les gestes natifs N1 à N3 que propose [[ADR-128-departements-autonomes-coordonnes-file-github|ADR-128]] D6 (arrêt du runner DEV, désactivation d'un workflow, gel d'un mandat), si l'owner ratifie ADR-128 ; soit un renvoi à la réponse à incident de G4 ([[rules-vault]]). Au choix de l'owner |
+| AI8 (contenu critique = QTO) | Tout agent IA ; nomme le QTO | **Recommandé** : conserver ; un contenu critique (légal, sécurité, santé) suit le contrat de validation renforcé de son domaine, sans validation humaine imposée là où un ADR accepté l'exclut ([[ADR-119-wiki-semantic-auto-review-replaces-human-review|ADR-119]] D1 pour le WIKI, familles de sécurité comprises) |
+| AI9 (kill-switch N1 à N3, Human CEO) | Tout agent IA pour le principe (seul l'humain arrête) ; les niveaux N1 à N3 décrivaient le système retiré, et ADR-102 D4 a retiré le kill-switch d'écriture du vault | **Recommandé** : conserver le principe, « Human CEO » lu « owner », avec des gestes natifs qui ne dépendent pas de la ratification d'[[ADR-128-departements-autonomes-coordonnes-file-github|ADR-128]] : N1 arrêter le service du runner DEV ; N2 désactiver une routine (`gh workflow disable`) ; N3 geler un travail (PR de l'agent fermée ou repassée en brouillon ; label de mandat si ADR-128 est ratifié, D6). La révocation d'un accès suit la réponse à incident de G4 ([[rules-vault]]) |
 | AI10 (traçabilité obligatoire) | Tout agent IA | Conserver |
 
 Règles et policy voisines (propositions, non appliquées) :
@@ -204,7 +204,8 @@ Règles et policy voisines (propositions, non appliquées) :
 - **[[rules-marketing-voice]]**, référence « ADR-012 — 3-VPS architecture (DEV vault SoT, PROD/AI-COS
   read-only) » : devient « ADR-012 — architecture DEV et PROD (amendée par ADR-129) ». Ce fichier est
   publié vers le monorepo par `canon-publish` ; le modifier ouvre une PR de miroir dans le monorepo.
-  La ligne voisine « AI4 QTO valide AVANT publication » suit le sort d'AI4.
+  La ligne voisine « AI4 QTO valide AVANT publication » devient « AI4 : validation selon le contrat du
+  domaine avant publication ».
 - **[[PROCESS-G1-design]]** (policy) : la condition « si agent AI-COS Level 2+ » devient sans objet.
 - [[rules-vault]] et [[rules-governance-process]] citent `rules-ai-cos.md` : inchangés si le nom du
   fichier est conservé.
