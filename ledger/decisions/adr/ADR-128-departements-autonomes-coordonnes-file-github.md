@@ -1,8 +1,9 @@
 ---
 id: ADR-128
 title: "Départements autonomes et coordonnés : file de travail GitHub unique, remise de mandat par issue, bascule par étapes"
-status: proposed
+status: accepted
 date: "2026-11-14"
+decision_date: "2026-11-14"
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
@@ -12,21 +13,24 @@ related_adr: ["ADR-012", "ADR-020", "ADR-034", "ADR-102", "ADR-121", "ADR-123", 
 related_rules: ["AI1", "AI2", "AI5", "AI6", "AI9", "AI10", "AP-12", "G1", "G3", "G4"]
 related_incidents: []
 reviewed_by: ""
-version: "0.1.0"
+version: "1.0.0"
 ---
 
 # ADR-128 : départements autonomes et coordonnés sur le contrat ADR-034
 
-- **Statut** : Proposed (2026-11-14). Rédigé par un agent (Claude CLI) sur le mandat M de l'owner,
-  décideur humain : Marwane. Aucune ratification sans instruction explicite de l'owner
-  ([[rules-vault|G1]] ; [[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D7). Tant que
-  ce statut reste `proposed`, ce document est du contexte : il ne modifie ni le canon de `main` ni
-  [[ADR-034-aicos-operating-contract|ADR-034]].
-- **Amende (à la ratification)** [[ADR-034-aicos-operating-contract|ADR-034]] sur deux points : l'axe
-  Exécution et la génération de MOC-Routines (D7). Le champ `amended_by` d'ADR-034 ne sera posé que
-  par le commit de ratification.
-- **N'active rien.** Aucun runner, workflow, label, secret ni variable n'est créé par cet ADR ou par
-  sa PR. Chaque activation est une étape du plan D8, déclenchée par l'owner.
+- **Statut** : Accepted (2026-11-14). Décision de l'owner, décideur humain : Marwane : instruction
+  explicite « Ratifier l'ADR-128. » donnée en session le 2026-11-14, sur le texte proposé fusionné par
+  l'owner dans la PR #409 (tête `a5a4f2ca87abcdf7171c869366e5eb16305691ad`, commit de fusion
+  `b72e93da84fb933827b6bd640163a3b310030f1b`). Rédigé et ratifié par un agent (Claude CLI) sur cette
+  instruction : l'auteur et la clé de signature du commit de ratification sont techniques. Canon
+  applicable à la fusion par l'owner de la tête qui porte cette ratification, sous les contrôles requis
+  ([[rules-vault|G1]] ; [[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D4 et D7) ;
+  avant cette fusion, ce statut décrit le candidat ratifié et ne modifie pas le canon de `main`.
+- **Amende** [[ADR-034-aicos-operating-contract|ADR-034]] sur deux points : l'axe Exécution et la
+  génération de MOC-Routines (D7). Le commit de ratification pose `amended_by: ["ADR-128"]` sur
+  ADR-034.
+- **N'active rien.** La ratification adopte la décision ; elle ne crée aucun runner, workflow, label,
+  secret ni variable. Chaque activation est une étape du plan D8, déclenchée par l'owner.
 
 ## Contexte
 
@@ -219,7 +223,7 @@ Le rôle 23 (IA, agents et automatisation) pilote la file ; le rôle 01 Directio
 
 Le pilote peut demander un arrêt (label `needs-human`), jamais l'exécuter.
 
-### D7 — Amendement d'ADR-034 (pris à la ratification)
+### D7 — Amendement d'ADR-034
 
 1. **Axe Exécution.** Le texte devient : « Runner auto-hébergé DEV → Claude Code SDK (dont les
    sessions lancées depuis une issue `mandat-prêt` dans un worktree isolé, ADR-128 D4) / scripts /
@@ -241,7 +245,7 @@ Chaque étape s'active par un acte de l'owner et se défait par le geste N1 ou N
 
 | Étape | Contenu | Critère de sortie |
 |---|---|---|
-| 0 | ratification de cet ADR | commit de ratification fusionné par l'owner |
+| 0 | ratification de cet ADR (2026-11-14) | commit de ratification fusionné par l'owner |
 | 1 (mandat N) | runner DEV agent enregistré ; labels D1 créés ; routine `pilote-file` | runner `online` vu par l'API avec un jeton de l'owner ; 10 exécutions de journée consécutives vertes ; issue de pilotage à jour ; coût réel d'une journée mesuré ; cause des exécutions en file établie ou traitée à part |
 | 2 | remise de mandat par issue (`mandat-remise`) | 3 mandats menés du label `mandat-prêt` à la PR avec preuve AEC dans l'issue, sans copier-coller ; refus prouvé d'un label posé par un autre compte ; geste N2 testé |
 | 3 | routines SEO (07), éditorial (06), vidéo (08) | chaque routine a tourné sur un événement réel avec preuve ; valeur servie de `pages_generating_atc` vérifiée ; producteurs de `reusable_validated_content` et `demands_from_video` présents avant toute routine agent de 06 et 08 |
@@ -333,7 +337,7 @@ automatique reste dans le mécanisme d'ADR-123/124, avec son prérequis de revue
 
 ## Retour arrière
 
-Avant ratification : fermer la PR. Après : un ADR qui remplace celui-ci ; chaque étape activée se
+Avant la fusion de la ratification : fermer sa PR. Après : un ADR qui remplace celui-ci ; chaque étape activée se
 défait par N1 ou N2 (D6).
 
 ## Revue planifiée
@@ -353,5 +357,5 @@ défait par N1 ou N2 (D6).
 ---
 
 *Proposé le : 2026-11-14*
-*Accepté le : —*
+*Accepté le : 2026-11-14 (ratification ; effet à la fusion par l'owner)*
 *Dernière revue : 2026-11-14*

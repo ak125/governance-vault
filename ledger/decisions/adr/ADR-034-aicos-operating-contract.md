@@ -7,6 +7,7 @@ decision_date: "2026-11-10"
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
+amended_by: ["ADR-128"]
 related_rules: ["AP-12", "Q1", "Q4", "AEC"]
 related_incidents: []
 related_adr: ["ADR-006", "ADR-011", "ADR-012", "ADR-015", "ADR-020", "ADR-025", "ADR-028", "ADR-036"]
@@ -35,6 +36,12 @@ implementation_status_updated: 2026-11-10
   « pas bloquante ») ; l'extension de `weekly-vault-lint` aux routines.
 - **Non retrouvé** : l'audit à J+30 que citait `implementation_status` ; la revue prévue le
   2026-07-30 ; une mesure de stabilité de la routine pilote. Le statut n'en dépend plus.
+- **Amendé par** [[ADR-128-departements-autonomes-coordonnes-file-github|ADR-128]] D7 (2026-11-14),
+  sur deux points qui priment sur le texte ci-dessous : l'axe Execution inclut les sessions Claude Code
+  lancées depuis une issue `mandat-prêt` dans un worktree isolé sur le runner DEV, et « AI-COS »
+  désigne le contrat, pas une machine ; MOC-Routines est générée en local et committée par PR, la CI
+  ne lançant que `--check` (G4.3), au lieu d'une régénération automatique à chaque merge. Le bloc
+  `routine:` gagne les champs `departement` et `kpi`.
 
 ## Contexte
 
