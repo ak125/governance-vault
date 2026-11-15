@@ -548,6 +548,31 @@ son empreinte et partage sa clé.
 - Aucune affirmation n'est déclarée sur deux domaines : les vérifications de concordance et
   d'indépendance (`checks`) ne sont pas exercées.
 
+Le skill 0.3.1 (complément n° 4 au mandat S) cite à l'identique la règle de D9 dans l'invite de
+contestation ; l'invite de qualification ne change pas. D1 en fait une nouvelle clé : ces
+contestations ne forment pas une paire de décision avec la qualification 0.3.0 (D3). Ce sont des
+mesures d'étalonnage, et aucun artefact n'est remplacé. Les 12 affirmations contestées vers
+`conserver` ont été recontestées par `gpt-5.6-sol`, sur les deux segments qui les portent, avec une
+invite figée avant l'envoi (`3dd039f2…`, 133 605 octets). Il y a eu deux tirages 0.3.1 et un témoin
+sous l'invite 0.3.0, avec le même paquet.
+
+| Exécution | Les 12 affirmations |
+|---|---|
+| Contestation 0.3.0, fiche entière | 12 `contest` vers `conserver` |
+| Témoin : invite 0.3.0, deux segments | 12 `agree` sur `preciser` |
+| 0.3.1, tirage 1 | 12 `agree` sur `preciser` |
+| 0.3.1, tirage 2 | 12 `agree` sur `preciser` |
+
+- Le témoin rend le même résultat sans la citation. L'écart avec la contestation 0.3.0 vient donc du
+  paquet (fiche entière en lots, contre deux segments) ou de la variance. La citation de D9 n'en est
+  pas la cause démontrée.
+- Au tirage 2, 10 motifs sur 12 invoquent la règle ; au témoin, 5 sur 12. Au tirage 1, `statement`
+  recopie le texte de l'affirmation au lieu d'en donner le motif.
+- Les défauts masqués le restent dans les verdicts. Pour « marques de qualité », la contestation
+  passe de `contest` vers `conserver` à `agree` sur `preciser`.
+- Aucune affirmation n'est toujours déclarée sur deux domaines : la concordance et l'indépendance ne
+  sont toujours pas exercées. Elles le seront sur les cas du mandat AC.
+
 ## Inconnues
 
 - Une affirmation bornée à une seule source (`preciser`) bloque en profondeur `complete` (D4, D10).
@@ -563,10 +588,12 @@ son empreinte et partage sa clé.
   une autre famille ne le sépare pas davantage : elle voit l'écart dans ses motifs, mais une fois
   seulement dans son verdict. Rien ne dit encore si la reprise doit commencer par ces affirmations, ni
   si le skill doit garder les deux motifs distincts.
-- Si l'invite de contestation doit rappeler la règle de D9 : sans elle, le contestataire demande
-  `conserver` pour une affirmation exacte à une seule source.
+- L'effet de la citation de D9 dans l'invite de contestation (skill 0.3.1, complément n° 4 au mandat
+  S) : sur les deux segments recontestés, le témoin sans citation rend le même résultat. L'effet sur
+  une fiche entière, et ce que porte `statement` dans une position, restent à mesurer.
 - Les vérifications de concordance et d'indépendance par le contestataire : aucun cas de
-  l'étalonnage ne déclare deux domaines, elles n'ont pas encore tourné.
+  l'étalonnage ne déclare deux domaines, elles n'ont toujours pas tourné, 0.3.1 comprise. Elles le
+  seront sur les cas du mandat AC.
 - La part retrouvée sur le jeu de D6 au-delà de l'étalonnage candidat du 2026-11-15, et la variance
   d'une exécution à l'autre (un seul modèle de qualification, une exécution par révision).
 - Le coût réel par fiche en profondeur `complete` sur une fiche longue.
