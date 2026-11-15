@@ -230,6 +230,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-128 | Départements autonomes et coordonnés : file de travail GitHub unique, remise de mandat par issue, bascule par étapes | Accepted | 2026-11-14 | [[ADR-128-departements-autonomes-coordonnes-file-github]] |
 | ADR-129 | Retrait d'AI-COS : machine arrêtée en octobre 2026 et système d'agents retiré ; amende ADR-012 et ADR-034, fixe le sort des règles AI1 à AI10 | Accepted | 2026-11-14 | [[ADR-129-retrait-ai-cos-machine-systeme-agents]] |
 | ADR-130 | Amendement d'ADR-128 : constats corrigés (runner hetzner-prod sur l'hôte PROD), pilote-file déterministe avant toute session agent, sécurité des runners auto-hébergés d'un dépôt public | Accepted | 2026-11-15 | [[ADR-130-amendement-adr-128-runner-prod-pilote-deterministe-securite-runners]] |
+| ADR-134 | DoD5 : chaque test nomme une mesure qui existe (registry-fresh, registre des migrations) et clause transitoire tant que la comparaison au schéma live n'est pas mesurée — amende rules-engineering-definition-of-done (v1.4.0) | Proposed | 2026-11-15 | [[ADR-134-dod5-chaque-test-nomme-une-mesure-existante]] |
 
 <!-- AUTO-GENERATED:moc-decisions-canonical-index end -->
 

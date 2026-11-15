@@ -2,8 +2,9 @@
 type: rules-document
 status: canon
 scope: engineering
-updated: 2026-11-07
+updated: 2026-11-15
 related_adrs:
+  - ADR-134
   - ADR-123
   - ADR-121
   - ADR-120
@@ -25,7 +26,7 @@ related_rules:
 # Rules — Engineering Definition of Done (DoD1-DoD9)
 
 > **Source de vérité** — règles canon de "fini" au 2026-05-19
-> **Version** : 1.3.0 (DoD2 amendée par [[ADR-120-dod2-preuve-de-revue-liee-au-sha|ADR-120]], 2026-10-31, par [[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]], 2026-11-01, puis complétée par [[ADR-123-fusion-automatique-conditionnelle-perimetre-adopte|ADR-123]], 2026-11-07) | **Status** : CANON
+> **Version** : 1.4.0 (DoD2 amendée par [[ADR-120-dod2-preuve-de-revue-liee-au-sha|ADR-120]], 2026-10-31, par [[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]], 2026-11-01, puis complétée par [[ADR-123-fusion-automatique-conditionnelle-perimetre-adopte|ADR-123]], 2026-11-07 ; DoD5 amendée par [[ADR-134-dod5-chaque-test-nomme-une-mesure-existante|ADR-134]], 2026-11-15, proposé : sans effet avant sa ratification et la fusion de la tête qui la porte) | **Status** : CANON
 > **Taxonomie** : DoD = Definition of Done — invariants qui définissent ce que "MERGED" exige. S'applique APRÈS Q1-Q4 (qualité initiale) et AVANT acceptance opérationnelle (état `MERGED` puis `OBSERVED` puis `CLOSED` per state-machine ADR-053).
 >
 > Le bricolage Q1 est interdit *avant* le code. La dette DoD est interdite *au moment du merge*. Une PR qui passe Q sans respecter DoD pousse de la dette en prod.
@@ -176,14 +177,18 @@ Dans la description PR :
 
 ## DoD5 — Drift zéro (schema DB stable au moment du merge)
 
+> Amendée par [[ADR-134-dod5-chaque-test-nomme-une-mesure-existante|ADR-134]] (v1.4.0, proposé : sans effet avant sa ratification et la fusion de la tête qui la porte) : chaque test nomme une mesure qui existe ; clause transitoire tant que la comparaison au schéma live n'est pas mesurée.
+
 **OBLIGATOIRE** : aucune migration en attente, aucun drift entre schema canon (`audit/registry/db.json`) et état Supabase live, aucun contrat de type cassé.
 
 ### Test de discrimination
 
-1. **`registry-fresh.yml` vert** sur la PR (L1 inventory ↔ L2 overlay ↔ live DB cohérents).
+1. **`registry-fresh.yml` vert** sur la PR (le job « Registry freshness (warn-only, Phase 1) » conclut `success` : projections committées du registre, dont `audit/registry/db.json`, identiques à leur reconstruction depuis le dépôt, overlay L2 validé, invariants I1 à I6 ; le workflow ne lit pas la base live). Le run du workflow conclut `success` même quand ce job échoue (`continue-on-error: true`) : lire la conclusion du job. Si le filtre `paths` ne déclenche pas le workflow, le test est N/A et la preuve le dit.
 2. **Migrations atomiques** : si DDL, fichier unique sous `backend/supabase/migrations/YYYYMMDD_*.sql`, pas de migration manuelle hors pipeline.
 3. **Types regénérés** : si schema DB change, `@repo/database-types` regénéré et commité.
-4. **`mcp__supabase__list_migrations`** matche `git ls-files backend/supabase/migrations/` (pas de hand-applied non commité).
+4. **Registre des migrations conforme à git** : `scripts/ci/apply-supabase-migration.py --status` donne 0 pending, 0 drift, 0 orphan, 0 applying, 0 failed ; citer le run. Les compteurs se lisent sur la ligne `Summary` : le code de sortie n'échoue ni sur un `pending` de moins de 30 jours ni sur un `orphan`. Le run est celui de `migration-ledger-freshness.yml` (quotidien ou lancé à la main) ; il mesure `main`, pas l'arbre de la PR.
+
+**Clause transitoire** : tant que la mesure du schéma contre la base live n'existe pas, la preuve cite le résultat de `check-ledger-catalog-ratchet.py --verify` et porte la mention « comparaison db.json / base live : non mesurée » ; la case DoD5 se coche sur les tests 1 à 4. `--verify` vérifie seulement que les objets déclarés par les migrations appliquées existent en base, par nom, au baseline près ; il ne compare pas `db.json` à la base live et ne voit ni les objets créés hors migration ni les colonnes.
 
 ### Anti-patterns bloquants
 
@@ -198,7 +203,14 @@ Dans la description PR :
 - [x] registry-fresh.yml: green
 - [x] Migrations: <list of files added> ou "none"
 - [x] Types regenerated: yes / no / N/A
-- [x] mcp__supabase__list_migrations matches git: yes
+- [x] Migration ledger --status : <run>, 0 pending, 0 drift, 0 orphan
+```
+
+Pendant la clause transitoire, la preuve ajoute :
+
+```text
+- [x] Ledger ↔ catalogue --verify : <run>, <résultat>
+- [x] comparaison db.json / base live : non mesurée
 ```
 
 **Raison** : chaque drift L1 ↔ live = un crash futur sur deploy frais ou rebuild canonical. Le drift se compose silencieusement. Cf. ADR-058 V4 invariant : `live = canonical = git`.
@@ -410,4 +422,4 @@ Le reviewer doit refuser une PR qui :
 
 *Proposé le : 2026-05-19*
 *Status : CANON dès merge*
-*Dernière revue : 2026-11-07 (DoD2 énoncé, point 6 et anti-pattern, ADR-123)*
+*Dernière revue : 2026-11-15 (DoD5 tests 1 et 4, preuve et clause transitoire, ADR-134 proposé). Précédente : 2026-11-07 (DoD2 énoncé, point 6 et anti-pattern, ADR-123)*
