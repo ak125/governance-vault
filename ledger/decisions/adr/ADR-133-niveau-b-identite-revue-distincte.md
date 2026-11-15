@@ -108,8 +108,8 @@ L'approbation est déposée par une **session de revue distincte de la session a
    le diff `base...tête` dans un arbre extrait à cette tête, hors du worktree de l'auteur ; vérifie que
    les contrôles requis sont verts sur cette tête (`gh pr checks`) ; vérifie chaque fichier contre la
    liste fermée de D3 ; lit chaque test modifié pour y chercher un test neutralisé sans motif interdit
-   que la porte ne détecte pas (assertion retirée ou affaiblie, sortie anticipée sous condition, test
-   déclaré par un alias ; Limites).
+   que la porte ne détecte pas (assertion retirée ou affaiblie, assertion avalée par un `try`/`catch`,
+   valeur attendue changée ; Limites).
 3. **Trace** : le corps de l'approbation donne la tête, la base, la procédure, le modèle et sa
    famille, l'identifiant de session, les constats et leur issue. L'enregistrement DoD2 du corps de
    la PR (`- [x] Revue niveau B — tête …, base …` puis `procédure : revue indépendante, par …`) reste
@@ -167,7 +167,7 @@ le code est celui qu'écrit la porte.
 | Chemin hors liste fermée | `LEVEL_B_PATH_REFUSED` | pas de fusion |
 | Fichier non test sous `tests/unit/` | `LEVEL_B_NOT_TEST_FILE` | pas de fusion |
 | Chemin de test qui nomme une zone STOP | `LEVEL_B_STOP_ZONE` | pas de fusion |
-| Fichier de test supprimé, renommé ou copié ; déclaration de test retirée, mise en commentaire, placée sous condition ou dans un nouvel appel englobant ; test de la base vidé, sans appel ou ouvert par un `return` sans appel ; nom `it`, `test` ou `describe` redéfini ; fichier de test non analysable | `TEST_REMOVED` | pas de fusion |
+| Fichier de test supprimé, renommé ou copié ; déclaration de test retirée, mise en commentaire, placée sous condition ou dans un nouvel appel englobant ; test de la base vidé, sans appel, ouvert par un `return` sans appel, avec du code inatteignable, un `return` avant sa dernière instruction ou une condition faite de littéraux ; nom `it`, `test` ou `describe` redéfini ; objet global utilisé autrement qu'en lecture ordinaire ; code dynamique ; fichier de test non analysable | `TEST_REMOVED` | pas de fusion |
 | `.skip(` ou `.only(` ajouté, ou modificateur `skip`, `only`, `todo`, `skipIf`, `runIf` ajouté sous toute écriture | `LEVEL_B_DIFF_PATTERN` | pas de fusion |
 | Patch d'un test absent (binaire, trop gros), ou fichier illisible à la base de fusion ou à la tête | `PATCH_UNAVAILABLE` | pas de fusion |
 
@@ -180,13 +180,41 @@ le même premier argument et la même position syntaxique, modificateurs mis à 
 du fichier à l'appel : chaque appel de test englobant y figure par son appel et son titre, chaque autre
 nœud par sa nature. Un titre changé, un test placé sous un `if`, un `&&`, un `?:` ou une boucle, ou
 dans un nouvel appel englobant (`describe`, `registry.test`, `describe.each([])`) compte comme un
-retrait, et un test retiré ne se compense pas par un autre ajouté. Un test de la base est refusé si,
-à la tête, il n'a plus de rappel littéral, si son rappel ne contient aucun appel (`() => undefined`,
-`() => void 0`, corps vide) ou s'il s'ouvre par un `return` sans appel (`return;`,
-`return undefined;`). Un nom `it`, `test` ou `describe` lié ou réassigné à la tête (déclaration,
-paramètre, import hors de `vitest`, `@jest/globals` et `node:test`, affectation directe ou sur un objet
-global) est refusé : un `describe` redéfini en fonction vide ferait disparaître ses tests sans changer
-leur clé.
+retrait, et un test retiré ne se compense pas par un autre ajouté.
+
+Un test de la base est refusé (neutralisé) si, à la tête :
+
+- il n'a plus de rappel littéral, ou son rappel ne contient aucun appel (`() => undefined`,
+  `() => void 0`, corps vide), ou il s'ouvre par un `return` sans appel ;
+- son rappel contient du code inatteignable selon l'analyse de flot de TypeScript (diagnostic 7027 :
+  instruction après un `return`, un `throw`, un `break` ou un `continue` à toute profondeur, branche
+  `if (false)`) ;
+- hors fonctions imbriquées, il contient un `return` autre que sa dernière instruction
+  (`if (x) return;`, `{ return; }`) ou une condition faite de littéraux seulement (`if`, `?:`,
+  boucles, `&&`, `||`, `??` : `false && check()`, `if (false as const)`).
+
+Toute référence nouvelle qui peut faire disparaître des tests sans changer leur clé est refusée. Elle
+est comparée entre base et tête par son nom, la nature et la propriété du parent qui la porte
+(`name`, `initializer`, `arguments`…) et sa position ; les noms liés ou affectés sont en outre comptés
+par nom seul. Sont des références :
+
+- un nom `it`, `test` ou `describe` lié, paramètre, alias, importé hors de `vitest`, `@jest/globals` et
+  `node:test` ou sous un autre nom, ou affecté sous toute forme (déstructuration, `||=`, propriété d'un
+  objet global) ; une clé de test passée à un appel qui modifie par clé (`vi.stubGlobal("it", …)`,
+  `Object.defineProperty(globalThis, "it", …)`) ; un module de test cité hors d'un import
+  (`vi.mock("vitest", …)`) ;
+- tout usage d'un objet global (`globalThis`, `global`, `window`, `self`, portée résolue par le
+  vérificateur TypeScript) autre qu'une lecture ordinaire : propriété nommée, clé littérale, `typeof`,
+  premier argument d'un appel à clé littérale (`Object.defineProperty(window, "location", …)`,
+  `vi.spyOn(window, "fetch")`) ;
+- le code dynamique et les détours vers l'objet global : `eval`, `Function` (sauf comme type attendu,
+  `expect.any(Function)`), `.constructor`, le module `vm`, `this` d'une fonction dans un script non
+  strict.
+
+Un `describe` redéfini en fonction vide ferait disparaître ses tests sans changer leur clé : la règle
+vaut refus par défaut, et les données (`{ test: 1 }`, `dept("test")`, `config.test`) restent admises.
+Sur les 289 fichiers de tests unitaires de `main`, quatre contiennent déjà une telle référence ;
+comparées à la base, elles ne refusent que leurs ajouts.
 
 ### D6 — Politique
 
@@ -305,14 +333,19 @@ d'ADR-124 D8 s'appliquent au niveau B.
   ou revue dans un workflow écrit par l'owner) relève d'un mandat distinct.
 - **La porte vérifie la forme, pas la qualité.** Elle prouve qui a approuvé et sur quel SHA, pas que
   la revue a bien lu le diff. La qualité tient à D2.
-- **Déclarations de test reconnues par leur nom d'appel.** L'analyse est syntaxique : un test
-  déclaré par un alias (`const t = test; t("…")`) n'est pas reconnu comme tel, et son retrait échappe
-  à `TEST_REMOVED` ; la session de revue le cherche (D2.2). À l'inverse, tout appel nommé `test`
-  (`re.test(s)` compris) est compté : son retrait est refusé, le doute valant refus.
+- **Déclarations de test reconnues par leur nom d'appel.** L'analyse est syntaxique : un alias de
+  test (`const t = test`) est refusé dès son ajout (D5), mais un alias déjà présent à la base n'est
+  pas reconnu comme déclaration. Tout appel nommé `test` (`re.test(s)` compris) est compté : son
+  retrait est refusé, le doute valant refus.
 - **Tests affaiblis dans leur corps.** La porte refuse un test placé sous condition ou enveloppé,
-  sans appel ou ouvert par un `return` sans appel, pas une assertion retirée ou affaiblie, ni une
-  sortie anticipée après une première instruction (`if (x) return;`), ni un rappel dont les appels ne
-  s'exécutent pas (`() => { const f = () => check(); }`). La session de revue doit les chercher (D2.2).
+  vidé, rendu inatteignable ou soumis à une condition littérale (D5). Elle ne juge pas le sens de ce
+  qui reste atteignable : une assertion retirée, changée ou avalée par un `try`/`catch`, une condition
+  sur une variable qui ne fait que sortir d'une boucle, un rappel dont les appels sont définis mais
+  jamais exécutés (`() => { const f = () => check(); }`). La session de revue doit les chercher (D2.2).
+- **Objet global hors lecture ordinaire.** Passer un objet global à une fonction nouvelle
+  (`render(globalThis as never)`) est refusé même quand c'est légitime : ce faux refus est voulu, la PR
+  passe par la revue humaine. Une voie d'accès au global non recensée (autre module natif, API hôte,
+  worker) n'est pas reconnue ; la session de revue la cherche.
 - **Déplacer un test dans un `describe` est refusé.** La position inclut les appels englobants : un
   regroupement de tests existants sous un nouveau `describe`, ou le renommage d'un `describe`, compte
   comme un retrait. Ce faux refus est voulu ; la PR passe par la revue humaine.
