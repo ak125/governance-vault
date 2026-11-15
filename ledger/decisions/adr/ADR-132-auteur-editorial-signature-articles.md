@@ -13,7 +13,7 @@ related_adr: ["ADR-025", "ADR-044", "ADR-114", "ADR-119", "ADR-120", "ADR-121", 
 related_rules: ["G1", "G4"]
 related_incidents: []
 reviewed_by: ""
-version: "0.2.0"
+version: "0.3.0"
 ---
 
 # ADR-132 : auteur éditorial et signature publique des articles
@@ -33,6 +33,8 @@ version: "0.2.0"
 - **Questions tranchées** : Q1 à Q3 ont été tranchées le 15 nov. 2026 par le chat de pilotage
   général, sur délégation de Marwane (§Questions tranchées). L'ADR reste `proposed` ; ces réponses
   prennent effet avec lui, à sa ratification et à sa fusion par l'owner.
+- **Question ouverte** : Q4 (mention de validation par un technicien certifié), posée à partir des
+  deux messages de Marwane du 15 nov. 2026 (C3) et laissée à la ratification (§Question ouverte).
 - **Méthode** : constats en lecture seule le 2026-11-15, sur `main` du vault au commit `156b143` et
   sur `main` du monorepo au commit `b40181b3e` (commit du 2026-11-15 à 11:50 UTC, identique à `main`
   sur GitHub au moment du constat), lu par `git grep` et `git show` sur ce commit, sans toucher aucun
@@ -94,6 +96,29 @@ Décisions sur Fafa, transmises à l'ADR addendum Fafa (§Renvoi ; voie d'entré
 - à 11:37 Paris : « 1 », c'est-à-dire que seul le mot « IA » sort de la phrase prononcée, l'indication
   de contenu généré par IA restant ailleurs (étiquette des plateformes, `identity_disclosed`) ;
 - à 13:08 Paris, formule confirmée : « Moi, c'est Fafa, le mécano expert automobile d'AutoMecanik ».
+
+Messages de Marwane du 15 nov. 2026, cités mot pour mot. Le pilotage général les a transmis à cette
+session par un complément au mandat Q (relevé du 15 nov. à 18:10 UTC). Cet ADR ne tranche pas entre
+eux (Q4).
+
+À 14:55 heure de Paris (13:55 UTC), décision inscrite dans ADR-131 (PR #413 du vault, D9) :
+
+> Pas de relecture humaine car impossible trop long mais autoreview avec comparaison sur autre domaine d'autorité pour confirmer
+
+À 15:09 heure de Tunis (14:09 UTC) :
+
+> Je supervise et je suis technicien certifié
+
+Lecture qu'en faisait le pilotage à 14:10 UTC, qui n'est pas une décision de Marwane : la validation
+technique avant publication serait tenue par Marwane ; dans `EditorialTrust.tsx`, « validés par un
+technicien automobile certifié » ne serait exact que si chaque article porte la trace de sa
+validation ; « rédigés par des mécaniciens » serait inexact ; la preuve de la certification serait à
+conserver.
+
+Ordre des deux messages : le complément présente la décision de 14:55 comme « prise après » le
+message de 15:09. Aux heures données, Paris et Tunis étant tous deux à UTC+1 le 15 nov., 14:55 Paris
+(13:55 UTC) précède 15:09 Tunis (14:09 UTC). Cet ADR ne tranche pas cet ordre ; il est à confirmer
+avec Q4.
 
 ## Principe directeur
 
@@ -304,6 +329,47 @@ sa fusion par l'owner (ADR-121 D4 et D7).
   certifiés ») contredit R1 : elle est à corriger par un lot distinct, sans attendre l'avis (voir
   §Conséquences).
 
+### Cohérence de Q1 à Q3 et de R1 avec ADR-131 D9
+
+D9 d'ADR-131 (PR #413, `proposed`) ne fait d'aucune relecture humaine une condition de la promotion
+WIKI (ADR-119 D1, maintenu) ; la confirmation par un second domaine d'autorité est l'autoreview
+décidée à 14:55. Relu à cette lumière :
+
+- **R1** ne fait d'aucune relecture humaine une condition. La relecture indépendante est confiée à
+  Codex ; l'admission des faits reste au WIKI, que D9 durcira une fois ADR-131 ratifié. L'arbitrage
+  et la publication par l'owner sont des actes de décision (ADR-121 D2), pas une relecture du texte :
+  R1 ne demande pas à l'owner de relire chaque contenu.
+- **Q1** (voie d'entrée de l'addendum Fafa) ne touche pas à la relecture.
+- **Q2** : la revue de publication du département 08 vérifie un dispositif (surimpression sur toute
+  la vidéo, étiquette IA de la plateforme), pas les faits du contenu. Elle n'est pas une relecture du
+  contenu au sens de 14:55.
+- **Q3** : l'avis juridique porte sur le dispositif (article 50, étiquetage des plateformes), pas sur
+  le contenu de chaque vidéo. Il n'est pas une relecture du contenu au sens de 14:55.
+- **Seul point de tension** : la mention de validation par un technicien certifié dans
+  `EditorialTrust.tsx`. Q3 la déclare contraire à R1 et en confie la correction à un lot distinct ;
+  la formulation de ce lot dépend de Q4.
+
+## Question ouverte pour la ratification
+
+Trancher Q4 est un acte réservé à Marwane, à la ratification. Cet ADR ne choisit pas entre les deux
+messages du 15 nov. 2026 (C3).
+
+- **Q4 — Mention de validation par un technicien certifié.** Si aucune relecture humaine n'a lieu
+  (ADR-131 D9, décision de 14:55), la mention « validés par un technicien automobile certifié » ne
+  peut pas rester sans trace de validation par article. Au constat, `EditorialTrust.tsx:10-11` porte
+  « rédigés et validés par des mécaniciens et techniciens automobile certifiés » ; la partie
+  « rédigés » contredit déjà R1 (Q3). Aucune option ne change l'auteur déclaré (R2). Options à
+  comparer :
+  - **A — Validation par article.** Marwane valide chaque article et une trace par article est
+    conservée ; la mention reste. Suit le message de 15:09 ; ajoute une relecture humaine par
+    article, que la décision de 14:55 écarte.
+  - **B — Pas de relecture humaine.** La mention est retirée ou réécrite pour décrire la méthode
+    réelle : sources de deux domaines d'autorité, contestation par une autre famille de modèles.
+    Suit la décision de 14:55 et ADR-131 D9.
+  - **C — Supervision générale.** La mention décrit une supervision générale par un technicien
+    certifié, sans validation par article ; la preuve de certification est conservée. Reprend les
+    deux messages ; ne décrit aucune validation par article.
+
 ## Ce que cet ADR ne fait pas
 
 - Il ne modifie aucun fichier du monorepo, aucune balise auteur, aucune donnée structurée, aucun
@@ -311,6 +377,7 @@ sa fusion par l'owner (ADR-121 D4 et D7).
 - Il n'applique pas le changement du canon Fafa, qui relève de l'ADR addendum Fafa (Q1), et ne
   rédige pas cet addendum.
 - Il ne corrige pas `EditorialTrust.tsx` (Q3) et ne demande pas l'avis juridique (Q3).
+- Il ne tranche ni Q4, ni l'ordre des deux messages du 15 nov. 2026 (C3).
 - Il n'amende ni ADR-119 (admission WIKI), ni ADR-120 (revue d'un diff), ni ADR-121, ni ADR-131.
 - Il ne crée aucun agent, aucun identifiant, aucune gate, aucun check requis, et ne renseigne pas
   `accountable_owner`.
@@ -352,7 +419,8 @@ séparations déjà posées pour les diffs (ADR-120, ADR-121).
 - La phrase d'`EditorialTrust.tsx` (`frontend/app/components/blog/EditorialTrust.tsx:10-11`,
   « rédigés et validés par des mécaniciens et techniciens automobile certifiés ») contredit R1, qui
   confie la rédaction à un chat Claude et la relecture à Codex. Elle est à corriger par un lot
-  distinct du monorepo, sans attendre l'avis de Q3. Cet ADR le signale et ne la corrige pas.
+  distinct du monorepo, sans attendre l'avis de Q3 ; sa formulation dépend de la réponse à Q4. Cet
+  ADR le signale et ne la corrige pas.
 - Aucune vidéo Fafa avec la nouvelle signature n'est publiée sans l'avis juridique de Q3 ni sans
   l'ADR addendum Fafa (Q1).
 - Tant qu'aucune gate ne calcule `identity_disclosed`, sa vérification repose sur la revue de
@@ -367,7 +435,8 @@ séparations déjà posées pour les diffs (ADR-120, ADR-121).
 3. Le changement du canon Fafa passe par l'ADR addendum Fafa (Q1), appliqué avant la première
    publication d'une vidéo Fafa, et après l'avis juridique de Q3 pour toute vidéo qui porte la
    nouvelle signature.
-4. La phrase d'`EditorialTrust.tsx` est corrigée par un lot distinct du monorepo (Q3).
+4. La phrase d'`EditorialTrust.tsx` est corrigée par un lot distinct du monorepo (Q3), dans la
+   formulation que fixe la réponse à Q4.
 
 ## Revue planifiée
 
@@ -375,7 +444,8 @@ séparations déjà posées pour les diffs (ADR-120, ADR-121).
 
 **Critères** : un contenu publié dont l'auteur a aussi été le relecteur ou l'intégrateur ; une
 signature qui nomme un LLM ou un outil d'IA ; l'application des décisions Q1 à Q3 (ADR addendum
-Fafa, avis juridique, correction d'`EditorialTrust.tsx`).
+Fafa, avis juridique, correction d'`EditorialTrust.tsx`) ; la réponse à Q4 et, selon l'option
+retenue, la trace de validation par article ou la preuve de certification.
 
 ## Références
 
