@@ -166,14 +166,17 @@ le code est celui qu'écrit la porte.
 | Chemin hors liste fermée | `LEVEL_B_PATH_REFUSED` | pas de fusion |
 | Fichier non test sous `tests/unit/` | `LEVEL_B_NOT_TEST_FILE` | pas de fusion |
 | Chemin de test qui nomme une zone STOP | `LEVEL_B_STOP_ZONE` | pas de fusion |
-| Fichier de test supprimé, renommé ou copié, ou déclaration de test retirée | `TEST_REMOVED` | pas de fusion |
-| `.skip(` ou `.only(` ajouté | `LEVEL_B_DIFF_PATTERN` | pas de fusion |
-| Patch d'un test absent (binaire, trop gros) | `PATCH_UNAVAILABLE` | pas de fusion |
+| Fichier de test supprimé, renommé ou copié, déclaration de test retirée ou mise en commentaire, fichier de test non analysable | `TEST_REMOVED` | pas de fusion |
+| `.skip(` ou `.only(` ajouté, ou modificateur `skip`, `only`, `todo`, `skipIf`, `runIf` ajouté sous toute écriture | `LEVEL_B_DIFF_PATTERN` | pas de fusion |
+| Patch d'un test absent (binaire, trop gros), ou fichier illisible à la base de fusion ou à la tête | `PATCH_UNAVAILABLE` | pas de fusion |
 
-Une ligne retirée qui contient un appel `it`, `test` ou `describe` (variantes `.each`, formes
-précédées comme `const c = test(` ou `suite.test(` comprises) doit réapparaître avec le même appel et
-le même titre, hors `.skip` et `.only` ; un titre changé compte comme un retrait. Un test retiré ne se
-compense pas par un autre ajouté.
+Les déclarations de test sont lues par l'analyseur TypeScript (dépendance `typescript` déjà présente
+à la racine du monorepo) sur le fichier entier, à la base de fusion et à la tête, tous deux lus par
+l'API contents de GitHub. Commentaires et chaînes, même sur plusieurs lignes, ne peuvent donc ni cacher
+ni simuler un test. Chaque appel dont la chaîne d'appel nomme `it`, `test` ou `describe` (`it(`,
+`suite.test(`, `test.each(t)(` compris) présent à la base se retrouve à la tête avec le même appel et
+le même premier argument, modificateurs mis à part ; un titre changé compte comme un retrait, et un
+test retiré ne se compense pas par un autre ajouté.
 
 ### D6 — Politique
 
@@ -192,8 +195,10 @@ La porte existante `scripts/ci/merge-perimeter-gate.mjs` du monorepo est étendu
 mécanisme (PR [#2079](https://github.com/ak125/nestjs-remix-monorepo/pull/2079)). Quand
 l'enregistrement de la tête est de niveau B et que `level_b` est `active`, elle applique la classe de
 D3 à chaque chemin, ancien et nouveau, puis lit les revues GitHub de la PR et exige l'approbation de
-D5. Chaque cas de refus de D5 a un test dans `scripts/ci/merge-perimeter-gate.test.mjs`, exécuté par
-le contrôle `audit.yml`. Le niveau A est inchangé.
+D5. Pour chaque fichier de test, elle lit le fichier à la base de fusion et à la tête par l'API
+contents (`readTestContents`), avec le compte qui l'exécute ; une lecture en échec vaut refus. Chaque
+cas de refus de D5 a un test dans `scripts/ci/merge-perimeter-gate.test.mjs`, exécuté par le contrôle
+`audit.yml`. Le niveau A est inchangé.
 
 ### D8 — Activation séparée (ADR-124 D8)
 
@@ -274,8 +279,9 @@ d'ADR-124 D8 s'appliquent au niveau B.
 ### Négatives
 
 - Une identité et une clé de plus à garder et à faire tourner.
-- La classe est plus stricte que sa lettre sur deux points : un test dont le titre change est refusé,
-  et un audit en sous-dossier classé D15 reste refusé (Limites).
+- La classe est plus stricte que sa lettre sur trois points : un test dont le titre change est
+  refusé, un tableau `.each` modifié aussi, et un audit en sous-dossier classé D15 reste refusé
+  (Limites).
 
 ### Neutres
 
@@ -289,14 +295,15 @@ d'ADR-124 D8 s'appliquent au niveau B.
   ou revue dans un workflow écrit par l'owner) relève d'un mandat distinct.
 - **La porte vérifie la forme, pas la qualité.** Elle prouve qui a approuvé et sur quel SHA, pas que
   la revue a bien lu le diff. La qualité tient à D2.
-- **Déclarations de test reconnues par motif.** Un test retiré via un alias (`const t = test;
-  t("…")`) ou une déclaration coupée sur deux lignes échappe au contrôle `TEST_REMOVED` ; la session
-  de revue le cherche (D2.2).
-- **Tests neutralisés sans motif interdit.** Un corps vidé, un `return` en tête ou une condition
-  toujours fausse ne sont pas détectés ; ni `xit(`, `xdescribe(`, `.todo(`, `.skip.each(`. La classe
-  telle qu'écrite ne refuse que `\.skip\(` et `\.only\(`. La session de revue doit les chercher
-  (D2.2). Ajouter des motifs à `deny_added_line_patterns` resserre la classe ; c'est un choix de
-  l'owner.
+- **Déclarations de test reconnues par leur nom d'appel.** L'analyse est syntaxique : un test
+  déclaré par un alias (`const t = test; t("…")`) n'est pas reconnu comme tel, et son retrait échappe
+  à `TEST_REMOVED` ; la session de revue le cherche (D2.2). À l'inverse, tout appel nommé `test`
+  (`re.test(s)` compris) est compté : son retrait est refusé, le doute valant refus.
+- **Tests neutralisés sans modificateur.** Un corps vidé, un `return` en tête, une assertion
+  affaiblie ou une condition toujours fausse ne sont pas détectés. La session de revue doit les
+  chercher (D2.2).
+- **Tableau `.each` modifié.** Le premier argument d'un appel non littéral (tableau de `test.each`)
+  est comparé tel quel : ajouter une ligne au tableau compte comme un retrait et est refusé.
 - **Zones STOP par fragments de nom.** `stop_zone_fragments` reconnaît une zone STOP au nom du
   chemin d'un test ; c'est une heuristique, le doute valant refus. Le contenu reste filtré par
   `deny_diff_patterns`.
