@@ -77,7 +77,7 @@ Le détail, les commandes et les empreintes sont dans le rapport du mandat AL
   `b716f9dc2ba36b6aa8f0080615e5a3a6caeac63b`) :
   - le lock projet s'appelle `skills-lock.json`, à la racine du projet (`src/local-lock.ts:12`).
     Il est versionné (v2) et chaque entrée enregistre `source`, `ref`, `commit` et `skillPath`.
-    ADR-057 le nomme à tort `.agents/skills.lock.json` (D1 et § risques) ;
+    ADR-057 le nomme à tort `.agents/skills.lock.json` (D1 et § « Négatives / coûts ») ;
   - l'agent `claude-code` installe dans `.claude/skills`, `codex` dans `.agents/skills`
     (`src/agents.ts:166-176`, `:235-241`). En mode par défaut, la CLI copie le skill dans le
     répertoire canonique `.agents/skills/<nom>`, puis crée un lien depuis le répertoire de
@@ -241,7 +241,7 @@ skills.sh depuis le 2026-09-29 seulement. Le choix revient à l'owner.
 ### D7 — Nom du lock
 
 Le fichier de lock s'appelle `skills-lock.json`, à la racine du projet. La mention
-`.agents/skills.lock.json` d'ADR-057 (D1 et § risques) est erronée. Le corps d'ADR-057 reste
+`.agents/skills.lock.json` d'ADR-057 (D1 et § « Négatives / coûts ») est erronée. Le corps d'ADR-057 reste
 inchangé : cet ADR fait foi sur ce point une fois ratifié.
 
 ## Options considérées
