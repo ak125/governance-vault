@@ -53,7 +53,9 @@ version: "0.1.0"
    `Agent`, dans un environnement vidé, sans `GH_TOKEN`. Lecture seule de son diff ; elle n'est pas
    modifiée ici.
 6. **Le scanner SEO d'[[ADR-037-agent-naming-canon|ADR-037]]** (`OperatingMatrixService`) lit
-   `.claude/agents/*.md` sans récursion et exige un `role:` canonique. Un fichier sous
+   les fichiers `*.md` de trois dossiers (`.claude/agents`, `backend/.claude/agents`,
+   `workspaces/seo-batch/.claude/agents`) sans récursion (`fs.readdirSync`, lignes 307–311 de
+   `backend/src/config/operating-matrix.service.ts`) et exige un `role:` canonique. Un fichier sous
    `.claude/agents/mandat/` n'entre pas dans la matrice. Preuve : sortie de
    `scripts/seo/dump-agent-matrix.ts` identique avant et après l'ajout du dossier (`cmp`).
 
