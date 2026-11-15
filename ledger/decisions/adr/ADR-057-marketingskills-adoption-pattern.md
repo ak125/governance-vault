@@ -6,6 +6,7 @@ date: 2026-05-09
 decision_date: "2026-11-10"
 decision_makers: [Fafa]
 related: [ADR-036, ADR-038, ADR-039, ADR-040, ADR-047, ADR-054, ADR-055, MOC-Decisions]
+amended_by: ["ADR-137"]
 ---
 
 # ADR-057 : marketingskills — pattern d'adoption wrapper canon-bound
