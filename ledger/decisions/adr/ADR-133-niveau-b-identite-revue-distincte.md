@@ -166,7 +166,7 @@ le code est celui qu'écrit la porte.
 | Chemin exclu dans tous les cas | `LEVEL_B_DENY_PATH` | pas de fusion |
 | Chemin hors liste fermée | `LEVEL_B_PATH_REFUSED` | pas de fusion |
 | Fichier non test sous `tests/unit/` | `LEVEL_B_NOT_TEST_FILE` | pas de fusion |
-| Chemin de test qui nomme une zone STOP | `LEVEL_B_STOP_ZONE` | pas de fusion |
+| Chemin qui nomme une zone STOP (test, Markdown ou rapport d'audit, ancien ou nouveau chemin) | `LEVEL_B_STOP_ZONE` | pas de fusion |
 | Fichier de test supprimé, renommé ou copié ; déclaration de test retirée, mise en commentaire, placée sous condition ou dans un nouvel appel englobant ; test de la base vidé, sans appel, ouvert par un `return` sans appel, avec du code inatteignable, un `return` avant sa dernière instruction ou une condition faite de littéraux ; appel de test sur un récepteur autre que `it`, `test` ou `describe` (`suite.test(`) ; nom `it`, `test` ou `describe` redéfini ; objet global utilisé autrement qu'en lecture ordinaire ; code dynamique ; fichier de test non analysable | `TEST_REMOVED` | pas de fusion |
 | `.skip(` ou `.only(` ajouté, ou modificateur `skip`, `only`, `todo`, `skipIf`, `runIf` ajouté sous toute écriture | `LEVEL_B_DIFF_PATTERN` | pas de fusion |
 | Patch d'un test absent (binaire, trop gros), ou fichier illisible à la base de fusion ou à la tête | `PATCH_UNAVAILABLE` | pas de fusion |
@@ -221,7 +221,9 @@ présent à la base : son récepteur peut être remplacé (import, valeur, mutat
 et la porte ne le suit pas. Aucun des 289 fichiers de tests unitaires de `main` n'en contient.
 
 Un `describe` redéfini en fonction vide ferait disparaître ses tests sans changer leur clé : la règle
-vaut refus par défaut, et les données (`{ test: 1 }`, `dept("test")`, `config.test`) restent admises.
+vaut refus par défaut, et les données (`{ test: 1 }`, `{ ["test"]: 1 }`, `dept("test")`, `config.test`)
+restent admises ; une clé calculée en accès indexé, en membre de classe ou passée à un appel qui
+modifie reste une référence.
 Sur les 289 fichiers de tests unitaires de `main`, quatre contiennent déjà une telle référence ;
 comparées à la base, elles ne refusent que leurs ajouts.
 
@@ -295,7 +297,7 @@ d'ADR-124 D8 s'appliquent au niveau B.
    approbation puis nouveau commit (`APPROVAL_OTHER_HEAD`) ; approbation par l'owner
    (`APPROVAL_UNLISTED_IDENTITY`) ; approbation puis `REQUEST_CHANGES` (`APPROVAL_WITHDRAWN`) ; PR
    ouverte sous l'identité de revue depuis une branche existante (`APPROVAL_BY_AUTHOR`) ; fichiers
-   hors classe, test retiré, `.skip(` ajouté, chemin de test nommant une zone STOP.
+   hors classe, test retiré, `.skip(` ajouté, chemin de test ou Markdown nommant une zone STOP.
 6. **Activer** : commit signé sur une PR du vault qui passe `level_b.status` à `active` (et corrige
    l'identifiant si besoin), cite la recette, et est fusionné par l'owner.
 
@@ -363,8 +365,11 @@ d'ADR-124 D8 s'appliquent au niveau B.
 - **Tableau `.each` modifié.** Le premier argument d'un appel non littéral (tableau de `test.each`)
   est comparé tel quel : ajouter une ligne au tableau compte comme un retrait et est refusé.
 - **Zones STOP par fragments de nom.** `stop_zone_fragments` reconnaît une zone STOP au nom du
-  chemin d'un test ; c'est une heuristique, le doute valant refus. Le contenu reste filtré par
-  `deny_diff_patterns`.
+  chemin de tout fichier de niveau B, Markdown et rapports d'audit compris ; c'est une heuristique, le
+  doute valant refus. Sur les 41 fichiers `.md` modifiés sur `main` du monorepo du 2026-11-09 au
+  2026-11-15, 11 nomment une zone STOP, dont 10 déjà refusés par `deny_paths` (`.claude/**`) ; le
+  seul hors `deny_paths` est `PROCEDURE-SEO.md`. Un Markdown au nom neutre qui traite d'une zone STOP
+  n'est filtré que par `deny_diff_patterns` sur son contenu : il relève de la revue indépendante.
 - **`audit/**/*.md` en sous-dossier.** La classification d'`ownership.yaml` (lue au niveau A et B)
   classe plusieurs sous-dossiers d'`audit/` en D15 (gouvernance), refusé : ces rapports restent
   fusionnés par l'owner tant que la classification ou la politique ne changent pas.
