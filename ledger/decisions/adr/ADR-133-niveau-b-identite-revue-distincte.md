@@ -167,7 +167,7 @@ le code est celui qu'écrit la porte.
 | Chemin hors liste fermée | `LEVEL_B_PATH_REFUSED` | pas de fusion |
 | Fichier non test sous `tests/unit/` | `LEVEL_B_NOT_TEST_FILE` | pas de fusion |
 | Chemin qui nomme une zone STOP (test, Markdown ou rapport d'audit, ancien ou nouveau chemin) | `LEVEL_B_STOP_ZONE` | pas de fusion |
-| Fichier de test supprimé, renommé ou copié ; déclaration de test retirée, mise en commentaire, placée sous condition ou dans un nouvel appel englobant ; test de la base vidé, sans appel, ouvert par un `return` sans appel, avec du code inatteignable, un `return` avant sa dernière instruction ou une condition faite de littéraux ; appel de test sur un récepteur autre que `it`, `test` ou `describe` (`suite.test(`) ; nom `it`, `test` ou `describe` redéfini ; objet global utilisé autrement qu'en lecture ordinaire ; code dynamique ; fichier de test non analysable | `TEST_REMOVED` | pas de fusion |
+| Fichier de test supprimé, renommé ou copié ; déclaration de test retirée, mise en commentaire, placée sous condition ou dans un nouvel appel englobant ; test de la base vidé, sans appel, ouvert par un `return` sans appel, avec du code inatteignable, un `return` avant sa dernière instruction, une condition ou une construction faite de littéraux (`for … of []`, `switch (false)`), ou un rappel générateur ; appel de test sur un récepteur autre que `it`, `test` ou `describe` (`suite.test(`) ; nom `it`, `test` ou `describe` redéfini ; objet global utilisé autrement qu'en lecture ordinaire ; code dynamique ; fichier de test non analysable | `TEST_REMOVED` | pas de fusion |
 | `.skip(` ou `.only(` ajouté, ou modificateur `skip`, `only`, `todo`, `skipIf`, `runIf` ajouté sous toute écriture | `LEVEL_B_DIFF_PATTERN` | pas de fusion |
 | Patch d'un test absent (binaire, trop gros), ou fichier illisible à la base de fusion ou à la tête | `PATCH_UNAVAILABLE` | pas de fusion |
 
@@ -196,7 +196,12 @@ Un test de la base est refusé (neutralisé) si, à la tête :
   (`if (x) return;`, `{ return; }`) ou une condition faite de littéraux seulement (`if`, `?:`,
   `while`, `for`, `&&`, `||`, `??` : `false && check()`, `if (false as const)`). `while (true)`,
   `for (;;)` et `do … while` sont des boucles ordinaires : le code qui suit une boucle sans sortie est
-  relevé inatteignable par l'analyse de flot.
+  relevé inatteignable par l'analyse de flot ;
+- hors fonctions imbriquées, il contient une construction littérale qui saute du code : `for … of` ou
+  `for … in` sur un littéral vide (`[]`, `[...[]]`, `{}`, `""`), méthode d'itération sur un tableau
+  littéral vide (`[].forEach(() => check())`), `switch` dont le discriminant et chaque `case` sont des
+  littéraux (`switch (false) { case true: … }`) ; `switch (true) { case x > 1: … }` reste ordinaire ;
+- son rappel est un générateur (`function*`, `async function*`) : le runner l'appelle sans l'itérer.
 
 Toute référence nouvelle qui peut faire disparaître des tests sans changer leur clé est refusée. Elle
 est comparée entre base et tête par son nom, la nature et la propriété du parent qui la porte
@@ -211,21 +216,28 @@ par nom seul. Sont des références :
 - tout usage d'un objet global (`globalThis`, `global`, `window`, `self`, portée résolue par le
   vérificateur TypeScript) autre qu'une lecture ordinaire : propriété nommée, clé littérale, `typeof`,
   premier argument d'un appel à clé littérale (`Object.defineProperty(window, "location", …)`,
-  `vi.spyOn(window, "fetch")`) ;
+  `vi.spyOn(window, "fetch")`) ; un global atteint par un autre (`globalThis.window`) est jugé comme
+  le premier : `typeof globalThis.window` est une lecture, `globalThis.globalThis[k] = …` non ;
 - le code dynamique et les détours vers l'objet global : `eval`, `Function` (sauf comme type attendu,
-  `expect.any(Function)`), `.constructor`, le module `vm`, `this` d'une fonction dans un script non
-  strict.
+  `expect.any(Function)`), y compris en propriété ou en clé quel que soit le récepteur
+  (`globalThis.eval`, `document.defaultView.eval`, `o["eval"]`, `Reflect.get(o, "eval")`) ;
+  `.constructor`, le module `vm`, `this` d'une fonction dans un script non strict.
 
 Un appel de test sur un autre récepteur (`suite.test(…)`, `this.it(…)`) est refusé à la tête, même
 présent à la base : son récepteur peut être remplacé (import, valeur, mutation) sans changer la clé,
 et la porte ne le suit pas. Aucun des 289 fichiers de tests unitaires de `main` n'en contient.
 
 Un `describe` redéfini en fonction vide ferait disparaître ses tests sans changer leur clé : la règle
-vaut refus par défaut, et les données (`{ test: 1 }`, `{ ["test"]: 1 }`, `dept("test")`, `config.test`)
-restent admises ; une clé calculée en accès indexé, en membre de classe ou passée à un appel qui
-modifie reste une référence.
+vaut refus par défaut, et les données (`{ test: 1 }`, `{ ["test"]: 1 }`, `{ ["test"]() {} }`,
+`dept("test")`, `config.test`) restent admises ; une clé calculée en accès indexé, en membre de classe
+ou passée à un appel qui modifie reste une référence.
 Sur les 289 fichiers de tests unitaires de `main`, quatre contiennent déjà une telle référence ;
 comparées à la base, elles ne refusent que leurs ajouts.
+
+Une référence au nom de test lui-même déjà présente à la base (alias `const check = test`, import
+renommé `import { test as check }`, `cond ? describe : describe.skip`) refuse le fichier entier : les
+tests déclarés par l'alias ne sont pas suivis, et les retirer ne changerait aucune clé. Un fichier sur
+289 est dans ce cas (`backend/tests/unit/seo-control/rpcs.test.ts`) ; ses PR passent par la revue humaine.
 
 ### D6 — Politique
 
@@ -345,16 +357,23 @@ d'ADR-124 D8 s'appliquent au niveau B.
 - **La porte vérifie la forme, pas la qualité.** Elle prouve qui a approuvé et sur quel SHA, pas que
   la revue a bien lu le diff. La qualité tient à D2.
 - **Déclarations de test reconnues par leur nom d'appel.** L'analyse est syntaxique : un alias de
-  test (`const t = test`) est refusé dès son ajout (D5), mais un alias déjà présent à la base n'est
-  pas reconnu comme déclaration. Un appel qualifié sans rappel littéral (`suite.test("x", handler)`)
-  n'est pas une déclaration : à la base, il serait retiré sans refus ; aucun fichier de `main` n'en
-  contient (relevé du 2026-11-15), la session de revue le cherche.
+  test n'est pas suivi comme déclaration. Ajouté, il est refusé ; présent à la base, il refuse tout
+  le fichier (D5), faux refus voulu pour `rpcs.test.ts`. Un appel qualifié (`suite.test(…)`) est
+  refusé à la tête même s'il était à la base, autre faux refus voulu ; sans rappel littéral, il n'est
+  pas une déclaration et son retrait n'est pas vu. Aucun fichier de `main` n'en contient (relevé du
+  2026-11-15) ; la session de revue le cherche.
 - **Tests affaiblis dans leur corps.** La porte refuse un test placé sous condition ou enveloppé,
   vidé, rendu inatteignable ou soumis à une condition littérale (D5). Elle ne juge pas le sens de ce
   qui reste atteignable : une assertion retirée, changée ou avalée par un `try`/`catch`, une condition
   sur une variable qui ne fait que sortir d'une boucle, une assertion déplacée dans une fonction jamais
-  appelée alors qu'un autre appel reste (`() => { const f = () => check(); setup(); }`). La session de
-  revue doit les chercher (D2.2).
+  appelée alors qu'un autre appel reste (`() => { const f = () => check(); setup(); }`), du code mort
+  qui dépend d'une valeur non littérale : itérable vide rangé dans une variable ou produit par un appel
+  (`Array.from([]).forEach(…)`, `[].slice().forEach(…)`), générateur passé par une variable. La famille
+  est ouverte : la porte n'en reconnaît que les formes littérales, la session de revue doit chercher
+  les autres (D2.2).
+- **Condition ou `switch` littéral refusé quelle que soit la branche prise.** `if (true) setup();` ou
+  `switch (true) { case true: … }` est refusé comme neutralisé, même si le code s'exécute : la porte
+  ne juge pas quelle branche est prise. Ce faux refus est voulu ; la PR passe par la revue humaine.
 - **Objet global hors lecture ordinaire.** Passer un objet global à une fonction nouvelle
   (`render(globalThis as never)`) est refusé même quand c'est légitime : ce faux refus est voulu, la PR
   passe par la revue humaine. Une voie d'accès au global non recensée (autre module natif, API hôte,
