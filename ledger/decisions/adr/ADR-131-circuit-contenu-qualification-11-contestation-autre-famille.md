@@ -13,13 +13,14 @@ related_adr: ["ADR-031", "ADR-046", "ADR-093", "ADR-102", "ADR-107", "ADR-111", 
 related_rules: ["G1", "G4"]
 related_incidents: []
 reviewed_by: ""
-version: "0.1.0"
+version: "0.2.0"
 ---
 
 # ADR-131 : qualification du 11 et contestation par une autre famille, avant la promotion WIKI
 
 - **Statut** : Proposed (2026-11-15). Rédigé par un agent (Claude Code CLI, machine DEV) sur mandat
-  de l'owner (« Circuit du contenu : qualification du 11 et contre-relecture Codex »). La ratification
+  de l'owner (« Circuit du contenu : qualification du 11 et contre-relecture Codex »), complété le
+  même jour (« corroboration par un second domaine d'autorité », D9 et D10). La ratification
   (`accepted`) et la fusion sont des actes réservés à l'owner
   ([[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4|ADR-102]],
   [[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]]).
@@ -40,6 +41,13 @@ Décisions de Marwane du 14 nov. 2026, citées mot pour mot :
   qualifie les réponses et passe par les skill et une relecture codex » ;
 - à 23:57 : « utiliser les meilleures approche les meilleures strategie les plus robuste les plus safe
   les plus moderne les meilleure solutions pas de bricolage ».
+
+Décisions de Marwane du 15 nov. 2026 (heure de Paris), citées mot pour mot, qui fondent D9 et D10 :
+
+- à 14:55 : « Pas de relecture humaine car impossible trop long mais autoreview avec comparaison sur
+  autre domaine d'autorité pour confirmer » ;
+- à 15:02 : « Justement c'est pour cela que le scraping doit être fait plusieurs fois jusqu'à
+  atteindre le score ou autre qui satisfait ».
 
 ### Ce qui existe
 
@@ -82,6 +90,8 @@ Décisions de Marwane du 14 nov. 2026, citées mot pour mot :
 2. Toute l'auto-review peut tourner sur une seule famille de modèles, celle du producteur.
 3. ADR-119 D4(e) étalonne la seule `plaquette-de-frein` ; aucune consigne retirée d'une autre fiche
    n'entre dans le jeu de référence.
+4. Une affirmation de profondeur `complete` peut être conservée sur une seule capture : rien n'exige
+   qu'un second domaine d'autorité la confirme, ni ne relance la recherche quand il manque.
 
 ## Principe directeur
 
@@ -209,6 +219,71 @@ Décisions de Marwane du 14 nov. 2026, citées mot pour mot :
   source ni un texte de page. Elle n'atteint une page qu'en entrant dans une fiche, qualifiée, contestée
   et promue sous une nouvelle clé.
 
+### D9 — Corroboration par un second domaine d'autorité (point i)
+
+- **Règle, en profondeur `complete`** :
+  - `conserver` exige une capture de rôle `proof` (`source_type_editorial_role` du catalogue) et au
+    moins une capture d'un **autre domaine d'autorité**, concordantes sur la valeur et sur la portée ;
+  - une seule source, ou un seul domaine : `preciser`, la portée bornée à cette source ;
+  - une discordance entre domaines : `retirer` si elle touche une valeur, une procédure ou la
+    sécurité, `preciser` sinon.
+
+  En profondeur `allegee`, rien ne change : la corroboration est consignée, rien n'est déclassé.
+- **Le domaine est une classe d'éditeur**, calculée hors du modèle depuis les métadonnées du
+  catalogue (`_meta/source-catalog.yaml`), comme le plancher de D4 :
+  - constructeur (`oem_manual`, `oem_workshop` publiés par le constructeur du véhicule) ;
+  - fabricant ou équipementier de la pièce ;
+  - référentiel technique (`tecdoc_official`, `parts_feed_certified`) : il corrobore, il ne fournit
+    jamais la capture `proof` ;
+  - formation et documentation pédagogique (`brochure`, `formation`).
+
+  Deux captures du même éditeur, ou dont l'une reprend l'autre, comptent pour un seul domaine. Une
+  capture sans classe déclarée ne compte pour aucun domaine (fail-closed). Le choix entre trois
+  définitions est au point i des Options.
+- **Partage des tâches** :
+  - le modèle lit les passages et déclare la concordance, l'objet d'une discordance et un éventuel
+    déclassement de son fait ;
+  - un contrôle déterministe recalcule les domaines, les captures et la preuve, et remplace ce que le
+    modèle a écrit. Il déclasse un `conserver` non confirmé, consigné `declassed_by: control` avec
+    le verdict d'origine, et refuse un artefact `technical-qualification/v2` incohérent. Le schéma v2
+    refuse aussi un `conserver` `complete` sans preuve, sans deux domaines ou sans concordance ;
+  - la reprise d'une capture par une autre ne se lit pas dans les métadonnées. La qualification la
+    signale ; le contestataire la vérifie (`checks.independence`). Un `fails` impose `contest` sur un
+    `conserver` `complete`, donc le blocage de D3.
+- **Prérequis au câblage** : le catalogue ne porte pas la classe d'éditeur. Son champ `type`
+  confond constructeur et équipementier : Filtron, MAHLE, ZF, Brembo et Delphi sont `oem_manual`,
+  comme Renault. Une PR WIKI ajoute un champ `publisher_class` aux entrées du catalogue, qui reste la
+  source unique ; aucune table parallèle. D'ici là, aucune capture n'a de domaine, et la règle
+  déclasse tout `conserver` `complete`.
+- **Aucune relecture humaine** n'est une condition (ADR-119 D1, maintenu). La confirmation par un
+  second domaine est l'autoreview que l'owner a décidée le 15 nov. 2026 à 14:55. Elle durcit la
+  qualification du 11 ; elle ne remplace ni la contestation (D2, D5) ni l'auto-review de sens.
+
+### D10 — Reprise jusqu'à la corroboration, bornée (point j)
+
+- **Score** : la part des affirmations `complete` confirmées par deux domaines (`conserver`, preuve,
+  au moins deux domaines, concordance). Il se calcule hors du modèle, depuis l'artefact.
+- **Questions de reprise** : chaque affirmation `complete` non confirmée reçoit une question ciblée
+  dans l'artefact (`retake_questions`). La question porte son motif (`single_domain`, `no_capture`,
+  `discordant`) et les domaines déjà présents. Elle est rédigée par le modèle ; à défaut, un gabarit
+  la remplace, consigné comme tel.
+- **Reprise** : un run `RUN_TARGETED_RAW_TO_WIKI` sur ces questions seulement, plus profond et non
+  plus large (seo-content-loop, étapes 1 et 5). Il produit de nouvelles captures RAW, puis une
+  nouvelle fiche, une nouvelle clé (D1), une nouvelle qualification et une nouvelle contestation.
+  Aucun artefact antérieur n'est remplacé ; un FAIL reste un FAIL (D3).
+- **Arrêt**, selon l'itération bornée de seo-content-loop §5. La boucle s'arrête :
+  - quand la cible est atteinte ;
+  - quand une reprise ne fait pas progresser le score ;
+  - ou quand le maximum de reprises est atteint.
+
+  Le lot est alors livré `à revoir`, avec ses questions restantes. La cible et le maximum sont au
+  point j des Options.
+- **Rien de non confirmé n'est publié tel quel.** À l'arrêt, une affirmation non confirmée est soit
+  bornée à sa source (`preciser`), soit retirée. D4 reste inchangé : en profondeur `complete`, un
+  `preciser` bloque. Une affirmation bornée reste donc bloquante tant qu'un second domaine ne la
+  confirme pas. La fiche est alors promue sans elle, ou elle ne l'est pas. Rendre publiable une
+  affirmation bornée à une seule source assouplirait D4 ; ce choix revient à l'owner (Inconnues).
+
 ## Amendements
 
 ### ADR-114 (Safety Auto-Gate)
@@ -225,6 +300,8 @@ Décisions de Marwane du 14 nov. 2026, citées mot pour mot :
   modèles différente de celle du producteur (D5) ; les familles des modèles sont déclarées.
 - D3 : `semantic_auto_review_pass` reste ; la contestation de la fiche par une autre famille en fait
   partie.
+- D1 maintenu : la corroboration par un second domaine (D9) et la reprise (D10) sont des
+  auto-reviews ; aucune relecture humaine n'est une condition.
 - D4(e) complété par le jeu de D6. La levée du verrou par `SAFETY_AUTO_APPROVAL_ADR = "ADR-119"` reste
   régie par ADR-119 D4 ; cet ADR n'en lève aucun.
 
@@ -235,6 +312,8 @@ Décisions de Marwane du 14 nov. 2026, citées mot pour mot :
 - Il ne rend aucune relecture humaine nécessaire (ADR-119 D1, maintenu) et ne donne aucune autorité
   de fond à `editorial-review.md`.
 - Il ne fixe aucun seuil de part retrouvée.
+- Il ne pose pas `publisher_class` dans le catalogue, n'ajoute aucune capture et ne lance aucune
+  reprise (D9, D10).
 - Il ne traite ni le lot FH-004 ni l'auteur éditorial.
 
 ## Mise en œuvre
@@ -243,7 +322,11 @@ Candidats préparés dans la PR WIKI en brouillon de ce mandat, non câblés :
 
 - `_meta/skills/qualification-technique/SKILL.md` (`status: candidate`, `wired: false`) : méthode,
   plancher, invites de qualification et de contestation ;
-- `_meta/schema/technical-qualification-run.schema.json` (`technical-qualification/v1`) et ses tests ;
+- `_meta/schema/technical-qualification-run.schema.json` (`technical-qualification/v1`, puis `v2` en
+  0.3.0 : corroboration par affirmation, domaines des captures, questions de reprise) et ses tests ;
+- `_scripts/technical_qualification.py` : domaine de chaque capture sous les trois définitions du
+  point i, application et contrôle de la règle de D9, questions de reprise, score et arrêt de D10 ;
+  tests dans `_scripts/test_technical_qualification.py` ;
 - `_scripts/semantic_review_executor.py` : plusieurs fournisseurs (`--reviewer MODÈLE COMMANDE`), même
   isolement (entrée standard seule, aucun outil, aucun MCP, aucune session), passes et réfutateurs
   répartis à tour de rôle ; tests dans `_scripts/test_semantic_review.py` ;
@@ -251,7 +334,8 @@ Candidats préparés dans la PR WIKI en brouillon de ce mandat, non câblés :
 
 Après ratification : une PR WIKI câble D3 dans le décideur (tests : artefact absent, périmé,
 incomplet, en erreur, sans contestation, contestation de même famille, producteur inconnu, FAIL non
-remplaçable), d'abord en report-only, puis bloquante une fois l'étalonnage consigné.
+remplaçable, `conserver` `complete` sans second domaine), d'abord en report-only, puis bloquante une
+fois l'étalonnage consigné. Avant elle, la PR WIKI qui pose `publisher_class` dans le catalogue (D9).
 
 ## Options considérées
 
@@ -325,6 +409,50 @@ remplaçable), d'abord en report-only, puis bloquante une fois l'étalonnage con
   contraire à ADR-107 D2 et ADR-111 D3.
 - **H2 — La FAQ R1 n'entre que par `selection_faq.qa` de la fiche promue — retenue.**
 
+### Point i — définition du domaine d'autorité
+
+Les trois définitions sont calculées par le même module, sur les captures des trois cas d'étalonnage
+(Étalonnage candidat) :
+
+| Définition | Filtre à huile (Renault, Filtron, MAHLE) | Plaquette (ZF, Brembo ×3, Delphi, Wikipedia) | Défaut |
+|---|---|---|---|
+| I1 — classe d'éditeur | 2 domaines : constructeur, équipementier | 1 domaine : équipementier ; Wikipedia sans classe | demande `publisher_class` au catalogue |
+| I2 — `source_type` de `_meta/source-policy.md` | 1 domaine : tout est `oem_manual` | 2 domaines, dont `wiki_externe` (Wikipedia) | confond constructeur et équipementier ; une encyclopédie devient un second domaine |
+| I3 — hôte web | 3 domaines | 4 domaines : zf, bremboparts, delphiautoparts, wikipedia | un éditeur sur deux hôtes compte deux fois ; une reprise sur un autre hôte aussi |
+
+- **I1 — classe d'éditeur — retenue.** Elle sépare ce que le métier sépare (le constructeur du
+  véhicule, le fabricant de la pièce, le référentiel, la pédagogie) et compte un éditeur une seule
+  fois, quel que soit son hôte. Elle demande un champ que le catalogue n'a pas (prérequis de D9).
+- **I2 — `source_type` — rejetée.** Le type mesure un plafond de confiance et un rôle éditorial, pas
+  une indépendance. Sur le filtre, il ne voit qu'un domaine là où il y a un constructeur et deux
+  équipementiers. Sur la plaquette, il fait de Wikipedia, de rôle `corroboration`, le second domaine
+  de cinq captures d'équipementiers.
+- **I3 — hôte web — rejetée.** Elle compte l'adresse, pas l'éditeur. Un éditeur publié sur deux
+  hôtes compte deux fois, et un texte repris sur un autre hôte aussi : elle ne voit aucune reprise.
+  Les captures des trois cas ne contiennent pas d'éditeur sur deux hôtes (les trois captures Brembo
+  sont sur `bremboparts.com`) ; ce défaut n'est montré que par le test du module. Sur ces cas, I3
+  revient à compter chaque éditeur : sur la plaquette, 9 des 10 affirmations qu'elle confirmerait
+  reposent sur deux équipementiers concurrents, et la dixième sur Brembo et Wikipedia.
+
+### Point j — cible et maximum de la reprise
+
+Le dernier tour d'une boucle ne change pas ce qui est publié : à l'arrêt, une affirmation non
+confirmée est bornée ou retirée (D10). La cible et le maximum ne décident que du moment où la
+recherche s'arrête.
+
+- **J1 — Cible 100 %, maximum fixé par le brief du run et consigné — retenue.** La cible est la règle
+  elle-même : toute affirmation `complete` confirmée. Le maximum suit seo-content-loop §5, qui le
+  laisse au brief ; l'arrêt sur non-progression s'applique toujours. Aucune constante n'est
+  inventée.
+- **J2 — Cible 80 %, maximum 3 reprises — rejetée.** Ni 80 % ni 3 n'ont de base : l'étalonnage du
+  2026-11-15 ne mesure que le tour 0, et son score est nul pour les trois cas. Une cible sous 100 %
+  arrête la recherche plus tôt sans rien publier de plus.
+- **J3 — Cible 100 %, maximum de 2 reprises fixé par cet ADR — rejetée pour l'instant.** Le nombre
+  est simple à contrôler, mais il est sans base tant qu'aucune reprise n'est mesurée. Un maximum se
+  fixera par ADR une fois des reprises étalonnées.
+- **J4 — Sans cible ni maximum, arrêt sur non-progression seule — rejetée.** La boucle n'est pas
+  bornée, contrairement à seo-content-loop §5.
+
 ## Conséquences
 
 ### Positives
@@ -332,12 +460,18 @@ remplaçable), d'abord en report-only, puis bloquante une fois l'étalonnage con
 - Chaque affirmation qui atteint une page porte une source, une portée et une limite consignées.
 - Les biais d'une famille de modèles sont contestés par une autre.
 - La profondeur suit le risque par une règle déterministe, durcissable sans ADR.
+- Une affirmation `complete` conservée est confirmée par deux classes d'éditeurs, dont l'une prouve ;
+  ce qui manque devient une question de reprise ciblée, pas une recherche au hasard.
 
 ### Négatives
 
 - Coût : deux exécutions de plus par fiche, et une seconde famille de modèles à maintenir.
 - Une fiche peut rester bloquée tant qu'une capture ne tranche pas une affirmation `undecidable`.
 - Une nouvelle révision du skill change la clé et demande une nouvelle qualification de chaque fiche.
+- Tant que `publisher_class` manque au catalogue, aucune affirmation `complete` n'est conservée.
+- Une fiche dont toutes les captures viennent d'une même classe (la plaquette : cinq captures
+  d'équipementiers) reste bloquée tant qu'aucune capture d'un autre domaine n'est ajoutée. Chaque
+  reprise coûte un run de recherche, une fiche, une qualification et une contestation.
 
 ### Neutres
 
@@ -362,8 +496,46 @@ sur `claude-opus-5-5`, de la famille anthropic.
 - Défaut resté ouvert : un `conserver` dont la limite décrit une contradiction. La contestation est
   consignée dans le même rapport.
 
+Le skill 0.3.0 (corroboration, D9) a été relancé sur les trois cas, avec de nouvelles clés ; aucun
+résultat de 0.1.0 ou 0.2.0 n'est remplacé. Le domaine suit I1, sous une hypothèse : le catalogue n'a
+pas `publisher_class`, et l'étalonnage lui applique une classe posée hors du dépôt (Renault
+constructeur ; Filtron, MAHLE, ZF, Brembo, Delphi équipementiers ; Wikipedia sans classe). Seul le
+tour 0 de la boucle est mesuré : aucune capture n'est ajoutée (D10).
+
+| Cas | Affirmations `complete` | Part retrouvée | Déclassées faute de second domaine | Score |
+|---|---|---|---|---|
+| Filtre, consignes retirées | 12 : 4 `preciser`, 8 `retirer` | 6 sur 6 | 0 | 0 sur 12 |
+| Cinq paires | 8 : 7 `preciser`, 1 `retirer` | verdicts plus stricts que le 11, comme en 0.2.0 | 2, par le modèle | 0 sur 8 |
+| `plaquette-de-frein@88f9f88` | 93 : 90 `preciser`, 2 `retirer`, 1 `reformuler` | Q5 en partie ; sens 8 sur 8 ; formulation 6 sur 12 | 40, par le modèle | 0 sur 93 |
+
+- Le contrôle déterministe n'a déclassé aucune affirmation : le modèle a appliqué la règle lui-même,
+  et aucun artefact ne contient de violation.
+- Q5 (body:52) : `preciser`, mais la limite nomme les essais à vitesse réduite et le rodage, pas le
+  mauvais montage ni la pression instable à la pédale. La 0.2.0 la retrouvait en entier.
+- Sous I2, une affirmation de la plaquette serait confirmée, avec Wikipedia pour second domaine. Sous
+  I3, une des cinq paires (Filtron et MAHLE) et dix de la plaquette le seraient, dont neuf par deux
+  équipementiers concurrents.
+- Le défaut resté ouvert en 0.2.0 est masqué, pas corrigé. Plusieurs affirmations déclassées depuis
+  `conserver` ont une limite qui décrit un écart de fond (`entity_data` « signal sonore » et « en
+  principe », une paire de L155). Sous 0.3.0, elles finissent en `preciser` faute de second domaine ;
+  sur ces cas, le verdict ne distingue plus l'affirmation exacte et bornée de l'affirmation à
+  corriger : la différence ne se lit que dans la limite.
+- Chaque affirmation non confirmée a sa question de reprise, rédigée par le modèle : 12, 8 et 93.
+  Aucune contestation de la 0.3.0 n'a tourné.
+
 ## Inconnues
 
+- Une affirmation bornée à une seule source (`preciser`) bloque en profondeur `complete` (D4, D10).
+  L'owner tranche à la ratification : laisser D4 tel quel (la fiche est promue sans l'affirmation),
+  ou rendre publiable une affirmation explicitement attribuée à sa source, ce qui assouplit D4.
+- Deux équipementiers concurrents (Filtron et MAHLE) forment un seul domaine sous I1. Rien ne dit
+  encore s'ils doivent compter pour deux quand ils publient chacun leur propre essai.
+- La reprise d'une capture par une autre n'est vue que par des modèles (qualification et
+  contestation), pas par un contrôle déterministe.
+- Le nombre de reprises nécessaire à une fiche réelle : aucune reprise n'est encore mesurée.
+- Quand toutes les affirmations finissent en `preciser`, le verdict ne sépare plus une affirmation
+  exacte mais seule d'une affirmation à corriger (Étalonnage candidat, 0.3.0). Rien ne dit encore si
+  la reprise doit commencer par ces dernières, ni si le skill doit garder les deux motifs distincts.
 - La part retrouvée sur le jeu de D6 au-delà de l'étalonnage candidat du 2026-11-15, et la variance
   d'une exécution à l'autre (un seul modèle de qualification, une exécution par révision).
 - Le coût réel par fiche en profondeur `complete` sur une fiche longue.
