@@ -31,8 +31,9 @@ version: "0.1.0"
   aucun skill ni aucune consigne de projet n'est modifié. Le changement du canon Fafa est instruit
   (§Instruction), pas appliqué.
 - **Méthode** : constats en lecture seule le 2026-11-15, sur `main` du vault au commit `156b143` et
-  sur `main` du monorepo au commit `b40181b3e` (identique à GitHub à 11:50 UTC), lu par
-  `git grep` et `git show` sur ce commit, sans toucher aucun checkout.
+  sur `main` du monorepo au commit `b40181b3e` (commit du 2026-11-15 à 11:50 UTC, identique à `main`
+  sur GitHub au moment du constat), lu par `git grep` et `git show` sur ce commit, sans toucher aucun
+  checkout.
 
 ## Contexte
 
@@ -65,8 +66,8 @@ projection — non-authoritative », ligne 1), donne au département 6 (« Conte
 ### C2 — Ce que les pages déclarent aujourd'hui
 
 Les pages conseil déclarent comme auteur l'organisation (`"author"` de type `Organization`, nom
-« Automecanik ») et une balise `meta author` « Automecanik - Experts Automobile ». Aucun champ auteur
-du monorepo ne nomme un LLM ou un outil d'IA. L'inventaire complet est en §Inventaire.
+« Automecanik ») et une balise `meta author` « Automecanik - Experts Automobile ». Aucun des champs auteur
+relevés par l'inventaire (§Inventaire) ne nomme un LLM ou un outil d'IA.
 
 ### C3 — Les décisions de l'owner
 
@@ -235,7 +236,7 @@ Brouillons et dossiers (aucun publié par cet ADR) :
 - `scripts/draft/fafa-filtre-huile-001/script.json:9` (phrase prononcée) et `:32` (bandeau) ;
   `scripts/draft/fafa-plaquettes-frein-001/script.json:23` et `render-payload.json:24` (bandeau)
 - `workspaces/marketing/fafa-media-factory/manifests/renders/fafa-plaquettes-frein-001.json:76`
-- `docs/audits/editorial-filtre-huile-20261030/MEDIA.md:69`, `:118`, `:170`, `:181`, `:194-197`
+- `docs/audits/editorial-filtre-huile-20261030/MEDIA.md:69`, `:87`, `:118`, `:170`, `:181`, `:194-197`
   (légendes TikTok, Instagram, YouTube, Facebook), `:221`, `:231`, `:243`, `:262`, `:270`, `:288`
 
 Code : `backend/src/modules/media-factory` ne contient pas la phrase de signature. Le type
