@@ -13,7 +13,7 @@ related_adr: ["ADR-025", "ADR-044", "ADR-114", "ADR-119", "ADR-120", "ADR-121", 
 related_rules: ["G1", "G4"]
 related_incidents: []
 reviewed_by: ""
-version: "0.1.0"
+version: "0.2.0"
 ---
 
 # ADR-132 : auteur éditorial et signature publique des articles
@@ -28,8 +28,11 @@ version: "0.1.0"
 - **Nouvel ADR, pas un amendement** : aucun des ADR examinés ne traite du rôle d'auteur éditorial ni
   de la signature des articles (§Contexte, C1). Cet ADR n'amende aucun ADR.
 - **N'applique rien.** Aucun fichier du monorepo, aucune balise auteur, aucune donnée structurée,
-  aucun skill ni aucune consigne de projet n'est modifié. Le changement du canon Fafa est instruit
-  (§Instruction), pas appliqué.
+  aucun skill ni aucune consigne de projet n'est modifié. Le changement du canon Fafa entre par un ADR
+  addendum distinct, à venir (Q1) ; cet ADR lui transmet l'inventaire des fichiers (§Renvoi).
+- **Questions tranchées** : Q1 à Q3 ont été tranchées le 15 nov. 2026 par le chat de pilotage
+  général, sur délégation de Marwane (§Questions tranchées). L'ADR reste `proposed` ; ces réponses
+  prennent effet avec lui, à sa ratification et à sa fusion par l'owner.
 - **Méthode** : constats en lecture seule le 2026-11-15, sur `main` du vault au commit `156b143` et
   sur `main` du monorepo au commit `b40181b3e` (commit du 2026-11-15 à 11:50 UTC, identique à `main`
   sur GitHub au moment du constat), lu par `git grep` et `git show` sur ce commit, sans toucher aucun
@@ -85,7 +88,7 @@ CLI pour le code et l'intégration, relecture par une session distincte » :
 Lecture de 11:28, retenue par le mandat : le relecteur indépendant est Codex ; la règle vise toutes
 les signatures ; la mention « Experts Automobile » est gardée.
 
-Décisions sur Fafa, transcrites en §Instruction et non tranchées ici :
+Décisions sur Fafa, transmises à l'ADR addendum Fafa (§Renvoi ; voie d'entrée tranchée en Q1) :
 
 - à 11:33 Paris : « on supprime IA ET AJOUT EXPERT AUTOMOBILE A LA SIGNATURE » ;
 - à 11:37 Paris : « 1 », c'est-à-dire que seul le mot « IA » sort de la phrase prononcée, l'indication
@@ -130,9 +133,9 @@ S'applique à tout contenu publié : article, page conseil, vidéo, publication 
   signatures : balise `meta author`, champ `author` des données structurées, ligne d'auteur visible,
   signature d'une vidéo (prononcée ou écrite), signature d'une publication sociale.
 - L'auteur déclaré reste l'organisation AutoMecanik. La mention « Experts Automobile » est gardée.
-- R2 porte sur l'auteur déclaré. Elle ne règle pas l'indication qu'un contenu est généré par IA
-  (étiquette d'une plateforme, mention à l'écran, `identity_disclosed`) : c'est l'objet des questions
-  ouvertes Q1 à Q3.
+- R2 porte sur l'auteur déclaré. Elle ne retire pas l'indication qu'un contenu est généré par IA
+  (étiquette d'une plateforme, mention à l'écran, `identity_disclosed`) : cette indication demeure
+  (Q2).
 - La graphie (« AutoMecanik » dans le mandat, « Automecanik » dans le code au constat) n'est pas
   tranchée par cet ADR.
 
@@ -186,21 +189,23 @@ Texte visible qui décrit l'auteur sans signer :
 Hors champ de R2 : `frontend/app/components/ui/SEOHelmet.tsx:283-285`, `author` de type `Person`
 d'un avis client (`Review`), qui n'est pas une signature éditoriale.
 
-Signatures de Fafa (vidéo, publication sociale) : voir §Instruction.
+Signatures de Fafa (vidéo, publication sociale) : voir §Renvoi.
 
-## Instruction : changement du canon Fafa (non appliqué)
+## Renvoi : changement du canon Fafa (ADR addendum à venir)
 
 Le canon de la persona Fafa vit dans le monorepo. Il se déclare figé : « V1 = figée jusqu'à clôture
 des 10 pilotes ; V2+ = PR vault dédiée + ADR addendum, jamais ad-hoc »
-(`workspaces/marketing/.claude/skills/fafa-persona-canon/SKILL.md`, §Évolution). La décision de
-11:33 et 11:37 et la formule de 13:08 sont donc instruites ici et ne sont appliquées à aucun fichier.
+(`workspaces/marketing/.claude/skills/fafa-persona-canon/SKILL.md`, §Évolution). Selon Q1, la
+décision de 11:33 et 11:37 et la formule de 13:08 entrent dans le canon par un ADR addendum distinct,
+à venir, et non par cet ADR. Cet ADR ne garde que R1 et R2. Il transmet à l'addendum l'objet du
+changement (Q2) et l'inventaire ci-dessous, et n'applique rien.
 
-### Changement instruit
+### Objet du changement, pour l'addendum
 
 Phrase de signature prononcée, de « Moi c'est Fafa, le mécano IA d'AutoMecanik. » à « Moi, c'est
-Fafa, le mécano expert automobile d'AutoMecanik ». Seul le mot « IA » sort de la phrase prononcée ;
-l'indication de contenu généré par IA reste ailleurs (étiquette des plateformes,
-`identity_disclosed`).
+Fafa, le mécano expert automobile d'AutoMecanik ». Seul le mot « IA » sort de la phrase prononcée.
+Le reste de l'information sur l'IA demeure, et la ligne Rôle du canon devient « mécano expert
+automobile d'AutoMecanik, personnage généré par IA » (Q2).
 
 ### Fichiers touchés (monorepo, `main` au `b40181b3e`)
 
@@ -247,50 +252,65 @@ aucune gate ne lit le type (constat C18-22 de `workspaces/marketing/README.md:68
 ### `identity_disclosed` et les `disclaimer.json`
 
 - `identity_disclosed` n'existe que dans le format de sortie de `fafa-persona-canon` (ligne 74).
-  Aucune gate ne le calcule ni ne le lit. Le canon ne dit pas ce qui le rend vrai ; aujourd'hui, la
-  phrase « mécano IA » prononcée en est la preuve la plus directe. Si cette phrase perd « IA »,
-  `identity_disclosed` doit être prouvé par autre chose : bandeau, étiquette de plateforme.
+  Aucune gate ne le calcule ni ne le lit. Au constat, le canon ne dit pas ce qui le rend vrai ; la
+  phrase « mécano IA » prononcée en était la preuve la plus directe. Q2 fixe la condition que
+  l'addendum reprend.
 - Les deux `disclaimer.json` portent l'indication `ai_generated_notice` en surimpression continue.
-  Cette mention n'est pas la phrase prononcée. La décision de 11:37 ne dit pas si elle reste.
+  Cette mention n'est pas la phrase prononcée ; elle demeure (Q2).
 
 ### Ce que devient la transparence YouTube/TikTok citée par le canon
 
 Le canon motive l'identité IA « toujours assumée » par la « transparence YouTube/TikTok 2026 »
 (SKILL.md ligne 28, `fafa.md:16`, `avatar-prompt-template.md:34`, `prompts/higgsfield/README.md:37`)
 sans citer de texte. Le vault ne contient pas les règles de ces plateformes, et ce constat ne les a pas
-lues. Selon la décision de 11:37, la transparence passe par l'étiquette des plateformes et par
-`identity_disclosed`, plus par la phrase prononcée. Rien ici ne vérifie que l'étiquette suffit sans
-mention dans la vidéo : c'est la question Q3.
+lues. Selon Q2, la transparence ne passe plus par la phrase prononcée mais demeure par l'information
+visible : surimpression continue, étiquette IA de la plateforme, mention IA des légendes, badge.
+Selon Q3, un avis juridique vérifie ce dispositif avant toute publication d'une vidéo Fafa avec la
+nouvelle signature.
 
-## Questions ouvertes (posées, sans réponse)
+## Questions tranchées
 
-Trancher ces questions est un acte réservé à Marwane.
+Les trois questions ont été tranchées par le chat de pilotage général, sur délégation de Marwane du
+15 nov. 2026 à 14:59 heure de Tunis, citée mot pour mot :
 
-- **Q1 — Voie d'entrée du changement Fafa.** La décision de 11:33 et 11:37 et la formule de 13:08
-  entrent-elles dans le canon par cet ADR, au moment de sa ratification (il écrirait alors une
-  troisième règle), ou par un ADR distinct, comme l'exige le canon Fafa (« PR vault dédiée + ADR
-  addendum ») ? Avant ou après la clôture des 10 pilotes (V1 figée) ?
-- **Q2 — Portée du retrait du mot « IA ».** Seule la phrase prononcée est visée. Que deviennent :
-  la ligne Rôle (« Mécano IA d'AutoMecanik ») et la ligne Identité IA du canon ; le bandeau
-  `ai_generated_notice` « Fafa est un mécano IA d'AutoMecanik. » des `disclaimer.json` ; les
-  légendes sociales « Conseil informatif ; Fafa est un mécano IA » ; le badge « Fafa — mécano IA » ?
-  Qu'atteste `identity_disclosed`, et qui le vérifie ?
-- **Q3 — Avis du département 18.** Un avis du département 18 (Juridique & Assurances, « Dormant »,
-  « NO-CODE » dans `audit/automecanik-departments-map.md`) sur une obligation d'information est-il
-  nécessaire ? Les points qu'un tel avis aurait à examiner, sans réponse ici :
-  - une persona générée par IA présentée comme « mécano expert automobile », sans « IA » dans la
-    phrase prononcée ;
-  - la mention « Experts Automobile » des balises auteur, et la phrase d'`EditorialTrust.tsx`
-    (« rédigés et validés par des mécaniciens et techniciens automobile certifiés »), alors que R1
-    confie la rédaction à un chat Claude et la relecture à Codex ;
-  - les règles d'étiquetage de YouTube et de TikTok, et les obligations de transparence du règlement
-    européen sur l'IA (article 50), que ce constat n'a pas lues.
+> Utiliser meilleure décision pour q1 g3 adr132
+
+Décisions transmises le 15 nov. 2026 à 14:01 UTC, sur la tête `b59574f8a` de la PR #414 du vault, et
+inscrites ici. L'ADR reste `proposed` : ces décisions prennent effet avec lui, à sa ratification et à
+sa fusion par l'owner (ADR-121 D4 et D7).
+
+- **Q1 — Voie d'entrée du changement Fafa (tranchée le 15 nov. 2026).** Par un ADR distinct, comme
+  l'exige le canon Fafa (« V2+ = PR vault dédiée + ADR addendum, jamais ad-hoc »). ADR-132 garde R1
+  et R2 seulement ; sa section sur le canon Fafa devient un renvoi vers cet ADR addendum à venir,
+  inventaire des fichiers compris (§Renvoi). Le gel V1 ne retarde pas l'addendum : aucun pilote Fafa
+  n'est publié et la chaîne vidéo ne tourne pas (fiche 08) ; l'addendum s'applique avant la première
+  publication.
+- **Q2 — Portée du retrait du mot « IA » (tranchée le 15 nov. 2026).** Seule la phrase prononcée
+  change : « Moi, c'est Fafa, le mécano expert automobile d'AutoMecanik ». Tout le reste de
+  l'information sur l'IA demeure : surimpression continue `ai_generated_notice` des
+  `disclaimer.json`, étiquette IA des plateformes, mention IA des légendes sociales, badge. La ligne
+  Rôle du canon devient « mécano expert automobile d'AutoMecanik, personnage généré par IA ».
+  `identity_disclosed` vaut vrai seulement si la surimpression couvre toute la vidéo et si
+  l'étiquette IA de la plateforme est posée à la publication ; la revue de publication du
+  département 08 le vérifie tant qu'aucune gate ne le calcule. Motif : l'article 50 du règlement (UE)
+  2024/1689 est applicable depuis le 2 août 2026 et impose de signaler une vidéo générée ou
+  manipulée par IA ; retirer « IA » de la voix n'est admissible que si l'information visible demeure.
+- **Q3 — Avis du département 18 (tranchée le 15 nov. 2026).** Oui : un avis est requis avant toute
+  publication d'une vidéo Fafa avec la nouvelle signature. Il porte sur l'article 50 et sur les
+  règles d'étiquetage de YouTube et de TikTok. Tant que le département 18 (Juridique & Assurances,
+  « Dormant » dans `audit/automecanik-departments-map.md`) est sans titulaire, cet avis est donné par
+  un juriste désigné par Marwane ; aucune vidéo Fafa n'est publiée sans lui. La phrase
+  d'`EditorialTrust.tsx` (« rédigés et validés par des mécaniciens et techniciens automobile
+  certifiés ») contredit R1 : elle est à corriger par un lot distinct, sans attendre l'avis (voir
+  §Conséquences).
 
 ## Ce que cet ADR ne fait pas
 
 - Il ne modifie aucun fichier du monorepo, aucune balise auteur, aucune donnée structurée, aucun
   skill, aucune consigne de projet, aucun brouillon vidéo.
-- Il n'applique pas le changement du canon Fafa et ne tranche aucune question ouverte.
+- Il n'applique pas le changement du canon Fafa, qui relève de l'ADR addendum Fafa (Q1), et ne
+  rédige pas cet addendum.
+- Il ne corrige pas `EditorialTrust.tsx` (Q3) et ne demande pas l'avis juridique (Q3).
 - Il n'amende ni ADR-119 (admission WIKI), ni ADR-120 (revue d'un diff), ni ADR-121, ni ADR-131.
 - Il ne crée aucun agent, aucun identifiant, aucune gate, aucun check requis, et ne renseigne pas
   `accountable_owner`.
@@ -329,8 +349,14 @@ séparations déjà posées pour les diffs (ADR-120, ADR-121).
 ### Négatives
 
 - R1 ajoute une relecture par Codex à chaque contenu publié.
-- R2 laisse ouverte l'indication d'un contenu généré par IA (Q1 à Q3).
-- La mention « Experts Automobile » et la phrase d'`EditorialTrust.tsx` restent à examiner (Q3).
+- La phrase d'`EditorialTrust.tsx` (`frontend/app/components/blog/EditorialTrust.tsx:10-11`,
+  « rédigés et validés par des mécaniciens et techniciens automobile certifiés ») contredit R1, qui
+  confie la rédaction à un chat Claude et la relecture à Codex. Elle est à corriger par un lot
+  distinct du monorepo, sans attendre l'avis de Q3. Cet ADR le signale et ne la corrige pas.
+- Aucune vidéo Fafa avec la nouvelle signature n'est publiée sans l'avis juridique de Q3 ni sans
+  l'ADR addendum Fafa (Q1).
+- Tant qu'aucune gate ne calcule `identity_disclosed`, sa vérification repose sur la revue de
+  publication du département 08 (Q2).
 
 ## Mise en œuvre (après ratification et fusion, par l'owner)
 
@@ -338,14 +364,18 @@ séparations déjà posées pour les diffs (ADR-120, ADR-121).
    s'aligne par une PR du monorepo.
 2. R1 s'applique aux contenus produits après l'entrée en vigueur ; les mandats nomment les rôles
    selon ADR-121 D8.
-3. Le changement du canon Fafa suit la réponse à Q1.
+3. Le changement du canon Fafa passe par l'ADR addendum Fafa (Q1), appliqué avant la première
+   publication d'une vidéo Fafa, et après l'avis juridique de Q3 pour toute vidéo qui porte la
+   nouvelle signature.
+4. La phrase d'`EditorialTrust.tsx` est corrigée par un lot distinct du monorepo (Q3).
 
 ## Revue planifiée
 
 **Date** : 2027-02-15.
 
 **Critères** : un contenu publié dont l'auteur a aussi été le relecteur ou l'intégrateur ; une
-signature qui nomme un LLM ou un outil d'IA ; le sort de Q1 à Q3.
+signature qui nomme un LLM ou un outil d'IA ; l'application des décisions Q1 à Q3 (ADR addendum
+Fafa, avis juridique, correction d'`EditorialTrust.tsx`).
 
 ## Références
 
@@ -357,7 +387,7 @@ signature qui nomme un LLM ou un outil d'IA ; le sort de Q1 à Q3.
   [[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] ·
   [[ADR-128-departements-autonomes-coordonnes-file-github|ADR-128]] · [[MOC-Decisions]]
 - ADR-131 : PR #413 du vault, brouillon.
-- Monorepo : fichiers de §Inventaire et §Instruction ; `audit/automecanik-departments-map.md` ;
+- Monorepo : fichiers de §Inventaire et §Renvoi ; `audit/automecanik-departments-map.md` ;
   `.spec/00-canon/ai-registry/agent-operating-map.yaml`.
 
 ---
