@@ -108,7 +108,8 @@ L'approbation est déposée par une **session de revue distincte de la session a
    le diff `base...tête` dans un arbre extrait à cette tête, hors du worktree de l'auteur ; vérifie que
    les contrôles requis sont verts sur cette tête (`gh pr checks`) ; vérifie chaque fichier contre la
    liste fermée de D3 ; lit chaque test modifié pour y chercher un test neutralisé sans motif interdit
-   (corps vidé, `return` en tête, condition toujours fausse), que la porte ne détecte pas (Limites).
+   que la porte ne détecte pas (assertion retirée ou affaiblie, sortie anticipée sous condition, test
+   déclaré par un alias ; Limites).
 3. **Trace** : le corps de l'approbation donne la tête, la base, la procédure, le modèle et sa
    famille, l'identifiant de session, les constats et leur issue. L'enregistrement DoD2 du corps de
    la PR (`- [x] Revue niveau B — tête …, base …` puis `procédure : revue indépendante, par …`) reste
@@ -166,7 +167,7 @@ le code est celui qu'écrit la porte.
 | Chemin hors liste fermée | `LEVEL_B_PATH_REFUSED` | pas de fusion |
 | Fichier non test sous `tests/unit/` | `LEVEL_B_NOT_TEST_FILE` | pas de fusion |
 | Chemin de test qui nomme une zone STOP | `LEVEL_B_STOP_ZONE` | pas de fusion |
-| Fichier de test supprimé, renommé ou copié, déclaration de test retirée ou mise en commentaire, fichier de test non analysable | `TEST_REMOVED` | pas de fusion |
+| Fichier de test supprimé, renommé ou copié ; déclaration de test retirée, mise en commentaire, placée sous condition ou dans un nouvel appel englobant ; test de la base vidé, sans appel ou ouvert par un `return` sans appel ; nom `it`, `test` ou `describe` redéfini ; fichier de test non analysable | `TEST_REMOVED` | pas de fusion |
 | `.skip(` ou `.only(` ajouté, ou modificateur `skip`, `only`, `todo`, `skipIf`, `runIf` ajouté sous toute écriture | `LEVEL_B_DIFF_PATTERN` | pas de fusion |
 | Patch d'un test absent (binaire, trop gros), ou fichier illisible à la base de fusion ou à la tête | `PATCH_UNAVAILABLE` | pas de fusion |
 
@@ -175,8 +176,17 @@ Les déclarations de test sont lues par l'analyseur TypeScript (dépendance `typ
 l'API contents de GitHub. Commentaires et chaînes, même sur plusieurs lignes, ne peuvent donc ni cacher
 ni simuler un test. Chaque appel dont la chaîne d'appel nomme `it`, `test` ou `describe` (`it(`,
 `suite.test(`, `test.each(t)(` compris) présent à la base se retrouve à la tête avec le même appel et
-le même premier argument, modificateurs mis à part ; un titre changé compte comme un retrait, et un
-test retiré ne se compense pas par un autre ajouté.
+le même premier argument et la même position syntaxique, modificateurs mis à part. La position va
+du fichier à l'appel : chaque appel de test englobant y figure par son appel et son titre, chaque autre
+nœud par sa nature. Un titre changé, un test placé sous un `if`, un `&&`, un `?:` ou une boucle, ou
+dans un nouvel appel englobant (`describe`, `registry.test`, `describe.each([])`) compte comme un
+retrait, et un test retiré ne se compense pas par un autre ajouté. Un test de la base est refusé si,
+à la tête, il n'a plus de rappel littéral, si son rappel ne contient aucun appel (`() => undefined`,
+`() => void 0`, corps vide) ou s'il s'ouvre par un `return` sans appel (`return;`,
+`return undefined;`). Un nom `it`, `test` ou `describe` lié ou réassigné à la tête (déclaration,
+paramètre, import hors de `vitest`, `@jest/globals` et `node:test`, affectation directe ou sur un objet
+global) est refusé : un `describe` redéfini en fonction vide ferait disparaître ses tests sans changer
+leur clé.
 
 ### D6 — Politique
 
@@ -299,9 +309,13 @@ d'ADR-124 D8 s'appliquent au niveau B.
   déclaré par un alias (`const t = test; t("…")`) n'est pas reconnu comme tel, et son retrait échappe
   à `TEST_REMOVED` ; la session de revue le cherche (D2.2). À l'inverse, tout appel nommé `test`
   (`re.test(s)` compris) est compté : son retrait est refusé, le doute valant refus.
-- **Tests neutralisés sans modificateur.** Un corps vidé, un `return` en tête, une assertion
-  affaiblie ou une condition toujours fausse ne sont pas détectés. La session de revue doit les
-  chercher (D2.2).
+- **Tests affaiblis dans leur corps.** La porte refuse un test placé sous condition ou enveloppé,
+  sans appel ou ouvert par un `return` sans appel, pas une assertion retirée ou affaiblie, ni une
+  sortie anticipée après une première instruction (`if (x) return;`), ni un rappel dont les appels ne
+  s'exécutent pas (`() => { const f = () => check(); }`). La session de revue doit les chercher (D2.2).
+- **Déplacer un test dans un `describe` est refusé.** La position inclut les appels englobants : un
+  regroupement de tests existants sous un nouveau `describe`, ou le renommage d'un `describe`, compte
+  comme un retrait. Ce faux refus est voulu ; la PR passe par la revue humaine.
 - **Tableau `.each` modifié.** Le premier argument d'un appel non littéral (tableau de `test.each`)
   est comparé tel quel : ajouter une ligne au tableau compte comme un retrait et est refusé.
 - **Zones STOP par fragments de nom.** `stop_zone_fragments` reconnaît une zone STOP au nom du
