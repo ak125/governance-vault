@@ -524,7 +524,29 @@ tour 0 de la boucle est mesuré : aucune capture n'est ajoutée (D10).
   sur ces cas, le verdict ne distingue plus l'affirmation exacte et bornée de l'affirmation à
   corriger : la différence ne se lit que dans la limite.
 - Chaque affirmation non confirmée a sa question de reprise, rédigée par le modèle : 12, 8 et 93.
-  Aucune contestation de la 0.3.0 n'a tourné.
+
+La qualification 0.3.0 a ensuite été contestée par `gpt-5.6-sol`, de la famille openai, avec la
+commande et l'isolement de la contestation de la 0.2.0. Chaque artefact désigne la qualification par
+son empreinte et partage sa clé.
+
+| Cas | `agree` | `contest` | `undecidable` | Oubliées | Contestation de la 0.2.0 |
+|---|---|---|---|---|---|
+| Filtre, consignes retirées | 12 | 0 | 0 | 0 | 4 / 0 / 7 / 0 sur 11 |
+| Cinq paires | 4 | 3 : 2 plus strictes, 1 sur la limite | 1 (`retirer`) | 1 | 7 / 1 / 0 / 0 sur 8 |
+| `plaquette-de-frein@88f9f88` | 78 | 15 : 12 plus souples, 2 plus strictes, 1 sur la limite | 0 | 6 | 95 / 11 / 1 / 6 sur 107 |
+
+- Défauts masqués : sur les cinq affirmations relevées plus haut, la contestation en sépare une par
+  son verdict (L155, `retirer`). Elle en nomme deux dans son motif tout en restant `agree` sur
+  `preciser` (« en principe », ECE R90), en voit une en partie (« signal sonore ») et en conteste
+  une vers `conserver`. D'autres `agree` sur `preciser` décrivent une contradiction dans leur motif
+  (le « Oui » sur le témoin d'usure). Le défaut reste masqué dans les verdicts des deux familles.
+- Q5 (body:52) : `agree` sur `preciser`. Le mauvais montage et la pression instable ne sont pas
+  retrouvés.
+- Les 12 contestations plus souples demandent `conserver` pour des affirmations déclassées faute de
+  second domaine : l'invite de contestation 0.3.0 ne rappelle pas la règle de D9. D3 retient le
+  verdict le plus strict ; elles ne lèvent aucun blocage.
+- Aucune affirmation n'est déclarée sur deux domaines : les vérifications de concordance et
+  d'indépendance (`checks`) ne sont pas exercées.
 
 ## Inconnues
 
@@ -537,8 +559,14 @@ tour 0 de la boucle est mesuré : aucune capture n'est ajoutée (D10).
   contestation), pas par un contrôle déterministe.
 - Le nombre de reprises nécessaire à une fiche réelle : aucune reprise n'est encore mesurée.
 - Quand toutes les affirmations finissent en `preciser`, le verdict ne sépare plus une affirmation
-  exacte mais seule d'une affirmation à corriger (Étalonnage candidat, 0.3.0). Rien ne dit encore si
-  la reprise doit commencer par ces dernières, ni si le skill doit garder les deux motifs distincts.
+  exacte mais seule d'une affirmation à corriger (Étalonnage candidat, 0.3.0). La contestation par
+  une autre famille ne le sépare pas davantage : elle voit l'écart dans ses motifs, mais une fois
+  seulement dans son verdict. Rien ne dit encore si la reprise doit commencer par ces affirmations, ni
+  si le skill doit garder les deux motifs distincts.
+- Si l'invite de contestation doit rappeler la règle de D9 : sans elle, le contestataire demande
+  `conserver` pour une affirmation exacte à une seule source.
+- Les vérifications de concordance et d'indépendance par le contestataire : aucun cas de
+  l'étalonnage ne déclare deux domaines, elles n'ont pas encore tourné.
 - La part retrouvée sur le jeu de D6 au-delà de l'étalonnage candidat du 2026-11-15, et la variance
   d'une exécution à l'autre (un seul modèle de qualification, une exécution par révision).
 - Le coût réel par fiche en profondeur `complete` sur une fiche longue.
