@@ -1,8 +1,9 @@
 ---
 id: ADR-130
 title: "Amendement d'ADR-128 : constats corrigés (runner hetzner-prod sur l'hôte PROD), pilote-file déterministe avant toute session agent, sécurité des runners auto-hébergés d'un dépôt public"
-status: proposed
+status: accepted
 date: "2026-11-15"
+decision_date: "2026-11-15"
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
@@ -12,18 +13,23 @@ related_adr: ["ADR-012", "ADR-034", "ADR-121", "ADR-124", "ADR-128", "ADR-129"]
 related_rules: ["AI1", "AI2", "AI9", "G1", "G4"]
 related_incidents: []
 reviewed_by: ""
-version: "0.1.0"
+version: "1.0.0"
 ---
 
 # ADR-130 : amendement d'ADR-128 (runner PROD, pilote déterministe, sécurité des runners)
 
-- **Statut** : Proposed (2026-11-15). Rédigé par un agent (Claude Code CLI, machine DEV) sur mandat de
-  l'owner (« Mandat O »). La ratification est un acte de l'owner, décideur humain : Marwane
-  ([[rules-vault|G1]] ; [[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D4 et D7).
+- **Statut** : Accepted (2026-11-15). Décision de l'owner, décideur humain : Marwane : instruction
+  explicite « Je ratifie ADR-130 tel quel » donnée en session le 2026-11-15, sur le texte proposé de la
+  PR #412 (tête `47b0ce8e587b877a55c2fa80ae8e4469f2f151dd`). Rédigé par un agent (Claude Code CLI,
+  machine DEV) le 2026-11-15 sur mandat de l'owner (« Mandat O ») ; le commit de ratification est
+  préparé par un agent sur cette instruction : son auteur et sa clé de signature sont techniques. Canon
+  applicable à la fusion par l'owner de la tête qui porte cette ratification, sous les contrôles requis
+  ([[rules-vault|G1]] ; [[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D4 et D7) ;
+  avant cette fusion, ce statut décrit le candidat ratifié et ne modifie pas le canon de `main`.
 - **Amende** [[ADR-128-departements-autonomes-coordonnes-file-github|ADR-128]] sur trois points et
   rien d'autre : le tableau des constats (D1), l'activation du pilote à l'étape 1 (D2), les règles de
   sécurité des runners auto-hébergés (D3). Le reste d'ADR-128 est inchangé. Le commit de ratification
-  posera `amended_by: ["ADR-130"]` sur ADR-128 ; la PR de proposition ne touche pas ADR-128.
+  pose `amended_by: ["ADR-130"]` sur ADR-128 et ne modifie pas son texte.
 - **N'active rien et ne règle rien.** Aucun runner, workflow, label, secret, variable ni réglage
   GitHub n'est créé ou modifié par cet ADR. La PROD et le runner `hetzner-prod` ne sont pas touchés.
 
@@ -238,7 +244,7 @@ Ces règles valent pour `hetzner-prod` et pour le futur runner agents du DEV.
 - Il n'active rien et ne modifie aucun réglage GitHub (politique d'approbation, permissions de
   l'application, runners, labels, secrets, variables).
 - Il ne touche ni la PR #2071, ni le runner `hetzner-prod`, ni la PROD, ni le monorepo.
-- Il ne modifie pas le texte d'ADR-128 : le commit de ratification posera `amended_by`.
+- Il ne modifie pas le texte d'ADR-128 : le commit de ratification pose seulement `amended_by`.
 
 ## Inconnues
 
@@ -269,4 +275,5 @@ amendements.
 ---
 
 *Proposé le : 2026-11-15*
+*Accepté le : 2026-11-15 (ratification ; effet à la fusion par l'owner)*
 *Dernière revue : 2026-11-15*
