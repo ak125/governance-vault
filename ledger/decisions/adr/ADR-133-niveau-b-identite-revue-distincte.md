@@ -167,15 +167,17 @@ le code est celui qu'écrit la porte.
 | Chemin hors liste fermée | `LEVEL_B_PATH_REFUSED` | pas de fusion |
 | Fichier non test sous `tests/unit/` | `LEVEL_B_NOT_TEST_FILE` | pas de fusion |
 | Chemin de test qui nomme une zone STOP | `LEVEL_B_STOP_ZONE` | pas de fusion |
-| Fichier de test supprimé, renommé ou copié ; déclaration de test retirée, mise en commentaire, placée sous condition ou dans un nouvel appel englobant ; test de la base vidé, sans appel, ouvert par un `return` sans appel, avec du code inatteignable, un `return` avant sa dernière instruction ou une condition faite de littéraux ; nom `it`, `test` ou `describe` redéfini ; objet global utilisé autrement qu'en lecture ordinaire ; code dynamique ; fichier de test non analysable | `TEST_REMOVED` | pas de fusion |
+| Fichier de test supprimé, renommé ou copié ; déclaration de test retirée, mise en commentaire, placée sous condition ou dans un nouvel appel englobant ; test de la base vidé, sans appel, ouvert par un `return` sans appel, avec du code inatteignable, un `return` avant sa dernière instruction ou une condition faite de littéraux ; appel de test sur un récepteur autre que `it`, `test` ou `describe` (`suite.test(`) ; nom `it`, `test` ou `describe` redéfini ; objet global utilisé autrement qu'en lecture ordinaire ; code dynamique ; fichier de test non analysable | `TEST_REMOVED` | pas de fusion |
 | `.skip(` ou `.only(` ajouté, ou modificateur `skip`, `only`, `todo`, `skipIf`, `runIf` ajouté sous toute écriture | `LEVEL_B_DIFF_PATTERN` | pas de fusion |
 | Patch d'un test absent (binaire, trop gros), ou fichier illisible à la base de fusion ou à la tête | `PATCH_UNAVAILABLE` | pas de fusion |
 
 Les déclarations de test sont lues par l'analyseur TypeScript (dépendance `typescript` déjà présente
 à la racine du monorepo) sur le fichier entier, à la base de fusion et à la tête, tous deux lus par
 l'API contents de GitHub. Commentaires et chaînes, même sur plusieurs lignes, ne peuvent donc ni cacher
-ni simuler un test. Chaque appel dont la chaîne d'appel nomme `it`, `test` ou `describe` (`it(`,
-`suite.test(`, `test.each(t)(` compris) présent à la base se retrouve à la tête avec le même appel et
+ni simuler un test. Est une déclaration de test tout appel dont la chaîne d'appel part de `it`, `test`
+ou `describe` (`it(`, `test.each(t)(`), et tout appel qui nomme l'un d'eux plus loin et reçoit un
+rappel littéral (`suite.test("x", () => …)`) ; `/a/.test(v)` ou `motif.test(v)`, sans rappel, n'en est
+pas un. Chaque déclaration présente à la base se retrouve à la tête avec le même appel et
 le même premier argument et la même position syntaxique, modificateurs mis à part. La position va
 du fichier à l'appel : chaque appel de test englobant y figure par son appel et son titre, chaque autre
 nœud par sa nature. Un titre changé, un test placé sous un `if`, un `&&`, un `?:` ou une boucle, ou
@@ -184,14 +186,17 @@ retrait, et un test retiré ne se compense pas par un autre ajouté.
 
 Un test de la base est refusé (neutralisé) si, à la tête :
 
-- il n'a plus de rappel littéral, ou son rappel ne contient aucun appel (`() => undefined`,
-  `() => void 0`, corps vide), ou il s'ouvre par un `return` sans appel ;
+- il n'a plus de rappel littéral, ou son rappel ne contient aucun appel hors fonctions imbriquées
+  (`() => undefined`, `() => void 0`, corps vide, `() => { const f = () => check(); }`), ou il
+  s'ouvre par un `return` sans appel ;
 - son rappel contient du code inatteignable selon l'analyse de flot de TypeScript (diagnostic 7027 :
   instruction après un `return`, un `throw`, un `break` ou un `continue` à toute profondeur, branche
   `if (false)`) ;
 - hors fonctions imbriquées, il contient un `return` autre que sa dernière instruction
   (`if (x) return;`, `{ return; }`) ou une condition faite de littéraux seulement (`if`, `?:`,
-  boucles, `&&`, `||`, `??` : `false && check()`, `if (false as const)`).
+  `while`, `for`, `&&`, `||`, `??` : `false && check()`, `if (false as const)`). `while (true)`,
+  `for (;;)` et `do … while` sont des boucles ordinaires : le code qui suit une boucle sans sortie est
+  relevé inatteignable par l'analyse de flot.
 
 Toute référence nouvelle qui peut faire disparaître des tests sans changer leur clé est refusée. Elle
 est comparée entre base et tête par son nom, la nature et la propriété du parent qui la porte
@@ -210,6 +215,10 @@ par nom seul. Sont des références :
 - le code dynamique et les détours vers l'objet global : `eval`, `Function` (sauf comme type attendu,
   `expect.any(Function)`), `.constructor`, le module `vm`, `this` d'une fonction dans un script non
   strict.
+
+Un appel de test sur un autre récepteur (`suite.test(…)`, `this.it(…)`) est refusé à la tête, même
+présent à la base : son récepteur peut être remplacé (import, valeur, mutation) sans changer la clé,
+et la porte ne le suit pas. Aucun des 289 fichiers de tests unitaires de `main` n'en contient.
 
 Un `describe` redéfini en fonction vide ferait disparaître ses tests sans changer leur clé : la règle
 vaut refus par défaut, et les données (`{ test: 1 }`, `dept("test")`, `config.test`) restent admises.
@@ -335,13 +344,15 @@ d'ADR-124 D8 s'appliquent au niveau B.
   la revue a bien lu le diff. La qualité tient à D2.
 - **Déclarations de test reconnues par leur nom d'appel.** L'analyse est syntaxique : un alias de
   test (`const t = test`) est refusé dès son ajout (D5), mais un alias déjà présent à la base n'est
-  pas reconnu comme déclaration. Tout appel nommé `test` (`re.test(s)` compris) est compté : son
-  retrait est refusé, le doute valant refus.
+  pas reconnu comme déclaration. Un appel qualifié sans rappel littéral (`suite.test("x", handler)`)
+  n'est pas une déclaration : à la base, il serait retiré sans refus ; aucun fichier de `main` n'en
+  contient (relevé du 2026-11-15), la session de revue le cherche.
 - **Tests affaiblis dans leur corps.** La porte refuse un test placé sous condition ou enveloppé,
   vidé, rendu inatteignable ou soumis à une condition littérale (D5). Elle ne juge pas le sens de ce
   qui reste atteignable : une assertion retirée, changée ou avalée par un `try`/`catch`, une condition
-  sur une variable qui ne fait que sortir d'une boucle, un rappel dont les appels sont définis mais
-  jamais exécutés (`() => { const f = () => check(); }`). La session de revue doit les chercher (D2.2).
+  sur une variable qui ne fait que sortir d'une boucle, une assertion déplacée dans une fonction jamais
+  appelée alors qu'un autre appel reste (`() => { const f = () => check(); setup(); }`). La session de
+  revue doit les chercher (D2.2).
 - **Objet global hors lecture ordinaire.** Passer un objet global à une fonction nouvelle
   (`render(globalThis as never)`) est refusé même quand c'est légitime : ce faux refus est voulu, la PR
   passe par la revue humaine. Une voie d'accès au global non recensée (autre module natif, API hôte,
