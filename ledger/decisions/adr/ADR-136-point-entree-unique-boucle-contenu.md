@@ -56,9 +56,11 @@ Faits relevés le 2026-11-15 (lecture seule) :
 
 - Le timer `knowledge-jobs` (unités `knowledge-jobs.timer` et `.service` de l'utilisateur
   `deploy`, code sous `~/.local/lib/knowledge-jobs/`) n'est **versionné dans aucun dépôt**. Il
-  enchaîne collecte, validation, tests du décideur et `promote.py --apply`. Le run du jour : 0
-  fiche éligible, 13 bloquées.
-- `pilote-file.yml` est sur `main` du monorepo et tourne en mode déterministe (ADR-130 D2).
+  enchaîne collecte, validation, tests du décideur et `promote.py --apply`. Run du 2026-11-15 07:00Z
+  (`wiki-apply.stdout.json`) : 13 fiches évaluées, 0 promue.
+- `pilote-file.yml` est sur `main` du monorepo (#2071). Son étape de session (`claude -p`) est
+  présente mais suspendue : run du 2026-11-15 15:06Z, « session suspendue : producteur du KPI
+  useful_capabilities_not_complexity absent ». Il tourne donc en mode déterministe (ADR-130 D2).
 - La routine `mandat-remise` (ADR-128 D4, étape 2) est proposée dans la PR monorepo #2082
   (ouverte, non fusionnée).
 - La PR monorepo #1718 (brouillon) rejoue chaque jour la décision de promotion en dry-run
@@ -73,8 +75,9 @@ Faits relevés le 2026-11-15 (lecture seule) :
 
 - Toute exécution de la boucle (capture → proposition → qualification) part d'une issue de la file
   ADR-128 D1, label de département `dept:09-wiki` (la boucle produit une fiche WIKI ; le
-  demandeur, 06 ou 07, est cité dans le corps), avec dans son corps : la gamme ou le sujet, le rôle de page visé, le mode (`RUN_TARGETED_RAW_TO_WIKI` ou
-  `RUN_FULL`, skill `seo-content-loop`) et la profondeur ADR-131 D4 attendue.
+  demandeur, 06 ou 07, est cité dans le corps). Le corps donne la gamme ou le sujet, le rôle de
+  page visé, le run `RUN_TARGETED_RAW_TO_WIKI <gamme>` du skill `seo-content-loop` et la
+  profondeur ADR-131 D4 attendue.
 - L'issue est exécutée par `mandat-remise` (ADR-128 D4) après le label `mandat-prêt` posé par
   l'owner. La session tourne dans un worktree isolé et rend sa preuve AEC dans l'issue.
 - Une session ouverte à la main reste possible pour un mandat de l'owner ; elle cite alors son
@@ -174,7 +177,8 @@ d'ADR-131 a besoin d'une borne : le mandat la fournit.
 ### Positives
 
 - Une demande de contenu = une issue, avec son état et sa preuve.
-- Plus aucun lancement implicite (cron, session sans issue) ne produit de contenu.
+- Un lancement implicite (cron, session sans issue) n'est plus une entrée admise pour produire
+  du contenu.
 - Le code qui promeut chaque jour devient relisible et testé en CI.
 
 ### Négatives
