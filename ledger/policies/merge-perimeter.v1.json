@@ -80,5 +80,31 @@
     "mechanism": "scripts/ci/merge-perimeter-gate.mjs : gh pr merge --squash --match-head-commit sur la tête de l'enregistrement de revue",
     "account": "automecanik-agents[bot]",
     "armed_by": "la session Claude CLI titulaire du mandat de la tâche, après l'enregistrement de revue de la tête"
+  },
+  "level_b": {
+    "status": "inactive",
+    "source_adr": "ADR-133",
+    "class": "classe « faible risque » d'ADR-128 D5, telle qu'écrite",
+    "note": "inactive tant que l'identité de revue n'existe pas et que la recette d'ADR-133 D8 n'est pas consignée ; seule cette clé passe à active, par un commit signé d'une PR fusionnée par l'owner (ADR-124 D8)",
+    "review_identities": ["automecanik-reviewer[bot]"],
+    "allowed_paths": ["**/*.md", "audit/**/*.md", "backend/tests/unit/**", "frontend/tests/unit/**"],
+    "test_paths": ["backend/tests/unit/**", "frontend/tests/unit/**"],
+    "test_file_globs": ["**/*.test.{ts,tsx,js,jsx,mjs,cjs}", "**/*.spec.{ts,tsx,js,jsx,mjs,cjs}"],
+    "allowed_test_file_statuses": ["added", "modified"],
+    "deny_paths": [".github/**", ".spec/00-canon/**", "packages/seo-role-contracts/**"],
+    "stop_zone_fragments": [
+      "payment", "paiement", "paybox", "systempay", "cyberplus",
+      "price", "prix", "stock", "inventory",
+      "cart", "panier", "checkout", "order", "commande", "invoice",
+      "rls", "migration", "supabase",
+      "seo", "canonical", "noindex", "sitemap", "robots", "redirect", "catch-all", "410", "meta", "h1",
+      "deploy", "release", "production"
+    ],
+    "deny_added_line_patterns": ["\\.skip\\(", "\\.only\\("],
+    "evaluation": {
+      "condition": "enregistrement DoD2 de niveau B sur la tête (procédure « revue indépendante, par … »), puis approbation GitHub (state APPROVED, commit_id égal à la tête) d'une identité de review_identities, distincte de l'auteur ; dernière revue décisive par identité (APPROVED, CHANGES_REQUESTED, DISMISSED)",
+      "files": "evaluateFiles s'applique d'abord ; ensuite chaque chemin, ancien et nouveau : deny_paths de level_b et de la politique, projections générées, puis allowed_paths ; sous test_paths : test_file_globs, stop_zone_fragments sans casse, statut added ou modified, pas de renommage, chaque déclaration it(, test( ou describe( retirée réapparaît avec le même appel et le même titre (hors .skip et .only ; un titre changé compte comme un retrait), deny_added_line_patterns sur les lignes ajoutées",
+      "refusals": "LEVEL_B_NOT_ACTIVE, APPROVAL_MISSING, APPROVAL_OTHER_HEAD, APPROVAL_BY_AUTHOR, APPROVAL_UNLISTED_IDENTITY, APPROVAL_WITHDRAWN, LEVEL_B_DENY_PATH, LEVEL_B_PATH_REFUSED, LEVEL_B_NOT_TEST_FILE, LEVEL_B_STOP_ZONE, TEST_REMOVED, LEVEL_B_DIFF_PATTERN, PATCH_UNAVAILABLE"
+    }
   }
 }
