@@ -97,8 +97,8 @@ mais en déplace la garantie.
    runner. Ces droits (compte, accès Docker, secrets lisibles sur l'hôte) ne sont pas vérifiés par
    cet ADR.
 2. **La PREPROD et ses tests tournent sur l'hôte PROD.** Le job `deploy` de `ci.yml` (« Deploy
-   PREPROD »), puis `e2e-smoke` et `lighthouse`, s'exécutent sur `hetzner-prod` à chaque push sur
-   `main`. La PREPROD n'est pas une machine distincte de PROD.
+   PREPROD »), puis `e2e-smoke` et `lighthouse`, s'exécutent sur `hetzner-prod` après chaque push sur
+   `main` dont les jobs requis passent. La PREPROD n'est pas une machine distincte de PROD.
 3. **La séparation repose sur le droit d'écriture au monorepo, pas sur la revue.** Un événement de
    PR ou de push de branche exécute la version du workflow présente dans la branche. Toute identité
    qui peut pousser une branche contenant un workflow modifié peut donc faire exécuter du code sur
@@ -161,8 +161,12 @@ Ces règles valent pour `hetzner-prod` et pour le futur runner agents du DEV.
    `automecanik-agents[bot]` (permission « Workflows »), ni un jeton personnel (portée `workflow` ou
    permission « Workflows »), ni le `GITHUB_TOKEN`, qui ne peut pas recevoir ce droit. Un agent peut
    proposer un changement de workflow dans une issue ou un fichier hors `.github/workflows/` ; l'owner
-   le porte. L'état actuel de ces permissions n'est pas vérifié par cet ADR : l'owner le constate en
-   lecture (critère de l'étape 1) et en retire l'excès s'il existe (acte de l'owner, hors de cet ADR).
+   le porte, comme l'a fait la PR #2071, qui livre son workflow sous `scripts/ops/` et non sous
+   `.github/workflows/`. Indice relevé par l'agent : sur `origin/main` du monorepo, 12 des 24 commits
+   qui touchent `.github/workflows/` depuis le 2026-10-15 ont pour auteur `automecanik-agents[bot]`
+   (dont #2010 et #2046 sur le déploiement PROD) ; l'application détient donc très probablement
+   aujourd'hui la permission « Workflows ». L'owner la constate en lecture (critère de l'étape 1) et
+   la retire (acte de l'owner, hors de cet ADR).
 5. **Runner agents du DEV.** Il est enregistré avec `--no-default-labels --labels agents` : il ne porte
    ni `self-hosted`, ni `Linux`, ni `X64`, et ne prend donc aucun job des cinq workflows destinés à
    `hetzner-prod` (déploiements PREPROD et PROD compris). Il ne sert que des workflows déclenchés par
@@ -170,7 +174,7 @@ Ces règles valent pour `hetzner-prod` et pour le futur runner agents du DEV.
    un événement de PR. Son compte système ne détient aucune clé ni aucun secret qui donne accès à
    l'hôte PROD.
 6. **`hetzner-prod`.** Il reste réservé à la CI de `main`, aux déploiements et aux tests de PROD
-   (les cinq workflows). Aucune routine d'agent ne le cible. Le risque résiduel est acté : toute
+   (les cinq workflows). Aucune routine d'agent ne le cible. Le risque résiduel est écrit : toute
    identité qui peut modifier un workflow peut exécuter du code sur l'hôte PROD (D3.3) ; D3.4 limite
    ces identités à l'owner. Une évolution de ce runner (label `production` exigé par les jobs,
    déploiement depuis un runner hébergé par GitHub, etc.) relève d'un mandat et d'un ADR distincts.
@@ -197,10 +201,15 @@ Ces règles valent pour `hetzner-prod` et pour le futur runner agents du DEV.
 ### Pour D3
 
 - **Garde `if:` seule (écartée)** : elle est contenue dans le fichier que la PR peut modifier.
-- **Groupe de runners restreint (impossible)** : réservé aux organisations ; `ak125` est un compte
+- **Groupe de runners restreint (indisponible)** : réservé aux organisations ; `ak125` est un compte
   utilisateur.
-- **Règles D3.1 à D3.6 (retenues)** : natives, sans réglage nouveau à l'adoption, et le risque
-  résiduel est écrit.
+- **Garder la permission « Workflows » aux agents (écartée)** : l'application des agents pourrait
+  continuer à modifier les workflows, au prix d'un fait à écrire : toute session agent qui pousse une
+  branche peut exécuter du code sur l'hôte PROD. Cela contredit la séparation d'ADR-129 D1, qui ne
+  laisse aux agents aucun accès à PROD hors du chemin revu.
+- **Règles D3.1 à D3.6 (retenues)** : natives ; la seule modification de réglage qu'elles
+  impliquent (retrait de la permission « Workflows », D3.4) est un acte de l'owner, hors de cet ADR ;
+  le risque résiduel est écrit.
 
 ## Conséquences
 
@@ -214,8 +223,9 @@ Ces règles valent pour `hetzner-prod` et pour le futur runner agents du DEV.
 
 - La détection des doublons attend le producteur du KPI du rôle 23.
 - Le risque résiduel sur `hetzner-prod` demeure tant que le runner reste sur l'hôte PROD (D3.6).
-- D3.4 peut retirer à l'application des agents un droit dont un travail en cours dépend ; un
-  changement de workflow passe alors par l'owner.
+- D3.4 retire aux agents un droit qu'ils utilisent : la moitié des changements de workflows du
+  dernier mois (12 sur 24) venait de l'application des agents. Chaque changement de workflow passe
+  ensuite par un commit de l'owner.
 
 ### Neutres
 
@@ -234,7 +244,7 @@ Ces règles valent pour `hetzner-prod` et pour le futur runner agents du DEV.
 
 - Compte système, accès Docker et secrets lisibles du runner `hetzner-prod` sur l'hôte PROD.
 - Permissions actuelles de l'application `automecanik-agents[bot]` et des jetons d'agents sur
-  `.github/workflows/` (D3.4).
+  `.github/workflows/` : très probablement accordées à l'application (D3.4), non constatées.
 - Cause des exécutions en file du 2026-11-11 hors des fenêtres d'incident GitHub.
 
 ## Retour arrière
