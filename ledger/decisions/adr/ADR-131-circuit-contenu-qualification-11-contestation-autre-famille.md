@@ -1,9 +1,9 @@
 ---
 id: ADR-131
 title: "Circuit du contenu : qualification technique de la fiche WIKI par le 11 avant la promotion, contestation par une autre famille de modèles, profondeur selon le risque : amende ADR-114 et ADR-119"
-status: proposed
+status: accepted
 date: "2026-11-15"
-decision_date: ""
+decision_date: "2026-11-15"
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
@@ -13,17 +13,22 @@ related_adr: ["ADR-031", "ADR-046", "ADR-093", "ADR-102", "ADR-107", "ADR-111", 
 related_rules: ["G1", "G4"]
 related_incidents: []
 reviewed_by: ""
-version: "0.2.0"
+version: "1.0.0"
 ---
 
 # ADR-131 : qualification du 11 et contestation par une autre famille, avant la promotion WIKI
 
-- **Statut** : Proposed (2026-11-15). Rédigé par un agent (Claude Code CLI, machine DEV) sur mandat
-  de l'owner (« Circuit du contenu : qualification du 11 et contre-relecture Codex »), complété le
-  même jour (« corroboration par un second domaine d'autorité », D9 et D10). La ratification
-  (`accepted`) et la fusion sont des actes réservés à l'owner
-  ([[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4|ADR-102]],
-  [[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]]).
+- **Statut** : Accepted (2026-11-15). Décision de l'owner, décideur humain : Marwane : instruction
+  explicite « Je ratifie ADR-131 » donnée dans le chat de pilotage le 2026-11-15 vers 20:30 UTC, sur le
+  texte proposé de la PR #413 (tête `a2eeb9d1d10120561cfac6a6277d178ef7784958`). Rédigé par un agent
+  (Claude Code CLI, machine DEV) le 2026-11-15 sur mandat de l'owner (« Circuit du contenu :
+  qualification du 11 et contre-relecture Codex »), complété le même jour (« corroboration par un
+  second domaine d'autorité », D9 et D10) ; le commit de ratification est préparé par un agent sur
+  cette instruction : son auteur et sa clé de signature sont techniques. Canon applicable à la fusion
+  par l'owner de la tête qui porte cette ratification, sous les contrôles requis
+  ([[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4|ADR-102]] ; [[rules-vault|G1]] ;
+  [[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D4 et D7) ; avant cette fusion, ce
+  statut décrit le candidat ratifié et ne modifie pas le canon de `main`.
 - **Amende** [[ADR-114-wiki-safety-auto-gate|ADR-114]] (D2, D3) et
   [[ADR-119-wiki-semantic-auto-review-replaces-human-review|ADR-119]] (D2, D3, D4) sans réécrire leur
   texte. Le commit de ratification ajoute `"ADR-131"` à leur `amended_by` (ADR-114 porte déjà
