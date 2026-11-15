@@ -230,6 +230,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-128 | Départements autonomes et coordonnés : file de travail GitHub unique, remise de mandat par issue, bascule par étapes | Accepted | 2026-11-14 | [[ADR-128-departements-autonomes-coordonnes-file-github]] |
 | ADR-129 | Retrait d'AI-COS : machine arrêtée en octobre 2026 et système d'agents retiré ; amende ADR-012 et ADR-034, fixe le sort des règles AI1 à AI10 | Accepted | 2026-11-14 | [[ADR-129-retrait-ai-cos-machine-systeme-agents]] |
 | ADR-130 | Amendement d'ADR-128 : constats corrigés (runner hetzner-prod sur l'hôte PROD), pilote-file déterministe avant toute session agent, sécurité des runners auto-hébergés d'un dépôt public | Accepted | 2026-11-15 | [[ADR-130-amendement-adr-128-runner-prod-pilote-deterministe-securite-runners]] |
+| ADR-135 | Sous-agents Claude Code des sessions de mandat : ce sont des agents IA au sens d'AI1, AI5 et AI6 ; trois sous-agents en lecture seule, rattachés au rôle 23, sans changement de la routine de remise | Proposed | 2026-11-15 | [[ADR-135-sous-agents-claude-code-mandat-regles-agents-ia]] |
 
 <!-- AUTO-GENERATED:moc-decisions-canonical-index end -->
 
