@@ -26,7 +26,8 @@ version: "0.2.0"
   [[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]]).
 - **Amende** [[ADR-114-wiki-safety-auto-gate|ADR-114]] (D2, D3) et
   [[ADR-119-wiki-semantic-auto-review-replaces-human-review|ADR-119]] (D2, D3, D4) sans réécrire leur
-  texte. Le commit de ratification pose `amended_by: ["ADR-131"]` sur les deux.
+  texte. Le commit de ratification ajoute `"ADR-131"` à leur `amended_by` (ADR-114 porte déjà
+  `"ADR-119"`).
 - **N'active rien.** Aucune condition n'est câblée dans `promotion_decision.py`, aucun verrou n'est
   levé, aucune donnée n'est écrite en base, rien n'est activé en PROD. Les candidats (skill, schéma,
   exécuteur) sont dans une PR WIKI en brouillon, non câblés (Mise en œuvre).
@@ -116,8 +117,8 @@ Décisions de Marwane du 15 nov. 2026 (heure de Paris), citées mot pour mot, qu
 
 | Rôle | Qui | Ce qu'il juge | Statut |
 |---|---|---|---|
-| Qualification | le 11, par le skill `qualification-technique` du WIKI | la justesse technique de chaque affirmation : **affirmation, source, portée, limite, verdict** (`conserver`, `preciser`, `reformuler`, `retirer`) | artefact `technical-qualification/v1`, rôle `qualification` |
-| Contestation | Codex, ou tout modèle d'une famille différente de celle du producteur et de celle du 11 | indépendamment : la fiche (auto-review de sens d'ADR-119 D2, passes et réfutateurs répartis entre familles) et la qualification du 11 (position `agree`, `contest` ou `undecidable` par affirmation, et affirmations oubliées) | artefact `semantic-review/v1` ; artefact `technical-qualification/v1`, rôle `contestation` |
+| Qualification | le 11, par le skill `qualification-technique` du WIKI | la justesse technique de chaque affirmation : **affirmation, source, portée, limite, verdict** (`conserver`, `preciser`, `reformuler`, `retirer`) | artefact `technical-qualification` (v1, v2 dès le skill 0.3.0), rôle `qualification` |
+| Contestation | Codex, ou tout modèle d'une famille différente de celle du producteur et de celle du 11 | indépendamment : la fiche (auto-review de sens d'ADR-119 D2, passes et réfutateurs répartis entre familles) et la qualification du 11 (position `agree`, `contest` ou `undecidable` par affirmation, et affirmations oubliées) | artefact `semantic-review/v1` ; artefact `technical-qualification` (v1 ou v2), rôle `contestation` |
 | Relecture de forme | `editorial-review.md` | la langue et la forme | inchangée, sans autorité sur le fond, n'est pas une condition |
 
 - Le nom « 11 » désigne une méthode exécutée et versionnée (le skill), pas une personne ni un nouveau
@@ -178,7 +179,7 @@ Décisions de Marwane du 15 nov. 2026 (heure de Paris), citées mot pour mot, qu
   du 11. Pour l'auto-review de sens d'ADR-119 D2, chaque écart candidat reçoit au moins une passe et
   au moins un réfutateur de cette autre famille ; cette exigence durcit ADR-119 D2.
 - Les modèles et leurs familles sont consignés : `reviewer.model` et `reviewer.provider` dans chaque
-  artefact `technical-qualification/v1`, `producer.provider` avec la base de cette déclaration
+  artefact `technical-qualification` (v1 ou v2), `producer.provider` avec la base de cette déclaration
   (`producer.basis`). Pour `semantic-review/v1`, qui consigne les modèles sans leur famille, la PR qui
   versionne l'exécution déclare la famille de chaque modèle, jusqu'à une révision du schéma.
 - Une famille de producteur inconnue (`unknown`) rend la condition fausse : elle ne se suppose pas.
@@ -457,10 +458,12 @@ recherche s'arrête.
 
 ### Positives
 
-- Chaque affirmation qui atteint une page porte une source, une portée et une limite consignées.
+- Une fois D3 câblé, chaque affirmation qui atteint une page porte une source, une portée et une limite
+  consignées.
 - Les biais d'une famille de modèles sont contestés par une autre.
 - La profondeur suit le risque par une règle déterministe, durcissable sans ADR.
-- Une affirmation `complete` conservée est confirmée par deux classes d'éditeurs, dont l'une prouve ;
+- Une fois D9 câblé, une affirmation `complete` conservée est confirmée par deux classes d'éditeurs,
+  dont l'une prouve ;
   ce qui manque devient une question de reprise ciblée, pas une recherche au hasard.
 
 ### Négatives
