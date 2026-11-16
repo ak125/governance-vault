@@ -1,9 +1,9 @@
 ---
 id: ADR-137
 title: "Skills tiers : surfaces d'emploi, installation versionnée au niveau du dépôt, wrapper local et cycle d'adoption et de retrait (généralise ADR-057)"
-status: proposed
+status: accepted
 date: "2026-11-16"
-decision_date: ""
+decision_date: "2026-11-16"
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
@@ -13,24 +13,32 @@ related_adr: ["ADR-057", "ADR-061", "ADR-101", "ADR-102", "ADR-118", "ADR-121", 
 related_rules: ["AI6", "G1", "G3", "G4", "G5"]
 related_incidents: []
 reviewed_by: ""
-version: "0.1.0"
+version: "1.0.0"
 ---
 
 # ADR-137 : skills tiers, surfaces, installation et cycle d'adoption
 
-- **Statut** : Proposed (2026-11-16). Rédigé par un agent (Claude Code CLI, machine DEV) sur le
-  mandat AL de l'owner (« Vault (département 02) : skills tiers, surfaces d'emploi et cycle
-  d'adoption ; analyse du catalogue skills.sh sans installation »). La ratification (`accepted`),
-  le choix du premier pilote, le sort des skills globaux et la fusion sont réservés à l'owner
-  ([[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4|ADR-102]],
-  [[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]]).
+- **Statut** : Accepted (2026-11-16). Décision de l'owner, décideur humain : Marwane : instruction
+  explicite « ratifie ADR-137 » donnée dans le chat de pilotage (session claude.ai
+  `011BVGEN3a4TYQ7Kbm3Qm7Np`) le 2026-11-16 à 01:04, heure de Paris (00:04 UTC), sur le texte
+  proposé de la PR #421 (tête `48a82ab34393f264dd35cc962432331446f85d56`). Les trois choix inscrits
+  en D2.4 et D6 sont pris par le chat de pilotage sur délégation de Marwane : « utiliser la meilleure
+  approche pas de bricolage », le 2026-11-16 à 01:00, heure de Paris. Rédigé par un agent (Claude
+  Code CLI, machine DEV) le 2026-11-16 sur le mandat AL de l'owner (« Vault (département 02) :
+  skills tiers, surfaces d'emploi et cycle d'adoption ; analyse du catalogue skills.sh sans
+  installation ») et son complément n° 1 ; le commit de ratification est préparé par un agent sur
+  cette instruction : son auteur et sa clé de signature sont techniques. Canon applicable à la
+  fusion par l'owner de la tête qui porte cette ratification, sous les contrôles requis
+  ([[ADR-102-airlock-rpc-gate-bundle-channel-retired-g4|ADR-102]] ; [[rules-vault|G1]] ;
+  [[ADR-121-mandat-revue-decision-fusion-actes-distincts|ADR-121]] D4 et D7) ; avant cette fusion,
+  ce statut décrit le candidat ratifié et ne modifie pas le canon de `main`.
 - **Amende** [[ADR-057-marketingskills-adoption-pattern|ADR-057]] (`deferred`) : seul son
   frontmatter reçoit `amended_by: ["ADR-137"]`, son corps reste inchangé, comme pour ADR-118. Le
-  champ est posé dans la PR de proposition, avant ratification, comme l'a fait la PR #413 ;
-  ADR-121 D7 le place d'ordinaire dans le commit de ratification. Si l'owner préfère cette
-  lecture, la ligne est retirée de la PR et reposée à la ratification.
+  champ, posé dans la PR de proposition comme l'a fait la PR #413, est conservé par la
+  ratification.
 - **N'installe rien.** Aucun skill n'est ajouté, retiré ou modifié par cet ADR, ni dans le
-  monorepo, ni dans le vault, ni au niveau utilisateur (§ « Ce que cet ADR ne fait pas »).
+  monorepo, ni dans le vault, ni au niveau utilisateur (§ « Ce que cet ADR ne fait pas »). Les
+  retraits retenus en D2.4 sont des actes de l'owner, après la fusion.
 
 ## Contexte
 
@@ -72,7 +80,11 @@ Le détail, les commandes et les empreintes sont dans le rapport du mandat AL
     sessions de l'utilisateur, ce qui revient à charger leur description à chaque fois.
 - **claude.ai** (manifeste synchronisé dans `~/.claude/skills/synced/`) : 20 skills, dont 14
   fournis par Anthropic et 6 créés pour le compte. L'un d'eux, `grill-me`, se déclare « repris
-  tel quel » du skill Codex `grill-me` : c'est une copie d'un skill tiers.
+  tel quel » du skill Codex `grill-me`. Son texte est pourtant réécrit : lots de dix questions
+  numérotées, réponse recommandée par question, brief de décision ; l'amont procède par arbre de
+  décisions, branche par branche. Ce n'est donc pas un fork (lecture du chat de pilotage le
+  2026-11-15 vers 23:59 UTC, comparée à `mattpocock/skills@grill-me` ; relue par l'agent contre le
+  `grill-me` global de DEV, dont l'origine est `RobMitt/grill-me-skill`).
 - **CLI `skills`** (paquet npm `skills` 1.8.1 ; source `vercel-labs/skills` lue à
   `b716f9dc2ba36b6aa8f0080615e5a3a6caeac63b`) :
   - le lock projet s'appelle `skills-lock.json`, à la racine du projet (`src/local-lock.ts:12`).
@@ -125,16 +137,22 @@ Sont hors périmètre :
 
    Les plugins officiels déjà activés restent régis par la note de politique plugins. En activer
    un nouveau qui apporte des skills tiers passe par le cycle D5.
-4. **Sort proposé des skills globaux existants.** Ce ne sont que des propositions : cet ADR ne
-   retire rien et la décision revient à l'owner.
+4. **Sort des skills globaux existants.** Le tableau donne la proposition du texte soumis, avec la
+   ligne `grill-me` sur claude.ai corrigée à la ratification. Cet ADR ne retire rien.
 
    | Élément constaté | Proposition |
    |---|---|
    | 4 liens `paperclip*` morts (Claude Code et Codex) | Retrait : ils ne pointent sur rien |
    | `typesafe-ai` (Claude Code et Codex) | Retrait : tiers sans origine, aucune invocation trouvée, description chargée dans chaque session |
    | `grill-me` global (Claude Code) | Retrait du niveau global. S'il sert, deux voies : réadoption au niveau du dépôt par le cycle D5, sans la description modifiée localement ; ou réécriture comme skill AutoMecanik |
-   | `grill-me` sur claude.ai | Réécriture comme texte propre AutoMecanik, ou suppression : la copie actuelle est un fork |
+   | `grill-me` sur claude.ai | Reste en place : texte réécrit, pas un fork. Sa mention « Repris tel quel du skill Codex `grill-me` » est à préciser par Marwane sur son compte |
    | `.trash/` de `~/.claude/skills` (3 skills AutoMecanik) | Laissé à l'owner : hors périmètre des skills tiers |
+
+   **Choix retenus** (chat de pilotage, sur délégation de Marwane : « utiliser la meilleure
+   approche pas de bricolage », 2026-11-16 à 01:00, heure de Paris) :
+   - retrait des 4 liens `paperclip*` morts, de `typesafe-ai` et de `grill-me` au niveau global ;
+   - la suppression est un acte de Marwane, après la fusion de cet ADR ; l'ADR n'exécute rien ;
+   - `grill-me` sur claude.ai reste en place (ligne ci-dessus).
 
 ### D3 — Installation versionnée
 
@@ -216,10 +234,13 @@ Repris d'ADR-057 D2, pour tout skill tiers :
 
 Un seul skill tiers à la fois : le suivant n'entre pas avant la décision T+30 du précédent.
 
-### D6 — Premier pilote proposé
+### D6 — Premier pilote
 
-Pilote proposé : `supabase/agent-skills@supabase-postgres-best-practices`, lu au commit
-`c9be0e931b7930f7d02126d04774d904c381e7d7`. Les raisons :
+Pilote retenu : `supabase/agent-skills@supabase-postgres-best-practices`, lu au commit
+`c9be0e931b7930f7d02126d04774d904c381e7d7`, avec le wrapper
+`amk-supabase-postgres-best-practices` et la contrepartie AI6 ci-dessous. Choix du chat de
+pilotage sur délégation de Marwane (« utiliser la meilleure approche pas de bricolage »,
+2026-11-16 à 01:00, heure de Paris). Les raisons :
 
 - il porte sur le cœur de la pile (Supabase et Postgres) ;
 - il ne contient que des références : aucun script, aucun appel réseau, aucun outil MCP ;
@@ -230,19 +251,19 @@ Son risque tient à sa description, qui le fait charger avant toute écriture Po
 migrations comprises, c'est-à-dire en zone STOP. Le wrapper `amk-supabase-postgres-best-practices`
 le borne (D4) et renvoie à `db-migration`.
 
-Contrepartie AI6 proposée : si le skill est gardé à T+30, les passages génériques de
-`db-migration` qu'il couvre (« Safe Patterns », « RLS Audit Patterns ») sont réduits à un renvoi.
-S'il est retiré, rien ne change.
+Contrepartie AI6 : si le skill est gardé à T+30, les passages génériques de `db-migration` qu'il
+couvre (« Safe Patterns », « RLS Audit Patterns ») sont réduits à un renvoi. S'il est retiré, rien
+ne change.
 
-Alternative : `getsentry/skills@secret-serialization` (Apache-2.0, outils `Read Grep Glob`
-seulement, trois audits « Pass »). Il a deux limites : 487 installations, et une présence sur
-skills.sh depuis le 2026-09-29 seulement. Le choix revient à l'owner.
+`getsentry/skills@secret-serialization` (Apache-2.0, outils `Read Grep Glob` seulement, trois
+audits « Pass ») n'est pas une alternative pour ce premier cycle : 487 installations, et une
+présence sur skills.sh depuis le 2026-09-29 seulement. Il reste un candidat « plus tard ».
 
 ### D7 — Nom du lock
 
 Le fichier de lock s'appelle `skills-lock.json`, à la racine du projet. La mention
 `.agents/skills.lock.json` d'ADR-057 (D1 et § « Négatives / coûts ») est erronée. Le corps d'ADR-057 reste
-inchangé : cet ADR fait foi sur ce point une fois ratifié.
+inchangé : cet ADR fait foi sur ce point.
 
 ## Options considérées
 
@@ -278,7 +299,8 @@ inchangé : cet ADR fait foi sur ce point une fois ratifié.
 ## Ce que cet ADR ne fait pas
 
 - Il n'installe, ne retire et ne modifie aucun skill, à aucun niveau.
-- Il ne retire pas les skills globaux : D2.4 est une proposition.
+- Il ne retire pas les skills globaux : les retraits retenus en D2.4 sont des actes de l'owner,
+  après la fusion.
 - Il ne modifie ni le registre des skills, ni son schéma, ni un workflow, ni un `AGENTS.md`.
 - Il ne corrige pas l'écart constaté avec ADR-061.
 - Il ne rouvre pas ADR-057 pour `marketingskills` : D3 et D4 d'ADR-057 restent du contexte
@@ -330,3 +352,4 @@ Un skill adopté sous cet ADR se retire selon D5.5.
 ---
 
 *Proposé le : 2026-11-16*
+*Accepté le : 2026-11-16*
