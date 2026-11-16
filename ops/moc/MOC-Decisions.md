@@ -124,7 +124,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-012 | AI-COS VPS Architecture & Agent Placement | Accepted | 2026-03-08 | [[ADR-012-aicos-vps-architecture]] |
 | ADR-013 | Cycle de vie des agents : gouvernance création, activation et restructuration | Accepted | 2026-04-04 | [[ADR-013-agent-lifecycle-governance]] |
 | ADR-014 | Suppression de l'endpoint /api/paybox/callback-test | Accepted | 2026-02-03 | [[ADR-014-remove-paybox-callback-test]] |
-| ADR-015 | Governance Vault — Single Source of Truth sur DEV VPS | Accepted | 2026-04-18 | [[ADR-015-vault-single-source-of-truth]] |
+| ADR-015 | Governance Vault — Single Source of Truth sur DEV VPS | Superseded by [[ADR-138-sortie-du-vault-monorepo-source-unique]] | 2026-04-18 | [[ADR-015-vault-single-source-of-truth]] |
 | ADR-016 | Vehicle Page Data — Persistance par matérialisation, pas par tolérance de timeout | Accepted | 2026-04-20 | [[ADR-016-vehicle-page-matview-persistence]] |
 | ADR-017 | Nettoyer les casts TEXT↔INTEGER dans les RPC pieces_* — indexation effective | Accepted | 2026-04-21 | [[ADR-017-rpc-pieces-cast-cleanup]] |
 | ADR-018 | Consolider le schéma dual TEXT/INTEGER sur tables `auto_*` et `pieces_*` | Deferred | 2026-04-21 | [[ADR-018-dual-column-schema-consolidation]] |
@@ -231,6 +231,7 @@ Index des **Architecture Decision Records** (ADR) du projet AutoMecanik.
 | ADR-129 | Retrait d'AI-COS : machine arrêtée en octobre 2026 et système d'agents retiré ; amende ADR-012 et ADR-034, fixe le sort des règles AI1 à AI10 | Accepted | 2026-11-14 | [[ADR-129-retrait-ai-cos-machine-systeme-agents]] |
 | ADR-130 | Amendement d'ADR-128 : constats corrigés (runner hetzner-prod sur l'hôte PROD), pilote-file déterministe avant toute session agent, sécurité des runners auto-hébergés d'un dépôt public | Accepted | 2026-11-15 | [[ADR-130-amendement-adr-128-runner-prod-pilote-deterministe-securite-runners]] |
 | ADR-137 | Skills tiers : surfaces d'emploi, installation versionnée au niveau du dépôt, wrapper local et cycle d'adoption et de retrait (généralise ADR-057) | Accepted | 2026-11-16 | [[ADR-137-skills-tiers-surfaces-installation-cycle-adoption]] |
+| ADR-138 | Sortie du vault : le monorepo devient la seule source de la gouvernance, le vault passe en archive (décisions 72 et 73) ; remplace ADR-015, amende dix-huit ADR et l'AEC (1.3.0) | Accepted | 2026-11-16 | [[ADR-138-sortie-du-vault-monorepo-source-unique]] |
 
 <!-- AUTO-GENERATED:moc-decisions-canonical-index end -->
 

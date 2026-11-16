@@ -5,7 +5,7 @@ status: accepted
 date: 2026-05-08
 decision_makers: [Fafa]
 related: [MOC-Roadmap-2026, MOC-Planning-Live, ADR-034]
-amended_by: ["ADR-104"]
+amended_by: ["ADR-104", "ADR-138"]
 # --- état spécifique Planning Live (NOT a canon ADR field) ---
 planning_live_state: retired  # ADR-104 (2026-10-01) : writer, projections et alertes retirés ; MOC figé au 2026-08-14
 live_since: 2026-05-08

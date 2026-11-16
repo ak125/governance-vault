@@ -7,6 +7,7 @@ decision_date: "2026-11-10"
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
+amended_by: ["ADR-138"]
 amends: ["ADR-031", "ADR-066", "ADR-068", "ADR-083", "ADR-086", "ADR-091", "ADR-092", "ADR-094", "ADR-107", "rules-vault"]
 extends: []
 related_adr: ["ADR-027", "ADR-031", "ADR-066", "ADR-067", "ADR-068", "ADR-076", "ADR-083", "ADR-086", "ADR-090", "ADR-091", "ADR-092", "ADR-094", "ADR-095", "ADR-099", "ADR-101", "ADR-102", "ADR-107", "ADR-112", "ADR-114", "ADR-117", "ADR-119", "ADR-121", "ADR-123"]

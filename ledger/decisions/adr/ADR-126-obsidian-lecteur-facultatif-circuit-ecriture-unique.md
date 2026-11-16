@@ -7,6 +7,7 @@ decision_date: "2026-11-14"
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
+amended_by: ["ADR-138"]
 amends: []
 extends: []
 related_adr: ["ADR-015", "ADR-101", "ADR-102", "ADR-121"]
