@@ -7,6 +7,7 @@ decision_date: "2026-11-08"
 decision_makers: ["@fafa"]
 supersedes: []
 superseded_by: []
+amended_by: ["ADR-138"]
 amends: ["ADR-102", "ADR-120", "ADR-121", "rules-vault", "rules-engineering-definition-of-done", "rules-agent-exit-contract", "rules-technical", "rules-engineering-quality"]
 extends: []
 related_adr: ["ADR-013", "ADR-099", "ADR-101", "ADR-119"]

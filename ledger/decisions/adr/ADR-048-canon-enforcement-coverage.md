@@ -6,6 +6,7 @@ date: 2026-05-07
 decision_makers: [Fafa]
 supersedes: []
 superseded_by: []
+amended_by: ["ADR-138"]
 related_rules: [G1]
 related_incidents: []
 reviewed_by: ""

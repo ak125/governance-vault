@@ -7,6 +7,7 @@ decision_date: "2026-11-10"
 decision_makers: [Fafa]
 supersedes: []
 superseded_by: []
+amended_by: ["ADR-138"]
 amends: [rules-governance-process]
 extends: [ADR-013]
 related_adr: [ADR-013, ADR-058]

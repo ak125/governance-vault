@@ -6,6 +6,7 @@ date: 2026-04-24
 decision_makers: [Fafa]
 supersedes: []
 superseded_by: []
+amended_by: ["ADR-138"]
 related_rules: [G1, G2]
 related_incidents: [INC-2026-002]
 reviewed_by: "Claude Code Opus 4.7"

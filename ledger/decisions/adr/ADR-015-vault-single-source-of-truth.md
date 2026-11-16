@@ -1,11 +1,11 @@
 ---
 id: ADR-015
 title: "Governance Vault — Single Source of Truth sur DEV VPS"
-status: accepted
+status: superseded
 date: 2026-04-18
 decision_makers: [Fafa]
 supersedes: []
-superseded_by: []
+superseded_by: ["ADR-138"]
 amended_by: ["ADR-101", "ADR-129"]
 related_rules: [G1, G2, G3, G4]
 related_incidents: [2026-04-14-paybox-tunnel-sev1-ipn-blocked]
